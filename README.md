@@ -1,2 +1,25 @@
-# ACE
-Uses adversarial self play to engage in causal learning of arbitrary SCMs.
+# ACE: Adversarial Causal Experimentalist
+
+**A Framework for Automated Causal Discovery via DSL-Mediated Self-Play and Direct Preference Optimization (DPO).**
+
+## Overview
+
+**ACE** (Adversarial Self-Alignment for Causal Experimentalism) is a research framework that reformulates causal discovery not as a static curve-fitting problem, but as an interactive, sequential decision-making game.
+
+The goal is to train an AI agent (the **Experimentalist**) to autonomously design experiments that efficiently uncover the hidden mechanisms of a ground-truth system (the **Environment**). By treating the "Learner's" ignorance as an adversary, the agent uses **Direct Preference Optimization (DPO)** to align itself with the objective of maximizing "Scientific Surprise" (Information Gain).
+
+## Key Features
+
+* **Interactive Causal Discovery:** The agent actively queries the environment using interventions ($do(X=x)$), rather than learning from passive observational data.
+* **Episodic Discovery Protocol:** Training is organized into "Episodes" where a fresh Learner attempts to solve the system from scratch, forcing the Agent to learn generalizable strategies rather than memorizing a single solution.
+* **Dual-Policy Architecture:** Supports both custom scratch-trained Transformers and pretrained LLM Adapters (e.g., **Qwen-2.5**) to guide experimentation.
+* **Rigorous DSL:** All interventions are grounded in a Domain Specific Language (DSL) to ensure valid, physically realizable experiments (e.g., `DO X1 = 2.5`).
+* **Teacher Injection:** A bootstrapping mechanism that injects valid "Teacher" commands during early training to overcome the cold-start problem and prevent reward hacking.
+
+## System Architecture
+
+The framework consists of three primary interacting components:
+
+1.  **The Environment ($M^*$):** A ground-truth Structural Causal Model (SCM) that generates data. It supports complex non-linear mechanisms (e.g., Sine waves, quadratic functions) to rigorously test discovery capabilities.
+2.  **The Learner ($M_\theta$):** A learnable SCM parameterized by Neural Networks (MLPs). It attempts to approximate the Environment's mechanisms based on data gathered by the Agent.
+3.  **The Experimentalist ($\pi_\phi$):** The policy (Agent) that observes the Learner's current state (weights, uncertainty) and proposes the next experiment to run.
