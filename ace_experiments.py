@@ -69,9 +69,11 @@ class StudentSCM(CausalModel, nn.Module):
             parents = self.get_parents(node)
             if parents:
                 self.mechanisms[node] = nn.Sequential(
-                    nn.Linear(len(parents), 16),
+                    nn.Linear(len(parents), 64),
                     nn.ReLU(),
-                    nn.Linear(16, 1)
+                    nn.Linear(64, 64),
+                    nn.ReLU(),
+                    nn.Linear(64, 1)
                 )
             else:
                 self.mechanisms[node] = nn.ParameterDict({
@@ -115,24 +117,40 @@ class ExperimentExecutor:
             return self.env.generate(n_samples)
 
 class SCMLearner:
-    def __init__(self, student_scm, lr=0.01):
+    def __init__(self, student_scm, lr=0.01, buffer_steps=50):
         self.student = student_scm
         self.optimizer = optim.Adam(self.student.parameters(), lr=lr)
         self.loss_fn = nn.MSELoss()
+        self.buffer = []
+        self.buffer_steps = buffer_steps
         
     def train_step(self, data, n_epochs=50):
         self.student.train()
+        
+        # Update buffer
+        self.buffer.append(data)
+        if len(self.buffer) > self.buffer_steps:
+            self.buffer.pop(0)
+            
+        # Collate data
+        combined_data = {}
+        # Assumes all data dicts have the same nodes (which they should)
+        nodes = list(data.keys())
+        for node in nodes:
+            tensors = [d[node] for d in self.buffer]
+            combined_data[node] = torch.cat(tensors, dim=0)
+            
         losses = []
         for epoch in range(n_epochs):
             self.optimizer.zero_grad()
             total_loss = 0
             for node in self.student.nodes:
                 parents = self.student.get_parents(node)
-                y_true = data[node]
+                y_true = combined_data[node]
                 if not parents:
                     y_pred = self.student.mechanisms[node]['mu'].expand_as(y_true)
                 else:
-                    p_tensor = torch.stack([data[p] for p in parents], dim=1)
+                    p_tensor = torch.stack([combined_data[p] for p in parents], dim=1)
                     y_pred = self.student.mechanisms[node](p_tensor).squeeze()
                 loss = self.loss_fn(y_pred, y_true)
                 total_loss += loss
@@ -169,6 +187,10 @@ class ExperimentalDSL:
     def encode(self, command_str):
         tokens = command_str.split()
         return torch.tensor([self.token2id.get(t, 0) for t in tokens])
+
+    def decode(self, token_tensor):
+        tokens = [self.id2token.get(t.item(), "") for t in token_tensor]
+        return " ".join([t for t in tokens if t not in ["<PAD>", "<SOS>", "<EOS>"]])
 
 class StateEncoder(nn.Module):
     def __init__(self, n_nodes, device, d_model=128):
@@ -269,7 +291,7 @@ class HuggingFacePolicy(nn.Module):
         outputs = self.model(**inputs)
         return outputs.logits, inputs.input_ids
 
-    def generate_experiment(self, scm_student, max_new_tokens=12):
+    def generate_experiment(self, scm_student, max_new_tokens=32):
         prompt_text = self.scm_to_prompt(scm_student)
         inputs = self.tokenizer(prompt_text, return_tensors="pt").to(self.device)
         with torch.no_grad():
