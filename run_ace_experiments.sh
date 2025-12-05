@@ -40,6 +40,6 @@ nvidia-smi                             # Verify GPU visibility
 echo "--------------------------------------"
 
 # Run your specific script
-python ace_experiments.py --model "Qwen/Qwen2.5-1.5B" --episodes 500 --output "experiment_results"
+python ace_experiments.py --model "Qwen/Qwen2.5-1.5B" --episodes 100 --output "experiment_results"
 
 echo "Job finished at $(date)"

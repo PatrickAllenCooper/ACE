@@ -173,7 +173,8 @@ class ExperimentalDSL:
     def parse_to_dict(self, command_str):
         try:
             clean_cmd = command_str.strip()
-            match = re.search(r"DO\s+(X\d+)\s*=\s*(-?\d+(?:\.\d+)?)", clean_cmd)
+            # Use fullmatch to ensure no trailing garbage (e.g., "2.4444444...")
+            match = re.fullmatch(r"DO\s+(X\d+)\s*=\s*(-?\d+(?:\.\d+)?)", clean_cmd)
             if match:
                 node = match.group(1)
                 value = float(match.group(2))
@@ -295,10 +296,19 @@ class HuggingFacePolicy(nn.Module):
         prompt_text = self.scm_to_prompt(scm_student)
         inputs = self.tokenizer(prompt_text, return_tensors="pt").to(self.device)
         with torch.no_grad():
-            outputs = self.model.generate(**inputs, max_new_tokens=max_new_tokens, pad_token_id=self.tokenizer.eos_token_id, do_sample=True, temperature=0.7)
+            outputs = self.model.generate(
+                **inputs, 
+                max_new_tokens=max_new_tokens, 
+                pad_token_id=self.tokenizer.eos_token_id, 
+                do_sample=True, 
+                temperature=0.7,
+                repetition_penalty=1.2
+            )
         full_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         try:
             cmd_str = full_text.split("Command:")[-1].strip()
+            # Handle potential multiline garbage
+            cmd_str = cmd_str.split('\n')[0].strip()
             if not cmd_str.startswith("DO"): cmd_str = "DO " + cmd_str
             return cmd_str, self.dsl.parse_to_dict(cmd_str)
         except:
