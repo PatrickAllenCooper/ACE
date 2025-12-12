@@ -15,6 +15,7 @@ import logging
 import pandas as pd
 from datetime import datetime
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from collections import Counter, deque
 
 # ----------------------------------------------------------------
 # 1. CORE SCM CLASSES
@@ -117,11 +118,11 @@ class ExperimentExecutor:
             return self.env.generate(n_samples)
 
 class SCMLearner:
-    def __init__(self, student_scm, lr=0.01, buffer_steps=50):
+    def __init__(self, student_scm, lr=0.01, buffer_steps=50, initial_buffer=None):
         self.student = student_scm
         self.optimizer = optim.Adam(self.student.parameters(), lr=lr)
         self.loss_fn = nn.MSELoss()
-        self.buffer = []
+        self.buffer = list(initial_buffer) if initial_buffer is not None else []
         self.buffer_steps = buffer_steps
         
     def train_step(self, data, n_epochs=50):
@@ -323,8 +324,14 @@ class ScientificCritic:
         self.val_data = self.test_oracle.generate(n_samples=500)
         
     def evaluate_model(self, student_scm):
+        total, _ = self.evaluate_model_detailed(student_scm)
+        return total
+
+    def evaluate_model_detailed(self, student_scm):
+        """Returns (total_loss, node_losses) on a fixed validation set."""
         student_scm.eval()
-        total_loss = 0
+        total_loss = 0.0
+        node_losses = {}
         with torch.no_grad():
             for node in student_scm.nodes:
                 y_true = self.val_data[node]
@@ -334,12 +341,16 @@ class ScientificCritic:
                 else:
                     p_tensor = torch.stack([self.val_data[p] for p in parents], dim=1)
                     y_pred = student_scm.mechanisms[node](p_tensor).squeeze()
-                total_loss += F.mse_loss(y_pred, y_true).item()
-        return total_loss
+                loss = F.mse_loss(y_pred, y_true).item()
+                node_losses[node] = loss
+                total_loss += loss
+        return total_loss, node_losses
 
     def calculate_reward(self, loss_before, loss_after):
         delta = loss_before - loss_after
-        return delta * 100.0 
+        reward = delta * 100.0
+        # Clip to keep extremely large deltas from destabilizing updates/metrics.
+        return float(np.clip(reward, -10.0, 4000.0))
 
 def dpo_loss(policy_model, ref_model, scm_state, winner_seq, loser_seq, beta=0.1):
     # Custom Transformer Tensor Loss
@@ -384,8 +395,8 @@ def dpo_loss_llm(policy_model, ref_model, scm_state, win_text, lose_text, beta=0
 # ----------------------------------------------------------------
 def get_random_valid_command(nodes):
     target = random.choice(nodes)
-    val = random.uniform(3.0, 5.0)
-    if random.random() < 0.5: val *= -1
+    # Broad coverage across the allowed range.
+    val = random.uniform(-5.0, 5.0)
     return f"DO {target} = {val:.4f}"
 
 def save_plots(results_dir, loss_history, reward_history, targets, values, nodes):
@@ -477,6 +488,10 @@ def main():
     parser.add_argument("--steps", type=int, default=25, help="Max steps per episode")
     parser.add_argument("--candidates", type=int, default=4, help="Candidates per step")
     parser.add_argument("--lr", type=float, default=1e-5, help="Learning Rate")
+    parser.add_argument("--learner_lr", type=float, default=1e-2, help="Learner (student SCM) learning rate")
+    parser.add_argument("--buffer_steps", type=int, default=50, help="Learner replay buffer length")
+    parser.add_argument("--cov_bonus", type=float, default=25.0, help="Coverage bonus scale (discourages target collapse)")
+    parser.add_argument("--eps_explore", type=float, default=0.10, help="Exploration probability (coverage-seeking)")
     parser.add_argument("--token", type=str, default=None, help="HF Auth Token")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
     args = parser.parse_args()
@@ -523,18 +538,27 @@ def main():
     # 3. Training Loop
     loss_history = []
     reward_history = []
+    score_history = []
+    cov_bonus_history = []
+    target_history = []
+    value_history = []
+    episode_history = []
+    step_history = []
     
     logging.info(f"--- Starting Discovery Loop ({args.episodes} Episodes) ---")
 
+    recent_action_counts = deque(maxlen=500)
+
     for episode in range(args.episodes):
         current_student = StudentSCM(M_star)
-        learner = SCMLearner(current_student)
+        learner = SCMLearner(current_student, lr=args.learner_lr, buffer_steps=args.buffer_steps)
+        episode_action_counts = Counter()
 
         if episode % 10 == 0:
             logging.info(f"--- Episode {episode+1} Start ---")
 
         for step in range(args.steps):
-            loss_start = critic.evaluate_model(current_student)
+            loss_start, node_losses_start = critic.evaluate_model_detailed(current_student)
             if loss_start < 0.5:
                 if episode % 10 == 0:
                      logging.info(f"  > Solved at Step {step}! Loss: {loss_start:.4f}")
@@ -544,27 +568,55 @@ def main():
             for k in range(args.candidates):
                 cmd_str, plan = policy_net.generate_experiment(current_student)
                 if plan is None:
-                    candidates.append((cmd_str, -10.0, None))
+                    candidates.append((cmd_str, -10.0, 0.0, -10.0, None))
                 else:
                     student_clone = copy.deepcopy(current_student)
-                    clone_learner = SCMLearner(student_clone)
+                    # Clone learner with the same replay buffer to make candidate scoring realistic.
+                    initial_buffer = [{kk: vv.detach().clone() for kk, vv in d.items()} for d in learner.buffer]
+                    clone_learner = SCMLearner(
+                        student_clone,
+                        lr=args.learner_lr,
+                        buffer_steps=args.buffer_steps,
+                        initial_buffer=initial_buffer,
+                    )
                     data_t = executor.run_experiment(plan)
                     clone_learner.train_step(data_t)
                     loss_end = critic.evaluate_model(student_clone)
                     reward = critic.calculate_reward(loss_start, loss_end)
-                    candidates.append((cmd_str, reward, plan))
+                    tgt = plan.get("target")
+                    node_weight = float(node_losses_start.get(tgt, 0.0))
+                    denom = float(sum(node_losses_start.values())) + 1e-8
+                    norm_weight = node_weight / denom
+                    under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
+                    cov_bonus = args.cov_bonus * norm_weight * under_sample
+                    score = reward + cov_bonus
+                    candidates.append((cmd_str, reward, cov_bonus, score, plan))
 
-            valid_cmds = [c for c, r, p in candidates if r > -9.0]
+            valid_cmds = [c for c, r, cb, s, p in candidates if r > -9.0]
             if not valid_cmds:
                 teacher_cmd = get_random_valid_command(dsl.nodes)
-                candidates.append((teacher_cmd, 0.1, dsl.parse_to_dict(teacher_cmd)))
+                teacher_plan = dsl.parse_to_dict(teacher_cmd)
+                tgt = teacher_plan.get("target") if teacher_plan else None
+                node_weight = float(node_losses_start.get(tgt, 0.0))
+                denom = float(sum(node_losses_start.values())) + 1e-8
+                norm_weight = node_weight / denom
+                under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
+                cov_bonus = args.cov_bonus * norm_weight * under_sample
+                score = 0.1 + cov_bonus
+                candidates.append((teacher_cmd, 0.1, cov_bonus, score, teacher_plan))
 
-            sorted_cands = sorted(candidates, key=lambda x: x[1], reverse=True)
-            winner_cmd, winner_reward, winner_plan = sorted_cands[0]
-            loser_cmd, loser_reward, _ = sorted_cands[-1]
+            # Rank by score (reward + coverage bonus).
+            sorted_cands = sorted(candidates, key=lambda x: x[3], reverse=True)
+            if random.random() < args.eps_explore:
+                explore_pool = [c for c in candidates if c[1] > -9.0]
+                explore_sorted = sorted(explore_pool, key=lambda x: x[2], reverse=True)
+                winner_cmd, winner_reward, winner_cov_bonus, winner_score, winner_plan = explore_sorted[0]
+            else:
+                winner_cmd, winner_reward, winner_cov_bonus, winner_score, winner_plan = sorted_cands[0]
+            loser_cmd, loser_reward, loser_cov_bonus, loser_score, _ = sorted_cands[-1]
 
             # Update
-            if winner_reward > loser_reward:
+            if winner_score > loser_score:
                 optimizer_agent.zero_grad()
                 if use_pretrained:
                     loss = dpo_loss_llm(policy_net, ref_policy, current_student, winner_cmd, loser_cmd)
@@ -581,11 +633,37 @@ def main():
                 optimizer_agent.step()
                 loss_history.append(loss.item())
                 reward_history.append(winner_reward)
+                score_history.append(winner_score)
+                cov_bonus_history.append(winner_cov_bonus)
+                if winner_plan:
+                    target_history.append(winner_plan.get("target"))
+                    value_history.append(winner_plan.get("value"))
+                else:
+                    target_history.append(None)
+                    value_history.append(None)
+                episode_history.append(episode)
+                step_history.append(step)
             
             # Execute
             if winner_plan:
-                if winner_reward > 0.2 or (episode % 10 == 0 and step == 0):
-                    logging.info(f"  Step {step}: '{winner_cmd}' (Gain: {winner_reward:.2f})")
+                tgt = winner_plan.get("target")
+                episode_action_counts[tgt] += 1
+                recent_action_counts.append(tgt)
+
+                # Simple collapse indicator for logs.
+                if len(recent_action_counts) >= 50:
+                    rc = Counter(recent_action_counts)
+                    top_node, top_count = rc.most_common(1)[0]
+                    top_frac = top_count / len(recent_action_counts)
+                else:
+                    top_node, top_frac = None, 0.0
+
+                if winner_score > 0.2 or (episode % 10 == 0 and step == 0):
+                    logging.info(
+                        f"  Step {step}: '{winner_cmd}' (Reward: {winner_reward:.2f}, "
+                        f"Cov: {winner_cov_bonus:.2f}, Score: {winner_score:.2f}, "
+                        f"RecentTop: {top_node}@{top_frac:.0%})"
+                    )
                 real_data = executor.run_experiment(winner_plan)
                 learner.train_step(real_data)
 
@@ -606,7 +684,16 @@ def main():
     save_plots(run_dir, loss_history, reward_history, eval_targets, eval_values, dsl.nodes)
     
     # Save Metrics
-    df = pd.DataFrame({"dpo_loss": loss_history, "reward": reward_history})
+    df = pd.DataFrame({
+        "dpo_loss": loss_history,
+        "reward": reward_history,
+        "cov_bonus": cov_bonus_history,
+        "score": score_history,
+        "target": target_history,
+        "value": value_history,
+        "episode": episode_history,
+        "step": step_history,
+    })
     df.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
     
     logging.info(f"Experiment Complete. Results saved to {run_dir}")
