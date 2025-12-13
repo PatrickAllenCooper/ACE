@@ -675,11 +675,27 @@ def main():
     # Use the LAST student state for evaluation visualization
     visualize_contrast_save(M_star, current_student, run_dir)
     
-    for _ in range(100):
+    n_eval = 100
+    n_parsed = 0
+    for _ in range(n_eval):
         _, plan = policy_net.generate_experiment(current_student)
         if plan:
-            eval_targets.append(plan['target'])
-            eval_values.append(plan['value'])
+            n_parsed += 1
+            eval_targets.append(plan["target"])
+            eval_values.append(plan["value"])
+
+    # If parsing fails completely (common when the LLM drifts off-DSL), fall back to
+    # the observed executed interventions from training so plots are still informative.
+    if not eval_targets:
+        fallback_targets = [t for t in target_history if t]
+        fallback_values = [v for v, t in zip(value_history, target_history) if t]
+        eval_targets = fallback_targets[-500:]
+        eval_values = fallback_values[-500:]
+        logging.info(
+            f"Final eval produced 0 parsed commands; falling back to last {len(eval_targets)} training interventions for plots."
+        )
+    else:
+        logging.info(f"Final eval parse success: {n_parsed}/{n_eval} ({(n_parsed / max(n_eval, 1)):.0%})")
     
     save_plots(run_dir, loss_history, reward_history, eval_targets, eval_values, dsl.nodes)
     
