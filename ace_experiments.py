@@ -346,6 +346,48 @@ class ScientificCritic:
                 total_loss += loss
         return total_loss, node_losses
 
+    def evaluate_mechanisms_detailed(self, student_scm, n=500):
+        """
+        Evaluates each non-root mechanism on an *interventional-style* validation set where
+        parents are sampled independently over a broad range. This better reflects mechanism
+        fidelity than purely observational rollouts.
+        """
+        student_scm.eval()
+        total_loss = 0.0
+        node_losses = {}
+
+        # Evaluate roots only on mean (Student roots don't model stochasticity).
+        with torch.no_grad():
+            for node in student_scm.nodes:
+                parents = student_scm.get_parents(node)
+                if parents:
+                    continue
+                # Compare predicted mean to empirical mean from oracle validation data.
+                y_true = self.val_data[node]
+                y_pred = student_scm.mechanisms[node]["mu"].expand_as(y_true)
+                loss = F.mse_loss(y_pred, y_true).item()
+                node_losses[node] = loss
+
+        # Evaluate mechanisms with parents using independent parent samples.
+        with torch.no_grad():
+            for node in student_scm.nodes:
+                parents = student_scm.get_parents(node)
+                if not parents:
+                    continue
+                parent_ctx = {p: (torch.rand(n) * 8.0 - 4.0) for p in parents}  # U[-4, 4]
+                y_true = self.test_oracle.mechanisms(parent_ctx, node, n_samples=n)
+                p_tensor = torch.stack([parent_ctx[p] for p in parents], dim=1)
+                y_pred = student_scm.mechanisms[node](p_tensor).squeeze()
+                loss = F.mse_loss(y_pred, y_true).item()
+                node_losses[node] = loss
+
+        # Weight towards child mechanisms (non-roots) by default; roots contribute weakly.
+        for node, loss in node_losses.items():
+            w = 0.2 if not student_scm.get_parents(node) else 1.0
+            total_loss += w * loss
+
+        return total_loss, node_losses
+
     def calculate_reward(self, loss_before, loss_after):
         delta = loss_before - loss_after
         reward = delta * 100.0
@@ -492,6 +534,7 @@ def main():
     parser.add_argument("--buffer_steps", type=int, default=50, help="Learner replay buffer length")
     parser.add_argument("--cov_bonus", type=float, default=25.0, help="Coverage bonus scale (discourages target collapse)")
     parser.add_argument("--eps_explore", type=float, default=0.10, help="Exploration probability (coverage-seeking)")
+    parser.add_argument("--val_bonus", type=float, default=1.5, help="Value novelty bonus scale (discourages repeated values)")
     parser.add_argument("--token", type=str, default=None, help="HF Auth Token")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
     args = parser.parse_args()
@@ -548,6 +591,7 @@ def main():
     logging.info(f"--- Starting Discovery Loop ({args.episodes} Episodes) ---")
 
     recent_action_counts = deque(maxlen=500)
+    recent_values_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
 
     for episode in range(args.episodes):
         current_student = StudentSCM(M_star)
@@ -558,7 +602,8 @@ def main():
             logging.info(f"--- Episode {episode+1} Start ---")
 
         for step in range(args.steps):
-            loss_start, node_losses_start = critic.evaluate_model_detailed(current_student)
+            # Evaluate mechanisms on interventional-style validation for better causal fidelity.
+            loss_start, node_losses_start = critic.evaluate_mechanisms_detailed(current_student)
             if loss_start < 0.5:
                 if episode % 10 == 0:
                      logging.info(f"  > Solved at Step {step}! Loss: {loss_start:.4f}")
@@ -581,7 +626,7 @@ def main():
                     )
                     data_t = executor.run_experiment(plan)
                     clone_learner.train_step(data_t)
-                    loss_end = critic.evaluate_model(student_clone)
+                    loss_end, node_losses_end = critic.evaluate_mechanisms_detailed(student_clone)
                     reward = critic.calculate_reward(loss_start, loss_end)
                     tgt = plan.get("target")
                     node_weight = float(node_losses_start.get(tgt, 0.0))
@@ -589,7 +634,18 @@ def main():
                     norm_weight = node_weight / denom
                     under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
                     cov_bonus = args.cov_bonus * norm_weight * under_sample
-                    score = reward + cov_bonus
+                    # Value novelty: prefer values that expand coverage for the same target.
+                    v = float(plan.get("value", 0.0))
+                    recent_vals = list(recent_values_by_target.get(tgt, []))
+                    if len(recent_vals) >= 10:
+                        mu = float(np.mean(recent_vals))
+                        sd = float(np.std(recent_vals)) + 1e-3
+                        z = abs(v - mu) / sd
+                        val_bonus = args.val_bonus * float(np.clip(z, 0.0, 3.0))
+                    else:
+                        val_bonus = 0.0
+
+                    score = reward + cov_bonus + val_bonus
                     candidates.append((cmd_str, reward, cov_bonus, score, plan))
 
             valid_cmds = [c for c, r, cb, s, p in candidates if r > -9.0]
@@ -647,6 +703,10 @@ def main():
             # Execute
             if winner_plan:
                 tgt = winner_plan.get("target")
+                try:
+                    recent_values_by_target[tgt].append(float(winner_plan.get("value")))
+                except Exception:
+                    pass
                 episode_action_counts[tgt] += 1
                 recent_action_counts.append(tgt)
 
