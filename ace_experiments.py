@@ -485,6 +485,43 @@ def get_random_valid_command(nodes):
     val = random.uniform(-5.0, 5.0)
     return f"DO {target} = {val:.4f}"
 
+def _impact_weight(graph, target, node_losses):
+    """
+    Impact-aware weight for an intervention on `target`.
+
+    Since do-interventions replace the mechanism of the intervened node, intervening on a node
+    does not directly help fit that node's mechanism. Instead, it provides informative parent
+    coverage for *descendants*.
+    """
+    try:
+        desc = nx.descendants(graph, target)
+    except Exception:
+        desc = set()
+    if not desc:
+        return 0.0
+    return float(sum(float(node_losses.get(n, 0.0)) for n in desc))
+
+def get_teacher_command_impact(nodes, graph, node_losses):
+    """
+    Teacher injection that prefers intervening on nodes that can help the most (by descendant loss).
+    Falls back to random if all impacts are zero.
+    """
+    impacts = []
+    for n in nodes:
+        impacts.append(_impact_weight(graph, n, node_losses))
+    total = sum(impacts)
+    if total <= 0:
+        return get_random_valid_command(nodes)
+    # Sample proportional to impact (soft preference, avoids determinism).
+    r = random.random() * total
+    acc = 0.0
+    for n, w in zip(nodes, impacts):
+        acc += w
+        if acc >= r:
+            val = random.uniform(-5.0, 5.0)
+            return f"DO {n} = {val:.4f}"
+    return get_random_valid_command(nodes)
+
 def save_plots(results_dir, loss_history, reward_history, targets, values, nodes):
     # 1. Training Curves
     plt.figure(figsize=(12, 5))
@@ -694,7 +731,8 @@ def main():
                     loss_end, node_losses_end = critic.evaluate_mechanisms_detailed(student_clone)
                     reward = critic.calculate_reward(loss_start, loss_end)
                     tgt = plan.get("target")
-                    node_weight = float(node_losses_start.get(tgt, 0.0))
+                    # Impact-aware weighting: prefer interventions that help high-loss descendants.
+                    node_weight = _impact_weight(M_star.graph, tgt, node_losses_start)
                     denom = float(sum(node_losses_start.values())) + 1e-8
                     norm_weight = node_weight / denom
                     under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
@@ -715,10 +753,10 @@ def main():
 
             valid_cmds = [c for c, r, cb, s, p in candidates if r > -9.0]
             if not valid_cmds:
-                teacher_cmd = get_random_valid_command(dsl.nodes)
+                teacher_cmd = get_teacher_command_impact(dsl.nodes, M_star.graph, node_losses_start)
                 teacher_plan = dsl.parse_to_dict(teacher_cmd)
                 tgt = teacher_plan.get("target") if teacher_plan else None
-                node_weight = float(node_losses_start.get(tgt, 0.0))
+                node_weight = _impact_weight(M_star.graph, tgt, node_losses_start)
                 denom = float(sum(node_losses_start.values())) + 1e-8
                 norm_weight = node_weight / denom
                 under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
