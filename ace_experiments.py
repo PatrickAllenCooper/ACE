@@ -105,17 +105,28 @@ class ExperimentExecutor:
         self.env = ground_truth_scm
         
     def run_experiment(self, intervention_plan):
+        """
+        Runs an experiment and returns a batch dict:
+          - data: dict[node] -> Tensor[n]
+          - intervened: node name that was directly intervened on (or None)
+
+        IMPORTANT: The learner must NOT train a node's structural mechanism on samples
+        where that node was directly intervened on (do-operator breaks the mechanism).
+        """
         if intervention_plan is None:
-            return self.env.generate(n_samples=100)
+            return {"data": self.env.generate(n_samples=100), "intervened": None}
         
         target = intervention_plan.get('target')
         value = intervention_plan.get('value')
         n_samples = intervention_plan.get('samples', 100)
         
         if target:
-            return self.env.generate(n_samples, interventions={target: value})
+            return {
+                "data": self.env.generate(n_samples, interventions={target: value}),
+                "intervened": target,
+            }
         else:
-            return self.env.generate(n_samples)
+            return {"data": self.env.generate(n_samples), "intervened": None}
 
 class SCMLearner:
     def __init__(self, student_scm, lr=0.01, buffer_steps=50, initial_buffer=None):
@@ -124,22 +135,48 @@ class SCMLearner:
         self.loss_fn = nn.MSELoss()
         self.buffer = list(initial_buffer) if initial_buffer is not None else []
         self.buffer_steps = buffer_steps
+
+    def _normalize_batch(self, batch):
+        """
+        Accepts either:
+          - raw data dict[node]->Tensor
+          - {"data": data_dict, "intervened": node|None}
+        """
+        if isinstance(batch, dict) and "data" in batch:
+            return {"data": batch["data"], "intervened": batch.get("intervened")}
+        # Back-compat: treat plain dict as observational batch.
+        if isinstance(batch, dict) and batch and all(isinstance(v, torch.Tensor) for v in batch.values()):
+            return {"data": batch, "intervened": None}
+        raise ValueError("Unsupported batch format for SCMLearner.train_step")
         
     def train_step(self, data, n_epochs=50):
         self.student.train()
-        
+
+        batch = self._normalize_batch(data)
+
         # Update buffer
-        self.buffer.append(data)
+        self.buffer.append(batch)
         if len(self.buffer) > self.buffer_steps:
             self.buffer.pop(0)
             
         # Collate data
         combined_data = {}
+        combined_mask = {}
         # Assumes all data dicts have the same nodes (which they should)
-        nodes = list(data.keys())
+        nodes = list(batch["data"].keys())
         for node in nodes:
-            tensors = [d[node] for d in self.buffer]
+            tensors = [b["data"][node] for b in self.buffer]
             combined_data[node] = torch.cat(tensors, dim=0)
+
+            # Mask out samples where THIS node was directly intervened on.
+            masks = []
+            for b in self.buffer:
+                n = b["data"][node].shape[0]
+                if b.get("intervened") == node:
+                    masks.append(torch.zeros(n, dtype=torch.bool))
+                else:
+                    masks.append(torch.ones(n, dtype=torch.bool))
+            combined_mask[node] = torch.cat(masks, dim=0)
             
         losses = []
         for epoch in range(n_epochs):
@@ -148,12 +185,19 @@ class SCMLearner:
             for node in self.student.nodes:
                 parents = self.student.get_parents(node)
                 y_true = combined_data[node]
+                mask = combined_mask.get(node, None)
+                if mask is not None and mask.sum().item() == 0:
+                    # If we only ever intervened on this node in the replay window, skip it.
+                    continue
                 if not parents:
                     y_pred = self.student.mechanisms[node]['mu'].expand_as(y_true)
                 else:
                     p_tensor = torch.stack([combined_data[p] for p in parents], dim=1)
                     y_pred = self.student.mechanisms[node](p_tensor).squeeze()
-                loss = self.loss_fn(y_pred, y_true)
+                if mask is not None:
+                    loss = self.loss_fn(y_pred[mask], y_true[mask])
+                else:
+                    loss = self.loss_fn(y_pred, y_true)
                 total_loss += loss
             total_loss.backward()
             self.optimizer.step()
@@ -532,6 +576,9 @@ def main():
     parser.add_argument("--lr", type=float, default=1e-5, help="Learning Rate")
     parser.add_argument("--learner_lr", type=float, default=1e-2, help="Learner (student SCM) learning rate")
     parser.add_argument("--buffer_steps", type=int, default=50, help="Learner replay buffer length")
+    parser.add_argument("--patience_steps", type=int, default=6, help="Early stop episode if no loss improvement for this many steps")
+    parser.add_argument("--min_delta", type=float, default=1e-3, help="Minimum loss improvement to reset early stop patience")
+    parser.add_argument("--warmup_steps", type=int, default=3, help="Do not early-stop before this many steps")
     parser.add_argument("--cov_bonus", type=float, default=25.0, help="Coverage bonus scale (discourages target collapse)")
     parser.add_argument("--eps_explore", type=float, default=0.10, help="Exploration probability (coverage-seeking)")
     parser.add_argument("--val_bonus", type=float, default=1.5, help="Value novelty bonus scale (discourages repeated values)")
@@ -597,6 +644,8 @@ def main():
         current_student = StudentSCM(M_star)
         learner = SCMLearner(current_student, lr=args.learner_lr, buffer_steps=args.buffer_steps)
         episode_action_counts = Counter()
+        best_mech_loss = float("inf")
+        no_improve_steps = 0
 
         if episode % 10 == 0:
             logging.info(f"--- Episode {episode+1} Start ---")
@@ -604,6 +653,18 @@ def main():
         for step in range(args.steps):
             # Evaluate mechanisms on interventional-style validation for better causal fidelity.
             loss_start, node_losses_start = critic.evaluate_mechanisms_detailed(current_student)
+            if loss_start < best_mech_loss - args.min_delta:
+                best_mech_loss = loss_start
+                no_improve_steps = 0
+            else:
+                no_improve_steps += 1
+                if step >= args.warmup_steps and no_improve_steps >= args.patience_steps:
+                    if episode % 10 == 0:
+                        logging.info(
+                            f"  > Early-stopping episode at Step {step} (no improvement for {no_improve_steps} steps). "
+                            f"BestLoss: {best_mech_loss:.4f}, CurrentLoss: {loss_start:.4f}"
+                        )
+                    break
             if loss_start < 0.5:
                 if episode % 10 == 0:
                      logging.info(f"  > Solved at Step {step}! Loss: {loss_start:.4f}")
@@ -617,15 +678,19 @@ def main():
                 else:
                     student_clone = copy.deepcopy(current_student)
                     # Clone learner with the same replay buffer to make candidate scoring realistic.
-                    initial_buffer = [{kk: vv.detach().clone() for kk, vv in d.items()} for d in learner.buffer]
+                    initial_buffer = []
+                    for b in learner.buffer:
+                        # b is {"data": ..., "intervened": ...}
+                        b_data = {kk: vv.detach().clone() for kk, vv in b["data"].items()}
+                        initial_buffer.append({"data": b_data, "intervened": b.get("intervened")})
                     clone_learner = SCMLearner(
                         student_clone,
                         lr=args.learner_lr,
                         buffer_steps=args.buffer_steps,
                         initial_buffer=initial_buffer,
                     )
-                    data_t = executor.run_experiment(plan)
-                    clone_learner.train_step(data_t)
+                    batch_t = executor.run_experiment(plan)
+                    clone_learner.train_step(batch_t)
                     loss_end, node_losses_end = critic.evaluate_mechanisms_detailed(student_clone)
                     reward = critic.calculate_reward(loss_start, loss_end)
                     tgt = plan.get("target")
