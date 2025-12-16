@@ -232,7 +232,7 @@ class ExperimentalDSL:
 
     def encode(self, command_str):
         tokens = command_str.split()
-        return torch.tensor([self.token2id.get(t, 0) for t in tokens])
+        return torch.tensor([self.token2id.get(t, 0) for t in tokens], dtype=torch.long)
 
     def decode(self, token_tensor):
         tokens = [self.id2token.get(t.item(), "") for t in token_tensor]
@@ -611,7 +611,8 @@ def main():
     parser.add_argument("--steps", type=int, default=25, help="Max steps per episode")
     parser.add_argument("--candidates", type=int, default=4, help="Candidates per step")
     parser.add_argument("--lr", type=float, default=1e-5, help="Learning Rate")
-    parser.add_argument("--learner_lr", type=float, default=1e-2, help="Learner (student SCM) learning rate")
+    parser.add_argument("--learner_lr", type=float, default=2e-3, help="Learner (student SCM) learning rate")
+    parser.add_argument("--learner_epochs", type=int, default=100, help="Learner training epochs per step")
     parser.add_argument("--buffer_steps", type=int, default=50, help="Learner replay buffer length")
     parser.add_argument("--patience_steps", type=int, default=6, help="Early stop episode if no loss improvement for this many steps")
     parser.add_argument("--min_delta", type=float, default=1e-3, help="Minimum loss improvement to reset early stop patience")
@@ -727,7 +728,7 @@ def main():
                         initial_buffer=initial_buffer,
                     )
                     batch_t = executor.run_experiment(plan)
-                    clone_learner.train_step(batch_t)
+                    clone_learner.train_step(batch_t, n_epochs=args.learner_epochs)
                     loss_end, node_losses_end = critic.evaluate_mechanisms_detailed(student_clone)
                     reward = critic.calculate_reward(loss_start, loss_end)
                     tgt = plan.get("target")
@@ -828,7 +829,7 @@ def main():
                         f"RecentTop: {top_node}@{top_frac:.0%})"
                     )
                 real_data = executor.run_experiment(winner_plan)
-                learner.train_step(real_data)
+                learner.train_step(real_data, n_epochs=args.learner_epochs)
 
     # 4. Final Evaluation
     logging.info("--- Running Final Evaluation ---")
