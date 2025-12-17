@@ -14,6 +14,7 @@ import argparse
 import logging
 import pandas as pd
 from datetime import datetime
+import sys
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from collections import Counter, deque
 
@@ -208,8 +209,10 @@ class SCMLearner:
 # 3. POLICY & DSL
 # ----------------------------------------------------------------
 class ExperimentalDSL:
-    def __init__(self, nodes):
+    def __init__(self, nodes, value_min=-5.0, value_max=5.0):
         self.nodes = nodes
+        self.value_min = float(value_min)
+        self.value_max = float(value_max)
         self.vocab = ["<PAD>", "<SOS>", "<EOS>", "DO", "MEASURE", "=", "-"] + \
                      nodes + [str(i) for i in range(-5, 6)]
         self.token2id = {t: i for i, t in enumerate(self.vocab)}
@@ -224,7 +227,8 @@ class ExperimentalDSL:
                 node = match.group(1)
                 value = float(match.group(2))
                 if node not in self.nodes: return None 
-                if not (-10 <= value <= 10): return None
+                # Keep values in a well-covered, informative range (matches teacher sampling).
+                if not (self.value_min <= value <= self.value_max): return None
                 return {'target': node, 'value': value, 'samples': 200}
             return None
         except:
@@ -327,7 +331,12 @@ class HuggingFacePolicy(nn.Module):
                 mag = scm.mechanisms[node][0].weight.abs().mean().item()
                 knowledge.append(f"{node}:{mag:.2f}")
         know_str = " | ".join(knowledge)
-        return f"Graph: [{edge_str}]. Weights: [{know_str}]. Task: Propose intervention. Syntax: DO X[Node] = [Value]. Command: DO"
+        return (
+            f"Graph: [{edge_str}]. Weights: [{know_str}]. "
+            f"Task: Propose intervention. Syntax: DO X[Node] = [Value]. "
+            f"Constraint: Value must be in [{self.dsl.value_min}, {self.dsl.value_max}]. "
+            f"Command: DO"
+        )
 
     def forward(self, scm_student, target_text_list=None):
         prompt_text = self.scm_to_prompt(scm_student)
@@ -479,10 +488,9 @@ def dpo_loss_llm(policy_model, ref_model, scm_state, win_text, lose_text, beta=0
 # ----------------------------------------------------------------
 # 5. UTILS
 # ----------------------------------------------------------------
-def get_random_valid_command(nodes):
+def get_random_valid_command_range(nodes, value_min=-5.0, value_max=5.0):
     target = random.choice(nodes)
-    # Broad coverage across the allowed range.
-    val = random.uniform(-5.0, 5.0)
+    val = random.uniform(float(value_min), float(value_max))
     return f"DO {target} = {val:.4f}"
 
 def _impact_weight(graph, target, node_losses):
@@ -501,26 +509,67 @@ def _impact_weight(graph, target, node_losses):
         return 0.0
     return float(sum(float(node_losses.get(n, 0.0)) for n in desc))
 
-def get_teacher_command_impact(nodes, graph, node_losses):
+def _direct_child_impact_weight(graph, target, node_losses):
+    """
+    Direct-child impact weight for an intervention on `target`.
+
+    Intervening on a parent is most directly useful for identifying the mechanisms of its
+    immediate children (especially multi-parent children like X3).
+    """
+    try:
+        children = list(graph.successors(target))
+    except Exception:
+        children = []
+    if not children:
+        return 0.0
+
+    total = 0.0
+    for child in children:
+        w = 1.0
+        try:
+            n_par = len(list(graph.predecessors(child)))
+        except Exception:
+            n_par = 0
+        if n_par >= 2:
+            w *= 2.0
+        total += w * float(node_losses.get(child, 0.0))
+    return float(total)
+
+def get_teacher_command_impact(nodes, graph, node_losses, value_min=-5.0, value_max=5.0):
     """
     Teacher injection that prefers intervening on nodes that can help the most (by descendant loss).
     Falls back to random if all impacts are zero.
     """
     impacts = []
     for n in nodes:
-        impacts.append(_impact_weight(graph, n, node_losses))
+        # Prefer direct-child impact to reduce collapse onto distant ancestors.
+        impacts.append(_direct_child_impact_weight(graph, n, node_losses))
     total = sum(impacts)
     if total <= 0:
-        return get_random_valid_command(nodes)
+        return get_random_valid_command_range(nodes, value_min=value_min, value_max=value_max)
     # Sample proportional to impact (soft preference, avoids determinism).
     r = random.random() * total
     acc = 0.0
     for n, w in zip(nodes, impacts):
         acc += w
         if acc >= r:
-            val = random.uniform(-5.0, 5.0)
+            val = random.uniform(float(value_min), float(value_max))
             return f"DO {n} = {val:.4f}"
-    return get_random_valid_command(nodes)
+    return get_random_valid_command_range(nodes, value_min=value_min, value_max=value_max)
+
+def _bin_index(value, value_min, value_max, n_bins):
+    vmin = float(value_min)
+    vmax = float(value_max)
+    if vmax <= vmin:
+        return 0
+    x = float(value)
+    # Clamp then bucketize.
+    x = max(vmin, min(vmax, x))
+    t = (x - vmin) / (vmax - vmin)
+    idx = int(t * n_bins)
+    if idx == n_bins:
+        idx = n_bins - 1
+    return max(0, min(n_bins - 1, idx))
 
 def save_plots(results_dir, loss_history, reward_history, targets, values, nodes):
     # 1. Training Curves
@@ -620,12 +669,21 @@ def main():
     parser.add_argument("--cov_bonus", type=float, default=25.0, help="Coverage bonus scale (discourages target collapse)")
     parser.add_argument("--eps_explore", type=float, default=0.10, help="Exploration probability (coverage-seeking)")
     parser.add_argument("--val_bonus", type=float, default=1.5, help="Value novelty bonus scale (discourages repeated values)")
+    parser.add_argument("--value_min", type=float, default=-5.0, help="Minimum intervention value accepted by the DSL")
+    parser.add_argument("--value_max", type=float, default=5.0, help="Maximum intervention value accepted by the DSL")
+    parser.add_argument("--n_value_bins", type=int, default=11, help="Discretization bins for value coverage bonus")
+    parser.add_argument("--bin_bonus", type=float, default=8.0, help="Value coverage bonus scale (encourages spanning the value range)")
+    parser.add_argument("--collapse_threshold", type=float, default=0.50, help="RecentTop fraction above which collapse penalty applies")
+    parser.add_argument("--collapse_penalty", type=float, default=40.0, help="Penalty scale applied to repeated target collapse")
+    parser.add_argument("--leaf_penalty", type=float, default=25.0, help="Penalty for intervening on leaf nodes (no descendants)")
+    parser.add_argument("--parent_balance_bonus", type=float, default=20.0, help="Bonus encouraging balanced interventions among parents of multi-parent children (e.g., X1 vs X2 for X3)")
     parser.add_argument("--token", type=str, default=None, help="HF Auth Token")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
     args = parser.parse_args()
 
     # Setup Directories
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_started_at = datetime.now()
+    timestamp = run_started_at.strftime("%Y%m%d_%H%M%S")
     run_dir = os.path.join(args.output, f"run_{timestamp}")
     os.makedirs(run_dir, exist_ok=True)
     
@@ -643,12 +701,15 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logging.info(f"Starting ACE Experiment on {device}")
     logging.info(f"Config: {args}")
+    logging.info(f"Run started at: {run_started_at.isoformat(timespec='seconds')}")
+    logging.info(f"Run directory: {run_dir}")
+    logging.info(f"Command: {' '.join(sys.argv)}")
 
     # 1. Setup Environment
     M_star = GroundTruthSCM()
     executor = ExperimentExecutor(M_star)
     temp_nodes = sorted(list(M_star.graph.nodes))
-    dsl = ExperimentalDSL(temp_nodes)
+    dsl = ExperimentalDSL(temp_nodes, value_min=args.value_min, value_max=args.value_max)
     critic = ScientificCritic(M_star)
 
     # 2. Setup Agent
@@ -677,6 +738,7 @@ def main():
 
     recent_action_counts = deque(maxlen=500)
     recent_values_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
+    recent_value_bins_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
 
     for episode in range(args.episodes):
         current_student = StudentSCM(M_star)
@@ -709,6 +771,35 @@ def main():
                 break
 
             candidates = []
+            # Recent-top collapse indicator (used for candidate scoring penalties).
+            if len(recent_action_counts) >= 50:
+                rc = Counter(recent_action_counts)
+                top_node, top_count = rc.most_common(1)[0]
+                top_frac = top_count / len(recent_action_counts)
+            else:
+                top_node, top_frac = None, 0.0
+
+            # Parent-balance: for multi-parent children, encourage intervening on under-sampled parents.
+            parent_balance = {}
+            try:
+                for child in current_student.nodes:
+                    parents = list(M_star.graph.predecessors(child))
+                    if len(parents) < 2:
+                        continue
+                    # Only bias towards children that are currently hard.
+                    child_loss = float(node_losses_start.get(child, 0.0))
+                    if child_loss <= 0:
+                        continue
+                    desired = 1.0 / len(parents)
+                    counts = Counter([a for a in recent_action_counts if a in parents])
+                    denom_ct = float(sum(counts.values())) + 1e-8
+                    for p in parents:
+                        frac = float(counts.get(p, 0.0)) / denom_ct if denom_ct > 0 else 0.0
+                        deficit = max(0.0, desired - frac)
+                        parent_balance[p] = parent_balance.get(p, 0.0) + deficit * child_loss
+            except Exception:
+                parent_balance = {}
+
             for k in range(args.candidates):
                 cmd_str, plan = policy_net.generate_experiment(current_student)
                 if plan is None:
@@ -732,8 +823,8 @@ def main():
                     loss_end, node_losses_end = critic.evaluate_mechanisms_detailed(student_clone)
                     reward = critic.calculate_reward(loss_start, loss_end)
                     tgt = plan.get("target")
-                    # Impact-aware weighting: prefer interventions that help high-loss descendants.
-                    node_weight = _impact_weight(M_star.graph, tgt, node_losses_start)
+                    # Prefer interventions that help high-loss *direct children* (best for learning X1/X2 -> X3).
+                    node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start)
                     denom = float(sum(node_losses_start.values())) + 1e-8
                     norm_weight = node_weight / denom
                     under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
@@ -749,15 +840,44 @@ def main():
                     else:
                         val_bonus = 0.0
 
-                    score = reward + cov_bonus + val_bonus
+                    # Value coverage: bonus for exploring under-sampled bins for this target.
+                    n_bins = max(2, int(args.n_value_bins))
+                    bidx = _bin_index(v, args.value_min, args.value_max, n_bins)
+                    bin_hist = list(recent_value_bins_by_target.get(tgt, []))
+                    bin_ct = bin_hist.count(bidx) if bin_hist is not None else 0
+                    bin_bonus = float(args.bin_bonus) / np.sqrt(1.0 + float(bin_ct))
+
+                    # Parent balance bonus (esp. X1 vs X2 to identify X3's multi-parent mechanism).
+                    bal_bonus = float(args.parent_balance_bonus) * float(parent_balance.get(tgt, 0.0)) / (denom + 1e-8)
+
+                    # Penalize intervening on leaves (no descendants) to focus on informative actions.
+                    leaf = False
+                    try:
+                        leaf = len(list(M_star.graph.successors(tgt))) == 0
+                    except Exception:
+                        leaf = False
+                    leaf_pen = float(args.leaf_penalty) if leaf else 0.0
+
+                    # Penalize collapse if we're repeating the recent-top node too much.
+                    collapse_pen = 0.0
+                    if top_node is not None and tgt == top_node and top_frac > float(args.collapse_threshold):
+                        collapse_pen = float(args.collapse_penalty) * float(top_frac - float(args.collapse_threshold))
+
+                    score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus - leaf_pen - collapse_pen
                     candidates.append((cmd_str, reward, cov_bonus, score, plan))
 
             valid_cmds = [c for c, r, cb, s, p in candidates if r > -9.0]
             if not valid_cmds:
-                teacher_cmd = get_teacher_command_impact(dsl.nodes, M_star.graph, node_losses_start)
+                teacher_cmd = get_teacher_command_impact(
+                    dsl.nodes,
+                    M_star.graph,
+                    node_losses_start,
+                    value_min=args.value_min,
+                    value_max=args.value_max,
+                )
                 teacher_plan = dsl.parse_to_dict(teacher_cmd)
                 tgt = teacher_plan.get("target") if teacher_plan else None
-                node_weight = _impact_weight(M_star.graph, tgt, node_losses_start)
+                node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start)
                 denom = float(sum(node_losses_start.values())) + 1e-8
                 norm_weight = node_weight / denom
                 under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
@@ -811,16 +931,14 @@ def main():
                     recent_values_by_target[tgt].append(float(winner_plan.get("value")))
                 except Exception:
                     pass
+                try:
+                    n_bins = max(2, int(args.n_value_bins))
+                    bidx = _bin_index(float(winner_plan.get("value")), args.value_min, args.value_max, n_bins)
+                    recent_value_bins_by_target[tgt].append(bidx)
+                except Exception:
+                    pass
                 episode_action_counts[tgt] += 1
                 recent_action_counts.append(tgt)
-
-                # Simple collapse indicator for logs.
-                if len(recent_action_counts) >= 50:
-                    rc = Counter(recent_action_counts)
-                    top_node, top_count = rc.most_common(1)[0]
-                    top_frac = top_count / len(recent_action_counts)
-                else:
-                    top_node, top_frac = None, 0.0
 
                 if winner_score > 0.2 or (episode % 10 == 0 and step == 0):
                     logging.info(
@@ -873,9 +991,14 @@ def main():
         "value": value_history,
         "episode": episode_history,
         "step": step_history,
+        "run_started_at": [run_started_at.isoformat(timespec="seconds")] * len(loss_history),
+        "run_dir": [run_dir] * len(loss_history),
     })
     df.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
     
+    run_ended_at = datetime.now()
+    logging.info(f"Run ended at: {run_ended_at.isoformat(timespec='seconds')}")
+    logging.info(f"Run duration: {str(run_ended_at - run_started_at)}")
     logging.info(f"Experiment Complete. Results saved to {run_dir}")
 
 if __name__ == "__main__":
