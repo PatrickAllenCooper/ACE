@@ -535,6 +535,45 @@ def _direct_child_impact_weight(graph, target, node_losses):
         total += w * float(node_losses.get(child, 0.0))
     return float(total)
 
+def _disentanglement_bonus(graph, target, node_losses):
+    """
+    Bonus for interventions that break dependencies between parents of a common child.
+    (Triangle Breaking / Disentanglement).
+    
+    If target T and another node P are both parents of C, and P->T exists, 
+    then intervening on T breaks the correlation induced by P->T. 
+    This allows the learner to see T and P varying independently, which is 
+    CRITICAL for learning the mechanism of C (especially if C = f(P, T) is complex).
+    """
+    total_bonus = 0.0
+    try:
+        # Find all children where 'target' is a parent
+        children = list(graph.successors(target))
+        for child in children:
+            # Check parents of this child
+            parents = list(graph.predecessors(child))
+            if len(parents) < 2:
+                continue
+                
+            # Check if any OTHER parent 'P' has a connection to 'target'
+            # Specifically, we care if P -> target (so target is a mediator).
+            # Intervening on target breaks P -> target.
+            for p in parents:
+                if p == target: continue
+                
+                # Check if P is a parent of target (P -> T -> C structure)
+                if graph.has_edge(p, target):
+                    # We found a triangle P -> T -> C (and P -> C).
+                    # Intervening on T is highly valuable for C.
+                    child_loss = float(node_losses.get(child, 0.0))
+                    # Scale bonus by how confused the child is
+                    total_bonus += 20.0 * child_loss 
+                    
+    except Exception:
+        pass
+        
+    return total_bonus
+
 def get_teacher_command_impact(nodes, graph, node_losses, value_min=-5.0, value_max=5.0):
     """
     Teacher injection that prefers intervening on nodes that can help the most (by descendant loss).
@@ -673,6 +712,7 @@ def main():
     parser.add_argument("--value_max", type=float, default=5.0, help="Maximum intervention value accepted by the DSL")
     parser.add_argument("--n_value_bins", type=int, default=11, help="Discretization bins for value coverage bonus")
     parser.add_argument("--bin_bonus", type=float, default=8.0, help="Value coverage bonus scale (encourages spanning the value range)")
+    parser.add_argument("--disentangle_bonus", type=float, default=20.0, help="Bonus for breaking parent-parent correlations")
     parser.add_argument("--collapse_threshold", type=float, default=0.50, help="RecentTop fraction above which collapse penalty applies")
     parser.add_argument("--collapse_penalty", type=float, default=40.0, help="Penalty scale applied to repeated target collapse")
     parser.add_argument("--leaf_penalty", type=float, default=25.0, help="Penalty for intervening on leaf nodes (no descendants)")
@@ -850,6 +890,11 @@ def main():
                     # Parent balance bonus (esp. X1 vs X2 to identify X3's multi-parent mechanism).
                     bal_bonus = float(args.parent_balance_bonus) * float(parent_balance.get(tgt, 0.0)) / (denom + 1e-8)
 
+                    # Disentanglement bonus (Triangle Breaking)
+                    # This specifically addresses the X1->X2->X3 structure where we fail to learn X3
+                    # because X1 and X2 are collinear in observational (and DO(X1)) data.
+                    disent_bonus = _disentanglement_bonus(M_star.graph, tgt, node_losses_start)
+
                     # Penalize intervening on leaves (no descendants) to focus on informative actions.
                     leaf = False
                     try:
@@ -863,7 +908,7 @@ def main():
                     if top_node is not None and tgt == top_node and top_frac > float(args.collapse_threshold):
                         collapse_pen = float(args.collapse_penalty) * float(top_frac - float(args.collapse_threshold))
 
-                    score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus - leaf_pen - collapse_pen
+                    score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus + disent_bonus - leaf_pen - collapse_pen
                     candidates.append((cmd_str, reward, cov_bonus, score, plan))
 
             valid_cmds = [c for c, r, cb, s, p in candidates if r > -9.0]
