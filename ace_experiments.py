@@ -234,6 +234,30 @@ class ExperimentalDSL:
         except:
             return None
 
+    def parse_to_dict_lenient(self, text, clip_out_of_range=True):
+        """
+        Lenient parse that extracts the first valid DO command substring from `text`.
+        If clip_out_of_range is True, clamps the value into [value_min, value_max] instead of failing.
+        """
+        try:
+            if text is None:
+                return None
+            m = re.search(r"DO\s+(X\d+)\s*=\s*(-?\d+(?:\.\d+)?)", str(text))
+            if not m:
+                return None
+            node = m.group(1)
+            value = float(m.group(2))
+            if node not in self.nodes:
+                return None
+            if clip_out_of_range:
+                value = max(self.value_min, min(self.value_max, value))
+            else:
+                if not (self.value_min <= value <= self.value_max):
+                    return None
+            return {"target": node, "value": value, "samples": 200}
+        except Exception:
+            return None
+
     def encode(self, command_str):
         tokens = command_str.split()
         return torch.tensor([self.token2id.get(t, 0) for t in tokens], dtype=torch.long)
@@ -360,11 +384,23 @@ class HuggingFacePolicy(nn.Module):
             )
         full_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         try:
-            cmd_str = full_text.split("Command:")[-1].strip()
-            # Handle potential multiline garbage
-            cmd_str = cmd_str.split('\n')[0].strip()
-            if not cmd_str.startswith("DO"): cmd_str = "DO " + cmd_str
-            return cmd_str, self.dsl.parse_to_dict(cmd_str)
+            # 1) Prefer the explicit "Command:" section if present, but fall back to regex extraction
+            # anywhere in the model output to avoid catastrophic parse failures.
+            if "Command:" in full_text:
+                tail = full_text.split("Command:")[-1].strip()
+            else:
+                tail = full_text
+
+            # Extract the first valid DO pattern from tail (or full_text).
+            plan = self.dsl.parse_to_dict_lenient(tail, clip_out_of_range=True)
+            if plan is None:
+                plan = self.dsl.parse_to_dict_lenient(full_text, clip_out_of_range=True)
+            if plan is None:
+                return full_text, None
+
+            # Canonicalize the command string to exactly match the DSL.
+            cmd_str = f"DO {plan['target']} = {float(plan['value']):.4f}"
+            return cmd_str, plan
         except:
             return full_text, None
 
@@ -626,7 +662,10 @@ def save_plots(results_dir, loss_history, reward_history, targets, values, nodes
     plt.figure(figsize=(14, 5))
     plt.subplot(1, 2, 1)
     node_counts = {node: targets.count(node) for node in nodes}
-    sns.barplot(x=list(node_counts.keys()), y=list(node_counts.values()), palette="viridis")
+    # Seaborn >=0.14 deprecates `palette` without `hue`.
+    x = list(node_counts.keys())
+    y = list(node_counts.values())
+    sns.barplot(x=x, y=y, hue=x, palette="viridis", legend=False)
     plt.title("Target Preference")
     
     plt.subplot(1, 2, 2)
