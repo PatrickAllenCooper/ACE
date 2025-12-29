@@ -812,6 +812,14 @@ def main():
     value_history = []
     episode_history = []
     step_history = []
+
+    # Training-time parsing / fallback instrumentation.
+    train_candidates_total = 0
+    train_candidates_parsed = 0
+    train_candidates_invalid = 0
+    train_steps_total = 0
+    train_steps_with_any_valid = 0
+    train_steps_teacher_fallback = 0
     
     logging.info(f"--- Starting Discovery Loop ({args.episodes} Episodes) ---")
 
@@ -830,6 +838,7 @@ def main():
             logging.info(f"--- Episode {episode+1} Start ---")
 
         for step in range(args.steps):
+            train_steps_total += 1
             # Evaluate mechanisms on interventional-style validation for better causal fidelity.
             loss_start, node_losses_start = critic.evaluate_mechanisms_detailed(current_student)
             if loss_start < best_mech_loss - args.min_delta:
@@ -879,11 +888,16 @@ def main():
             except Exception:
                 parent_balance = {}
 
+            step_any_valid = False
             for k in range(args.candidates):
                 cmd_str, plan = policy_net.generate_experiment(current_student)
+                train_candidates_total += 1
                 if plan is None:
+                    train_candidates_invalid += 1
                     candidates.append((cmd_str, -10.0, 0.0, -10.0, None))
                 else:
+                    train_candidates_parsed += 1
+                    step_any_valid = True
                     student_clone = copy.deepcopy(current_student)
                     # Clone learner with the same replay buffer to make candidate scoring realistic.
                     initial_buffer = []
@@ -950,8 +964,12 @@ def main():
                     score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus + disent_bonus - leaf_pen - collapse_pen
                     candidates.append((cmd_str, reward, cov_bonus, score, plan))
 
+            if step_any_valid:
+                train_steps_with_any_valid += 1
+
             valid_cmds = [c for c, r, cb, s, p in candidates if r > -9.0]
             if not valid_cmds:
+                train_steps_teacher_fallback += 1
                 teacher_cmd = get_teacher_command_impact(
                     dsl.nodes,
                     M_star.graph,
@@ -1077,12 +1095,29 @@ def main():
         "step": step_history,
         "run_started_at": [run_started_at.isoformat(timespec="seconds")] * len(loss_history),
         "run_dir": [run_dir] * len(loss_history),
+        "train_candidates_total": [train_candidates_total] * len(loss_history),
+        "train_candidates_parsed": [train_candidates_parsed] * len(loss_history),
+        "train_candidates_invalid": [train_candidates_invalid] * len(loss_history),
+        "train_candidate_parse_rate": [(train_candidates_parsed / max(train_candidates_total, 1))] * len(loss_history),
+        "train_steps_total": [train_steps_total] * len(loss_history),
+        "train_steps_with_any_valid_candidate": [train_steps_with_any_valid] * len(loss_history),
+        "train_steps_teacher_fallback": [train_steps_teacher_fallback] * len(loss_history),
+        "train_teacher_fallback_rate": [(train_steps_teacher_fallback / max(train_steps_total, 1))] * len(loss_history),
     })
     df.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
     
     run_ended_at = datetime.now()
     logging.info(f"Run ended at: {run_ended_at.isoformat(timespec='seconds')}")
     logging.info(f"Run duration: {str(run_ended_at - run_started_at)}")
+    logging.info(
+        "Training parse stats: "
+        f"candidates_parsed={train_candidates_parsed}/{train_candidates_total} "
+        f"({(train_candidates_parsed / max(train_candidates_total, 1)):.1%}), "
+        f"steps_with_any_valid_candidate={train_steps_with_any_valid}/{train_steps_total} "
+        f"({(train_steps_with_any_valid / max(train_steps_total, 1)):.1%}), "
+        f"teacher_fallback_steps={train_steps_teacher_fallback}/{train_steps_total} "
+        f"({(train_steps_teacher_fallback / max(train_steps_total, 1)):.1%})"
+    )
     logging.info(f"Experiment Complete. Results saved to {run_dir}")
 
 if __name__ == "__main__":
