@@ -56,6 +56,25 @@ Example (pretrained LLM policy):
 python ace_experiments.py --model "Qwen/Qwen2.5-1.5B" --episodes 100 --output "experiment_results"
 ```
 
+### Debugging Parsing Issues
+
+If you encounter low parsing rates (commands not being recognized), use the `--debug_parsing` flag for detailed diagnostics:
+
+```bash
+python ace_experiments.py --model "Qwen/Qwen2.5-1.5B" --episodes 100 --debug_parsing --output "experiment_results"
+```
+
+This enables:
+- Detailed parse attempt logging showing what the model generates vs what's expected
+- Sample failed parse outputs every 10 episodes
+- Real-time parsing statistics every 20 steps
+
+The DSL parser now supports:
+- Case-insensitive matching (`DO`, `do`, `Do` all work)
+- Scientific notation (e.g., `1e-5`, `2.5E+3`)
+- Various decimal formats (e.g., `.5`, `0.5`, `5.`, `5.0`)
+- Automatic value clipping to valid ranges
+
 ## Guidance
 
 Project guidance and design notes live in `guidance_documents/guidance_doc.txt`.

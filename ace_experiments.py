@@ -221,10 +221,12 @@ class ExperimentalDSL:
     def parse_to_dict(self, command_str):
         try:
             clean_cmd = command_str.strip()
-            # Use fullmatch to ensure no trailing garbage (e.g., "2.4444444...")
-            match = re.fullmatch(r"DO\s+(X\d+)\s*=\s*(-?\d+(?:\.\d+)?)", clean_cmd)
+            # Use fullmatch to ensure no trailing garbage
+            # Case-insensitive matching for "DO"
+            # Enhanced regex to handle scientific notation (e.g., 1e-5, 2.5E+3)
+            match = re.fullmatch(r"(?i)DO\s+(X\d+)\s*=\s*(-?(?:\d+\.?\d*|\d*\.\d+)(?:[eE][+-]?\d+)?)", clean_cmd)
             if match:
-                node = match.group(1)
+                node = match.group(1).upper()  # Normalize to uppercase
                 value = float(match.group(2))
                 if node not in self.nodes: return None 
                 # Keep values in a well-covered, informative range (matches teacher sampling).
@@ -241,21 +243,28 @@ class ExperimentalDSL:
         """
         try:
             if text is None:
+                logging.debug(f"PARSE: text is None")
                 return None
-            m = re.search(r"DO\s+(X\d+)\s*=\s*(-?\d+(?:\.\d+)?)", str(text))
+            # Case-insensitive search for DO command
+            # Enhanced regex to handle scientific notation and various number formats
+            m = re.search(r"(?i)DO\s+(X\d+)\s*=\s*(-?(?:\d+\.?\d*|\d*\.\d+)(?:[eE][+-]?\d+)?)", str(text))
             if not m:
+                logging.debug(f"PARSE: No regex match for pattern in text: '{str(text)[:100]}'")
                 return None
-            node = m.group(1)
+            node = m.group(1).upper()  # Normalize to uppercase
             value = float(m.group(2))
             if node not in self.nodes:
+                logging.debug(f"PARSE: Node '{node}' not in valid nodes: {self.nodes}")
                 return None
             if clip_out_of_range:
                 value = max(self.value_min, min(self.value_max, value))
             else:
                 if not (self.value_min <= value <= self.value_max):
+                    logging.debug(f"PARSE: Value {value} out of range [{self.value_min}, {self.value_max}]")
                     return None
             return {"target": node, "value": value, "samples": 200}
-        except Exception:
+        except Exception as e:
+            logging.debug(f"PARSE: Exception {e}")
             return None
 
     def encode(self, command_str):
@@ -355,10 +364,16 @@ class HuggingFacePolicy(nn.Module):
                 mag = scm.mechanisms[node][0].weight.abs().mean().item()
                 knowledge.append(f"{node}:{mag:.2f}")
         know_str = " | ".join(knowledge)
+        # Enhanced prompt with explicit format examples
+        valid_nodes = ", ".join(scm.nodes)
         return (
             f"Graph: [{edge_str}]. Weights: [{know_str}]. "
-            f"Task: Propose intervention. Syntax: DO X[Node] = [Value]. "
-            f"Constraint: Value must be in [{self.dsl.value_min}, {self.dsl.value_max}]. "
+            f"Task: Propose a causal intervention to discover mechanisms. "
+            f"Valid nodes: {valid_nodes}. "
+            f"Value range: [{self.dsl.value_min}, {self.dsl.value_max}]. "
+            f"Format: DO X[digit] = [number]. "
+            f"Examples: 'DO X1 = 2.5', 'DO X3 = -1.8'. "
+            f"Output only the command, nothing else.\n"
             f"Command: DO"
         )
 
@@ -383,26 +398,37 @@ class HuggingFacePolicy(nn.Module):
                 repetition_penalty=1.2
             )
         full_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        try:
-            # 1) Prefer the explicit "Command:" section if present, but fall back to regex extraction
-            # anywhere in the model output to avoid catastrophic parse failures.
+        
+        # Extract only the generated portion (after the prompt)
+        # The model may echo the prompt, so we need to remove it
+        if full_text.startswith(prompt_text):
+            generated_text = full_text[len(prompt_text):].strip()
+        else:
+            # If prompt not found at start, try to find "Command:" marker
             if "Command:" in full_text:
-                tail = full_text.split("Command:")[-1].strip()
+                generated_text = full_text.split("Command:")[-1].strip()
             else:
-                tail = full_text
-
-            # Extract the first valid DO pattern from tail (or full_text).
-            plan = self.dsl.parse_to_dict_lenient(tail, clip_out_of_range=True)
-            if plan is None:
+                generated_text = full_text
+        
+        try:
+            # Try parsing the generated text
+            plan = self.dsl.parse_to_dict_lenient(generated_text, clip_out_of_range=True)
+            
+            # Fallback: try parsing the full text if generated_text didn't work
+            if plan is None and generated_text != full_text:
                 plan = self.dsl.parse_to_dict_lenient(full_text, clip_out_of_range=True)
+            
             if plan is None:
-                return full_text, None
+                # Enhanced logging for parse failures
+                logging.debug(f"PARSE_FAIL: generated='{generated_text[:150]}', full='{full_text[:150]}'")
+                return generated_text if generated_text else full_text, None
 
             # Canonicalize the command string to exactly match the DSL.
             cmd_str = f"DO {plan['target']} = {float(plan['value']):.4f}"
             return cmd_str, plan
-        except:
-            return full_text, None
+        except Exception as e:
+            logging.debug(f"PARSE_EXCEPTION: {e}, generated='{generated_text[:150] if generated_text else None}'")
+            return generated_text if generated_text else full_text, None
 
 # ----------------------------------------------------------------
 # 4. LOSS & CRITIC
@@ -758,6 +784,7 @@ def main():
     parser.add_argument("--parent_balance_bonus", type=float, default=20.0, help="Bonus encouraging balanced interventions among parents of multi-parent children (e.g., X1 vs X2 for X3)")
     parser.add_argument("--token", type=str, default=None, help="HF Auth Token")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
+    parser.add_argument("--debug_parsing", action="store_true", help="Enable detailed parse debug logging")
     args = parser.parse_args()
 
     # Setup Directories
@@ -767,14 +794,15 @@ def main():
     os.makedirs(run_dir, exist_ok=True)
     
     # Logging Setup
+    log_level = logging.DEBUG if args.debug_parsing else logging.INFO
     logging.basicConfig(
         filename=os.path.join(run_dir, "experiment.log"),
-        level=logging.INFO,
-        format='%(asctime)s - %(message)s',
+        level=log_level,
+        format='%(asctime)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
+    console.setLevel(log_level)
     logging.getLogger('').addHandler(console)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -820,6 +848,7 @@ def main():
     train_steps_total = 0
     train_steps_with_any_valid = 0
     train_steps_teacher_fallback = 0
+    recent_parse_failures = deque(maxlen=10)  # Keep track of recent parsing failures
     
     logging.info(f"--- Starting Discovery Loop ({args.episodes} Episodes) ---")
 
@@ -835,7 +864,21 @@ def main():
         no_improve_steps = 0
 
         if episode % 10 == 0:
-            logging.info(f"--- Episode {episode+1} Start ---")
+            # Report cumulative parsing statistics every 10 episodes
+            parse_rate = train_candidates_parsed / max(train_candidates_total, 1) if train_candidates_total > 0 else 0.0
+            fallback_rate = train_steps_teacher_fallback / max(train_steps_total, 1) if train_steps_total > 0 else 0.0
+            logging.info(
+                f"--- Episode {episode+1} Start --- "
+                f"[Cumulative Parse: {train_candidates_parsed}/{train_candidates_total} ({parse_rate:.1%}), "
+                f"Teacher Fallback: {train_steps_teacher_fallback}/{train_steps_total} ({fallback_rate:.1%})]"
+            )
+            # Show recent parse failure examples for diagnosis
+            if recent_parse_failures:
+                sample_failures = list(recent_parse_failures)[:3]
+                logging.info(f"  Recent parse failure examples:")
+                for idx, failure in enumerate(sample_failures):
+                    logging.info(f"    [{idx+1}] '{failure[:200]}'")
+
 
         for step in range(args.steps):
             train_steps_total += 1
@@ -889,11 +932,14 @@ def main():
                 parent_balance = {}
 
             step_any_valid = False
+            step_invalid_samples = []  # Track failed parses for this step
             for k in range(args.candidates):
                 cmd_str, plan = policy_net.generate_experiment(current_student)
                 train_candidates_total += 1
                 if plan is None:
                     train_candidates_invalid += 1
+                    step_invalid_samples.append(cmd_str)
+                    recent_parse_failures.append(cmd_str)
                     candidates.append((cmd_str, -10.0, 0.0, -10.0, None))
                 else:
                     train_candidates_parsed += 1
@@ -966,6 +1012,17 @@ def main():
 
             if step_any_valid:
                 train_steps_with_any_valid += 1
+            
+            # Log parse failures for diagnosis (every 20 steps or when all fail)
+            if not step_any_valid or (episode % 10 == 0 and step % 20 == 0 and step_invalid_samples):
+                parse_rate = train_candidates_parsed / max(train_candidates_total, 1)
+                if step_invalid_samples:
+                    sample_fail = step_invalid_samples[0][:150]
+                    logging.info(
+                        f"  [Parse Stats] Episode {episode}, Step {step}: "
+                        f"Parsed {train_candidates_parsed}/{train_candidates_total} ({parse_rate:.1%}), "
+                        f"Sample fail: '{sample_fail}'"
+                    )
 
             valid_cmds = [c for c, r, cb, s, p in candidates if r > -9.0]
             if not valid_cmds:
