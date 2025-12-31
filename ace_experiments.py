@@ -770,16 +770,19 @@ def main():
     parser.add_argument("--patience_steps", type=int, default=6, help="Early stop episode if no loss improvement for this many steps")
     parser.add_argument("--min_delta", type=float, default=1e-3, help="Minimum loss improvement to reset early stop patience")
     parser.add_argument("--warmup_steps", type=int, default=3, help="Do not early-stop before this many steps")
-    parser.add_argument("--cov_bonus", type=float, default=25.0, help="Coverage bonus scale (discourages target collapse)")
+    parser.add_argument("--cov_bonus", type=float, default=40.0, help="Coverage bonus scale (discourages target collapse, increased for stronger exploration)")
     parser.add_argument("--eps_explore", type=float, default=0.10, help="Exploration probability (coverage-seeking)")
+    parser.add_argument("--undersampled_bonus", type=float, default=50.0, help="Strong bonus for severely under-sampled nodes (e.g., X2 when X1 dominates)")
+    parser.add_argument("--diversity_constraint", action="store_true", help="Enforce mandatory diversity: reject candidates targeting over-sampled nodes when collapse detected")
+    parser.add_argument("--diversity_threshold", type=float, default=0.60, help="Threshold for mandatory diversity enforcement (e.g., 60% triggers constraint)")
     parser.add_argument("--val_bonus", type=float, default=1.5, help="Value novelty bonus scale (discourages repeated values)")
     parser.add_argument("--value_min", type=float, default=-5.0, help="Minimum intervention value accepted by the DSL")
     parser.add_argument("--value_max", type=float, default=5.0, help="Maximum intervention value accepted by the DSL")
     parser.add_argument("--n_value_bins", type=int, default=11, help="Discretization bins for value coverage bonus")
     parser.add_argument("--bin_bonus", type=float, default=8.0, help="Value coverage bonus scale (encourages spanning the value range)")
     parser.add_argument("--disentangle_bonus", type=float, default=20.0, help="Bonus for breaking parent-parent correlations")
-    parser.add_argument("--collapse_threshold", type=float, default=0.50, help="RecentTop fraction above which collapse penalty applies")
-    parser.add_argument("--collapse_penalty", type=float, default=40.0, help="Penalty scale applied to repeated target collapse")
+    parser.add_argument("--collapse_threshold", type=float, default=0.30, help="RecentTop fraction above which collapse penalty applies (lowered to detect collapse earlier)")
+    parser.add_argument("--collapse_penalty", type=float, default=80.0, help="Penalty scale applied to repeated target collapse (increased for stronger deterrence)")
     parser.add_argument("--leaf_penalty", type=float, default=25.0, help="Penalty for intervening on leaf nodes (no descendants)")
     parser.add_argument("--parent_balance_bonus", type=float, default=20.0, help="Bonus encouraging balanced interventions among parents of multi-parent children (e.g., X1 vs X2 for X3)")
     parser.add_argument("--token", type=str, default=None, help="HF Auth Token")
@@ -989,6 +992,18 @@ def main():
                     # Parent balance bonus (esp. X1 vs X2 to identify X3's multi-parent mechanism).
                     bal_bonus = float(args.parent_balance_bonus) * float(parent_balance.get(tgt, 0.0)) / (denom + 1e-8)
 
+                    # Under-sampling bonus: strong incentive for severely neglected nodes
+                    # If a node has been sampled much less than expected, boost it significantly
+                    undersample_bonus = 0.0
+                    if len(recent_action_counts) >= 20:
+                        expected_frac = 1.0 / len(dsl.nodes)
+                        actual_count = sum(1 for a in recent_action_counts if a == tgt)
+                        actual_frac = actual_count / len(recent_action_counts)
+                        deficit = expected_frac - actual_frac
+                        if deficit > 0.05:  # More than 5% below expected
+                            # Strong exponential bonus for severely under-sampled nodes
+                            undersample_bonus = float(args.undersampled_bonus) * (deficit ** 1.5) * 100.0
+
                     # Disentanglement bonus (Triangle Breaking)
                     # This specifically addresses the X1->X2->X3 structure where we fail to learn X3
                     # because X1 and X2 are collinear in observational (and DO(X1)) data.
@@ -1003,11 +1018,14 @@ def main():
                     leaf_pen = float(args.leaf_penalty) if leaf else 0.0
 
                     # Penalize collapse if we're repeating the recent-top node too much.
+                    # Enhanced: exponential penalty for severe collapse
                     collapse_pen = 0.0
                     if top_node is not None and tgt == top_node and top_frac > float(args.collapse_threshold):
-                        collapse_pen = float(args.collapse_penalty) * float(top_frac - float(args.collapse_threshold))
+                        excess = float(top_frac - float(args.collapse_threshold))
+                        # Quadratic penalty: becomes very severe as collapse worsens
+                        collapse_pen = float(args.collapse_penalty) * (excess ** 2) * 100.0
 
-                    score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus + disent_bonus - leaf_pen - collapse_pen
+                    score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus + disent_bonus + undersample_bonus - leaf_pen - collapse_pen
                     candidates.append((cmd_str, reward, cov_bonus, score, plan))
 
             if step_any_valid:
@@ -1046,6 +1064,31 @@ def main():
 
             # Rank by score (reward + coverage bonus).
             sorted_cands = sorted(candidates, key=lambda x: x[3], reverse=True)
+            
+            # MANDATORY DIVERSITY CONSTRAINT: When severe collapse detected, filter out over-sampled node
+            diversity_enforced = False
+            if args.diversity_constraint and top_node is not None and top_frac > args.diversity_threshold:
+                # Remove candidates targeting the over-sampled node
+                diverse_cands = [c for c in sorted_cands if c[4] is not None and c[4].get("target") != top_node]
+                if diverse_cands:
+                    logging.info(f"  [Diversity Constraint] Collapse detected ({top_node}@{top_frac:.0%}), forcing alternative targets")
+                    sorted_cands = diverse_cands
+                    diversity_enforced = True
+            
+            # Additional forced diversity: Every 10 steps, force exploration of under-sampled nodes
+            # This helps even without explicit diversity_constraint flag
+            if step > 0 and step % 10 == 0 and top_node is not None and top_frac > 0.50 and not diversity_enforced:
+                # Find the least sampled node that's not the top node
+                node_counts = Counter(recent_action_counts)
+                least_sampled = min([n for n in dsl.nodes if n != top_node], 
+                                   key=lambda n: node_counts.get(n, 0), default=None)
+                if least_sampled:
+                    # Prefer candidates targeting the least sampled node
+                    diverse_cands = [c for c in sorted_cands if c[4] is not None and c[4].get("target") == least_sampled]
+                    if diverse_cands:
+                        logging.info(f"  [Forced Diversity] Step {step}: Targeting under-sampled node {least_sampled} (vs {top_node}@{top_frac:.0%})")
+                        sorted_cands = diverse_cands
+            
             if random.random() < args.eps_explore:
                 explore_pool = [c for c in candidates if c[1] > -9.0]
                 explore_sorted = sorted(explore_pool, key=lambda x: x[2], reverse=True)

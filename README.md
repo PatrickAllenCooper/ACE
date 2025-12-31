@@ -42,6 +42,26 @@ To avoid wasted steps when progress stalls (often accompanied by rapid reward co
 - `--min_delta`: minimum improvement required to reset patience
 - `--warmup_steps`: steps before early stopping can trigger
 
+## Anti-Collapse Mechanisms
+
+The agent can fall into "collapse" where it repeatedly targets the same node (e.g., X1@96%), preventing discovery of complex structures like colliders. The framework includes multiple anti-collapse mechanisms:
+
+### 1. Collapse Detection & Penalties
+- `--collapse_threshold` (default: 0.30): Fraction threshold for detecting collapse (lowered from 0.50)
+- `--collapse_penalty` (default: 80.0): Quadratic penalty applied when collapse detected (scales with severity)
+
+### 2. Under-Sampling Incentives
+- `--undersampled_bonus` (default: 50.0): Strong bonus for severely neglected nodes (e.g., X2 when X1 dominates)
+- `--cov_bonus` (default: 40.0): Coverage bonus scale increased for stronger exploration
+
+### 3. Mandatory Diversity Constraint
+- `--diversity_constraint`: Enable hard constraint that rejects over-sampled nodes when collapse > threshold
+- `--diversity_threshold` (default: 0.60): Threshold for mandatory diversity enforcement
+
+### 4. Forced Periodic Exploration
+- Every 10 steps, if collapse > 50%, the system automatically targets the least-sampled node
+- Helps discover collider structures (e.g., X3 with parents X1, X2) by ensuring balanced parent coverage
+
 ## Running
 
 Example (custom policy, no pretrained LLM):
@@ -54,6 +74,12 @@ Example (pretrained LLM policy):
 
 ```bash
 python ace_experiments.py --model "Qwen/Qwen2.5-1.5B" --episodes 100 --output "experiment_results"
+```
+
+Example (with diversity constraint to prevent collapse):
+
+```bash
+python ace_experiments.py --model "Qwen/Qwen2.5-1.5B" --episodes 100 --diversity_constraint --output "experiment_results"
 ```
 
 ### Debugging Parsing Issues
