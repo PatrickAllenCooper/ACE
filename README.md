@@ -34,6 +34,25 @@ Implementation notes:
   - `{"data": <dict[node] -> Tensor>, "intervened": <node name or None>}`
 - `SCMLearner.train_step(...)` masks out samples for the **intervened node only** while still using the batch to train downstream mechanisms (descendants).
 
+## Collider Learning Challenge
+
+**Colliders** (nodes with multiple parents, e.g., X3 ← X1, X3 ← X2) are particularly difficult for the agent to learn because:
+
+1. **Training-Validation Mismatch**: The learner is validated on *independent* parent samples, but training data often has correlated parents (e.g., X2 = f(X1))
+2. **Greedy Exploitation**: Intervening on upstream nodes (X1) immediately improves loss by helping their direct children (X2), leading to over-sampling
+3. **Missed Critical Experiments**: Learning X3 = f(X1, X2) requires seeing X1 and X2 vary *independently*, which only happens when intervening directly on X2
+
+### Solution: Reward Rescaling & Enhanced Incentives
+
+To address the collider learning problem, the framework implements:
+
+1. **Scaled Rewards** (v2025-01-02): Raw rewards reduced from `delta * 100` to `delta * 10` to make exploration bonuses competitive
+2. **Disentanglement Bonus**: Strong incentive (100x child loss) for interventions that break parent correlations in collider structures
+3. **Parent Balance Bonus**: Encourages balanced coverage of all parents of multi-parent nodes
+4. **Comprehensive Diagnostics**: Per-node loss tracking (`node_losses.csv`) and intervention coverage analysis (`intervention_coverage.csv`) for debugging
+
+This approach ensures the agent explores interventions on *all* parents of colliders, enabling proper mechanism learning.
+
 ## Early stopping (episode-level)
 
 To avoid wasted steps when progress stalls (often accompanied by rapid reward collapse), the training loop supports episode-level early stopping based on mechanism validation loss:
@@ -48,11 +67,12 @@ The agent can fall into "collapse" where it repeatedly targets the same node (e.
 
 ### 1. Collapse Detection & Penalties
 - `--collapse_threshold` (default: 0.30): Fraction threshold for detecting collapse (lowered from 0.50)
-- `--collapse_penalty` (default: 80.0): Quadratic penalty applied when collapse detected (scales with severity)
+- `--collapse_penalty` (default: 150.0): Quadratic penalty applied when collapse detected (scales with severity) **[Updated 2025-01-02]**
 
 ### 2. Under-Sampling Incentives
-- `--undersampled_bonus` (default: 50.0): Strong bonus for severely neglected nodes (e.g., X2 when X1 dominates)
-- `--cov_bonus` (default: 40.0): Coverage bonus scale increased for stronger exploration
+- `--undersampled_bonus` (default: 100.0): Strong bonus for severely neglected nodes (e.g., X2 when X1 dominates) **[Updated 2025-01-02]**
+- `--cov_bonus` (default: 60.0): Coverage bonus scale increased for stronger exploration **[Updated 2025-01-02]**
+- `--parent_balance_bonus` (default: 80.0): Bonus for balanced interventions among parents of multi-parent nodes **[New 2025-01-02]**
 
 ### 3. Mandatory Diversity Constraint
 - `--diversity_constraint`: Enable hard constraint that rejects over-sampled nodes when collapse > threshold
@@ -61,6 +81,12 @@ The agent can fall into "collapse" where it repeatedly targets the same node (e.
 ### 4. Forced Periodic Exploration
 - Every 10 steps, if collapse > 50%, the system automatically targets the least-sampled node
 - Helps discover collider structures (e.g., X3 with parents X1, X2) by ensuring balanced parent coverage
+
+### 5. Diagnostic Outputs (New 2025-01-02)
+The framework now generates detailed diagnostic files for analyzing learning failures:
+- `node_losses.csv`: Per-node mechanism losses at each step
+- `intervention_coverage.csv`: Intervention balance for collider parent nodes
+- Detailed bonus component breakdown in logs (every 50 steps)
 
 ## Running
 

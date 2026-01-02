@@ -505,9 +505,12 @@ class ScientificCritic:
 
     def calculate_reward(self, loss_before, loss_after):
         delta = loss_before - loss_after
-        reward = delta * 100.0
+        # CRITICAL FIX: Scale reward down to make bonuses competitive
+        # Old: reward = delta * 100.0 (rewards >> bonuses, causing collapse)
+        # New: reward = delta * 10.0 (rewards ~ bonuses, enabling exploration)
+        reward = delta * 10.0
         # Clip to keep extremely large deltas from destabilizing updates/metrics.
-        return float(np.clip(reward, -10.0, 4000.0))
+        return float(np.clip(reward, -10.0, 400.0))
 
 def dpo_loss(policy_model, ref_model, scm_state, winner_seq, loser_seq, beta=0.1):
     # Custom Transformer Tensor Loss
@@ -606,6 +609,8 @@ def _disentanglement_bonus(graph, target, node_losses):
     then intervening on T breaks the correlation induced by P->T. 
     This allows the learner to see T and P varying independently, which is 
     CRITICAL for learning the mechanism of C (especially if C = f(P, T) is complex).
+    
+    CRITICAL FIX: Increased bonus magnitude to compete with scaled-down rewards.
     """
     total_bonus = 0.0
     try:
@@ -628,8 +633,8 @@ def _disentanglement_bonus(graph, target, node_losses):
                     # We found a triangle P -> T -> C (and P -> C).
                     # Intervening on T is highly valuable for C.
                     child_loss = float(node_losses.get(child, 0.0))
-                    # Scale bonus by how confused the child is
-                    total_bonus += 20.0 * child_loss 
+                    # CRITICAL FIX: Increased from 20.0 to 100.0 to compete with rewards
+                    total_bonus += 100.0 * child_loss 
                     
     except Exception:
         pass
@@ -770,9 +775,10 @@ def main():
     parser.add_argument("--patience_steps", type=int, default=6, help="Early stop episode if no loss improvement for this many steps")
     parser.add_argument("--min_delta", type=float, default=1e-3, help="Minimum loss improvement to reset early stop patience")
     parser.add_argument("--warmup_steps", type=int, default=3, help="Do not early-stop before this many steps")
-    parser.add_argument("--cov_bonus", type=float, default=40.0, help="Coverage bonus scale (discourages target collapse, increased for stronger exploration)")
+    # CRITICAL FIX: All bonus/penalty parameters rebalanced to compete with scaled-down rewards
+    parser.add_argument("--cov_bonus", type=float, default=60.0, help="Coverage bonus scale (INCREASED to compete with reduced rewards)")
     parser.add_argument("--eps_explore", type=float, default=0.10, help="Exploration probability (coverage-seeking)")
-    parser.add_argument("--undersampled_bonus", type=float, default=50.0, help="Strong bonus for severely under-sampled nodes (e.g., X2 when X1 dominates)")
+    parser.add_argument("--undersampled_bonus", type=float, default=100.0, help="Strong bonus for severely under-sampled nodes (INCREASED from 50.0)")
     parser.add_argument("--diversity_constraint", action="store_true", help="Enforce mandatory diversity: reject candidates targeting over-sampled nodes when collapse detected")
     parser.add_argument("--diversity_threshold", type=float, default=0.60, help="Threshold for mandatory diversity enforcement (e.g., 60% triggers constraint)")
     parser.add_argument("--val_bonus", type=float, default=1.5, help="Value novelty bonus scale (discourages repeated values)")
@@ -780,11 +786,11 @@ def main():
     parser.add_argument("--value_max", type=float, default=5.0, help="Maximum intervention value accepted by the DSL")
     parser.add_argument("--n_value_bins", type=int, default=11, help="Discretization bins for value coverage bonus")
     parser.add_argument("--bin_bonus", type=float, default=8.0, help="Value coverage bonus scale (encourages spanning the value range)")
-    parser.add_argument("--disentangle_bonus", type=float, default=20.0, help="Bonus for breaking parent-parent correlations")
+    parser.add_argument("--disentangle_bonus", type=float, default=20.0, help="[DEPRECATED - bonus now computed internally] Bonus for breaking parent-parent correlations")
     parser.add_argument("--collapse_threshold", type=float, default=0.30, help="RecentTop fraction above which collapse penalty applies (lowered to detect collapse earlier)")
-    parser.add_argument("--collapse_penalty", type=float, default=80.0, help="Penalty scale applied to repeated target collapse (increased for stronger deterrence)")
-    parser.add_argument("--leaf_penalty", type=float, default=25.0, help="Penalty for intervening on leaf nodes (no descendants)")
-    parser.add_argument("--parent_balance_bonus", type=float, default=20.0, help="Bonus encouraging balanced interventions among parents of multi-parent children (e.g., X1 vs X2 for X3)")
+    parser.add_argument("--collapse_penalty", type=float, default=150.0, help="Penalty scale (INCREASED from 80.0 for stronger deterrence)")
+    parser.add_argument("--leaf_penalty", type=float, default=40.0, help="Penalty for intervening on leaf nodes (INCREASED from 25.0)")
+    parser.add_argument("--parent_balance_bonus", type=float, default=80.0, help="Bonus for balanced interventions among parents (INCREASED from 20.0 for colliders)")
     parser.add_argument("--token", type=str, default=None, help="HF Auth Token")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
     parser.add_argument("--debug_parsing", action="store_true", help="Enable detailed parse debug logging")
@@ -853,7 +859,19 @@ def main():
     train_steps_teacher_fallback = 0
     recent_parse_failures = deque(maxlen=10)  # Keep track of recent parsing failures
     
+    # NEW: Per-node loss tracking for collider diagnostics
+    node_loss_tracking = []
+    
+    # NEW: Intervention coverage tracking for multi-parent nodes
+    intervention_coverage_tracking = []
+    parent_intervention_counts = {n: Counter() for n in M_star.nodes if len(list(M_star.graph.predecessors(n))) >= 2}
+    
     logging.info(f"--- Starting Discovery Loop ({args.episodes} Episodes) ---")
+    
+    # Identify collider nodes for special tracking
+    collider_nodes = [n for n in M_star.nodes if len(list(M_star.graph.predecessors(n))) >= 2]
+    if collider_nodes:
+        logging.info(f"Collider nodes identified (multi-parent): {collider_nodes}")
 
     recent_action_counts = deque(maxlen=500)
     recent_values_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
@@ -887,6 +905,17 @@ def main():
             train_steps_total += 1
             # Evaluate mechanisms on interventional-style validation for better causal fidelity.
             loss_start, node_losses_start = critic.evaluate_mechanisms_detailed(current_student)
+            
+            # NEW: Track per-node losses for diagnosis
+            node_loss_record = {
+                "episode": episode,
+                "step": step,
+                "total_loss": loss_start,
+            }
+            for node, loss_val in node_losses_start.items():
+                node_loss_record[f"loss_{node}"] = loss_val
+            node_loss_tracking.append(node_loss_record)
+            
             if loss_start < best_mech_loss - args.min_delta:
                 best_mech_loss = loss_start
                 no_improve_steps = 0
@@ -1027,6 +1056,16 @@ def main():
 
                     score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus + disent_bonus + undersample_bonus - leaf_pen - collapse_pen
                     candidates.append((cmd_str, reward, cov_bonus, score, plan))
+                    
+                    # NEW: Detailed diagnostic logging every 50 steps for first 3 candidates
+                    if episode % 10 == 0 and step % 50 == 0 and k < 3:
+                        logging.info(
+                            f"    [Bonus Detail] Candidate {k+1}: target={tgt}, "
+                            f"reward={reward:.2f}, cov={cov_bonus:.2f}, val={val_bonus:.2f}, "
+                            f"bin={bin_bonus:.2f}, bal={bal_bonus:.2f}, disent={disent_bonus:.2f}, "
+                            f"undersample={undersample_bonus:.2f}, leaf_pen={leaf_pen:.2f}, "
+                            f"collapse_pen={collapse_pen:.2f}, score={score:.2f}"
+                        )
 
             if step_any_valid:
                 train_steps_with_any_valid += 1
@@ -1141,6 +1180,33 @@ def main():
                     pass
                 episode_action_counts[tgt] += 1
                 recent_action_counts.append(tgt)
+                
+                # NEW: Track intervention coverage for collider parent analysis
+                for collider in collider_nodes:
+                    parents = list(M_star.graph.predecessors(collider))
+                    if tgt in parents:
+                        parent_intervention_counts[collider][tgt] += 1
+                
+                # NEW: Log intervention coverage for colliders periodically
+                if step > 0 and step % 25 == 0:
+                    for collider in collider_nodes:
+                        parents = list(M_star.graph.predecessors(collider))
+                        total_interventions = sum(parent_intervention_counts[collider].values())
+                        if total_interventions > 0:
+                            coverage_record = {
+                                "episode": episode,
+                                "step": step,
+                                "collider": collider,
+                                "total_parent_interventions": total_interventions,
+                            }
+                            for p in parents:
+                                count = parent_intervention_counts[collider][p]
+                                coverage_record[f"interventions_{p}"] = count
+                                coverage_record[f"fraction_{p}"] = count / total_interventions if total_interventions > 0 else 0.0
+                            coverage_record["balance_score"] = min(
+                                [parent_intervention_counts[collider][p] for p in parents]
+                            ) / max([parent_intervention_counts[collider][p] for p in parents], default=1)
+                            intervention_coverage_tracking.append(coverage_record)
 
                 if winner_score > 0.2 or (episode % 10 == 0 and step == 0):
                     logging.info(
@@ -1205,6 +1271,29 @@ def main():
         "train_teacher_fallback_rate": [(train_steps_teacher_fallback / max(train_steps_total, 1))] * len(loss_history),
     })
     df.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
+    
+    # NEW: Save detailed per-node loss tracking for collider diagnostics
+    if node_loss_tracking:
+        node_loss_df = pd.DataFrame(node_loss_tracking)
+        node_loss_df.to_csv(os.path.join(run_dir, "node_losses.csv"), index=False)
+        logging.info(f"Saved per-node loss tracking: {len(node_loss_tracking)} records")
+    
+    # NEW: Save intervention coverage analysis for collider diagnostics
+    if intervention_coverage_tracking:
+        coverage_df = pd.DataFrame(intervention_coverage_tracking)
+        coverage_df.to_csv(os.path.join(run_dir, "intervention_coverage.csv"), index=False)
+        logging.info(f"Saved intervention coverage tracking: {len(intervention_coverage_tracking)} records")
+        
+        # Log final coverage statistics for colliders
+        for collider in collider_nodes:
+            parents = list(M_star.graph.predecessors(collider))
+            total = sum(parent_intervention_counts[collider].values())
+            if total > 0:
+                logging.info(f"Final intervention coverage for collider {collider}:")
+                for p in parents:
+                    count = parent_intervention_counts[collider][p]
+                    pct = 100.0 * count / total
+                    logging.info(f"  {p}: {count}/{total} ({pct:.1f}%)")
     
     run_ended_at = datetime.now()
     logging.info(f"Run ended at: {run_ended_at.isoformat(timespec='seconds')}")

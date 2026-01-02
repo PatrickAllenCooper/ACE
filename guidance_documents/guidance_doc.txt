@@ -1,25 +1,78 @@
-# Improvements
+# CHANGELOG
 
-Here is the method generally described here. We need to revise because based on the results we got from our last run, we appear to simply not
-be learning the functional associations between nodes in the SCM, which is the entire point of what we are after here. We are struggling with colliders and need to resolve this.
+## 2025-01-02: Critical Fix for Collider Learning
 
-However, we have a massive issue where the parsing is not operating correctly. Note the result of our last experimental run. We need to address this before we can continue work on this method:
-  Step 11: 'DO X2 = 3.4491' (Reward: 0.10, Cov: 6.50, Score: 6.60, RecentTop: X1@52%)
-  Step 12: 'DO X2 = 4.0311' (Reward: 0.10, Cov: 8.36, Score: 8.46, RecentTop: X1@52%)
-  Step 13: 'DO X2 = -1.2150' (Reward: 0.10, Cov: 8.52, Score: 8.62, RecentTop: X1@52%)
-  Step 14: 'DO X1 = 4.7897' (Reward: 0.10, Cov: 7.05, Score: 7.15, RecentTop: X1@52%)
-  Step 15: 'DO X1 = 2.0501' (Reward: 0.10, Cov: 7.26, Score: 7.36, RecentTop: X1@52%)
-  Step 16: 'DO X2 = -2.2246' (Reward: 0.10, Cov: 7.49, Score: 7.59, RecentTop: X1@52%)
-  Step 17: 'DO X2 = -4.6019' (Reward: 0.10, Cov: 3.00, Score: 3.10, RecentTop: X1@52%)
-  Step 18: 'DO X2 = -1.2866' (Reward: 0.10, Cov: 1.25, Score: 1.35, RecentTop: X1@52%)
-  Step 19: 'DO X2 = 1.0068' (Reward: 0.10, Cov: 1.00, Score: 1.10, RecentTop: X1@52%)
-  Step 20: 'DO X1 = -0.1455' (Reward: 0.10, Cov: 0.94, Score: 1.04, RecentTop: X1@52%)
---- Running Final Evaluation ---
-Final eval produced 0 parsed commands; falling back to last 500 training interventions for plots.
-Run ended at: 2025-12-29T10:35:24
-Run duration: 1:40:37.023190
-Training parse stats: candidates_parsed=61/8492 (0.7%), steps_with_any_valid_candidate=34/2183 (1.6%), teacher_fallback_steps=2094/2183 (95.9%)
-Experiment Complete. Results saved to experiment_results/run_20251229_085447
+### Problem Identified
+The system was failing to learn functional associations for collider nodes (nodes with multiple parents, e.g., X3 with parents X1 and X2). Agent collapsed to X1@94-96%, preventing proper exploration of X2 interventions.
+
+**Root Cause Analysis:**
+1. **Reward-Bonus Imbalance**: Raw rewards (delta * 100.0 = 100-2000) massively outweighed exploration bonuses (20-200), causing greedy exploitation
+2. **Training-Validation Mismatch**: Validation tests mechanisms with independent parent samples, but training only saw correlated (X1,X2) pairs:
+   - Observational: X2 = 2*X1 + 1 (highly correlated)
+   - DO(X1=c): X2 still depends on X1 (still correlated)
+   - DO(X2=c): ONLY case with independent X1,X2 (rarely chosen)
+3. **Insufficient Diagnostics**: No per-node loss tracking or intervention coverage analysis for colliders
+
+### Solutions Implemented
+
+#### 1. Reward Rescaling (CRITICAL)
+- **Changed**: `calculate_reward()` from `delta * 100.0` → `delta * 10.0`
+- **Rationale**: Makes exploration bonuses competitive with immediate rewards
+- **Impact**: Rewards now ~10-400 vs bonuses ~20-200 (comparable scales)
+
+#### 2. Enhanced Exploration Incentives
+- **Disentanglement Bonus**: Increased from 20.0 → 100.0 per child loss for triangle-breaking interventions
+- **Coverage Bonus**: Increased default from 40.0 → 60.0
+- **Undersampling Bonus**: Increased from 50.0 → 100.0 for neglected nodes
+- **Parent Balance Bonus**: Increased from 20.0 → 80.0 for collider parents
+- **Collapse Penalty**: Increased from 80.0 → 150.0 for stronger deterrence
+- **Leaf Penalty**: Increased from 25.0 → 40.0 to focus on informative nodes
+
+#### 3. Comprehensive Diagnostic Logging
+**Per-Node Loss Tracking** (`node_losses.csv`):
+- Records loss for each node at every step
+- Enables identification of which mechanisms are failing to learn
+- Format: `episode, step, total_loss, loss_X1, loss_X2, loss_X3, loss_X4, loss_X5`
+
+**Intervention Coverage Analysis** (`intervention_coverage.csv`):
+- Tracks intervention balance for collider parents every 25 steps
+- Shows if colliders receive balanced parent interventions
+- Computes balance_score = min(parent_counts) / max(parent_counts)
+- Format: `episode, step, collider, total_parent_interventions, interventions_X1, fraction_X1, ...`
+
+**Bonus Component Breakdown**:
+- Logs detailed bonus decomposition every 50 steps for top 3 candidates
+- Shows: reward, cov, val, bin, bal, disent, undersample, leaf_pen, collapse_pen
+
+**Collider Identification**:
+- Automatically identifies multi-parent nodes at startup
+- Logs final intervention coverage statistics for all colliders
+
+#### 4. Implementation Details
+Files modified:
+- `ace_experiments.py`: Core reward/bonus logic, logging infrastructure
+
+Key code changes:
+- Lines 506-515: Reward rescaling in `calculate_reward()`
+- Lines 600-638: Enhanced `_disentanglement_bonus()` with increased scale
+- Lines 778-792: Updated default parameter values
+- Lines 847-876: New tracking data structures and collider identification
+- Lines 889-903: Per-node loss tracking in main loop
+- Lines 1166-1192: Intervention coverage tracking for colliders
+- Lines 1057-1067: Detailed bonus component logging
+- Lines 1221-1240: Save diagnostic CSVs and log coverage statistics
+
+### Expected Outcomes
+1. **More Balanced Exploration**: Agent should explore X2 interventions ~20-40% of time (vs current 4-6%)
+2. **Improved Collider Learning**: X3 mechanism loss should decrease as it sees independent (X1,X2) samples
+3. **Quantifiable Diagnosis**: New CSV files enable data-driven analysis of learning failures
+
+### Previous Log (Problem Description)
+Step 5: 'DO X1 = 4.0733' (Reward: 0.10, Cov: 18.59, Score: 18.69, RecentTop: X1@94%)
+Step 10: 'DO X1 = -4.9131' (Reward: 0.10, Cov: 13.86, Score: 13.96, RecentTop: X1@94%)
+Step 1: 'DO X1 = -4.6787' (Reward: 0.10, Cov: 30.40, Score: 30.50, RecentTop: X1@94%)
+Final eval parse success: 100/100 (100%), Teacher fallback: 13.5%
+Run duration: 2:08:09 (Experiment results/run_20251231_082816)
 
 # ACE: Adversarial Causal Experimentalist
 
