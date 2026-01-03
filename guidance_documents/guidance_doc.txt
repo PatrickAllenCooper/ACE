@@ -1,6 +1,22 @@
 # CHANGELOG
 
-## 2026-01-03: Collapse Breaker Implementation
+## 2026-01-03: Principled Fix for Node Bias (Structural Normalization)
+
+### Problem: Structural Bias
+We identified that the root cause of the collapse to X1 is a **Structural Bias** in how "Impact" is calculated.
+- **Old Metric:** Impact = Sum of Descendant Losses.
+- **The Bias:** X1 affects 3 nodes (X1, X2, X3). X2 affects 2 nodes. X3 affects 1 node.
+- **The Result:** Even if mechanisms are equally broken, X1 *always* yields a higher "Impact Score" (approx. 3x higher than X3). This creates a permanent gradient forcing the agent to collapse to the base node (X1), regardless of actual learning needs.
+
+### Solution: Normalized Impact Scoring
+We have redefined `_direct_child_impact_weight` to use **Average Child Loss** instead of Total Child Loss.
+- **New Logic:** `Total Impact / Number of Children`.
+- **Effect:**
+    - X1 Impact: (Loss(X2) + Loss(X3)) / 2 = Average Loss.
+    - X2 Impact: (Loss(X3)) / 1 = Average Loss.
+- **Outcome:** If mechanisms are equally broken, all nodes now receive **equal scores**. The agent is now forced to choose based on *urgency* (actual mechanism failure) rather than *graph position*.
+
+### 2026-01-03: Collapse Breaker Implementation
 
 ### Problem Persisted
 Despite the critical fix on 2025-01-02 (Reward Rescaling & Enhanced Penalties), the agent continued to collapse (X1@97-98%).

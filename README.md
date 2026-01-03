@@ -93,6 +93,10 @@ The framework now generates detailed diagnostic files for analyzing learning fai
 - **Solution:** If collapse > 50% and *all* candidates target the collapsed node, the system forcefully **injects a random alternative**.
 - **Result:** The alternative (neutral score) automatically wins against the penalized candidates (negative score), mechanically breaking the loop.
 
+### 7. Principled Normalization (New 2026-01-03)
+- **Problem:** Base nodes (e.g., X1) structurally affect more children than downstream nodes (e.g., X3), leading to artificially higher "Impact Scores" even when mechanisms are equally broken.
+- **Solution:** Impact scoring now uses **Average Child Loss** (normalized by child count) instead of Total Child Loss. This levels the playing field, ensuring agents choose based on *mechanism urgency* rather than graph position.
+
 ## Running
 
 Example (custom policy, no pretrained LLM):
