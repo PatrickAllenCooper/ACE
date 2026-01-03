@@ -88,6 +88,11 @@ The framework now generates detailed diagnostic files for analyzing learning fai
 - `intervention_coverage.csv`: Intervention balance for collider parent nodes
 - Detailed bonus component breakdown in logs (every 50 steps)
 
+### 6. Collapse Breaker (Fail-Safe)
+- **Problem:** Even with penalties, a collapsed policy might *only* propose the collapsed node, forcing the selector to pick it.
+- **Solution:** If collapse > 50% and *all* candidates target the collapsed node, the system forcefully **injects a random alternative**.
+- **Result:** The alternative (neutral score) automatically wins against the penalized candidates (negative score), mechanically breaking the loop.
+
 ## Running
 
 Example (custom policy, no pretrained LLM):

@@ -1104,6 +1104,39 @@ def main():
             # Rank by score (reward + coverage bonus).
             sorted_cands = sorted(candidates, key=lambda x: x[3], reverse=True)
             
+            # --- CRITICAL FIX: COLLAPSE BREAKER ---
+            # If we are collapsed (e.g. > 50% on one node) and the agent ONLY proposes the collapsed node,
+            # we must forcefully inject a random alternative. Otherwise, the agent is forced to pick
+            # the collapsed node despite the massive penalty, perpetuating the loop.
+            if top_node is not None and top_frac > 0.50:
+                # Check if we have any valid candidate that is NOT the top_node
+                has_alternative = any(c[4] is not None and c[4].get("target") != top_node for c in sorted_cands if c[1] > -9.0)
+                
+                if not has_alternative:
+                    logging.info(f"  [Collapse Breaker] All candidates target {top_node}@{top_frac:.0%}. Injecting random alternative.")
+                    
+                    # 1. Find a valid node that is NOT the top_node
+                    valid_others = [n for n in dsl.nodes if n != top_node]
+                    if valid_others:
+                        # 2. Generate a random command for it
+                        breaker_cmd = get_random_valid_command_range(valid_others, args.value_min, args.value_max)
+                        breaker_plan = dsl.parse_to_dict(breaker_cmd)
+                        
+                        # 3. Score it (It will have NO collapse penalty, so it should win easily)
+                        tgt = breaker_plan.get("target")
+                        node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start)
+                        denom = float(sum(node_losses_start.values())) + 1e-8
+                        norm_weight = node_weight / denom
+                        under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
+                        cov_bonus = args.cov_bonus * norm_weight * under_sample
+                        
+                        # Give it a positive score to ensure it beats the penalized candidates (which are < 0)
+                        score = 10.0 + cov_bonus 
+                        
+                        # Insert at the top
+                        sorted_cands.insert(0, (breaker_cmd, 0.0, cov_bonus, score, breaker_plan))
+                        logging.info(f"  [Collapse Breaker] Injected '{breaker_cmd}' (Score: {score:.2f})")
+
             # MANDATORY DIVERSITY CONSTRAINT: When severe collapse detected, filter out over-sampled node
             diversity_enforced = False
             if args.diversity_constraint and top_node is not None and top_frac > args.diversity_threshold:

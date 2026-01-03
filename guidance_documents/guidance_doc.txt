@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 2026-01-03: Collapse Breaker Implementation
+
+### Problem Persisted
+Despite the critical fix on 2025-01-02 (Reward Rescaling & Enhanced Penalties), the agent continued to collapse (X1@97-98%).
+**Root Cause:** The Penalties worked (scores were -6000+), but the **Policy Generator** was stuck in a feedback loop, proposing *only* X1 candidates. The selection algorithm was forced to choose the "least bad" X1 candidate because no alternative existed.
+
+### Solution: Collapse Breaker
+Implemented a mechanical fail-safe in `ace_experiments.py`:
+- **Logic:** During candidate selection, if:
+  1. Collapse is severe (>50% on one node).
+  2. *All* proposed candidates target the collapsed node.
+- **Action:** Forcefully **inject** a random valid command targeting a *different* node.
+- **Result:** The injected candidate (neutral score) easily beats the collapsed candidates (massive negative score), forcing the agent to execute the alternative.
+
+### Expected Outcome
+- Immediate breaking of the X1 feedback loop.
+- Agent forced to explore X2/X3/X4 when X1 is over-sampled.
+
 ## 2025-01-02: Critical Fix for Collider Learning
 
 ### Problem Identified
