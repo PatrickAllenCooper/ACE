@@ -574,12 +574,15 @@ def _impact_weight(graph, target, node_losses):
         return 0.0
     return float(sum(float(node_losses.get(n, 0.0)) for n in desc))
 
-def _direct_child_impact_weight(graph, target, node_losses):
+def _direct_child_impact_weight(graph, target, node_losses, normalize=True):
     """
     Direct-child impact weight for an intervention on `target`.
 
     Intervening on a parent is most directly useful for identifying the mechanisms of its
     immediate children (especially multi-parent children like X3).
+    
+    If normalize=True, returns Average Child Loss (structure-independent).
+    If normalize=False, returns Total Child Loss (favors nodes with many children).
     """
     try:
         children = list(graph.successors(target))
@@ -598,6 +601,9 @@ def _direct_child_impact_weight(graph, target, node_losses):
         if n_par >= 2:
             w *= 2.0
         total += w * float(node_losses.get(child, 0.0))
+        
+    if normalize:
+        return float(total) / len(children)
     return float(total)
 
 def _disentanglement_bonus(graph, target, node_losses):
@@ -649,7 +655,8 @@ def get_teacher_command_impact(nodes, graph, node_losses, value_min=-5.0, value_
     impacts = []
     for n in nodes:
         # Prefer direct-child impact to reduce collapse onto distant ancestors.
-        impacts.append(_direct_child_impact_weight(graph, n, node_losses))
+        # Use normalize=True to prevent teacher bias towards high-degree nodes (X1).
+        impacts.append(_direct_child_impact_weight(graph, n, node_losses, normalize=True))
     total = sum(impacts)
     if total <= 0:
         return get_random_valid_command_range(nodes, value_min=value_min, value_max=value_max)
@@ -995,7 +1002,8 @@ def main():
                     reward = critic.calculate_reward(loss_start, loss_end)
                     tgt = plan.get("target")
                     # Prefer interventions that help high-loss *direct children* (best for learning X1/X2 -> X3).
-                    node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start)
+                    # normalize=True ensures we value "Urgency" (Avg Loss) over "Volume" (Total Loss)
+                    node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start, normalize=True)
                     denom = float(sum(node_losses_start.values())) + 1e-8
                     norm_weight = node_weight / denom
                     under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
@@ -1093,7 +1101,7 @@ def main():
                 )
                 teacher_plan = dsl.parse_to_dict(teacher_cmd)
                 tgt = teacher_plan.get("target") if teacher_plan else None
-                node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start)
+                node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start, normalize=True)
                 denom = float(sum(node_losses_start.values())) + 1e-8
                 norm_weight = node_weight / denom
                 under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
@@ -1124,7 +1132,7 @@ def main():
                         
                         # 3. Score it (It will have NO collapse penalty, so it should win easily)
                         tgt = breaker_plan.get("target")
-                        node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start)
+                        node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start, normalize=True)
                         denom = float(sum(node_losses_start.values())) + 1e-8
                         norm_weight = node_weight / denom
                         under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
