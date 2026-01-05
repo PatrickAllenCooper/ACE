@@ -153,10 +153,53 @@ class SCMLearner:
     def train_step(self, data, n_epochs=50):
         self.student.train()
 
-        batch = self._normalize_batch(data)
+        # --- FIX: FAST ADAPTATION PHASE ---
+        # Train strictly on the NEW data first to ensure immediate mechanism updates.
+        # This synchronizes the Loss Drop with the Action, fixing Reward Misattribution.
+        batch_new = self._normalize_batch(data)
+        
+        # Fast adaptation loop (e.g. 20% of total epochs, minimum 5)
+        fast_epochs = max(5, int(n_epochs * 0.2)) 
+        for _ in range(fast_epochs):
+            self.optimizer.zero_grad()
+            
+            # Fast adaptation: loss on NEW batch only
+            total_loss = 0
+            # Reuse the loss calculation logic for a single batch
+            # We must manually extract the logic or helper it, but for minimal change we inline here
+            # Since batch_new is just one dict, we don't need the complex collate logic
+            
+            # Simple batch processing for fast adaptation
+            for node in self.student.nodes:
+                parents = self.student.get_parents(node)
+                y_true = batch_new["data"][node]
+                
+                # Check intervention mask
+                mask = None
+                if batch_new.get("intervened") == node:
+                    mask = torch.zeros(y_true.shape[0], dtype=torch.bool)
+                else:
+                    mask = torch.ones(y_true.shape[0], dtype=torch.bool)
+                
+                if mask.sum().item() == 0:
+                    continue
+                    
+                if not parents:
+                    y_pred = self.student.mechanisms[node]['mu'].expand_as(y_true)
+                else:
+                    p_tensor = torch.stack([batch_new["data"][p] for p in parents], dim=1)
+                    y_pred = self.student.mechanisms[node](p_tensor).squeeze()
+                    
+                loss = self.loss_fn(y_pred[mask], y_true[mask])
+                total_loss += loss
+            
+            total_loss.backward()
+            self.optimizer.step()
+            
+        # --- END FIX ---
 
-        # Update buffer
-        self.buffer.append(batch)
+        # Standard Replay Phase (Consolidation)
+        self.buffer.append(batch_new)
         if len(self.buffer) > self.buffer_steps:
             self.buffer.pop(0)
             
