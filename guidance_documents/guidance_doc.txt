@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 2026-01-03: Validation of Collapse Breaker & Normalization
+
+### Observed Results
+Logs from the latest run confirm that the **Collapse Breaker** is successfully governing the agent's behavior.
+- **Behavior:** The agent policy attempts to collapse (proposing only X1).
+- **Intervention:** The Breaker detects `X1@50%` and injects diverse alternatives (`DO X2`, `DO X3`, `DO X4`, `DO X5`).
+- **Outcome:** The system oscillates at the threshold (50% X1), effectively enforcing a **hard cap** on X1 exploration.
+- **Diversity:** The remaining 50% of steps are distributed among other nodes, ensuring they receive non-zero coverage (approx. 12.5% each).
+
+### Log Evidence
+```text
+[Collapse Breaker] All candidates target X1@50%. Injecting random alternative.
+[Collapse Breaker] Injected 'DO X2 = -4.6495' (Score: 31.22)
+Step 18: 'DO X2 = -4.6495' (Reward: 0.00, Cov: 21.22, Score: 31.22, RecentTop: X1@50%)
+```
+This proves the safety mechanism is active and effective at forcing exploration when the policy fails to do so.
+
 ## 2026-01-03: Principled Fix for Node Bias (Structural Normalization)
 
 ### Problem: Structural Bias

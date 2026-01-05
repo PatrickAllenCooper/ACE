@@ -1311,6 +1311,25 @@ def main():
         "train_steps_teacher_fallback": [train_steps_teacher_fallback] * len(loss_history),
         "train_teacher_fallback_rate": [(train_steps_teacher_fallback / max(train_steps_total, 1))] * len(loss_history),
     })
+    
+    # NEW: Calculate and log collapse statistics
+    if target_history:
+        target_counts = Counter([t for t in target_history if t is not None])
+        total_targets = sum(target_counts.values())
+        if total_targets > 0:
+            logging.info("--- Final Target Distribution (Collapse Analysis) ---")
+            for node in dsl.nodes:
+                count = target_counts.get(node, 0)
+                pct = 100.0 * count / total_targets
+                logging.info(f"  {node}: {count}/{total_targets} ({pct:.1f}%)")
+            
+            # Identify if X1 collapse still exists (bias check)
+            x1_pct = 100.0 * target_counts.get("X1", 0) / total_targets
+            if x1_pct > 40.0:
+                logging.warning(f"  [WARNING] High X1 concentration detected ({x1_pct:.1f}%). Normalization may need tuning.")
+            else:
+                logging.info(f"  [SUCCESS] X1 concentration ({x1_pct:.1f}%) is balanced (<40%).")
+
     df.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
     
     # NEW: Save detailed per-node loss tracking for collider diagnostics
