@@ -207,7 +207,7 @@ class SCMLearner:
         combined_data = {}
         combined_mask = {}
         # Assumes all data dicts have the same nodes (which they should)
-        nodes = list(batch["data"].keys())
+        nodes = list(batch_new["data"].keys())
         for node in nodes:
             tensors = [b["data"][node] for b in self.buffer]
             combined_data[node] = torch.cat(tensors, dim=0)
