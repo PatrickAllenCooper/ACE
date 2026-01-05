@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## 2026-01-03: Analysis of Persistent Policy Collapse (Reward Misattribution)
+
+### Status
+- **Mechanism Learning:** SUCCESS. Collider (X3) is solved (Loss ~0.01) in later episodes.
+- **Safety System:** SUCCESS. Collapse Breaker successfully forces diversity.
+- **Agent Policy:** FAILURE. The agent continues to "collapse" to X1 and relies on the Breaker.
+
+### Root Cause Analysis: Reward Misattribution
+We identified a critical temporal disconnect in the reward loop caused by **Replay Buffer Inertia**:
+1.  **The Event:** The Breaker injects the critical intervention `DO(X2)` at Step T.
+2.  **The Inertia:** The Learner's buffer contains 49 steps of `DO(X1)` data and 1 step of `DO(X2)`. The gradient is dominated by the X1 correlation.
+3.  **The Delay:** The Learner fails to significantly update the X3 mechanism at Step T. **Reward is 0.0.**
+4.  **The Realization:** After several more steps (T+k) of training (even on X1), the X2 data in the buffer finally exerts enough influence to snap the model into the correct fit.
+5.  **The Error:** This loss drop coincides with a generic `DO(X1)` action at Step T+k.
+6.  **The Reinforcement:** The Agent receives a massive reward (e.g., 132.0) for `DO(X1)`, falsely confirming that X1 is the "magic bullet."
+
+**Evidence (Episode 97):**
+- Step 1 (DO X2): Loss 8.65 -> 8.87. **Reward 0.**
+- Step 5 (DO X1): Loss 13.17 -> 3.96. **Reward 132.** (Likely due to delayed digestion of Step 1 data).
+
+### Proposed Fixes
+To fix the policy (not just the mechanism), we must tighten the feedback loop so the reward lands on the correct action.
+1.  **Reduce Buffer Inertia:** Lower `buffer_steps` (e.g., 50 -> 10) to make the learner more responsive to new data.
+2.  **Intervention-Specific Training:** When performing a low-probability intervention (Breaker), train *only* on that batch (or weight it 10x) to ensure immediate gradient impact.
+
 ## 2026-01-03: Validation of Collapse Breaker & Normalization
 
 ### Observed Results
