@@ -97,11 +97,9 @@ The framework now generates detailed diagnostic files for analyzing learning fai
 - **Problem:** Base nodes (e.g., X1) structurally affect more children than downstream nodes (e.g., X3), leading to artificially higher "Impact Scores" even when mechanisms are equally broken.
 - **Solution:** Impact scoring now uses **Average Child Loss** (normalized by child count) instead of Total Child Loss. This levels the playing field, ensuring agents choose based on *mechanism urgency* rather than graph position.
 
-### 8. Known Limitation: Reward Misattribution (2026-01-03)
-- **Issue:** The agent policy still prefers X1 despite safety mechanisms.
-- **Cause:** **Replay Buffer Inertia**. When a critical intervention (e.g., `DO X2`) occurs, the buffer is dominated by old data, so the loss drop is delayed. The reward is often misattributed to a subsequent `DO X1` step.
-- **Impact:** Mechanism discovery succeeds (Breaker works), but the Policy fails to learn the optimal strategy autonomously.
-- **Proposed Fix:** Future work should implement **Prioritized Experience Replay** or reduce buffer size to tighten the reward loop.
+### 8. Fast Adaptation Phase (New 2026-01-03)
+- **Problem:** Replay Buffer Inertia causes reward misattribution. When a critical intervention (e.g., DO X2) occurs, the buffer is dominated by old data, so the loss drop is delayed and often credited to a subsequent DO X1 action.
+- **Solution:** A pre-training phase ("Fast Adaptation") that trains strictly on the *newest batch* before mixing it into the buffer. This ensures the model updates immediately, synchronizing the reward signal with the correct action.
 
 ## Running
 

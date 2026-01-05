@@ -1,29 +1,24 @@
 # CHANGELOG
 
-## 2026-01-03: Analysis of Persistent Policy Collapse (Reward Misattribution)
+## 2026-01-03: Fast Adaptation Phase to Fix Reward Misattribution
 
-### Status
-- **Mechanism Learning:** SUCCESS. Collider (X3) is solved (Loss ~0.01) in later episodes.
-- **Safety System:** SUCCESS. Collapse Breaker successfully forces diversity.
-- **Agent Policy:** FAILURE. The agent continues to "collapse" to X1 and relies on the Breaker.
+### Problem: Delayed Reward Signal
+We identified that **Replay Buffer Inertia** was causing the DPO agent to receive misattributed rewards.
+- **Scenario:** The agent (or breaker) performs a critical intervention `DO(X2)`.
+- **Inertia:** The buffer is 98% filled with old `DO(X1)` data. The loss function is dominated by X1 correlations.
+- **Delay:** The model doesn't update significantly at step T. Reward is ~0.
+- **Misattribution:** The model finally snaps to the correct X3 mechanism at step T+5 (after training on the buffer repeatedly). By then, the agent is doing `DO(X1)`, so X1 gets the credit.
 
-### Root Cause Analysis: Reward Misattribution
-We identified a critical temporal disconnect in the reward loop caused by **Replay Buffer Inertia**:
-1.  **The Event:** The Breaker injects the critical intervention `DO(X2)` at Step T.
-2.  **The Inertia:** The Learner's buffer contains 49 steps of `DO(X1)` data and 1 step of `DO(X2)`. The gradient is dominated by the X1 correlation.
-3.  **The Delay:** The Learner fails to significantly update the X3 mechanism at Step T. **Reward is 0.0.**
-4.  **The Realization:** After several more steps (T+k) of training (even on X1), the X2 data in the buffer finally exerts enough influence to snap the model into the correct fit.
-5.  **The Error:** This loss drop coincides with a generic `DO(X1)` action at Step T+k.
-6.  **The Reinforcement:** The Agent receives a massive reward (e.g., 132.0) for `DO(X1)`, falsely confirming that X1 is the "magic bullet."
+### Solution: Fast Adaptation Phase
+We implemented a **Fast Adaptation Phase** in `SCMLearner.train_step()`:
+- **Phase 1 (Fast Adaptation):** Train for `N` epochs (e.g., 20% of total) using **ONLY** the new incoming batch.
+- **Phase 2 (Consolidation):** Train for `M` epochs on the full replay buffer (standard logic).
 
-**Evidence (Episode 97):**
-- Step 1 (DO X2): Loss 8.65 -> 8.87. **Reward 0.**
-- Step 5 (DO X1): Loss 13.17 -> 3.96. **Reward 132.** (Likely due to delayed digestion of Step 1 data).
-
-### Proposed Fixes
-To fix the policy (not just the mechanism), we must tighten the feedback loop so the reward lands on the correct action.
-1.  **Reduce Buffer Inertia:** Lower `buffer_steps` (e.g., 50 -> 10) to make the learner more responsive to new data.
-2.  **Intervention-Specific Training:** When performing a low-probability intervention (Breaker), train *only* on that batch (or weight it 10x) to ensure immediate gradient impact.
+### Expected Outcome
+- **Instant Feedback:** The "Fast" phase forces the model to immediately satisfy the new constraints (e.g., X1 independent of X2).
+- **Correct Timing:** Validation loss drops *at the same step* the intervention occurs.
+- **Accurate Reward:** The `calculate_reward` function registers the delta immediately, awarding positive score to the correct `DO(X2)` action.
+- **Policy Learning:** The agent should now learn to propose `DO(X2)` autonomously, reducing reliance on the Collapse Breaker.
 
 ## 2026-01-03: Validation of Collapse Breaker & Normalization
 
