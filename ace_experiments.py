@@ -1218,7 +1218,35 @@ def main():
                 winner_cmd, winner_reward, winner_cov_bonus, winner_score, winner_plan = explore_sorted[0]
             else:
                 winner_cmd, winner_reward, winner_cov_bonus, winner_score, winner_plan = sorted_cands[0]
-            loser_cmd, loser_reward, loser_cov_bonus, loser_score, _ = sorted_cands[-1]
+            
+            # --- STRATEGY REVISION: CONTRASTIVE DPO PAIRS (EPISTEMIC CURIOSITY) ---
+            # Instead of always picking the worst candidate as loser, we intelligently select
+            # a loser that maximizes the "Strategy Contrast" (specifically tackling collapse).
+            loser_idx = -1
+            curiosity_weight = 1.0
+            
+            # Identify the dominant (collapsed) node
+            dom_node = top_node if (top_node is not None and top_frac > 0.40) else None
+            
+            winner_tgt = winner_plan.get("target") if winner_plan else None
+            
+            if dom_node and winner_tgt and winner_tgt != dom_node:
+                # Case 1: Winner is a "Novel" node (not the collapsed one).
+                # We want to explicitly pair it against the Collapsed Node to teach "Novel > Collapsed".
+                # We search for the *best* available candidate targeting the collapsed node to serve as the loser.
+                # (Comparing against the best X1 makes the gradient signal stronger/more robust than comparing vs worst X1).
+                for i in range(1, len(sorted_cands)):
+                    cand = sorted_cands[i]
+                    if cand[4] and cand[4].get("target") == dom_node:
+                        loser_idx = i
+                        # Boost the update weight because this is a high-value "Curiosity" lesson
+                        curiosity_weight = 2.0 
+                        break
+            
+            if curiosity_weight > 1.0 and step % 10 == 0:
+                logging.info(f"  [Epistemic Boost] Training '{winner_cmd}' > '{sorted_cands[loser_idx][0]}' (Weight: {curiosity_weight})")
+
+            loser_cmd, loser_reward, loser_cov_bonus, loser_score, _ = sorted_cands[loser_idx]
 
             # Update
             if winner_score > loser_score:
@@ -1233,6 +1261,9 @@ def main():
                     win_pad = F.pad(win_seq, (0, max_len - win_seq.shape[1]), value=dsl.token2id["<PAD>"])
                     lose_pad = F.pad(lose_seq, (0, max_len - lose_seq.shape[1]), value=dsl.token2id["<PAD>"])
                     loss = dpo_loss(policy_net, ref_policy, current_student, win_pad, lose_pad)
+                
+                # Apply Curiosity Boost (Epistemic Incentive)
+                loss = loss * curiosity_weight
                     
                 loss.backward()
                 optimizer_agent.step()
