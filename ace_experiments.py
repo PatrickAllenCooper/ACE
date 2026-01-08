@@ -323,10 +323,11 @@ class StateEncoder(nn.Module):
         super().__init__()
         self.n_nodes = n_nodes
         self.device = device
-        self.node_projector = nn.Linear(3, d_model) 
+        # Added validation loss to features: [w_mag, uncert, loss, idx]
+        self.node_projector = nn.Linear(4, d_model) 
         self.pos_embedding = nn.Parameter(torch.randn(1, n_nodes, d_model))
         
-    def forward(self, scm_student):
+    def forward(self, scm_student, node_losses=None):
         node_feats = []
         for node in scm_student.nodes:
             if isinstance(scm_student.mechanisms[node], nn.Sequential):
@@ -334,8 +335,10 @@ class StateEncoder(nn.Module):
             else:
                 w_mag = scm_student.mechanisms[node]['mu'].item()
             uncert = 0.5
+            # Inject validation loss if available, else 0.0
+            loss_val = node_losses.get(node, 0.0) if node_losses else 0.0
             idx = int(node[1]) 
-            node_feats.append([w_mag, uncert, float(idx)])
+            node_feats.append([w_mag, uncert, loss_val, float(idx)])
         x = torch.tensor(node_feats, dtype=torch.float32).unsqueeze(0)
         return self.node_projector(x.to(self.device)) + self.pos_embedding.to(self.device)
 
@@ -353,8 +356,8 @@ class TransformerPolicy(nn.Module):
         self.transformer_dec = nn.TransformerDecoder(decoder_layer, num_layers=num_layers)
         self.output_head = nn.Linear(d_model, len(dsl.vocab))
         
-    def forward(self, scm_student, target_seq=None):
-        src = self.state_encoder(scm_student)
+    def forward(self, scm_student, target_seq=None, node_losses=None):
+        src = self.state_encoder(scm_student, node_losses=node_losses)
         memory = self.transformer_enc(src)
         if target_seq is not None:
             tgt = self.token_embedding(target_seq)
@@ -362,9 +365,9 @@ class TransformerPolicy(nn.Module):
             return self.output_head(out)
         return memory
 
-    def generate_experiment(self, scm_student, max_len=5):
+    def generate_experiment(self, scm_student, node_losses=None, max_len=5):
         self.eval()
-        memory = self.forward(scm_student)
+        memory = self.forward(scm_student, node_losses=node_losses)
         curr_token = torch.tensor([[self.dsl.token2id["<SOS>"]]], device=self.device)
         generated_ids = []
         for _ in range(max_len):
@@ -398,7 +401,7 @@ class HuggingFacePolicy(nn.Module):
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             
-    def scm_to_prompt(self, scm):
+    def scm_to_prompt(self, scm, node_losses=None):
         edges = [f"{u}->{v}" for u, v in scm.graph.edges]
         edge_str = ", ".join(edges)
         knowledge = []
@@ -407,10 +410,17 @@ class HuggingFacePolicy(nn.Module):
                 mag = scm.mechanisms[node][0].weight.abs().mean().item()
                 knowledge.append(f"{node}:{mag:.2f}")
         know_str = " | ".join(knowledge)
+        
+        # Inject validation losses into prompt
+        loss_info = ""
+        if node_losses:
+            loss_strs = [f"{n}:{node_losses.get(n,0.0):.2f}" for n in scm.nodes]
+            loss_info = "Losses: [" + " | ".join(loss_strs) + "]. "
+            
         # Enhanced prompt with explicit format examples
         valid_nodes = ", ".join(scm.nodes)
         return (
-            f"Graph: [{edge_str}]. Weights: [{know_str}]. "
+            f"Graph: [{edge_str}]. Weights: [{know_str}]. {loss_info}"
             f"Task: Propose a causal intervention to discover mechanisms. "
             f"Valid nodes: {valid_nodes}. "
             f"Value range: [{self.dsl.value_min}, {self.dsl.value_max}]. "
@@ -420,16 +430,16 @@ class HuggingFacePolicy(nn.Module):
             f"Command: DO"
         )
 
-    def forward(self, scm_student, target_text_list=None):
-        prompt_text = self.scm_to_prompt(scm_student)
+    def forward(self, scm_student, target_text_list=None, node_losses=None):
+        prompt_text = self.scm_to_prompt(scm_student, node_losses=node_losses)
         if target_text_list is None: target_text_list = [""]
         full_texts = [prompt_text + " " + t for t in target_text_list]
         inputs = self.tokenizer(full_texts, return_tensors="pt", padding=True, truncation=True).to(self.device)
         outputs = self.model(**inputs)
         return outputs.logits, inputs.input_ids
 
-    def generate_experiment(self, scm_student, max_new_tokens=32):
-        prompt_text = self.scm_to_prompt(scm_student)
+    def generate_experiment(self, scm_student, node_losses=None, max_new_tokens=32):
+        prompt_text = self.scm_to_prompt(scm_student, node_losses=node_losses)
         inputs = self.tokenizer(prompt_text, return_tensors="pt").to(self.device)
         with torch.no_grad():
             outputs = self.model.generate(
@@ -553,42 +563,43 @@ class ScientificCritic:
         # New: reward = delta * 10.0 (rewards ~ bonuses, enabling exploration)
         reward = delta * 10.0
         # Clip to keep extremely large deltas from destabilizing updates/metrics.
-        return float(np.clip(reward, -10.0, 400.0))
+        # Also clip negative rewards to avoid severe punishment for exploration
+        return float(np.clip(reward, -2.0, 400.0))
 
-def dpo_loss(policy_model, ref_model, scm_state, winner_seq, loser_seq, beta=0.1):
+def dpo_loss(policy_model, ref_model, scm_state, winner_seq, loser_seq, node_losses=None, beta=0.1):
     # Custom Transformer Tensor Loss
-    def get_log_probs(model, state, seq):
+    def get_log_probs(model, state, seq, losses):
         input_seq = seq[:, :-1]
-        logits = model(state, input_seq) 
+        logits = model(state, input_seq, node_losses=losses) 
         log_probs = F.log_softmax(logits, dim=-1)
         target_tokens = seq[:, 1:].unsqueeze(-1) 
         token_log_probs = torch.gather(log_probs, -1, target_tokens).squeeze(-1)
         return token_log_probs.sum(dim=-1)
 
-    policy_win_lp = get_log_probs(policy_model, scm_state, winner_seq)
-    policy_lose_lp = get_log_probs(policy_model, scm_state, loser_seq)
+    policy_win_lp = get_log_probs(policy_model, scm_state, winner_seq, node_losses)
+    policy_lose_lp = get_log_probs(policy_model, scm_state, loser_seq, node_losses)
     with torch.no_grad():
-        ref_win_lp = get_log_probs(ref_model, scm_state, winner_seq)
-        ref_lose_lp = get_log_probs(ref_model, scm_state, loser_seq)
+        ref_win_lp = get_log_probs(ref_model, scm_state, winner_seq, node_losses)
+        ref_lose_lp = get_log_probs(ref_model, scm_state, loser_seq, node_losses)
 
     logits = (policy_win_lp - ref_win_lp) - (policy_lose_lp - ref_lose_lp)
     return -F.logsigmoid(beta * logits).mean()
 
-def dpo_loss_llm(policy_model, ref_model, scm_state, win_text, lose_text, beta=0.1):
+def dpo_loss_llm(policy_model, ref_model, scm_state, win_text, lose_text, node_losses=None, beta=0.1):
     # LLM Text Loss
-    def get_log_probs(model, text):
-        logits, input_ids = model(scm_state, [text])
+    def get_log_probs(model, text, losses):
+        logits, input_ids = model(scm_state, [text], node_losses=losses)
         shift_logits = logits[..., :-1, :].contiguous()
         shift_labels = input_ids[..., 1:].contiguous()
         log_probs = F.log_softmax(shift_logits, dim=-1)
         token_log_probs = torch.gather(log_probs, -1, shift_labels.unsqueeze(-1)).squeeze(-1)
         return token_log_probs.sum(dim=-1)
 
-    policy_win_lp = get_log_probs(policy_model, win_text)
-    policy_lose_lp = get_log_probs(policy_model, lose_text)
+    policy_win_lp = get_log_probs(policy_model, win_text, node_losses)
+    policy_lose_lp = get_log_probs(policy_model, lose_text, node_losses)
     with torch.no_grad():
-        ref_win_lp = get_log_probs(ref_model, win_text)
-        ref_lose_lp = get_log_probs(ref_model, lose_text)
+        ref_win_lp = get_log_probs(ref_model, win_text, node_losses)
+        ref_lose_lp = get_log_probs(ref_model, lose_text, node_losses)
 
     logits = (policy_win_lp - ref_win_lp) - (policy_lose_lp - ref_lose_lp)
     return -F.logsigmoid(beta * logits).mean()
@@ -1016,7 +1027,7 @@ def main():
             step_any_valid = False
             step_invalid_samples = []  # Track failed parses for this step
             for k in range(args.candidates):
-                cmd_str, plan = policy_net.generate_experiment(current_student)
+                cmd_str, plan = policy_net.generate_experiment(current_student, node_losses=node_losses_start)
                 train_candidates_total += 1
                 if plan is None:
                     train_candidates_invalid += 1
@@ -1252,7 +1263,7 @@ def main():
             if winner_score > loser_score:
                 optimizer_agent.zero_grad()
                 if use_pretrained:
-                    loss = dpo_loss_llm(policy_net, ref_policy, current_student, winner_cmd, loser_cmd)
+                    loss = dpo_loss_llm(policy_net, ref_policy, current_student, winner_cmd, loser_cmd, node_losses=node_losses_start)
                 else:
                     # Tensor path for custom
                     win_seq = dsl.encode(winner_cmd).unsqueeze(0).to(device)
@@ -1260,7 +1271,7 @@ def main():
                     max_len = max(win_seq.shape[1], lose_seq.shape[1])
                     win_pad = F.pad(win_seq, (0, max_len - win_seq.shape[1]), value=dsl.token2id["<PAD>"])
                     lose_pad = F.pad(lose_seq, (0, max_len - lose_seq.shape[1]), value=dsl.token2id["<PAD>"])
-                    loss = dpo_loss(policy_net, ref_policy, current_student, win_pad, lose_pad)
+                    loss = dpo_loss(policy_net, ref_policy, current_student, win_pad, lose_pad, node_losses=node_losses_start)
                 
                 # Apply Curiosity Boost (Epistemic Incentive)
                 loss = loss * curiosity_weight
@@ -1343,7 +1354,11 @@ def main():
     n_eval = 100
     n_parsed = 0
     for _ in range(n_eval):
-        _, plan = policy_net.generate_experiment(current_student)
+        # Pass empty node losses for evaluation if not available, or last known
+        # Ideally we should eval mechanisms first, but for speed we might skip or use last known.
+        # Let's re-evaluate mechanisms to be safe and accurate.
+        _, eval_losses = critic.evaluate_mechanisms_detailed(current_student)
+        _, plan = policy_net.generate_experiment(current_student, node_losses=eval_losses)
         if plan:
             n_parsed += 1
             eval_targets.append(plan["target"])

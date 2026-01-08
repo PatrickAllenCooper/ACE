@@ -1,172 +1,30 @@
 # CHANGELOG
 
+## 2026-01-08: Policy Input Augmentation for Collider Resolution
+
+### Problem: Agent Blindness to Mechanism Failure
+We identified that the "Collapse to X1" and failure to learn the Collider (X3) persisted because the Agent Policy was effectively blind.
+- **Blindness:** The `StateEncoder` only received input weights (`w_mag`) and node indices. It had **zero information** about the actual validation loss or failure state of specific nodes.
+- **Consequence:** The agent could not learn rules like "If X3 is failing, intervene on its parent X2". It relied solely on DPO training signals (rewards/bonuses) which were unstable due to negative rewards from distribution shifts.
+- **Negative Reward Loop:** Intervening on X2 (correctly) often caused a temporary spike in loss (negative reward) as the model adjusted from its collinear local minimum. This actively discouraged the correct behavior.
+
+### Solution: State Augmentation & Reward Shaping
+We implemented a fundamental upgrade to the Agent's perception and reward function:
+1.  **Augmented State Encoder:**
+    - Injected per-node **Validation Loss** directly into the input feature vector.
+    - New State: `[w_mag, uncert, val_loss, node_idx]`.
+    - Impact: The policy can now explicitly "see" which nodes are broken.
+
+2.  **LLM Prompt Enhancement:**
+    - Updated the text prompt for LLM policies to include `Losses: [X1: 0.1, X2: 4.5, ...]`.
+
+3.  **Reward Clipping:**
+    - Modified `calculate_reward` to clip negative rewards to `-2.0` (previously `-10.0`).
+    - Impact: Reduces the punishment for "hard" experiments that cause temporary instability, preventing the agent from becoming risk-averse.
+
+### Expected Outcome
+- **Intelligent Targeting:** The agent should learn to target parents of high-loss nodes (e.g., target X2 when X3 loss is high).
+- **Collider Resolution:** With the ability to perceive X3's failure and the reduced penalty for instability, the agent should persistently intervene on X2 until X3 is solved.
+
 ## 2026-01-03: Fast Adaptation Phase to Fix Reward Misattribution
-
-### Problem: Delayed Reward Signal
-We identified that **Replay Buffer Inertia** was causing the DPO agent to receive misattributed rewards.
-- **Scenario:** The agent (or breaker) performs a critical intervention `DO(X2)`.
-- **Inertia:** The buffer is 98% filled with old `DO(X1)` data. The loss function is dominated by X1 correlations.
-- **Delay:** The model doesn't update significantly at step T. Reward is ~0.
-- **Misattribution:** The model finally snaps to the correct X3 mechanism at step T+5 (after training on the buffer repeatedly). By then, the agent is doing `DO(X1)`, so X1 gets the credit.
-
-### Solution: Fast Adaptation Phase
-We implemented a **Fast Adaptation Phase** in `SCMLearner.train_step()`:
-- **Phase 1 (Fast Adaptation):** Train for `N` epochs (e.g., 20% of total) using **ONLY** the new incoming batch.
-- **Phase 2 (Consolidation):** Train for `M` epochs on the full replay buffer (standard logic).
-
-### Expected Outcome
-- **Instant Feedback:** The "Fast" phase forces the model to immediately satisfy the new constraints (e.g., X1 independent of X2).
-- **Correct Timing:** Validation loss drops *at the same step* the intervention occurs.
-- **Accurate Reward:** The `calculate_reward` function registers the delta immediately, awarding positive score to the correct `DO(X2)` action.
-- **Policy Learning:** The agent should now learn to propose `DO(X2)` autonomously, reducing reliance on the Collapse Breaker.
-
-## 2026-01-03: Validation of Collapse Breaker & Normalization
-
-### Observed Results
-Logs from the latest run confirm that the **Collapse Breaker** is successfully governing the agent's behavior.
-- **Behavior:** The agent policy attempts to collapse (proposing only X1).
-- **Intervention:** The Breaker detects `X1@50%` and injects diverse alternatives (`DO X2`, `DO X3`, `DO X4`, `DO X5`).
-- **Outcome:** The system oscillates at the threshold (50% X1), effectively enforcing a **hard cap** on X1 exploration.
-- **Diversity:** The remaining 50% of steps are distributed among other nodes, ensuring they receive non-zero coverage (approx. 12.5% each).
-
-### Log Evidence
-```text
-[Collapse Breaker] All candidates target X1@50%. Injecting random alternative.
-[Collapse Breaker] Injected 'DO X2 = -4.6495' (Score: 31.22)
-Step 18: 'DO X2 = -4.6495' (Reward: 0.00, Cov: 21.22, Score: 31.22, RecentTop: X1@50%)
-```
-This proves the safety mechanism is active and effective at forcing exploration when the policy fails to do so.
-
-## 2026-01-03: Principled Fix for Node Bias (Structural Normalization)
-
-### Problem: Structural Bias
-We identified that the root cause of the collapse to X1 is a **Structural Bias** in how "Impact" is calculated.
-- **Old Metric:** Impact = Sum of Descendant Losses.
-- **The Bias:** X1 affects 3 nodes (X1, X2, X3). X2 affects 2 nodes. X3 affects 1 node.
-- **The Result:** Even if mechanisms are equally broken, X1 *always* yields a higher "Impact Score" (approx. 3x higher than X3). This creates a permanent gradient forcing the agent to collapse to the base node (X1), regardless of actual learning needs.
-
-### Solution: Normalized Impact Scoring
-We have redefined `_direct_child_impact_weight` to use **Average Child Loss** instead of Total Child Loss.
-- **New Logic:** `Total Impact / Number of Children`.
-- **Effect:**
-    - X1 Impact: (Loss(X2) + Loss(X3)) / 2 = Average Loss.
-    - X2 Impact: (Loss(X3)) / 1 = Average Loss.
-- **Outcome:** If mechanisms are equally broken, all nodes now receive **equal scores**. The agent is now forced to choose based on *urgency* (actual mechanism failure) rather than *graph position*.
-
-### 2026-01-03: Collapse Breaker Implementation
-
-### Problem Persisted
-Despite the critical fix on 2025-01-02 (Reward Rescaling & Enhanced Penalties), the agent continued to collapse (X1@97-98%).
-**Root Cause:** The Penalties worked (scores were -6000+), but the **Policy Generator** was stuck in a feedback loop, proposing *only* X1 candidates. The selection algorithm was forced to choose the "least bad" X1 candidate because no alternative existed.
-
-### Solution: Collapse Breaker
-Implemented a mechanical fail-safe in `ace_experiments.py`:
-- **Logic:** During candidate selection, if:
-  1. Collapse is severe (>50% on one node).
-  2. *All* proposed candidates target the collapsed node.
-- **Action:** Forcefully **inject** a random valid command targeting a *different* node.
-- **Result:** The injected candidate (neutral score) easily beats the collapsed candidates (massive negative score), forcing the agent to execute the alternative.
-
-### Expected Outcome
-- Immediate breaking of the X1 feedback loop.
-- Agent forced to explore X2/X3/X4 when X1 is over-sampled.
-
-## 2025-01-02: Critical Fix for Collider Learning
-
-### Problem Identified
-The system was failing to learn functional associations for collider nodes (nodes with multiple parents, e.g., X3 with parents X1 and X2). Agent collapsed to X1@94-96%, preventing proper exploration of X2 interventions.
-
-**Root Cause Analysis:**
-1. **Reward-Bonus Imbalance**: Raw rewards (delta * 100.0 = 100-2000) massively outweighed exploration bonuses (20-200), causing greedy exploitation
-2. **Training-Validation Mismatch**: Validation tests mechanisms with independent parent samples, but training only saw correlated (X1,X2) pairs:
-   - Observational: X2 = 2*X1 + 1 (highly correlated)
-   - DO(X1=c): X2 still depends on X1 (still correlated)
-   - DO(X2=c): ONLY case with independent X1,X2 (rarely chosen)
-3. **Insufficient Diagnostics**: No per-node loss tracking or intervention coverage analysis for colliders
-
-### Solutions Implemented
-
-#### 1. Reward Rescaling (CRITICAL)
-- **Changed**: `calculate_reward()` from `delta * 100.0` → `delta * 10.0`
-- **Rationale**: Makes exploration bonuses competitive with immediate rewards
-- **Impact**: Rewards now ~10-400 vs bonuses ~20-200 (comparable scales)
-
-#### 2. Enhanced Exploration Incentives
-- **Disentanglement Bonus**: Increased from 20.0 → 100.0 per child loss for triangle-breaking interventions
-- **Coverage Bonus**: Increased default from 40.0 → 60.0
-- **Undersampling Bonus**: Increased from 50.0 → 100.0 for neglected nodes
-- **Parent Balance Bonus**: Increased from 20.0 → 80.0 for collider parents
-- **Collapse Penalty**: Increased from 80.0 → 150.0 for stronger deterrence
-- **Leaf Penalty**: Increased from 25.0 → 40.0 to focus on informative nodes
-
-#### 3. Comprehensive Diagnostic Logging
-**Per-Node Loss Tracking** (`node_losses.csv`):
-- Records loss for each node at every step
-- Enables identification of which mechanisms are failing to learn
-- Format: `episode, step, total_loss, loss_X1, loss_X2, loss_X3, loss_X4, loss_X5`
-
-**Intervention Coverage Analysis** (`intervention_coverage.csv`):
-- Tracks intervention balance for collider parents every 25 steps
-- Shows if colliders receive balanced parent interventions
-- Computes balance_score = min(parent_counts) / max(parent_counts)
-- Format: `episode, step, collider, total_parent_interventions, interventions_X1, fraction_X1, ...`
-
-**Bonus Component Breakdown**:
-- Logs detailed bonus decomposition every 50 steps for top 3 candidates
-- Shows: reward, cov, val, bin, bal, disent, undersample, leaf_pen, collapse_pen
-
-**Collider Identification**:
-- Automatically identifies multi-parent nodes at startup
-- Logs final intervention coverage statistics for all colliders
-
-#### 4. Implementation Details
-Files modified:
-- `ace_experiments.py`: Core reward/bonus logic, logging infrastructure
-
-Key code changes:
-- Lines 506-515: Reward rescaling in `calculate_reward()`
-- Lines 600-638: Enhanced `_disentanglement_bonus()` with increased scale
-- Lines 778-792: Updated default parameter values
-- Lines 847-876: New tracking data structures and collider identification
-- Lines 889-903: Per-node loss tracking in main loop
-- Lines 1166-1192: Intervention coverage tracking for colliders
-- Lines 1057-1067: Detailed bonus component logging
-- Lines 1221-1240: Save diagnostic CSVs and log coverage statistics
-
-### Expected Outcomes
-1. **More Balanced Exploration**: Agent should explore X2 interventions ~20-40% of time (vs current 4-6%)
-2. **Improved Collider Learning**: X3 mechanism loss should decrease as it sees independent (X1,X2) samples
-3. **Quantifiable Diagnosis**: New CSV files enable data-driven analysis of learning failures
-
-### Previous Log (Problem Description)
-Step 5: 'DO X1 = 4.0733' (Reward: 0.10, Cov: 18.59, Score: 18.69, RecentTop: X1@94%)
-Step 10: 'DO X1 = -4.9131' (Reward: 0.10, Cov: 13.86, Score: 13.96, RecentTop: X1@94%)
-Step 1: 'DO X1 = -4.6787' (Reward: 0.10, Cov: 30.40, Score: 30.50, RecentTop: X1@94%)
-Final eval parse success: 100/100 (100%), Teacher fallback: 13.5%
-Run duration: 2:08:09 (Experiment results/run_20251231_082816)
-
-# ACE: Adversarial Causal Experimentalist
-
-**A Framework for Automated Causal Discovery via DSL-Mediated Self-Play and Direct Preference Optimization (DPO).**
-
-## Overview
-
-**ACE** (Adversarial Self-Alignment for Causal Experimentalism) is a research framework that reformulates causal discovery not as a static curve-fitting problem, but as an interactive, sequential decision-making game.
-
-The goal is to train an AI agent (the **Experimentalist**) to autonomously design experiments that efficiently uncover the hidden mechanisms of a ground-truth system (the **Environment**). By treating the "Learner's" ignorance as an adversary, the agent uses **Direct Preference Optimization (DPO)** to align itself with the objective of maximizing "Scientific Surprise" (Information Gain).
-
-## Key Features
-
-* **Interactive Causal Discovery:** The agent actively queries the environment using interventions ($do(X=x)$), rather than learning from passive observational data.
-* **Episodic Discovery Protocol:** Training is organized into "Episodes" where a fresh Learner attempts to solve the system from scratch, forcing the Agent to learn generalizable strategies rather than memorizing a single solution.
-* **Dual-Policy Architecture:** Supports both custom scratch-trained Transformers and pretrained LLM Adapters (e.g., **Qwen-2.5**) to guide experimentation.
-* **Rigorous DSL:** All interventions are grounded in a Domain Specific Language (DSL) to ensure valid, physically realizable experiments (e.g., `DO X1 = 2.5`).
-* **Teacher Injection:** A bootstrapping mechanism that injects valid "Teacher" commands during early training to overcome the cold-start problem and prevent reward hacking.
-
-## System Architecture
-
-The framework consists of three primary interacting components:
-
-1.  **The Environment ($M^*$):** A ground-truth Structural Causal Model (SCM) that generates data. It supports complex non-linear mechanisms (e.g., Sine waves, quadratic functions) to rigorously test discovery capabilities.
-2.  **The Learner ($M_\theta$):** A learnable SCM parameterized by Neural Networks (MLPs). It attempts to approximate the Environment's mechanisms based on data gathered by the Agent.
-3.  **The Experimentalist ($\pi_\phi$):** The policy (Agent) that observes the Learner's current state (weights, uncertainty) and proposes the next experiment to run.
+...
