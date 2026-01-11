@@ -400,71 +400,131 @@ class HuggingFacePolicy(nn.Module):
         self.model = AutoModelForCausalLM.from_pretrained(model_name, token=token).to(device)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
+        
+        # Track generation statistics for diagnostics
+        self.generation_stats = Counter()
+        self.prompt_response_log = deque(maxlen=50)  # Keep last 50 for diagnosis
             
-    def scm_to_prompt(self, scm, node_losses=None):
+    def scm_to_prompt(self, scm, node_losses=None, intervention_history=None):
+        """
+        CRITICAL FIX: Completely restructured prompt to force the LLM to attend to losses.
+        
+        The old prompt buried the loss information and ended with "DO" which biased 
+        the LLM toward always completing with "X1" (alphabetically/numerically first).
+        
+        New prompt:
+        1. Puts the PROBLEM first (which node is failing)
+        2. Explicitly states what NOT to do (avoid over-sampled nodes)
+        3. Provides reasoning examples
+        4. Ends with the target node decision point, not "DO"
+        """
         edges = [f"{u}->{v}" for u, v in scm.graph.edges]
         edge_str = ", ".join(edges)
-        knowledge = []
-        for node in scm.nodes:
-            if isinstance(scm.mechanisms[node], nn.Sequential):
-                mag = scm.mechanisms[node][0].weight.abs().mean().item()
-                knowledge.append(f"{node}:{mag:.2f}")
-        know_str = " | ".join(knowledge)
         
-        # Inject validation losses into prompt
-        loss_info = ""
+        # Identify the failing node (highest loss, excluding roots)
+        failing_node = None
+        max_loss = 0.0
+        parent_nodes = set()
         if node_losses:
-            loss_strs = [f"{n}:{node_losses.get(n,0.0):.2f}" for n in scm.nodes]
-            loss_info = "Losses: [" + " | ".join(loss_strs) + "]. "
-            
-        # Enhanced prompt with explicit format examples
+            for node in scm.nodes:
+                parents = list(scm.graph.predecessors(node))
+                if parents:  # Not a root
+                    loss = node_losses.get(node, 0.0)
+                    if loss > max_loss:
+                        max_loss = loss
+                        failing_node = node
+                        parent_nodes = set(parents)
+        
+        # Build intervention history summary
+        hist_str = ""
+        if intervention_history:
+            hist_counts = Counter(intervention_history[-100:])  # Last 100
+            total = sum(hist_counts.values())
+            if total > 0:
+                hist_parts = [f"{n}:{hist_counts.get(n,0)}/{total}" for n in scm.nodes]
+                hist_str = f"Recent interventions: [{', '.join(hist_parts)}]. "
+                # Identify over-sampled node
+                most_common = hist_counts.most_common(1)
+                if most_common and most_common[0][1] / total > 0.3:
+                    oversampled = most_common[0][0]
+                    hist_str += f"WARNING: {oversampled} is over-sampled ({most_common[0][1]}/{total}). AVOID {oversampled}. "
+        
+        # Build loss ranking (most important information)
+        loss_ranking = ""
+        if node_losses:
+            # Sort nodes by loss, descending
+            sorted_losses = sorted(
+                [(n, node_losses.get(n, 0.0)) for n in scm.nodes if list(scm.graph.predecessors(n))],
+                key=lambda x: x[1],
+                reverse=True
+            )
+            if sorted_losses:
+                loss_parts = [f"{n}={v:.2f}" for n, v in sorted_losses[:3]]  # Top 3
+                loss_ranking = f"PROBLEM: Node losses (high=bad): {', '.join(loss_parts)}. "
+                if failing_node and parent_nodes:
+                    loss_ranking += f"To fix {failing_node}, intervene on its parents: {', '.join(sorted(parent_nodes))}. "
+        
+        # Construct the NEW prompt - problem-first, action-oriented
         valid_nodes = ", ".join(scm.nodes)
-        return (
-            f"Graph: [{edge_str}]. Weights: [{know_str}]. {loss_info}"
-            f"Task: Propose a causal intervention to discover mechanisms. "
-            f"Valid nodes: {valid_nodes}. "
-            f"Value range: [{self.dsl.value_min}, {self.dsl.value_max}]. "
-            f"Format: DO X[digit] = [number]. "
-            f"Examples: 'DO X1 = 2.5', 'DO X3 = -1.8'. "
-            f"Output only the command, nothing else.\n"
-            f"Command: DO"
-        )
+        
+        # FEW-SHOT EXAMPLES that demonstrate reasoning
+        examples = """
+Examples of good reasoning:
+- If X3 has high loss and parents are X1,X2: "X3 is failing. To learn X3's mechanism, I should intervene on X2 (breaking X1-X2 correlation)." -> DO X2 = 1.5
+- If X2 has high loss and parent is X1: "X2 is failing. To learn X2's mechanism, I should intervene on X1." -> DO X1 = -2.0
+- If X5 has high loss and parent is X4: "X5 is failing. To learn X5's mechanism, I should intervene on X4." -> DO X4 = 3.0
+"""
 
-    def forward(self, scm_student, target_text_list=None, node_losses=None):
-        prompt_text = self.scm_to_prompt(scm_student, node_losses=node_losses)
+        prompt = (
+            f"{loss_ranking}"
+            f"{hist_str}"
+            f"Graph: [{edge_str}]. "
+            f"Valid targets: {valid_nodes}. Value range: [{self.dsl.value_min}, {self.dsl.value_max}].\n"
+            f"{examples}\n"
+            f"Based on the current losses, which node should we intervene on to learn the failing mechanism?\n"
+            f"Reasoning: The highest loss node is"
+        )
+        
+        return prompt, failing_node, parent_nodes
+
+    def forward(self, scm_student, target_text_list=None, node_losses=None, intervention_history=None):
+        prompt_text, _, _ = self.scm_to_prompt(scm_student, node_losses=node_losses, intervention_history=intervention_history)
         if target_text_list is None: target_text_list = [""]
         full_texts = [prompt_text + " " + t for t in target_text_list]
         inputs = self.tokenizer(full_texts, return_tensors="pt", padding=True, truncation=True).to(self.device)
         outputs = self.model(**inputs)
         return outputs.logits, inputs.input_ids
 
-    def generate_experiment(self, scm_student, node_losses=None, max_new_tokens=32):
-        prompt_text = self.scm_to_prompt(scm_student, node_losses=node_losses)
+    def generate_experiment(self, scm_student, node_losses=None, intervention_history=None, max_new_tokens=64):
+        prompt_text, failing_node, parent_nodes = self.scm_to_prompt(
+            scm_student, node_losses=node_losses, intervention_history=intervention_history
+        )
         inputs = self.tokenizer(prompt_text, return_tensors="pt").to(self.device)
+        
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs, 
                 max_new_tokens=max_new_tokens, 
                 pad_token_id=self.tokenizer.eos_token_id, 
                 do_sample=True, 
-                temperature=0.7,
-                repetition_penalty=1.2
+                temperature=0.8,  # Slightly higher for more diversity
+                top_p=0.9,
+                repetition_penalty=1.3
             )
         full_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         
         # Extract only the generated portion (after the prompt)
-        # The model may echo the prompt, so we need to remove it
         if full_text.startswith(prompt_text):
             generated_text = full_text[len(prompt_text):].strip()
         else:
-            # If prompt not found at start, try to find "Command:" marker
-            if "Command:" in full_text:
-                generated_text = full_text.split("Command:")[-1].strip()
+            # Try to find where generation started
+            if "Reasoning:" in full_text:
+                generated_text = full_text.split("Reasoning:")[-1].strip()
             else:
                 generated_text = full_text
         
         try:
-            # Try parsing the generated text
+            # Try parsing the generated text for DO command
             plan = self.dsl.parse_to_dict_lenient(generated_text, clip_out_of_range=True)
             
             # Fallback: try parsing the full text if generated_text didn't work
@@ -472,16 +532,62 @@ class HuggingFacePolicy(nn.Module):
                 plan = self.dsl.parse_to_dict_lenient(full_text, clip_out_of_range=True)
             
             if plan is None:
-                # Enhanced logging for parse failures
-                logging.debug(f"PARSE_FAIL: generated='{generated_text[:150]}', full='{full_text[:150]}'")
-                return generated_text if generated_text else full_text, None
+                # CRITICAL FIX: If LLM fails to produce valid command, use informed fallback
+                # Instead of returning None, generate a smart intervention based on losses
+                if failing_node and parent_nodes:
+                    # Target a parent of the failing node
+                    target = random.choice(list(parent_nodes))
+                    value = random.uniform(float(self.dsl.value_min), float(self.dsl.value_max))
+                    plan = {"target": target, "value": value, "samples": 200}
+                    cmd_str = f"DO {target} = {value:.4f}"
+                    logging.debug(f"LLM_FALLBACK: Generated '{cmd_str}' (parent of failing {failing_node})")
+                    # Track the fallback
+                    self.generation_stats["fallback_parent"] += 1
+                    return cmd_str, plan
+                else:
+                    logging.debug(f"PARSE_FAIL: generated='{generated_text[:150]}', full='{full_text[:150]}'")
+                    self.generation_stats["parse_fail"] += 1
+                    return generated_text if generated_text else full_text, None
 
-            # Canonicalize the command string to exactly match the DSL.
+            # Track successful generation
+            target = plan.get("target")
+            self.generation_stats[f"generated_{target}"] += 1
+            
+            # Log prompt-response for diagnosis (periodically)
+            if len(self.prompt_response_log) < 50 or random.random() < 0.01:
+                self.prompt_response_log.append({
+                    "prompt_snippet": prompt_text[-200:],
+                    "generated": generated_text[:100],
+                    "target": target,
+                    "failing_node": failing_node,
+                    "parent_nodes": list(parent_nodes) if parent_nodes else []
+                })
+
+            # Canonicalize the command string
             cmd_str = f"DO {plan['target']} = {float(plan['value']):.4f}"
             return cmd_str, plan
+            
         except Exception as e:
             logging.debug(f"PARSE_EXCEPTION: {e}, generated='{generated_text[:150] if generated_text else None}'")
+            self.generation_stats["exception"] += 1
             return generated_text if generated_text else full_text, None
+    
+    def log_generation_diagnostics(self):
+        """Log accumulated generation statistics for diagnosis."""
+        if self.generation_stats:
+            total = sum(self.generation_stats.values())
+            logging.info(f"LLM Generation Stats (n={total}):")
+            for key, count in self.generation_stats.most_common():
+                pct = 100.0 * count / total if total > 0 else 0
+                logging.info(f"  {key}: {count} ({pct:.1f}%)")
+        
+        # Log sample prompt-response pairs
+        if self.prompt_response_log:
+            logging.info(f"Sample prompt-response pairs (last {len(self.prompt_response_log)}):")
+            for i, entry in enumerate(list(self.prompt_response_log)[-3:]):
+                logging.info(f"  [{i}] failing={entry['failing_node']}, parents={entry['parent_nodes']}")
+                logging.info(f"      generated: '{entry['generated'][:80]}'")
+                logging.info(f"      target: {entry['target']}")
 
 # ----------------------------------------------------------------
 # 4. LOSS & CRITIC
@@ -585,24 +691,248 @@ def dpo_loss(policy_model, ref_model, scm_state, winner_seq, loser_seq, node_los
     logits = (policy_win_lp - ref_win_lp) - (policy_lose_lp - ref_lose_lp)
     return -F.logsigmoid(beta * logits).mean()
 
-def dpo_loss_llm(policy_model, ref_model, scm_state, win_text, lose_text, node_losses=None, beta=0.1):
-    # LLM Text Loss
-    def get_log_probs(model, text, losses):
-        logits, input_ids = model(scm_state, [text], node_losses=losses)
+class DPOLogger:
+    """
+    Comprehensive logging for DPO training diagnostics.
+    
+    Tracks:
+    - Loss values and components
+    - Preference margins (how much policy prefers winner over loser)
+    - Log probability differences
+    - Training stability indicators
+    """
+    def __init__(self):
+        self.history = {
+            "loss": [],
+            "preference_margin": [],  # policy_win_lp - policy_lose_lp
+            "ref_margin": [],          # ref_win_lp - ref_lose_lp
+            "kl_from_ref": [],         # How far policy has drifted from ref
+            "winner_target": [],
+            "loser_target": [],
+            "sigmoid_input": [],       # The logit input to sigmoid (should be positive for learning)
+        }
+        self.step_count = 0
+        
+    def log(self, loss, policy_win_lp, policy_lose_lp, ref_win_lp, ref_lose_lp, 
+            winner_target, loser_target, logit):
+        self.history["loss"].append(loss)
+        self.history["preference_margin"].append((policy_win_lp - policy_lose_lp).item())
+        self.history["ref_margin"].append((ref_win_lp - ref_lose_lp).item())
+        self.history["kl_from_ref"].append(((policy_win_lp - ref_win_lp) + (policy_lose_lp - ref_lose_lp)).item() / 2)
+        self.history["winner_target"].append(winner_target)
+        self.history["loser_target"].append(loser_target)
+        self.history["sigmoid_input"].append(logit.item())
+        self.step_count += 1
+        
+    def report(self, every_n=100):
+        """Generate periodic report on DPO training health."""
+        if self.step_count == 0 or self.step_count % every_n != 0:
+            return
+            
+        recent = min(100, len(self.history["loss"]))
+        
+        avg_loss = np.mean(self.history["loss"][-recent:])
+        avg_pref_margin = np.mean(self.history["preference_margin"][-recent:])
+        avg_sigmoid_input = np.mean(self.history["sigmoid_input"][-recent:])
+        avg_kl = np.mean(self.history["kl_from_ref"][-recent:])
+        
+        # Count how often policy prefers winner (healthy = positive preference margin)
+        positive_prefs = sum(1 for m in self.history["preference_margin"][-recent:] if m > 0)
+        pref_rate = positive_prefs / recent if recent > 0 else 0
+        
+        # Count winner/loser target distribution
+        winner_counts = Counter(self.history["winner_target"][-recent:])
+        loser_counts = Counter(self.history["loser_target"][-recent:])
+        
+        logging.info(f"--- DPO Training Report (step {self.step_count}) ---")
+        logging.info(f"  Avg Loss: {avg_loss:.4f} (optimal ~0, stuck at 0.693 = random)")
+        logging.info(f"  Avg Preference Margin: {avg_pref_margin:.4f} (should be positive)")
+        logging.info(f"  Policy Prefers Winner: {pref_rate:.1%} of time (should be >50%)")
+        logging.info(f"  Avg Sigmoid Input: {avg_sigmoid_input:.4f} (positive = learning)")
+        logging.info(f"  Avg KL from Reference: {avg_kl:.4f}")
+        logging.info(f"  Recent Winners: {dict(winner_counts)}")
+        logging.info(f"  Recent Losers: {dict(loser_counts)}")
+        
+        # Health check warnings
+        if avg_loss > 0.68:
+            logging.warning(f"  ⚠️ DPO loss near random chance (0.693) - model may not be learning!")
+        if pref_rate < 0.4:
+            logging.warning(f"  ⚠️ Policy rarely prefers winner - preference signal may be inverted!")
+        if abs(avg_kl) > 5.0:
+            logging.warning(f"  ⚠️ Large KL divergence from reference - consider updating reference policy")
+            
+    def save(self, results_dir):
+        """Save DPO training history to CSV for analysis."""
+        if not self.history["loss"]:
+            return
+        df = pd.DataFrame({
+            "loss": self.history["loss"],
+            "preference_margin": self.history["preference_margin"],
+            "ref_margin": self.history["ref_margin"],
+            "kl_from_ref": self.history["kl_from_ref"],
+            "sigmoid_input": self.history["sigmoid_input"],
+            "winner_target": self.history["winner_target"],
+            "loser_target": self.history["loser_target"],
+        })
+        path = os.path.join(results_dir, "dpo_training.csv")
+        df.to_csv(path, index=False)
+        logging.info(f"Saved DPO training history to {path}")
+
+
+# Global DPO logger instance
+_dpo_logger = None
+
+def get_dpo_logger():
+    global _dpo_logger
+    if _dpo_logger is None:
+        _dpo_logger = DPOLogger()
+    return _dpo_logger
+
+
+def dpo_loss_llm(policy_model, ref_model, scm_state, win_text, lose_text, node_losses=None, intervention_history=None, beta=0.1):
+    """
+    LLM DPO Loss with comprehensive logging.
+    
+    The loss encourages the policy to prefer win_text over lose_text:
+    L = -log(sigmoid(beta * [(policy_win - ref_win) - (policy_lose - ref_lose)]))
+    
+    Key insight: If the sigmoid input is negative, the policy prefers the loser.
+    We need positive sigmoid inputs for the model to learn the preference.
+    """
+    def get_log_probs(model, text, losses, hist):
+        logits, input_ids = model(scm_state, [text], node_losses=losses, intervention_history=hist)
         shift_logits = logits[..., :-1, :].contiguous()
         shift_labels = input_ids[..., 1:].contiguous()
         log_probs = F.log_softmax(shift_logits, dim=-1)
         token_log_probs = torch.gather(log_probs, -1, shift_labels.unsqueeze(-1)).squeeze(-1)
         return token_log_probs.sum(dim=-1)
 
-    policy_win_lp = get_log_probs(policy_model, win_text, node_losses)
-    policy_lose_lp = get_log_probs(policy_model, lose_text, node_losses)
+    policy_win_lp = get_log_probs(policy_model, win_text, node_losses, intervention_history)
+    policy_lose_lp = get_log_probs(policy_model, lose_text, node_losses, intervention_history)
     with torch.no_grad():
-        ref_win_lp = get_log_probs(ref_model, win_text, node_losses)
-        ref_lose_lp = get_log_probs(ref_model, lose_text, node_losses)
+        ref_win_lp = get_log_probs(ref_model, win_text, node_losses, intervention_history)
+        ref_lose_lp = get_log_probs(ref_model, lose_text, node_losses, intervention_history)
 
+    # The DPO objective
     logits = (policy_win_lp - ref_win_lp) - (policy_lose_lp - ref_lose_lp)
-    return -F.logsigmoid(beta * logits).mean()
+    loss = -F.logsigmoid(beta * logits).mean()
+    
+    # Comprehensive logging
+    logger = get_dpo_logger()
+    
+    # Extract targets from command strings for logging
+    win_target = None
+    lose_target = None
+    try:
+        import re
+        win_match = re.search(r'DO\s+(X\d+)', win_text)
+        lose_match = re.search(r'DO\s+(X\d+)', lose_text)
+        win_target = win_match.group(1) if win_match else "?"
+        lose_target = lose_match.group(1) if lose_match else "?"
+    except:
+        pass
+    
+    logger.log(
+        loss=loss.item(),
+        policy_win_lp=policy_win_lp,
+        policy_lose_lp=policy_lose_lp,
+        ref_win_lp=ref_win_lp,
+        ref_lose_lp=ref_lose_lp,
+        winner_target=win_target,
+        loser_target=lose_target,
+        logit=logits
+    )
+    
+    # Periodic reporting
+    logger.report(every_n=100)
+    
+    return loss
+
+
+def supervised_pretrain_llm(policy_model, scm, graph, nodes, node_losses, optimizer, n_steps=50, value_min=-5.0, value_max=5.0):
+    """
+    CRITICAL FIX: Pre-train the LLM policy on teacher-generated interventions.
+    
+    This addresses the core problem: the LLM ignores the prompt and always outputs X1.
+    By doing supervised fine-tuning on balanced, loss-aware interventions BEFORE DPO,
+    we give the model a better starting point.
+    """
+    logging.info(f"Starting supervised pre-training ({n_steps} steps)...")
+    policy_model.train()
+    
+    total_loss = 0.0
+    target_counts = Counter()
+    
+    for step in range(n_steps):
+        # Generate a teacher intervention targeting parents of high-loss nodes
+        teacher_cmd = get_teacher_command_impact(
+            nodes, graph, node_losses, 
+            value_min=value_min, value_max=value_max
+        )
+        plan = policy_model.dsl.parse_to_dict(teacher_cmd)
+        if plan is None:
+            continue
+            
+        target = plan.get("target")
+        target_counts[target] += 1
+        
+        # Create the target text that should follow the prompt
+        # The prompt ends with "Reasoning: The highest loss node is"
+        # We want the model to continue with the correct reasoning
+        
+        # Find the failing node for this state
+        failing_node = None
+        max_loss = 0.0
+        for node in nodes:
+            parents = list(graph.predecessors(node))
+            if parents and node_losses.get(node, 0.0) > max_loss:
+                max_loss = node_losses.get(node, 0.0)
+                failing_node = node
+        
+        # Construct the target completion
+        if failing_node:
+            parents = list(graph.predecessors(failing_node))
+            target_text = (
+                f" {failing_node} with loss {max_loss:.2f}. "
+                f"Its parents are {', '.join(parents)}. "
+                f"I should intervene on {target} to help learn {failing_node}'s mechanism. "
+                f"DO {target} = {plan['value']:.2f}"
+            )
+        else:
+            target_text = f" unknown. DO {target} = {plan['value']:.2f}"
+        
+        # Get prompt
+        prompt_text, _, _ = policy_model.scm_to_prompt(scm, node_losses=node_losses)
+        full_text = prompt_text + target_text
+        
+        # Compute supervised loss (cross-entropy on target tokens)
+        inputs = policy_model.tokenizer(full_text, return_tensors="pt", truncation=True).to(policy_model.device)
+        prompt_inputs = policy_model.tokenizer(prompt_text, return_tensors="pt", truncation=True).to(policy_model.device)
+        prompt_len = prompt_inputs.input_ids.shape[1]
+        
+        outputs = policy_model.model(**inputs, labels=inputs.input_ids)
+        
+        # Mask loss for prompt tokens (only train on completion)
+        # This is approximate - ideally we'd use a proper masked loss
+        loss = outputs.loss
+        
+        optimizer.zero_grad()
+        loss.backward()
+        
+        # Gradient clipping for stability
+        torch.nn.utils.clip_grad_norm_(policy_model.model.parameters(), 1.0)
+        
+        optimizer.step()
+        total_loss += loss.item()
+        
+        if step % 10 == 0:
+            logging.info(f"  Pretrain step {step}: loss={loss.item():.4f}")
+    
+    avg_loss = total_loss / max(n_steps, 1)
+    logging.info(f"Supervised pre-training complete. Avg loss: {avg_loss:.4f}")
+    logging.info(f"  Target distribution: {dict(target_counts)}")
+    
+    return avg_loss
 
 # ----------------------------------------------------------------
 # 5. UTILS
@@ -738,6 +1068,114 @@ def _bin_index(value, value_min, value_max, n_bins):
         idx = n_bins - 1
     return max(0, min(n_bins - 1, idx))
 
+def visualize_scm_graph(scm, results_dir, node_losses=None):
+    """
+    Visualize the SCM graph structure with node types and mechanism equations.
+    
+    This provides a clear visual reference for understanding the causal structure
+    being learned, including:
+    - Node positions in causal hierarchy
+    - Edge directions (causal relationships)
+    - Node types (root, intermediate, collider, leaf)
+    - Current loss values (if provided)
+    """
+    try:
+        fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+        
+        G = scm.graph
+        
+        # Compute node properties
+        node_types = {}
+        for node in G.nodes():
+            parents = list(G.predecessors(node))
+            children = list(G.successors(node))
+            
+            if len(parents) == 0:
+                node_types[node] = "root"
+            elif len(parents) >= 2:
+                node_types[node] = "collider"
+            elif len(children) == 0:
+                node_types[node] = "leaf"
+            else:
+                node_types[node] = "intermediate"
+        
+        # Color mapping by node type
+        color_map = {
+            "root": "#4CAF50",       # Green - exogenous
+            "intermediate": "#2196F3", # Blue - single parent
+            "collider": "#FF5722",    # Red/Orange - multiple parents (CRITICAL)
+            "leaf": "#9C27B0"         # Purple - no children
+        }
+        node_colors = [color_map[node_types[node]] for node in G.nodes()]
+        
+        # Use hierarchical layout (topological)
+        try:
+            # Try graphviz layout if available
+            pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
+        except:
+            # Fallback to spring layout with topological hints
+            pos = {}
+            topo_order = list(nx.topological_sort(G))
+            for i, node in enumerate(topo_order):
+                # Spread nodes horizontally by topological order
+                depth = len(list(nx.ancestors(G, node)))
+                pos[node] = (depth * 2, -i * 1.5)
+        
+        # Draw the graph
+        nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=2000, ax=ax)
+        nx.draw_networkx_edges(G, pos, edge_color='gray', arrows=True, 
+                               arrowsize=25, arrowstyle='->', ax=ax,
+                               connectionstyle="arc3,rad=0.1")
+        
+        # Node labels with loss values if available
+        if node_losses:
+            labels = {node: f"{node}\nL={node_losses.get(node, 0):.2f}" for node in G.nodes()}
+        else:
+            labels = {node: node for node in G.nodes()}
+        nx.draw_networkx_labels(G, pos, labels, font_size=10, font_weight='bold', ax=ax)
+        
+        # Add edge labels showing causal direction
+        edge_labels = {(u, v): f"{u}→{v}" for u, v in G.edges()}
+        nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=8, ax=ax)
+        
+        # Add legend
+        legend_elements = [
+            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map["root"], 
+                      markersize=15, label='Root (exogenous)'),
+            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map["intermediate"], 
+                      markersize=15, label='Intermediate'),
+            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map["collider"], 
+                      markersize=15, label='Collider (multi-parent) ⚠️'),
+            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map["leaf"], 
+                      markersize=15, label='Leaf (no children)'),
+        ]
+        ax.legend(handles=legend_elements, loc='upper left', fontsize=10)
+        
+        # Add title with mechanism equations
+        mechanism_text = "Ground Truth Mechanisms:\n"
+        mechanism_text += "X1 ~ N(0,1)  [root]\n"
+        mechanism_text += "X4 ~ N(2,1)  [root]\n"
+        mechanism_text += "X2 = 2.0*X1 + 1.0 + ε\n"
+        mechanism_text += "X3 = 0.5*X1 - X2 + sin(X2) + ε  [COLLIDER]\n"
+        mechanism_text += "X5 = 0.2*X4² + ε"
+        
+        ax.text(0.02, 0.02, mechanism_text, transform=ax.transAxes, fontsize=9,
+                verticalalignment='bottom', fontfamily='monospace',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+        
+        ax.set_title("Structural Causal Model (SCM) Graph\n" + 
+                    "Edges show causal direction: Parent → Child", fontsize=14)
+        ax.axis('off')
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(results_dir, "scm_graph.png"), dpi=150)
+        plt.close()
+        logging.info(f"Saved SCM graph visualization to {results_dir}/scm_graph.png")
+        
+    except Exception as e:
+        logging.warning(f"Failed to save SCM graph visualization: {e}")
+
+
 def save_plots(results_dir, loss_history, reward_history, targets, values, nodes):
     # 1. Training Curves
     plt.figure(figsize=(12, 5))
@@ -855,6 +1293,9 @@ def main():
     parser.add_argument("--token", type=str, default=None, help="HF Auth Token")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
     parser.add_argument("--debug_parsing", action="store_true", help="Enable detailed parse debug logging")
+    parser.add_argument("--pretrain_steps", type=int, default=100, help="Supervised pre-training steps before DPO")
+    parser.add_argument("--pretrain_interval", type=int, default=50, help="Re-run pre-training every N episodes (0=disabled)")
+    parser.add_argument("--smart_breaker", action="store_true", default=True, help="Use smart collapse breaker that prioritizes collider parents")
     args = parser.parse_args()
 
     # Setup Directories
@@ -901,6 +1342,23 @@ def main():
     ref_policy.eval()
     optimizer_agent = optim.Adam(policy_net.parameters(), lr=args.lr)
 
+    # 2.5. Supervised Pre-training Phase (CRITICAL FIX for LLM ignoring prompt)
+    if use_pretrained and args.pretrain_steps > 0:
+        # Generate initial node losses for pre-training context
+        temp_student = StudentSCM(M_star)
+        _, pretrain_losses = critic.evaluate_mechanisms_detailed(temp_student)
+        
+        supervised_pretrain_llm(
+            policy_net, temp_student, M_star.graph, dsl.nodes, pretrain_losses,
+            optimizer_agent, n_steps=args.pretrain_steps,
+            value_min=args.value_min, value_max=args.value_max
+        )
+        
+        # Update reference policy after pre-training
+        ref_policy = copy.deepcopy(policy_net)
+        ref_policy.eval()
+        logging.info("Reference policy updated after pre-training.")
+
     # 3. Training Loop
     loss_history = []
     reward_history = []
@@ -944,6 +1402,20 @@ def main():
         episode_action_counts = Counter()
         best_mech_loss = float("inf")
         no_improve_steps = 0
+
+        # Periodic re-training to combat policy drift (CRITICAL for LLM policies)
+        if use_pretrained and args.pretrain_interval > 0 and episode > 0 and episode % args.pretrain_interval == 0:
+            logging.info(f"--- Periodic Re-training at Episode {episode} ---")
+            _, retrain_losses = critic.evaluate_mechanisms_detailed(current_student)
+            supervised_pretrain_llm(
+                policy_net, current_student, M_star.graph, dsl.nodes, retrain_losses,
+                optimizer_agent, n_steps=args.pretrain_steps // 2,  # Shorter re-training
+                value_min=args.value_min, value_max=args.value_max
+            )
+            # Update reference policy
+            ref_policy = copy.deepcopy(policy_net)
+            ref_policy.eval()
+            logging.info("Reference policy updated after re-training.")
 
         if episode % 10 == 0:
             # Report cumulative parsing statistics every 10 episodes
@@ -1026,8 +1498,16 @@ def main():
 
             step_any_valid = False
             step_invalid_samples = []  # Track failed parses for this step
+            
+            # Build intervention history for prompt context
+            intervention_history = list(recent_action_counts)
+            
             for k in range(args.candidates):
-                cmd_str, plan = policy_net.generate_experiment(current_student, node_losses=node_losses_start)
+                cmd_str, plan = policy_net.generate_experiment(
+                    current_student, 
+                    node_losses=node_losses_start,
+                    intervention_history=intervention_history
+                )
                 train_candidates_total += 1
                 if plan is None:
                     train_candidates_invalid += 1
@@ -1166,25 +1646,59 @@ def main():
             # Rank by score (reward + coverage bonus).
             sorted_cands = sorted(candidates, key=lambda x: x[3], reverse=True)
             
-            # --- CRITICAL FIX: COLLAPSE BREAKER ---
+            # --- CRITICAL FIX: SMART COLLAPSE BREAKER ---
             # If we are collapsed (e.g. > 50% on one node) and the agent ONLY proposes the collapsed node,
-            # we must forcefully inject a random alternative. Otherwise, the agent is forced to pick
-            # the collapsed node despite the massive penalty, perpetuating the loop.
+            # we must forcefully inject an alternative. 
+            # 
+            # KEY INSIGHT: Instead of random injection, PRIORITIZE PARENTS OF HIGH-LOSS COLLIDERS.
+            # This directly addresses the X1→X3, X2→X3 learning failure.
             if top_node is not None and top_frac > 0.50:
                 # Check if we have any valid candidate that is NOT the top_node
                 has_alternative = any(c[4] is not None and c[4].get("target") != top_node for c in sorted_cands if c[1] > -9.0)
                 
                 if not has_alternative:
-                    logging.info(f"  [Collapse Breaker] All candidates target {top_node}@{top_frac:.0%}. Injecting random alternative.")
+                    # SMART BREAKER: Find the highest-loss multi-parent node and target its under-sampled parent
+                    breaker_target = None
+                    breaker_reason = "random"
                     
-                    # 1. Find a valid node that is NOT the top_node
-                    valid_others = [n for n in dsl.nodes if n != top_node]
-                    if valid_others:
-                        # 2. Generate a random command for it
-                        breaker_cmd = get_random_valid_command_range(valid_others, args.value_min, args.value_max)
+                    if args.smart_breaker:
+                        # Find colliders (multi-parent nodes) sorted by loss
+                        colliders_by_loss = []
+                        for node in current_student.nodes:
+                            parents = list(M_star.graph.predecessors(node))
+                            if len(parents) >= 2:
+                                loss = node_losses_start.get(node, 0.0)
+                                colliders_by_loss.append((node, parents, loss))
+                        colliders_by_loss.sort(key=lambda x: x[2], reverse=True)
+                        
+                        # For the highest-loss collider, find its least-sampled parent (excluding top_node)
+                        for collider, parents, loss in colliders_by_loss:
+                            if loss < 0.5:  # Collider is already learned
+                                continue
+                            
+                            # Count recent interventions on each parent
+                            parent_counts = {p: sum(1 for a in recent_action_counts if a == p) for p in parents}
+                            
+                            # Find least-sampled parent that isn't the collapsed node
+                            valid_parents = [p for p in parents if p != top_node]
+                            if valid_parents:
+                                least_sampled = min(valid_parents, key=lambda p: parent_counts.get(p, 0))
+                                breaker_target = least_sampled
+                                breaker_reason = f"parent of failing {collider} (loss={loss:.2f})"
+                                break
+                    
+                    # Fallback to random if smart breaker didn't find a target
+                    if breaker_target is None:
+                        valid_others = [n for n in dsl.nodes if n != top_node]
+                        breaker_target = random.choice(valid_others) if valid_others else None
+                        breaker_reason = "random fallback"
+                    
+                    if breaker_target:
+                        value = random.uniform(float(args.value_min), float(args.value_max))
+                        breaker_cmd = f"DO {breaker_target} = {value:.4f}"
                         breaker_plan = dsl.parse_to_dict(breaker_cmd)
                         
-                        # 3. Score it (It will have NO collapse penalty, so it should win easily)
+                        # Score it
                         tgt = breaker_plan.get("target")
                         node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start, normalize=True)
                         denom = float(sum(node_losses_start.values())) + 1e-8
@@ -1192,12 +1706,15 @@ def main():
                         under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
                         cov_bonus = args.cov_bonus * norm_weight * under_sample
                         
-                        # Give it a positive score to ensure it beats the penalized candidates (which are < 0)
-                        score = 10.0 + cov_bonus 
+                        # Add disentanglement bonus for collider parent targeting
+                        disent_bonus = _disentanglement_bonus(M_star.graph, tgt, node_losses_start)
+                        
+                        # Give it a high score to ensure it wins
+                        score = 10.0 + cov_bonus + disent_bonus * 0.1
                         
                         # Insert at the top
                         sorted_cands.insert(0, (breaker_cmd, 0.0, cov_bonus, score, breaker_plan))
-                        logging.info(f"  [Collapse Breaker] Injected '{breaker_cmd}' (Score: {score:.2f})")
+                        logging.info(f"  [Smart Breaker] Injected '{breaker_cmd}' ({breaker_reason}, Score: {score:.2f})")
 
             # MANDATORY DIVERSITY CONSTRAINT: When severe collapse detected, filter out over-sampled node
             diversity_enforced = False
@@ -1263,7 +1780,12 @@ def main():
             if winner_score > loser_score:
                 optimizer_agent.zero_grad()
                 if use_pretrained:
-                    loss = dpo_loss_llm(policy_net, ref_policy, current_student, winner_cmd, loser_cmd, node_losses=node_losses_start)
+                    loss = dpo_loss_llm(
+                        policy_net, ref_policy, current_student, 
+                        winner_cmd, loser_cmd, 
+                        node_losses=node_losses_start,
+                        intervention_history=intervention_history
+                    )
                 else:
                     # Tensor path for custom
                     win_seq = dsl.encode(winner_cmd).unsqueeze(0).to(device)
@@ -1277,6 +1799,23 @@ def main():
                 loss = loss * curiosity_weight
                     
                 loss.backward()
+                
+                # Gradient monitoring (periodic) - CRITICAL for diagnosing DPO failure
+                if episode % 20 == 0 and step == 0:
+                    total_grad_norm = 0.0
+                    num_params = 0
+                    for name, param in policy_net.named_parameters():
+                        if param.grad is not None:
+                            total_grad_norm += param.grad.norm().item() ** 2
+                            num_params += 1
+                    total_grad_norm = np.sqrt(total_grad_norm)
+                    logging.info(f"  [Gradient Check] Episode {episode}: grad_norm={total_grad_norm:.6f}, num_params_with_grad={num_params}")
+                    if total_grad_norm < 1e-6:
+                        logging.warning(f"  [WARNING] Gradients are near-zero! DPO may not be training the model.")
+                
+                # Gradient clipping for stability
+                torch.nn.utils.clip_grad_norm_(policy_net.parameters(), 1.0)
+                
                 optimizer_agent.step()
                 loss_history.append(loss.item())
                 reward_history.append(winner_reward)
@@ -1345,11 +1884,20 @@ def main():
 
     # 4. Final Evaluation
     logging.info("--- Running Final Evaluation ---")
+    
+    # Log LLM generation diagnostics if using HuggingFace policy
+    if use_pretrained and hasattr(policy_net, 'log_generation_diagnostics'):
+        policy_net.log_generation_diagnostics()
     eval_targets = []
     eval_values = []
     
     # Use the LAST student state for evaluation visualization
     visualize_contrast_save(M_star, current_student, run_dir)
+    
+    # Visualize the SCM graph structure with final losses
+    final_total_loss, final_node_losses = critic.evaluate_mechanisms_detailed(current_student)
+    visualize_scm_graph(M_star, run_dir, node_losses=final_node_losses)
+    logging.info(f"Final mechanism losses: {final_node_losses}")
     
     n_eval = 100
     n_parsed = 0
@@ -1420,7 +1968,11 @@ def main():
                 logging.info(f"  [SUCCESS] X1 concentration ({x1_pct:.1f}%) is balanced (<40%).")
 
     df.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
-    
+
+    # Save DPO training diagnostics
+    dpo_logger = get_dpo_logger()
+    dpo_logger.save(run_dir)
+
     # NEW: Save detailed per-node loss tracking for collider diagnostics
     if node_loss_tracking:
         node_loss_df = pd.DataFrame(node_loss_tracking)

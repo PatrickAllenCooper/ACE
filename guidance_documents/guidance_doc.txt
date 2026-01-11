@@ -1,30 +1,196 @@
+# ACE: Autonomous Causal Experimentation
+
+## Project Overview
+
+ACE is a system for learning Structural Causal Models (SCMs) through autonomous experimentation. An agent policy proposes interventions (DO operations), executes them in a ground truth environment, and trains a student SCM to match the observed mechanisms.
+
+### The Core Challenge: Collider Resolution
+
+The ground truth SCM contains a **collider structure** that is particularly difficult to learn:
+
+```
+     X1 ──────────┬──────────→ X3 (COLLIDER)
+      │           │             ↑
+      └───→ X2 ───┘─────────────┘
+      
+     X4 ──────────→ X5
+```
+
+**Ground Truth Mechanisms:**
+- X1 ~ N(0, 1)  [exogenous root]
+- X4 ~ N(2, 1)  [exogenous root]
+- X2 = 2.0 * X1 + 1.0 + ε
+- X3 = 0.5 * X1 - X2 + sin(X2) + ε  **[COLLIDER - 2 parents]**
+- X5 = 0.2 * X4² + ε
+
+**Why X3 is Hard:**
+1. X3 has TWO parents (X1 and X2) - a collider
+2. X1 and X2 are highly correlated: X2 = 2*X1 + 1
+3. Under DO(X1=v), X2 still follows X2=2v+1, so they remain collinear
+4. Only DO(X2=v) breaks this correlation, allowing independent variation
+5. Without balanced interventions on BOTH X1 and X2, the learner cannot disentangle their effects
+
+---
+
+## Current Status (2026-01-11)
+
+### What's Working
+- ✅ X2 mechanism (X1→X2) learns perfectly (loss ~0.01)
+- ✅ X5 mechanism (X4→X5) learns perfectly (loss ~0.02)
+- ✅ Root distributions (X1, X4) are captured
+
+### What's Failing
+- ❌ X3 mechanism (X1,X2→X3) does NOT learn (loss ~1.5-2.5)
+- ❌ LLM policy ignores prompt, always proposes X1 interventions
+- ❌ DPO training stuck at random chance (loss = 0.693)
+
+### Root Cause: LLM Policy Attention Failure
+Analysis of `run_20260103_141404` revealed:
+- LLM generated X1 for 100% of candidates (49% of executed, rest from collapse breaker)
+- The loss/state information in prompt was completely ignored
+- DPO gradients weren't updating the model
+
+---
+
+## Current Solution Approach
+
+### 1. Problem-First Prompt Restructuring
+Old prompt buried loss info and ended with "DO" → biased toward X1.
+New prompt:
+- STARTS with "PROBLEM: Node losses - X3=1.82, X2=0.01..."
+- Explicitly says "To fix X3, intervene on parents X1, X2"
+- Warns "X1 is over-sampled. AVOID X1."
+- Includes few-shot reasoning examples
+- Ends with "The highest loss node is" to prompt reasoning
+
+### 2. Supervised Pre-training Before DPO
+- `supervised_pretrain_llm()` runs 100 steps BEFORE DPO
+- Trains on teacher-generated interventions (loss-aware, balanced)
+- Gives LLM proper starting point instead of random X1 fixation
+- Periodic re-training every 50 episodes to combat drift
+
+### 3. Smart Collapse Breaker
+- When all candidates target collapsed node and collapse detected:
+- PRIORITIZE parents of high-loss colliders (X2 for failing X3)
+- Don't randomly inject X3/X4/X5 which don't help
+
+### 4. Comprehensive DPO Logging
+New `DPOLogger` class tracks:
+- Loss values and trends
+- Preference margins (policy_win - policy_lose)
+- Sigmoid inputs (positive = learning, near-zero = stuck)
+- KL divergence from reference policy
+- Winner/loser target distribution
+- Periodic health check reports with warnings
+
+### 5. Gradient Monitoring
+- Logs gradient norms every 20 episodes
+- Warns if near-zero (DPO not training)
+
+---
+
+## Output Files Per Run
+
+Each run generates:
+1. `scm_graph.png` - **NEW** Visualization of the SCM structure with node types
+2. `mechanism_contrast.png` - Learned vs ground truth mechanisms
+3. `training_curves.png` - DPO loss and reward over time
+4. `strategy_analysis.png` - Target preference and value distribution
+5. `metrics.csv` - Per-step metrics (target, value, reward, score)
+6. `node_losses.csv` - Per-step per-node mechanism losses
+7. `dpo_training.csv` - **NEW** DPO training diagnostics
+8. `experiment.log` - Full execution log
+
+---
+
+## Key CLI Arguments
+
+```bash
+python ace_experiments.py \
+    --episodes 100 \
+    --pretrain_steps 100 \      # Supervised pre-training before DPO
+    --pretrain_interval 50 \    # Re-train every N episodes
+    --smart_breaker \           # Prioritize collider parents in collapse breaker
+    --debug_parsing             # Enable parse debug logging
+```
+
+---
+
+## Success Criteria
+
+1. **X3 Loss < 0.5** - The collider mechanism is learned
+2. **Balanced Interventions** - X2 should be ~20% of interventions (not 14%)
+3. **DPO Learning** - Loss should decrease from 0.693 toward 0
+4. **Preference Margin Positive** - Policy should prefer winners >50% of time
+
+---
+
+## Debugging Checklist
+
+If X3 still isn't learning:
+1. Check `dpo_training.csv` - Is preference_margin positive?
+2. Check gradient norms in log - Are they non-zero?
+3. Check target distribution in `metrics.csv` - Is X2 getting interventions?
+4. Check `scm_graph.png` - Verify graph structure is correct
+5. Check `mechanism_contrast.png` - Which specific relationship is failing?
+
+---
+
 # CHANGELOG
+
+## 2026-01-11: Comprehensive Logging and SCM Visualization
+
+### Changes
+1. **SCM Graph Visualization** (`visualize_scm_graph`)
+   - Generates `scm_graph.png` for each run
+   - Shows node types: root (green), intermediate (blue), collider (red), leaf (purple)
+   - Displays mechanism equations and final losses
+   - Uses hierarchical layout for clear causal structure
+
+2. **DPO Training Logger** (`DPOLogger`)
+   - Tracks loss, preference margins, sigmoid inputs, KL divergence
+   - Periodic health reports every 100 steps
+   - Warns when DPO appears stuck (loss ~0.693, negative preference margin)
+   - Saves to `dpo_training.csv` for post-hoc analysis
+
+3. **Enhanced DPO Loss Function**
+   - Now logs all components for diagnosis
+   - Extracts winner/loser targets for tracking
+
+---
+
+## 2026-01-11: LLM Policy Attention Failure - Direct Intervention
+
+### Problem: LLM Completely Ignores Prompt
+- Total Policy Collapse: 100% of candidates targeted X1
+- DPO stuck at 0.693 (random chance)
+- X3 loss remained at 1.8-2.5 while X2 = 0.01
+
+### Solution
+1. Problem-first prompt restructuring
+2. Supervised pre-training phase (100 steps before DPO)
+3. Smart collapse breaker (prioritizes collider parents)
+4. Gradient monitoring every 20 episodes
+5. LLM fallback on parse failure
+
+---
 
 ## 2026-01-08: Policy Input Augmentation for Collider Resolution
 
-### Problem: Agent Blindness to Mechanism Failure
-We identified that the "Collapse to X1" and failure to learn the Collider (X3) persisted because the Agent Policy was effectively blind.
-- **Blindness:** The `StateEncoder` only received input weights (`w_mag`) and node indices. It had **zero information** about the actual validation loss or failure state of specific nodes.
-- **Consequence:** The agent could not learn rules like "If X3 is failing, intervene on its parent X2". It relied solely on DPO training signals (rewards/bonuses) which were unstable due to negative rewards from distribution shifts.
-- **Negative Reward Loop:** Intervening on X2 (correctly) often caused a temporary spike in loss (negative reward) as the model adjusted from its collinear local minimum. This actively discouraged the correct behavior.
+### Problem
+Agent was "blind" - only saw weights, not losses. Couldn't learn "if X3 failing, intervene on X2".
 
-### Solution: State Augmentation & Reward Shaping
-We implemented a fundamental upgrade to the Agent's perception and reward function:
-1.  **Augmented State Encoder:**
-    - Injected per-node **Validation Loss** directly into the input feature vector.
-    - New State: `[w_mag, uncert, val_loss, node_idx]`.
-    - Impact: The policy can now explicitly "see" which nodes are broken.
+### Solution
+1. Augmented StateEncoder with per-node validation loss
+2. LLM prompt includes loss values
+3. Reward clipping to -2.0 (reduced punishment for exploration)
 
-2.  **LLM Prompt Enhancement:**
-    - Updated the text prompt for LLM policies to include `Losses: [X1: 0.1, X2: 4.5, ...]`.
+---
 
-3.  **Reward Clipping:**
-    - Modified `calculate_reward` to clip negative rewards to `-2.0` (previously `-10.0`).
-    - Impact: Reduces the punishment for "hard" experiments that cause temporary instability, preventing the agent from becoming risk-averse.
+## 2026-01-03: Fast Adaptation Phase
 
-### Expected Outcome
-- **Intelligent Targeting:** The agent should learn to target parents of high-loss nodes (e.g., target X2 when X3 loss is high).
-- **Collider Resolution:** With the ability to perceive X3's failure and the reduced penalty for instability, the agent should persistently intervene on X2 until X3 is solved.
+### Problem
+Reward misattribution due to delayed learning updates.
 
-## 2026-01-03: Fast Adaptation Phase to Fix Reward Misattribution
-...
+### Solution
+Added fast adaptation phase that trains on NEW data before replay consolidation.
