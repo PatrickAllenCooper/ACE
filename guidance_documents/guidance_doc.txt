@@ -138,6 +138,35 @@ If X3 still isn't learning:
 
 # CHANGELOG
 
+## 2026-01-13: Value-Aware Collapse Breaking for Collider Disentanglement
+
+### Problem: Single-Value Trap (X2=c)
+Analysis of `run_20260112_011254` revealed a new failure mode:
+- The agent correctly shifted from X1 to X2.
+- However, it collapsed to a **single static value** `DO(X2 = 1.5)`.
+- **Consequence:** 
+    - The learner observed a 1D slice of the X3 mechanism ($X3 = f(X1, 1.5)$).
+    - This slice is easily fit by a linear model, resulting in **Zero Training Loss**.
+    - The validation set (where X2 varies) showed **High Error**, but the reward signal (delta loss) was zero because the agent kept repeating the same "perfect" action.
+    - The standard Collapse Breaker failed because it injected X1 (correlated) or X4 (irrelevant), never forcing X2 to vary.
+
+### Solution: Value-Aware Collapse Breaker
+We implemented a principled extension to the Smart Breaker:
+1.  **Context Detection:** Identifies if the collapsed node is a **Parent of a Collider** (e.g., X2 is parent of X3).
+2.  **Constraint:** Recognizes that for collider parents, *existence* of intervention isn't enough; *variance* is required.
+3.  **Action:** Injects an intervention for the **SAME NODE** (X2) but with a **RADICALLY DIFFERENT VALUE** (e.g., flipping sign or moving to bounds).
+4.  **Mechanism:**
+    - Calculates mean of recent values (e.g., 1.5).
+    - Samples `new_val` from a disjoint range (e.g., [-5, 0]).
+    - This forces the learner to predict on a new support region, exposing the error in its simplified model and generating a strong gradient signal.
+
+### Expected Outcome
+- The logs should show `[Smart Breaker] Injected 'DO X2 = -3.5' (value_diversity_for_collider_parent...)`.
+- X3 Loss should drop significantly as the learner sees X2 vary independently of X1.
+- DPO should pick up this signal (via the "Epistemic Boost") and learn to vary X2 autonomously.
+
+---
+
 ## 2026-01-11: Comprehensive Logging and SCM Visualization
 
 ### Changes

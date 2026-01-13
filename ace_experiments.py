@@ -1297,7 +1297,7 @@ def main():
     parser.add_argument("--pretrain_interval", type=int, default=50, help="Re-run pre-training every N episodes (0=disabled)")
     parser.add_argument("--smart_breaker", action="store_true", default=True, help="Use smart collapse breaker that prioritizes collider parents")
     args = parser.parse_args()
-
+    
     # Setup Directories
     run_started_at = datetime.now()
     timestamp = run_started_at.strftime("%Y%m%d_%H%M%S")
@@ -1315,6 +1315,12 @@ def main():
     console = logging.StreamHandler()
     console.setLevel(log_level)
     logging.getLogger('').addHandler(console)
+
+    # --- NEW: DETAILED VALUE LOGGING ---
+    # Create a separate CSV for tracking value distributions of collider parents
+    value_log_path = os.path.join(run_dir, "value_diversity.csv")
+    with open(value_log_path, 'w') as f:
+        f.write("episode,step,node,value,is_breaker\n")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logging.info(f"Starting ACE Experiment on {device}")
@@ -1658,47 +1664,75 @@ def main():
                 
                 if not has_alternative:
                     # SMART BREAKER: Find the highest-loss multi-parent node and target its under-sampled parent
+                    breaker_cmd = None
                     breaker_target = None
                     breaker_reason = "random"
                     
                     if args.smart_breaker:
-                        # Find colliders (multi-parent nodes) sorted by loss
-                        colliders_by_loss = []
-                        for node in current_student.nodes:
-                            parents = list(M_star.graph.predecessors(node))
-                            if len(parents) >= 2:
-                                loss = node_losses_start.get(node, 0.0)
-                                colliders_by_loss.append((node, parents, loss))
-                        colliders_by_loss.sort(key=lambda x: x[2], reverse=True)
+                        # 1. Check for COLLIDER PARENT COLLAPSE (Single-Value Trap)
+                        # If collapsed on a parent of a collider (like X2), we might be trapped in a single value.
+                        # We must inject the SAME node but with a RADICALLY different value.
+                        is_collider_parent = False
+                        for child in current_student.nodes:
+                             parents = list(M_star.graph.predecessors(child))
+                             if len(parents) >= 2 and top_node in parents:
+                                 is_collider_parent = True
+                                 break
                         
-                        # For the highest-loss collider, find its least-sampled parent (excluding top_node)
-                        for collider, parents, loss in colliders_by_loss:
-                            if loss < 0.5:  # Collider is already learned
-                                continue
+                        if is_collider_parent:
+                            recent_vals = list(recent_values_by_target.get(top_node, []))
+                            if recent_vals:
+                                mean_val = np.mean(recent_vals)
+                                # Pick a value far from the mean (e.g. flip sign or go to bounds)
+                                if mean_val > 0:
+                                    new_val = random.uniform(args.value_min, 0.0)
+                                else:
+                                    new_val = random.uniform(0.0, args.value_max)
+                                
+                                breaker_cmd = f"DO {top_node} = {new_val:.4f}"
+                                breaker_reason = f"value_diversity_for_collider_parent (mean={mean_val:.2f})"
+
+                        # 2. If not trapped in value collapse, try to target neglected parents
+                        if breaker_cmd is None:
+                            # Find colliders (multi-parent nodes) sorted by loss
+                            colliders_by_loss = []
+                            for node in current_student.nodes:
+                                parents = list(M_star.graph.predecessors(node))
+                                if len(parents) >= 2:
+                                    loss = node_losses_start.get(node, 0.0)
+                                    colliders_by_loss.append((node, parents, loss))
+                            colliders_by_loss.sort(key=lambda x: x[2], reverse=True)
                             
-                            # Count recent interventions on each parent
-                            parent_counts = {p: sum(1 for a in recent_action_counts if a == p) for p in parents}
-                            
-                            # Find least-sampled parent that isn't the collapsed node
-                            valid_parents = [p for p in parents if p != top_node]
-                            if valid_parents:
-                                least_sampled = min(valid_parents, key=lambda p: parent_counts.get(p, 0))
-                                breaker_target = least_sampled
-                                breaker_reason = f"parent of failing {collider} (loss={loss:.2f})"
-                                break
+                            # For the highest-loss collider, find its least-sampled parent (excluding top_node)
+                            for collider, parents, loss in colliders_by_loss:
+                                if loss < 0.5:  # Collider is already learned
+                                    continue
+                                
+                                # Count recent interventions on each parent
+                                parent_counts = {p: sum(1 for a in recent_action_counts if a == p) for p in parents}
+                                
+                                # Find least-sampled parent that isn't the collapsed node
+                                valid_parents = [p for p in parents if p != top_node]
+                                if valid_parents:
+                                    least_sampled = min(valid_parents, key=lambda p: parent_counts.get(p, 0))
+                                    breaker_target = least_sampled
+                                    breaker_reason = f"parent of failing {collider} (loss={loss:.2f})"
+                                    break
                     
                     # Fallback to random if smart breaker didn't find a target
-                    if breaker_target is None:
+                    if breaker_cmd is None and breaker_target is None:
                         valid_others = [n for n in dsl.nodes if n != top_node]
                         breaker_target = random.choice(valid_others) if valid_others else None
                         breaker_reason = "random fallback"
                     
-                    if breaker_target:
+                    if breaker_cmd is None and breaker_target:
                         value = random.uniform(float(args.value_min), float(args.value_max))
                         breaker_cmd = f"DO {breaker_target} = {value:.4f}"
+
+                    if breaker_cmd:
                         breaker_plan = dsl.parse_to_dict(breaker_cmd)
                         
-                        # Score it
+                        # Score it high enough to win
                         tgt = breaker_plan.get("target")
                         node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start, normalize=True)
                         denom = float(sum(node_losses_start.values())) + 1e-8
@@ -1833,10 +1867,29 @@ def main():
             # Execute
             if winner_plan:
                 tgt = winner_plan.get("target")
+                val = float(winner_plan.get("value"))
                 try:
-                    recent_values_by_target[tgt].append(float(winner_plan.get("value")))
+                    recent_values_by_target[tgt].append(val)
                 except Exception:
                     pass
+                
+                # --- NEW: LOG VALUES FOR COLLIDER PARENTS ---
+                # Check if this node is a collider parent
+                is_cp = False
+                for child in current_student.nodes:
+                    pars = list(M_star.graph.predecessors(child))
+                    if len(pars) >= 2 and tgt in pars:
+                        is_cp = True
+                        break
+                
+                if is_cp:
+                    is_breaker_flag = 1 if "Breaker" in winner_cmd else 0 # Approximate check
+                    # Better check: compare cmd string to known breaker injections
+                    # or just assume high scores early in episode might be breaker
+                    
+                    with open(value_log_path, 'a') as f:
+                        f.write(f"{episode},{step},{tgt},{val:.4f},{is_breaker_flag}\n")
+
                 try:
                     n_bins = max(2, int(args.n_value_bins))
                     bidx = _bin_index(float(winner_plan.get("value")), args.value_min, args.value_max, n_bins)
