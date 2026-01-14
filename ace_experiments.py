@@ -1205,20 +1205,31 @@ def save_plots(results_dir, loss_history, reward_history, targets, values, nodes
     plt.close()
 
 def visualize_contrast_save(oracle, student, results_dir):
-    # Simple contrast plot saver
+    """
+    Improved mechanism contrast visualization with:
+    - Proper legends on all plots
+    - Clear axis labels
+    - MSE annotations
+    - Titles explaining what each plot shows
+    """
     try:
         relationships = []
         for child in oracle.nodes:
             parents = oracle.get_parents(child)
-            if not parents: relationships.append(('Root', child))
+            if not parents: 
+                relationships.append(('Root', child))
             else:
-                for parent in parents: relationships.append((parent, child))
+                for parent in parents: 
+                    relationships.append((parent, child))
         
         n_plots = len(relationships)
         cols = 3
         rows = (n_plots + cols - 1) // cols
         fig, axes = plt.subplots(rows, cols, figsize=(18, 5 * rows))
-        axes = axes.flatten()
+        if n_plots == 1:
+            axes = [axes]
+        else:
+            axes = axes.flatten()
         x_range = torch.linspace(-4, 4, 100)
         
         for i, rel in enumerate(relationships):
@@ -1228,15 +1239,23 @@ def visualize_contrast_save(oracle, student, results_dir):
                 true_data = oracle.generate(1000)[node].detach().numpy()
                 with torch.no_grad():
                     pred_data = student.forward(1000)[node].detach().numpy()
-                ax.hist(true_data, bins=30, density=True, alpha=0.3, color='black', label='Truth')
-                ax.hist(pred_data, bins=30, density=True, alpha=0.3, color='red', label='Student')
+                ax.hist(true_data, bins=30, density=True, alpha=0.5, color='black', label='Ground Truth')
+                ax.hist(pred_data, bins=30, density=True, alpha=0.5, color='red', label='Student')
+                ax.set_xlabel(f'{node} Value')
+                ax.set_ylabel('Density')
                 ax.set_title(f"Root: {node}")
+                ax.legend(loc='upper right', fontsize=8)
             else:
                 parent, child = rel
                 parents_list = oracle.get_parents(child)
                 data_context = {}
+                other_parents = []
                 for p in parents_list:
-                    data_context[p] = x_range if p == parent else torch.zeros(100)
+                    if p == parent:
+                        data_context[p] = x_range
+                    else:
+                        data_context[p] = torch.zeros(100)
+                        other_parents.append(p)
                 
                 y_true = oracle.mechanisms(data_context, child).detach().numpy()
                 with torch.no_grad():
@@ -1246,14 +1265,37 @@ def visualize_contrast_save(oracle, student, results_dir):
                     else:
                         y_pred = student.mechanisms[child]['mu'].expand(100).detach().numpy()
 
-                ax.plot(x_range.numpy(), y_true, 'k--', lw=3, label='Truth')
+                ax.plot(x_range.numpy(), y_true, 'k--', lw=3, label='Ground Truth')
                 ax.plot(x_range.numpy(), y_pred, 'r-', lw=2, alpha=0.8, label='Student')
-                ax.set_title(f"{parent} -> {child}")
+                ax.set_xlabel(parent)
+                ax.set_ylabel(child)
+                
+                # Clear title showing what's held constant
+                if other_parents:
+                    title = f"{parent} → {child}\n(with {', '.join(other_parents)}=0)"
+                else:
+                    title = f"{parent} → {child}"
+                ax.set_title(title)
+                ax.legend(loc='best', fontsize=8)
+                ax.grid(True, alpha=0.3)
+                
+                # Add MSE annotation
+                mse = np.mean((y_true - y_pred)**2)
+                color = '#27ae60' if mse < 0.5 else '#e74c3c'
+                ax.annotate(f'MSE: {mse:.3f}', xy=(0.95, 0.05), xycoords='axes fraction',
+                           ha='right', va='bottom', fontsize=9, fontweight='bold',
+                           bbox=dict(boxstyle='round,pad=0.3', facecolor=color, alpha=0.3))
         
-        for j in range(i + 1, len(axes)): axes[j].axis('off')
+        for j in range(i + 1, len(axes)): 
+            axes[j].axis('off')
+        
+        fig.suptitle('Mechanism Comparison: Ground Truth (black dashed) vs Student (red solid)', 
+                     fontsize=12, fontweight='bold', y=1.02)
         plt.tight_layout()
-        plt.savefig(os.path.join(results_dir, "mechanism_contrast.png"))
+        plt.savefig(os.path.join(results_dir, "mechanism_contrast.png"), 
+                    dpi=150, bbox_inches='tight')
         plt.close()
+        logging.info(f"Saved mechanism contrast plot to {results_dir}/mechanism_contrast.png")
     except Exception as e:
         logging.error(f"Failed to save contrast plot: {e}")
 
