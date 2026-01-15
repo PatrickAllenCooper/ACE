@@ -189,18 +189,13 @@ python -m experiments.duffing_oscillators --episodes 100
 python -m experiments.phillips_curve --episodes 50
 ```
 
-### Full Pipeline: `run_all.py` (Local)
+### Full Pipeline: `run_all.sh` (HPC/SLURM)
 ```bash
-python run_all.py --quick    # Fast validation (~5 min)
-python run_all.py --full     # Full experiments (~2-4 hours)
-```
-
-### HPC Submission: `submit_experiments.sh` (SLURM)
-```bash
-./submit_experiments.sh              # Full run (500 episodes)
-./submit_experiments.sh --quick      # Quick validation (10 episodes)
-./submit_experiments.sh --skip-ppo   # Skip PPO baseline
-squeue -u $USER                      # Monitor jobs
+sbatch run_all.sh                           # Full paper experiments
+QUICK=true sbatch run_all.sh                # Quick validation
+ACE_EPISODES=200 sbatch run_all.sh          # Custom episodes
+squeue -u $USER                             # Monitor job
+tail -f logs/paper_*.out                    # View progress
 ```
 
 ---
