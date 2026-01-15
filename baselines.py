@@ -2,8 +2,8 @@
 """
 Baseline Comparison Script for ACE (Active Causal Experimentalist)
 
-This script implements three baseline intervention strategies for comparison
-against the learned ACE policy:
+This script implements four baseline intervention strategies for comparison
+against the learned ACE (DPO) policy:
 
 1. Random Policy (Lower Bound)
    - Uniformly samples target node and intervention value
@@ -18,11 +18,19 @@ against the learned ACE policy:
    - Selects interventions maximizing predictive variance
    - Represents standard "greedy" optimal experimental design
 
+4. PPO (Proximal Policy Optimization)
+   - Actor-Critic RL baseline with same reward signal as DPO
+   - Uses GAE for advantage estimation, clipped surrogate objective
+   - Fair comparison: same bonuses, replay buffer, observational training
+   - Tests paper's claim that DPO outperforms value-based RL
+
 Usage:
     python baselines.py --baseline random --episodes 100
     python baselines.py --baseline round_robin --episodes 100
     python baselines.py --baseline max_variance --episodes 100
-    python baselines.py --all --episodes 100  # Run all baselines
+    python baselines.py --baseline ppo --episodes 100
+    python baselines.py --all --episodes 100           # Run all except PPO
+    python baselines.py --all_with_ppo --episodes 100  # Run all including PPO
 """
 
 import argparse
@@ -266,6 +274,394 @@ class MaxVariancePolicy:
 
 
 # ----------------------------------------------------------------
+# 2.5 PPO POLICY (FAIR COMPARISON WITH DPO)
+# ----------------------------------------------------------------
+
+class PPOActorCritic(nn.Module):
+    """
+    Actor-Critic network for PPO baseline.
+    
+    Architecture matches the complexity of the DPO policy:
+    - Shared feature extractor processes state (node losses, intervention history)
+    - Actor head outputs action distribution (node selection + value)
+    - Critic head estimates state value for advantage computation
+    
+    This is designed for fair comparison with the LLM-based DPO policy.
+    """
+    
+    def __init__(self, nodes: List[str], hidden_dim: int = 128, 
+                 value_min: float = -5.0, value_max: float = 5.0,
+                 n_value_bins: int = 21):
+        super().__init__()
+        self.nodes = nodes
+        self.n_nodes = len(nodes)
+        self.value_min = value_min
+        self.value_max = value_max
+        self.n_value_bins = n_value_bins
+        
+        # State: [node_losses (5), intervention_counts (5), recent_targets_onehot (5)]
+        state_dim = self.n_nodes * 3
+        
+        # Shared feature extractor (similar complexity to LLM embedding)
+        self.shared = nn.Sequential(
+            nn.Linear(state_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+        )
+        
+        # Actor: outputs logits for node selection and value bin selection
+        self.actor_node = nn.Linear(hidden_dim, self.n_nodes)
+        self.actor_value = nn.Linear(hidden_dim, n_value_bins)
+        
+        # Critic: estimates V(s)
+        self.critic = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim // 2, 1)
+        )
+        
+    def _encode_state(self, node_losses: Dict[str, float], 
+                      intervention_counts: Dict[str, int],
+                      recent_targets: List[str]) -> torch.Tensor:
+        """Encode state into tensor for network input."""
+        # Node losses (normalized)
+        losses = [node_losses.get(n, 1.0) for n in self.nodes]
+        max_loss = max(losses) + 1e-6
+        losses_norm = [l / max_loss for l in losses]
+        
+        # Intervention counts (normalized)
+        counts = [intervention_counts.get(n, 0) for n in self.nodes]
+        total_counts = sum(counts) + 1e-6
+        counts_norm = [c / total_counts for c in counts]
+        
+        # Recent targets (one-hot sum of last 10)
+        recent_onehot = [0.0] * self.n_nodes
+        for t in recent_targets[-10:]:
+            if t in self.nodes:
+                idx = self.nodes.index(t)
+                recent_onehot[idx] += 0.1
+                
+        state = losses_norm + counts_norm + recent_onehot
+        return torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+    
+    def forward(self, state: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Forward pass returning node logits, value logits, and state value."""
+        features = self.shared(state)
+        node_logits = self.actor_node(features)
+        value_logits = self.actor_value(features)
+        state_value = self.critic(features)
+        return node_logits, value_logits, state_value
+    
+    def get_action(self, node_losses: Dict[str, float],
+                   intervention_counts: Dict[str, int],
+                   recent_targets: List[str]) -> Tuple[str, float, torch.Tensor, torch.Tensor]:
+        """Sample action from policy and return log probabilities."""
+        state = self._encode_state(node_losses, intervention_counts, recent_targets)
+        node_logits, value_logits, state_value = self.forward(state)
+        
+        # Sample node
+        node_dist = torch.distributions.Categorical(logits=node_logits)
+        node_idx = node_dist.sample()
+        node_log_prob = node_dist.log_prob(node_idx)
+        target = self.nodes[node_idx.item()]
+        
+        # Sample value bin
+        value_dist = torch.distributions.Categorical(logits=value_logits)
+        value_idx = value_dist.sample()
+        value_log_prob = value_dist.log_prob(value_idx)
+        
+        # Convert bin to continuous value
+        bin_width = (self.value_max - self.value_min) / (self.n_value_bins - 1)
+        value = self.value_min + value_idx.item() * bin_width
+        # Add small noise for diversity
+        value += random.uniform(-bin_width/4, bin_width/4)
+        value = np.clip(value, self.value_min, self.value_max)
+        
+        total_log_prob = node_log_prob + value_log_prob
+        
+        return target, value, total_log_prob, state_value.squeeze()
+    
+    def evaluate_action(self, state: torch.Tensor, node_idx: torch.Tensor, 
+                        value_idx: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Evaluate log prob and entropy for given state-action pair."""
+        node_logits, value_logits, state_value = self.forward(state)
+        
+        node_dist = torch.distributions.Categorical(logits=node_logits)
+        value_dist = torch.distributions.Categorical(logits=value_logits)
+        
+        node_log_prob = node_dist.log_prob(node_idx)
+        value_log_prob = value_dist.log_prob(value_idx)
+        
+        entropy = node_dist.entropy() + value_dist.entropy()
+        
+        return node_log_prob + value_log_prob, entropy, state_value.squeeze()
+
+
+class PPOPolicy:
+    """
+    Proximal Policy Optimization baseline for fair comparison with DPO.
+    
+    Key fairness considerations:
+    - Same reward signal: Information Gain (ΔL) + coverage bonuses
+    - Same replay buffer for learner training
+    - Same observational training interval
+    - Similar network capacity to LLM policy
+    
+    PPO-specific components:
+    - Actor-Critic architecture
+    - Generalized Advantage Estimation (GAE)
+    - Clipped surrogate objective
+    - Value function loss
+    """
+    
+    def __init__(self, nodes: List[str], value_min: float = -5.0, value_max: float = 5.0,
+                 lr: float = 3e-4, gamma: float = 0.99, gae_lambda: float = 0.95,
+                 clip_epsilon: float = 0.2, entropy_coef: float = 0.01,
+                 value_coef: float = 0.5, max_grad_norm: float = 0.5,
+                 n_value_bins: int = 21, ppo_epochs: int = 4, mini_batch_size: int = 8):
+        self.nodes = nodes
+        self.value_min = value_min
+        self.value_max = value_max
+        self.name = "PPO"
+        
+        # PPO hyperparameters
+        self.gamma = gamma
+        self.gae_lambda = gae_lambda
+        self.clip_epsilon = clip_epsilon
+        self.entropy_coef = entropy_coef
+        self.value_coef = value_coef
+        self.max_grad_norm = max_grad_norm
+        self.ppo_epochs = ppo_epochs
+        self.mini_batch_size = mini_batch_size
+        self.n_value_bins = n_value_bins
+        
+        # Actor-Critic network
+        self.ac = PPOActorCritic(nodes, value_min=value_min, value_max=value_max,
+                                  n_value_bins=n_value_bins)
+        self.optimizer = optim.Adam(self.ac.parameters(), lr=lr)
+        
+        # Trajectory buffer for PPO updates
+        self.states = []
+        self.node_indices = []
+        self.value_indices = []
+        self.log_probs = []
+        self.rewards = []
+        self.values = []
+        self.dones = []
+        
+        # Tracking for fair comparison
+        self.intervention_counts = {n: 0 for n in nodes}
+        self.recent_targets = []
+        
+        # Logging
+        self.loss_history = []
+        self.value_loss_history = []
+        self.policy_loss_history = []
+        
+    def select_intervention(self, student: StudentSCM, oracle: GroundTruthSCM = None,
+                            node_losses: Dict[str, float] = None, **kwargs) -> Tuple[str, float]:
+        """Select intervention using current policy."""
+        if node_losses is None:
+            node_losses = {n: 1.0 for n in self.nodes}
+            
+        target, value, log_prob, state_value = self.ac.get_action(
+            node_losses, self.intervention_counts, self.recent_targets
+        )
+        
+        # Store for later update
+        state = self.ac._encode_state(node_losses, self.intervention_counts, self.recent_targets)
+        node_idx = self.nodes.index(target)
+        bin_width = (self.value_max - self.value_min) / (self.n_value_bins - 1)
+        value_idx = int((value - self.value_min) / bin_width)
+        value_idx = np.clip(value_idx, 0, self.n_value_bins - 1)
+        
+        self.states.append(state)
+        self.node_indices.append(node_idx)
+        self.value_indices.append(value_idx)
+        self.log_probs.append(log_prob.detach())
+        self.values.append(state_value.detach())
+        
+        # Update tracking
+        self.intervention_counts[target] = self.intervention_counts.get(target, 0) + 1
+        self.recent_targets.append(target)
+        if len(self.recent_targets) > 50:
+            self.recent_targets.pop(0)
+            
+        return target, value
+    
+    def store_reward(self, reward: float, done: bool = False):
+        """Store reward for the last action."""
+        self.rewards.append(reward)
+        self.dones.append(done)
+        
+    def compute_gae(self, next_value: float = 0.0) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Compute Generalized Advantage Estimation."""
+        rewards = torch.tensor(self.rewards, dtype=torch.float32)
+        values = torch.stack(self.values)
+        dones = torch.tensor(self.dones, dtype=torch.float32)
+        
+        advantages = torch.zeros_like(rewards)
+        last_gae = 0
+        
+        for t in reversed(range(len(rewards))):
+            if t == len(rewards) - 1:
+                next_val = next_value
+            else:
+                next_val = values[t + 1].item()
+                
+            delta = rewards[t] + self.gamma * next_val * (1 - dones[t]) - values[t].item()
+            advantages[t] = last_gae = delta + self.gamma * self.gae_lambda * (1 - dones[t]) * last_gae
+            
+        returns = advantages + values
+        
+        # Normalize advantages
+        advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+        
+        return advantages, returns
+    
+    def update(self):
+        """PPO policy update using collected trajectories."""
+        if len(self.rewards) < self.mini_batch_size:
+            return
+            
+        # Compute advantages
+        advantages, returns = self.compute_gae()
+        
+        # Prepare batch data
+        states = torch.cat(self.states, dim=0)
+        node_indices = torch.tensor(self.node_indices, dtype=torch.long)
+        value_indices = torch.tensor(self.value_indices, dtype=torch.long)
+        old_log_probs = torch.stack(self.log_probs)
+        
+        # PPO epochs
+        total_policy_loss = 0
+        total_value_loss = 0
+        total_entropy = 0
+        n_updates = 0
+        
+        for _ in range(self.ppo_epochs):
+            # Shuffle indices
+            indices = torch.randperm(len(self.rewards))
+            
+            for start in range(0, len(self.rewards), self.mini_batch_size):
+                end = min(start + self.mini_batch_size, len(self.rewards))
+                batch_indices = indices[start:end]
+                
+                # Get batch data
+                batch_states = states[batch_indices]
+                batch_node_idx = node_indices[batch_indices]
+                batch_value_idx = value_indices[batch_indices]
+                batch_old_log_probs = old_log_probs[batch_indices]
+                batch_advantages = advantages[batch_indices]
+                batch_returns = returns[batch_indices]
+                
+                # Evaluate current policy
+                new_log_probs, entropy, new_values = self.ac.evaluate_action(
+                    batch_states, batch_node_idx, batch_value_idx
+                )
+                
+                # Policy loss (clipped surrogate)
+                ratio = torch.exp(new_log_probs - batch_old_log_probs)
+                surr1 = ratio * batch_advantages
+                surr2 = torch.clamp(ratio, 1 - self.clip_epsilon, 1 + self.clip_epsilon) * batch_advantages
+                policy_loss = -torch.min(surr1, surr2).mean()
+                
+                # Value loss
+                value_loss = nn.functional.mse_loss(new_values, batch_returns)
+                
+                # Entropy bonus
+                entropy_loss = -entropy.mean()
+                
+                # Total loss
+                loss = policy_loss + self.value_coef * value_loss + self.entropy_coef * entropy_loss
+                
+                # Update
+                self.optimizer.zero_grad()
+                loss.backward()
+                nn.utils.clip_grad_norm_(self.ac.parameters(), self.max_grad_norm)
+                self.optimizer.step()
+                
+                total_policy_loss += policy_loss.item()
+                total_value_loss += value_loss.item()
+                total_entropy += entropy.mean().item()
+                n_updates += 1
+                
+        # Log
+        if n_updates > 0:
+            self.loss_history.append(total_policy_loss / n_updates)
+            self.value_loss_history.append(total_value_loss / n_updates)
+            self.policy_loss_history.append(total_entropy / n_updates)
+            
+        # Clear buffer
+        self.clear_buffer()
+        
+    def clear_buffer(self):
+        """Clear trajectory buffer."""
+        self.states = []
+        self.node_indices = []
+        self.value_indices = []
+        self.log_probs = []
+        self.rewards = []
+        self.values = []
+        self.dones = []
+        
+    def reset_episode(self):
+        """Reset per-episode state (not the learned policy)."""
+        self.intervention_counts = {n: 0 for n in self.nodes}
+        self.recent_targets = []
+
+
+def calculate_reward_with_bonuses(loss_before: float, loss_after: float,
+                                   target: str, node_losses: Dict[str, float],
+                                   intervention_counts: Dict[str, int],
+                                   nodes: List[str], graph: Dict[str, List[str]]) -> float:
+    """
+    Calculate reward with same bonuses as DPO for fair comparison.
+    
+    This mirrors the score calculation in ace_experiments.py to ensure
+    PPO sees the same reward signal that shapes DPO preferences.
+    """
+    # Base reward: information gain (scaled same as DPO)
+    delta = loss_before - loss_after
+    reward = delta * 10.0
+    reward = float(np.clip(reward, -2.0, 400.0))
+    
+    # Coverage bonus: encourage exploring under-sampled nodes
+    total_interventions = sum(intervention_counts.values()) + 1
+    target_count = intervention_counts.get(target, 0)
+    coverage_bonus = 60.0 * (1.0 - target_count / total_interventions)
+    
+    # Collapse penalty: discourage fixating on one node
+    if total_interventions > 10:
+        top_count = max(intervention_counts.values())
+        top_frac = top_count / total_interventions
+        if top_frac > 0.30:
+            collapse_penalty = 150.0 * (top_frac - 0.30)
+        else:
+            collapse_penalty = 0.0
+    else:
+        collapse_penalty = 0.0
+        
+    # Leaf penalty: discourage intervening on nodes with no children
+    children = [n for n in nodes if target in graph.get(n, [])]
+    if not children:
+        leaf_penalty = 40.0
+    else:
+        leaf_penalty = 0.0
+        
+    # High-loss bonus: prefer interventions on high-loss mechanisms
+    target_loss = node_losses.get(target, 0.0)
+    avg_loss = np.mean(list(node_losses.values())) + 1e-6
+    urgency_bonus = 20.0 * (target_loss / avg_loss) if avg_loss > 0 else 0.0
+    
+    total_reward = reward + coverage_bonus - collapse_penalty - leaf_penalty + urgency_bonus
+    return total_reward
+
+
+# ----------------------------------------------------------------
 # 3. TRAINING LOOP
 # ----------------------------------------------------------------
 
@@ -367,6 +763,7 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
     
     critic = ScientificCritic(oracle)
     all_records = []
+    is_ppo = isinstance(policy, PPOPolicy)
     
     for episode in range(n_episodes):
         # Fresh student each episode
@@ -376,10 +773,20 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
         # Reset policy state if needed
         if hasattr(policy, 'reset'):
             policy.reset()
+        if hasattr(policy, 'reset_episode'):
+            policy.reset_episode()
             
+        # Get initial loss for reward computation
+        prev_loss, prev_node_losses = critic.evaluate(student)
+        
         for step in range(steps_per_episode):
-            # Select intervention
-            target, value = policy.select_intervention(student, oracle=oracle)
+            # Select intervention (PPO needs node_losses for state encoding)
+            if is_ppo:
+                target, value = policy.select_intervention(
+                    student, oracle=oracle, node_losses=prev_node_losses
+                )
+            else:
+                target, value = policy.select_intervention(student, oracle=oracle)
             
             # Execute intervention
             data = oracle.generate(n_samples=50, interventions={target: value})
@@ -392,6 +799,15 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
             # Evaluate
             total_loss, node_losses = critic.evaluate(student)
             
+            # For PPO: compute and store reward
+            if is_ppo:
+                reward = calculate_reward_with_bonuses(
+                    prev_loss, total_loss, target, prev_node_losses,
+                    policy.intervention_counts, oracle.nodes, oracle.graph
+                )
+                done = (step == steps_per_episode - 1)
+                policy.store_reward(reward, done)
+            
             record = {
                 "episode": episode,
                 "step": step,
@@ -401,6 +817,14 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
                 **{f"loss_{node}": loss for node, loss in node_losses.items()}
             }
             all_records.append(record)
+            
+            # Update for next step
+            prev_loss = total_loss
+            prev_node_losses = node_losses
+            
+        # PPO: update policy at end of episode
+        if is_ppo:
+            policy.update()
             
         if episode % 10 == 0:
             logging.info(f"  Episode {episode}/{n_episodes}, Final Loss: {total_loss:.4f}")
@@ -418,7 +842,13 @@ def plot_comparison(results: Dict[str, pd.DataFrame], output_dir: str):
     fig, axes = plt.subplots(2, 3, figsize=(15, 10))
     fig.suptitle("Baseline Comparison: Learning Curves", fontsize=14)
     
-    colors = {"Random": "red", "Round-Robin": "blue", "Max-Variance": "green", "ACE": "purple"}
+    colors = {
+        "Random": "red", 
+        "Round-Robin": "blue", 
+        "Max-Variance": "green", 
+        "PPO": "orange",
+        "ACE": "purple"
+    }
     
     # 1. Total loss over steps (averaged across episodes)
     ax = axes[0, 0]
@@ -508,9 +938,11 @@ def print_summary(results: Dict[str, pd.DataFrame]):
 
 def main():
     parser = argparse.ArgumentParser(description="ACE Baseline Comparison")
-    parser.add_argument("--baseline", type=str, choices=["random", "round_robin", "max_variance"],
+    parser.add_argument("--baseline", type=str, 
+                        choices=["random", "round_robin", "max_variance", "ppo"],
                         help="Which baseline to run")
-    parser.add_argument("--all", action="store_true", help="Run all baselines")
+    parser.add_argument("--all", action="store_true", help="Run all baselines (excluding PPO)")
+    parser.add_argument("--all_with_ppo", action="store_true", help="Run all baselines including PPO")
     parser.add_argument("--episodes", type=int, default=50, help="Number of episodes")
     parser.add_argument("--steps", type=int, default=25, help="Steps per episode")
     parser.add_argument("--obs_train_interval", type=int, default=5,
@@ -518,6 +950,10 @@ def main():
     parser.add_argument("--obs_train_samples", type=int, default=100,
                         help="Observational samples per injection")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
+    # PPO-specific arguments
+    parser.add_argument("--ppo_lr", type=float, default=3e-4, help="PPO learning rate")
+    parser.add_argument("--ppo_epochs", type=int, default=4, help="PPO epochs per update")
+    parser.add_argument("--ppo_clip", type=float, default=0.2, help="PPO clip epsilon")
     args = parser.parse_args()
     
     # Setup
@@ -542,7 +978,9 @@ def main():
     results = {}
     
     baselines_to_run = []
-    if args.all:
+    if args.all_with_ppo:
+        baselines_to_run = ["random", "round_robin", "max_variance", "ppo"]
+    elif args.all:
         baselines_to_run = ["random", "round_robin", "max_variance"]
     elif args.baseline:
         baselines_to_run = [args.baseline]
@@ -562,6 +1000,14 @@ def main():
             policy = RoundRobinPolicy(nodes)
         elif baseline_name == "max_variance":
             policy = MaxVariancePolicy(nodes)
+        elif baseline_name == "ppo":
+            policy = PPOPolicy(
+                nodes, 
+                lr=args.ppo_lr,
+                clip_epsilon=args.ppo_clip,
+                ppo_epochs=args.ppo_epochs
+            )
+            logging.info(f"  PPO Config: lr={args.ppo_lr}, clip={args.ppo_clip}, epochs={args.ppo_epochs}")
             
         df = run_baseline(
             policy, oracle,
@@ -573,6 +1019,15 @@ def main():
         
         results[policy.name] = df
         df.to_csv(os.path.join(run_dir, f"{baseline_name}_results.csv"), index=False)
+        
+        # Save PPO-specific training curves
+        if baseline_name == "ppo" and hasattr(policy, 'loss_history') and policy.loss_history:
+            ppo_df = pd.DataFrame({
+                "policy_loss": policy.loss_history,
+                "value_loss": policy.value_loss_history,
+            })
+            ppo_df.to_csv(os.path.join(run_dir, "ppo_training.csv"), index=False)
+            logging.info(f"  Saved PPO training curves ({len(policy.loss_history)} updates)")
         
     # Generate comparison plots and summary
     if len(results) > 1:

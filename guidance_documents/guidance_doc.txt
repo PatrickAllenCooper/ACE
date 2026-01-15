@@ -109,7 +109,7 @@ Each run generates:
 The core ACE framework with LLM-based policy and DPO training.
 
 ### Baselines: `baselines.py`
-Implements three baseline intervention strategies for comparison:
+Implements four baseline intervention strategies for comparison:
 
 1. **Random Policy (Lower Bound)**
    - Uniformly samples target node and intervention value
@@ -124,14 +124,25 @@ Implements three baseline intervention strategies for comparison:
    - Selects interventions maximizing predictive variance
    - Represents standard "greedy" optimal experimental design
 
+4. **PPO (Proximal Policy Optimization)**
+   - Actor-Critic RL baseline for fair comparison with DPO
+   - Same reward signal: Information Gain + coverage bonuses
+   - Same replay buffer, observational training interval
+   - Uses GAE for advantage estimation, clipped surrogate objective
+   - Tests paper's claim that DPO outperforms value-based RL
+
 ```bash
 # Run individual baseline
 python baselines.py --baseline random --episodes 100
 python baselines.py --baseline round_robin --episodes 100
 python baselines.py --baseline max_variance --episodes 100
+python baselines.py --baseline ppo --episodes 100
 
-# Run all baselines for comparison
+# Run all baselines (excluding PPO - faster)
 python baselines.py --all --episodes 100
+
+# Run all baselines including PPO
+python baselines.py --all_with_ppo --episodes 100
 ```
 
 ### Visualization: `visualize.py`
@@ -161,11 +172,15 @@ python ace_experiments.py \
 ### Baselines Script
 ```bash
 python baselines.py \
-    --baseline random \           # Or: round_robin, max_variance
-    --all \                       # Run all baselines
+    --baseline random \           # Or: round_robin, max_variance, ppo
+    --all \                       # Run all baselines (excluding PPO)
+    --all_with_ppo \              # Run all baselines including PPO
     --episodes 50 \               # Number of episodes
     --steps 25 \                  # Steps per episode
     --obs_train_interval 5 \      # Observational training interval
+    --ppo_lr 3e-4 \               # PPO learning rate
+    --ppo_epochs 4 \              # PPO epochs per update
+    --ppo_clip 0.2 \              # PPO clip epsilon
     --output results              # Output directory
 ```
 
