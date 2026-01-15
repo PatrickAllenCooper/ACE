@@ -152,6 +152,34 @@ python visualize.py run_YYYYMMDD_HHMMSS/  # Success verification dashboard
 python visualize.py --demo                 # Mechanism contrast demo
 ```
 
+### Full Pipeline: `run_all.py`
+Orchestrates the complete experimental pipeline for paper validation:
+```bash
+# Quick validation (~5 minutes, uses custom transformer)
+python run_all.py --quick
+
+# Full paper experiments (~2-4 hours, uses LLM policy)
+python run_all.py --full
+
+# Custom configuration
+python run_all.py --ace_episodes 200 --baseline_episodes 100
+
+# Skip PPO for faster runs
+python run_all.py --full --skip_ppo
+```
+
+**Output Structure:**
+```
+results/paper_run_YYYYMMDD_HHMMSS/
+├── ace/                    # ACE (DPO) results
+├── baselines/              # All baseline results
+├── comparison/             # Cross-method figures
+│   ├── convergence_curves.png
+│   ├── final_comparison.png
+│   └── summary_table.csv
+└── paper_summary.txt       # Human-readable summary
+```
+
 ---
 
 ## Key CLI Arguments
