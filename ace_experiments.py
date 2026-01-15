@@ -1338,6 +1338,10 @@ def main():
     parser.add_argument("--pretrain_steps", type=int, default=100, help="Supervised pre-training steps before DPO")
     parser.add_argument("--pretrain_interval", type=int, default=50, help="Re-run pre-training every N episodes (0=disabled)")
     parser.add_argument("--smart_breaker", action="store_true", default=True, help="Use smart collapse breaker that prioritizes collider parents")
+    # CRITICAL FIX: Periodic Observational Training to prevent mechanism forgetting
+    parser.add_argument("--obs_train_interval", type=int, default=5, help="Train on observational data every N steps (0=disabled)")
+    parser.add_argument("--obs_train_samples", type=int, default=100, help="Number of observational samples per training injection")
+    parser.add_argument("--obs_train_epochs", type=int, default=50, help="Training epochs for observational data")
     args = parser.parse_args()
     
     # Setup Directories
@@ -1976,6 +1980,20 @@ def main():
                     )
                 real_data = executor.run_experiment(winner_plan)
                 learner.train_step(real_data, n_epochs=args.learner_epochs)
+                
+                # --- CRITICAL FIX: Periodic Observational Training ---
+                # When heavily intervening on one node (e.g., X2), the student never sees
+                # that node's mechanism under natural conditions, causing catastrophic forgetting.
+                # Solution: Periodically inject observational (no intervention) data.
+                if args.obs_train_interval > 0 and step > 0 and step % args.obs_train_interval == 0:
+                    obs_data = M_star.generate(n_samples=args.obs_train_samples, interventions=None)
+                    obs_batch = {"data": obs_data, "intervened": None}
+                    
+                    # Train on observational data to preserve all mechanism relationships
+                    learner.train_step(obs_batch, n_epochs=args.obs_train_epochs)
+                    
+                    if step % 10 == 0:  # Log occasionally
+                        logging.info(f"  [Obs Training] Injected {args.obs_train_samples} observational samples at step {step}")
 
     # 4. Final Evaluation
     logging.info("--- Running Final Evaluation ---")

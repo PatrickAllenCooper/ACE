@@ -138,6 +138,42 @@ If X3 still isn't learning:
 
 # CHANGELOG
 
+## 2026-01-15: Periodic Observational Training to Prevent Mechanism Forgetting
+
+### Problem: Catastrophic Forgetting of X2 Mechanism
+Analysis of `run_20260113_060752` and `run_20260114_095334` revealed:
+- X3 collider was learned successfully (loss ~0.07) ✓
+- X2 mechanism was **catastrophically forgotten** (loss ~22) ✗
+- Intervention distribution was 98.9% X2, only 1.1% X1
+
+**Root Cause:**
+When `DO(X2=v)` is applied, X2 is set directly to value `v`. This means:
+1. The student's X2 mechanism `f(X1) → X2` is **never called**
+2. The X1→X2 relationship `X2 = 2·X1 + 1` receives no gradient updates
+3. After 1500+ X2 interventions, the X2 mechanism network outputs garbage
+
+### Solution: Periodic Observational Training
+Every N steps, inject observational data (no intervention) to preserve all mechanisms:
+
+```python
+# New CLI arguments:
+--obs_train_interval 5    # Train on observational data every 5 steps
+--obs_train_samples 100   # Number of samples per injection
+--obs_train_epochs 50     # Training epochs for observational data
+```
+
+**Implementation:**
+- After each `learner.train_step(intervention_data)`, check if `step % obs_train_interval == 0`
+- If so, generate observational samples: `M_star.generate(n_samples, interventions=None)`
+- Train the student on this data, which includes the natural X2 mechanism
+
+### Expected Outcome
+- X2 mechanism should now be preserved (loss < 1.0)
+- X3 collider should still be learned (loss < 0.5)
+- Both mechanisms coexist without catastrophic forgetting
+
+---
+
 ## 2026-01-13: Value-Aware Collapse Breaking for Collider Disentanglement
 
 ### Problem: Single-Value Trap (X2=c)
