@@ -71,8 +71,8 @@ The ground truth SCM contains a **collider structure** that is particularly diff
 | Synthetic 5-node SCM | 3.4.1 | ✅ `ace_experiments.py` |
 | Baselines (Random, Round-Robin, Max-Variance) | 3.8 | ✅ `baselines.py` |
 | PPO Comparison | Discussion | ✅ `baselines.py` |
-| Coupled Duffing Oscillators | 3.6 | ❌ Not implemented |
-| US Phillips Curve (FRED) | 3.7 | ❌ Not implemented |
+| Coupled Duffing Oscillators | 3.6 | ✅ `experiments/duffing_oscillators.py` |
+| US Phillips Curve (FRED) | 3.7 | ✅ `experiments/phillips_curve.py` |
 
 ### Historical Context
 Analysis of `run_20260103_141404` revealed original failure:
@@ -176,10 +176,17 @@ python baselines.py --all_with_ppo --episodes 100
 ```
 
 ### Visualization: `visualize.py`
-Post-hoc analysis tool for run results:
 ```bash
 python visualize.py run_YYYYMMDD_HHMMSS/  # Success verification dashboard
-python visualize.py --demo                 # Mechanism contrast demo
+```
+
+### Additional Experiments: `experiments/`
+```bash
+# Duffing Oscillators (Physics - ODE-based causal discovery)
+python -m experiments.duffing_oscillators --episodes 100
+
+# Phillips Curve (Economics - FRED data retrospective learning)
+python -m experiments.phillips_curve --episodes 50
 ```
 
 ### Full Pipeline: `run_all.py` (Local)
