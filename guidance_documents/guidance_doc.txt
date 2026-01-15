@@ -103,15 +103,70 @@ Each run generates:
 
 ---
 
+## Project Scripts
+
+### Main Experiment: `ace_experiments.py`
+The core ACE framework with LLM-based policy and DPO training.
+
+### Baselines: `baselines.py`
+Implements three baseline intervention strategies for comparison:
+
+1. **Random Policy (Lower Bound)**
+   - Uniformly samples target node and intervention value
+   - Represents unguided, passive exploration
+
+2. **Round-Robin (Systematic Heuristic)**
+   - Cycles through nodes in fixed topological order
+   - Tests if adaptive, non-uniform sampling is necessary
+
+3. **Max-Variance (Uncertainty Sampling)**
+   - Greedy active learning using MC Dropout
+   - Selects interventions maximizing predictive variance
+   - Represents standard "greedy" optimal experimental design
+
+```bash
+# Run individual baseline
+python baselines.py --baseline random --episodes 100
+python baselines.py --baseline round_robin --episodes 100
+python baselines.py --baseline max_variance --episodes 100
+
+# Run all baselines for comparison
+python baselines.py --all --episodes 100
+```
+
+### Visualization: `visualize.py`
+Post-hoc analysis tool for run results:
+```bash
+python visualize.py run_YYYYMMDD_HHMMSS/  # Success verification dashboard
+python visualize.py --demo                 # Mechanism contrast demo
+```
+
+---
+
 ## Key CLI Arguments
 
+### ACE Main Script
 ```bash
 python ace_experiments.py \
     --episodes 100 \
-    --pretrain_steps 100 \      # Supervised pre-training before DPO
-    --pretrain_interval 50 \    # Re-train every N episodes
-    --smart_breaker \           # Prioritize collider parents in collapse breaker
-    --debug_parsing             # Enable parse debug logging
+    --pretrain_steps 100 \        # Supervised pre-training before DPO
+    --pretrain_interval 50 \      # Re-train every N episodes
+    --smart_breaker \             # Prioritize collider parents in collapse breaker
+    --obs_train_interval 5 \      # Observational training every N steps (0=disabled)
+    --obs_train_samples 100 \     # Samples per observational injection
+    --obs_train_epochs 50 \       # Training epochs for observational data
+    --debug_parsing               # Enable parse debug logging
+```
+
+### Baselines Script
+```bash
+python baselines.py \
+    --baseline random \           # Or: round_robin, max_variance
+    --all \                       # Run all baselines
+    --episodes 50 \               # Number of episodes
+    --steps 25 \                  # Steps per episode
+    --obs_train_interval 5 \      # Observational training interval
+    --output results              # Output directory
 ```
 
 ---
