@@ -1,5 +1,22 @@
 # ACE: Autonomous Causal Experimentation
 
+## Quick Start
+
+```bash
+# Full paper experiments (2-4 hours)
+python run_all.py --full
+
+# Quick validation (~5 minutes)
+python run_all.py --quick
+
+# Individual components
+python ace_experiments.py --episodes 100    # Main ACE experiment
+python baselines.py --all_with_ppo          # All baselines
+python visualize.py results/run_*/          # Analyze results
+```
+
+---
+
 ## Project Overview
 
 ACE is a system for learning Structural Causal Models (SCMs) through autonomous experimentation. An agent policy proposes interventions (DO operations), executes them in a ground truth environment, and trains a student SCM to match the observed mechanisms.
@@ -32,23 +49,36 @@ The ground truth SCM contains a **collider structure** that is particularly diff
 
 ---
 
-## Current Status (2026-01-11)
+## Current Status (2026-01-15)
 
 ### What's Working
-- ✅ X2 mechanism (X1→X2) learns perfectly (loss ~0.01)
-- ✅ X5 mechanism (X4→X5) learns perfectly (loss ~0.02)
-- ✅ Root distributions (X1, X4) are captured
+- ✅ X3 collider mechanism successfully learned (loss ~0.07) 
+- ✅ X5 mechanism (X4→X5) learns well (loss ~0.18)
+- ✅ Root distributions (X1, X4) captured
+- ✅ Smart collapse breaker shifts interventions to X2
+- ✅ Value-aware breaker ensures X2 value diversity
+- ✅ DPO training shows positive preference margins
 
-### What's Failing
-- ❌ X3 mechanism (X1,X2→X3) does NOT learn (loss ~1.5-2.5)
-- ❌ LLM policy ignores prompt, always proposes X1 interventions
-- ❌ DPO training stuck at random chance (loss = 0.693)
+### Current Issue: Catastrophic Forgetting
+- ⚠️ X2 mechanism catastrophically forgotten (loss ~22)
+- ⚠️ Intervention distribution extremely biased (98.9% X2)
+- **Root Cause**: When DO(X2=v), the X2 mechanism f(X1)→X2 is never called
+- **Solution Implemented**: Periodic observational training (`--obs_train_interval 5`)
 
-### Root Cause: LLM Policy Attention Failure
-Analysis of `run_20260103_141404` revealed:
-- LLM generated X1 for 100% of candidates (49% of executed, rest from collapse breaker)
-- The loss/state information in prompt was completely ignored
-- DPO gradients weren't updating the model
+### Paper Experiments Status
+| Experiment | Paper Section | Status |
+|------------|---------------|--------|
+| Synthetic 5-node SCM | 3.4.1 | ✅ `ace_experiments.py` |
+| Baselines (Random, Round-Robin, Max-Variance) | 3.8 | ✅ `baselines.py` |
+| PPO Comparison | Discussion | ✅ `baselines.py` |
+| Coupled Duffing Oscillators | 3.6 | ❌ Not implemented |
+| US Phillips Curve (FRED) | 3.7 | ❌ Not implemented |
+
+### Historical Context
+Analysis of `run_20260103_141404` revealed original failure:
+- LLM generated X1 for 100% of candidates
+- DPO stuck at random chance (loss = 0.693)
+- This was fixed via supervised pre-training and smart collapse breaker
 
 ---
 
@@ -212,25 +242,62 @@ python baselines.py \
     --output results              # Output directory
 ```
 
+### Run All Script (Paper Experiments)
+```bash
+python run_all.py \
+    --quick \                     # Fast validation (~5 min)
+    --full \                      # Full paper experiments (~2-4 hours)
+    --ace_episodes 500 \          # Override ACE episodes
+    --baseline_episodes 100 \     # Override baseline episodes
+    --use_custom \                # Use custom transformer (faster)
+    --skip_ppo \                  # Skip PPO baseline
+    --timeout 14400               # Timeout per experiment (seconds)
+```
+
 ---
 
 ## Success Criteria
 
-1. **X3 Loss < 0.5** - The collider mechanism is learned
-2. **Balanced Interventions** - X2 should be ~20% of interventions (not 14%)
-3. **DPO Learning** - Loss should decrease from 0.693 toward 0
-4. **Preference Margin Positive** - Policy should prefer winners >50% of time
+### Primary (All mechanisms learned)
+1. **X3 Loss < 0.5** - The collider mechanism is learned ✅ (achieved ~0.07)
+2. **X2 Loss < 1.0** - The linear mechanism is preserved (requires obs training)
+3. **X5 Loss < 0.5** - The quadratic mechanism is learned ✅ (achieved ~0.18)
+4. **X1, X4 Loss < 1.0** - Root distributions captured
+
+### Secondary (Training health)
+5. **DPO Learning** - Loss should decrease from 0.693 toward 0
+6. **Preference Margin Positive** - Policy should prefer winners >50% of time
+7. **Intervention Diversity** - No single node >70% of interventions
+
+### Paper Validation
+8. **ACE > Random** - Lower final loss than random baseline
+9. **ACE > Round-Robin** - Lower final loss than systematic baseline
+10. **ACE > Max-Variance** - Lower final loss than greedy active learning
+11. **ACE > PPO** - Lower final loss than value-based RL (validates paper claim)
 
 ---
 
 ## Debugging Checklist
 
-If X3 still isn't learning:
-1. Check `dpo_training.csv` - Is preference_margin positive?
-2. Check gradient norms in log - Are they non-zero?
-3. Check target distribution in `metrics.csv` - Is X2 getting interventions?
+### If X3 (collider) isn't learning:
+1. Check `metrics.csv` - Is X2 getting interventions?
+2. Check `value_diversity.csv` - Are X2 values diverse (not stuck at single value)?
+3. Check `dpo_training.csv` - Is preference_margin positive?
+4. Check `mechanism_contrast.png` - Are X2→X3 and X1→X3 slices accurate?
+
+### If X2 mechanism is forgotten (high loss):
+1. Verify `--obs_train_interval` is enabled (default: 5)
+2. Check intervention distribution - if >90% X2, increase observational training
+3. Check `mechanism_contrast.png` - Is X1→X2 line flat (untrained network)?
+
+### If DPO isn't learning:
+1. Check gradient norms in log - Are they non-zero?
+2. Check `dpo_training.csv` - Is loss stuck at 0.693?
+3. Verify supervised pre-training ran (`--pretrain_steps 100`)
+
+### General:
 4. Check `scm_graph.png` - Verify graph structure is correct
-5. Check `mechanism_contrast.png` - Which specific relationship is failing?
+5. Run `python visualize.py <run_dir>/` for comprehensive dashboard
 
 ---
 
