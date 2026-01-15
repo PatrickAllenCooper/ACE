@@ -182,7 +182,7 @@ python visualize.py run_YYYYMMDD_HHMMSS/  # Success verification dashboard
 python visualize.py --demo                 # Mechanism contrast demo
 ```
 
-### Full Pipeline: `run_all.py`
+### Full Pipeline: `run_all.py` (Local)
 Orchestrates the complete experimental pipeline for paper validation:
 ```bash
 # Quick validation (~5 minutes, uses custom transformer)
@@ -198,6 +198,35 @@ python run_all.py --ace_episodes 200 --baseline_episodes 100
 python run_all.py --full --skip_ppo
 ```
 
+### Full Pipeline: `run_all_hpc.sh` (SLURM/HPC)
+Submits SLURM jobs with proper dependencies for HPC clusters:
+```bash
+# Full paper experiments (submits 3 jobs)
+./run_all_hpc.sh
+
+# Quick validation
+./run_all_hpc.sh --quick
+
+# Skip PPO baseline
+./run_all_hpc.sh --skip-ppo
+
+# Custom episodes
+./run_all_hpc.sh --ace-episodes 200 --baseline-episodes 100
+```
+
+**Job Structure:**
+```
+Job 1: ACE (DPO)     → 12 hours, A100 GPU
+Job 2: Baselines     → 8 hours, A100 GPU  
+Job 3: Comparison    → 30 min, CPU only (depends on 1 & 2)
+```
+
+**Monitor jobs:**
+```bash
+squeue -u $USER
+tail -f logs/ace_*.out
+```
+
 **Output Structure:**
 ```
 results/paper_run_YYYYMMDD_HHMMSS/
@@ -207,6 +236,7 @@ results/paper_run_YYYYMMDD_HHMMSS/
 │   ├── convergence_curves.png
 │   ├── final_comparison.png
 │   └── summary_table.csv
+├── job_info.txt            # SLURM job IDs
 └── paper_summary.txt       # Human-readable summary
 ```
 
