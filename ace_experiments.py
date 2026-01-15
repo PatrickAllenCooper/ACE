@@ -365,7 +365,8 @@ class TransformerPolicy(nn.Module):
             return self.output_head(out)
         return memory
 
-    def generate_experiment(self, scm_student, node_losses=None, max_len=5):
+    def generate_experiment(self, scm_student, node_losses=None, intervention_history=None, max_len=5):
+        """Generate intervention. intervention_history accepted for API compatibility but not used."""
         self.eval()
         memory = self.forward(scm_student, node_losses=node_losses)
         curr_token = torch.tensor([[self.dsl.token2id["<SOS>"]]], device=self.device)
