@@ -24,15 +24,26 @@ if [ "$QUICK" = "true" ]; then
 fi
 
 # --- Environment Setup ---
-module purge
-module load cuda
+if command -v module &> /dev/null; then
+    module purge || true
+    module load cuda || echo "Warning: Could not load cuda module. Running on CPU or system CUDA?"
+fi
 
-export HF_HOME="/projects/$USER/cache/huggingface"
-export MPLCONFIGDIR="/projects/$USER/cache/matplotlib"
-mkdir -p logs $HF_HOME $MPLCONFIGDIR
+# Use existing env vars if set, otherwise default to projects dir
+export HF_HOME="${HF_HOME:-/projects/$USER/cache/huggingface}"
+export MPLCONFIGDIR="${MPLCONFIGDIR:-/projects/$USER/cache/matplotlib}"
+# Try to create directories, suppress error if permission denied (e.g. running locally outside project structure)
+mkdir -p logs "$HF_HOME" "$MPLCONFIGDIR" 2>/dev/null || true
 
-source /projects/$USER/miniconda3/etc/profile.d/conda.sh
-conda activate ace
+# Only try to setup conda if not already in 'ace' or if specific path exists
+if [ "$CONDA_DEFAULT_ENV" != "ace" ]; then
+    if [ -f "/projects/$USER/miniconda3/etc/profile.d/conda.sh" ]; then
+        source /projects/$USER/miniconda3/etc/profile.d/conda.sh
+        conda activate ace
+    else
+        echo "Note: Not sourcing specific conda path. Assuming environment is set up."
+    fi
+fi
 
 # --- Output Directory ---
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -42,12 +53,21 @@ mkdir -p "$OUT"
 echo "========================================"
 echo "ACE Paper Experiments"
 echo "========================================"
-echo "Job ID: $SLURM_JOB_ID"
+if [ -n "$SLURM_JOB_ID" ]; then
+    echo "Job ID: $SLURM_JOB_ID"
+else
+    echo "Running Locally (Not a SLURM job)"
+fi
 echo "Node: $(hostname)"
 echo "Started: $(date)"
 echo "Output: $OUT"
 echo "Episodes: $EPISODES (baselines: $BASELINE_EPISODES)"
-nvidia-smi
+
+if command -v nvidia-smi &> /dev/null; then
+    nvidia-smi
+else
+    echo "nvidia-smi not found. Running on CPU?"
+fi
 echo "========================================"
 
 # --- 1. Synthetic SCM (Main ACE Experiment) ---
