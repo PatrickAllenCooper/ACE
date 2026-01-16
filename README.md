@@ -140,6 +140,59 @@ The DSL parser now supports:
 - Various decimal formats (e.g., `.5`, `0.5`, `5.`, `5.0`)
 - Automatic value clipping to valid ranges
 
+## Workspace Management
+
+### Running Full Experiments
+
+For comprehensive paper experiments (all baselines, Duffing oscillators, Phillips curve):
+
+```bash
+# On HPC with SLURM
+sbatch run_all.sh                    # Full experiments (500 ACE episodes, 100 baseline)
+QUICK=true sbatch run_all.sh         # Quick validation (10 episodes each)
+ACE_EPISODES=200 sbatch run_all.sh   # Custom episode count
+
+# Monitor progress
+squeue -u $USER                      # Check job status
+tail -f logs/paper_*.out             # View live output
+
+# Locally (for testing)
+./run_all.sh                         # Runs in current terminal
+QUICK=true ./run_all.sh              # Quick test run
+```
+
+### Cleaning Between Experiments
+
+The `cleanup.sh` script resets your workspace for new runs:
+
+```bash
+# Preview what will be deleted
+./cleanup.sh --dry-run
+
+# Standard cleanup (removes results and logs, keeps code)
+./cleanup.sh
+
+# Skip confirmation prompt
+./cleanup.sh --force
+
+# Keep most recent results directory
+./cleanup.sh --keep-latest
+
+# Full cleanup (also removes Python cache, temp files)
+./cleanup.sh --full
+```
+
+**What gets cleaned:**
+- `results/paper_*` and `results/run_*` directories
+- `logs/*.out` and `logs/*.err` (SLURM logs)
+- `*.log` files
+- (with `--full`) Python cache files (`__pycache__`, `*.pyc`)
+
+**What's preserved:**
+- All source code
+- Downloaded model caches (HF_HOME)
+- Conda environments
+
 ## Guidance
 
 Project guidance and design notes live in `guidance_documents/guidance_doc.txt`.
