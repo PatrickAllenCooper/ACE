@@ -14,29 +14,38 @@
 #SBATCH --error=logs/ace_%j.err        # Standard error log
 
 # --- 1. Environment Setup ---
-module purge
-module load cuda                       # Load CUDA drivers
+if command -v module &> /dev/null; then
+    module purge || true
+    module load cuda || echo "Warning: Could not load cuda module. Running on CPU or system CUDA?"
+fi
 
 # CRITICAL FIX: Redirect HuggingFace and Matplotlib caches to /projects
-# This prevents the "No space left on device" error in your home directory
-export HF_HOME="/projects/$USER/cache/huggingface"
-export MPLCONFIGDIR="/projects/$USER/cache/matplotlib"
+export HF_HOME="${HF_HOME:-/projects/$USER/cache/huggingface}"
+export MPLCONFIGDIR="${MPLCONFIGDIR:-/projects/$USER/cache/matplotlib}"
 
 # Ensure these directories exist
-mkdir -p logs
-mkdir -p $HF_HOME
-mkdir -p $MPLCONFIGDIR
+mkdir -p logs "$HF_HOME" "$MPLCONFIGDIR" 2>/dev/null || true
 
 # --- 2. Activate Conda ---
 # Source conda (assuming installed in /projects as per guide)
-source /projects/$USER/miniconda3/etc/profile.d/conda.sh
-conda activate ace
+if [ "$CONDA_DEFAULT_ENV" != "ace" ]; then
+    if [ -f "/projects/$USER/miniconda3/etc/profile.d/conda.sh" ]; then
+        source /projects/$USER/miniconda3/etc/profile.d/conda.sh
+        conda activate ace
+    else
+        echo "Note: Not sourcing specific conda path. Assuming environment is set up."
+    fi
+fi
 
 # --- 3. Run Experiment ---
 echo "Job started on $(hostname) at $(date)"
 echo "--------------------------------------"
-echo "GPU Debug Info:"
-nvidia-smi                             # Verify GPU visibility
+if command -v nvidia-smi &> /dev/null; then
+    echo "GPU Debug Info:"
+    nvidia-smi
+else
+    echo "nvidia-smi not found. Running on CPU?"
+fi
 echo "--------------------------------------"
 
 # Run your specific script
