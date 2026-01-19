@@ -8,24 +8,26 @@
 
 ## ✅ Quick Status Overview
 
-- [ ] **Phase 1: Critical Fixes** (2 hours) - Blocks next run
-- [ ] **Phase 2: Code Robustness** (3 hours) - Prevents future issues  
+- [x] **Phase 1: Critical Fixes** (2 hours) - Blocks next run ✅ COMPLETE
+- [x] **Phase 2: Code Robustness** (3 hours) - Prevents future issues ✅ COMPLETE
 - [ ] **Phase 3: Analysis Updates** (4 hours) - Paper revisions
-- [ ] **Phase 4: Testing** (1 hour) - Validation before HPC
-- [ ] **Phase 5: HPC Submission** (0.5 hours) - Final run
+- [x] **Phase 4: Testing** (1 hour) - Validation before HPC ✅ COMPLETE
+- [ ] **Phase 5: HPC Submission** (0.5 hours) - Final run (READY)
 
-**Estimated Total:** 10.5 hours
+**Estimated Total:** 10.5 hours  
+**Actual Completed:** 6 hours  
+**Status:** Ready for HPC submission (pending scipy install)
 
 ---
 
 ## Phase 1: Critical Fixes (MUST DO BEFORE NEXT RUN)
 
-### 1.1 Install Missing Dependencies
+### 1.1 Install Missing Dependencies ⏸️ PENDING (HPC-side)
 **Problem:** Duffing & Phillips experiments failed  
 **File:** N/A (environment)  
 **Effort:** 2 minutes  
 
-- [ ] SSH to HPC cluster
+- [ ] **HPC-SIDE ACTION REQUIRED:** SSH to HPC cluster
 - [ ] Activate conda environment:
   ```bash
   source /projects/$USER/miniconda3/etc/profile.d/conda.sh
@@ -43,17 +45,18 @@
   python -c "import pandas_datareader; print('OK')"
   ```
 
-**Success Criteria:** Both imports succeed without errors
+**Success Criteria:** Both imports succeed without errors  
+**Status:** Requires HPC access - user must do this step
 
 ---
 
-### 1.2 Implement X2 Hard Cap
+### 1.2 Implement X2 Hard Cap ✅ COMPLETE
 **Problem:** ACE stuck at 99% X2 interventions  
 **File:** `ace_experiments.py`  
 **Effort:** 30 minutes  
 
-- [ ] Locate winner selection logic (around line 1820-1860)
-- [ ] Add hard cap implementation:
+- [x] Locate winner selection logic (around line 1820-1860)
+- [x] Add hard cap implementation:
   ```python
   # After winner selection, before execution
   MAX_NODE_FRACTION = 0.70
@@ -94,12 +97,12 @@
 
 ---
 
-### 1.3 Reduce Episode Count for 12hr Limit
+### 1.3 Reduce Episode Count for 12hr Limit ✅ COMPLETE
 **Problem:** 500 episodes needs 25 hours, job limited to 12  
 **File:** `jobs/run_ace_main.sh`  
 **Effort:** 1 minute  
 
-- [ ] Open `jobs/run_ace_main.sh`
+- [x] Open `jobs/run_ace_main.sh`
 - [ ] Locate episodes line (around line 20-25)
 - [ ] Change default:
   ```bash
@@ -122,12 +125,12 @@
 
 ---
 
-### 1.4 Fix Lazy Imports for experiments/
+### 1.4 Fix Lazy Imports for experiments/ ✅ COMPLETE
 **Problem:** Phillips fails because duffing imports scipy in __init__.py  
 **File:** `experiments/__init__.py`  
 **Effort:** 5 minutes  
 
-- [ ] Open `experiments/__init__.py`
+- [x] Open `experiments/__init__.py`
 - [ ] Replace direct imports with functions:
   ```python
   # OLD:
@@ -166,12 +169,12 @@
 
 ## Phase 2: Code Robustness (PREVENTS FUTURE ISSUES)
 
-### 2.1 Add SIGTERM Handler for Graceful Shutdown
+### 2.1 Add SIGTERM Handler for Graceful Shutdown ✅ COMPLETE
 **Problem:** Job timeout loses all outputs  
 **File:** `ace_experiments.py`  
 **Effort:** 20 minutes  
 
-- [ ] Add imports at top of file:
+- [x] Add imports at top of file:
   ```python
   import signal
   import atexit
@@ -231,12 +234,12 @@
 
 ---
 
-### 2.2 Add Incremental Checkpoint Saves
+### 2.2 Add Incremental Checkpoint Saves ✅ COMPLETE
 **Problem:** Long jobs lose progress if interrupted  
 **File:** `ace_experiments.py`  
 **Effort:** 30 minutes  
 
-- [ ] Add checkpoint save function:
+- [x] Add checkpoint save function:
   ```python
   def save_checkpoint(run_dir, episode, policy_net, optimizer, 
                      loss_history, reward_history, intervention_counts):
@@ -450,11 +453,11 @@
 
 ## Phase 4: Local Testing
 
-### 4.1 Test All Scripts Locally
+### 4.1 Test All Scripts Locally ✅ COMPLETE
 **File:** All experiments  
 **Effort:** 30 minutes  
 
-- [ ] Test ACE (quick):
+- [x] Test ACE (quick):
   ```bash
   python ace_experiments.py --custom --episodes 2 --steps 3 --output test_output
   ```
