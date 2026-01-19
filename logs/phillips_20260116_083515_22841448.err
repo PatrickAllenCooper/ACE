@@ -1,0 +1,22 @@
+Lmod has detected the following error: The following module(s) are unknown:
+"cuda"
+
+Please check the spelling or version number. Also try "module spider ..."
+It is also possible your cache file is out-of-date; it may help to try:
+  $ module --ignore_cache load "cuda"
+
+Also make sure that all modulefiles written in TCL start with the string
+#%Module
+
+
+
+Traceback (most recent call last):
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/runpy.py", line 187, in _run_module_as_main
+    mod_name, mod_spec, code = _get_module_details(mod_name, _Error)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/runpy.py", line 110, in _get_module_details
+    __import__(pkg_name)
+  File "/projects/paco0228/ACE/experiments/__init__.py", line 2, in <module>
+    from .duffing_oscillators import run_duffing_experiment, DuffingOscillatorChain
+  File "/projects/paco0228/ACE/experiments/duffing_oscillators.py", line 16, in <module>
+    from scipy.integrate import solve_ivp
+ModuleNotFoundError: No module named 'scipy'

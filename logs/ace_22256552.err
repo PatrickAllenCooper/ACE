@@ -1,0 +1,220 @@
+Starting ACE Experiment on cuda
+Config: Namespace(model='Qwen/Qwen2.5-1.5B', custom=False, episodes=100, steps=25, candidates=4, lr=1e-05, learner_lr=0.002, learner_epochs=100, buffer_steps=50, patience_steps=6, min_delta=0.001, warmup_steps=3, cov_bonus=60.0, eps_explore=0.1, undersampled_bonus=100.0, diversity_constraint=False, diversity_threshold=0.6, val_bonus=1.5, value_min=-5.0, value_max=5.0, n_value_bins=11, bin_bonus=8.0, disentangle_bonus=20.0, collapse_threshold=0.3, collapse_penalty=150.0, leaf_penalty=40.0, parent_balance_bonus=80.0, token=None, output='experiment_results', debug_parsing=False)
+Run started at: 2026-01-02T07:14:48
+Run directory: experiment_results/run_20260102_071448
+Command: ace_experiments.py --model Qwen/Qwen2.5-1.5B --episodes 100 --output experiment_results
+Loading LLM: Qwen/Qwen2.5-1.5B...
+--- Starting Discovery Loop (100 Episodes) ---
+Collider nodes identified (multi-parent): ['X3']
+--- Episode 1 Start --- [Cumulative Parse: 0/0 (0.0%), Teacher Fallback: 0/0 (0.0%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=154.40, cov=54.95, val=0.00, bin=8.00, bal=5.93, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=0.00, score=223.28
+    [Bonus Detail] Candidate 2: target=X1, reward=147.97, cov=54.95, val=0.00, bin=8.00, bal=5.93, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=0.00, score=216.84
+    [Bonus Detail] Candidate 3: target=X1, reward=159.85, cov=54.95, val=0.00, bin=8.00, bal=5.93, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=0.00, score=228.73
+  Step 0: 'DO X1 = 2.5000' (Reward: 159.85, Cov: 54.95, Score: 228.73, RecentTop: None@0%)
+  Step 1: 'DO X1 = 2.5000' (Reward: 22.64, Cov: 43.85, Score: 72.15, RecentTop: None@0%)
+  Step 2: 'DO X1 = 2.5000' (Reward: 7.46, Cov: 36.25, Score: 48.33, RecentTop: None@0%)
+  Step 3: 'DO X1 = 2.5000' (Reward: -7.77, Cov: 31.83, Score: 28.06, RecentTop: None@0%)
+  Step 4: 'DO X1 = 2.5000' (Reward: -6.84, Cov: 28.22, Score: 24.96, RecentTop: None@0%)
+  Step 5: 'DO X1 = 2.5000' (Reward: 0.82, Cov: 27.31, Score: 31.39, RecentTop: None@0%)
+  Step 6: 'DO X1 = 2.5000' (Reward: -5.58, Cov: 25.72, Score: 23.16, RecentTop: None@0%)
+  Step 7: 'DO X1 = 2.5000' (Reward: 2.59, Cov: 24.26, Score: 29.68, RecentTop: None@0%)
+  Step 8: 'DO X1 = 2.5000' (Reward: 2.10, Cov: 23.27, Score: 28.03, RecentTop: None@0%)
+  > Early-stopping episode at Step 9 (no improvement for 6 steps). BestLoss: 17.2460, CurrentLoss: 17.5881
+  Step 0: 'DO X1 = 2.5000' (Reward: 116.54, Cov: 56.97, Score: 176.05, RecentTop: None@0%)
+  Step 1: 'DO X1 = 2.5000' (Reward: 10.34, Cov: 43.79, Score: 56.54, RecentTop: None@0%)
+  Step 2: 'DO X1 = 2.5000' (Reward: 12.05, Cov: 36.79, Score: 51.15, RecentTop: None@0%)
+  Step 3: 'DO X1 = 2.5000' (Reward: 7.82, Cov: 31.53, Score: 41.58, RecentTop: None@0%)
+  Step 4: 'DO X1 = 2.5000' (Reward: 7.14, Cov: 29.92, Score: 39.19, RecentTop: None@0%)
+  Step 5: 'DO X1 = 2.5000' (Reward: 21.74, Cov: 26.26, Score: 50.07, RecentTop: None@0%)
+  Step 6: 'DO X1 = 2.5000' (Reward: 15.57, Cov: 25.62, Score: 43.19, RecentTop: None@0%)
+  Step 7: 'DO X1 = 2.5000' (Reward: 16.74, Cov: 22.96, Score: 41.64, RecentTop: None@0%)
+  Step 8: 'DO X1 = 2.5000' (Reward: 18.94, Cov: 22.39, Score: 43.21, RecentTop: None@0%)
+  Step 0: 'DO X1 = 2.5000' (Reward: 196.24, Cov: 57.71, Score: 255.79, RecentTop: None@0%)
+  Step 1: 'DO X1 = 2.5000' (Reward: 7.79, Cov: 44.70, Score: 54.28, RecentTop: None@0%)
+  Step 2: 'DO X1 = -0.7158' (Reward: 0.10, Cov: 36.77, Score: 36.87, RecentTop: None@0%)
+  Step 3: 'DO X1 = 2.5000' (Reward: -2.31, Cov: 35.28, Score: 35.05, RecentTop: None@0%)
+  Step 4: 'DO X1 = 2.5000' (Reward: -4.69, Cov: 32.68, Score: 30.02, RecentTop: None@0%)
+  Step 5: 'DO X1 = 2.5000' (Reward: 2.99, Cov: 29.88, Score: 34.86, RecentTop: None@0%)
+  Step 6: 'DO X2 = -0.5300' (Reward: 50.20, Cov: 61.95, Score: 1863.31, RecentTop: None@0%)
+  Step 7: 'DO X1 = 2.5000' (Reward: 3.45, Cov: 21.73, Score: 27.12, RecentTop: None@0%)
+  Step 8: 'DO X1 = 2.5000' (Reward: 4.17, Cov: 20.12, Score: 26.19, RecentTop: None@0%)
+  Step 9: 'DO X1 = 2.5000' (Reward: 6.96, Cov: 20.25, Score: 29.07, RecentTop: None@0%)
+  Step 10: 'DO X1 = 2.5000' (Reward: 7.59, Cov: 19.28, Score: 28.71, RecentTop: None@0%)
+  Step 11: 'DO X1 = 2.5000' (Reward: -0.49, Cov: 17.95, Score: 19.26, RecentTop: None@0%)
+  Step 12: 'DO X1 = 2.5000' (Reward: 7.96, Cov: 17.76, Score: 27.49, RecentTop: None@0%)
+  Step 13: 'DO X1 = 2.5000' (Reward: 10.85, Cov: 18.18, Score: 30.77, RecentTop: None@0%)
+  Step 0: 'DO X1 = 2.5000' (Reward: 181.69, Cov: 57.36, Score: 240.76, RecentTop: None@0%)
+  Step 1: 'DO X1 = 2.5000' (Reward: -3.30, Cov: 41.45, Score: 39.84, RecentTop: None@0%)
+  Step 2: 'DO X1 = 2.5000' (Reward: -6.04, Cov: 36.48, Score: 32.09, RecentTop: None@0%)
+  Step 3: 'DO X1 = 2.5000' (Reward: 5.47, Cov: 31.38, Score: 38.49, RecentTop: None@0%)
+  Step 4: 'DO X1 = 2.5000' (Reward: 21.50, Cov: 29.97, Score: 53.08, RecentTop: None@0%)
+  Step 5: 'DO X1 = 2.5000' (Reward: -0.83, Cov: 28.16, Score: 28.92, RecentTop: None@0%)
+  Step 6: 'DO X2 = 4.5327' (Reward: 0.10, Cov: 40.90, Score: 41.00, RecentTop: None@0%)
+  Step 7: 'DO X2 = -3.9348' (Reward: 0.10, Cov: 33.07, Score: 33.17, RecentTop: None@0%)
+  Step 8: 'DO X1 = 2.5000' (Reward: 23.39, Cov: 20.25, Score: 45.21, RecentTop: None@0%)
+  Step 9: 'DO X1 = 4.4367' (Reward: 0.10, Cov: 18.79, Score: 18.89, RecentTop: None@0%)
+  Step 10: 'DO X1 = 2.5000' (Reward: 7.02, Cov: 17.65, Score: 26.05, RecentTop: None@0%)
+  Step 11: 'DO X1 = 2.5000' (Reward: 8.19, Cov: 16.97, Score: 26.53, RecentTop: None@0%)
+  Step 12: 'DO X1 = 0.3907' (Reward: 0.10, Cov: 16.02, Score: 16.12, RecentTop: None@0%)
+  Step 13: 'DO X1 = 2.5000' (Reward: -3.22, Cov: 13.71, Score: 11.94, RecentTop: None@0%)
+  Step 14: 'DO X1 = 2.5000' (Reward: 2.18, Cov: 12.84, Score: 16.45, RecentTop: None@0%)
+  Step 15: 'DO X1 = 2.5000' (Reward: -1.29, Cov: 12.22, Score: 12.34, RecentTop: None@0%)
+  Step 16: 'DO X1 = 2.5000' (Reward: 2.20, Cov: 11.45, Score: 15.05, RecentTop: None@0%)
+  Step 17: 'DO X1 = 2.5000' (Reward: 4.78, Cov: 10.96, Score: 17.13, RecentTop: None@0%)
+  Step 7: 'DO X1 = 1.1549' (Reward: 0.10, Cov: 25.30, Score: 25.40, RecentTop: X1@96%)
+  Step 4: 'DO X1 = -4.6740' (Reward: 0.10, Cov: 37.48, Score: 37.58, RecentTop: X1@97%)
+  Step 2: 'DO X2 = -0.5810' (Reward: 30.81, Cov: 36.60, Score: 1347.72, RecentTop: X1@97%)
+  Step 8: 'DO X2 = -3.7826' (Reward: 0.10, Cov: 39.77, Score: 39.87, RecentTop: X1@97%)
+  Step 12: 'DO X2 = -2.9375' (Reward: 0.10, Cov: 21.73, Score: 21.83, RecentTop: X1@96%)
+--- Episode 11 Start --- [Cumulative Parse: 516/516 (100.0%), Teacher Fallback: 9/139 (6.5%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=134.53, cov=58.20, val=0.19, bin=0.73, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6405.71, score=-6212.05
+    [Bonus Detail] Candidate 2: target=X1, reward=143.74, cov=58.20, val=0.19, bin=0.73, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6405.71, score=-6202.84
+    [Bonus Detail] Candidate 3: target=X1, reward=158.30, cov=58.20, val=0.19, bin=0.73, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6405.71, score=-6188.28
+  Step 0: 'DO X1 = 2.5000' (Reward: 158.30, Cov: 58.20, Score: -6188.28, RecentTop: X1@95%)
+  Step 5: 'DO X2 = -5.0000' (Reward: 57.14, Cov: 33.31, Score: 1274.57, RecentTop: X1@96%)
+  > Early-stopping episode at Step 21 (no improvement for 6 steps). BestLoss: 12.1839, CurrentLoss: 14.3041
+  Step 10: 'DO X1 = -2.3602' (Reward: 0.10, Cov: 21.51, Score: 21.61, RecentTop: X1@96%)
+  Step 22: 'DO X3 = -5.0000' (Reward: 8.07, Cov: 0.00, Score: 870.50, RecentTop: X1@96%)
+  Step 8: 'DO X1 = 0.7574' (Reward: 0.10, Cov: 23.54, Score: 23.64, RecentTop: X1@96%)
+  Step 1: 'DO X2 = -0.0924' (Reward: 0.10, Cov: 34.32, Score: 34.42, RecentTop: X1@96%)
+  Step 7: 'DO X1 = 1.2672' (Reward: 0.10, Cov: 20.86, Score: 20.96, RecentTop: X1@96%)
+  Step 4: 'DO X2 = 4.5610' (Reward: 0.10, Cov: 39.14, Score: 39.24, RecentTop: X1@96%)
+  Step 10: 'DO X3 = -0.6106' (Reward: 102.64, Cov: 0.00, Score: 937.94, RecentTop: X1@96%)
+  Step 4: 'DO X1 = 1.4477' (Reward: 0.10, Cov: 28.97, Score: 29.07, RecentTop: X1@96%)
+  Step 7: 'DO X3 = -0.6700' (Reward: 102.40, Cov: 0.00, Score: 912.90, RecentTop: X1@96%)
+  Step 9: 'DO X1 = -2.9772' (Reward: 0.10, Cov: 26.59, Score: 26.69, RecentTop: X1@96%)
+  Step 15: 'DO X3 = -5.0000' (Reward: 3.89, Cov: 0.00, Score: 792.06, RecentTop: X1@96%)
+--- Episode 21 Start --- [Cumulative Parse: 1116/1116 (100.0%), Teacher Fallback: 16/298 (5.4%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=157.83, cov=55.31, val=0.23, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6404.07, score=-6190.13
+    [Bonus Detail] Candidate 2: target=X1, reward=167.61, cov=55.31, val=0.23, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6404.07, score=-6180.35
+    [Bonus Detail] Candidate 3: target=X1, reward=172.12, cov=55.31, val=0.23, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6404.07, score=-6175.83
+  Step 0: 'DO X1 = 2.5000' (Reward: 172.12, Cov: 55.31, Score: -6175.83, RecentTop: X1@95%)
+  > Early-stopping episode at Step 9 (no improvement for 6 steps). BestLoss: 14.5301, CurrentLoss: 15.0244
+  Step 0: 'DO X3 = -1.8000' (Reward: 240.76, Cov: 0.00, Score: 1011.66, RecentTop: X1@95%)
+  Step 6: 'DO X3 = -0.7653' (Reward: -10.00, Cov: 0.00, Score: 737.42, RecentTop: X1@95%)
+  Step 4: 'DO X3 = -1.8000' (Reward: 99.74, Cov: 0.00, Score: 834.37, RecentTop: X1@95%)
+  Step 1: 'DO X4 = -0.4371' (Reward: 143.18, Cov: 0.27, Score: 1045.87, RecentTop: X1@95%)
+  Step 5: 'DO X3 = -5.0000' (Reward: 3.18, Cov: 0.00, Score: 723.78, RecentTop: X1@95%)
+  Step 7: 'DO X3 = -1.0000' (Reward: 1.41, Cov: 0.00, Score: 703.17, RecentTop: X1@95%)
+  Step 0: 'DO X3 = -5.0000' (Reward: 227.25, Cov: 0.00, Score: 912.15, RecentTop: X1@94%)
+  Step 1: 'DO X1 = 1.8739' (Reward: 0.10, Cov: 64.14, Score: 64.24, RecentTop: X1@94%)
+  Step 3: 'DO X1 = -4.3494' (Reward: 0.10, Cov: 43.58, Score: 43.68, RecentTop: X1@94%)
+  Step 7: 'DO X3 = -0.3450' (Reward: 1.98, Cov: 0.00, Score: 677.93, RecentTop: X1@94%)
+  Step 12: 'DO X3 = -1.8000' (Reward: -2.50, Cov: 0.00, Score: 653.62, RecentTop: X1@94%)
+  Step 15: 'DO X3 = -0.5679' (Reward: -0.83, Cov: 0.00, Score: 639.38, RecentTop: X1@94%)
+  Step 2: 'DO X4 = -0.4634' (Reward: 0.10, Cov: 0.57, Score: 0.67, RecentTop: X1@94%)
+  Step 12: 'DO X3 = -5.0000' (Reward: 0.67, Cov: 0.00, Score: 637.56, RecentTop: X1@94%)
+  Step 3: 'DO X3 = -0.5000' (Reward: 76.12, Cov: 0.00, Score: 698.15, RecentTop: X1@93%)
+  Step 3: 'DO X1 = 1.5167' (Reward: 0.10, Cov: 32.76, Score: 32.86, RecentTop: X1@93%)
+  Step 4: 'DO X1 = 2.5558' (Reward: 0.10, Cov: 33.19, Score: 33.29, RecentTop: X1@93%)
+--- Episode 31 Start --- [Cumulative Parse: 1576/1576 (100.0%), Teacher Fallback: 21/423 (5.0%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=159.92, cov=57.62, val=0.21, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6029.53, score=-5811.21
+    [Bonus Detail] Candidate 2: target=X1, reward=181.52, cov=57.62, val=0.21, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6029.53, score=-5789.60
+    [Bonus Detail] Candidate 3: target=X1, reward=161.29, cov=57.62, val=0.21, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6029.53, score=-5809.83
+  Step 0: 'DO X1 = 2.5000' (Reward: 183.32, Cov: 57.62, Score: -5787.81, RecentTop: X1@93%)
+  Step 5: 'DO X3 = -0.6368' (Reward: 77.41, Cov: 0.00, Score: 696.23, RecentTop: X1@93%)
+  Step 8: 'DO X1 = -0.6381' (Reward: 0.10, Cov: 30.17, Score: 30.27, RecentTop: X1@93%)
+  Step 9: 'DO X1 = -4.5891' (Reward: 0.10, Cov: 31.25, Score: 31.35, RecentTop: X1@93%)
+  > Early-stopping episode at Step 16 (no improvement for 6 steps). BestLoss: 4.7648, CurrentLoss: 7.5930
+  Step 4: 'DO X1 = 2.5676' (Reward: 0.10, Cov: 28.97, Score: 29.07, RecentTop: X1@93%)
+  Step 11: 'DO X1 = 2.9093' (Reward: 0.10, Cov: 21.80, Score: 21.90, RecentTop: X1@94%)
+  Step 9: 'DO X2 = 0.1707' (Reward: 0.10, Cov: 37.87, Score: 37.97, RecentTop: X1@94%)
+  Step 8: 'DO X1 = -0.1978' (Reward: 0.10, Cov: 23.37, Score: 23.47, RecentTop: X1@94%)
+  Step 13: 'DO X1 = -1.8472' (Reward: 0.10, Cov: 25.30, Score: 25.40, RecentTop: X1@94%)
+  Step 10: 'DO X1 = -2.9152' (Reward: 0.10, Cov: 21.83, Score: 21.93, RecentTop: X1@94%)
+  Step 14: 'DO X2 = -2.6448' (Reward: 0.10, Cov: 91.57, Score: 91.67, RecentTop: X1@94%)
+  Step 15: 'DO X3 = -5.0000' (Reward: 5.12, Cov: 0.00, Score: 659.14, RecentTop: X1@94%)
+  Step 5: 'DO X3 = 5.0000' (Reward: 95.78, Cov: 0.00, Score: 744.61, RecentTop: X1@94%)
+  Step 11: 'DO X3 = -0.5896' (Reward: -7.69, Cov: 0.00, Score: 620.10, RecentTop: X1@94%)
+  Step 6: 'DO X2 = 0.5890' (Reward: 0.10, Cov: 34.86, Score: 34.96, RecentTop: X1@94%)
+  Step 14: 'DO X4 = -0.0609' (Reward: 0.10, Cov: 1.51, Score: 1.61, RecentTop: X1@94%)
+--- Episode 41 Start --- [Cumulative Parse: 2248/2248 (100.0%), Teacher Fallback: 32/599 (5.3%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=156.48, cov=57.78, val=0.23, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6105.66, score=-5890.60
+    [Bonus Detail] Candidate 2: target=X1, reward=180.72, cov=57.78, val=0.23, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6105.66, score=-5866.35
+    [Bonus Detail] Candidate 3: target=X1, reward=163.12, cov=57.78, val=0.23, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6105.66, score=-5883.96
+  Step 0: 'DO X1 = 2.5000' (Reward: 180.72, Cov: 57.78, Score: -5866.35, RecentTop: X1@94%)
+  > Early-stopping episode at Step 12 (no improvement for 6 steps). BestLoss: 12.8742, CurrentLoss: 13.7236
+  Step 3: 'DO X1 = 0.8984' (Reward: 0.10, Cov: 32.20, Score: 32.30, RecentTop: X1@94%)
+  Step 4: 'DO X2 = 3.3921' (Reward: 0.10, Cov: 43.45, Score: 43.55, RecentTop: X1@94%)
+  Step 9: 'DO X2 = -1.9312' (Reward: 0.10, Cov: 42.22, Score: 42.32, RecentTop: X1@94%)
+  Step 10: 'DO X1 = -2.0843' (Reward: 0.10, Cov: 22.96, Score: 23.06, RecentTop: X1@94%)
+  Step 6: 'DO X2 = -4.6348' (Reward: 0.10, Cov: 43.09, Score: 43.19, RecentTop: X1@94%)
+  Step 15: 'DO X1 = -3.0204' (Reward: 0.10, Cov: 15.48, Score: 15.58, RecentTop: X1@94%)
+--- Episode 51 Start --- [Cumulative Parse: 2780/2780 (100.0%), Teacher Fallback: 38/741 (5.1%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=158.92, cov=55.24, val=0.20, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6182.46, score=-5967.53
+    [Bonus Detail] Candidate 2: target=X1, reward=167.58, cov=55.24, val=0.20, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6182.46, score=-5958.87
+    [Bonus Detail] Candidate 3: target=X1, reward=175.84, cov=55.24, val=0.20, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6182.46, score=-5950.61
+  Step 0: 'DO X1 = 2.5000' (Reward: 175.84, Cov: 55.24, Score: -5950.61, RecentTop: X1@94%)
+  Step 5: 'DO X1 = -0.3745' (Reward: 0.10, Cov: 27.05, Score: 27.15, RecentTop: X1@94%)
+  Step 6: 'DO X1 = 3.8439' (Reward: 0.10, Cov: 25.31, Score: 25.41, RecentTop: X1@94%)
+  Step 9: 'DO X2 = 2.9051' (Reward: 0.10, Cov: 48.97, Score: 49.07, RecentTop: X1@94%)
+  > Early-stopping episode at Step 16 (no improvement for 6 steps). BestLoss: 9.4582, CurrentLoss: 9.6553
+  Step 2: 'DO X1 = -0.2738' (Reward: 0.10, Cov: 34.82, Score: 34.92, RecentTop: X1@95%)
+  Step 4: 'DO X2 = 0.1944' (Reward: 0.10, Cov: 39.37, Score: 39.47, RecentTop: X1@95%)
+--- Episode 61 Start --- [Cumulative Parse: 3236/3236 (100.0%), Teacher Fallback: 43/865 (5.0%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=167.83, cov=58.46, val=0.18, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6376.56, score=-6149.51
+    [Bonus Detail] Candidate 2: target=X1, reward=148.72, cov=58.46, val=0.18, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6376.56, score=-6168.62
+    [Bonus Detail] Candidate 3: target=X1, reward=148.25, cov=58.46, val=0.18, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6376.56, score=-6169.09
+  Step 0: 'DO X1 = 2.5000' (Reward: 167.83, Cov: 58.46, Score: -6149.51, RecentTop: X1@95%)
+  > Early-stopping episode at Step 8 (no improvement for 6 steps). BestLoss: 17.0616, CurrentLoss: 18.7541
+  Step 6: 'DO X1 = -3.0836' (Reward: 0.10, Cov: 27.40, Score: 27.50, RecentTop: X1@96%)
+  Step 4: 'DO X2 = -2.2587' (Reward: 0.10, Cov: 46.72, Score: 46.82, RecentTop: X1@96%)
+  Step 6: 'DO X1 = 0.3600' (Reward: 0.10, Cov: 23.34, Score: 23.44, RecentTop: X1@96%)
+  Step 7: 'DO X1 = 4.7178' (Reward: 0.10, Cov: 24.82, Score: 24.92, RecentTop: X1@97%)
+  Step 4: 'DO X1 = 3.3285' (Reward: 0.10, Cov: 29.25, Score: 29.35, RecentTop: X1@97%)
+  Step 9: 'DO X2 = 3.7731' (Reward: 0.10, Cov: 44.18, Score: 44.28, RecentTop: X1@97%)
+  Step 10: 'DO X1 = 4.2045' (Reward: 0.10, Cov: 23.45, Score: 23.55, RecentTop: X1@97%)
+  Step 8: 'DO X1 = 3.2904' (Reward: 0.10, Cov: 24.42, Score: 24.52, RecentTop: X1@97%)
+  Step 11: 'DO X1 = 1.7000' (Reward: 0.10, Cov: 22.07, Score: 22.17, RecentTop: X1@97%)
+--- Episode 71 Start --- [Cumulative Parse: 3732/3732 (100.0%), Teacher Fallback: 52/999 (5.2%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=125.47, cov=59.04, val=0.08, bin=0.58, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6773.76, score=-6588.60
+    [Bonus Detail] Candidate 2: target=X1, reward=122.59, cov=59.04, val=0.08, bin=0.58, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6773.76, score=-6591.48
+    [Bonus Detail] Candidate 3: target=X1, reward=136.93, cov=59.04, val=0.08, bin=0.58, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6773.76, score=-6577.13
+  Step 0: 'DO X1 = 2.5000' (Reward: 125.47, Cov: 59.04, Score: -6588.60, RecentTop: X1@97%)
+  Step 1: 'DO X1 = -3.8532' (Reward: 0.10, Cov: 45.62, Score: 45.72, RecentTop: X1@97%)
+  > Early-stopping episode at Step 11 (no improvement for 6 steps). BestLoss: 4.0220, CurrentLoss: 4.3863
+  Step 1: 'DO X1 = 1.0165' (Reward: 0.10, Cov: 44.44, Score: 44.54, RecentTop: X1@97%)
+  Step 12: 'DO X1 = -3.7434' (Reward: 0.10, Cov: 16.73, Score: 16.83, RecentTop: X1@97%)
+  Step 3: 'DO X2 = -1.6438' (Reward: 0.10, Cov: 22.54, Score: 22.64, RecentTop: X1@97%)
+  Step 15: 'DO X2 = -2.1477' (Reward: 0.10, Cov: 36.07, Score: 36.17, RecentTop: X1@97%)
+  Step 5: 'DO X4 = -5.0000' (Reward: 181.60, Cov: 3.78, Score: 1074.43, RecentTop: X1@98%)
+  Step 0: 'DO X4 = -0.6400' (Reward: 252.26, Cov: 3.08, Score: 1128.73, RecentTop: X1@98%)
+  Step 17: 'DO X3 = -0.4385' (Reward: 92.99, Cov: 0.00, Score: 953.94, RecentTop: X1@98%)
+  Step 18: 'DO X3 = 0.3300' (Reward: -10.00, Cov: 0.00, Score: 836.97, RecentTop: X1@98%)
+  Step 21: 'DO X2 = -1.2492' (Reward: 0.10, Cov: 93.72, Score: 93.82, RecentTop: X1@97%)
+  Step 13: 'DO X1 = -4.8580' (Reward: 0.10, Cov: 20.25, Score: 20.35, RecentTop: X1@97%)
+--- Episode 81 Start --- [Cumulative Parse: 4360/4360 (100.0%), Teacher Fallback: 59/1165 (5.1%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=143.13, cov=57.24, val=0.17, bin=0.58, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6814.14, score=-6613.02
+    [Bonus Detail] Candidate 2: target=X1, reward=177.58, cov=57.24, val=0.17, bin=0.58, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6814.14, score=-6578.58
+    [Bonus Detail] Candidate 3: target=X1, reward=155.18, cov=57.24, val=0.17, bin=0.58, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6814.14, score=-6600.97
+  Step 0: 'DO X1 = 2.5000' (Reward: 177.58, Cov: 57.24, Score: -6578.58, RecentTop: X1@97%)
+  > Early-stopping episode at Step 15 (no improvement for 6 steps). BestLoss: 15.0353, CurrentLoss: 16.7069
+  Step 2: 'DO X1 = -0.5615' (Reward: 0.10, Cov: 37.60, Score: 37.70, RecentTop: X1@97%)
+  Step 1: 'DO X1 = -0.8740' (Reward: 0.10, Cov: 40.93, Score: 41.03, RecentTop: X1@98%)
+  Step 4: 'DO X3 = 0.3600' (Reward: 20.48, Cov: 0.00, Score: 853.49, RecentTop: X1@98%)
+  Step 7: 'DO X1 = 0.3491' (Reward: 0.10, Cov: 25.35, Score: 25.45, RecentTop: X1@97%)
+  Step 8: 'DO X4 = -0.3300' (Reward: 87.84, Cov: 0.15, Score: 960.34, RecentTop: X1@97%)
+  Step 7: 'DO X1 = -2.2433' (Reward: 0.10, Cov: 24.77, Score: 24.87, RecentTop: X1@97%)
+  Step 11: 'DO X2 = 4.6029' (Reward: 0.10, Cov: 39.30, Score: 39.40, RecentTop: X1@98%)
+  Step 16: 'DO X2 = -4.8249' (Reward: 0.10, Cov: 47.56, Score: 47.66, RecentTop: X1@97%)
+  Step 6: 'DO X2 = 1.2231' (Reward: 0.10, Cov: 37.82, Score: 37.92, RecentTop: X1@97%)
+--- Episode 91 Start --- [Cumulative Parse: 4964/4964 (100.0%), Teacher Fallback: 66/1324 (5.0%)]
+    [Bonus Detail] Candidate 1: target=X1, reward=115.86, cov=58.52, val=0.22, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6733.50, score=-6558.32
+    [Bonus Detail] Candidate 2: target=X1, reward=135.57, cov=58.52, val=0.22, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6733.50, score=-6538.61
+    [Bonus Detail] Candidate 3: target=X1, reward=108.64, cov=58.52, val=0.22, bin=0.57, bal=0.00, disent=0.00, undersample=0.00, leaf_pen=0.00, collapse_pen=6733.50, score=-6565.54
+  Step 0: 'DO X1 = 2.5000' (Reward: 135.57, Cov: 58.52, Score: -6538.61, RecentTop: X1@97%)
+  > Early-stopping episode at Step 12 (no improvement for 6 steps). BestLoss: 18.7786, CurrentLoss: 22.5129
+  Step 5: 'DO X2 = -3.8997' (Reward: 0.10, Cov: 40.72, Score: 40.82, RecentTop: X1@97%)
+  Step 1: 'DO X2 = 4.6689' (Reward: 0.10, Cov: 35.56, Score: 35.66, RecentTop: X1@97%)
+  Step 4: 'DO X1 = -3.5313' (Reward: 0.10, Cov: 29.30, Score: 29.40, RecentTop: X1@97%)
+  Step 8: 'DO X2 = -0.9446' (Reward: 0.10, Cov: 65.20, Score: 65.30, RecentTop: X1@97%)
+  Step 5: 'DO X3 = 0.7900' (Reward: 101.95, Cov: 0.00, Score: 925.92, RecentTop: X1@97%)
+  Step 3: 'DO X1 = -4.8645' (Reward: 0.10, Cov: 34.83, Score: 34.93, RecentTop: X1@96%)
+  Step 6: 'DO X2 = 2.7045' (Reward: 0.10, Cov: 35.00, Score: 35.10, RecentTop: X1@97%)
+--- Running Final Evaluation ---
+Final eval parse success: 100/100 (100%)
+Saved per-node loss tracking: 1451 records
+Run ended at: 2026-01-02T08:18:42
+Run duration: 1:03:54.412820
+Training parse stats: candidates_parsed=5432/5432 (100.0%), steps_with_any_valid_candidate=1358/1451 (93.6%), teacher_fallback_steps=72/1451 (5.0%)
+Experiment Complete. Results saved to experiment_results/run_20260102_071448

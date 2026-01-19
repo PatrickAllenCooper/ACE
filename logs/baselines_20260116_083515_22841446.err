@@ -1,0 +1,75 @@
+Lmod has detected the following error: The following module(s) are unknown:
+"cuda"
+
+Please check the spelling or version number. Also try "module spider ..."
+It is also possible your cache file is out-of-date; it may help to try:
+  $ module --ignore_cache load "cuda"
+
+Also make sure that all modulefiles written in TCL start with the string
+#%Module
+
+
+
+2026-01-16 08:35:58,591 [INFO] 
+==================================================
+2026-01-16 08:35:58,592 [INFO] Running RANDOM baseline...
+2026-01-16 08:35:58,592 [INFO] ==================================================
+2026-01-16 08:36:22,873 [INFO]   Episode 0/100, Final Loss: 2.1398
+2026-01-16 08:36:51,894 [INFO]   Episode 10/100, Final Loss: 2.0054
+2026-01-16 08:37:20,815 [INFO]   Episode 20/100, Final Loss: 2.0841
+2026-01-16 08:37:49,710 [INFO]   Episode 30/100, Final Loss: 2.0014
+2026-01-16 08:38:18,537 [INFO]   Episode 40/100, Final Loss: 2.0852
+2026-01-16 08:38:47,276 [INFO]   Episode 50/100, Final Loss: 2.0912
+2026-01-16 08:39:15,888 [INFO]   Episode 60/100, Final Loss: 2.0880
+2026-01-16 08:39:44,476 [INFO]   Episode 70/100, Final Loss: 2.0116
+2026-01-16 08:40:13,062 [INFO]   Episode 80/100, Final Loss: 2.0053
+2026-01-16 08:40:41,840 [INFO]   Episode 90/100, Final Loss: 2.0050
+2026-01-16 08:41:07,789 [INFO] 
+==================================================
+2026-01-16 08:41:07,789 [INFO] Running ROUND_ROBIN baseline...
+2026-01-16 08:41:07,789 [INFO] ==================================================
+2026-01-16 08:41:10,686 [INFO]   Episode 0/100, Final Loss: 2.3546
+2026-01-16 08:41:39,526 [INFO]   Episode 10/100, Final Loss: 2.4343
+2026-01-16 08:42:08,378 [INFO]   Episode 20/100, Final Loss: 2.4315
+2026-01-16 08:42:37,238 [INFO]   Episode 30/100, Final Loss: 2.3900
+2026-01-16 08:43:06,073 [INFO]   Episode 40/100, Final Loss: 2.3561
+2026-01-16 08:43:34,924 [INFO]   Episode 50/100, Final Loss: 2.3280
+2026-01-16 08:44:03,796 [INFO]   Episode 60/100, Final Loss: 2.5753
+2026-01-16 08:44:32,662 [INFO]   Episode 70/100, Final Loss: 2.3083
+2026-01-16 08:45:01,501 [INFO]   Episode 80/100, Final Loss: 2.4527
+2026-01-16 08:45:30,347 [INFO]   Episode 90/100, Final Loss: 2.3574
+2026-01-16 08:45:56,369 [INFO] 
+==================================================
+2026-01-16 08:45:56,369 [INFO] Running MAX_VARIANCE baseline...
+2026-01-16 08:45:56,369 [INFO] ==================================================
+2026-01-16 08:46:02,234 [INFO]   Episode 0/100, Final Loss: 2.2095
+2026-01-16 08:47:00,484 [INFO]   Episode 10/100, Final Loss: 2.2219
+2026-01-16 08:48:00,850 [INFO]   Episode 20/100, Final Loss: 2.2210
+2026-01-16 08:48:58,643 [INFO]   Episode 30/100, Final Loss: 2.2031
+2026-01-16 08:49:56,296 [INFO]   Episode 40/100, Final Loss: 2.1895
+2026-01-16 08:50:54,706 [INFO]   Episode 50/100, Final Loss: 2.2252
+2026-01-16 08:51:53,278 [INFO]   Episode 60/100, Final Loss: 2.2434
+2026-01-16 08:52:51,314 [INFO]   Episode 70/100, Final Loss: 2.2300
+2026-01-16 08:53:49,766 [INFO]   Episode 80/100, Final Loss: 2.2939
+2026-01-16 08:54:48,881 [INFO]   Episode 90/100, Final Loss: 2.3788
+2026-01-16 08:55:43,466 [INFO] 
+==================================================
+2026-01-16 08:55:43,466 [INFO] Running PPO baseline...
+2026-01-16 08:55:43,466 [INFO] ==================================================
+2026-01-16 08:55:43,467 [INFO]   PPO Config: lr=0.0003, clip=0.2, epochs=4
+/projects/paco0228/ACE/baselines.py:573: UserWarning: Using a target size (torch.Size([1])) that is different to the input size (torch.Size([])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  value_loss = nn.functional.mse_loss(new_values, batch_returns)
+2026-01-16 08:55:46,688 [INFO]   Episode 0/100, Final Loss: 2.1459
+2026-01-16 08:56:15,918 [INFO]   Episode 10/100, Final Loss: 2.0226
+2026-01-16 08:56:45,237 [INFO]   Episode 20/100, Final Loss: 2.0659
+2026-01-16 08:57:14,177 [INFO]   Episode 30/100, Final Loss: 2.1238
+2026-01-16 08:57:43,248 [INFO]   Episode 40/100, Final Loss: 2.4058
+2026-01-16 08:58:12,405 [INFO]   Episode 50/100, Final Loss: 2.0227
+2026-01-16 08:58:41,348 [INFO]   Episode 60/100, Final Loss: 2.0064
+2026-01-16 08:59:09,836 [INFO]   Episode 70/100, Final Loss: 2.0818
+2026-01-16 08:59:38,363 [INFO]   Episode 80/100, Final Loss: 2.0690
+2026-01-16 09:00:06,594 [INFO]   Episode 90/100, Final Loss: 2.1972
+2026-01-16 09:00:32,095 [INFO]   Saved PPO training curves (100 updates)
+2026-01-16 09:00:35,343 [INFO] Saved plots to results/paper_20260116_083515/baselines/baselines_20260116_083558
+2026-01-16 09:00:35,394 [INFO] 
+Results saved to results/paper_20260116_083515/baselines/baselines_20260116_083558

@@ -1,0 +1,17 @@
+Starting ACE Experiment on cuda
+Config: Namespace(model='Qwen/Qwen2.5-1.5B', custom=False, episodes=100, steps=25, candidates=4, lr=1e-05, learner_lr=0.002, learner_epochs=100, buffer_steps=50, patience_steps=6, min_delta=0.001, warmup_steps=3, cov_bonus=60.0, eps_explore=0.1, undersampled_bonus=100.0, diversity_constraint=False, diversity_threshold=0.6, val_bonus=1.5, value_min=-5.0, value_max=5.0, n_value_bins=11, bin_bonus=8.0, disentangle_bonus=20.0, collapse_threshold=0.3, collapse_penalty=150.0, leaf_penalty=40.0, parent_balance_bonus=80.0, token=None, output='experiment_results', debug_parsing=False)
+Run started at: 2026-01-05T07:37:16
+Run directory: experiment_results/run_20260105_073716
+Command: ace_experiments.py --model Qwen/Qwen2.5-1.5B --episodes 100 --output experiment_results
+Loading LLM: Qwen/Qwen2.5-1.5B...
+--- Starting Discovery Loop (100 Episodes) ---
+Collider nodes identified (multi-parent): ['X3']
+--- Episode 1 Start --- [Cumulative Parse: 0/0 (0.0%), Teacher Fallback: 0/0 (0.0%)]
+Traceback (most recent call last):
+  File "/projects/paco0228/ACE/ace_experiments.py", line 1416, in <module>
+    main()
+  File "/projects/paco0228/ACE/ace_experiments.py", line 1043, in main
+    clone_learner.train_step(batch_t, n_epochs=args.learner_epochs)
+  File "/projects/paco0228/ACE/ace_experiments.py", line 210, in train_step
+    nodes = list(batch["data"].keys())
+NameError: name 'batch' is not defined
