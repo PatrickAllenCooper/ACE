@@ -73,7 +73,7 @@ JOB1=$(sbatch --parsable \
 
 JOB_IDS+=($JOB1)
 JOB_NAMES+=("ACE_Main")
-echo "[1/4] ACE Main Experiment"
+echo "[1/5] ACE Main Experiment (Simple 5-node SCM)"
 echo "      Job ID: $JOB1"
 echo "      Script: jobs/run_ace_main.sh"
 echo "      Output: logs/ace_main_${TIMESTAMP}_${JOB1}.out"
@@ -88,40 +88,55 @@ JOB2=$(sbatch --parsable \
 
 JOB_IDS+=($JOB2)
 JOB_NAMES+=("Baselines")
-echo "[2/4] Baselines (Random, Round-Robin, Max-Variance, PPO)"
+echo "[2/5] Baselines (Random, Round-Robin, Max-Variance, PPO)"
 echo "      Job ID: $JOB2"
 echo "      Script: jobs/run_baselines.sh"
 echo "      Output: logs/baselines_${TIMESTAMP}_${JOB2}.out"
 echo ""
 
-# --- Job 3: Duffing Oscillators ---
+# --- Job 3: Complex 15-Node SCM ---
 JOB3=$(sbatch --parsable \
+    --output=logs/complex_scm_${TIMESTAMP}_%j.out \
+    --error=logs/complex_scm_${TIMESTAMP}_%j.err \
+    --export=ALL,EPISODES=$BASELINE_EPISODES,OUTPUT_DIR=$OUT/complex_scm \
+    jobs/run_complex_scm.sh)
+
+JOB_IDS+=($JOB3)
+JOB_NAMES+=("Complex_SCM")
+echo "[3/5] Complex 15-Node SCM (Hard Benchmark)"
+echo "      Job ID: $JOB3"
+echo "      Script: jobs/run_complex_scm.sh"
+echo "      Output: logs/complex_scm_${TIMESTAMP}_${JOB3}.out"
+echo ""
+
+# --- Job 4: Duffing Oscillators ---
+JOB4=$(sbatch --parsable \
     --output=logs/duffing_${TIMESTAMP}_%j.out \
     --error=logs/duffing_${TIMESTAMP}_%j.err \
     --export=ALL,EPISODES=$BASELINE_EPISODES,OUTPUT_DIR=$OUT/duffing \
     jobs/run_duffing.sh)
 
-JOB_IDS+=($JOB3)
+JOB_IDS+=($JOB4)
 JOB_NAMES+=("Duffing")
-echo "[3/4] Duffing Oscillators (Physics)"
-echo "      Job ID: $JOB3"
+echo "[4/5] Duffing Oscillators (Physics)"
+echo "      Job ID: $JOB4"
 echo "      Script: jobs/run_duffing.sh"
-echo "      Output: logs/duffing_${TIMESTAMP}_${JOB3}.out"
+echo "      Output: logs/duffing_${TIMESTAMP}_${JOB4}.out"
 echo ""
 
-# --- Job 4: Phillips Curve ---
-JOB4=$(sbatch --parsable \
+# --- Job 5: Phillips Curve ---
+JOB5=$(sbatch --parsable \
     --output=logs/phillips_${TIMESTAMP}_%j.out \
     --error=logs/phillips_${TIMESTAMP}_%j.err \
     --export=ALL,EPISODES=$BASELINE_EPISODES,OUTPUT_DIR=$OUT/phillips \
     jobs/run_phillips.sh)
 
-JOB_IDS+=($JOB4)
+JOB_IDS+=($JOB5)
 JOB_NAMES+=("Phillips")
-echo "[4/4] Phillips Curve (Economics)"
-echo "      Job ID: $JOB4"
+echo "[5/5] Phillips Curve (Economics)"
+echo "      Job ID: $JOB5"
 echo "      Script: jobs/run_phillips.sh"
-echo "      Output: logs/phillips_${TIMESTAMP}_${JOB4}.out"
+echo "      Output: logs/phillips_${TIMESTAMP}_${JOB5}.out"
 echo ""
 
 # --- Summary ---
@@ -156,10 +171,11 @@ Timestamp: $TIMESTAMP
 Output: $OUT
 
 Job IDs and Scripts:
-  ACE Main:    $JOB1  (jobs/run_ace_main.sh)
-  Baselines:   $JOB2  (jobs/run_baselines.sh)
-  Duffing:     $JOB3  (jobs/run_duffing.sh)
-  Phillips:    $JOB4  (jobs/run_phillips.sh)
+  ACE Main:     $JOB1  (jobs/run_ace_main.sh)
+  Baselines:    $JOB2  (jobs/run_baselines.sh)
+  Complex SCM:  $JOB3  (jobs/run_complex_scm.sh)
+  Duffing:      $JOB4  (jobs/run_duffing.sh)
+  Phillips:     $JOB5  (jobs/run_phillips.sh)
 
 Monitor: squeue -j ${JOB_IDS[*]}
 Cancel:  scancel ${JOB_IDS[*]}
@@ -167,8 +183,9 @@ Cancel:  scancel ${JOB_IDS[*]}
 Logs:
   logs/ace_main_${TIMESTAMP}_${JOB1}.out
   logs/baselines_${TIMESTAMP}_${JOB2}.out
-  logs/duffing_${TIMESTAMP}_${JOB3}.out
-  logs/phillips_${TIMESTAMP}_${JOB4}.out
+  logs/complex_scm_${TIMESTAMP}_${JOB3}.out
+  logs/duffing_${TIMESTAMP}_${JOB4}.out
+  logs/phillips_${TIMESTAMP}_${JOB5}.out
 EOF
 
 echo ""

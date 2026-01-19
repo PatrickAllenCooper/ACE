@@ -69,6 +69,7 @@ The ground truth SCM contains a **collider structure** that is particularly diff
 | Experiment | Paper Section | Status |
 |------------|---------------|--------|
 | Synthetic 5-node SCM | 3.4.1 | ✅ `ace_experiments.py` |
+| Complex 15-node SCM | 3.4.2 (NEW) | ✅ `experiments/complex_scm.py` |
 | Baselines (Random, Round-Robin, Max-Variance) | 3.8 | ✅ `baselines.py` |
 | PPO Comparison | Discussion | ✅ `baselines.py` |
 | Coupled Duffing Oscillators | 3.6 | ✅ `experiments/duffing_oscillators.py` |
@@ -182,12 +183,29 @@ python visualize.py run_YYYYMMDD_HHMMSS/  # Success verification dashboard
 
 ### Additional Experiments: `experiments/`
 ```bash
+# Complex 15-Node SCM (Hard benchmark to show strategy advantages)
+python -m experiments.complex_scm --policy random --episodes 200
+python -m experiments.complex_scm --policy smart_random --episodes 200
+python -m experiments.complex_scm --policy greedy_collider --episodes 200
+
 # Duffing Oscillators (Physics - ODE-based causal discovery)
 python -m experiments.duffing_oscillators --episodes 100
 
 # Phillips Curve (Economics - FRED data retrospective learning)
 python -m experiments.phillips_curve --episodes 50
 ```
+
+**Why Complex SCM?**
+The simple 5-node SCM proved too easy - even random sampling learns all mechanisms.
+The 15-node SCM is designed to be HARD:
+- 15 nodes (3x larger)
+- 5 colliders including nested collider (N1 depends on L1 which is itself a collider)
+- 5 hierarchical layers (vs 2)
+- Mix of linear, polynomial, trig, interaction terms
+- Higher noise (0.2 vs 0.1)
+- Random sampling spreads samples too thin across 15 nodes
+
+This should reveal advantages of strategic intervention policies.
 
 ### Full Pipeline: `run_all.sh` (HPC/SLURM)
 ```bash

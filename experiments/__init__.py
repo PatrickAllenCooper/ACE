@@ -15,4 +15,9 @@ def get_phillips_experiment():
     from .phillips_curve import run_phillips_experiment, PhillipsCurveOracle
     return run_phillips_experiment, PhillipsCurveOracle
 
-__all__ = ['get_duffing_experiment', 'get_phillips_experiment']
+def get_complex_scm_experiment():
+    """Lazy import for complex 15-node SCM (no special dependencies)"""
+    from .complex_scm import run_complex_scm_experiment, ComplexGroundTruthSCM
+    return run_complex_scm_experiment, ComplexGroundTruthSCM
+
+__all__ = ['get_duffing_experiment', 'get_phillips_experiment', 'get_complex_scm_experiment']

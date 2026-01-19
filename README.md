@@ -35,14 +35,21 @@ python visualize.py results/run_*/
 - Catastrophic forgetting prevented via observational training
 - 4 baselines implemented: Random, Round-Robin, Max-Variance, PPO
 
-### ⚠️ Key Findings
+### ⚠️ Key Findings (Simple 5-Node SCM)
 - **Collider problem solved** by all methods (not just ACE)
 - **Random baseline competitive** (loss 2.05 vs PPO 2.14)
 - **PPO training unstable** (value loss 78k ± 103k) - validates DPO advantage
 - **Strategy matters less** than sample count for simple SCMs
 
-### 🎯 Paper Positioning
-Framework/methodology contribution rather than performance breakthrough. Demonstrates when active learning helps vs when it doesn't.
+### 🚀 Complex 15-Node SCM (New Hard Benchmark)
+To demonstrate where strategic intervention matters:
+- 15 nodes with 5 colliders (vs 5 nodes, 1 collider)
+- Nested collider (collider depends on another collider)
+- 5 hierarchical layers
+- Mix of linear, polynomial, trigonometric, interaction terms
+- Higher noise, more parameters
+
+**Expected:** Random sampling too diluted across 15 nodes, strategic policies should show advantage
 
 ## Key Features
 
@@ -71,6 +78,7 @@ ACE/
 ├── visualize.py              # Result visualization
 ├── run_all.sh                # HPC job orchestrator
 ├── experiments/              # Additional validation experiments
+│   ├── complex_scm.py           # Hard 15-node benchmark
 │   ├── duffing_oscillators.py   # Physics (ODE-based)
 │   └── phillips_curve.py        # Economics (FRED data)
 ├── jobs/                     # SLURM job scripts
@@ -106,6 +114,10 @@ python ace_experiments.py --episodes 200 --output results
 
 # Baselines comparison
 python baselines.py --all_with_ppo --episodes 100 --output results
+
+# Complex 15-node SCM (hard benchmark)
+python -m experiments.complex_scm --policy random --episodes 200
+python -m experiments.complex_scm --policy greedy_collider --episodes 200
 
 # Physics simulation
 python -m experiments.duffing_oscillators --episodes 100
