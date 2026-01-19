@@ -57,6 +57,44 @@ if [ ! -f "jobs/run_ace_main.sh" ]; then
     exit 1
 fi
 
+# --- Dependency Setup ---
+echo "Checking dependencies..."
+
+# Activate conda environment
+if [ -f "/projects/$USER/miniconda3/etc/profile.d/conda.sh" ]; then
+    source /projects/$USER/miniconda3/etc/profile.d/conda.sh
+    conda activate ace 2>/dev/null || true
+fi
+
+# Check for required packages
+NEED_INSTALL=false
+if ! python -c "import scipy" 2>/dev/null; then
+    echo "  scipy not found - will install"
+    NEED_INSTALL=true
+fi
+if ! python -c "import pandas_datareader" 2>/dev/null; then
+    echo "  pandas_datareader not found - will install"
+    NEED_INSTALL=true
+fi
+
+# Install if needed
+if [ "$NEED_INSTALL" = "true" ]; then
+    echo ""
+    echo "Installing missing dependencies..."
+    conda install -y scipy pandas-datareader || pip install scipy pandas-datareader
+    
+    # Verify installation
+    if python -c "import scipy; import pandas_datareader" 2>/dev/null; then
+        echo "✓ Dependencies installed successfully"
+    else
+        echo "ERROR: Failed to install dependencies"
+        exit 1
+    fi
+else
+    echo "✓ All dependencies present"
+fi
+
+echo ""
 echo "Submitting jobs..."
 echo ""
 
