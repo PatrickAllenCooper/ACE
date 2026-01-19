@@ -1306,7 +1306,7 @@ def visualize_contrast_save(oracle, student, results_dir):
 # CHECKPOINT AND SAVE UTILITIES
 # ----------------------------------------------------------------
 def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history, 
-                   reward_history, intervention_counts):
+                   reward_history, recent_actions):
     """Save training checkpoint for recovery."""
     checkpoint_path = os.path.join(run_dir, f"checkpoint_ep{episode}.pt")
     
@@ -1317,7 +1317,7 @@ def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
             'optimizer_state_dict': optimizer.state_dict(),
             'loss_history': loss_history,
             'reward_history': reward_history,
-            'intervention_counts': intervention_counts,
+            'recent_actions': list(recent_actions),  # Convert deque to list for saving
         }, checkpoint_path)
         
         logging.info(f"✓ Saved checkpoint at episode {episode}")
@@ -1336,7 +1336,7 @@ def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
 # ----------------------------------------------------------------
 # EMERGENCY SAVE HANDLER
 # ----------------------------------------------------------------
-def create_emergency_save_handler(run_dir, oracle, student, history_data):
+def create_emergency_save_handler(run_dir, oracle, history_data):
     """
     Create handler that saves outputs on unexpected termination (SIGTERM/timeout).
     
@@ -1349,10 +1349,16 @@ def create_emergency_save_handler(run_dir, oracle, student, history_data):
             logging.info(f"EMERGENCY SAVE: Received {signal_name} signal")
             logging.info("=" * 70)
             
+            # Get latest student from reference
+            student = history_data.get("student_ref", {}).get("student")
+            
             # Save mechanism contrast (most important visualization)
             try:
-                visualize_contrast_save(oracle, student, run_dir)
-                logging.info("✓ Saved mechanism_contrast.png")
+                if student is not None:
+                    visualize_contrast_save(oracle, student, run_dir)
+                    logging.info("✓ Saved mechanism_contrast.png")
+                else:
+                    logging.warning("✗ No student available for mechanism contrast")
             except Exception as e:
                 logging.error(f"✗ Failed to save mechanism_contrast: {e}")
             
@@ -1539,9 +1545,14 @@ def main():
     intervention_coverage_tracking = []
     parent_intervention_counts = {n: Counter() for n in M_star.nodes if len(list(M_star.graph.predecessors(n))) >= 2}
     
+    # Create student reference container for emergency save handler
+    # Using dict to allow mutation (reference updates during training)
+    student_ref = {"student": StudentSCM(M_star)}
+    
     # --- CRITICAL: EMERGENCY SAVE HANDLER ---
     # Register signal handlers for graceful shutdown on timeout/interruption
     # Note: history_data holds references to the lists above, which get updated during training
+    # student_ref["student"] gets updated each episode
     history_data = {
         "loss_history": loss_history,
         "reward_history": reward_history,
@@ -1552,10 +1563,11 @@ def main():
         "cov_bonus_history": cov_bonus_history,
         "score_history": score_history,
         "nodes": dsl.nodes,
-        "metrics": None  # Will build from history lists in handler
+        "metrics": None,  # Will build from history lists in handler
+        "student_ref": student_ref  # Mutable reference
     }
     
-    save_handler = create_emergency_save_handler(run_dir, M_star, current_student, history_data)
+    save_handler = create_emergency_save_handler(run_dir, M_star, history_data)
     signal.signal(signal.SIGTERM, save_handler)  # SLURM timeout
     signal.signal(signal.SIGINT, save_handler)   # Ctrl+C
     atexit.register(lambda: save_handler())      # Normal exit
@@ -1575,6 +1587,7 @@ def main():
 
     for episode in range(args.episodes):
         current_student = StudentSCM(M_star)
+        student_ref["student"] = current_student  # Update for emergency handler
         learner = SCMLearner(current_student, lr=args.learner_lr, buffer_steps=args.buffer_steps)
         episode_action_counts = Counter()
         best_mech_loss = float("inf")
@@ -1955,25 +1968,28 @@ def main():
             # --- CRITICAL FIX: HARD INTERVENTION CAP ---
             # Prevent catastrophic over-concentration on single node (e.g., 99% X2)
             MAX_NODE_FRACTION = 0.70
-            total_interventions = sum(intervention_counts.values())
             
-            if total_interventions > 10 and winner_plan is not None:
+            if len(recent_action_counts) > 10 and winner_plan is not None:
+                node_counts = Counter(recent_action_counts)
+                total_interventions = len(recent_action_counts)
                 winner_target = winner_plan.get("target")
+                
                 if winner_target:
-                    winner_fraction = intervention_counts.get(winner_target, 0) / total_interventions
+                    winner_count = node_counts.get(winner_target, 0)
+                    winner_fraction = winner_count / total_interventions
                     
                     if winner_fraction > MAX_NODE_FRACTION:
                         logging.info(f"  [Hard Cap] {winner_target} at {winner_fraction:.1%} > {MAX_NODE_FRACTION:.0%}, forcing alternative")
                         
                         # Find undersampled collider parent
-                        collider_nodes = [n for n in M_star.nodes if len(M_star.get_parents(n)) > 1]
+                        collider_nodes_local = [n for n in M_star.nodes if len(M_star.get_parents(n)) > 1]
                         
-                        if collider_nodes:
-                            collider = collider_nodes[0]
+                        if collider_nodes_local:
+                            collider = collider_nodes_local[0]
                             parents = M_star.get_parents(collider)
                             
                             # Pick least-sampled parent
-                            undersampled = min(parents, key=lambda p: intervention_counts.get(p, 0))
+                            undersampled = min(parents, key=lambda p: node_counts.get(p, 0))
                             
                             # Generate new plan
                             forced_value = random.uniform(args.value_min, args.value_max)
@@ -2159,7 +2175,7 @@ def main():
         # Save checkpoint every 50 episodes for recovery
         if episode > 0 and episode % 50 == 0:
             save_checkpoint(run_dir, episode, policy_net, optimizer_agent,
-                          loss_history, reward_history, intervention_counts)
+                          loss_history, reward_history, recent_action_counts)
         
         # Save intermediate visualizations every 100 episodes
         if episode > 0 and episode % 100 == 0:
