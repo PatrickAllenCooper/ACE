@@ -15,6 +15,8 @@ import logging
 import pandas as pd
 from datetime import datetime
 import sys
+import signal
+import atexit
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from collections import Counter, deque
 
@@ -1301,6 +1303,105 @@ def visualize_contrast_save(oracle, student, results_dir):
         logging.error(f"Failed to save contrast plot: {e}")
 
 # ----------------------------------------------------------------
+# CHECKPOINT AND SAVE UTILITIES
+# ----------------------------------------------------------------
+def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history, 
+                   reward_history, intervention_counts):
+    """Save training checkpoint for recovery."""
+    checkpoint_path = os.path.join(run_dir, f"checkpoint_ep{episode}.pt")
+    
+    try:
+        torch.save({
+            'episode': episode,
+            'policy_state_dict': policy_net.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss_history': loss_history,
+            'reward_history': reward_history,
+            'intervention_counts': intervention_counts,
+        }, checkpoint_path)
+        
+        logging.info(f"✓ Saved checkpoint at episode {episode}")
+        
+        # Cleanup old checkpoints (keep only last 3)
+        import glob
+        checkpoints = sorted(glob.glob(os.path.join(run_dir, "checkpoint_ep*.pt")))
+        if len(checkpoints) > 3:
+            for old_checkpoint in checkpoints[:-3]:
+                os.remove(old_checkpoint)
+                logging.debug(f"  Removed old checkpoint: {os.path.basename(old_checkpoint)}")
+                
+    except Exception as e:
+        logging.error(f"Failed to save checkpoint: {e}")
+
+# ----------------------------------------------------------------
+# EMERGENCY SAVE HANDLER
+# ----------------------------------------------------------------
+def create_emergency_save_handler(run_dir, oracle, student, history_data):
+    """
+    Create handler that saves outputs on unexpected termination (SIGTERM/timeout).
+    
+    SLURM sends SIGTERM ~30 seconds before killing the job, giving us time to save.
+    """
+    def save_on_exit(signum=None, frame=None):
+        try:
+            signal_name = "SIGTERM" if signum == signal.SIGTERM else "SIGINT" if signum == signal.SIGINT else "EXIT"
+            logging.info("=" * 70)
+            logging.info(f"EMERGENCY SAVE: Received {signal_name} signal")
+            logging.info("=" * 70)
+            
+            # Save mechanism contrast (most important visualization)
+            try:
+                visualize_contrast_save(oracle, student, run_dir)
+                logging.info("✓ Saved mechanism_contrast.png")
+            except Exception as e:
+                logging.error(f"✗ Failed to save mechanism_contrast: {e}")
+            
+            # Save partial metrics
+            try:
+                # Build metrics from history lists
+                if history_data.get("loss_history"):
+                    df = pd.DataFrame({
+                        "dpo_loss": history_data["loss_history"],
+                        "reward": history_data["reward_history"],
+                        "cov_bonus": history_data.get("cov_bonus_history", []),
+                        "score": history_data.get("score_history", []),
+                        "target": history_data["target_history"],
+                        "value": history_data["value_history"],
+                        "episode": history_data.get("episode_history", []),
+                        "step": history_data.get("step_history", []),
+                    })
+                    df.to_csv(os.path.join(run_dir, "metrics_interrupted.csv"), index=False)
+                    logging.info(f"✓ Saved {len(df)} records to metrics_interrupted.csv")
+            except Exception as e:
+                logging.error(f"✗ Failed to save metrics: {e}")
+            
+            # Save training curves
+            try:
+                if history_data.get("loss_history") and history_data.get("reward_history"):
+                    save_plots(run_dir, 
+                              history_data["loss_history"], 
+                              history_data["reward_history"],
+                              history_data.get("target_history", []),
+                              history_data.get("value_history", []),
+                              history_data.get("nodes", []))
+                    logging.info("✓ Saved training_curves.png and strategy_analysis.png")
+            except Exception as e:
+                logging.error(f"✗ Failed to save plots: {e}")
+            
+            logging.info("=" * 70)
+            logging.info("Emergency save complete - exiting")
+            logging.info("=" * 70)
+            
+        except Exception as e:
+            logging.error(f"Emergency save handler failed: {e}")
+        
+        # Exit gracefully
+        if signum is not None:
+            sys.exit(0)
+    
+    return save_on_exit
+
+# ----------------------------------------------------------------
 # MAIN EXECUTION
 # ----------------------------------------------------------------
 def main():
@@ -1437,6 +1538,29 @@ def main():
     # NEW: Intervention coverage tracking for multi-parent nodes
     intervention_coverage_tracking = []
     parent_intervention_counts = {n: Counter() for n in M_star.nodes if len(list(M_star.graph.predecessors(n))) >= 2}
+    
+    # --- CRITICAL: EMERGENCY SAVE HANDLER ---
+    # Register signal handlers for graceful shutdown on timeout/interruption
+    # Note: history_data holds references to the lists above, which get updated during training
+    history_data = {
+        "loss_history": loss_history,
+        "reward_history": reward_history,
+        "target_history": target_history,
+        "value_history": value_history,
+        "episode_history": episode_history,
+        "step_history": step_history,
+        "cov_bonus_history": cov_bonus_history,
+        "score_history": score_history,
+        "nodes": dsl.nodes,
+        "metrics": None  # Will build from history lists in handler
+    }
+    
+    save_handler = create_emergency_save_handler(run_dir, M_star, current_student, history_data)
+    signal.signal(signal.SIGTERM, save_handler)  # SLURM timeout
+    signal.signal(signal.SIGINT, save_handler)   # Ctrl+C
+    atexit.register(lambda: save_handler())      # Normal exit
+    
+    logging.info("✓ Registered emergency save handlers (SIGTERM, SIGINT, atexit)")
     
     logging.info(f"--- Starting Discovery Loop ({args.episodes} Episodes) ---")
     
@@ -1828,6 +1952,41 @@ def main():
             else:
                 winner_cmd, winner_reward, winner_cov_bonus, winner_score, winner_plan = sorted_cands[0]
             
+            # --- CRITICAL FIX: HARD INTERVENTION CAP ---
+            # Prevent catastrophic over-concentration on single node (e.g., 99% X2)
+            MAX_NODE_FRACTION = 0.70
+            total_interventions = sum(intervention_counts.values())
+            
+            if total_interventions > 10 and winner_plan is not None:
+                winner_target = winner_plan.get("target")
+                if winner_target:
+                    winner_fraction = intervention_counts.get(winner_target, 0) / total_interventions
+                    
+                    if winner_fraction > MAX_NODE_FRACTION:
+                        logging.info(f"  [Hard Cap] {winner_target} at {winner_fraction:.1%} > {MAX_NODE_FRACTION:.0%}, forcing alternative")
+                        
+                        # Find undersampled collider parent
+                        collider_nodes = [n for n in M_star.nodes if len(M_star.get_parents(n)) > 1]
+                        
+                        if collider_nodes:
+                            collider = collider_nodes[0]
+                            parents = M_star.get_parents(collider)
+                            
+                            # Pick least-sampled parent
+                            undersampled = min(parents, key=lambda p: intervention_counts.get(p, 0))
+                            
+                            # Generate new plan
+                            forced_value = random.uniform(args.value_min, args.value_max)
+                            winner_plan = {
+                                "target": undersampled,
+                                "value": forced_value,
+                                "command": f"DO {undersampled} = {forced_value:.4f}"
+                            }
+                            winner_cmd = winner_plan["command"]
+                            winner_score = 100.0  # High score to indicate forced action
+                            
+                            logging.info(f"  [Hard Cap] Forced intervention on {undersampled}")
+            
             # --- STRATEGY REVISION: CONTRASTIVE DPO PAIRS (EPISTEMIC CURIOSITY) ---
             # Instead of always picking the worst candidate as loser, we intelligently select
             # a loser that maximizes the "Strategy Contrast" (specifically tackling collapse).
@@ -1995,6 +2154,22 @@ def main():
                     
                     if step % 10 == 0:  # Log occasionally
                         logging.info(f"  [Obs Training] Injected {args.obs_train_samples} observational samples at step {step}")
+        
+        # --- INCREMENTAL CHECKPOINT SAVES ---
+        # Save checkpoint every 50 episodes for recovery
+        if episode > 0 and episode % 50 == 0:
+            save_checkpoint(run_dir, episode, policy_net, optimizer_agent,
+                          loss_history, reward_history, intervention_counts)
+        
+        # Save intermediate visualizations every 100 episodes
+        if episode > 0 and episode % 100 == 0:
+            try:
+                visualize_contrast_save(M_star, current_student, run_dir)
+                save_plots(run_dir, loss_history, reward_history, 
+                          target_history, value_history, dsl.nodes)
+                logging.info(f"✓ Saved intermediate visualizations at episode {episode}")
+            except Exception as e:
+                logging.error(f"Failed to save intermediate visualizations: {e}")
 
     # 4. Final Evaluation
     logging.info("--- Running Final Evaluation ---")

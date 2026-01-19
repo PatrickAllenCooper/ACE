@@ -48,7 +48,7 @@ echo ""
 
 # --- Run ACE Experiment ---
 python ace_experiments.py \
-    --episodes ${EPISODES:-500} \
+    --episodes ${EPISODES:-200} \
     --output "${OUTPUT_DIR:-results/ace}"
 
 # --- Summary ---
