@@ -1,5 +1,41 @@
 # ACE Changelog
 
+## [2.0.1] - 2026-01-20 - Early Stopping Calibration Fix
+
+### Fixed
+
+**Problem:** Test run (paper_20260120_102123) showed early stopping triggered too early at episode 8:
+- X5 incomplete (0.898 vs target <0.5)
+- ACE underperformed ALL baselines (3.18 vs Max-Var 1.98)
+- Only X2, X3 had converged; X5 needed 30+ more episodes
+
+**Solution:**
+- Added `min_episodes` parameter to `EarlyStopping` class (default: 30)
+- Added `--early_stop_min_episodes` argument (default: 40)
+- Increased `zero_reward_threshold` from 0.85 to 0.92
+- Early stopping now skips checks before minimum episodes
+- Updated job script: min_episodes=40, threshold=0.92
+
+**Impact:**
+- Expected episodes: 40-60 (vs 8 in test)
+- Expected runtime: 1-2h (vs 27 min in test)
+- Expected performance: Competitive with baselines (~2.0 total loss)
+- Maintains time savings while allowing full convergence
+
+### Test Results Analysis
+
+**Test Run:** 9 episodes, 27 min, early stopped
+- X2: 0.011 ✅ (excellent)
+- X3: 0.210 ✅ (good)
+- X5: 0.898 ❌ (incomplete - stopped too early)
+- Total: 3.18 (worse than all baselines)
+
+**Diagnosis:** Zero-reward threshold (85%) too aggressive for nodes with different learning rates.
+
+**Fix:** Minimum 40 episodes ensures X5 has time to converge.
+
+---
+
 ## [2.0.0] - 2026-01-20 - Training Efficiency Overhaul
 
 ### Critical Fixes Based on HPC Run Analysis

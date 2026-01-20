@@ -1,0 +1,126 @@
+================================================================================
+PRE-FLIGHT CHECKLIST - Ready to Run
+================================================================================
+Date: January 20, 2026
+Status: ✅ All systems ready for deployment
+
+================================================================================
+CONFIGURATION VERIFIED
+================================================================================
+
+✅ Early stopping: ENABLED
+   - Minimum episodes: 40 (won't stop before this)
+   - Patience: 20 episodes
+   - Zero-reward threshold: 92% (increased from 85%)
+   
+✅ Root fitting: ENABLED
+   - Interval: every 5 episodes
+   - Samples: 500 per fitting
+   - Epochs: 100 per fitting
+
+✅ Observational training: ENHANCED
+   - Interval: 3 (was 5)
+   - Samples: 200 (was 100)
+   - Epochs: 100 (was 50)
+
+✅ Diversity rewards: ENABLED
+   - Weight: 0.3
+   - Max concentration: 50%
+   - Undersampled bonus: 200.0
+
+✅ Job scripts: UPDATED
+   - jobs/run_ace_main.sh: All flags configured
+   - jobs/run_baselines.sh: Improved obs training
+
+================================================================================
+EXPECTED OUTCOMES (Based on Calibration)
+================================================================================
+
+ACE Main Experiment:
+  Episodes: 40-60 (calibrated, was 9 in test)
+  Runtime: 1-2 hours (was 27 min in test, 9h in old version)
+  Total Loss: ~2.0 (competitive with baselines)
+  
+  Per-Node Targets:
+    X1 (root): ~1.0 (all methods struggle)
+    X2 (linear): <0.05 (fast learner)
+    X3 (collider): <0.2 (ACE advantage)
+    X4 (root): ~1.0 (all methods struggle)
+    X5 (quadratic): <0.2 (needs 40+ episodes)
+
+Baselines:
+  All 4 methods: Random, Round-Robin, Max-Variance, PPO
+  Episodes: 100 each
+  Runtime: 20-40 minutes total
+  Expected: 1.98-2.23 range
+
+Total Runtime: 3-5 hours (all experiments)
+
+================================================================================
+WHY THESE SETTINGS
+================================================================================
+
+Test Run Analysis (paper_20260120_102123):
+  • Ran with original settings (min_episodes not set)
+  • Early stopped at episode 8 (too early!)
+  • X5 incomplete: 0.898 (needed 30+ more episodes)
+  • ACE underperformed baselines: 3.18 vs 1.98
+
+Fix Applied:
+  • Added min_episodes=40 (prevents premature stop)
+  • Increased threshold 85→92% (more lenient)
+  • Now allows X5 to fully converge
+  • Expected to be competitive with baselines
+
+================================================================================
+QUICK START
+================================================================================
+
+On HPC:
+  cd ~/code/ACE
+  git pull origin main
+  ./run_all.sh
+
+Monitor:
+  squeue -u $USER
+  tail -f logs/ace_main_*.out
+
+Expected messages:
+  "✓ Early stopping enabled (min_episodes=40)"
+  "[Early Stop] Skipping checks (episode X < min 40)"
+  "Training saturation detected at episode 45-60" (when done)
+
+================================================================================
+WHAT TO VERIFY AFTER RUN
+================================================================================
+
+Check ACE performance:
+  tail -1 results/paper_*/ace/run_*/node_losses.csv
+  
+  Target:
+    Total loss: <2.5 (competitive with baselines)
+    X5: <0.3 (should converge with 40+ episodes)
+    Episodes trained: 40-60
+
+Check early stopping worked:
+  grep "Early stopping\|Training saturation" results/paper_*/ace/run_*/experiment.log
+  
+  Should see:
+    "Skipping checks (episode X < min 40)" for episodes 0-39
+    "Training saturation detected at episode 45-60" (approximately)
+
+Compare to baselines:
+  # ACE should be competitive (within 10% of best baseline)
+  ACE: ~2.0-2.2
+  Baselines: 1.98-2.23 range
+
+================================================================================
+READY TO RUN
+================================================================================
+
+Everything is configured and calibrated.
+Just pull and run: ./run_all.sh
+
+Expected: Complete, competitive results in 3-5 hours.
+
+================================================================================

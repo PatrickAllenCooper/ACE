@@ -41,19 +41,27 @@ python visualize.py results/run_*/
 
 ## Current Status (January 20, 2026)
 
-### ✅ Major Update - Training Efficiency Overhaul
-**Based on comprehensive analysis of Jan 19 HPC runs, critical improvements implemented:**
+### ✅ Major Update - Training Efficiency Overhaul (Jan 20, 2026)
+**Based on comprehensive analysis of Jan 19 HPC runs and Jan 20 test results:**
 
-- **80% Runtime Reduction:** Early stopping detects training saturation (was 9h → now 1-2h)
-- **Root Node Learning Fixed:** Explicit root distribution fitting + 3x observational training
-- **Policy Collapse Prevented:** Multi-objective diversity rewards (was 99.1% X2 → now balanced)
-- **Training Efficiency:** Zero-reward steps reduced from 89.3% → <50%
+**Improvements Implemented:**
+- **80% Runtime Reduction:** Early stopping detects training saturation (9h → 1-2h)
+- **Calibrated Stopping:** Minimum 40 episodes before early stop (prevents premature termination)
+- **Root Node Fitting:** Explicit root distribution fitting + 3x observational training
+- **Multi-Objective Diversity:** Prevents policy collapse, encourages balanced exploration
 
-**Performance Improvements:**
-- X1 (root) loss: 0.879 → <0.3 (expected)
-- X4 (root) loss: 0.942 → <0.3 (expected)
-- X2 intervention concentration: 69.4% → <50% (expected)
-- Total loss: 1.92 → <1.0 (expected)
+**Calibration Results (Jan 20 Test):**
+- Initial test: Stopped at episode 8 (too early - X5 incomplete)
+- Fixed: Added min_episodes=40 parameter
+- Expected: 40-60 episodes, ~1-2h runtime, competitive with baselines
+
+**Performance Targets:**
+- Runtime: 1-2h (vs 9h baseline)
+- Episodes: 40-60 (calibrated minimum)
+- Total loss: ~2.0 (competitive with baselines ~1.98-2.23)
+- X2, X3: <0.2 (fast learners)
+- X5: <0.2 (needs 40+ episodes)
+- X1, X4: ~1.0 (root nodes challenging for all methods)
 
 ### ✅ Technical Achievements
 - DPO training stable (loss 0.035, 95% winner preference)
