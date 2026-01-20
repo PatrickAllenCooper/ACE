@@ -359,7 +359,19 @@ We evaluate ACE across four domains of increasing complexity: a synthetic 5-node
 
 \subsection{Synthetic 5-Node Benchmark}
 
-\emph{Setup.} We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (collider), $X_4 \to X_5$. Mechanisms include linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) relationships with Gaussian noise ($\sigma = 0.1$). Root distributions are $X_1 \sim \mathcal{N}(0,1)$, $X_4 \sim \mathcal{N}(2,1)$. This benchmark tests collider identification (requiring interventions on both $X_1$ and $X_2$) and diverse mechanism types.
+\emph{Setup.} We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (collider), $X_4 \to X_5$, shown in Figure~\ref{fig:synthetic-scm}. Mechanisms include linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) relationships with Gaussian noise ($\sigma = 0.1$). Root distributions are $X_1 \sim \mathcal{N}(0,1)$, $X_4 \sim \mathcal{N}(2,1)$. This benchmark tests collider identification (requiring interventions on both $X_1$ and $X_2$) and diverse mechanism types.
+
+\begin{figure}[t]
+\centering
+% INSERT: \includegraphics[width=0.8\columnwidth]{figures/synthetic_scm.pdf}
+% DIAGRAM: Two disconnected subgraphs
+% Left: X1 -> X2 -> X3, X1 -> X3 (collider at X3)
+% Right: X4 -> X5
+% Label edges with mechanism types: linear, nonlinear, quadratic
+\fbox{\parbox{0.75\columnwidth}{\centering\vspace{2em}[Synthetic 5-Node SCM Diagram]\vspace{2em}}}
+\caption{Structure of the synthetic 5-node benchmark SCM. $X_3$ is a collider receiving edges from both $X_1$ and $X_2$. The disconnected subgraph $X_4 \to X_5$ tests quadratic mechanism learning.}
+\label{fig:synthetic-scm}
+\end{figure}
 
 \emph{Results.} Table~\ref{tab:synthetic-results} reports final MSE by node and method. 
 % INSERT: \input{tables/synthetic_results.tex}
@@ -380,7 +392,18 @@ ACE achieves [TOTAL\_MSE] total MSE in [NUM\_EPISODES] episodes compared to [BAS
 
 \subsection{Complex 15-Node SCM}
 
-\emph{Setup.} To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 5 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms). This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
+\emph{Setup.} To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 5 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms), illustrated in Figure~\ref{fig:complex-scm}. This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
+
+\begin{figure}[t]
+\centering
+% INSERT: \includegraphics[width=\columnwidth]{figures/complex_scm.pdf}
+% DIAGRAM: 15-node graph with 5 colliders highlighted
+% Show nested collider structure, mixed mechanism types
+% Color-code: roots (blue), colliders (red), other (gray)
+\fbox{\parbox{0.9\columnwidth}{\centering\vspace{3em}[Complex 15-Node SCM Diagram]\vspace{3em}}}
+\caption{Structure of the complex 15-node SCM. Collider nodes (red) require interventions on multiple parents for identification. Nested structures test the policy's ability to reason about causal depth.}
+\label{fig:complex-scm}
+\end{figure}
 
 \emph{Results.} Table~\ref{tab:complex-results} reports aggregate performance.
 % INSERT: \input{tables/complex_results.tex}
@@ -396,7 +419,19 @@ The strategic advantage of ACE becomes more pronounced at scale: while random sa
 
 \subsection{Physics: Coupled Duffing Oscillators}
 
-\emph{Setup.} We apply ACE to a chain of three coupled nonlinear oscillators governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), but correlations from synchronized oscillation initially suggest full connectivity.
+\emph{Setup.} We apply ACE to a chain of three coupled nonlinear oscillators governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), shown in Figure~\ref{fig:duffing-scm}, but correlations from synchronized oscillation initially suggest full connectivity.
+
+\begin{figure}[t]
+\centering
+% INSERT: \includegraphics[width=0.9\columnwidth]{figures/duffing_scm.pdf}
+% DIAGRAM: Two panels
+% Left: True structure (chain X1 -- X2 -- X3 with spring symbols)
+% Right: Apparent structure (fully connected due to synchronization)
+% Show how clamping X2 breaks spurious correlations
+\fbox{\parbox{0.85\columnwidth}{\centering\vspace{2em}[Duffing Oscillator Coupling Diagram]\vspace{2em}}}
+\caption{Coupled Duffing oscillators. Left: true chain coupling. Right: apparent full connectivity due to synchronization. ACE discovers that clamping $X_2$ breaks spurious correlations.}
+\label{fig:duffing-scm}
+\end{figure}
 
 \emph{Results.} Table~\ref{tab:duffing-results} reports mechanism recovery accuracy.
 % INSERT: \input{tables/duffing_results.tex}
@@ -411,7 +446,18 @@ ACE discovers a ``clamping'' strategy: by intervening to hold the middle oscilla
 
 \subsection{Economics: Phillips Curve}
 
-\emph{Setup.} Using Federal Reserve Economic Data (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}). The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
+\emph{Setup.} Using Federal Reserve Economic Data (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}), as shown in Figure~\ref{fig:phillips-scm}. The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
+
+\begin{figure}[t]
+\centering
+% INSERT: \includegraphics[width=0.85\columnwidth]{figures/phillips_scm.pdf}
+% DIAGRAM: Economic SCM with temporal structure
+% UNRATE, FEDFUNDS, MICH all pointing to CPI_{t+1}
+% Annotate with regime periods (1970s, 1990s, 2008, etc.)
+\fbox{\parbox{0.8\columnwidth}{\centering\vspace{2em}[Phillips Curve SCM Diagram]\vspace{2em}}}
+\caption{Phillips curve causal structure. Unemployment, federal funds rate, and inflation expectations jointly determine future CPI. Historical regimes provide natural variation for mechanism identification.}
+\label{fig:phillips-scm}
+\end{figure}
 
 \emph{Results.} Table~\ref{tab:phillips-results} reports out-of-sample prediction accuracy.
 % INSERT: \input{tables/phillips_results.tex}
