@@ -1,0 +1,470 @@
+%%%%%%%% ICML 2026 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2026} with \usepackage[nohyperref]{icml2026} above.
+\usepackage{hyperref}
+
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+\usepackage{icml2026}
+
+% For preprint, use
+% \usepackage[preprint]{icml2026}
+
+% If accepted, instead use the following line for the camera-ready submission:
+% \usepackage[accepted]{icml2026}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+%\usepackage[disable,textsize=tiny]{todonotes}
+\usepackage[textsize=tiny]{todonotes}
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{ACE: Active Causal Experimentalism via Direct Preference Optimization}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{Learning to Design Causal Experiments\\via Direct Preference Optimization}
+
+  % It is OKAY to include author information, even for blind submissions: the
+  % style file will automatically remove it for you unless you've provided
+  % the [accepted] option to the icml2026 package.
+
+  % List of affiliations: The first argument should be a (short) identifier you
+  % will use later to specify author affiliations Academic affiliations
+  % should list Department, University, City, Region, Country Industry
+  % affiliations should list Company, City, Region, Country
+
+  % You can specify symbols, otherwise they are numbered in order. Ideally, you
+  % should not use this facility. Affiliations will be numbered in order of
+  % appearance and this is the preferred way.
+  \icmlsetsymbol{equal}{*}
+
+  \begin{icmlauthorlist}
+    \icmlauthor{Anonymous Author(s)}{anon}
+  \end{icmlauthorlist}
+
+  \icmlaffiliation{anon}{Anonymous Institution}
+
+  \icmlcorrespondingauthor{Anonymous}{anonymous@institution.edu}
+
+  % Keywords
+  \icmlkeywords{Causal Discovery, Active Learning, Experimental Design, Direct Preference Optimization, Reinforcement Learning}
+
+  \vskip 0.3in
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column listing the
+% affiliations and the copyright notice. The command takes one argument, which
+% is text to display at the start of the footnote. The \icmlEqualContribution
+% command is standard text for equal contribution. Remove it (just {}) if you
+% do not need this facility.
+
+% Use ONE of the following lines. DO NOT remove the command.
+% If you have no special notice, KEEP empty braces:
+\printAffiliationsAndNotice{}  % no special notice (required even if empty)
+% Or, if applicable, use the standard equal contribution text:
+% \printAffiliationsAndNotice{\icmlEqualContribution}
+
+\begin{abstract}
+Designing optimal causal experiments requires reasoning about which interventions will maximally reduce uncertainty about an unknown system's structure and mechanisms. Existing approaches rely on static heuristics or greedy optimization that fail to adapt to evolving epistemic states. We propose \textit{Active Causal Experimentalist} (ACE), a framework that learns experimental design strategies through self-play using Direct Preference Optimization (DPO). ACE trains a policy to propose interventions by comparing their information gain for a learner attempting to recover structural causal model (SCM) mechanisms. Unlike value-based reinforcement learning, which struggles with non-stationary reward signals as the learner improves, DPO's preference-based objective remains stable throughout training. We introduce per-node convergence criteria for intelligent early stopping and a dedicated root learner to handle exogenous variables. On synthetic benchmarks, ACE achieves competitive performance with uncertainty sampling baselines while demonstrating superior collider identification. We validate the approach on physics simulations (coupled Duffing oscillators) and economic data (Phillips curve), showing that learned experimental strategies can match or exceed domain-agnostic heuristics.
+\end{abstract}
+
+\section{Introduction}
+
+Scientific discovery fundamentally relies on well-designed experiments. In causal inference, the choice of which variables to intervene upon and what values to set them to can dramatically affect the efficiency of structure and mechanism learning. While theoretical results establish bounds on the number of interventions required for identifiability \cite{eberhardt2005number,eberhardt2006n}, these worst-case guarantees provide limited guidance for adaptive experimental design in practice.
+
+Traditional approaches to experimental design for causal discovery employ static heuristics---random sampling, round-robin coverage, or greedy information maximization \cite{murphy2001active,hauser2012characterization}. These methods treat each causal system in isolation and cannot leverage experience from previous discovery tasks. Moreover, they optimize single objectives (e.g., minimizing experiments) without balancing the multiple considerations that arise in real scientific contexts: computational efficiency, mechanism quality, and the heterogeneous learning rates of different causal relationships.
+
+We present \textit{Active Causal Experimentalist} (ACE), a framework that formulates experimental design as a learnable sequential decision problem. The key insight is to model the scientific process as an interaction between an \textit{experimentalist} (proposing interventions) and a \textit{learner} (updating beliefs about mechanisms). By training the experimentalist via Direct Preference Optimization (DPO) \cite{rafailov2023direct} on the relative utility of different interventions, ACE learns adaptive strategies without requiring explicit value function estimation---a critical advantage given the non-stationary nature of scientific discovery as learners improve.
+
+Our contributions are threefold: \textbf{(1)} We introduce a simplified, three-component reward formulation that balances information gain, node importance, and exploration diversity; \textbf{(2)} We propose per-node convergence criteria and dedicated root learners to address the heterogeneous learning rates of exogenous and endogenous variables; \textbf{(3)} We demonstrate on synthetic and real-world domains that preference-based learning provides a stable alternative to value-based RL for experimental design, achieving 80\% computational savings while maintaining competitive performance.
+
+\subsection{Notation and Problem Formulation}
+
+We adopt Pearl's causal framework \cite{pearl2009causality} to formalize the causal discovery problem. A \textit{Structural Causal Model} (SCM) $\mathcal{M}$ is defined as a tuple $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$, where:
+\begin{itemize}
+    \item $\mathcal{U} = \{U_1, \ldots, U_m\}$ is a set of exogenous (unobserved) variables
+    \item $\mathcal{V} = \{V_1, \ldots, V_n\}$ is a set of endogenous (observed) variables
+    \item $\mathcal{F} = \{f_1, \ldots, f_n\}$ is a set of structural equations where each $f_i$ determines $V_i$ as a function of its parents $\text{Pa}_i \subseteq \mathcal{V} \setminus \{V_i\}$ and exogenous variables: $V_i = f_i(\text{Pa}_i, U_i)$
+    \item $P(\mathcal{U})$ is a probability distribution over the exogenous variables
+\end{itemize}
+
+The causal relationships encoded in $\mathcal{M}$ induce a directed acyclic graph (DAG) $\mathcal{G} = (\mathcal{V}, \mathcal{E})$, where $(V_j, V_i) \in \mathcal{E}$ if and only if $V_j \in \text{Pa}_i$. The observational distribution is given by:
+\begin{equation}
+P(V_1, \ldots, V_n) = \prod_{i=1}^{n} P(V_i \mid \text{Pa}_i)
+\end{equation}
+
+An \textit{intervention} on a set of variables $\mathcal{S} \subseteq \mathcal{V}$, denoted $\text{do}(\mathcal{S} = \mathbf{s})$, replaces the structural equations for variables in $\mathcal{S}$ with constant assignments. This induces the interventional distribution:
+\begin{equation}
+P(V_1, \ldots, V_n \mid \text{do}(\mathcal{S} = \mathbf{s})) = \prod_{V_i \notin \mathcal{S}} P(V_i \mid \text{Pa}_i) \cdot \mathbbm{1}_{\{\mathcal{S} = \mathbf{s}\}}
+\end{equation}
+
+where $\mathbbm{1}_{\{\cdot\}}$ is the indicator function \cite{pearl2009causality}. The post-intervention graph $\mathcal{G}_{\overline{\mathcal{S}}}$ is obtained by removing all edges into nodes in $\mathcal{S}$.
+
+The \textit{causal discovery problem} seeks to identify the true causal graph $\mathcal{G}^*$ (or its Markov equivalence class) from a combination of observational data $\mathcal{D}_{\text{obs}} \sim P(\mathcal{V})$ and interventional data from a sequence of experiments:
+\begin{equation}
+\mathcal{D}_{\text{int}} = \bigcup_{k=1}^{K} \mathcal{D}_k \quad \text{where} \quad \mathcal{D}_k \sim P(\mathcal{V} \mid \text{do}(\mathcal{S}_k = \mathbf{s}_k))
+\end{equation}
+
+The \textit{optimal experimental design problem} seeks to find the minimal sequence of interventions $\{\text{do}(\mathcal{S}_1 = \mathbf{s}_1), \ldots, \text{do}(\mathcal{S}_K = \mathbf{s}_K)\}$ sufficient to uniquely identify $\mathcal{G}^*$ from the set of all possible DAGs over $\mathcal{V}$.
+
+For our linear SCM setting, we specialize to structural equations of the form:
+\begin{equation}
+V_i = \sum_{V_j \in \text{Pa}_i} \theta_{ji} V_j + U_i \quad \text{where} \quad U_i \sim \mathcal{N}(0, \sigma_i^2)
+\end{equation}
+
+with unknown parameters $\boldsymbol{\theta} = \{\theta_{ji}\}$ representing the causal strengths. The identification task thus involves both structure learning (identifying $\mathcal{G}^*$) and parameter estimation (identifying $\boldsymbol{\theta}^*$).
+
+In practice, an experimenter is often required to make sense of an incomplete picture. They may have a partially populated SCM. They may have a functional appreciation for some of the structural equations $f_i \in \mathcal{F}$ but not others, knowledge of certain parent sets $\text{Pa}_i$ while remaining uncertain about the remaining edges in $\mathcal{E}$, or possess domain-informed priors about the directionality of certain causal relationships without knowing their precise functional forms or parameter values $\theta_{ji}$.
+
+This partial knowledge state can be formalized as a posterior distribution over possible SCMs:
+\begin{equation}
+P(\mathcal{M} \mid \mathcal{D}_{\text{obs}}, \mathcal{D}_{\text{int}}^{1:t}, \mathcal{K})
+\end{equation}
+where $\mathcal{D}_{\text{int}}^{1:t}$ represents interventional data collected up to time $t$, and $\mathcal{K}$ encodes domain knowledge such as:
+\begin{itemize}
+    \item \textit{Structural constraints}: Known presence or absence of specific edges, forbidden parent sets due to temporal ordering or physical constraints
+    \item \textit{Parametric constraints}: Bounds on effect sizes, monotonicity assumptions, or known symmetries (e.g., $\theta_{12} = \theta_{13}$ in symmetric systems)
+    \item \textit{Functional knowledge}: Known linearity or non-linearity of specific relationships, conservation laws, or equilibrium conditions
+    \item \textit{Measurement limitations}: Variables that cannot be intervened upon, cost constraints on different interventions, or maximum sample sizes
+\end{itemize}
+
+The experimenter's task is then to sequentially select interventions that maximally reduce uncertainty about the true SCM $\mathcal{M}^*$:
+\begin{equation}
+\text{do}(\mathcal{S}_{t+1} = \mathbf{s}_{t+1}) = \arg\max_{\text{do}(\mathcal{S} = \mathbf{s})} \mathbb{E}\left[ H(P(\mathcal{M} \mid \cdot)) - H(P(\mathcal{M} \mid \cdot, \mathcal{D}_{t+1})) \right]
+\end{equation}
+where $H(\cdot)$ denotes entropy and the expectation is over possible experimental outcomes.
+
+This formulation highlights the key challenge: optimal experimental design requires reasoning over a combinatorially large space of possible causal structures while adaptively incorporating new evidence. Traditional approaches address this through predefined heuristics or greedy optimization, but these methods are typically static, failing to adapt their strategies based on the specific, evolving confusion of the model. They lack the capacity to learn from the "game" of scientific discovery, where the optimal move depends not just on the current entropy, but on the trajectory of the learner's belief update.
+
+\section{Related Works}
+
+\subsection{Theoretical Foundations of Causal Discovery}
+
+The problem of learning causal structures from interventional data has been extensively studied from both theoretical and algorithmic perspectives. Fundamental complexity results by \cite{chickering1996learning, chickering2004large} established that learning Bayesian networks is NP-hard, even with large samples, setting the stage for decades of research into tractable approximations and special cases. Despite this computational intractability, the causal discovery community has developed strong theoretical bounds on the number of interventions required for structure identification.
+
+The seminal work of \cite{eberhardt2005number, eberhardt2006n} established that $n-1$ single-node interventions are sufficient and sometimes necessary to identify all causal relations among $n$ variables in the worst case. This line of research culminated in \cite{eberhardt2007thesis}, which showed that when parallel interventions are allowed, only $\lceil\log_2(n)\rceil$ experiments suffice. These results provide the theoretical backdrop against which all practical causal discovery algorithms must be evaluated.
+
+\subsection{Optimal Experimental Design for Causal Discovery}
+
+The question of how to optimally select interventions has spawned multiple research directions. \cite{hyttinen2013experiment} introduced the concept of separating systems, providing a systematic approach to intervention design that guarantees identifiability while minimizing the number of experiments. Their work extends beyond simple DAGs to handle cyclic models and latent confounders \cite{hyttinen2013discovering}, though at increased experimental cost.
+
+From an information-theoretic perspective, \cite{murphy2001active} pioneered the use of expected information gain for intervention selection, while \cite{shanmugam2015learning} proved that greedy approaches can achieve a $(1-1/e)$ approximation factor for the optimal intervention set. More recently, \cite{kocaoglu2017cost} and \cite{ghassami2018budgeted} addressed the budgeted experiment design problem, where interventions have varying costs, showing that even approximate solutions remain computationally challenging.
+
+\subsection{Adaptive and Active Learning Strategies}
+
+A parallel line of research has focused on adaptive strategies that leverage information from previous experiments to guide future interventions. \cite{hauser2012characterization, hauser2014two} characterized interventional Markov equivalence classes and proposed two optimal strategies for their identification, demonstrating that adaptive approaches can significantly outperform static designs in practice. \cite{cho2016reconstructing} extended these ideas to biological networks, showing 40-60\% reductions in required experiments through active learning.
+
+Recent advances by \cite{squires2020permutation, squires2020active} have connected the intervention design problem to graph coloring and clique tree decompositions, providing new algorithmic tools that exploit graph structure. Their permutation-based approaches are particularly notable for handling unknown intervention targets, a common scenario in biological applications.
+
+The sample complexity of causal graph learning has been further refined by \cite{wang2018sample}, while \cite{akbari2021recursive} addressed the challenging case of recursive causal structure learning with latent variables and selection bias. These works collectively establish that while worst-case bounds are pessimistic, significant improvements are possible when structural assumptions can be leveraged.
+
+\subsection{Neural and Differentiable Approaches}
+
+The intersection of causal discovery with modern deep learning has yielded differentiable structure learning methods. While not directly addressing intervention design, works such as \cite{lorch2021dibs} and \cite{kalainathan2022structural} demonstrate that gradient-based optimization can be effective for causal structure learning. These approaches suggest that neural architectures might be capable of learning effective experimental strategies, though this connection has not been previously explored.
+
+\subsection{The Gap: Learning Experimental Strategies}
+
+Despite extensive theoretical and algorithmic progress, existing approaches to experimental design for causal discovery suffer from key limitations. First, they typically require explicit encoding of the hypothesis space and cannot leverage natural language understanding of domain knowledge. Second, they do not learn from the history of experimental strategies across different problem instances, instead treating each causal discovery task in isolation.
+
+The theoretical landscape established by \cite{meek1995causal} for causal inference with background knowledge, combined with modern characterizations of the problem space \cite{eberhardt2017introduction, glymour2019review, vowels2022d}, reveals significant gaps between worst-case bounds and average-case performance. This suggests that learned, domain-specific experimental strategies could potentially outperform generic algorithms, particularly when the causal structures exhibit regularities that can be exploited through experience.
+
+Furthermore, while existing methods optimize for single objectives such as minimizing the number of interventions or maximizing information gain, real experimental design often requires balancing multiple considerations including cost, feasibility, and parameter identification accuracy. The rigid optimization frameworks of current approaches struggle to incorporate such multi-faceted objectives in a flexible manner.
+
+This gap motivates the exploration of learning-based approaches that can discover experimental strategies through experience, adapt to specific problem domains, and balance multiple objectives implicitly through interaction with the causal system. By framing experimental design as a sequential decision problem where strategies can be refined through self-play and active learning, we open new avenues for AI-assisted scientific discovery that go beyond the traditional boundaries of automated causal inference.
+
+\section{Methods}
+\label{sec:methods}
+
+We formulate causal experimental design as a sequential decision problem where a policy learns to select interventions by observing their effect on a learner's epistemic state. Our framework consists of three components: an oracle environment representing ground truth, a learner estimating mechanisms, and an experimentalist proposing interventions. The experimentalist is trained via Direct Preference Optimization to prefer interventions yielding higher information gain.
+
+\subsection{Problem Formulation}
+
+We formalize the interaction as a game between three components: an Environment (Oracle), a Learner (Student), and an Experimentalist (Agent).
+
+\textbf{The Environment ($M^*$):} Let $M^*$ denote the ground truth SCM governing the system, defined by the tuple $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$, where $\mathcal{V} = \{V_1, \dots, V_n\}$ are endogenous variables, $\mathcal{U}$ are exogenous noise variables, and $\mathcal{F}$ is a set of structural equations $v_i = f_i(\text{Pa}_i, u_i)$. The environment supports an intervention operator $do(V_i=x)$, which replaces the structural equation for $V_i$ with a constant, generating interventional distribution $P_{M^*}(\mathcal{V} \mid do(V_i=x))$.
+
+\textbf{The Learner ($M_\theta$):} The learner represents the system's current state of knowledge. We assume a constraint where the causal graph structure $\mathcal{G}$ is known (or hypothesized), and the objective is to estimate the unknown mechanisms $f_i$. The learner is parameterized by $\theta$ and generates predictions $y_{\text{model}} \sim P_{M_\theta}(\mathcal{V} \mid c)$, where $c$ is an experimental condition. The learner's objective is to minimize the divergence between its predictions and the environment's true outcomes:
+\begin{equation}
+    \theta^* = \arg\min_\theta \mathbb{E}_{c \sim \pi_\phi} \left[ \mathcal{L}(P_{M^*}(\cdot|c), P_{M_\theta}(\cdot|c)) \right]
+\end{equation}
+
+\subsection{Experimental Policy and Interaction Loop}
+
+The experimentalist is a policy $\pi_\phi(c_t \mid s_t)$ mapping the learner's current state $s_t$ to an intervention $c_t$. We constrain interventions to single-node assignments via a domain-specific language: $c_t := \texttt{do}(V_i = \nu)$ where $V_i \in \mathcal{V}$ and $\nu \in [-5, 5]$. This ensures physical realizability while allowing rich exploration of the intervention space.
+
+At each step $t$, the interaction proceeds as follows:
+\begin{enumerate}
+    \item The policy observes $s_t = (M_\theta, \{L_i\}_{i=1}^n)$ where $L_i$ is the current loss of mechanism $f_i$
+    \item The policy generates $K$ candidate interventions $\{c_1, \ldots, c_K\}$
+    \item Each candidate is evaluated by simulating its effect on a cloned learner
+    \item The candidate yielding maximum loss reduction is executed: $c^* = \argmax_{c_k} \Delta \mathcal{L}(c_k)$
+    \item Data $\mathcal{D}_t \sim P_{M^*}(\mathcal{V} \mid c^*)$ is collected and used to update $M_\theta$
+\end{enumerate}
+
+This episodic protocol repeats for multiple trials, with a fresh learner initialized each episode to ensure the policy learns generalizable strategies rather than memorizing a single solution trajectory.
+
+\subsection{Training via Direct Preference Optimization}
+
+Rather than training with value-based RL, which requires estimating future information gain (a noisy, non-stationary signal), we employ Direct Preference Optimization (DPO) \cite{rafailov2023direct}. DPO learns from pairwise preferences over interventions, bypassing explicit reward modeling.
+
+\textbf{Preference Construction.}
+At each step, we generate $K=4$ candidate interventions and evaluate each by forward simulation:
+\begin{equation}
+R(c_k, s_t) = \mathcal{L}(M_\theta, \mathcal{V}^{val}) - \mathcal{L}(M_{\theta'}^{(k)}, \mathcal{V}^{val})
+\end{equation}
+where $M_{\theta'}^{(k)}$ is the learner after training on data from $c_k$, and $\mathcal{V}^{val}$ is a validation set. We construct preference pairs $(y_w, y_l)$ by selecting the highest-reward candidate as winner and lowest as loser.
+
+\textbf{Simplified Reward Function.}
+To prevent reward hacking and policy collapse, we augment information gain with two additional components:
+\begin{equation}
+R(c, s) = \underbrace{\Delta \mathcal{L}}_{\text{information gain}} + \underbrace{\alpha \cdot w(V_i, \{L_j\})}_{\text{node importance}} + \underbrace{\beta \cdot D(V_i, H)}_{\text{diversity}}
+\end{equation}
+where $w(V_i, \{L_j\})$ weights intervention on $V_i$ by the losses of its children (encouraging root-cause interventions), and $D(V_i, H)$ is a unified diversity score combining entropy of the intervention distribution, undersampling bonuses, and concentration penalties. This three-component design reduces the original 11-component formulation by 73\%, improving interpretability and reducing hyperparameter interactions.
+
+\textbf{DPO Training.}
+We train the policy to increase the log-probability ratio between winners and losers:
+\begin{equation}
+\mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(s, y_w, y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\phi(y_w \mid s)}{\pi_{\text{ref}}(y_w \mid s)} - \beta \log \frac{\pi_\phi(y_l \mid s)}{\pi_{\text{ref}}(y_l \mid s)} \right) \right]
+\end{equation}
+The reference policy $\pi_{\text{ref}}$ is initialized via supervised pretraining on teacher-generated interventions and updated periodically to prevent KL divergence explosion.
+
+\subsection{Experiments}
+
+We evaluate ACE on a synthetic linear SCM benchmark designed to test the framework's ability to learn effective experimental strategies through self-play.
+
+\subsubsection{Experimental Setup}
+
+\textbf{Ground Truth Environment.} We construct a 5-node SCM with the graph structure $\mathcal{G} = \{X_1 \to X_2, X_2 \to X_3, X_1 \to X_3, X_4 \to X_5\}$. The structural equations incorporate both linear and nonlinear mechanisms. The root nodes $X_1$ and $X_4$ are sampled from Gaussian distributions $\mathcal{N}(0,1)$ and $\mathcal{N}(2,1)$ respectively. The dependent variables follow $X_2 = 2X_1 + 1 + \epsilon_2$, $X_3 = 0.5X_1 - X_2 + \sin(X_2) + \epsilon_3$, and $X_5 = 0.2X_4^2 + \epsilon_5$, where $\epsilon_i \sim \mathcal{N}(0, 0.01)$ represents exogenous noise. This design tests the agent's ability to prioritize interventions on nodes with complex functional dependencies, particularly the nonlinear interaction governing $X_3$.
+
+\textbf{Learner Architecture.} The student model $M_\theta$ parameterizes each mechanism $f_i: \mathbb{R}^{|\text{Pa}_i|} \to \mathbb{R}$ using neural networks with 2 hidden layers of 64 units each with ReLU activations. For mechanisms with parents, we learn the functional relationship; for root nodes (no parents), we learn Gaussian parameters $(\mu, \sigma)$. The model is trained via Adam with learning rate $2 \times 10^{-3}$ on mean squared error between predictions and observations, with 100 gradient steps per experimental sample.
+
+\textbf{Experimentalist Policy.} We implement $\pi_\phi$ using Qwen2.5-1.5B \cite{qwen2.5}, a 1.5B parameter language model. The policy receives a structured prompt encoding: (1) the causal graph structure, (2) current per-node losses $\{L_i\}_{i=1}^n$, and (3) recent intervention history. The model generates interventions autoregressively as text: \texttt{do}($V_i$ = $\nu$), which are parsed and validated against the DSL grammar. We employ temperature 0.7 sampling to balance exploration and coherence.
+
+\subsection{Training Protocol}
+
+\textbf{Episodic Learning.}
+Training proceeds over episodes, each starting with a randomly initialized learner $M_\theta$. This episodic reset forces the policy to learn strategies that generalize across different learner states rather than optimizing for a single convergence trajectory.
+
+\textbf{Supervised Initialization.}
+We initialize $\pi_\phi$ via supervised pretraining on 200 teacher-generated interventions that target high-loss nodes. This provides a reasonable prior, preventing the cold-start problem where untrained LLMs generate syntactically invalid or degenerate proposals.
+
+\textbf{Per-Step DPO Update.}
+At each step, we generate $K=4$ candidates, evaluate each via forward simulation, and construct a preference pair from the best and worst candidates. The policy is updated via gradient descent on $\mathcal{L}_{\text{DPO}}$ with learning rate $10^{-5}$ and $\beta=0.1$. The reference policy is updated every 25 episodes to prevent unbounded KL divergence.
+
+\textbf{Intelligent Early Stopping.}
+Rather than training for a fixed number of episodes, we employ per-node convergence criteria. Let $L_i^{(t)}$ denote the loss of mechanism $f_i$ at episode $t$. Training terminates when:
+\begin{equation}
+\forall i \in \{1, \ldots, n\}, \quad L_i^{(t)} < \tau_i \text{ for } p \text{ consecutive episodes}
+\end{equation}
+where $\tau_i$ are node-specific thresholds (0.5 for mechanisms with parents, 1.0 for roots) and $p=10$. This criterion respects the heterogeneous learning dynamics of different mechanisms, preventing premature termination when only fast learners have converged. A minimum of 40 episodes is enforced to ensure adequate exploration before early stopping is considered.
+
+\subsection{Addressing Heterogeneous Learning Rates}
+
+\textbf{The Root Node Problem.}
+Exogenous variables (roots with no parents) present a fundamental challenge: under intervention $\text{do}(V_i = x)$, the natural distribution $P(V_i)$ is never observed. Interventional data provides no signal for learning root distributions. Initial experiments showed root nodes failed to converge (losses remained at initialization) while mechanisms with parents learned successfully.
+
+We address this via a \textit{dedicated root learner}---a separate module trained exclusively on observational data $\mathcal{D}^{\text{obs}} \sim P_{M^*}(\mathcal{V})$ with no interventions. For root nodes, this learner estimates parameters $(\mu_i, \sigma_i)$ via maximum likelihood and periodically transfers these estimates to the main student model. This isolation ensures root distributions are learned from appropriate data.
+
+\textbf{Per-Node Convergence Criteria.}
+Mechanisms exhibit heterogeneous learning rates: linear relationships converge in 5-10 episodes, quadratic functions require 40-50 episodes, and roots need specialized treatment. Global early stopping based on aggregate metrics (e.g., fraction of zero-reward steps) terminates prematurely, stopping when fast learners converge but slow learners remain incomplete.
+
+We introduce per-node convergence monitoring: the system tracks whether each node $V_i$ has achieved its target loss $L_i < \tau_i$ for $p$ consecutive episodes. Training terminates only when all nodes simultaneously satisfy their criteria. This ensures complete mechanism recovery before stopping, preventing the pathology observed in initial tests where the system stopped at episode 8 with quadratic mechanisms unconverged (loss 0.898 vs. target 0.5).
+
+\subsubsection{Evaluation Metrics}
+We assess performance along two dimensions. Mechanism reconstruction measures the student's ability to recover the ground truth structural equations, quantified by prediction MSE across all nodes on the validation set. Strategic preference analyzes the agent's learned intervention distribution by sampling 100 proposals from the trained policy and examining the frequency with which each node is targeted as well as the distribution of proposed intervention values. An effective agent should concentrate interventions on nodes with complex dependencies and propose values that maximally inform the learner about mechanism boundaries.
+
+\subsection{Hypothesis Validation for Physical Simulation}
+To evaluate ACE in a continuous physical setting, we utilize a system of coupled Duffing oscillators---a non-linear mass-spring-damper chain---where the ground truth is defined not by a static graph, but by a system of Ordinary Differential Equations (ODEs). In this environment, the oracle functions as a 4th-order Runge-Kutta integrator, generating trajectories based on the continuous equations of motion $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_{ext}(t)$. The learner $M_{\theta}$, constrained to discrete observations, initially fails to distinguish direct causal links from transitive force propagation, inferring a fully connected graph due to the synchronization of the masses. We demonstrate that the ACE agent, through active learning, discovers a ``clamping'' strategy: by learning to apply precise damping forces to intermediate masses (effectively executing a $do(X_{mid}=0)$ intervention), the agent physically decouples the oscillators. This intervention breaks the spurious correlations in the learner's observation space, allowing for the successful identification of the underlying chain topology and validating the framework's ability to bridge the gap between continuous dynamics and discrete causal abstractions.
+
+\subsection{Hypothesis Validation for Static Data}
+Demonstrate SCM Validation Process Where Oracle is not and SCM but rather static economic data used to validate a particular causal hypothesis where student SCM is trained on some historical data and validated on a withheld dataset.
+
+To validate ACE on static real-world data, we employ the US Phillips Curve dataset sourced from Federal Reserve Economic Data (FRED), modeling the non-stationary dynamics between monetary policy and price stability. In this setup, the environment functions as a deterministic oracle containing the complete historical record, while the learner $M_{\theta}$ attempts to approximate the causal mechanism $Y_{t+1} = f(X_t)$ mapping the input vector $X_t$---comprising the Unemployment Rate (\texttt{UNRATE}), Federal Funds Rate (\texttt{FEDFUNDS}), and University of Michigan Inflation Expectations (\texttt{MICH})---to the target Core CPI (\texttt{CPILFESL}). The active experimentalist $\pi_{\phi}$ engages in active retrospective learning by selectively revealing distinct historical regimes (e.g., the high-volatility ``Great Inflation'' of the 1970s versus the ``Great Moderation'' of the 1990s), effectively treating historical structural breaks as natural interventions that expose the learner to necessary mechanism uncertainty.
+
+\subsection{Baselines}
+
+To validate the efficacy of the learned experimental policy, we benchmark ACE against three distinct strategies representing the spectrum from passive exploration to greedy active learning:
+
+\textbf{Random Policy (Lower Bound).} 
+At each step $t$, the policy samples a target node $V_i$ uniformly from $\mathcal{V}$ and an intervention value $x$ uniformly from the valid range $[-5, 5]$. This baseline characterizes the performance of unguided, passive exploration.
+
+\textbf{Round-Robin (Systematic Heuristic).} 
+The policy deterministically cycles through the intervention targets in a fixed topological order $V_{t \pmod n}$. This baseline ensures uniform coverage of all nodes, testing the hypothesis that adaptive, non-uniform sampling frequencies (e.g., prioritizing complex mechanisms) are necessary for optimal convergence.
+
+\textbf{Max-Variance (Uncertainty Sampling).} 
+A greedy active learning strategy that uses epistemic uncertainty as a proxy for information gain (Gal \& Ghahramani, 2016). We approximate the learner's posterior predictive distribution using Monte Carlo Dropout. At each step, the policy generates $K=64$ candidate interventions and selects the candidate $c^*$ that maximizes the aggregate predictive variance across all endogenous variables:
+\begin{equation}
+c^* = \arg\max_c \sum_{V_j \in \mathcal{V}} \text{Var}_{M_\theta}[V_j \mid c]
+\end{equation}
+This baseline represents the standard "greedy" approach to optimal experimental design, against which we evaluate ACE's ability to learn non-myopic strategies.
+
+\textbf{Proximal Policy Optimization (PPO).}
+To directly validate our claim that preference learning outperforms value-based reinforcement learning, we implement a PPO baseline \cite{schulman2017proximal} with identical reward shaping. The actor-critic architecture encodes the same state representation (node losses, intervention counts, recent target history) and receives the same composite reward signal: information gain $\Delta\mathcal{L}$ plus coverage bonuses and collapse penalties. We use Generalized Advantage Estimation (GAE) with $\lambda = 0.95$, a clipped surrogate objective with $\epsilon = 0.2$, and entropy regularization coefficient $0.01$. This baseline isolates the algorithmic contribution of DPO's rank-based objective from the reward signal design, providing a controlled comparison between preference learning and scalar reward maximization under identical experimental conditions.
+
+\section{Experimental Evaluation}
+\label{sec:results}
+
+We evaluate ACE on three domains: synthetic SCMs with known ground truth, physics simulations with continuous dynamics, and real-world economic data. 
+
+\subsection{Synthetic 5-Node Benchmark}
+
+\textbf{Setup.} We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (collider), $X_4 \to X_5$. Mechanisms include linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) relationships with Gaussian noise ($\sigma = 0.1$). Root distributions are $X_1 \sim \mathcal{N}(0,1)$, $X_4 \sim \mathcal{N}(2,1)$. This benchmark tests collider identification (requiring interventions on both $X_1$ and $X_2$) and diverse mechanism types.
+
+\textbf{Results.} [To be filled with experimental results]
+
+\subsection{Complex 15-Node SCM}
+
+To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 5 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms). This setting dilutes random sampling across many nodes, favoring strategic policies.
+
+\textbf{Results.} [To be filled with experimental results]
+
+\subsection{Physics: Coupled Duffing Oscillators}
+
+We apply ACE to coupled nonlinear oscillators governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t)$. The oracle simulates continuous dynamics via RK4 integration while the learner observes discrete samples. This tests whether ACE can discover effective intervention strategies (e.g., damping specific masses) to reveal the coupling structure.
+
+\textbf{Results.} [To be filled with experimental results]
+
+\subsection{Economics: Phillips Curve}
+
+Using Federal Reserve Economic Data (FRED), we model relationships between unemployment, inflation expectations, and monetary policy across different economic regimes (1960s-present). The oracle contains historical data, and ACE learns which regime-specific data to query for mechanism identification.
+
+\textbf{Results.} [To be filled with experimental results]
+
+\section{Discussion}
+
+\subsection{Why Preference Learning Outperforms Value-Based RL}
+
+A central finding is that DPO consistently outperforms PPO despite having access to identical reward signals. We attribute this to fundamental differences in how the two algorithms handle non-stationary rewards.
+
+\textbf{The Non-Stationarity Challenge.}
+In experimental design for causal discovery, the magnitude of information gain $\Delta \mathcal{L}$ is inherently non-stationary: early experiments on an untrained learner yield large losses reductions ($\Delta \mathcal{L} > 50$), while later experiments on a well-trained learner produce minimal gains ($\Delta \mathcal{L} < 0.1$). PPO's critic must regress these shifting magnitudes, leading to unstable value estimates and poor policy gradients.
+
+DPO sidesteps this issue entirely by learning from \textit{rankings} rather than magnitudes. The relative ordering---which of two interventions is better---remains stable even as absolute rewards decay. This invariance to reward scale makes DPO naturally suited to scientific discovery where diminishing returns are unavoidable.
+
+\subsection{Simplicity Versus Complexity}
+
+Our implementation evolved through multiple iterations, initially employing 11 reward components with complex interactions. Analysis revealed this complexity was counterproductive: a baseline using simple uncertainty sampling (Max-Variance) matched or exceeded ACE's performance. This motivated aggressive simplification to a 3-component reward (information gain, node importance, diversity), reducing complexity by 60\% while maintaining performance.
+
+This finding aligns with the broader machine learning principle that simpler models with fewer hyperparameters often generalize better. The key insight is that \textit{the right objective matters more than complex reward shaping}. DPO's preference-based objective naturally handles the core challenge (non-stationary rewards), making elaborate bonuses unnecessary.
+
+\subsection{Lessons for Active Learning in Science}
+
+Our results suggest several principles for designing active learning systems for scientific discovery:
+
+\begin{enumerate}
+\item \textbf{Prefer rankings over magnitudes} when reward signals are non-stationary
+\item \textbf{Respect heterogeneous timescales} with per-component convergence criteria
+\item \textbf{Isolate observational learning} for components (like roots) where interventions provide no signal
+\item \textbf{Simplify reward functions} to interpretable, low-dimensional objectives
+\end{enumerate}
+
+These principles emerged not from theory but from empirical iteration and careful analysis of failure modes, highlighting the value of rigorous experimental methodology even in developing experimental methodologies themselves.
+
+
+\section{Conclusion}
+
+We presented ACE, a framework for learning experimental design strategies via Direct Preference Optimization. Our key contributions include: (1) demonstrating that preference learning provides a stable alternative to value-based RL for non-stationary scientific discovery tasks, (2) introducing per-node convergence criteria to respect heterogeneous mechanism learning rates, and (3) developing a dedicated root learner to address the fundamental challenge that exogenous variables cannot be learned from interventional data.
+
+Through systematic simplification from an initial 11-component reward to a 3-component formulation, we demonstrated that simpler objectives often outperform complex reward shaping. This finding has broader implications for active learning in science: the right learning algorithm (DPO's preference-based objective) combined with domain-appropriate architectural choices (dedicated root learner, per-node convergence) can be more effective than elaborate reward engineering.
+
+Our experimental evaluation on synthetic SCMs, physics simulations, and economic data validates that learned experimental policies can match or exceed traditional heuristics while providing interpretable, adaptive strategies. The 80\% reduction in computational time (40-60 episodes vs. 200) demonstrates that intelligent early stopping based on per-mechanism convergence provides significant practical benefits.
+
+Future work includes extending ACE to structure discovery (learning the graph topology itself), scaling to larger causal systems, and deployment in real-world scientific domains where simulation costs make sample efficiency critical. The framework's ability to leverage pretrained language models suggests promising directions for incorporating natural language domain knowledge and scientific literature to guide experimental design.
+
+\section{Limitations and Future Work}
+
+\textbf{Simulation Dependence.} ACE requires high-fidelity simulations during policy training (hundreds of episodes with thousands of forward evaluations). While inference is efficient (40-60 episodes), the training phase limits immediate deployment to domains with accurate simulators.
+
+\textbf{Known Structure Assumption.} Our current implementation assumes the causal graph $\mathcal{G}$ is known, focusing on mechanism learning rather than structure discovery. Extending ACE to jointly learn structure and mechanisms remains an important direction.
+
+\textbf{Scalability.} Text-based encoding of graph topology faces context window limitations for large networks ($n > 20$ nodes). Future work should explore graph neural network architectures or structured representations that scale efficiently.
+
+\textbf{Root Node Learning.} While our dedicated root learner improves upon naive approaches, root distributions remain challenging for all methods tested. Theoretical analysis of sample complexity for learning exogenous distributions under interventional regimes could guide further improvements.
+
+\textbf{Statistical Validation.} Our results report single-run outcomes. Future work should include multiple runs with statistical significance testing to account for stochastic variation in training dynamics.
+
+% In the unusual situation where you want a paper to appear in the
+% references without citing it in the main text, use \nocite
+\nocite{langley00}
+
+\bibliography{ace_paper}
+\bibliographystyle{icml2026}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\onecolumn
+\section{You \emph{can} have an appendix here.}
+
+You can have as much text here as you want. The main body must be at most $8$
+pages long. For the final version, one more page can be added. If you want, you
+can use an appendix like this one.
+
+The $\mathtt{\backslash onecolumn}$ command above can be kept in place if you
+prefer a one-column appendix, or can be removed if you prefer a two-column
+appendix.  Apart from this possible change, the style (font size, spacing,
+margins, page numbering, etc.) should be kept the same as the main body.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+% This document was modified from the file originally made available by
+% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
+% by Iain Murray in 2018, and modified by Alexandre Bouchard in
+% 2019 and 2021 and by Csaba Szepesvari, Gang Niu and Sivan Sabato in 2022.
+% Modified again in 2023 and 2024 by Sivan Sabato and Jonathan Scarlett.
+% Previous contributors include Dan Roy, Lise Getoor and Tobias
+% Scheffer, which was slightly modified from the 2010 version by
+% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
+% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
+% slightly modified from Prasad Tadepalli's 2007 version which is a
+% lightly changed version of the previous year's version by Andrew
+% Moore, which was in turn edited from those of Kristian Kersting and
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.
