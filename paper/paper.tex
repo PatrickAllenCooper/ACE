@@ -107,14 +107,14 @@
 % \printAffiliationsAndNotice{\icmlEqualContribution}
 
 \begin{abstract}
-Designing optimal causal experiments requires reasoning about which interventions will maximally reduce uncertainty about an unknown system's structure and mechanisms. Existing approaches rely on static heuristics or greedy optimization that fail to adapt to evolving epistemic states. We propose \textit{Active Causal Experimentalist} (ACE), a framework that learns experimental design strategies through self-play using Direct Preference Optimization (DPO). ACE trains a policy to propose interventions by comparing their information gain for a learner attempting to recover structural causal model (SCM) mechanisms. Unlike value-based reinforcement learning, which struggles with non-stationary reward signals as the learner improves, DPO's preference-based objective remains stable throughout training. We introduce per-node convergence criteria for intelligent early stopping and a dedicated root learner to handle exogenous variables. On synthetic benchmarks, ACE achieves competitive performance with uncertainty sampling baselines while demonstrating superior collider identification. We validate the approach on physics simulations (coupled Duffing oscillators) and economic data (Phillips curve), showing that learned experimental strategies can match or exceed domain-agnostic heuristics.
+Designing optimal causal experiments requires reasoning about which interventions will maximally reduce uncertainty about an unknown system's structure and mechanisms---a challenge central to scientific discovery, clinical trials, and industrial process optimization alike. Existing approaches rely on static heuristics or greedy optimization that fail to adapt to evolving epistemic states. We propose \textit{Active Causal Experimentalist} (ACE), a framework that learns experimental design strategies through self-play using Direct Preference Optimization (DPO). ACE trains a policy to propose interventions by comparing their information gain for a learner attempting to recover structural causal model (SCM) mechanisms. Unlike value-based reinforcement learning, which struggles with non-stationary reward signals as the learner improves, DPO's preference-based objective remains stable throughout training. We introduce per-node convergence criteria for intelligent early stopping and a dedicated root learner to handle exogenous variables. On synthetic benchmarks, ACE achieves competitive performance with uncertainty sampling baselines while demonstrating superior collider identification. We validate the approach on physics simulations (coupled Duffing oscillators) and economic data (Phillips curve), showing that learned experimental strategies can match or exceed domain-agnostic heuristics.
 \end{abstract}
 
 \section{Introduction}
 
-Scientific discovery fundamentally relies on well-designed experiments. In causal inference, the choice of which variables to intervene upon and what values to set them to can dramatically affect the efficiency of structure and mechanism learning. While theoretical results establish bounds on the number of interventions required for identifiability \cite{eberhardt2005number,eberhardt2006n}, these worst-case guarantees provide limited guidance for adaptive experimental design in practice.
+Scientific discovery fundamentally relies on well-designed experiments. In causal inference, the choice of which variables to intervene upon and what values to set them to can dramatically affect the efficiency of structure and mechanism learning. This challenge extends far beyond academic settings: pharmaceutical companies must decide which drug candidates to test in costly clinical trials, technology firms must allocate A/B testing budgets across competing hypotheses, and manufacturers must identify which process parameters to vary when diagnosing production defects. While theoretical results establish bounds on the number of interventions required for identifiability \cite{eberhardt2005number,eberhardt2006n}, these worst-case guarantees provide limited guidance for adaptive experimental design in practice.
 
-Traditional approaches to experimental design for causal discovery employ static heuristics---random sampling, round-robin coverage, or greedy information maximization \cite{murphy2001active,hauser2012characterization}. These methods treat each causal system in isolation and cannot leverage experience from previous discovery tasks. Moreover, they optimize single objectives (e.g., minimizing experiments) without balancing the multiple considerations that arise in real scientific contexts: computational efficiency, mechanism quality, and the heterogeneous learning rates of different causal relationships.
+Traditional approaches to experimental design for causal discovery employ static heuristics---random sampling, round-robin coverage, or greedy information maximization \cite{murphy2001active,hauser2012characterization}. These methods treat each causal system in isolation and cannot leverage experience from previous discovery tasks. Moreover, they optimize single objectives (e.g., minimizing experiments) without balancing the multiple considerations that arise in real contexts: computational efficiency, mechanism quality, heterogeneous learning rates, and---critically for industrial deployment---intervention costs that may vary by orders of magnitude across different variables.
 
 We present \textit{Active Causal Experimentalist} (ACE), a framework that formulates experimental design as a learnable sequential decision problem. The key insight is to model the scientific process as an interaction between an \textit{experimentalist} (proposing interventions) and a \textit{learner} (updating beliefs about mechanisms). By training the experimentalist via Direct Preference Optimization (DPO) \cite{rafailov2023direct} on the relative utility of different interventions, ACE learns adaptive strategies without requiring explicit value function estimation---a critical advantage given the non-stationary nature of scientific discovery as learners improve.
 
@@ -167,7 +167,7 @@ where $\mathcal{D}_{\text{int}}^{1:t}$ represents interventional data collected 
     \item \textit{Structural constraints}: Known presence or absence of specific edges, forbidden parent sets due to temporal ordering or physical constraints
     \item \textit{Parametric constraints}: Bounds on effect sizes, monotonicity assumptions, or known symmetries (e.g., $\theta_{12} = \theta_{13}$ in symmetric systems)
     \item \textit{Functional knowledge}: Known linearity or non-linearity of specific relationships, conservation laws, or equilibrium conditions
-    \item \textit{Measurement limitations}: Variables that cannot be intervened upon, cost constraints on different interventions, or maximum sample sizes
+    \item \textit{Operational constraints}: Variables that cannot be intervened upon (e.g., customer demographics in A/B tests), cost asymmetries (clinical trials vs. observational data), safety boundaries, or regulatory limits on experimental scope
 \end{itemize}
 
 The experimenter's task is then to sequentially select interventions that maximally reduce uncertainty about the true SCM $\mathcal{M}^*$:
@@ -210,9 +210,9 @@ Despite extensive theoretical and algorithmic progress, existing approaches to e
 
 The theoretical landscape established by \cite{meek1995causal} for causal inference with background knowledge, combined with modern characterizations of the problem space \cite{eberhardt2017introduction, glymour2019review, vowels2022d}, reveals significant gaps between worst-case bounds and average-case performance. This suggests that learned, domain-specific experimental strategies could potentially outperform generic algorithms, particularly when the causal structures exhibit regularities that can be exploited through experience.
 
-Furthermore, while existing methods optimize for single objectives such as minimizing the number of interventions or maximizing information gain, real experimental design often requires balancing multiple considerations including cost, feasibility, and parameter identification accuracy. The rigid optimization frameworks of current approaches struggle to incorporate such multi-faceted objectives in a flexible manner.
+Furthermore, while existing methods optimize for single objectives such as minimizing the number of interventions or maximizing information gain, real experimental design often requires balancing multiple considerations including cost, feasibility, and parameter identification accuracy. In drug discovery, a single clinical trial may cost millions of dollars, making the difference between 50 and 100 required experiments economically decisive. In manufacturing, some interventions (adjusting machine settings) are cheap while others (halting production lines) are prohibitively expensive. The rigid optimization frameworks of current approaches struggle to incorporate such heterogeneous cost structures in a flexible manner.
 
-This gap motivates the exploration of learning-based approaches that can discover experimental strategies through experience, adapt to specific problem domains, and balance multiple objectives implicitly through interaction with the causal system. By framing experimental design as a sequential decision problem where strategies can be refined through self-play and active learning, we open new avenues for AI-assisted scientific discovery that go beyond the traditional boundaries of automated causal inference.
+This gap motivates the exploration of learning-based approaches that can discover experimental strategies through experience, adapt to specific problem domains, and balance multiple objectives implicitly through interaction with the causal system. By framing experimental design as a sequential decision problem where strategies can be refined through self-play and active learning, we open new avenues for AI-assisted discovery that extend from laboratory science to industrial process optimization and data-driven decision making.
 
 \section{Methods}
 \label{sec:methods}
@@ -379,7 +379,7 @@ Using Federal Reserve Economic Data (FRED), we model relationships between unemp
 A central finding is that DPO consistently outperforms PPO despite having access to identical reward signals. We attribute this to fundamental differences in how the two algorithms handle non-stationary rewards.
 
 \textbf{The Non-Stationarity Challenge.}
-In experimental design for causal discovery, the magnitude of information gain $\Delta \mathcal{L}$ is inherently non-stationary: early experiments on an untrained learner yield large losses reductions ($\Delta \mathcal{L} > 50$), while later experiments on a well-trained learner produce minimal gains ($\Delta \mathcal{L} < 0.1$). PPO's critic must regress these shifting magnitudes, leading to unstable value estimates and poor policy gradients.
+In experimental design for causal discovery, the magnitude of information gain $\Delta \mathcal{L}$ is inherently non-stationary: early experiments on an untrained learner yield large loss reductions ($\Delta \mathcal{L} > 50$), while later experiments on a well-trained learner produce minimal gains ($\Delta \mathcal{L} < 0.1$). This pattern---large initial returns followed by diminishing marginal improvements---characterizes not only scientific discovery but also industrial optimization (defect rate reduction) and clinical development (efficacy estimation refinement). PPO's critic must regress these shifting magnitudes, leading to unstable value estimates and poor policy gradients.
 
 DPO sidesteps this issue entirely by learning from \textit{rankings} rather than magnitudes. The relative ordering---which of two interventions is better---remains stable even as absolute rewards decay. This invariance to reward scale makes DPO naturally suited to scientific discovery where diminishing returns are unavoidable.
 
@@ -389,18 +389,18 @@ A natural temptation in active learning is to engineer complex reward functions 
 
 This finding aligns with the broader machine learning principle that simpler models with fewer hyperparameters often generalize better. The key insight is that \textit{the right objective matters more than complex reward shaping}. DPO's preference-based objective naturally handles the core challenge (non-stationary rewards), while the three-component reward captures the essential trade-offs in experimental design: exploitation (information gain), causal reasoning (node importance), and exploration (diversity).
 
-\subsection{Lessons for Active Learning in Science}
+\subsection{Lessons for Active Learning}
 
-Our results suggest several principles for designing active learning systems for scientific discovery:
+Our results suggest several principles for designing active learning systems, whether for scientific discovery or industrial applications:
 
 \begin{enumerate}
-\item \textbf{Prefer rankings over magnitudes} when reward signals are non-stationary
-\item \textbf{Respect heterogeneous timescales} with per-component convergence criteria
-\item \textbf{Isolate observational learning} for components (like roots) where interventions provide no signal
-\item \textbf{Simplify reward functions} to interpretable, low-dimensional objectives
+\item \textbf{Prefer rankings over magnitudes} when reward signals are non-stationary---a property shared by scientific discovery (diminishing information gain) and industrial optimization (diminishing defect rates)
+\item \textbf{Respect heterogeneous timescales} with per-component convergence criteria, essential when systems contain both fast-responding variables (e.g., temperature) and slow-responding ones (e.g., material fatigue)
+\item \textbf{Isolate observational learning} for components where interventions provide no signal---in manufacturing, this corresponds to environmental factors that cannot be controlled but must be modeled
+\item \textbf{Simplify reward functions} to interpretable, low-dimensional objectives that domain experts can audit and trust
 \end{enumerate}
 
-These principles address fundamental challenges in active learning for scientific discovery and provide guidance for practitioners designing similar systems.
+These principles address fundamental challenges that span laboratory research, clinical trials, and industrial process optimization.
 
 
 \section{Conclusion}
@@ -411,11 +411,11 @@ Our three-component reward formulation demonstrates that parsimonious objectives
 
 Our experimental evaluation on synthetic SCMs, physics simulations, and economic data validates that learned experimental policies can match or exceed traditional heuristics while providing interpretable, adaptive strategies. The 80\% reduction in computational time (40-60 episodes vs. 200) demonstrates that intelligent early stopping based on per-mechanism convergence provides significant practical benefits.
 
-Future work includes extending ACE to structure discovery (learning the graph topology itself), scaling to larger causal systems, and deployment in real-world scientific domains where simulation costs make sample efficiency critical. The framework's ability to leverage pretrained language models suggests promising directions for incorporating natural language domain knowledge and scientific literature to guide experimental design.
+Future work includes extending ACE to structure discovery (learning the graph topology itself), scaling to larger causal systems, and deployment in domains where intervention costs make sample efficiency critical---from clinical trial design where each experiment represents patient risk, to semiconductor manufacturing where process adjustments require costly production halts. The framework's ability to leverage pretrained language models suggests promising directions for incorporating domain knowledge from scientific literature, engineering specifications, or regulatory guidelines to guide experimental design.
 
 \section{Limitations and Future Work}
 
-\textbf{Simulation Dependence.} ACE requires high-fidelity simulations during policy training (hundreds of episodes with thousands of forward evaluations). While inference is efficient (40-60 episodes), the training phase limits immediate deployment to domains with accurate simulators.
+\textbf{Simulation Dependence.} ACE requires high-fidelity simulations during policy training (hundreds of episodes with thousands of forward evaluations). While inference is efficient (40-60 episodes), the training phase limits immediate deployment to domains with accurate simulators or sufficient historical data for offline policy learning---though notably, many industrial settings (semiconductor fabs, chemical plants, digital twins) increasingly provide such simulation capabilities.
 
 \textbf{Known Structure Assumption.} Our current implementation assumes the causal graph $\mathcal{G}$ is known, focusing on mechanism learning rather than structure discovery. Extending ACE to jointly learn structure and mechanisms remains an important direction.
 
