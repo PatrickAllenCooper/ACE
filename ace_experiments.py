@@ -1414,10 +1414,14 @@ class EarlyStopping:
     """
     Detect training saturation and stop when no improvement is observed.
     Based on analysis showing 89.3% of steps produced zero reward in recent runs.
+    
+    UPDATE Jan 20: Added min_episodes to prevent stopping too early.
+    Initial testing showed episode 8 was too early (X5 hadn't converged).
     """
-    def __init__(self, patience=20, min_delta=0.01):
+    def __init__(self, patience=20, min_delta=0.01, min_episodes=30):
         self.patience = patience
         self.min_delta = min_delta
+        self.min_episodes = min_episodes  # Don't stop before this many episodes
         self.counter = 0
         self.best_loss = float('inf')
         self.episodes_no_improvement = 0
@@ -1649,7 +1653,8 @@ def main():
     parser.add_argument("--early_stopping", action="store_true", help="Enable early stopping when training plateaus")
     parser.add_argument("--early_stop_patience", type=int, default=20, help="Episodes to wait before early stopping")
     parser.add_argument("--early_stop_min_delta", type=float, default=0.01, help="Minimum improvement to reset patience")
-    parser.add_argument("--zero_reward_threshold", type=float, default=0.85, help="Stop if this fraction of recent steps have zero reward")
+    parser.add_argument("--early_stop_min_episodes", type=int, default=40, help="Minimum episodes before allowing early stop (prevents stopping too early)")
+    parser.add_argument("--zero_reward_threshold", type=float, default=0.92, help="Stop if this fraction of recent steps have zero reward (increased from 0.85)")
     
     # NEW: Root-specific training
     parser.add_argument("--root_fitting", action="store_true", help="Enable root-specific distribution fitting")
@@ -1834,9 +1839,10 @@ def main():
     if args.early_stopping:
         early_stopper = EarlyStopping(
             patience=args.early_stop_patience,
-            min_delta=args.early_stop_min_delta
+            min_delta=args.early_stop_min_delta,
+            min_episodes=args.early_stop_min_episodes
         )
-        logging.info(f"✓ Early stopping enabled (patience={args.early_stop_patience}, min_delta={args.early_stop_min_delta})")
+        logging.info(f"✓ Early stopping enabled (patience={args.early_stop_patience}, min_delta={args.early_stop_min_delta}, min_episodes={args.early_stop_min_episodes})")
 
     recent_action_counts = deque(maxlen=500)
     recent_values_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
@@ -2478,24 +2484,29 @@ def main():
         # --- EARLY STOPPING CHECKS ---
         # Check if training has saturated (most steps producing zero reward)
         if args.early_stopping and early_stopper is not None:
-            # Get final loss for this episode
-            final_loss, _ = critic.evaluate_mechanisms_detailed(current_student)
-            
-            # Check loss-based stopping
-            if early_stopper.check_loss(final_loss):
-                logging.info(f"✓ Early stopping triggered at episode {episode}/{args.episodes}")
-                logging.info(f"   Final loss: {final_loss:.4f}, episodes trained: {episode+1}")
-                break
-            
-            # Check zero-reward-based stopping (training saturation)
-            if len(recent_rewards_for_stopping) >= 100:
-                if early_stopper.check_zero_rewards(
-                    list(recent_rewards_for_stopping),
-                    threshold=args.zero_reward_threshold
-                ):
-                    logging.info(f"✓ Training saturation detected at episode {episode}/{args.episodes}")
-                    logging.info(f"   Episodes trained: {episode+1}")
+            # NEW: Don't allow early stopping before minimum episodes
+            if episode < early_stopper.min_episodes:
+                if episode % 10 == 0:
+                    logging.info(f"  [Early Stop] Skipping checks (episode {episode} < min {early_stopper.min_episodes})")
+            else:
+                # Get final loss for this episode
+                final_loss, _ = critic.evaluate_mechanisms_detailed(current_student)
+                
+                # Check loss-based stopping
+                if early_stopper.check_loss(final_loss):
+                    logging.info(f"✓ Early stopping triggered at episode {episode}/{args.episodes}")
+                    logging.info(f"   Final loss: {final_loss:.4f}, episodes trained: {episode+1}")
                     break
+                
+                # Check zero-reward-based stopping (training saturation)
+                if len(recent_rewards_for_stopping) >= 100:
+                    if early_stopper.check_zero_rewards(
+                        list(recent_rewards_for_stopping),
+                        threshold=args.zero_reward_threshold
+                    ):
+                        logging.info(f"✓ Training saturation detected at episode {episode}/{args.episodes}")
+                        logging.info(f"   Episodes trained: {episode+1}")
+                        break
             
             # Log progress every 10 episodes
             if episode % 10 == 0 and len(recent_rewards_for_stopping) >= 50:

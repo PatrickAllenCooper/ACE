@@ -59,7 +59,8 @@ python ace_experiments.py \
     \
     --early_stopping \
     --early_stop_patience 20 \
-    --zero_reward_threshold 0.85 \
+    --early_stop_min_episodes 40 \
+    --zero_reward_threshold 0.92 \
     \
     --obs_train_interval 3 \
     --obs_train_samples 200 \
