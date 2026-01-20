@@ -47,9 +47,12 @@ echo "========================================"
 echo ""
 
 # --- Run Baselines ---
+# Updated Jan 20, 2026: Use improved observational training defaults for fair comparison
 python baselines.py \
     --all_with_ppo \
     --episodes ${EPISODES:-100} \
+    --obs_train_interval 3 \
+    --obs_train_samples 200 \
     --output "${OUTPUT_DIR:-results/baselines}"
 
 # --- Summary ---

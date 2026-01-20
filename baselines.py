@@ -945,9 +945,9 @@ def main():
     parser.add_argument("--all_with_ppo", action="store_true", help="Run all baselines including PPO")
     parser.add_argument("--episodes", type=int, default=50, help="Number of episodes")
     parser.add_argument("--steps", type=int, default=25, help="Steps per episode")
-    parser.add_argument("--obs_train_interval", type=int, default=5,
+    parser.add_argument("--obs_train_interval", type=int, default=3,
                         help="Observational training interval (0=disabled)")
-    parser.add_argument("--obs_train_samples", type=int, default=100,
+    parser.add_argument("--obs_train_samples", type=int, default=200,
                         help="Observational samples per injection")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
     # PPO-specific arguments
