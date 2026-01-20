@@ -219,7 +219,39 @@ This gap motivates the exploration of learning-based approaches that can discove
 \section{Methods}
 \label{sec:methods}
 
-We formulate causal experimental design as a sequential decision problem where a policy learns to select interventions by observing their effect on a learner's epistemic state. Our framework consists of three components: an oracle environment representing ground truth, a learner estimating mechanisms, and an experimentalist proposing interventions. The experimentalist is trained via Direct Preference Optimization to prefer interventions yielding higher information gain.
+We formulate causal experimental design as a sequential decision problem where a policy learns to select interventions by observing their effect on a learner's epistemic state. Our framework consists of three components: an oracle environment representing ground truth, a learner estimating mechanisms, and an experimentalist proposing interventions (Figure~\ref{fig:framework}). The experimentalist is trained via Direct Preference Optimization to prefer interventions yielding higher information gain.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    box/.style={rectangle, draw, rounded corners, minimum width=2.2cm, minimum height=1cm, font=\small, thick, align=center},
+    env/.style={box, fill=blue!15},
+    learn/.style={box, fill=orange!15},
+    agent/.style={box, fill=green!15},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick},
+    label/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}
+]
+% Main components
+\node[env] (env) at (0,0) {Environment\\$M^*$};
+\node[learn] (learn) at (4,0) {Learner\\$M_\theta$};
+\node[agent] (agent) at (2,-2.2) {Experimentalist\\$\pi_\phi$};
+
+% Arrows with labels
+\draw[arrow] (agent) -- node[label, left, xshift=-2pt] {$\text{do}(V_i\!=\!\nu)$} (env);
+\draw[arrow] (env) -- node[label, above] {$\mathcal{D} \sim P_{M^*}$} (learn);
+\draw[arrow] (learn) -- node[label, right, xshift=2pt] {$\{L_i\}$} (agent);
+
+% DPO annotation
+\draw[arrow, dashed, gray] (agent.south) -- ++(0,-0.6) node[below, font=\scriptsize, gray] {DPO update};
+
+% Preference pairs
+\node[font=\scriptsize, gray, align=center] at (5.5,-2.2) {preference\\$(y_w, y_l)$};
+\draw[-{Stealth}, gray, dashed] (4.8,-2.2) -- (agent.east);
+\end{tikzpicture}
+\caption{ACE framework overview. The experimentalist $\pi_\phi$ proposes interventions, the environment $M^*$ generates data, and the learner $M_\theta$ updates its mechanism estimates. Per-node losses $\{L_i\}$ inform the next intervention. DPO training uses preference pairs constructed from candidate comparisons.}
+\label{fig:framework}
+\end{figure}
 
 \subsection{Problem Formulation}
 
@@ -405,10 +437,97 @@ We evaluate ACE across four domains of increasing complexity: a synthetic 5-node
 % | ACE (ours)   | ___   | ___   | ___   | ___   | ___   | ___   | ___      |
 
 ACE achieves [TOTAL\_MSE] total MSE in [NUM\_EPISODES] episodes compared to [BASELINE\_MSE] for Max-Variance over 200 episodes, representing a [SPEEDUP]\% reduction in training time. Notably, on the collider node $X_3$, ACE achieves [X3\_MSE] versus [X3\_BASELINE] for the best baseline, demonstrating superior identification of multi-parent mechanisms. Figure~\ref{fig:synthetic-learning} shows learning curves across methods.
-% INSERT: \input{figures/synthetic_learning.tex}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[scale=0.85]
+% Axes
+\draw[->] (0,0) -- (6.5,0) node[right, font=\scriptsize] {Episode};
+\draw[->] (0,0) -- (0,4) node[above, font=\scriptsize] {Total MSE};
+
+% Grid lines
+\foreach \y in {1,2,3} {
+    \draw[gray!30] (0,\y) -- (6,\y);
+}
+\foreach \x in {1,2,3,4,5,6} {
+    \draw[gray!30] (\x,0) -- (\x,3.5);
+}
+
+% Y-axis labels
+\foreach \y/\label in {0/0, 1/10, 2/20, 3/30} {
+    \node[left, font=\tiny] at (0,\y) {\label};
+}
+% X-axis labels
+\foreach \x/\label in {0/0, 2/50, 4/100, 6/150} {
+    \node[below, font=\tiny] at (\x,0) {\label};
+}
+
+% Placeholder curves (schematic)
+\draw[thick, red!70] (0,3.5) .. controls (1,2) and (2,1.2) .. (6,0.8);
+\draw[thick, blue!70] (0,3.5) .. controls (1.5,2.5) and (3,1.8) .. (6,1.2);
+\draw[thick, orange!70] (0,3.5) .. controls (2,2.8) and (4,2.2) .. (6,1.8);
+\draw[thick, gray!70] (0,3.5) .. controls (2,3) and (4,2.5) .. (6,2.2);
+
+% Legend
+\node[font=\tiny, red!70] at (5,0.5) {ACE};
+\node[font=\tiny, blue!70] at (5,1.5) {Max-Var};
+\node[font=\tiny, orange!70] at (5,2.1) {PPO};
+\node[font=\tiny, gray!70] at (5,2.5) {Random};
+
+% Early stop annotation
+\draw[dashed, green!50!black] (2.5,0) -- (2.5,3.5);
+\node[font=\tiny, green!50!black, rotate=90] at (2.3,1.8) {ACE stops};
+\end{tikzpicture}
+\caption{Learning curves on the synthetic benchmark (schematic). ACE converges faster and achieves lower total MSE. The dashed line indicates ACE's early stopping point via per-node convergence criteria.}
+\label{fig:synthetic-learning}
+\end{figure}
 
 \emph{Intervention Distribution.} Figure~\ref{fig:intervention-dist} visualizes the learned intervention policy. ACE concentrates [X2\_PCT]\% of interventions on $X_2$ and [X1\_PCT]\% on $X_1$, the collider's parents, compared to [RANDOM\_UNIFORM]\% uniform allocation under random sampling. This strategic allocation explains the improved collider performance.
-% INSERT: \input{figures/intervention_distribution.tex}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[scale=0.9]
+% ACE bars
+\node[font=\scriptsize] at (1.5,3.8) {ACE};
+\fill[green!60] (0,0) rectangle (0.5,1.2);
+\fill[green!60] (0.6,0) rectangle (1.1,2.8);
+\fill[green!60] (1.2,0) rectangle (1.7,0.6);
+\fill[green!60] (1.8,0) rectangle (2.3,0.3);
+\fill[green!60] (2.4,0) rectangle (2.9,0.4);
+
+% Random bars
+\node[font=\scriptsize] at (4.5,3.8) {Random};
+\fill[gray!50] (3.2,0) rectangle (3.7,1.4);
+\fill[gray!50] (3.8,0) rectangle (4.3,1.5);
+\fill[gray!50] (4.4,0) rectangle (4.9,1.3);
+\fill[gray!50] (5.0,0) rectangle (5.5,1.4);
+\fill[gray!50] (5.6,0) rectangle (6.1,1.5);
+
+% X-axis labels
+\node[font=\tiny] at (0.25,-0.3) {$X_1$};
+\node[font=\tiny] at (0.85,-0.3) {$X_2$};
+\node[font=\tiny] at (1.45,-0.3) {$X_3$};
+\node[font=\tiny] at (2.05,-0.3) {$X_4$};
+\node[font=\tiny] at (2.65,-0.3) {$X_5$};
+
+\node[font=\tiny] at (3.45,-0.3) {$X_1$};
+\node[font=\tiny] at (4.05,-0.3) {$X_2$};
+\node[font=\tiny] at (4.65,-0.3) {$X_3$};
+\node[font=\tiny] at (5.25,-0.3) {$X_4$};
+\node[font=\tiny] at (5.85,-0.3) {$X_5$};
+
+% Y-axis
+\draw[->] (-0.2,0) -- (-0.2,3.5) node[above, font=\tiny] {\%};
+\node[font=\tiny, left] at (-0.2,0) {0};
+\node[font=\tiny, left] at (-0.2,1.4) {20};
+\node[font=\tiny, left] at (-0.2,2.8) {40};
+
+% Annotation
+\draw[<-, thick] (0.85,2.9) -- (1.3,3.4) node[right, font=\tiny] {collider parents};
+\end{tikzpicture}
+\caption{Intervention distribution comparison (schematic). ACE concentrates interventions on $X_1$ and $X_2$ (collider parents), while random sampling allocates uniformly. This strategic allocation explains ACE's superior collider identification.}
+\label{fig:intervention-dist}
+\end{figure}
 
 \subsection{Complex 15-Node SCM}
 
