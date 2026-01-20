@@ -1686,66 +1686,58 @@ def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_
     return final_losses
 
 
-def compute_diversity_penalty(recent_targets, max_concentration=0.5, penalty_weight=200.0, recent_window=100):
+def compute_unified_diversity_score(target, recent_targets, all_nodes, max_concentration=0.4, recent_window=100):
     """
-    Compute penalty for intervention distribution concentration.
+    Unified diversity score - consolidates all diversity concerns into one function.
     
-    Based on analysis: Recent runs showed 69.4% concentration on X2, requiring constant
-    hard-cap enforcement. This function provides a smooth penalty to discourage concentration.
+    SIMPLIFIED Jan 20: Merged diversity_penalty, coverage_bonus, and undersample_bonus.
+    
+    Computes:
+    1. Entropy bonus (encourages balanced distribution across all nodes)
+    2. Undersampling bonus (rewards intervening on neglected nodes)
+    3. Concentration penalty (penalizes oversampling any single node)
     
     Args:
+        target: Current intervention target
         recent_targets: List of recent intervention targets
-        max_concentration: Maximum allowed fraction for any single target (e.g., 0.5 = 50%)
-        penalty_weight: Weight for concentration penalty
-        recent_window: Window size for computing concentration
+        all_nodes: List of all possible nodes
+        max_concentration: Maximum allowed concentration (e.g., 0.4 = 40%)
+        recent_window: Window size for computing statistics
         
     Returns:
-        penalty: Negative reward (penalty) if concentration exceeds threshold
+        score: Unified diversity score (positive = good diversity)
     """
-    if len(recent_targets) < 20:  # Need enough samples
+    if len(recent_targets) < 20:
         return 0.0
     
     recent = recent_targets[-recent_window:]
-    target_counts = Counter(recent)
+    counts = Counter(recent)
     total = len(recent)
     
-    max_count = max(target_counts.values()) if target_counts else 0
-    concentration = max_count / total if total > 0 else 0
+    # 1. ENTROPY: Reward balanced distribution
+    probs = [counts[n] / total for n in all_nodes]
+    entropy = -sum(p * np.log(p + 1e-10) for p in probs if p > 0)
+    entropy_bonus = 50.0 * entropy  # Scale to be significant
     
-    # Smooth penalty that increases with concentration above threshold
+    # 2. UNDERSAMPLING: Reward intervening on neglected nodes
+    expected_freq = 1.0 / len(all_nodes)
+    actual_freq = counts[target] / total
+    deficit = expected_freq - actual_freq
+    undersample_bonus = 200.0 * max(0, deficit)  # Only reward if undersampled
+    
+    # 3. CONCENTRATION PENALTY: Penalize if any node over threshold
+    max_count = max(counts.values())
+    concentration = max_count / total
     if concentration > max_concentration:
         excess = concentration - max_concentration
-        penalty = -penalty_weight * excess
-        return penalty
+        concentration_penalty = -300.0 * excess  # Strong penalty
+    else:
+        concentration_penalty = 0.0
     
-    return 0.0
-
-
-def compute_coverage_bonus(recent_targets, all_nodes, bonus_per_unique=10.0, recent_window=100):
-    """
-    Compute bonus for diverse exploration across nodes.
+    # Combine all diversity concerns
+    total_score = entropy_bonus + undersample_bonus + concentration_penalty
     
-    Encourages the policy to try all nodes rather than focusing on a subset.
-    
-    Args:
-        recent_targets: List of recent intervention targets
-        all_nodes: List of all possible target nodes
-        bonus_per_unique: Bonus per unique node explored
-        recent_window: Window for computing coverage
-        
-    Returns:
-        bonus: Positive reward for diverse exploration
-    """
-    if len(recent_targets) < 10:
-        return 0.0
-    
-    recent = recent_targets[-recent_window:]
-    unique_targets = len(set(recent))
-    
-    # Bonus proportional to unique nodes explored
-    bonus = bonus_per_unique * unique_targets
-    
-    return bonus
+    return total_score
 
 
 # ----------------------------------------------------------------
@@ -1954,18 +1946,18 @@ def main():
     else:
         logging.info("✗ Early stopping disabled (use --early_stopping)")
     
-    logging.info(f"✓ Observational Training: interval={args.obs_train_interval}, samples={args.obs_train_samples}, epochs={args.obs_train_epochs}")
-    
     if args.use_dedicated_root_learner:
-        logging.info(f"✓ Dedicated Root Learner: interval={args.dedicated_root_interval} - RECOMMENDED for X1/X4")
-    if args.root_fitting:
-        logging.info(f"✓ Root Fitting: interval={args.root_fit_interval}, samples={args.root_fit_samples}, epochs={args.root_fit_epochs}")
-    if not args.root_fitting and not args.use_dedicated_root_learner:
-        logging.info("✗ Root learning disabled (use --root_fitting or --use_dedicated_root_learner)")
+        logging.info(f"✓ Dedicated Root Learner: interval={args.dedicated_root_interval} - PRIMARY root learning method")
+    else:
+        logging.info(f"✗ Dedicated root learner disabled - will use observational training fallback")
+        logging.info(f"  Obs Training: interval={args.obs_train_interval}, samples={args.obs_train_samples}, epochs={args.obs_train_epochs}")
     
-    logging.info(f"✓ Diversity Penalties: weight={args.diversity_reward_weight}, max_concentration={args.max_concentration*100:.0f}% (STRICTER)")
-    logging.info(f"✓ Hard Cap Threshold: 60% (reduced from 70%)")
-    logging.info(f"✓ Undersampled Bonus: {args.undersampled_bonus} (INCREASED from 100.0)")
+    logging.info(f"✓ SIMPLIFIED REWARD SYSTEM: 3 components (was 11)")
+    logging.info(f"  - Information gain (primary objective)")
+    logging.info(f"  - Node importance (parent of high-loss nodes)")
+    logging.info(f"  - Unified diversity (entropy + undersampling + concentration)")
+    logging.info(f"✓ Diversity weight: {args.diversity_reward_weight}, max_concentration: {args.max_concentration*100:.0f}%")
+    logging.info(f"✓ Hard Cap Threshold: 60% (backup safety mechanism)")
     
     if args.update_reference_interval > 0:
         logging.info(f"✓ Reference Policy Updates: every {args.update_reference_interval} episodes")
@@ -2051,15 +2043,8 @@ def main():
             dedicated_root_learner.apply_to_student(current_student)
             logging.info(f"[Dedicated Root Learner] Trained and applied at episode {episode}: {losses}")
         
-        # NEW: Root-specific distribution fitting (fallback or additional)
-        # Addresses X1/X4 failure to learn (0.879→0.879, 1.506→1.564 in recent runs)
-        if args.root_fitting and root_nodes and episode > 0 and episode % args.root_fit_interval == 0:
-            fit_root_distributions(
-                current_student, M_star, critic, root_nodes,
-                n_samples=args.root_fit_samples,
-                epochs=args.root_fit_epochs,
-                dedicated_learner=dedicated_root_learner if args.use_dedicated_root_learner else None
-            )
+        # SIMPLIFIED: Use only dedicated root learner (if enabled), skip redundant root_fitting
+        # Dedicated learner is more isolated and effective than mixed approach
 
         if episode % 10 == 0:
             # Report cumulative parsing statistics every 10 episodes
@@ -2186,94 +2171,39 @@ def main():
                     norm_weight = node_weight / denom
                     under_sample = 1.0 / np.sqrt(1.0 + episode_action_counts.get(tgt, 0))
                     cov_bonus = args.cov_bonus * norm_weight * under_sample
-                    # Value novelty: prefer values that expand coverage for the same target.
-                    v = float(plan.get("value", 0.0))
-                    recent_vals = list(recent_values_by_target.get(tgt, []))
-                    if len(recent_vals) >= 10:
-                        mu = float(np.mean(recent_vals))
-                        sd = float(np.std(recent_vals)) + 1e-3
-                        z = abs(v - mu) / sd
-                        val_bonus = args.val_bonus * float(np.clip(z, 0.0, 3.0))
-                    else:
-                        val_bonus = 0.0
-
-                    # Value coverage: bonus for exploring under-sampled bins for this target.
-                    n_bins = max(2, int(args.n_value_bins))
-                    bidx = _bin_index(v, args.value_min, args.value_max, n_bins)
-                    bin_hist = list(recent_value_bins_by_target.get(tgt, []))
-                    bin_ct = bin_hist.count(bidx) if bin_hist is not None else 0
-                    bin_bonus = float(args.bin_bonus) / np.sqrt(1.0 + float(bin_ct))
-
-                    # Parent balance bonus (esp. X1 vs X2 to identify X3's multi-parent mechanism).
-                    bal_bonus = float(args.parent_balance_bonus) * float(parent_balance.get(tgt, 0.0)) / (denom + 1e-8)
-
-                    # Under-sampling bonus: strong incentive for severely neglected nodes
-                    # If a node has been sampled much less than expected, boost it significantly
-                    undersample_bonus = 0.0
-                    if len(recent_action_counts) >= 20:
-                        expected_frac = 1.0 / len(dsl.nodes)
-                        actual_count = sum(1 for a in recent_action_counts if a == tgt)
-                        actual_frac = actual_count / len(recent_action_counts)
-                        deficit = expected_frac - actual_frac
-                        if deficit > 0.05:  # More than 5% below expected
-                            # Strong exponential bonus for severely under-sampled nodes
-                            undersample_bonus = float(args.undersampled_bonus) * (deficit ** 1.5) * 100.0
-
-                    # Disentanglement bonus (Triangle Breaking)
-                    # This specifically addresses the X1->X2->X3 structure where we fail to learn X3
-                    # because X1 and X2 are collinear in observational (and DO(X1)) data.
-                    disent_bonus = _disentanglement_bonus(M_star.graph, tgt, node_losses_start)
-
-                    # Penalize intervening on leaves (no descendants) to focus on informative actions.
-                    leaf = False
-                    try:
-                        leaf = len(list(M_star.graph.successors(tgt))) == 0
-                    except Exception:
-                        leaf = False
-                    leaf_pen = float(args.leaf_penalty) if leaf else 0.0
-
-                    # Penalize collapse if we're repeating the recent-top node too much.
-                    # Enhanced: exponential penalty for severe collapse
-                    collapse_pen = 0.0
-                    if top_node is not None and tgt == top_node and top_frac > float(args.collapse_threshold):
-                        excess = float(top_frac - float(args.collapse_threshold))
-                        # Quadratic penalty: becomes very severe as collapse worsens
-                        collapse_pen = float(args.collapse_penalty) * (excess ** 2) * 100.0
+                    # SIMPLIFIED REWARD SYSTEM (Jan 20 Simplification)
+                    # Removed 6 redundant components: val_bonus, bin_bonus, bal_bonus, 
+                    # disent_bonus, leaf_pen, collapse_pen
+                    # Consolidated diversity: diversity_penalty, coverage_bonus, undersample_bonus → unified
                     
-                    # NEW: Multi-objective diversity penalties
-                    # Based on analysis: 69.4% X2 concentration required constant hard-cap enforcement
-                    # This provides smooth gradient to encourage balanced exploration
-                    diversity_penalty = compute_diversity_penalty(
-                        list(recent_action_counts),
-                        max_concentration=args.max_concentration,
-                        penalty_weight=args.concentration_penalty,
-                        recent_window=100
-                    )
+                    # 1. NODE IMPORTANCE: Intervene on parents of high-loss nodes
+                    node_importance = cov_bonus  # Already computed (node_weight * under_sample)
                     
-                    # NEW: Coverage bonus for exploring multiple nodes
-                    coverage_bonus = compute_coverage_bonus(
-                        list(recent_action_counts),
+                    # 2. UNIFIED DIVERSITY SCORE: All diversity concerns in one function
+                    unified_diversity = compute_unified_diversity_score(
+                        target=tgt,
+                        recent_targets=list(recent_action_counts),
                         all_nodes=dsl.nodes,
-                        bonus_per_unique=10.0,
+                        max_concentration=args.max_concentration,
                         recent_window=100
                     )
                     
-                    # Multi-objective score combining loss improvement + diversity
-                    # Weights: 1.0 for base rewards, args.diversity_reward_weight for diversity
-                    base_score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus + disent_bonus + undersample_bonus - leaf_pen - collapse_pen
-                    diversity_score = diversity_penalty + coverage_bonus
+                    # 3. FINAL SCORE: Information gain + node importance + diversity
+                    # Simple, interpretable, no redundancy
+                    score = (
+                        reward +                                    # Information gain (primary)
+                        node_importance +                           # Parent of high-loss nodes
+                        args.diversity_reward_weight * unified_diversity  # Balanced exploration
+                    )
                     
-                    score = base_score + args.diversity_reward_weight * diversity_score
                     candidates.append((cmd_str, reward, cov_bonus, score, plan))
                     
-                    # NEW: Detailed diagnostic logging every 50 steps for first 3 candidates
+                    # SIMPLIFIED: Diagnostic logging for new reward system
                     if episode % 10 == 0 and step % 50 == 0 and k < 3:
                         logging.info(
-                            f"    [Bonus Detail] Candidate {k+1}: target={tgt}, "
-                            f"reward={reward:.2f}, cov={cov_bonus:.2f}, val={val_bonus:.2f}, "
-                            f"bin={bin_bonus:.2f}, bal={bal_bonus:.2f}, disent={disent_bonus:.2f}, "
-                            f"undersample={undersample_bonus:.2f}, leaf_pen={leaf_pen:.2f}, "
-                            f"collapse_pen={collapse_pen:.2f}, score={score:.2f}"
+                            f"    [Simplified] Candidate {k+1}: target={tgt}, "
+                            f"reward={reward:.2f}, node_importance={cov_bonus:.2f}, "
+                            f"diversity={unified_diversity:.2f}, score={score:.2f}"
                         )
 
             if step_any_valid:
@@ -2638,19 +2568,9 @@ def main():
                 real_data = executor.run_experiment(winner_plan)
                 learner.train_step(real_data, n_epochs=args.learner_epochs)
                 
-                # --- CRITICAL FIX: Periodic Observational Training ---
-                # When heavily intervening on one node (e.g., X2), the student never sees
-                # that node's mechanism under natural conditions, causing catastrophic forgetting.
-                # Solution: Periodically inject observational (no intervention) data.
-                if args.obs_train_interval > 0 and step > 0 and step % args.obs_train_interval == 0:
-                    obs_data = M_star.generate(n_samples=args.obs_train_samples, interventions=None)
-                    obs_batch = {"data": obs_data, "intervened": None}
-                    
-                    # Train on observational data to preserve all mechanism relationships
-                    learner.train_step(obs_batch, n_epochs=args.obs_train_epochs)
-                    
-                    if step % 10 == 0:  # Log occasionally
-                        logging.info(f"  [Obs Training] Injected {args.obs_train_samples} observational samples at step {step}")
+                # SIMPLIFIED: Observational training now handled by dedicated root learner only
+                # Removed redundant step-level observational training (was every 3 steps)
+                # Dedicated root learner trains every 3 episodes instead (more efficient)
         
         # --- EARLY STOPPING CHECKS ---
         # Check if training has saturated (most steps producing zero reward)
