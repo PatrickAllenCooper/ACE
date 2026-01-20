@@ -1417,14 +1417,28 @@ class EarlyStopping:
     
     UPDATE Jan 20: Added min_episodes to prevent stopping too early.
     Initial testing showed episode 8 was too early (X5 hadn't converged).
+    
+    UPDATE Jan 20 v2: Added per-node convergence checking.
+    Test showed global zero-reward check stops before slow learners (X5) converge.
     """
-    def __init__(self, patience=20, min_delta=0.01, min_episodes=30):
+    def __init__(self, patience=20, min_delta=0.01, min_episodes=30, 
+                 node_targets=None):
         self.patience = patience
         self.min_delta = min_delta
-        self.min_episodes = min_episodes  # Don't stop before this many episodes
+        self.min_episodes = min_episodes
         self.counter = 0
         self.best_loss = float('inf')
         self.episodes_no_improvement = 0
+        
+        # Per-node convergence tracking
+        self.node_targets = node_targets or {
+            'X1': 1.0,   # Roots are hard
+            'X2': 0.5,   # Linear should be easy
+            'X3': 0.5,   # Collider medium
+            'X4': 1.0,   # Root hard
+            'X5': 0.5    # Quadratic medium
+        }
+        self.node_converged_count = {node: 0 for node in self.node_targets}
         
     def check_loss(self, current_loss):
         """Check if we should stop based on loss improvement."""
@@ -1442,10 +1456,47 @@ class EarlyStopping:
                 return True
         return False
     
+    def check_per_node_convergence(self, node_losses, patience=10):
+        """
+        Check if ALL nodes have converged to their targets.
+        More intelligent than zero-reward check - accounts for different node timescales.
+        """
+        if len(node_losses) == 0:
+            return False
+            
+        # Check each node against its target
+        all_converged = True
+        converged_nodes = []
+        unconverged_nodes = []
+        
+        for node, loss in node_losses.items():
+            target = self.node_targets.get(node, 1.0)
+            if loss < target:
+                self.node_converged_count[node] += 1
+                if self.node_converged_count[node] >= patience:
+                    converged_nodes.append(f"{node}:{loss:.3f}")
+            else:
+                self.node_converged_count[node] = 0
+                all_converged = False
+                unconverged_nodes.append(f"{node}:{loss:.3f}(target<{target})")
+        
+        if all_converged and all(count >= patience for count in self.node_converged_count.values()):
+            logging.info(f"⚠️  Early stopping: ALL nodes converged for {patience} episodes")
+            logging.info(f"   Converged: {', '.join(converged_nodes)}")
+            return True
+        
+        # Log progress every check
+        if len(unconverged_nodes) > 0:
+            logging.debug(f"  [Convergence] Still training: {', '.join(unconverged_nodes)}")
+            
+        return False
+    
     def check_zero_rewards(self, recent_rewards, threshold=0.85):
         """
         Check if too many recent steps have zero reward (training saturation).
         Threshold: fraction of steps that must have zero reward to trigger stopping.
+        
+        NOTE: This is a fallback. Per-node convergence is preferred.
         """
         if len(recent_rewards) < 50:  # Need enough samples
             return False
@@ -1460,15 +1511,101 @@ class EarlyStopping:
         return False
 
 
-def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_samples=500, epochs=100):
+class DedicatedRootLearner:
+    """
+    Dedicated learner for root node distributions that ONLY trains on observational data.
+    
+    Problem: Root nodes don't learn from interventional data because DO(X=v) overrides
+    the natural distribution. Mixing interventional and observational training is suboptimal.
+    
+    Solution: Separate model that only sees observational data, never interventional.
+    This model learns ONLY the root distributions X1~N(0,1), X4~N(2,1).
+    """
+    def __init__(self, root_nodes):
+        self.root_nodes = root_nodes
+        self.distributions = {}
+        for node in root_nodes:
+            self.distributions[node] = {
+                'mu': nn.Parameter(torch.zeros(1)),
+                'log_sigma': nn.Parameter(torch.zeros(1))  # Log for unconstrained optimization
+            }
+        self.optimizer = optim.Adam([p for d in self.distributions.values() for p in d.values()], lr=0.01)
+        
+    def fit(self, observational_data, epochs=200):
+        """Fit root distributions using MLE on observational data."""
+        losses_before = {}
+        losses_after = {}
+        
+        for node in self.root_nodes:
+            if node in observational_data:
+                samples = observational_data[node]
+                true_mu = samples.mean()
+                true_sigma = samples.std()
+                
+                with torch.no_grad():
+                    pred_mu = self.distributions[node]['mu'].item()
+                    pred_sigma = torch.exp(self.distributions[node]['log_sigma']).item()
+                    losses_before[node] = abs(pred_mu - true_mu.item()) + abs(pred_sigma - true_sigma.item())
+        
+        # Train
+        for epoch in range(epochs):
+            self.optimizer.zero_grad()
+            total_loss = 0.0
+            
+            for node in self.root_nodes:
+                if node in observational_data:
+                    samples = observational_data[node]
+                    pred_mu = self.distributions[node]['mu']
+                    pred_sigma = torch.exp(self.distributions[node]['log_sigma'])
+                    
+                    # Negative log-likelihood loss
+                    loss = 0.5 * torch.mean(((samples - pred_mu) / pred_sigma) ** 2) + torch.log(pred_sigma)
+                    total_loss += loss
+            
+            if total_loss > 0:
+                total_loss.backward()
+                self.optimizer.step()
+        
+        # Log results
+        for node in self.root_nodes:
+            if node in observational_data:
+                samples = observational_data[node]
+                true_mu = samples.mean()
+                true_sigma = samples.std()
+                
+                with torch.no_grad():
+                    pred_mu = self.distributions[node]['mu'].item()
+                    pred_sigma = torch.exp(self.distributions[node]['log_sigma']).item()
+                    losses_after[node] = abs(pred_mu - true_mu.item()) + abs(pred_sigma - true_sigma.item())
+        
+        logging.info(f"[Dedicated Root Learner] Before: {losses_before}, After: {losses_after}")
+        return losses_after
+    
+    def apply_to_student(self, student_scm):
+        """Copy learned root distributions to student SCM."""
+        for node in self.root_nodes:
+            if node in student_scm.mechanisms:
+                mech = student_scm.mechanisms[node]
+                if isinstance(mech, nn.ParameterDict):
+                    with torch.no_grad():
+                        mech['mu'].copy_(self.distributions[node]['mu'])
+                        # Convert log_sigma to sigma for student
+                        sigma_val = torch.exp(self.distributions[node]['log_sigma'])
+                        mech['sigma'].copy_(sigma_val)
+
+
+def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_samples=500, epochs=100, 
+                          dedicated_learner=None):
     """
     Explicitly fit root node distributions using observational data.
+    
+    UPDATE Jan 20: Now supports optional dedicated root learner for better isolation.
     
     Problem: Root nodes (X1~N(0,1), X4~N(2,1)) don't learn from interventional data
              because interventions DO(X1=v) override the natural distribution.
              
-    Solution: Periodically train on pure observational data where roots are sampled
-              from their natural distributions.
+    Solution: Train on pure observational data where roots are sampled from natural distributions.
+              If dedicated_learner provided, use that; otherwise train student directly.
               
     Args:
         student_scm: StudentSCM to train
@@ -1477,13 +1614,21 @@ def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_
         root_nodes: List of root node names (nodes with no parents)
         n_samples: Number of observational samples
         epochs: Training epochs for root fitting
+        dedicated_learner: Optional DedicatedRootLearner for isolated training
     """
     logging.info(f"[Root Fitting] Fitting {len(root_nodes)} root nodes: {root_nodes}")
     
     # Generate pure observational data (no interventions)
     obs_data = ground_truth_scm.generate(n_samples=n_samples, interventions=None)
     
-    # Train student on this data with focus on root distributions
+    if dedicated_learner is not None:
+        # Use dedicated learner (preferred - better isolation)
+        logging.info(f"[Root Fitting] Using dedicated root learner")
+        losses = dedicated_learner.fit(obs_data, epochs=epochs)
+        dedicated_learner.apply_to_student(student_scm)
+        return losses
+    
+    # Fallback: Train student directly (original method)
     optimizer = optim.Adam(student_scm.parameters(), lr=0.001)
     
     initial_losses = {}
@@ -1491,7 +1636,6 @@ def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_
         if node in student_scm.mechanisms:
             mech = student_scm.mechanisms[node]
             if isinstance(mech, nn.ParameterDict):
-                # Root node - has mu and sigma
                 with torch.no_grad():
                     pred_mu = mech['mu'].item()
                     pred_sigma = mech['sigma'].item()
@@ -1504,15 +1648,13 @@ def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_
     for epoch in range(epochs):
         optimizer.zero_grad()
         
-        # Compute loss for root nodes only
         total_loss = 0.0
         for node in root_nodes:
             if node in student_scm.mechanisms:
                 mech = student_scm.mechanisms[node]
                 if isinstance(mech, nn.ParameterDict):
-                    # Root node distribution fitting
                     pred_mu = mech['mu']
-                    pred_sigma = F.softplus(mech['sigma'])  # Ensure positive sigma
+                    pred_sigma = F.softplus(mech['sigma'])
                     
                     true_samples = obs_data[node]
                     true_mu = true_samples.mean()
@@ -1540,7 +1682,8 @@ def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_
                     true_sigma = true_samples.std().item()
                     final_losses[node] = abs(pred_mu - true_mu) + abs(pred_sigma - true_sigma)
     
-    logging.info(f"[Root Fitting] Complete - Initial losses: {initial_losses}, Final losses: {final_losses}")
+    logging.info(f"[Root Fitting] Complete - Initial: {initial_losses}, Final: {final_losses}")
+    return final_losses
 
 
 def compute_diversity_penalty(recent_targets, max_concentration=0.5, penalty_weight=200.0, recent_window=100):
@@ -1655,16 +1798,20 @@ def main():
     parser.add_argument("--early_stop_min_delta", type=float, default=0.01, help="Minimum improvement to reset patience")
     parser.add_argument("--early_stop_min_episodes", type=int, default=40, help="Minimum episodes before allowing early stop (prevents stopping too early)")
     parser.add_argument("--zero_reward_threshold", type=float, default=0.92, help="Stop if this fraction of recent steps have zero reward (increased from 0.85)")
+    parser.add_argument("--use_per_node_convergence", action="store_true", help="Use per-node convergence check (recommended - more intelligent than zero-reward)")
+    parser.add_argument("--node_convergence_patience", type=int, default=10, help="Episodes each node must stay converged before stopping")
     
     # NEW: Root-specific training
     parser.add_argument("--root_fitting", action="store_true", help="Enable root-specific distribution fitting")
     parser.add_argument("--root_fit_interval", type=int, default=5, help="Fit root distributions every N episodes")
     parser.add_argument("--root_fit_samples", type=int, default=500, help="Samples for root fitting")
     parser.add_argument("--root_fit_epochs", type=int, default=100, help="Epochs for root fitting")
+    parser.add_argument("--use_dedicated_root_learner", action="store_true", help="Use dedicated root learner (recommended - better isolation from interventional data)")
+    parser.add_argument("--dedicated_root_interval", type=int, default=3, help="Train dedicated root learner every N episodes")
     
     # NEW: Improved diversity penalties
     parser.add_argument("--diversity_reward_weight", type=float, default=0.3, help="Weight for diversity reward (0.0-1.0)")
-    parser.add_argument("--max_concentration", type=float, default=0.5, help="Maximum allowed concentration on any single node (e.g., 0.5 = 50%%)")
+    parser.add_argument("--max_concentration", type=float, default=0.4, help="Maximum allowed concentration on any single node (reduced to 40%% from 50%% based on test results)")
     parser.add_argument("--concentration_penalty", type=float, default=200.0, help="Penalty for exceeding max_concentration")
     
     # NEW: Reference policy updates
@@ -1799,19 +1946,25 @@ def main():
     logging.info("TRAINING IMPROVEMENTS ENABLED:")
     logging.info("="*70)
     if args.early_stopping:
-        logging.info(f"✓ Early Stopping: patience={args.early_stop_patience}, min_delta={args.early_stop_min_delta}")
-        logging.info(f"  Zero-reward threshold: {args.zero_reward_threshold*100:.0f}%")
+        logging.info(f"✓ Early Stopping: patience={args.early_stop_patience}, min_episodes={args.early_stop_min_episodes}, min_delta={args.early_stop_min_delta}")
+        if args.use_per_node_convergence:
+            logging.info(f"  Method: Per-node convergence (patience={args.node_convergence_patience}) - RECOMMENDED")
+        else:
+            logging.info(f"  Method: Zero-reward threshold ({args.zero_reward_threshold*100:.0f}%) - FALLBACK")
     else:
         logging.info("✗ Early stopping disabled (use --early_stopping)")
     
     logging.info(f"✓ Observational Training: interval={args.obs_train_interval}, samples={args.obs_train_samples}, epochs={args.obs_train_epochs}")
     
+    if args.use_dedicated_root_learner:
+        logging.info(f"✓ Dedicated Root Learner: interval={args.dedicated_root_interval} - RECOMMENDED for X1/X4")
     if args.root_fitting:
         logging.info(f"✓ Root Fitting: interval={args.root_fit_interval}, samples={args.root_fit_samples}, epochs={args.root_fit_epochs}")
-    else:
-        logging.info("✗ Root fitting disabled (use --root_fitting)")
+    if not args.root_fitting and not args.use_dedicated_root_learner:
+        logging.info("✗ Root learning disabled (use --root_fitting or --use_dedicated_root_learner)")
     
-    logging.info(f"✓ Diversity Penalties: weight={args.diversity_reward_weight}, max_concentration={args.max_concentration*100:.0f}%")
+    logging.info(f"✓ Diversity Penalties: weight={args.diversity_reward_weight}, max_concentration={args.max_concentration*100:.0f}% (STRICTER)")
+    logging.info(f"✓ Hard Cap Threshold: 60% (reduced from 70%)")
     logging.info(f"✓ Undersampled Bonus: {args.undersampled_bonus} (INCREASED from 100.0)")
     
     if args.update_reference_interval > 0:
@@ -1833,6 +1986,12 @@ def main():
     if root_nodes:
         logging.info(f"Root nodes identified (no parents): {root_nodes}")
     
+    # NEW: Dedicated root learner initialization
+    dedicated_root_learner = None
+    if args.use_dedicated_root_learner and root_nodes:
+        dedicated_root_learner = DedicatedRootLearner(root_nodes)
+        logging.info(f"✓ Dedicated root learner initialized for {root_nodes}")
+    
     # NEW: Early stopping initialization
     early_stopper = None
     recent_rewards_for_stopping = deque(maxlen=100)  # Track last 100 step rewards
@@ -1843,6 +2002,10 @@ def main():
             min_episodes=args.early_stop_min_episodes
         )
         logging.info(f"✓ Early stopping enabled (patience={args.early_stop_patience}, min_delta={args.early_stop_min_delta}, min_episodes={args.early_stop_min_episodes})")
+        if args.use_per_node_convergence:
+            logging.info(f"  Using per-node convergence (patience={args.node_convergence_patience})")
+        else:
+            logging.info(f"  Using zero-reward threshold ({args.zero_reward_threshold*100:.0f}%)")
 
     recent_action_counts = deque(maxlen=500)
     recent_values_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
@@ -1881,13 +2044,21 @@ def main():
             if hasattr(policy_net, 'generation_stats'):
                 logging.info(f"  Current generation: {policy_net.generation_stats}")
         
-        # NEW: Root-specific distribution fitting
+        # NEW: Dedicated root learner training (more frequent, better isolation)
+        if args.use_dedicated_root_learner and dedicated_root_learner and episode > 0 and episode % args.dedicated_root_interval == 0:
+            obs_data = M_star.generate(n_samples=1000, interventions=None)
+            losses = dedicated_root_learner.fit(obs_data, epochs=200)
+            dedicated_root_learner.apply_to_student(current_student)
+            logging.info(f"[Dedicated Root Learner] Trained and applied at episode {episode}: {losses}")
+        
+        # NEW: Root-specific distribution fitting (fallback or additional)
         # Addresses X1/X4 failure to learn (0.879→0.879, 1.506→1.564 in recent runs)
         if args.root_fitting and root_nodes and episode > 0 and episode % args.root_fit_interval == 0:
             fit_root_distributions(
                 current_student, M_star, critic, root_nodes,
                 n_samples=args.root_fit_samples,
-                epochs=args.root_fit_epochs
+                epochs=args.root_fit_epochs,
+                dedicated_learner=dedicated_root_learner if args.use_dedicated_root_learner else None
             )
 
         if episode % 10 == 0:
@@ -2490,23 +2661,33 @@ def main():
                     logging.info(f"  [Early Stop] Skipping checks (episode {episode} < min {early_stopper.min_episodes})")
             else:
                 # Get final loss for this episode
-                final_loss, _ = critic.evaluate_mechanisms_detailed(current_student)
+                final_loss, node_losses_final = critic.evaluate_mechanisms_detailed(current_student)
                 
-                # Check loss-based stopping
-                if early_stopper.check_loss(final_loss):
-                    logging.info(f"✓ Early stopping triggered at episode {episode}/{args.episodes}")
-                    logging.info(f"   Final loss: {final_loss:.4f}, episodes trained: {episode+1}")
-                    break
-                
-                # Check zero-reward-based stopping (training saturation)
-                if len(recent_rewards_for_stopping) >= 100:
-                    if early_stopper.check_zero_rewards(
-                        list(recent_rewards_for_stopping),
-                        threshold=args.zero_reward_threshold
+                # PRIORITY 1: Per-node convergence check (more intelligent)
+                if args.use_per_node_convergence:
+                    if early_stopper.check_per_node_convergence(
+                        node_losses_final,
+                        patience=args.node_convergence_patience
                     ):
-                        logging.info(f"✓ Training saturation detected at episode {episode}/{args.episodes}")
-                        logging.info(f"   Episodes trained: {episode+1}")
+                        logging.info(f"✓ Per-node convergence detected at episode {episode}/{args.episodes}")
+                        logging.info(f"   Final loss: {final_loss:.4f}, episodes trained: {episode+1}")
                         break
+                else:
+                    # Fallback: Check loss-based stopping
+                    if early_stopper.check_loss(final_loss):
+                        logging.info(f"✓ Early stopping triggered at episode {episode}/{args.episodes}")
+                        logging.info(f"   Final loss: {final_loss:.4f}, episodes trained: {episode+1}")
+                        break
+                    
+                    # Check zero-reward-based stopping (training saturation)
+                    if len(recent_rewards_for_stopping) >= 100:
+                        if early_stopper.check_zero_rewards(
+                            list(recent_rewards_for_stopping),
+                            threshold=args.zero_reward_threshold
+                        ):
+                            logging.info(f"✓ Training saturation detected at episode {episode}/{args.episodes}")
+                            logging.info(f"   Episodes trained: {episode+1}")
+                            break
             
             # Log progress every 10 episodes
             if episode % 10 == 0 and len(recent_rewards_for_stopping) >= 50:

@@ -60,6 +60,8 @@ python ace_experiments.py \
     --early_stopping \
     --early_stop_patience 20 \
     --early_stop_min_episodes 40 \
+    --use_per_node_convergence \
+    --node_convergence_patience 10 \
     --zero_reward_threshold 0.92 \
     \
     --obs_train_interval 3 \
@@ -70,6 +72,8 @@ python ace_experiments.py \
     --root_fit_interval 5 \
     --root_fit_samples 500 \
     --root_fit_epochs 100 \
+    --use_dedicated_root_learner \
+    --dedicated_root_interval 3 \
     \
     --undersampled_bonus 200.0 \
     --diversity_reward_weight 0.3 \

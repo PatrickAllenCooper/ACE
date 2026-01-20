@@ -1,5 +1,61 @@
 # ACE Changelog
 
+## [2.1.0] - 2026-01-20 - Per-Node Convergence and Dedicated Root Learner
+
+### Added
+
+**Based on deep analysis of test results showing early stopping too aggressive and root learning issues:**
+
+#### DedicatedRootLearner Class
+- Separate model that ONLY trains on observational data
+- Never sees interventional data (better isolation)
+- Uses MLE for Gaussian distribution fitting
+- Addresses X4 anomaly (ACE: 1.038 vs baselines: 0.010)
+
+**Why:** Root nodes don't learn from interventional data because DO(X=v) overrides natural distribution.
+Dedicated learner with pure observational training provides better root learning.
+
+**Arguments:**
+```bash
+--use_dedicated_root_learner   # Enable dedicated learner (recommended)
+--dedicated_root_interval 3    # Train every 3 episodes
+```
+
+#### Per-Node Convergence Checking
+- Smart early stopping that checks if ALL nodes converged
+- Prevents stopping when only fast learners (X2, X3) done
+- Accounts for different node timescales (X2: 5 ep, X5: 40 ep)
+- Replaces simplistic zero-reward percentage check
+
+**Why:** Test stopped at episode 8 when only X2, X3 converged but X5 still at 0.898.
+Per-node check ensures ALL nodes meet targets before stopping.
+
+**Arguments:**
+```bash
+--use_per_node_convergence      # Use intelligent convergence (recommended)
+--node_convergence_patience 10  # Episodes each node must stay converged
+```
+
+### Changed
+
+- Hard cap threshold: 70% → 60% (test showed 72% X2 concentration)
+- Max concentration default: 50% → 40% (stricter diversity)
+- Enhanced startup logging (shows which features enabled)
+- Improved diagnostic messages throughout
+
+### Expected Impact
+
+**Episode Count:** 40-60 (vs 8 in test, 200 in old version)
+**Runtime:** 1.5-2.5h (vs 27 min test, 9h old)
+**Performance:** Total loss ~2.0 (vs 3.18 test, 1.92 old 200-ep run)
+
+**Per-Node:**
+- X4: 1.038 → ~0.5 (dedicated learner should match baseline performance)
+- X5: 0.898 → ~0.15 (40+ episodes allows convergence)
+- X1, X2, X3: Maintained or improved
+
+---
+
 ## [2.0.1] - 2026-01-20 - Early Stopping Calibration Fix
 
 ### Fixed
