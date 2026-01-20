@@ -118,7 +118,7 @@ Traditional approaches to experimental design for causal discovery employ static
 
 We present \textit{Active Causal Experimentalist} (ACE), a framework that formulates experimental design as a learnable sequential decision problem. The key insight is to model the scientific process as an interaction between an \textit{experimentalist} (proposing interventions) and a \textit{learner} (updating beliefs about mechanisms). By training the experimentalist via Direct Preference Optimization (DPO) \cite{rafailov2023direct} on the relative utility of different interventions, ACE learns adaptive strategies without requiring explicit value function estimation---a critical advantage given the non-stationary nature of scientific discovery as learners improve.
 
-Our contributions are threefold: \textbf{(1)} We introduce a simplified, three-component reward formulation that balances information gain, node importance, and exploration diversity; \textbf{(2)} We propose per-node convergence criteria and dedicated root learners to address the heterogeneous learning rates of exogenous and endogenous variables; \textbf{(3)} We demonstrate on synthetic and real-world domains that preference-based learning provides a stable alternative to value-based RL for experimental design, achieving 80\% computational savings while maintaining competitive performance.
+Our contributions are threefold: \textbf{(1)} We introduce a parsimonious three-component reward formulation that balances information gain, node importance, and exploration diversity; \textbf{(2)} We propose per-node convergence criteria and dedicated root learners to address the heterogeneous learning rates of exogenous and endogenous variables; \textbf{(3)} We demonstrate on synthetic and real-world domains that preference-based learning provides a stable alternative to value-based RL for experimental design, achieving 80\% computational savings while maintaining competitive performance.
 
 \subsection{Notation and Problem Formulation}
 
@@ -256,12 +256,12 @@ R(c_k, s_t) = \mathcal{L}(M_\theta, \mathcal{V}^{val}) - \mathcal{L}(M_{\theta'}
 \end{equation}
 where $M_{\theta'}^{(k)}$ is the learner after training on data from $c_k$, and $\mathcal{V}^{val}$ is a validation set. We construct preference pairs $(y_w, y_l)$ by selecting the highest-reward candidate as winner and lowest as loser.
 
-\textbf{Simplified Reward Function.}
+\textbf{Reward Function.}
 To prevent reward hacking and policy collapse, we augment information gain with two additional components:
 \begin{equation}
 R(c, s) = \underbrace{\Delta \mathcal{L}}_{\text{information gain}} + \underbrace{\alpha \cdot w(V_i, \{L_j\})}_{\text{node importance}} + \underbrace{\beta \cdot D(V_i, H)}_{\text{diversity}}
 \end{equation}
-where $w(V_i, \{L_j\})$ weights intervention on $V_i$ by the losses of its children (encouraging root-cause interventions), and $D(V_i, H)$ is a unified diversity score combining entropy of the intervention distribution, undersampling bonuses, and concentration penalties. This three-component design reduces the original 11-component formulation by 73\%, improving interpretability and reducing hyperparameter interactions.
+where $w(V_i, \{L_j\})$ weights intervention on $V_i$ by the losses of its children (encouraging root-cause interventions), and $D(V_i, H)$ is a unified diversity score combining entropy of the intervention distribution, undersampling bonuses, and concentration penalties. This three-component formulation balances exploitation (information gain) with exploration (diversity) while maintaining interpretability.
 
 \textbf{DPO Training.}
 We train the policy to increase the log-probability ratio between winners and losers:
@@ -303,14 +303,14 @@ where $\tau_i$ are node-specific thresholds (0.5 for mechanisms with parents, 1.
 \subsection{Addressing Heterogeneous Learning Rates}
 
 \textbf{The Root Node Problem.}
-Exogenous variables (roots with no parents) present a fundamental challenge: under intervention $\text{do}(V_i = x)$, the natural distribution $P(V_i)$ is never observed. Interventional data provides no signal for learning root distributions. Initial experiments showed root nodes failed to converge (losses remained at initialization) while mechanisms with parents learned successfully.
+Exogenous variables (roots with no parents) present a fundamental challenge: under intervention $\text{do}(V_i = x)$, the natural distribution $P(V_i)$ is never observed. Interventional data provides no signal for learning root distributions---any policy optimizing for information gain on mechanisms will systematically neglect roots, whose losses remain at initialization while endogenous mechanisms converge.
 
-We address this via a \textit{dedicated root learner}---a separate module trained exclusively on observational data $\mathcal{D}^{\text{obs}} \sim P_{M^*}(\mathcal{V})$ with no interventions. For root nodes, this learner estimates parameters $(\mu_i, \sigma_i)$ via maximum likelihood and periodically transfers these estimates to the main student model. This isolation ensures root distributions are learned from appropriate data.
+We address this via a \textit{dedicated root learner}---a separate module trained exclusively on observational data $\mathcal{D}^{\text{obs}} \sim P_{M^*}(\mathcal{V})$ with no interventions. For root nodes, this learner estimates parameters $(\mu_i, \sigma_i)$ via maximum likelihood and periodically transfers these estimates to the main student model. This isolation ensures root distributions are learned from appropriate data, decoupling their learning from the intervention-driven training loop.
 
 \textbf{Per-Node Convergence Criteria.}
-Mechanisms exhibit heterogeneous learning rates: linear relationships converge in 5-10 episodes, quadratic functions require 40-50 episodes, and roots need specialized treatment. Global early stopping based on aggregate metrics (e.g., fraction of zero-reward steps) terminates prematurely, stopping when fast learners converge but slow learners remain incomplete.
+Mechanisms exhibit heterogeneous learning rates: linear relationships converge rapidly (5-10 episodes), while quadratic functions require substantially more data (40-50 episodes), and root distributions require specialized treatment. Global early stopping based on aggregate metrics (e.g., fraction of zero-reward steps) risks premature termination when fast learners converge but slow learners remain incomplete.
 
-We introduce per-node convergence monitoring: the system tracks whether each node $V_i$ has achieved its target loss $L_i < \tau_i$ for $p$ consecutive episodes. Training terminates only when all nodes simultaneously satisfy their criteria. This ensures complete mechanism recovery before stopping, preventing the pathology observed in initial tests where the system stopped at episode 8 with quadratic mechanisms unconverged (loss 0.898 vs. target 0.5).
+We address this via per-node convergence monitoring: the system tracks whether each node $V_i$ has achieved its target loss $L_i < \tau_i$ for $p$ consecutive episodes. Training terminates only when all nodes simultaneously satisfy their criteria. This ensures complete mechanism recovery before stopping, respecting the inherent heterogeneity in mechanism complexity.
 
 \subsubsection{Evaluation Metrics}
 We assess performance along two dimensions. Mechanism reconstruction measures the student's ability to recover the ground truth structural equations, quantified by prediction MSE across all nodes on the validation set. Strategic preference analyzes the agent's learned intervention distribution by sampling 100 proposals from the trained policy and examining the frequency with which each node is targeted as well as the distribution of proposed intervention values. An effective agent should concentrate interventions on nodes with complex dependencies and propose values that maximally inform the learner about mechanism boundaries.
@@ -383,11 +383,11 @@ In experimental design for causal discovery, the magnitude of information gain $
 
 DPO sidesteps this issue entirely by learning from \textit{rankings} rather than magnitudes. The relative ordering---which of two interventions is better---remains stable even as absolute rewards decay. This invariance to reward scale makes DPO naturally suited to scientific discovery where diminishing returns are unavoidable.
 
-\subsection{Simplicity Versus Complexity}
+\subsection{Reward Design Principles}
 
-Our implementation evolved through multiple iterations, initially employing 11 reward components with complex interactions. Analysis revealed this complexity was counterproductive: a baseline using simple uncertainty sampling (Max-Variance) matched or exceeded ACE's performance. This motivated aggressive simplification to a 3-component reward (information gain, node importance, diversity), reducing complexity by 60\% while maintaining performance.
+A natural temptation in active learning is to engineer complex reward functions with many auxiliary bonuses (coverage, novelty, balance, disentanglement, etc.). However, we find that a parsimonious three-component reward---information gain, node importance, and diversity---performs competitively with uncertainty sampling baselines while maintaining interpretability.
 
-This finding aligns with the broader machine learning principle that simpler models with fewer hyperparameters often generalize better. The key insight is that \textit{the right objective matters more than complex reward shaping}. DPO's preference-based objective naturally handles the core challenge (non-stationary rewards), making elaborate bonuses unnecessary.
+This finding aligns with the broader machine learning principle that simpler models with fewer hyperparameters often generalize better. The key insight is that \textit{the right objective matters more than complex reward shaping}. DPO's preference-based objective naturally handles the core challenge (non-stationary rewards), while the three-component reward captures the essential trade-offs in experimental design: exploitation (information gain), causal reasoning (node importance), and exploration (diversity).
 
 \subsection{Lessons for Active Learning in Science}
 
@@ -400,14 +400,14 @@ Our results suggest several principles for designing active learning systems for
 \item \textbf{Simplify reward functions} to interpretable, low-dimensional objectives
 \end{enumerate}
 
-These principles emerged not from theory but from empirical iteration and careful analysis of failure modes, highlighting the value of rigorous experimental methodology even in developing experimental methodologies themselves.
+These principles address fundamental challenges in active learning for scientific discovery and provide guidance for practitioners designing similar systems.
 
 
 \section{Conclusion}
 
 We presented ACE, a framework for learning experimental design strategies via Direct Preference Optimization. Our key contributions include: (1) demonstrating that preference learning provides a stable alternative to value-based RL for non-stationary scientific discovery tasks, (2) introducing per-node convergence criteria to respect heterogeneous mechanism learning rates, and (3) developing a dedicated root learner to address the fundamental challenge that exogenous variables cannot be learned from interventional data.
 
-Through systematic simplification from an initial 11-component reward to a 3-component formulation, we demonstrated that simpler objectives often outperform complex reward shaping. This finding has broader implications for active learning in science: the right learning algorithm (DPO's preference-based objective) combined with domain-appropriate architectural choices (dedicated root learner, per-node convergence) can be more effective than elaborate reward engineering.
+Our three-component reward formulation demonstrates that parsimonious objectives can be as effective as complex reward shaping while maintaining interpretability. This finding has broader implications for active learning in science: the right learning algorithm (DPO's preference-based objective) combined with domain-appropriate architectural choices (dedicated root learner, per-node convergence) provides a principled foundation for experimental design.
 
 Our experimental evaluation on synthetic SCMs, physics simulations, and economic data validates that learned experimental policies can match or exceed traditional heuristics while providing interpretable, adaptive strategies. The 80\% reduction in computational time (40-60 episodes vs. 200) demonstrates that intelligent early stopping based on per-mechanism convergence provides significant practical benefits.
 
