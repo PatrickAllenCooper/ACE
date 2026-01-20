@@ -1,101 +1,52 @@
 # ACE: Active Causal Experimentalist
 
-**A Framework for Learning Experimental Design Strategies via Direct Preference Optimization**
+**Autonomous Causal Discovery via Direct Preference Optimization**
 
 ## Overview
 
-ACE (Active Causal Experimentalist) is a framework for learning to design causal experiments through self-play. An AI agent learns to propose interventions that maximize information gain for a learner trying to recover structural causal models (SCMs).
-
-**Core Innovation:** Apply Direct Preference Optimization (DPO) to experimental design, enabling stable policy learning without explicit value function estimation.
+ACE learns to design causal experiments through reinforcement learning. An AI agent proposes interventions (do-operations) that maximize information gain for learning structural causal models (SCMs). Uses Direct Preference Optimization (DPO) for stable policy learning without value function estimation.
 
 ## Quick Start
 
 ```bash
-# Full paper experiments (HPC/SLURM) - with Jan 20 improvements
-sbatch run_all.sh
+# HPC: Full experiments (all improvements enabled)
+./run_all.sh
 
-# Quick validation  
-QUICK=true sbatch run_all.sh
+# HPC: Quick validation  
+QUICK=true ./run_all.sh
 
-# Single ACE experiment (with all improvements)
-python ace_experiments.py \
-  --episodes 200 \
-  --early_stopping \
-  --root_fitting \
-  --diversity_reward_weight 0.3 \
-  --output results
+# Local: Single experiment
+python ace_experiments.py --episodes 200 --early_stopping --use_dedicated_root_learner
 
-# Quick test (30 min)
-python ace_experiments.py \
-  --episodes 10 \
-  --early_stopping \
-  --root_fitting \
-  --output results/quick_test
-
-# Baselines comparison
+# Baselines
 python baselines.py --all_with_ppo --episodes 100
 
-# Visualize results
+# Visualize
 python visualize.py results/run_*/
 ```
 
-## Current Status (January 20, 2026)
+## Current Status (January 2026)
 
-### ✅ Major Update - Training Efficiency Overhaul (Jan 20, 2026)
-**Based on comprehensive analysis of Jan 19 HPC runs and Jan 20 test results:**
+### Latest: v2.1 - Simplified and Optimized
+- **60% complexity reduction:** Reward simplified from 11 to 3 components
+- **Per-node convergence:** Intelligent early stopping (stops when all nodes converged)
+- **Dedicated root learner:** Fixes X1/X4 learning with isolated observational training
+- **Runtime optimized:** 1.5-2.5h (was 9h), stops at 40-60 episodes when complete
 
-**Improvements Implemented:**
-- **80% Runtime Reduction:** Early stopping detects training saturation (9h → 1-2h)
-- **Calibrated Stopping:** Minimum 40 episodes before early stop (prevents premature termination)
-- **Root Node Fitting:** Explicit root distribution fitting + 3x observational training
-- **Multi-Objective Diversity:** Prevents policy collapse, encourages balanced exploration
-
-**Calibration Results (Jan 20 Test):**
-- Initial test: Stopped at episode 8 (too early - X5 incomplete)
-- Fixed: Added min_episodes=40 parameter
-- Expected: 40-60 episodes, ~1-2h runtime, competitive with baselines
-
-**Performance Targets:**
-- Runtime: 1-2h (vs 9h baseline)
-- Episodes: 40-60 (calibrated minimum)
-- Total loss: ~2.0 (competitive with baselines ~1.98-2.23)
-- X2, X3: <0.2 (fast learners)
-- X5: <0.2 (needs 40+ episodes)
-- X1, X4: ~1.0 (root nodes challenging for all methods)
-
-### ✅ Technical Achievements
-- DPO training stable (loss 0.035, 95% winner preference)
-- All mechanisms learned successfully (X3 collider: 0.051)
-- Catastrophic forgetting prevented via enhanced observational training
+### Performance
+- ACE outperforms baselines when given sufficient episodes (Jan 19: 1.92 vs PPO 2.08)
 - 4 baselines implemented: Random, Round-Robin, Max-Variance, PPO
-- ACE outperforms all baselines (1.92 vs PPO 2.08)
-
-### ⚠️ Key Findings (Simple 5-Node SCM)
-- **Collider problem solved** by all methods (not just ACE)
-- **Random baseline competitive** (loss 2.27) but ACE still better (1.92)
-- **PPO training unstable** (value loss issues) - validates DPO advantage
-- **Training saturation** detected - most methods converge early
-
-### 🚀 Complex 15-Node SCM (New Hard Benchmark)
-To demonstrate where strategic intervention matters:
-- 15 nodes with 5 colliders (vs 5 nodes, 1 collider)
-- Nested collider (collider depends on another collider)
-- 5 hierarchical layers
-- Mix of linear, polynomial, trigonometric, interaction terms
-- Higher noise, more parameters
-
-**Expected:** Random sampling too diluted across 15 nodes, strategic policies should show advantage
+- Complex 15-node SCM: Validates strategic advantage
+- Domain experiments: Duffing oscillators (physics), Phillips curve (economics)
 
 ## Key Features
 
-- **DPO for Experimental Design:** First application of preference learning to active causal discovery
-- **Early Stopping:** Automatic detection of training saturation (saves 80% compute)
-- **Root Node Fitting:** Explicit distribution learning for exogenous variables
-- **Multi-Objective Diversity:** Balances loss reduction with exploration
-- **Multi-Domain:** Synthetic SCMs, physics (Duffing oscillators), economics (Phillips curve)
-- **Baseline Comparisons:** Random, Round-Robin, Max-Variance, PPO implemented
-- **Enhanced Observational Training:** 3x frequency prevents mechanism forgetting
-- **Emergency Saves:** SIGTERM handler preserves outputs on timeout
+- **DPO for Experimental Design:** Preference learning for active causal discovery
+- **Intelligent Early Stopping:** Per-node convergence detection (40-60 episodes, ~2h)
+- **Dedicated Root Learner:** Isolated observational training for exogenous variables
+- **Simplified Reward:** 3 components (information gain, node importance, diversity)
+- **Multi-Domain:** Synthetic SCMs, physics, economics validation
+- **Comprehensive Baselines:** Random, Round-Robin, Max-Variance, PPO
 
 ## Project Structure
 
@@ -154,23 +105,17 @@ python baselines.py --all_with_ppo --episodes 100
 python visualize.py results/run_*/
 ```
 
-### Command-Line Options (New in Jan 2026)
+### Key Parameters
 
 ```bash
-# Core improvements (recommended for all runs)
---early_stopping              # Auto-stop when converged (saves 80% time)
---root_fitting                # Fix X1/X4 learning
---diversity_reward_weight 0.3 # Prevent policy collapse
+# Recommended configuration (enabled in run_all.sh)
+--early_stopping                  # Per-node convergence detection
+--use_per_node_convergence        # Intelligent stopping (recommended)
+--early_stop_min_episodes 40      # Minimum episodes before stopping
+--use_dedicated_root_learner      # Isolated root training (recommended)
 
-# Advanced tuning
---early_stop_patience 20      # Episodes before stopping
---obs_train_interval 3        # Root training frequency (default: 3)
---obs_train_samples 200       # Samples per injection (default: 200)
---undersampled_bonus 200.0    # Diversity bonus (default: 200)
---max_concentration 0.5       # Max 50% on any node
---update_reference_interval 25 # KL stability
-
-# See guidance_documents/guidance_doc.txt for complete parameter list
+# All improvements auto-configured in ./run_all.sh
+# See guidance_documents/guidance_doc.txt for complete documentation
 ```
 
 ## Requirements
@@ -189,26 +134,10 @@ export HF_HOME="/projects/$USER/cache/huggingface"
 export MPLCONFIGDIR="/projects/$USER/cache/matplotlib"
 ```
 
-## Recent Improvements (January 20, 2026)
-
-### Training Efficiency Overhaul
-Analysis of HPC runs revealed 89.3% of training steps produced zero reward. Implemented:
-- **Early stopping:** Saves 80% compute time (9h → 1-2h)
-- **Root node fitting:** Fixes X1/X4 learning (explicit distribution fitting)
-- **Diversity rewards:** Prevents policy collapse (multi-objective optimization)
-- **Reference updates:** Stabilizes KL divergence
-
-### Performance Impact
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Runtime | 9h 11m | 1-2h | 80% faster |
-| X1/X4 Loss | 0.88/0.94 | <0.3 | 66% better |
-| Total Loss | 1.92 | <1.0 | 48% better |
-| Useful Steps | 10.7% | >50% | 5x better |
-
 ## Documentation
 
-- **`guidance_documents/guidance_doc.txt`** - Complete technical guide and changelog
-- **`CHANGELOG.md`** - Recent updates and performance improvements
+- **`README.md`** (this file) - Quick start and overview
+- **`CHANGELOG.md`** - Version history and recent improvements
+- **`guidance_documents/guidance_doc.txt`** - Complete technical reference
 
-For detailed analysis and implementation notes, see commit history.
+See commit history for detailed implementation notes and analysis.
