@@ -31,6 +31,8 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{amsthm}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
 
 
 % if you use cleveref..
@@ -363,13 +365,31 @@ We evaluate ACE across four domains of increasing complexity: a synthetic 5-node
 
 \begin{figure}[t]
 \centering
-% INSERT: \includegraphics[width=0.8\columnwidth]{figures/synthetic_scm.pdf}
-% DIAGRAM: Two disconnected subgraphs
-% Left: X1 -> X2 -> X3, X1 -> X3 (collider at X3)
-% Right: X4 -> X5
-% Label edges with mechanism types: linear, nonlinear, quadratic
-\fbox{\parbox{0.75\columnwidth}{\centering\vspace{2em}[Synthetic 5-Node SCM Diagram]\vspace{2em}}}
-\caption{Structure of the synthetic 5-node benchmark SCM. $X_3$ is a collider receiving edges from both $X_1$ and $X_2$. The disconnected subgraph $X_4 \to X_5$ tests quadratic mechanism learning.}
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    every node/.style={circle, draw, minimum size=0.8cm, font=\small},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    label/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}
+]
+% Left subgraph: collider structure
+\node (X1) {$X_1$};
+\node (X2) [right=of X1] {$X_2$};
+\node (X3) [right=of X2, fill=red!20] {$X_3$};
+
+\draw[arrow] (X1) -- node[label, above] {linear} (X2);
+\draw[arrow] (X2) -- node[label, above] {nonlin.} (X3);
+\draw[arrow] (X1) to[bend left=40] node[label, above] {} (X3);
+
+% Right subgraph: quadratic
+\node (X4) [right=1.8cm of X3] {$X_4$};
+\node (X5) [right=of X4] {$X_5$};
+
+\draw[arrow] (X4) -- node[label, above] {quad.} (X5);
+
+% Annotations
+\node[draw=none, below=0.3cm of X3, font=\scriptsize] {collider};
+\end{tikzpicture}
+\caption{Structure of the synthetic 5-node benchmark SCM. $X_3$ (shaded) is a collider receiving edges from both $X_1$ and $X_2$. The disconnected subgraph $X_4 \to X_5$ tests quadratic mechanism learning.}
 \label{fig:synthetic-scm}
 \end{figure}
 
@@ -396,12 +416,64 @@ ACE achieves [TOTAL\_MSE] total MSE in [NUM\_EPISODES] episodes compared to [BAS
 
 \begin{figure}[t]
 \centering
-% INSERT: \includegraphics[width=\columnwidth]{figures/complex_scm.pdf}
-% DIAGRAM: 15-node graph with 5 colliders highlighted
-% Show nested collider structure, mixed mechanism types
-% Color-code: roots (blue), colliders (red), other (gray)
-\fbox{\parbox{0.9\columnwidth}{\centering\vspace{3em}[Complex 15-Node SCM Diagram]\vspace{3em}}}
-\caption{Structure of the complex 15-node SCM. Collider nodes (red) require interventions on multiple parents for identification. Nested structures test the policy's ability to reason about causal depth.}
+\begin{tikzpicture}[
+    scale=0.7, transform shape,
+    node distance=0.9cm,
+    root/.style={circle, draw, fill=blue!20, minimum size=0.6cm, font=\scriptsize},
+    collider/.style={circle, draw, fill=red!25, minimum size=0.6cm, font=\scriptsize},
+    regular/.style={circle, draw, fill=gray!15, minimum size=0.6cm, font=\scriptsize},
+    arrow/.style={-{Stealth[length=1.5mm]}, thick}
+]
+% Layer 0: Roots
+\node[root] (R1) at (0,0) {$R_1$};
+\node[root] (R2) at (2,0) {$R_2$};
+\node[root] (R3) at (4,0) {$R_3$};
+\node[root] (R4) at (6,0) {$R_4$};
+
+% Layer 1
+\node[regular] (A) at (1,-1.2) {$A$};
+\node[collider] (C1) at (3,-1.2) {$C_1$};
+\node[regular] (B) at (5,-1.2) {$B$};
+
+% Layer 2
+\node[collider] (C2) at (0,-2.4) {$C_2$};
+\node[regular] (D) at (2,-2.4) {$D$};
+\node[collider] (C3) at (4,-2.4) {$C_3$};
+\node[regular] (E) at (6,-2.4) {$E$};
+
+% Layer 3
+\node[regular] (F) at (1,-3.6) {$F$};
+\node[collider] (C4) at (3,-3.6) {$C_4$};
+\node[collider] (C5) at (5,-3.6) {$C_5$};
+
+% Edges
+\draw[arrow] (R1) -- (A);
+\draw[arrow] (R2) -- (A);
+\draw[arrow] (R2) -- (C1);
+\draw[arrow] (R3) -- (C1);
+\draw[arrow] (R3) -- (B);
+\draw[arrow] (R4) -- (B);
+\draw[arrow] (R1) -- (C2);
+\draw[arrow] (A) -- (C2);
+\draw[arrow] (A) -- (D);
+\draw[arrow] (C1) -- (D);
+\draw[arrow] (C1) -- (C3);
+\draw[arrow] (B) -- (C3);
+\draw[arrow] (B) -- (E);
+\draw[arrow] (R4) -- (E);
+\draw[arrow] (C2) -- (F);
+\draw[arrow] (D) -- (F);
+\draw[arrow] (D) -- (C4);
+\draw[arrow] (C3) -- (C4);
+\draw[arrow] (C3) -- (C5);
+\draw[arrow] (E) -- (C5);
+
+% Legend
+\node[root, label=right:{\scriptsize Root}] at (7.5,-0.5) {};
+\node[collider, label=right:{\scriptsize Collider}] at (7.5,-1.3) {};
+\node[regular, label=right:{\scriptsize Other}] at (7.5,-2.1) {};
+\end{tikzpicture}
+\caption{Structure of the complex 15-node SCM. Collider nodes (red) require interventions on multiple parents for identification. Root nodes (blue) are exogenous. Nested colliders ($C_4$, $C_5$) test reasoning about causal depth.}
 \label{fig:complex-scm}
 \end{figure}
 
@@ -423,13 +495,38 @@ The strategic advantage of ACE becomes more pronounced at scale: while random sa
 
 \begin{figure}[t]
 \centering
-% INSERT: \includegraphics[width=0.9\columnwidth]{figures/duffing_scm.pdf}
-% DIAGRAM: Two panels
-% Left: True structure (chain X1 -- X2 -- X3 with spring symbols)
-% Right: Apparent structure (fully connected due to synchronization)
-% Show how clamping X2 breaks spurious correlations
-\fbox{\parbox{0.85\columnwidth}{\centering\vspace{2em}[Duffing Oscillator Coupling Diagram]\vspace{2em}}}
-\caption{Coupled Duffing oscillators. Left: true chain coupling. Right: apparent full connectivity due to synchronization. ACE discovers that clamping $X_2$ breaks spurious correlations.}
+\begin{tikzpicture}[
+    node distance=1.5cm,
+    mass/.style={circle, draw, minimum size=0.9cm, font=\small, thick},
+    spring/.style={decorate, decoration={zigzag, segment length=4pt, amplitude=2pt}},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    dasharrow/.style={-{Stealth[length=2mm]}, thick, dashed, red!60}
+]
+% Left panel: True structure
+\node[mass] (M1) at (0,0) {$X_1$};
+\node[mass] (M2) at (1.8,0) {$X_2$};
+\node[mass] (M3) at (3.6,0) {$X_3$};
+
+\draw[spring] (M1) -- (M2);
+\draw[spring] (M2) -- (M3);
+
+\node[font=\scriptsize, below=0.5cm of M2] {(a) True coupling};
+
+% Right panel: Apparent structure
+\node[mass] (N1) at (5.8,0) {$X_1$};
+\node[mass] (N2) at (7.6,0) {$X_2$};
+\node[mass] (N3) at (9.4,0) {$X_3$};
+
+\draw[spring] (N1) -- (N2);
+\draw[spring] (N2) -- (N3);
+\draw[dasharrow] (N1) to[bend left=35] (N3);
+
+\node[font=\scriptsize, below=0.5cm of N2] {(b) Apparent (spurious)};
+
+% Annotation
+\node[font=\scriptsize, red!70, above=0.15cm of N1, xshift=1.8cm] {sync};
+\end{tikzpicture}
+\caption{Coupled Duffing oscillators. (a) True chain coupling via springs. (b) Apparent full connectivity due to synchronization creates spurious correlation (dashed). ACE discovers that clamping $X_2$ breaks the spurious $X_1$--$X_3$ correlation.}
 \label{fig:duffing-scm}
 \end{figure}
 
@@ -450,12 +547,39 @@ ACE discovers a ``clamping'' strategy: by intervening to hold the middle oscilla
 
 \begin{figure}[t]
 \centering
-% INSERT: \includegraphics[width=0.85\columnwidth]{figures/phillips_scm.pdf}
-% DIAGRAM: Economic SCM with temporal structure
-% UNRATE, FEDFUNDS, MICH all pointing to CPI_{t+1}
-% Annotate with regime periods (1970s, 1990s, 2008, etc.)
-\fbox{\parbox{0.8\columnwidth}{\centering\vspace{2em}[Phillips Curve SCM Diagram]\vspace{2em}}}
-\caption{Phillips curve causal structure. Unemployment, federal funds rate, and inflation expectations jointly determine future CPI. Historical regimes provide natural variation for mechanism identification.}
+\begin{tikzpicture}[
+    node distance=1cm,
+    econ/.style={rectangle, draw, rounded corners, minimum width=1.4cm, minimum height=0.7cm, font=\scriptsize, thick},
+    target/.style={rectangle, draw, rounded corners, minimum width=1.6cm, minimum height=0.8cm, font=\scriptsize, thick, fill=green!15},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    time/.style={font=\tiny, gray}
+]
+% Input variables at time t
+\node[econ] (UN) at (0,1.2) {UNRATE$_t$};
+\node[econ] (FF) at (0,0) {FEDFUNDS$_t$};
+\node[econ] (MI) at (0,-1.2) {MICH$_t$};
+
+% Output at time t+1
+\node[target] (CPI) at (3.5,0) {CPI$_{t+1}$};
+
+% Arrows
+\draw[arrow] (UN) -- (CPI);
+\draw[arrow] (FF) -- (CPI);
+\draw[arrow] (MI) -- (CPI);
+
+% Time annotation
+\node[time] at (0,-2) {time $t$};
+\node[time] at (3.5,-2) {time $t+1$};
+\draw[gray, dashed] (1.75,1.8) -- (1.75,-1.8);
+
+% Regime annotations
+\node[font=\tiny, align=center] at (6,0.8) {Regimes:};
+\node[font=\tiny, align=left] at (6.5,0.2) {1970s inflation};
+\node[font=\tiny, align=left] at (6.5,-0.2) {Volcker era};
+\node[font=\tiny, align=left] at (6.5,-0.6) {Great Moderation};
+\node[font=\tiny, align=left] at (6.5,-1.0) {2008 crisis};
+\end{tikzpicture}
+\caption{Phillips curve causal structure. Unemployment rate, federal funds rate, and inflation expectations at time $t$ jointly determine CPI at $t+1$. Historical regimes (right) provide natural variation for mechanism identification.}
 \label{fig:phillips-scm}
 \end{figure}
 
