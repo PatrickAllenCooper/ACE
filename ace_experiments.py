@@ -1408,6 +1408,200 @@ def create_emergency_save_handler(run_dir, oracle, history_data):
     return save_on_exit
 
 # ----------------------------------------------------------------
+# EARLY STOPPING AND ROOT FITTING UTILITIES
+# ----------------------------------------------------------------
+class EarlyStopping:
+    """
+    Detect training saturation and stop when no improvement is observed.
+    Based on analysis showing 89.3% of steps produced zero reward in recent runs.
+    """
+    def __init__(self, patience=20, min_delta=0.01):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.best_loss = float('inf')
+        self.episodes_no_improvement = 0
+        
+    def check_loss(self, current_loss):
+        """Check if we should stop based on loss improvement."""
+        if current_loss < self.best_loss - self.min_delta:
+            # Improvement detected
+            self.best_loss = current_loss
+            self.counter = 0
+            return False
+        else:
+            # No improvement
+            self.counter += 1
+            if self.counter >= self.patience:
+                logging.info(f"⚠️  Early stopping: No loss improvement for {self.patience} episodes")
+                logging.info(f"   Best loss: {self.best_loss:.4f}, Current loss: {current_loss:.4f}")
+                return True
+        return False
+    
+    def check_zero_rewards(self, recent_rewards, threshold=0.85):
+        """
+        Check if too many recent steps have zero reward (training saturation).
+        Threshold: fraction of steps that must have zero reward to trigger stopping.
+        """
+        if len(recent_rewards) < 50:  # Need enough samples
+            return False
+            
+        zero_count = sum(1 for r in recent_rewards if abs(r) < 0.01)
+        zero_fraction = zero_count / len(recent_rewards)
+        
+        if zero_fraction > threshold:
+            logging.info(f"⚠️  Early stopping: {zero_fraction*100:.1f}% of last {len(recent_rewards)} steps had zero reward")
+            logging.info(f"   This indicates training saturation - learner has converged")
+            return True
+        return False
+
+
+def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_samples=500, epochs=100):
+    """
+    Explicitly fit root node distributions using observational data.
+    
+    Problem: Root nodes (X1~N(0,1), X4~N(2,1)) don't learn from interventional data
+             because interventions DO(X1=v) override the natural distribution.
+             
+    Solution: Periodically train on pure observational data where roots are sampled
+              from their natural distributions.
+              
+    Args:
+        student_scm: StudentSCM to train
+        ground_truth_scm: GroundTruthSCM to sample from
+        critic: ScientificCritic for evaluation
+        root_nodes: List of root node names (nodes with no parents)
+        n_samples: Number of observational samples
+        epochs: Training epochs for root fitting
+    """
+    logging.info(f"[Root Fitting] Fitting {len(root_nodes)} root nodes: {root_nodes}")
+    
+    # Generate pure observational data (no interventions)
+    obs_data = ground_truth_scm.generate(n_samples=n_samples, interventions=None)
+    
+    # Train student on this data with focus on root distributions
+    optimizer = optim.Adam(student_scm.parameters(), lr=0.001)
+    
+    initial_losses = {}
+    for node in root_nodes:
+        if node in student_scm.mechanisms:
+            mech = student_scm.mechanisms[node]
+            if isinstance(mech, nn.ParameterDict):
+                # Root node - has mu and sigma
+                with torch.no_grad():
+                    pred_mu = mech['mu'].item()
+                    pred_sigma = mech['sigma'].item()
+                    true_samples = obs_data[node]
+                    true_mu = true_samples.mean().item()
+                    true_sigma = true_samples.std().item()
+                    initial_losses[node] = abs(pred_mu - true_mu) + abs(pred_sigma - true_sigma)
+    
+    # Train specifically on root nodes
+    for epoch in range(epochs):
+        optimizer.zero_grad()
+        
+        # Compute loss for root nodes only
+        total_loss = 0.0
+        for node in root_nodes:
+            if node in student_scm.mechanisms:
+                mech = student_scm.mechanisms[node]
+                if isinstance(mech, nn.ParameterDict):
+                    # Root node distribution fitting
+                    pred_mu = mech['mu']
+                    pred_sigma = F.softplus(mech['sigma'])  # Ensure positive sigma
+                    
+                    true_samples = obs_data[node]
+                    true_mu = true_samples.mean()
+                    true_sigma = true_samples.std()
+                    
+                    # Loss: match both mean and std
+                    loss = (pred_mu - true_mu) ** 2 + (pred_sigma - true_sigma) ** 2
+                    total_loss += loss
+        
+        if total_loss > 0:
+            total_loss.backward()
+            optimizer.step()
+    
+    # Log improvement
+    final_losses = {}
+    for node in root_nodes:
+        if node in student_scm.mechanisms:
+            mech = student_scm.mechanisms[node]
+            if isinstance(mech, nn.ParameterDict):
+                with torch.no_grad():
+                    pred_mu = mech['mu'].item()
+                    pred_sigma = mech['sigma'].item()
+                    true_samples = obs_data[node]
+                    true_mu = true_samples.mean().item()
+                    true_sigma = true_samples.std().item()
+                    final_losses[node] = abs(pred_mu - true_mu) + abs(pred_sigma - true_sigma)
+    
+    logging.info(f"[Root Fitting] Complete - Initial losses: {initial_losses}, Final losses: {final_losses}")
+
+
+def compute_diversity_penalty(recent_targets, max_concentration=0.5, penalty_weight=200.0, recent_window=100):
+    """
+    Compute penalty for intervention distribution concentration.
+    
+    Based on analysis: Recent runs showed 69.4% concentration on X2, requiring constant
+    hard-cap enforcement. This function provides a smooth penalty to discourage concentration.
+    
+    Args:
+        recent_targets: List of recent intervention targets
+        max_concentration: Maximum allowed fraction for any single target (e.g., 0.5 = 50%)
+        penalty_weight: Weight for concentration penalty
+        recent_window: Window size for computing concentration
+        
+    Returns:
+        penalty: Negative reward (penalty) if concentration exceeds threshold
+    """
+    if len(recent_targets) < 20:  # Need enough samples
+        return 0.0
+    
+    recent = recent_targets[-recent_window:]
+    target_counts = Counter(recent)
+    total = len(recent)
+    
+    max_count = max(target_counts.values()) if target_counts else 0
+    concentration = max_count / total if total > 0 else 0
+    
+    # Smooth penalty that increases with concentration above threshold
+    if concentration > max_concentration:
+        excess = concentration - max_concentration
+        penalty = -penalty_weight * excess
+        return penalty
+    
+    return 0.0
+
+
+def compute_coverage_bonus(recent_targets, all_nodes, bonus_per_unique=10.0, recent_window=100):
+    """
+    Compute bonus for diverse exploration across nodes.
+    
+    Encourages the policy to try all nodes rather than focusing on a subset.
+    
+    Args:
+        recent_targets: List of recent intervention targets
+        all_nodes: List of all possible target nodes
+        bonus_per_unique: Bonus per unique node explored
+        recent_window: Window for computing coverage
+        
+    Returns:
+        bonus: Positive reward for diverse exploration
+    """
+    if len(recent_targets) < 10:
+        return 0.0
+    
+    recent = recent_targets[-recent_window:]
+    unique_targets = len(set(recent))
+    
+    # Bonus proportional to unique nodes explored
+    bonus = bonus_per_unique * unique_targets
+    
+    return bonus
+
+
+# ----------------------------------------------------------------
 # MAIN EXECUTION
 # ----------------------------------------------------------------
 def main():
@@ -1427,7 +1621,7 @@ def main():
     # CRITICAL FIX: All bonus/penalty parameters rebalanced to compete with scaled-down rewards
     parser.add_argument("--cov_bonus", type=float, default=60.0, help="Coverage bonus scale (INCREASED to compete with reduced rewards)")
     parser.add_argument("--eps_explore", type=float, default=0.10, help="Exploration probability (coverage-seeking)")
-    parser.add_argument("--undersampled_bonus", type=float, default=100.0, help="Strong bonus for severely under-sampled nodes (INCREASED from 50.0)")
+    parser.add_argument("--undersampled_bonus", type=float, default=200.0, help="Strong bonus for severely under-sampled nodes (INCREASED from 100.0 to address policy collapse)")
     parser.add_argument("--diversity_constraint", action="store_true", help="Enforce mandatory diversity: reject candidates targeting over-sampled nodes when collapse detected")
     parser.add_argument("--diversity_threshold", type=float, default=0.60, help="Threshold for mandatory diversity enforcement (e.g., 60% triggers constraint)")
     parser.add_argument("--val_bonus", type=float, default=1.5, help="Value novelty bonus scale (discourages repeated values)")
@@ -1447,9 +1641,30 @@ def main():
     parser.add_argument("--pretrain_interval", type=int, default=50, help="Re-run pre-training every N episodes (0=disabled)")
     parser.add_argument("--smart_breaker", action="store_true", default=True, help="Use smart collapse breaker that prioritizes collider parents")
     # CRITICAL FIX: Periodic Observational Training to prevent mechanism forgetting
-    parser.add_argument("--obs_train_interval", type=int, default=5, help="Train on observational data every N steps (0=disabled)")
-    parser.add_argument("--obs_train_samples", type=int, default=100, help="Number of observational samples per training injection")
-    parser.add_argument("--obs_train_epochs", type=int, default=50, help="Training epochs for observational data")
+    parser.add_argument("--obs_train_interval", type=int, default=3, help="Train on observational data every N steps (0=disabled) - INCREASED from 5 for better root learning")
+    parser.add_argument("--obs_train_samples", type=int, default=200, help="Number of observational samples per training injection - INCREASED from 100")
+    parser.add_argument("--obs_train_epochs", type=int, default=100, help="Training epochs for observational data - INCREASED from 50")
+    
+    # NEW: Early stopping parameters to detect training saturation
+    parser.add_argument("--early_stopping", action="store_true", help="Enable early stopping when training plateaus")
+    parser.add_argument("--early_stop_patience", type=int, default=20, help="Episodes to wait before early stopping")
+    parser.add_argument("--early_stop_min_delta", type=float, default=0.01, help="Minimum improvement to reset patience")
+    parser.add_argument("--zero_reward_threshold", type=float, default=0.85, help="Stop if this fraction of recent steps have zero reward")
+    
+    # NEW: Root-specific training
+    parser.add_argument("--root_fitting", action="store_true", help="Enable root-specific distribution fitting")
+    parser.add_argument("--root_fit_interval", type=int, default=5, help="Fit root distributions every N episodes")
+    parser.add_argument("--root_fit_samples", type=int, default=500, help="Samples for root fitting")
+    parser.add_argument("--root_fit_epochs", type=int, default=100, help="Epochs for root fitting")
+    
+    # NEW: Improved diversity penalties
+    parser.add_argument("--diversity_reward_weight", type=float, default=0.3, help="Weight for diversity reward (0.0-1.0)")
+    parser.add_argument("--max_concentration", type=float, default=0.5, help="Maximum allowed concentration on any single node (e.g., 0.5 = 50%%)")
+    parser.add_argument("--concentration_penalty", type=float, default=200.0, help="Penalty for exceeding max_concentration")
+    
+    # NEW: Reference policy updates
+    parser.add_argument("--update_reference_interval", type=int, default=25, help="Update reference policy every N episodes (0=never)")
+    
     args = parser.parse_args()
     
     # Setup Directories
@@ -1574,12 +1789,54 @@ def main():
     
     logging.info("✓ Registered emergency save handlers (SIGTERM, SIGINT, atexit)")
     
+    # NEW: Log enabled improvements
+    logging.info("\n" + "="*70)
+    logging.info("TRAINING IMPROVEMENTS ENABLED:")
+    logging.info("="*70)
+    if args.early_stopping:
+        logging.info(f"✓ Early Stopping: patience={args.early_stop_patience}, min_delta={args.early_stop_min_delta}")
+        logging.info(f"  Zero-reward threshold: {args.zero_reward_threshold*100:.0f}%")
+    else:
+        logging.info("✗ Early stopping disabled (use --early_stopping)")
+    
+    logging.info(f"✓ Observational Training: interval={args.obs_train_interval}, samples={args.obs_train_samples}, epochs={args.obs_train_epochs}")
+    
+    if args.root_fitting:
+        logging.info(f"✓ Root Fitting: interval={args.root_fit_interval}, samples={args.root_fit_samples}, epochs={args.root_fit_epochs}")
+    else:
+        logging.info("✗ Root fitting disabled (use --root_fitting)")
+    
+    logging.info(f"✓ Diversity Penalties: weight={args.diversity_reward_weight}, max_concentration={args.max_concentration*100:.0f}%")
+    logging.info(f"✓ Undersampled Bonus: {args.undersampled_bonus} (INCREASED from 100.0)")
+    
+    if args.update_reference_interval > 0:
+        logging.info(f"✓ Reference Policy Updates: every {args.update_reference_interval} episodes")
+    else:
+        logging.info("✗ Reference policy updates disabled")
+    
+    logging.info("="*70 + "\n")
+    
     logging.info(f"--- Starting Discovery Loop ({args.episodes} Episodes) ---")
     
     # Identify collider nodes for special tracking
     collider_nodes = [n for n in M_star.nodes if len(list(M_star.graph.predecessors(n))) >= 2]
     if collider_nodes:
         logging.info(f"Collider nodes identified (multi-parent): {collider_nodes}")
+    
+    # Identify root nodes (no parents) for special fitting
+    root_nodes = [n for n in M_star.nodes if len(list(M_star.graph.predecessors(n))) == 0]
+    if root_nodes:
+        logging.info(f"Root nodes identified (no parents): {root_nodes}")
+    
+    # NEW: Early stopping initialization
+    early_stopper = None
+    recent_rewards_for_stopping = deque(maxlen=100)  # Track last 100 step rewards
+    if args.early_stopping:
+        early_stopper = EarlyStopping(
+            patience=args.early_stop_patience,
+            min_delta=args.early_stop_min_delta
+        )
+        logging.info(f"✓ Early stopping enabled (patience={args.early_stop_patience}, min_delta={args.early_stop_min_delta})")
 
     recent_action_counts = deque(maxlen=500)
     recent_values_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
@@ -1606,6 +1863,26 @@ def main():
             ref_policy = copy.deepcopy(policy_net)
             ref_policy.eval()
             logging.info("Reference policy updated after re-training.")
+        
+        # NEW: Periodic reference policy update (separate from re-training)
+        # This addresses the KL divergence explosion (0 → -2,300 observed in recent runs)
+        if args.update_reference_interval > 0 and episode > 0 and episode % args.update_reference_interval == 0:
+            logging.info(f"[Ref Update] Updating reference policy at episode {episode}")
+            ref_policy = copy.deepcopy(policy_net)
+            ref_policy.eval()
+            
+            # Log current generation distribution for monitoring
+            if hasattr(policy_net, 'generation_stats'):
+                logging.info(f"  Current generation: {policy_net.generation_stats}")
+        
+        # NEW: Root-specific distribution fitting
+        # Addresses X1/X4 failure to learn (0.879→0.879, 1.506→1.564 in recent runs)
+        if args.root_fitting and root_nodes and episode > 0 and episode % args.root_fit_interval == 0:
+            fit_root_distributions(
+                current_student, M_star, critic, root_nodes,
+                n_samples=args.root_fit_samples,
+                epochs=args.root_fit_epochs
+            )
 
         if episode % 10 == 0:
             # Report cumulative parsing statistics every 10 episodes
@@ -1785,8 +2062,31 @@ def main():
                         excess = float(top_frac - float(args.collapse_threshold))
                         # Quadratic penalty: becomes very severe as collapse worsens
                         collapse_pen = float(args.collapse_penalty) * (excess ** 2) * 100.0
-
-                    score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus + disent_bonus + undersample_bonus - leaf_pen - collapse_pen
+                    
+                    # NEW: Multi-objective diversity penalties
+                    # Based on analysis: 69.4% X2 concentration required constant hard-cap enforcement
+                    # This provides smooth gradient to encourage balanced exploration
+                    diversity_penalty = compute_diversity_penalty(
+                        list(recent_action_counts),
+                        max_concentration=args.max_concentration,
+                        penalty_weight=args.concentration_penalty,
+                        recent_window=100
+                    )
+                    
+                    # NEW: Coverage bonus for exploring multiple nodes
+                    coverage_bonus = compute_coverage_bonus(
+                        list(recent_action_counts),
+                        all_nodes=dsl.nodes,
+                        bonus_per_unique=10.0,
+                        recent_window=100
+                    )
+                    
+                    # Multi-objective score combining loss improvement + diversity
+                    # Weights: 1.0 for base rewards, args.diversity_reward_weight for diversity
+                    base_score = reward + cov_bonus + val_bonus + bin_bonus + bal_bonus + disent_bonus + undersample_bonus - leaf_pen - collapse_pen
+                    diversity_score = diversity_penalty + coverage_bonus
+                    
+                    score = base_score + args.diversity_reward_weight * diversity_score
                     candidates.append((cmd_str, reward, cov_bonus, score, plan))
                     
                     # NEW: Detailed diagnostic logging every 50 steps for first 3 candidates
@@ -2077,6 +2377,10 @@ def main():
                 reward_history.append(winner_reward)
                 score_history.append(winner_score)
                 cov_bonus_history.append(winner_cov_bonus)
+                
+                # NEW: Track rewards for early stopping detection
+                if args.early_stopping:
+                    recent_rewards_for_stopping.append(winner_reward)
                 if winner_plan:
                     target_history.append(winner_plan.get("target"))
                     value_history.append(winner_plan.get("value"))
@@ -2170,6 +2474,34 @@ def main():
                     
                     if step % 10 == 0:  # Log occasionally
                         logging.info(f"  [Obs Training] Injected {args.obs_train_samples} observational samples at step {step}")
+        
+        # --- EARLY STOPPING CHECKS ---
+        # Check if training has saturated (most steps producing zero reward)
+        if args.early_stopping and early_stopper is not None:
+            # Get final loss for this episode
+            final_loss, _ = critic.evaluate_mechanisms_detailed(current_student)
+            
+            # Check loss-based stopping
+            if early_stopper.check_loss(final_loss):
+                logging.info(f"✓ Early stopping triggered at episode {episode}/{args.episodes}")
+                logging.info(f"   Final loss: {final_loss:.4f}, episodes trained: {episode+1}")
+                break
+            
+            # Check zero-reward-based stopping (training saturation)
+            if len(recent_rewards_for_stopping) >= 100:
+                if early_stopper.check_zero_rewards(
+                    list(recent_rewards_for_stopping),
+                    threshold=args.zero_reward_threshold
+                ):
+                    logging.info(f"✓ Training saturation detected at episode {episode}/{args.episodes}")
+                    logging.info(f"   Episodes trained: {episode+1}")
+                    break
+            
+            # Log progress every 10 episodes
+            if episode % 10 == 0 and len(recent_rewards_for_stopping) >= 50:
+                zero_count = sum(1 for r in recent_rewards_for_stopping if abs(r) < 0.01)
+                zero_pct = zero_count / len(recent_rewards_for_stopping) * 100
+                logging.info(f"  [Early Stop Monitor] Zero-reward steps: {zero_pct:.1f}% (threshold: {args.zero_reward_threshold*100:.0f}%)")
         
         # --- INCREMENTAL CHECKPOINT SAVES ---
         # Save checkpoint every 50 episodes for recovery
