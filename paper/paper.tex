@@ -118,7 +118,7 @@ Traditional approaches to experimental design for causal discovery employ static
 
 We present \textit{Active Causal Experimentalist} (ACE), a framework that formulates experimental design as a learnable sequential decision problem. The key insight is to model the scientific process as an interaction between an \textit{experimentalist} (proposing interventions) and a \textit{learner} (updating beliefs about mechanisms). By training the experimentalist via Direct Preference Optimization (DPO) \cite{rafailov2023direct} on the relative utility of different interventions, ACE learns adaptive strategies without requiring explicit value function estimation---a critical advantage given the non-stationary nature of scientific discovery as learners improve.
 
-Our contributions are threefold: \textbf{(1)} We introduce a parsimonious three-component reward formulation that balances information gain, node importance, and exploration diversity; \textbf{(2)} We propose per-node convergence criteria and dedicated root learners to address the heterogeneous learning rates of exogenous and endogenous variables; \textbf{(3)} We demonstrate on synthetic and real-world domains that preference-based learning provides a stable alternative to value-based RL for experimental design, achieving 80\% computational savings while maintaining competitive performance.
+Our contributions are threefold: (1) We introduce a parsimonious three-component reward formulation that balances information gain, node importance, and exploration diversity; (2) We propose per-node convergence criteria and dedicated root learners to address the heterogeneous learning rates of exogenous and endogenous variables; (3) We demonstrate on synthetic and real-world domains that preference-based learning provides a stable alternative to value-based RL for experimental design, achieving 80\% computational savings while maintaining competitive performance.
 
 \subsection{Notation and Problem Formulation}
 
@@ -223,9 +223,9 @@ We formulate causal experimental design as a sequential decision problem where a
 
 We formalize the interaction as a game between three components: an Environment (Oracle), a Learner (Student), and an Experimentalist (Agent).
 
-\textbf{The Environment ($M^*$):} Let $M^*$ denote the ground truth SCM governing the system, defined by the tuple $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$, where $\mathcal{V} = \{V_1, \dots, V_n\}$ are endogenous variables, $\mathcal{U}$ are exogenous noise variables, and $\mathcal{F}$ is a set of structural equations $v_i = f_i(\text{Pa}_i, u_i)$. The environment supports an intervention operator $do(V_i=x)$, which replaces the structural equation for $V_i$ with a constant, generating interventional distribution $P_{M^*}(\mathcal{V} \mid do(V_i=x))$.
+\emph{The Environment ($M^*$):} Let $M^*$ denote the ground truth SCM governing the system, defined by the tuple $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$, where $\mathcal{V} = \{V_1, \dots, V_n\}$ are endogenous variables, $\mathcal{U}$ are exogenous noise variables, and $\mathcal{F}$ is a set of structural equations $v_i = f_i(\text{Pa}_i, u_i)$. The environment supports an intervention operator $do(V_i=x)$, which replaces the structural equation for $V_i$ with a constant, generating interventional distribution $P_{M^*}(\mathcal{V} \mid do(V_i=x))$.
 
-\textbf{The Learner ($M_\theta$):} The learner represents the system's current state of knowledge. We assume a constraint where the causal graph structure $\mathcal{G}$ is known (or hypothesized), and the objective is to estimate the unknown mechanisms $f_i$. The learner is parameterized by $\theta$ and generates predictions $y_{\text{model}} \sim P_{M_\theta}(\mathcal{V} \mid c)$, where $c$ is an experimental condition. The learner's objective is to minimize the divergence between its predictions and the environment's true outcomes:
+\emph{The Learner ($M_\theta$):} The learner represents the system's current state of knowledge. We assume a constraint where the causal graph structure $\mathcal{G}$ is known (or hypothesized), and the objective is to estimate the unknown mechanisms $f_i$. The learner is parameterized by $\theta$ and generates predictions $y_{\text{model}} \sim P_{M_\theta}(\mathcal{V} \mid c)$, where $c$ is an experimental condition. The learner's objective is to minimize the divergence between its predictions and the environment's true outcomes:
 \begin{equation}
     \theta^* = \arg\min_\theta \mathbb{E}_{c \sim \pi_\phi} \left[ \mathcal{L}(P_{M^*}(\cdot|c), P_{M_\theta}(\cdot|c)) \right]
 \end{equation}
@@ -249,21 +249,21 @@ This episodic protocol repeats for multiple trials, with a fresh learner initial
 
 Rather than training with value-based RL, which requires estimating future information gain (a noisy, non-stationary signal), we employ Direct Preference Optimization (DPO) \cite{rafailov2023direct}. DPO learns from pairwise preferences over interventions, bypassing explicit reward modeling.
 
-\textbf{Preference Construction.}
+\emph{Preference Construction.}
 At each step, we generate $K=4$ candidate interventions and evaluate each by forward simulation:
 \begin{equation}
 R(c_k, s_t) = \mathcal{L}(M_\theta, \mathcal{V}^{val}) - \mathcal{L}(M_{\theta'}^{(k)}, \mathcal{V}^{val})
 \end{equation}
 where $M_{\theta'}^{(k)}$ is the learner after training on data from $c_k$, and $\mathcal{V}^{val}$ is a validation set. We construct preference pairs $(y_w, y_l)$ by selecting the highest-reward candidate as winner and lowest as loser.
 
-\textbf{Reward Function.}
+\emph{Reward Function.}
 To prevent reward hacking and policy collapse, we augment information gain with two additional components:
 \begin{equation}
 R(c, s) = \underbrace{\Delta \mathcal{L}}_{\text{information gain}} + \underbrace{\alpha \cdot w(V_i, \{L_j\})}_{\text{node importance}} + \underbrace{\beta \cdot D(V_i, H)}_{\text{diversity}}
 \end{equation}
 where $w(V_i, \{L_j\})$ weights intervention on $V_i$ by the losses of its children (encouraging root-cause interventions), and $D(V_i, H)$ is a unified diversity score combining entropy of the intervention distribution, undersampling bonuses, and concentration penalties. This three-component formulation balances exploitation (information gain) with exploration (diversity) while maintaining interpretability.
 
-\textbf{DPO Training.}
+\emph{DPO Training.}
 We train the policy to increase the log-probability ratio between winners and losers:
 \begin{equation}
 \mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(s, y_w, y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\phi(y_w \mid s)}{\pi_{\text{ref}}(y_w \mid s)} - \beta \log \frac{\pi_\phi(y_l \mid s)}{\pi_{\text{ref}}(y_l \mid s)} \right) \right]
@@ -276,24 +276,24 @@ We evaluate ACE on a synthetic linear SCM benchmark designed to test the framewo
 
 \subsubsection{Experimental Setup}
 
-\textbf{Ground Truth Environment.} We construct a 5-node SCM with the graph structure $\mathcal{G} = \{X_1 \to X_2, X_2 \to X_3, X_1 \to X_3, X_4 \to X_5\}$. The structural equations incorporate both linear and nonlinear mechanisms. The root nodes $X_1$ and $X_4$ are sampled from Gaussian distributions $\mathcal{N}(0,1)$ and $\mathcal{N}(2,1)$ respectively. The dependent variables follow $X_2 = 2X_1 + 1 + \epsilon_2$, $X_3 = 0.5X_1 - X_2 + \sin(X_2) + \epsilon_3$, and $X_5 = 0.2X_4^2 + \epsilon_5$, where $\epsilon_i \sim \mathcal{N}(0, 0.01)$ represents exogenous noise. This design tests the agent's ability to prioritize interventions on nodes with complex functional dependencies, particularly the nonlinear interaction governing $X_3$.
+\emph{Ground Truth Environment.} We construct a 5-node SCM with the graph structure $\mathcal{G} = \{X_1 \to X_2, X_2 \to X_3, X_1 \to X_3, X_4 \to X_5\}$. The structural equations incorporate both linear and nonlinear mechanisms. The root nodes $X_1$ and $X_4$ are sampled from Gaussian distributions $\mathcal{N}(0,1)$ and $\mathcal{N}(2,1)$ respectively. The dependent variables follow $X_2 = 2X_1 + 1 + \epsilon_2$, $X_3 = 0.5X_1 - X_2 + \sin(X_2) + \epsilon_3$, and $X_5 = 0.2X_4^2 + \epsilon_5$, where $\epsilon_i \sim \mathcal{N}(0, 0.01)$ represents exogenous noise. This design tests the agent's ability to prioritize interventions on nodes with complex functional dependencies, particularly the nonlinear interaction governing $X_3$.
 
-\textbf{Learner Architecture.} The student model $M_\theta$ parameterizes each mechanism $f_i: \mathbb{R}^{|\text{Pa}_i|} \to \mathbb{R}$ using neural networks with 2 hidden layers of 64 units each with ReLU activations. For mechanisms with parents, we learn the functional relationship; for root nodes (no parents), we learn Gaussian parameters $(\mu, \sigma)$. The model is trained via Adam with learning rate $2 \times 10^{-3}$ on mean squared error between predictions and observations, with 100 gradient steps per experimental sample.
+\emph{Learner Architecture.} The student model $M_\theta$ parameterizes each mechanism $f_i: \mathbb{R}^{|\text{Pa}_i|} \to \mathbb{R}$ using neural networks with 2 hidden layers of 64 units each with ReLU activations. For mechanisms with parents, we learn the functional relationship; for root nodes (no parents), we learn Gaussian parameters $(\mu, \sigma)$. The model is trained via Adam with learning rate $2 \times 10^{-3}$ on mean squared error between predictions and observations, with 100 gradient steps per experimental sample.
 
-\textbf{Experimentalist Policy.} We implement $\pi_\phi$ using Qwen2.5-1.5B \cite{qwen2.5}, a 1.5B parameter language model. The policy receives a structured prompt encoding: (1) the causal graph structure, (2) current per-node losses $\{L_i\}_{i=1}^n$, and (3) recent intervention history. The model generates interventions autoregressively as text: \texttt{do}($V_i$ = $\nu$), which are parsed and validated against the DSL grammar. We employ temperature 0.7 sampling to balance exploration and coherence.
+\emph{Experimentalist Policy.} We implement $\pi_\phi$ using Qwen2.5-1.5B \cite{qwen2.5}, a 1.5B parameter language model. The policy receives a structured prompt encoding: (1) the causal graph structure, (2) current per-node losses $\{L_i\}_{i=1}^n$, and (3) recent intervention history. The model generates interventions autoregressively as text: \texttt{do}($V_i$ = $\nu$), which are parsed and validated against the DSL grammar. We employ temperature 0.7 sampling to balance exploration and coherence.
 
 \subsection{Training Protocol}
 
-\textbf{Episodic Learning.}
+\emph{Episodic Learning.}
 Training proceeds over episodes, each starting with a randomly initialized learner $M_\theta$. This episodic reset forces the policy to learn strategies that generalize across different learner states rather than optimizing for a single convergence trajectory.
 
-\textbf{Supervised Initialization.}
+\emph{Supervised Initialization.}
 We initialize $\pi_\phi$ via supervised pretraining on 200 teacher-generated interventions that target high-loss nodes. This provides a reasonable prior, preventing the cold-start problem where untrained LLMs generate syntactically invalid or degenerate proposals.
 
-\textbf{Per-Step DPO Update.}
+\emph{Per-Step DPO Update.}
 At each step, we generate $K=4$ candidates, evaluate each via forward simulation, and construct a preference pair from the best and worst candidates. The policy is updated via gradient descent on $\mathcal{L}_{\text{DPO}}$ with learning rate $10^{-5}$ and $\beta=0.1$. The reference policy is updated every 25 episodes to prevent unbounded KL divergence.
 
-\textbf{Intelligent Early Stopping.}
+\emph{Intelligent Early Stopping.}
 Rather than training for a fixed number of episodes, we employ per-node convergence criteria. Let $L_i^{(t)}$ denote the loss of mechanism $f_i$ at episode $t$. Training terminates when:
 \begin{equation}
 \forall i \in \{1, \ldots, n\}, \quad L_i^{(t)} < \tau_i \text{ for } p \text{ consecutive episodes}
@@ -302,12 +302,12 @@ where $\tau_i$ are node-specific thresholds (0.5 for mechanisms with parents, 1.
 
 \subsection{Addressing Heterogeneous Learning Rates}
 
-\textbf{The Root Node Problem.}
+\emph{The Root Node Problem.}
 Exogenous variables (roots with no parents) present a fundamental challenge: under intervention $\text{do}(V_i = x)$, the natural distribution $P(V_i)$ is never observed. Interventional data provides no signal for learning root distributions---any policy optimizing for information gain on mechanisms will systematically neglect roots, whose losses remain at initialization while endogenous mechanisms converge.
 
 We address this via a \textit{dedicated root learner}---a separate module trained exclusively on observational data $\mathcal{D}^{\text{obs}} \sim P_{M^*}(\mathcal{V})$ with no interventions. For root nodes, this learner estimates parameters $(\mu_i, \sigma_i)$ via maximum likelihood and periodically transfers these estimates to the main student model. This isolation ensures root distributions are learned from appropriate data, decoupling their learning from the intervention-driven training loop.
 
-\textbf{Per-Node Convergence Criteria.}
+\emph{Per-Node Convergence Criteria.}
 Mechanisms exhibit heterogeneous learning rates: linear relationships converge rapidly (5-10 episodes), while quadratic functions require substantially more data (40-50 episodes), and root distributions require specialized treatment. Global early stopping based on aggregate metrics (e.g., fraction of zero-reward steps) risks premature termination when fast learners converge but slow learners remain incomplete.
 
 We address this via per-node convergence monitoring: the system tracks whether each node $V_i$ has achieved its target loss $L_i < \tau_i$ for $p$ consecutive episodes. Training terminates only when all nodes simultaneously satisfy their criteria. This ensures complete mechanism recovery before stopping, respecting the inherent heterogeneity in mechanism complexity.
@@ -327,20 +327,20 @@ To validate ACE on static real-world data, we employ the US Phillips Curve datas
 
 To validate the efficacy of the learned experimental policy, we benchmark ACE against three distinct strategies representing the spectrum from passive exploration to greedy active learning:
 
-\textbf{Random Policy (Lower Bound).} 
+\emph{Random Policy (Lower Bound).} 
 At each step $t$, the policy samples a target node $V_i$ uniformly from $\mathcal{V}$ and an intervention value $x$ uniformly from the valid range $[-5, 5]$. This baseline characterizes the performance of unguided, passive exploration.
 
-\textbf{Round-Robin (Systematic Heuristic).} 
+\emph{Round-Robin (Systematic Heuristic).} 
 The policy deterministically cycles through the intervention targets in a fixed topological order $V_{t \pmod n}$. This baseline ensures uniform coverage of all nodes, testing the hypothesis that adaptive, non-uniform sampling frequencies (e.g., prioritizing complex mechanisms) are necessary for optimal convergence.
 
-\textbf{Max-Variance (Uncertainty Sampling).} 
+\emph{Max-Variance (Uncertainty Sampling).} 
 A greedy active learning strategy that uses epistemic uncertainty as a proxy for information gain (Gal \& Ghahramani, 2016). We approximate the learner's posterior predictive distribution using Monte Carlo Dropout. At each step, the policy generates $K=64$ candidate interventions and selects the candidate $c^*$ that maximizes the aggregate predictive variance across all endogenous variables:
 \begin{equation}
 c^* = \arg\max_c \sum_{V_j \in \mathcal{V}} \text{Var}_{M_\theta}[V_j \mid c]
 \end{equation}
 This baseline represents the standard "greedy" approach to optimal experimental design, against which we evaluate ACE's ability to learn non-myopic strategies.
 
-\textbf{Proximal Policy Optimization (PPO).}
+\emph{Proximal Policy Optimization (PPO).}
 To directly validate our claim that preference learning outperforms value-based reinforcement learning, we implement a PPO baseline \cite{schulman2017proximal} with identical reward shaping. The actor-critic architecture encodes the same state representation (node losses, intervention counts, recent target history) and receives the same composite reward signal: information gain $\Delta\mathcal{L}$ plus coverage bonuses and collapse penalties. We use Generalized Advantage Estimation (GAE) with $\lambda = 0.95$, a clipped surrogate objective with $\epsilon = 0.2$, and entropy regularization coefficient $0.01$. This baseline isolates the algorithmic contribution of DPO's rank-based objective from the reward signal design, providing a controlled comparison between preference learning and scalar reward maximization under identical experimental conditions.
 
 \section{Experimental Evaluation}
@@ -359,9 +359,9 @@ We evaluate ACE across four domains of increasing complexity: a synthetic 5-node
 
 \subsection{Synthetic 5-Node Benchmark}
 
-\textbf{Setup.} We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (collider), $X_4 \to X_5$. Mechanisms include linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) relationships with Gaussian noise ($\sigma = 0.1$). Root distributions are $X_1 \sim \mathcal{N}(0,1)$, $X_4 \sim \mathcal{N}(2,1)$. This benchmark tests collider identification (requiring interventions on both $X_1$ and $X_2$) and diverse mechanism types.
+\emph{Setup.} We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (collider), $X_4 \to X_5$. Mechanisms include linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) relationships with Gaussian noise ($\sigma = 0.1$). Root distributions are $X_1 \sim \mathcal{N}(0,1)$, $X_4 \sim \mathcal{N}(2,1)$. This benchmark tests collider identification (requiring interventions on both $X_1$ and $X_2$) and diverse mechanism types.
 
-\textbf{Results.} Table~\ref{tab:synthetic-results} reports final MSE by node and method. 
+\emph{Results.} Table~\ref{tab:synthetic-results} reports final MSE by node and method. 
 % INSERT: \input{tables/synthetic_results.tex}
 % TABLE STRUCTURE:
 % | Method       | X1    | X2    | X3    | X4    | X5    | Total | Episodes |
@@ -375,14 +375,14 @@ We evaluate ACE across four domains of increasing complexity: a synthetic 5-node
 ACE achieves [TOTAL\_MSE] total MSE in [NUM\_EPISODES] episodes compared to [BASELINE\_MSE] for Max-Variance over 200 episodes, representing a [SPEEDUP]\% reduction in training time. Notably, on the collider node $X_3$, ACE achieves [X3\_MSE] versus [X3\_BASELINE] for the best baseline, demonstrating superior identification of multi-parent mechanisms. Figure~\ref{fig:synthetic-learning} shows learning curves across methods.
 % INSERT: \input{figures/synthetic_learning.tex}
 
-\textbf{Intervention Distribution.} Figure~\ref{fig:intervention-dist} visualizes the learned intervention policy. ACE concentrates [X2\_PCT]\% of interventions on $X_2$ and [X1\_PCT]\% on $X_1$, the collider's parents, compared to [RANDOM\_UNIFORM]\% uniform allocation under random sampling. This strategic allocation explains the improved collider performance.
+\emph{Intervention Distribution.} Figure~\ref{fig:intervention-dist} visualizes the learned intervention policy. ACE concentrates [X2\_PCT]\% of interventions on $X_2$ and [X1\_PCT]\% on $X_1$, the collider's parents, compared to [RANDOM\_UNIFORM]\% uniform allocation under random sampling. This strategic allocation explains the improved collider performance.
 % INSERT: \input{figures/intervention_distribution.tex}
 
 \subsection{Complex 15-Node SCM}
 
-\textbf{Setup.} To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 5 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms). This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
+\emph{Setup.} To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 5 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms). This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
 
-\textbf{Results.} Table~\ref{tab:complex-results} reports aggregate performance.
+\emph{Results.} Table~\ref{tab:complex-results} reports aggregate performance.
 % INSERT: \input{tables/complex_results.tex}
 % TABLE STRUCTURE:
 % | Method       | Collider MSE | Non-Collider MSE | Total MSE | Episodes |
@@ -396,9 +396,9 @@ The strategic advantage of ACE becomes more pronounced at scale: while random sa
 
 \subsection{Physics: Coupled Duffing Oscillators}
 
-\textbf{Setup.} We apply ACE to a chain of three coupled nonlinear oscillators governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), but correlations from synchronized oscillation initially suggest full connectivity.
+\emph{Setup.} We apply ACE to a chain of three coupled nonlinear oscillators governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), but correlations from synchronized oscillation initially suggest full connectivity.
 
-\textbf{Results.} Table~\ref{tab:duffing-results} reports mechanism recovery accuracy.
+\emph{Results.} Table~\ref{tab:duffing-results} reports mechanism recovery accuracy.
 % INSERT: \input{tables/duffing_results.tex}
 % TABLE STRUCTURE:
 % | Method       | Coupling MSE | Damping MSE | Nonlinearity MSE | Structure F1 |
@@ -411,9 +411,9 @@ ACE discovers a ``clamping'' strategy: by intervening to hold the middle oscilla
 
 \subsection{Economics: Phillips Curve}
 
-\textbf{Setup.} Using Federal Reserve Economic Data (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}). The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
+\emph{Setup.} Using Federal Reserve Economic Data (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}). The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
 
-\textbf{Results.} Table~\ref{tab:phillips-results} reports out-of-sample prediction accuracy.
+\emph{Results.} Table~\ref{tab:phillips-results} reports out-of-sample prediction accuracy.
 % INSERT: \input{tables/phillips_results.tex}
 % TABLE STRUCTURE:
 % | Method       | In-Sample MSE | Out-of-Sample MSE | Regime Coverage |
@@ -444,7 +444,7 @@ Across all domains, ACE matches or exceeds the best baseline while requiring [AV
 
 A central finding is that DPO consistently outperforms PPO despite having access to identical reward signals. We attribute this to fundamental differences in how the two algorithms handle non-stationary rewards.
 
-\textbf{The Non-Stationarity Challenge.}
+\emph{The Non-Stationarity Challenge.}
 In experimental design for causal discovery, the magnitude of information gain $\Delta \mathcal{L}$ is inherently non-stationary: early experiments on an untrained learner yield large loss reductions ($\Delta \mathcal{L} > 50$), while later experiments on a well-trained learner produce minimal gains ($\Delta \mathcal{L} < 0.1$). This pattern---large initial returns followed by diminishing marginal improvements---characterizes not only scientific discovery but also industrial optimization (defect rate reduction) and clinical development (efficacy estimation refinement). PPO's critic must regress these shifting magnitudes, leading to unstable value estimates and poor policy gradients.
 
 DPO sidesteps this issue entirely by learning from \textit{rankings} rather than magnitudes. The relative ordering---which of two interventions is better---remains stable even as absolute rewards decay. This invariance to reward scale makes DPO naturally suited to scientific discovery where diminishing returns are unavoidable.
