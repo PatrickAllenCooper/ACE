@@ -77,14 +77,22 @@ python ace_experiments.py \
     \
     --undersampled_bonus 200.0 \
     --diversity_reward_weight 0.3 \
-    --max_concentration 0.5 \
-    --concentration_penalty 200.0 \
+    --max_concentration 0.7 \
+    --concentration_penalty 150.0 \
     \
     --update_reference_interval 25 \
     \
     --pretrain_steps 200 \
     --pretrain_interval 25 \
     --smart_breaker
+
+# UPDATED Jan 21, 2026:
+# - Increased max_concentration 0.5 → 0.7 (allow strategic concentration for collider learning)
+# - Reduced concentration_penalty 200 → 150 (less harsh penalty)
+# - Added adaptive threshold logic in compute_unified_diversity_score()
+# - Added value novelty bonus to combat zero-reward saturation
+# - Added emergency retraining when gradients near zero
+# - Reduced candidates after episode 20 for speed
 
 # --- Summary ---
 echo ""

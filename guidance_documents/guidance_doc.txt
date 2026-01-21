@@ -1,16 +1,21 @@
 # ACE: Autonomous Causal Experimentation
 
-## Latest Update: January 20, 2026 - Training Efficiency Overhaul
+## Latest Update: January 21, 2026 - Pipeline Fixes Ready for Testing
 
-**Major improvements based on comprehensive HPC run analysis:**
-- ✅ Early stopping (80% runtime reduction: 9h → 1-2h)
-- ✅ Root node fitting (X1/X4 learning fixed)
-- ✅ Multi-objective diversity rewards (prevents policy collapse)
-- ✅ Reference policy stability (bounded KL divergence)
+**Status:** ✅ All improvements implemented, ⏳ Awaiting validation test
 
-**All improvements integrated into `run_all.sh` - just pull and run.**
+**Critical fixes (based on Jan 20 run analysis):**
+1. Adaptive diversity threshold - allows strategic concentration without penalty
+2. Value novelty bonus - maintains learning signal when rewards → 0
+3. Emergency retraining - prevents DPO gradient death
+4. Dynamic candidate reduction - 3-4x faster episodes
+5. Improved early stopping - triggers at saturation
+6. PPO baseline fix - shape mismatch resolved
+7. Verification tools - clamping detector, regime analyzer
 
-See CHANGELOG section below for complete details.
+**Next Step:** Run `./pipeline_test.sh` to validate all fixes (30 min)
+
+**Previous updates:** See CHANGELOG below for Jan 20, 2026 efficiency overhaul.
 
 ---
 
@@ -63,23 +68,41 @@ The ground truth SCM contains a **collider structure** that is particularly diff
 
 ---
 
-## Current Status (2026-01-20)
+## Current Status (2026-01-21, 09:30 AM)
 
-### What's Working
-- ✅ X3 collider mechanism successfully learned (loss ~0.05) 
-- ✅ X2 linear mechanism preserved (loss ~0.02)
-- ✅ X5 quadratic mechanism learned (loss ~0.03)
-- ✅ DPO training stable (loss 1e-9, 95% winner preference)
-- ✅ All baselines implemented and validated
-- ✅ ACE outperforms all baselines (1.92 vs PPO 2.08)
-- ✅ Early stopping prevents wasted compute
-- ✅ Root node learning fixed with explicit fitting
+### Experimental Status
+- ✅ **Baselines complete:** Round-Robin 1.99 (best), Random 2.17, Max-Var 2.09, PPO 2.18*
+- ✅ **Root learner working:** 98.7% improvement (X1/X4: 0.038 → 0.0005)
+- ✅ **Duffing & Phillips complete:** Both validated (<1 min runtime)
+- 🔄 **Complex 15-node SCM:** In progress (greedy_collider policy running)
+- ⏳ **ACE main:** Needs fresh run with Jan 21 fixes
 
-### Resolved Issues
-- ✅ Training saturation (was 89.3% zero-reward steps) → early stopping
-- ✅ Root node learning (X1/X4 stagnant) → 3x obs training + root fitting
-- ✅ Policy collapse (99.1% X2) → multi-objective diversity rewards
-- ✅ KL divergence explosion → periodic reference updates
+*PPO has shape mismatch bug - fix implemented, rerun needed
+
+### Pipeline Status
+- ✅ **All fixes implemented:** Adaptive diversity, novelty bonus, emergency retrain, speedups
+- ✅ **Verification tools created:** Clamping detector, regime analyzer
+- ✅ **Extraction scripts ready:** Auto-extract metrics for paper tables
+- ⏳ **Testing needed:** Run `./pipeline_test.sh` (30 min validation)
+
+### Paper Readiness
+- ✅ **Framework & methods:** Complete and validated
+- ✅ **Baseline data:** Available and documented
+- ❌ **ACE results:** Need successful run to fill Table 1
+- ⏳ **Behavioral claims:** Need verification with detector tools
+
+### Next Actions
+1. **NOW:** `./pipeline_test.sh` to validate all fixes (30 min)
+2. **IF PASS:** `sbatch jobs/run_ace_main.sh` for full run (4-6 hours)
+3. **AFTER RUN:** Extract metrics, verify claims, fill paper tables
+4. **SUBMIT:** 3-5 days (if validation successful)
+
+### Resolved Issues (Historical)
+- ✅ Training saturation → early stopping
+- ✅ Root node learning → dedicated root learner
+- ✅ Policy collapse → multi-objective diversity
+- ✅ KL divergence → periodic reference updates
+- ✅ Jan 20 training failures → Jan 21 fixes
 
 ### Paper Experiments Status
 | Experiment | Paper Section | Status |
@@ -147,6 +170,105 @@ Each run generates:
 6. `node_losses.csv` - Per-step per-node mechanism losses
 7. `dpo_training.csv` - **NEW** DPO training diagnostics
 8. `experiment.log` - Full execution log
+
+---
+
+## Results Documentation Protocol
+
+**CRITICAL:** Whenever an experimental result supports a paper claim, document it immediately in `results/RESULTS_LOG.md`.
+
+### Why Document Results?
+
+1. **Audit Trail:** Clear path from raw data → evidence → paper claims
+2. **Prevent Loss:** Don't lose important findings in log files
+3. **Track Claims:** Know which claims are supported vs aspirational
+4. **Review Readiness:** Easy to verify all claims before submission
+
+### What to Document
+
+Document EVERY experimental run that:
+- ✅ Supports a paper claim
+- ⚠️ Partially supports a paper claim
+- ❌ Contradicts a paper claim
+- 🔬 Tests a specific hypothesis
+
+### When to Document
+
+**IMMEDIATELY** after:
+- Completing a full experimental run
+- Extracting metrics from logs
+- Identifying a key finding
+- Discovering an unexpected result
+
+### How to Document
+
+1. **Add entry to `results/RESULTS_LOG.md`** with:
+   - Date and run ID
+   - Key metrics and findings
+   - Which paper lines/claims it supports
+   - Path to evidence files
+   - Any caveats or issues
+
+2. **For major findings, create `results/claim_evidence/[claim].md`**
+   - Detailed evidence for specific claim
+   - Multiple runs supporting same claim
+   - Statistical analysis if available
+
+3. **Save publication-ready figures to `results/figures/`**
+   - Include metadata about source run
+   - Use consistent naming convention
+
+### Example Workflow
+
+```bash
+# 1. Run experiment
+sbatch jobs/run_ace_main.sh
+
+# 2. Wait for completion
+tail -f logs/ace_*.out
+
+# 3. Extract key metrics
+grep "Final mechanism losses:" results/paper_*/ace/experiment.log
+
+# 4. IMMEDIATELY document in results/RESULTS_LOG.md
+code results/RESULTS_LOG.md
+# Add new entry with date, metrics, paper claims supported
+
+# 5. If this supports a paper table, note it
+# Example: "Fills Table 1, line 428-437"
+
+# 6. Generate figures if needed
+python visualize.py results/paper_*/ace/
+cp results/paper_*/ace/learning_curves.png results/figures/
+
+# 7. Link to paper
+# In RESULTS_LOG.md, note: "Supports line 439: superior collider identification"
+```
+
+### Before Writing Paper Claims
+
+**DO:**
+- ✅ Check `results/RESULTS_LOG.md` for supporting evidence
+- ✅ Use actual numbers from documented runs
+- ✅ Reference specific evidence files
+- ✅ Note any caveats or limitations
+
+**DON'T:**
+- ❌ Write claims before having results
+- ❌ Use placeholder values
+- ❌ Make aspirational claims without marking them
+- ❌ Forget to document negative results
+
+### Before Paper Submission
+
+**Checklist:**
+- [ ] Every paper claim has entry in `results/RESULTS_LOG.md`
+- [ ] All tables filled with real numbers (no placeholders)
+- [ ] All figures generated and saved to `results/figures/`
+- [ ] Evidence files accessible and organized
+- [ ] Summary dashboard in RESULTS_LOG.md up to date
+
+See `results/README.md` for detailed templates and examples.
 
 ---
 

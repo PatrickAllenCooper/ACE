@@ -1686,23 +1686,62 @@ def fit_root_distributions(student_scm, ground_truth_scm, critic, root_nodes, n_
     return final_losses
 
 
-def compute_unified_diversity_score(target, recent_targets, all_nodes, max_concentration=0.4, recent_window=100):
+def calculate_value_novelty_bonus(value, target, value_history, window=100):
+    """
+    Reward exploring novel intervention values.
+    
+    Even if the SCM doesn't improve, exploring new regions of value space
+    has inherent value for future learning.
+    
+    Args:
+        value: Current intervention value
+        target: Current intervention target
+        value_history: List of (target, value) tuples
+        window: Look-back window
+        
+    Returns:
+        bonus: Novelty bonus (0-5)
+    """
+    recent_values = [v for t, v in value_history[-window:] if t == target]
+    
+    if len(recent_values) < 5:
+        return 5.0  # Early exploration bonus
+    
+    # Compute distance to nearest previous value
+    distances = [abs(value - prev_val) for prev_val in recent_values]
+    min_distance = min(distances) if distances else 10.0
+    
+    # Reward novelty (values far from previous ones)
+    # Scale: 0-2 distance → 0-5 bonus
+    novelty_bonus = min(5.0, min_distance * 2.5)
+    
+    return novelty_bonus
+
+
+def compute_unified_diversity_score(target, recent_targets, all_nodes, max_concentration=0.4, recent_window=100,
+                                   collider_parents=None, node_losses=None):
     """
     Unified diversity score - consolidates all diversity concerns into one function.
     
-    SIMPLIFIED Jan 20: Merged diversity_penalty, coverage_bonus, and undersample_bonus.
+    UPDATED Jan 21: Added adaptive concentration threshold for collider parent learning.
+    
+    CRITICAL FIX: The concentration penalty was fighting against necessary X2 exploration
+    for learning the X3 collider. Now uses adaptive threshold that relaxes when learning
+    is still in progress.
     
     Computes:
     1. Entropy bonus (encourages balanced distribution across all nodes)
     2. Undersampling bonus (rewards intervening on neglected nodes)
-    3. Concentration penalty (penalizes oversampling any single node)
+    3. ADAPTIVE Concentration penalty (penalizes oversampling, but relaxes for active learning)
     
     Args:
         target: Current intervention target
         recent_targets: List of recent intervention targets
         all_nodes: List of all possible nodes
-        max_concentration: Maximum allowed concentration (e.g., 0.4 = 40%)
+        max_concentration: Base maximum allowed concentration (e.g., 0.4 = 40%)
         recent_window: Window size for computing statistics
+        collider_parents: Optional list of nodes that are parents of colliders
+        node_losses: Optional dict of current per-node losses
         
     Returns:
         score: Unified diversity score (positive = good diversity)
@@ -1725,12 +1764,25 @@ def compute_unified_diversity_score(target, recent_targets, all_nodes, max_conce
     deficit = expected_freq - actual_freq
     undersample_bonus = 200.0 * max(0, deficit)  # Only reward if undersampled
     
-    # 3. CONCENTRATION PENALTY: Penalize if any node over threshold
+    # 3. ADAPTIVE CONCENTRATION PENALTY
+    # CRITICAL FIX: Don't penalize concentration on collider parents if learning is active
+    adaptive_threshold = max_concentration
+    
+    if collider_parents and target in collider_parents and node_losses:
+        # Check if any collider children of this target still have high loss
+        # If so, this parent needs continued sampling - relax threshold
+        for node, loss in node_losses.items():
+            if loss > 0.3:  # Node still learning
+                # Relax threshold to allow strategic concentration
+                adaptive_threshold = max(0.75, max_concentration + 0.15)
+                break
+    
     max_count = max(counts.values())
     concentration = max_count / total
-    if concentration > max_concentration:
-        excess = concentration - max_concentration
-        concentration_penalty = -300.0 * excess  # Strong penalty
+    if concentration > adaptive_threshold:
+        excess = concentration - adaptive_threshold
+        # REDUCED penalty strength from 300.0 to 150.0
+        concentration_penalty = -150.0 * excess
     else:
         concentration_penalty = 0.0
     
@@ -2012,8 +2064,19 @@ def main():
         no_improve_steps = 0
 
         # Periodic re-training to combat policy drift (CRITICAL for LLM policies)
-        if use_pretrained and args.pretrain_interval > 0 and episode > 0 and episode % args.pretrain_interval == 0:
-            logging.info(f"--- Periodic Re-training at Episode {episode} ---")
+        # UPDATED Jan 21: Also retrain if gradients are near-zero (DPO not learning)
+        recent_grad_norm = getattr(main, '_last_grad_norm', 1.0)  # Access last gradient norm
+        should_retrain = (
+            (args.pretrain_interval > 0 and episode > 0 and episode % args.pretrain_interval == 0) or
+            (episode > 0 and episode % 10 == 0 and recent_grad_norm < 0.001)  # Emergency retrain
+        )
+        
+        if use_pretrained and should_retrain:
+            if recent_grad_norm < 0.001:
+                logging.info(f"--- Emergency Re-training at Episode {episode} (grad_norm={recent_grad_norm:.6f}) ---")
+            else:
+                logging.info(f"--- Periodic Re-training at Episode {episode} ---")
+            
             _, retrain_losses = critic.evaluate_mechanisms_detailed(current_student)
             supervised_pretrain_llm(
                 policy_net, current_student, M_star.graph, dsl.nodes, retrain_losses,
@@ -2131,7 +2194,15 @@ def main():
             # Build intervention history for prompt context
             intervention_history = list(recent_action_counts)
             
-            for k in range(args.candidates):
+            # SPEED IMPROVEMENT: Reduce candidates after warmup
+            if episode < 20:
+                num_candidates = args.candidates  # Full exploration early
+            elif episode < 50:
+                num_candidates = max(3, args.candidates // 2)  # Half after warmup
+            else:
+                num_candidates = 3  # Minimal late in training
+            
+            for k in range(num_candidates):
                 cmd_str, plan = policy_net.generate_experiment(
                     current_student, 
                     node_losses=node_losses_start,
@@ -2163,7 +2234,14 @@ def main():
                     clone_learner.train_step(batch_t, n_epochs=args.learner_epochs)
                     loss_end, node_losses_end = critic.evaluate_mechanisms_detailed(student_clone)
                     reward = critic.calculate_reward(loss_start, loss_end)
+                    
+                    # NEW: Add value novelty bonus to combat zero-reward saturation
                     tgt = plan.get("target")
+                    val = plan.get("value")
+                    novelty_bonus = calculate_value_novelty_bonus(
+                        val, tgt, list(zip(target_history, value_history))
+                    )
+                    reward += novelty_bonus * 0.1  # Small weight to avoid dominating main reward
                     # Prefer interventions that help high-loss *direct children* (best for learning X1/X2 -> X3).
                     # normalize=True ensures we value "Urgency" (Avg Loss) over "Volume" (Total Loss)
                     node_weight = _direct_child_impact_weight(M_star.graph, tgt, node_losses_start, normalize=True)
@@ -2180,12 +2258,19 @@ def main():
                     node_importance = cov_bonus  # Already computed (node_weight * under_sample)
                     
                     # 2. UNIFIED DIVERSITY SCORE: All diversity concerns in one function
+                    # UPDATED: Pass collider parents and node losses for adaptive threshold
+                    collider_parents = [p for node in dsl.nodes 
+                                      for p in M_star.get_parents(node) 
+                                      if len(M_star.get_parents(node)) > 1]
+                    
                     unified_diversity = compute_unified_diversity_score(
                         target=tgt,
                         recent_targets=list(recent_action_counts),
                         all_nodes=dsl.nodes,
                         max_concentration=args.max_concentration,
-                        recent_window=100
+                        recent_window=100,
+                        collider_parents=collider_parents,
+                        node_losses=node_losses_start
                     )
                     
                     # 3. FINAL SCORE: Information gain + node importance + diversity
@@ -2472,6 +2557,8 @@ def main():
                             total_grad_norm += param.grad.norm().item() ** 2
                             num_params += 1
                     total_grad_norm = np.sqrt(total_grad_norm)
+                    # Store for use in retraining decision
+                    main._last_grad_norm = total_grad_norm
                     logging.info(f"  [Gradient Check] Episode {episode}: grad_norm={total_grad_norm:.6f}, num_params_with_grad={num_params}")
                     if total_grad_norm < 1e-6:
                         logging.warning(f"  [WARNING] Gradients are near-zero! DPO may not be training the model.")
@@ -2600,12 +2687,15 @@ def main():
                         break
                     
                     # Check zero-reward-based stopping (training saturation)
-                    if len(recent_rewards_for_stopping) >= 100:
-                        if early_stopper.check_zero_rewards(
-                            list(recent_rewards_for_stopping),
-                            threshold=args.zero_reward_threshold
-                        ):
+                    # IMPROVED: Check with smaller window (50 instead of 100) and be more aggressive
+                    if len(recent_rewards_for_stopping) >= 50:
+                        recent_window = list(recent_rewards_for_stopping)[-100:] if len(recent_rewards_for_stopping) >= 100 else list(recent_rewards_for_stopping)
+                        zero_count = sum(1 for r in recent_window if abs(r) < 0.01)
+                        zero_fraction = zero_count / len(recent_window)
+                        
+                        if zero_fraction >= args.zero_reward_threshold:
                             logging.info(f"✓ Training saturation detected at episode {episode}/{args.episodes}")
+                            logging.info(f"   Zero-reward fraction: {zero_fraction:.1%} (threshold: {args.zero_reward_threshold:.1%})")
                             logging.info(f"   Episodes trained: {episode+1}")
                             break
             

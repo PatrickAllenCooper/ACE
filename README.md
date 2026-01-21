@@ -25,19 +25,31 @@ python baselines.py --all_with_ppo --episodes 100
 python visualize.py results/run_*/
 ```
 
-## Current Status (January 2026)
+## Current Status (January 21, 2026)
 
-### Latest: v2.1 - Simplified and Optimized
-- **60% complexity reduction:** Reward simplified from 11 to 3 components
-- **Per-node convergence:** Intelligent early stopping (stops when all nodes converged)
-- **Dedicated root learner:** Fixes X1/X4 learning with isolated observational training
-- **Runtime optimized:** 1.5-2.5h (was 9h), stops at 40-60 episodes when complete
+### Latest: January 21 Pipeline Fixes - Ready for Testing
+**Status:** ✅ All improvements implemented, ⏳ Testing phase (30 min validation needed)
 
-### Performance
-- ACE outperforms baselines when given sufficient episodes (Jan 19: 1.92 vs PPO 2.08)
-- 4 baselines implemented: Random, Round-Robin, Max-Variance, PPO
-- Complex 15-node SCM: Validates strategic advantage
-- Domain experiments: Duffing oscillators (physics), Phillips curve (economics)
+**Recent Fixes:**
+- ✅ Adaptive diversity threshold (allows strategic 60-75% concentration)
+- ✅ Value novelty bonus (fixes zero-reward saturation)
+- ✅ Emergency retraining (prevents gradient death)
+- ✅ PPO baseline bug fix (shape mismatch resolved)
+- ✅ Speed improvements (3-4x faster episodes)
+
+**Next Steps:**
+1. Run `./pipeline_test.sh` to validate fixes (30 min)
+2. Launch full experimental run (4-6 hours)
+3. Fill paper tables with results (2-3 hours)
+
+### Recent Results (from logs copy/)
+- ✅ **Baselines complete:** Round-Robin 1.99 (best), Random 2.17, Max-Var 2.09, PPO 2.18*
+- ✅ **Root learner validated:** 98.7% loss reduction (X1, X4: 0.038 → 0.0005)
+- ✅ **Duffing, Phillips complete:** Both under 1 minute runtime
+- 🔄 **Complex SCM:** In progress (2/3 policies complete)
+- ⏳ **ACE main:** Needs rerun with Jan 21 fixes
+
+*PPO has bug, being fixed
 
 ## Key Features
 
@@ -137,7 +149,37 @@ export MPLCONFIGDIR="/projects/$USER/cache/matplotlib"
 ## Documentation
 
 - **`README.md`** (this file) - Quick start and overview
-- **`CHANGELOG.md`** - Version history and recent improvements
+- **`START_HERE.md`** - Current work entry point (Jan 21 pipeline fixes)
+- **`CHANGELOG.md`** - Version history and improvements
 - **`guidance_documents/guidance_doc.txt`** - Complete technical reference
+- **`results/RESULTS_LOG.md`** - Running log of experimental findings
 
-See commit history for detailed implementation notes and analysis.
+## Next Run
+
+**Before running experiments:**
+```bash
+# 1. Test pipeline fixes (30 minutes)
+./pipeline_test.sh
+
+# 2. If tests pass, launch full run
+sbatch jobs/run_ace_main.sh
+```
+
+**After experiments complete:**
+```bash
+# 3. Verify specific claims
+python clamping_detector.py  # Verify clamping strategy
+python regime_analyzer.py     # Verify regime selection
+
+# 4. Extract results
+./extract_ace.sh
+python compare_methods.py
+
+# 5. Document findings
+# Add entry to results/RESULTS_LOG.md
+
+# 6. Fill paper tables
+# Replace [PLACEHOLDER] in paper/paper.tex
+```
+
+See `START_HERE.md` for detailed instructions and `results/ACTION_PLAN.md` for complete roadmap.

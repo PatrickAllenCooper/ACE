@@ -569,7 +569,12 @@ class PPOPolicy:
                 surr2 = torch.clamp(ratio, 1 - self.clip_epsilon, 1 + self.clip_epsilon) * batch_advantages
                 policy_loss = -torch.min(surr1, surr2).mean()
                 
-                # Value loss
+                # Value loss - FIX: Ensure shapes match
+                # new_values and batch_returns should both be 1D tensors of same length
+                if new_values.dim() == 0:
+                    new_values = new_values.unsqueeze(0)
+                if batch_returns.dim() == 0:
+                    batch_returns = batch_returns.unsqueeze(0)
                 value_loss = nn.functional.mse_loss(new_values, batch_returns)
                 
                 # Entropy bonus
