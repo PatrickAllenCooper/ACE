@@ -2655,9 +2655,14 @@ def main():
                 real_data = executor.run_experiment(winner_plan)
                 learner.train_step(real_data, n_epochs=args.learner_epochs)
                 
-                # SIMPLIFIED: Observational training now handled by dedicated root learner only
-                # Removed redundant step-level observational training (was every 3 steps)
-                # Dedicated root learner trains every 3 episodes instead (more efficient)
+                # OBSERVATIONAL TRAINING: Preserve mechanisms by periodic observational data injection
+                # This prevents catastrophic forgetting of mechanisms (especially X2)
+                # when interventional training dominates
+                if args.obs_train_interval > 0 and step > 0 and step % args.obs_train_interval == 0:
+                    obs_data = M_star.generate(n_samples=args.obs_train_samples, interventions=None)
+                    learner.train_step(obs_data, n_epochs=args.obs_train_epochs)
+                    if episode % 10 == 0 and step % (args.obs_train_interval * 5) == 0:
+                        logging.info(f"  [Obs Training] Step {step}: Injected {args.obs_train_samples} samples")
         
         # --- EARLY STOPPING CHECKS ---
         # Check if training has saturated (most steps producing zero reward)

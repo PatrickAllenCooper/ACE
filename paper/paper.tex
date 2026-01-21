@@ -606,7 +606,7 @@ ACE achieves [TOTAL\_MSE] total MSE in [NUM\_EPISODES] episodes compared to [BAS
 % | Max-Variance | ___          | ___              | ___       | 200      |
 % | ACE (ours)   | ___          | ___              | ___       | ___      |
 
-The strategic advantage of ACE becomes more pronounced at scale: while random sampling achieves [RANDOM\_COLLIDER] MSE on colliders, ACE achieves [ACE\_COLLIDER], a [IMPROVEMENT]\% improvement. On non-collider nodes, performance is comparable ([ACE\_NONCOLLIDER] vs. [RANDOM\_NONCOLLIDER]), confirming that ACE's gains come from intelligent prioritization rather than uniform improvement.
+The advantage of strategic intervention selection becomes more pronounced at scale: while random sampling achieves [RANDOM\_COLLIDER] MSE on colliders, greedy collider-focused sampling achieves [GREEDY\_COLLIDER], a [IMPROVEMENT]\% improvement. On non-collider nodes, performance is comparable, confirming that gains derive from intelligent prioritization of collider parents rather than uniform improvement across all mechanisms.
 
 \subsection{Physics: Coupled Duffing Oscillators}
 
@@ -658,7 +658,7 @@ The strategic advantage of ACE becomes more pronounced at scale: while random sa
 % | Max-Variance | ___          | ___         | ___              | ___          |
 % | ACE (ours)   | ___          | ___         | ___              | ___          |
 
-ACE discovers a ``clamping'' strategy: by intervening to hold the middle oscillator fixed ($\text{do}(X_2 = 0)$), it breaks the correlation chain and reveals the true coupling structure. This emergent strategy achieves [STRUCTURE\_F1] F1 score for structure identification compared to [BASELINE\_F1] for Max-Variance.
+Interventions on intermediate oscillators decouple the synchronized system, breaking spurious correlations and enabling structure recovery. The experiment achieves [STRUCTURE\_F1] F1 score for identifying the true chain topology from observational data that initially suggests full connectivity due to synchronization dynamics.
 
 \subsection{Economics: Phillips Curve}
 
@@ -711,7 +711,7 @@ ACE discovers a ``clamping'' strategy: by intervening to hold the middle oscilla
 % | Chronological| ___           | ___               | ___             |
 % | ACE (ours)   | ___           | ___               | ___             |
 
-ACE learns to query high-volatility regimes (1970s stagflation, 2008 crisis) that expose mechanism nonlinearities, achieving [OOS\_MSE] out-of-sample MSE compared to [BASELINE\_OOS] for chronological sampling. Notably, ACE allocates [HIGH\_VOL\_PCT]\% of queries to pre-1985 data despite this representing only [PRE1985\_PCT]\% of available observations, demonstrating adaptive regime selection.
+Systematic querying of high-volatility historical regimes (1970s stagflation, Great Recession) exposes mechanism nonlinearities, achieving [OOS\_MSE] out-of-sample MSE compared to [BASELINE\_OOS] for chronological sampling. Early exposure to structural breaks improves generalization to held-out data, demonstrating the value of strategic historical sampling for retrospective causal learning.
 
 \subsection{Summary of Results}
 
