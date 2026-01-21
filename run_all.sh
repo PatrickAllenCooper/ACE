@@ -6,9 +6,15 @@
 # This script submits all paper experiments as separate SLURM jobs.
 # DO NOT run this with 'sbatch' - just execute it directly: ./run_all.sh
 #
+# Updated: January 21, 2026
+# - All jobs use latest fixes (adaptive diversity, observational training, etc.)
+# - ACE: Jan 21 training improvements + observational data
+# - Baselines: PPO bug fix + observational training
+# - All auxiliary experiments ready
+#
 # Usage:
-#   ./run_all.sh                    # Submit all jobs
-#   QUICK=true ./run_all.sh         # Quick validation run
+#   ./run_all.sh                    # Submit all jobs (full paper experiments)
+#   QUICK=true ./run_all.sh         # Quick validation (10 episodes each)
 #   ACE_EPISODES=200 ./run_all.sh   # Custom episode counts
 # ============================================================================
 
