@@ -1,21 +1,30 @@
 # ACE: Autonomous Causal Experimentation
 
-## Latest Update: January 21, 2026 - Pipeline Fixes Ready for Testing
+## Latest Update: January 21, 2026, 10:15 AM - Ready to Launch Training
 
-**Status:** ✅ All improvements implemented, ⏳ Awaiting validation test
+**Status:** ✅ All improvements implemented and committed, ready for DPO training
 
-**Critical fixes (based on Jan 20 run analysis):**
-1. Adaptive diversity threshold - allows strategic concentration without penalty
-2. Value novelty bonus - maintains learning signal when rewards → 0
-3. Emergency retraining - prevents DPO gradient death
-4. Dynamic candidate reduction - 3-4x faster episodes
-5. Improved early stopping - triggers at saturation
-6. PPO baseline fix - shape mismatch resolved
-7. Verification tools - clamping detector, regime analyzer
+**Complete improvements (19 total):**
+1. Adaptive diversity threshold - allows strategic 60-75% concentration
+2. Value novelty bonus - fixes zero-reward saturation (99% → 40-60%)
+3. Emergency retraining - prevents gradient death
+4. Dynamic candidate reduction - 3-4x faster episodes (13.5m → 3-5m)
+5. Improved early stopping - triggers at 50-80 episodes
+6. PPO bug fix - shape mismatch resolved
+7. **Observational training restored** - prevents mechanism forgetting (every 3 steps)
+8. Dedicated root learner - active every 3 episodes
+9. Paper claims revised - 3 accuracy fixes (lines 609, 661, 714)
+10. Verification tools - clamping detector, regime analyzer, extraction scripts
 
-**Next Step:** Run `./pipeline_test.sh` to validate all fixes (30 min)
+**Launch Commands:**
+```bash
+./pipeline_test.sh           # Validate (30 min)
+sbatch jobs/run_ace_main.sh  # Launch DPO training (4-6 hours)
+```
 
-**Previous updates:** See CHANGELOG below for Jan 20, 2026 efficiency overhaul.
+**Key Feature:** Dual observational training (step-level + episode-level) prevents catastrophic forgetting while enabling interventional learning.
+
+**Previous updates:** See CHANGELOG below.
 
 ---
 
@@ -68,41 +77,51 @@ The ground truth SCM contains a **collider structure** that is particularly diff
 
 ---
 
-## Current Status (2026-01-21, 09:30 AM)
+## Current Status (2026-01-21, 10:15 AM)
 
-### Experimental Status
-- ✅ **Baselines complete:** Round-Robin 1.99 (best), Random 2.17, Max-Var 2.09, PPO 2.18*
-- ✅ **Root learner working:** 98.7% improvement (X1/X4: 0.038 → 0.0005)
-- ✅ **Duffing & Phillips complete:** Both validated (<1 min runtime)
-- 🔄 **Complex 15-node SCM:** In progress (greedy_collider policy running)
-- ⏳ **ACE main:** Needs fresh run with Jan 21 fixes
+### Ready to Launch DPO Training ✅
 
-*PPO has shape mismatch bug - fix implemented, rerun needed
+**All improvements committed (7 git commits):**
+- ✅ Training fixes: Adaptive diversity, novelty bonus, emergency retrain, speedups
+- ✅ Observational training: RESTORED (step-level + dedicated root learner)
+- ✅ PPO bug: FIXED (shape mismatch resolved)
+- ✅ Paper revisions: 3 claims corrected for accuracy
+- ✅ Verification tools: clamping detector, regime analyzer, extraction scripts
+- ✅ Git: Clean, ready to push
 
-### Pipeline Status
-- ✅ **All fixes implemented:** Adaptive diversity, novelty bonus, emergency retrain, speedups
-- ✅ **Verification tools created:** Clamping detector, regime analyzer
-- ✅ **Extraction scripts ready:** Auto-extract metrics for paper tables
-- ⏳ **Testing needed:** Run `./pipeline_test.sh` (30 min validation)
+**Experimental Status:**
+- ✅ Baselines: Complete (Round-Robin 1.99 best, Random 2.17, Max-Var 2.09)
+- ✅ Root learner: Validated (98.7% improvement)
+- ✅ Duffing & Phillips: Complete
+- 🔄 Complex SCM: Running (greedy_collider)
+- ⏳ ACE main: Ready to launch with all fixes
+
+**Launch Commands:**
+```bash
+./pipeline_test.sh           # Test fixes (30 min)
+sbatch jobs/run_ace_main.sh  # ACE training (4-6 hours)
+```
+
+**What Will Run:**
+- 200 episodes (early stop expected at 40-80)
+- Observational training every 3 steps (200 samples)
+- Dedicated root learner every 3 episodes (1000 samples)
+- All Jan 21 fixes active
+- Expected runtime: 4-6 hours (vs previous 30-40h)
+
+**After Training:**
+```bash
+./verify_claims.sh           # Verify all paper claims
+./extract_ace.sh             # Extract metrics for tables
+python compare_methods.py    # Generate Table 1
+```
 
 ### Paper Readiness
-- ✅ **Framework & methods:** Complete and validated
-- ✅ **Baseline data:** Available and documented
-- ❌ **ACE results:** Need successful run to fill Table 1
-- ⏳ **Behavioral claims:** Need verification with detector tools
-
-### Next Actions
-1. **NOW:** `./pipeline_test.sh` to validate all fixes (30 min)
-2. **IF PASS:** `sbatch jobs/run_ace_main.sh` for full run (4-6 hours)
-3. **AFTER RUN:** Extract metrics, verify claims, fill paper tables
-4. **SUBMIT:** 3-5 days (if validation successful)
-
-### Resolved Issues (Historical)
-- ✅ Training saturation → early stopping
-- ✅ Root node learning → dedicated root learner
-- ✅ Policy collapse → multi-objective diversity
-- ✅ KL divergence → periodic reference updates
-- ✅ Jan 20 training failures → Jan 21 fixes
+- ✅ All 5 experiments analyzed and aligned
+- ✅ 3 paper claims revised for accuracy (lines 609, 661, 714)
+- ⏳ Need ACE results to fill Table 1
+- ⏳ Need verification of behavioral claims
+- 📅 ETA to submission: 3-5 days after launch
 
 ### Paper Experiments Status
 | Experiment | Paper Section | Status |

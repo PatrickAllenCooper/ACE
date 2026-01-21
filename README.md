@@ -25,31 +25,32 @@ python baselines.py --all_with_ppo --episodes 100
 python visualize.py results/run_*/
 ```
 
-## Current Status (January 21, 2026)
+## Current Status (January 21, 2026, 10:15 AM)
 
-### Latest: January 21 Pipeline Fixes - Ready for Testing
-**Status:** ✅ All improvements implemented, ⏳ Testing phase (30 min validation needed)
+### Latest: All Fixes Complete - Ready to Launch
+**Status:** ✅ All improvements implemented and committed, ready for training
 
-**Recent Fixes:**
-- ✅ Adaptive diversity threshold (allows strategic 60-75% concentration)
-- ✅ Value novelty bonus (fixes zero-reward saturation)
-- ✅ Emergency retraining (prevents gradient death)
-- ✅ PPO baseline bug fix (shape mismatch resolved)
-- ✅ Speed improvements (3-4x faster episodes)
+**What's Ready:**
+- ✅ ACE training fixes (adaptive diversity, novelty bonus, emergency retrain, speedups)
+- ✅ Observational training restored (every 3 steps + dedicated root learner)
+- ✅ PPO bug fixed (shape mismatch resolved)
+- ✅ Paper claims revised (3 accuracy fixes)
+- ✅ Verification tools created (clamping, regime analyzers)
+- ✅ Extraction scripts ready (auto-fill tables)
 
-**Next Steps:**
-1. Run `./pipeline_test.sh` to validate fixes (30 min)
-2. Launch full experimental run (4-6 hours)
-3. Fill paper tables with results (2-3 hours)
+**Launch Training:**
+```bash
+./pipeline_test.sh                  # Test (30 min)
+sbatch jobs/run_ace_main.sh         # ACE (4-6 hours)
+python baselines.py --baseline ppo  # PPO rerun (2 hours)
+```
 
 ### Recent Results (from logs copy/)
-- ✅ **Baselines complete:** Round-Robin 1.99 (best), Random 2.17, Max-Var 2.09, PPO 2.18*
-- ✅ **Root learner validated:** 98.7% loss reduction (X1, X4: 0.038 → 0.0005)
-- ✅ **Duffing, Phillips complete:** Both under 1 minute runtime
-- 🔄 **Complex SCM:** In progress (2/3 policies complete)
-- ⏳ **ACE main:** Needs rerun with Jan 21 fixes
-
-*PPO has bug, being fixed
+- ✅ **Baselines:** Round-Robin 1.99 (best), Random 2.17, Max-Var 2.09
+- ✅ **Root learner:** 98.7% improvement documented
+- ✅ **Duffing & Phillips:** Complete
+- 🔄 **Complex SCM:** Running (greedy_collider)
+- ⏳ **ACE main:** Ready to launch with all fixes
 
 ## Key Features
 

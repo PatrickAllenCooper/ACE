@@ -328,4 +328,50 @@
 - Analysis: `EXPERIMENTS_ALIGNMENT_CHECK.md`
 - Paper revisions: `results/PAPER_REVISIONS_NEEDED.md`
 
-**Last Updated:** January 21, 2026, 09:45 AM
+---
+
+## 2026-01-21: Observational Training Restored + Paper Revisions ✅
+
+**Commit:** ff4dc3f  
+**Date:** January 21, 2026, 10:00 AM  
+**Status:** ✅ Complete - Ready to launch  
+
+### Changes Made
+
+**1. Observational Training Restored:**
+- Re-added step-level observational training (every 3 steps)
+- Works alongside dedicated root learner (both active)
+- Prevents catastrophic forgetting of mechanisms
+- Parameters: 200 samples, 100 epochs per injection
+
+**2. Paper Claims Revised (3 fixes):**
+- Line 609: "ACE becomes" → "Strategic intervention becomes"
+- Line 661: "ACE discovers clamping" → "Interventions decouple"
+- Line 714: "ACE learns regimes" → "Systematic querying"
+
+### Why This Matters
+
+**Dual Observational Training:**
+- Step-level (every 3 steps): Preserves all mechanisms during interventional training
+- Episode-level (every 3 episodes): Dedicated root learner for X1/X4
+
+**Paper Accuracy:**
+- Duffing uses random policy (not ACE) - claim revised
+- Phillips uses hardcoded regimes (not learning) - claim revised
+- Complex SCM tests heuristics (not ACE) - claim clarified
+
+### Evidence Files
+
+- Code: `ace_experiments.py` lines 2658-2666
+- Paper: `paper/paper.tex` lines 609, 661, 714
+- Analysis: `EXPERIMENTS_ALIGNMENT_CHECK.md` (removed after commit)
+
+### Next Actions
+
+- [ ] Test pipeline: `./pipeline_test.sh`
+- [ ] Launch ACE: `sbatch jobs/run_ace_main.sh`
+- [ ] Rerun PPO: `python baselines.py --baseline ppo`
+- [ ] Verify claims after runs complete
+- [ ] Fill paper tables
+
+**Last Updated:** January 21, 2026, 10:15 AM
