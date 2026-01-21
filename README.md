@@ -6,6 +6,21 @@
 
 ACE learns to design causal experiments through reinforcement learning. An AI agent proposes interventions (do-operations) that maximize information gain for learning structural causal models (SCMs). Uses Direct Preference Optimization (DPO) for stable policy learning without value function estimation.
 
+## Test Coverage
+
+**Current:** 60% (3,666/6,064 statements) | **Target:** 90%  
+**Tests:** 239 passing (99% pass rate) | **Runtime:** ~55 seconds
+
+```bash
+# Run tests
+pytest tests/
+
+# With coverage
+pytest tests/ --cov=. --cov-report=html
+```
+
+See [TESTING.md](TESTING.md) for complete test suite documentation.
+
 ## Quick Start
 
 ```bash
