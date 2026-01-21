@@ -285,4 +285,47 @@
 - Cross-reference paper line numbers
 - Include both positive AND negative results
 
-**Last Updated:** January 21, 2026, 08:30 AM
+---
+
+## 2026-01-21: Experiments Alignment Check ⚠️
+
+**Analysis:** All experiments in `experiments/` directory  
+**Date:** January 21, 2026  
+**Status:** ⚠️ Paper claims misaligned with implementation  
+
+### Findings
+
+**experiments/complex_scm.py:**
+- ✅ Works correctly (tests 3 heuristic policies)
+- ⚠️ Paper implies ACE runs on complex SCM (it doesn't - uses heuristics)
+- Action: Clarify that this tests strategic vs random policies
+
+**experiments/duffing_oscillators.py:**
+- ✅ Works correctly (random policy for structure discovery)
+- 🔴 Paper claims "ACE discovers clamping" but uses RANDOM policy
+- Action: Revise line 661 - remove "ACE discovers"
+
+**experiments/phillips_curve.py:**
+- ✅ Works correctly (hardcoded regime selection)
+- 🔴 Paper claims "ACE learns" but regime selection is HARDCODED
+- Action: Revise line 714 - change to "systematic querying"
+
+### Paper Revisions Required
+
+1. **Line 661:** "ACE discovers clamping" → "Interventions enable structure discovery"
+2. **Line 714:** "ACE learns to query" → "Systematic querying of"
+3. **Line 609:** "ACE becomes more pronounced" → "Strategic intervention becomes"
+
+### Impact
+
+- ⚠️ Over-claiming in current paper
+- ✅ Experiments work correctly (no code changes needed)
+- ⚠️ Must revise before submission
+- Timeline: 1 hour to revise + verify
+
+### Evidence Files
+
+- Analysis: `EXPERIMENTS_ALIGNMENT_CHECK.md`
+- Paper revisions: `results/PAPER_REVISIONS_NEEDED.md`
+
+**Last Updated:** January 21, 2026, 09:45 AM

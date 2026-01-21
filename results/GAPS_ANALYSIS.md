@@ -153,7 +153,7 @@ python baselines.py --baseline ppo --episodes 100
 
 ---
 
-### ⏳ **Gap 5: Clamping Strategy in Duffing**
+### ⏳ **Gap 5: Clamping Strategy in Duffing** ⚠️ CRITICAL ISSUE
 
 **Paper Claims:**
 - Line 661: "ACE discovers a 'clamping' strategy"
@@ -162,6 +162,15 @@ python baselines.py --baseline ppo --episodes 100
 **What We Have:**
 - ✅ Duffing experiment completed
 - ❌ Haven't verified if this ACTUALLY emerged
+- 🔴 **ALIGNMENT ISSUE:** Duffing uses RANDOM policy (not ACE)
+
+**Critical Finding:**
+The duffing_oscillators.py experiment uses a simple random intervention policy:
+```python
+target = np.random.choice(oracle.nodes)
+value = np.random.uniform(-2, 2)
+```
+It does NOT use ACE/DPO. The paper claim "ACE discovers" is incorrect.
 
 **What We Need:**
 ```bash
@@ -176,15 +185,20 @@ grep "DO X2 = " results/paper_*/duffing/*/experiment.log | \
 # 4. Did ACE learn this or did we program it?
 ```
 
-**Verification Needed:**
-- If clamping emerged: ✅ Keep claim
-- If clamping didn't emerge: ❌ Remove or revise claim to "learns coupling structure"
+**Options:**
+1. **Verify and revise** (Recommended): Run detector, then revise paper
+   ```bash
+   python clamping_detector.py
+   # If no clamping: Revise to "random interventions enable structure discovery"
+   ```
+2. **Implement ACE on Duffing** (8+ hours): Add LLM policy, actually discover clamping
+3. **Soften claim**: "Interventions enable structure identification"
 
-**Status:** ⏳ **NEEDS VERIFICATION**
+**Status:** 🔴 **CRITICAL - PAPER CLAIM INCORRECT**
 
 ---
 
-### ⏳ **Gap 6: Regime Selection in Phillips**
+### ⏳ **Gap 6: Regime Selection in Phillips** ⚠️ ALIGNMENT ISSUE
 
 **Paper Claims:**
 - Line 714: "ACE learns to query high-volatility regimes"
@@ -193,6 +207,17 @@ grep "DO X2 = " results/paper_*/duffing/*/experiment.log | \
 **What We Have:**
 - ✅ Phillips experiment completed
 - ❌ Haven't verified actual regime selection behavior
+- 🔴 **ALIGNMENT ISSUE:** Phillips uses HARDCODED regime selection (not learned)
+
+**Critical Finding:**
+The phillips_curve.py experiment has a hardcoded regime selection strategy:
+```python
+if step < 5:
+    regime = None
+elif step < 10:
+    regime = "great_inflation"  # HARDCODED
+```
+It does NOT learn. The paper claim "ACE learns" is incorrect.
 
 **What We Need:**
 ```python
@@ -214,11 +239,15 @@ dataset_pre_1985 = [calculate from date range]
 - High-vol queries should be > random baseline
 - Should show ACE preferentially selects informative regimes
 
-**Verification Needed:**
-- If selective: ✅ Keep claim
-- If random: ❌ Remove or revise to "learns from multiple regimes"
+**Options:**
+1. **Revise paper claim** (Recommended, 30 min):
+   ```latex
+   Systematic querying of high-volatility regimes achieves [OOS_MSE]...
+   ```
+2. **Implement learning** (8+ hours): Add actual regime selection policy
+3. **Verify and report**: Run analyzer, note it's hardcoded in discussion
 
-**Status:** ⏳ **NEEDS VERIFICATION**
+**Status:** 🔴 **PAPER CLAIM INCORRECT - MUST REVISE**
 
 ---
 
