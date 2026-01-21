@@ -1,8 +1,17 @@
 # ACE: Autonomous Causal Experimentation
 
-## Latest Update: January 21, 2026, 10:15 AM - Ready to Launch Training
+## Latest Update: January 21, 2026 - Comprehensive Test Coverage Plan Developed
 
-**Status:** ✅ All improvements implemented and committed, ready for DPO training
+**Status:** ✅ Comprehensive test plan created, ready for implementation
+
+**Testing Initiative:** 
+- 7-week plan to achieve 90%+ test coverage
+- Modern pytest-based framework following 2026 ML best practices
+- Unit, integration, statistical, and regression tests
+- CI/CD integration with GitHub Actions
+- See TEST_PLAN.md for complete details
+
+**Previous Status:** ✅ All improvements implemented and committed, ready for DPO training
 
 **Complete improvements (19 total):**
 1. Adaptive diversity threshold - allows strategic 60-75% concentration
@@ -288,6 +297,205 @@ cp results/paper_*/ace/learning_curves.png results/figures/
 - [ ] Summary dashboard in RESULTS_LOG.md up to date
 
 See `results/README.md` for detailed templates and examples.
+
+---
+
+## Testing Infrastructure
+
+### Comprehensive Test Coverage Plan (January 21, 2026)
+
+**Status:** Planning phase complete, implementation starting  
+**Documentation:** See `TEST_PLAN.md` for full details  
+**Target:** 90%+ code coverage with modern pytest framework
+
+#### Testing Strategy
+
+**Test Categories:**
+1. **Unit Tests** - Fast (<100ms), isolated component tests
+2. **Integration Tests** - Multi-component workflow tests
+3. **Statistical Tests** - Probabilistic assertions with tolerances
+4. **Regression Tests** - Performance baseline tracking
+5. **Property Tests** - Hypothesis-based invariant testing
+
+**Coverage Targets:**
+- Core SCM classes: 95%
+- Policy implementations: 90%
+- Baseline policies: 90%
+- Training loops: 85%
+- Experiments: 80%
+- Visualization: 70%
+
+#### Key Testing Principles
+
+1. **Behavior over Implementation**: Test external expectations, not internal details
+2. **Statistical Assertions**: Use `pytest.approx` for probabilistic components
+3. **Reproducibility**: All tests use fixed seeds (`seed_everything` fixture)
+4. **Fast Feedback**: Unit tests complete in <1s, integration in <30s
+5. **Regression Prevention**: Track baselines for all key metrics
+
+#### Test Framework
+
+**Dependencies:**
+```bash
+pytest>=8.0.0
+pytest-cov>=5.0.0
+pytest-mock>=3.12.0
+pytest-timeout>=2.2.0
+pytest-xdist>=3.5.0      # Parallel execution
+hypothesis>=6.100.0      # Property-based testing
+```
+
+**Running Tests:**
+```bash
+# All unit tests (fast)
+pytest -m unit
+
+# With coverage
+pytest -m unit --cov=. --cov-report=html
+
+# Integration tests
+pytest -m integration
+
+# All except slow
+pytest -m "not slow"
+
+# Parallel execution
+pytest -n auto
+```
+
+#### Test Structure
+
+```
+tests/
+├── conftest.py              # Shared fixtures
+├── pytest.ini               # Configuration
+├── test_ground_truth_scm.py # Core SCM tests
+├── test_student_scm.py      # Student model tests
+├── test_llm_policy.py       # LLM policy tests
+├── test_dpo_trainer.py      # DPO training tests
+├── test_reward_functions.py # Reward computation tests
+├── baselines/               # Baseline policy tests
+├── integration/             # E2E workflow tests
+├── statistical/             # Property tests
+├── regression/              # Performance tracking
+└── experiments/             # Experiment-specific tests
+```
+
+#### Key Fixtures
+
+```python
+@pytest.fixture
+def seed_everything():
+    """Set all random seeds for reproducibility."""
+    
+@pytest.fixture
+def ground_truth_scm():
+    """GroundTruthSCM instance."""
+    
+@pytest.fixture
+def student_scm():
+    """Untrained StudentSCM instance."""
+    
+@pytest.fixture
+def mock_llm():
+    """Mock LLM for GPU-free testing."""
+    
+@pytest.fixture
+def test_output_dir():
+    """Temporary directory for test outputs."""
+```
+
+#### Test Markers
+
+```python
+@pytest.mark.unit           # Fast, isolated tests
+@pytest.mark.integration    # Multi-component tests
+@pytest.mark.slow           # End-to-end tests (>30s)
+@pytest.mark.statistical    # Probabilistic assertions
+@pytest.mark.regression     # Performance tracking
+@pytest.mark.requires_gpu   # GPU-dependent tests
+@pytest.mark.requires_hf    # HuggingFace models required
+```
+
+#### Example Test
+
+```python
+@pytest.mark.unit
+@pytest.mark.statistical
+def test_x3_collider_mechanism(scm, seed_everything):
+    """Test X3 = 0.5*X1 - X2 + sin(X2) mechanism."""
+    seed_everything(42)
+    n = 10000
+    
+    # Generate observational data
+    data = scm.generate(n)
+    
+    # Compute expected X3
+    expected = 0.5 * data['X1'] - data['X2'] + torch.sin(data['X2'])
+    
+    # Assert match (allowing for noise std=0.1)
+    actual = data['X3']
+    residuals = (actual - expected).abs()
+    
+    # Should be centered near 0 with std ≈ 0.1
+    assert residuals.mean() == pytest.approx(0.0, abs=0.05)
+    assert residuals.std() == pytest.approx(0.1, abs=0.05)
+```
+
+#### CI/CD Integration
+
+**GitHub Actions** (`.github/workflows/test.yml`):
+- Run on every push/PR
+- Test on Python 3.9, 3.10, 3.11
+- Upload coverage to Codecov
+- Block merge if coverage drops
+
+**Pre-commit Hooks**:
+- Run unit tests before commit
+- Ensure code quality
+
+#### Implementation Timeline
+
+| Week | Phase | Deliverables |
+|------|-------|-------------|
+| 1 | Infrastructure + Core | Framework, SCM tests |
+| 2-3 | Policy Components | LLM, DPO, reward tests |
+| 4 | Integration | E2E workflow tests |
+| 5 | Statistical + Regression | Property, baseline tests |
+| 6 | Experiments | Domain-specific tests |
+| 7 | CI/CD | GitHub Actions, docs |
+
+**Total Effort:** 7 weeks (1 developer full-time)
+
+#### Maintenance
+
+**Ongoing:**
+- Update tests with code changes
+- Update regression baselines after verified improvements
+- Monitor coverage in CI/CD
+- Hunt and fix flaky tests
+- Track test suite performance
+
+**Quarterly:**
+- Review coverage reports
+- Identify undertested components
+- Update strategy based on bug patterns
+- Refactor for maintainability
+
+#### Success Metrics
+
+| Milestone | Unit Cov | Integration Cov | Overall Cov |
+|-----------|----------|----------------|-------------|
+| Week 2    | 50%      | 0%             | 40%         |
+| Week 4    | 80%      | 50%            | 70%         |
+| Week 6    | 90%      | 80%            | 85%         |
+| Complete  | 95%      | 90%            | 90%+        |
+
+**Quality Targets:**
+- All tests pass on Python 3.9-3.11
+- Test suite completes in <5 minutes
+- >99% pass rate (no flaky tests)
+- Critical components >90% coverage
 
 ---
 
