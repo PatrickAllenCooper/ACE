@@ -1,9 +1,9 @@
 # ACE Test Suite
 
-**Coverage:** 60% (3,666/6,064 statements)  
+**Coverage:** 65% (4,029/6,239 statements)  
 **Target:** 90%  
-**Tests:** 239 passing, 2 skipped  
-**Status:** Core pipeline fully tested, continuing toward goal
+**Tests:** 258 passing, 4 skipped  
+**Status:** Core pipeline and experiments tested, continuing toward goal
 
 ---
 
@@ -33,12 +33,16 @@ pytest tests/test_reward_functions.py -v
 
 | File | Coverage | Status |
 |------|----------|--------|
-| **ace_experiments.py** | 34% (563/1,642) | Core pipeline complete ✅ |
+| **ace_experiments.py** | 39% (647/1,642) | Core + plotting ✅ |
 | **baselines.py** | 42% (229/544) | Policies complete ✅ |
 | **visualize.py** | 82% (278/339) | Main functions complete ✅ |
-| experiments/* | 0% (0/579) | TODO |
-| utilities | 0% (0/462) | TODO |
-| **TOTAL** | **60%** (3,666/6,064) | 🔄 In Progress |
+| **experiments/complex_scm.py** | 19% (51/266) | Basic tests ✅ |
+| **experiments/duffing_oscillators.py** | 15% (23/151) | Module tested ✅ |
+| **experiments/phillips_curve.py** | 17% (28/162) | Module tested ✅ |
+| clamping_detector.py | 0% (0/100) | TODO |
+| compare_methods.py | 0% (0/95) | TODO |
+| regime_analyzer.py | 0% (0/131) | TODO |
+| **TOTAL** | **65%** (4,029/6,239) | 🔄 In Progress |
 
 ---
 
