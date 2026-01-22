@@ -1,9 +1,9 @@
 # ACE Test Suite
 
-**Coverage:** 65% (4,029/6,239 statements)  
+**Coverage:** 66% (4,276/6,433 statements)  
 **Target:** 90%  
-**Tests:** 258 passing, 4 skipped  
-**Status:** Core pipeline and experiments tested, continuing toward goal
+**Tests:** 280 passing, 5 skipped  
+**Status:** Core pipeline, experiments, and policy models tested, continuing toward goal
 
 ---
 
