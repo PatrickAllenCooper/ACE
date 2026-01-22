@@ -8,8 +8,8 @@ ACE learns to design causal experiments through reinforcement learning. An AI ag
 
 ## Test Coverage
 
-**Coverage:** 72% (5,217/7,208 statements) | **Target:** 90% | **Progress:** 80% complete  
-**Tests:** 364 passing, 6 skipped | **Pass Rate:** 98.4% | **Runtime:** ~62 seconds
+**Coverage:** 74% (5,421/7,370 statements) | **Target:** 90% | **Progress:** 82% complete  
+**Tests:** 376 passing, 6 skipped | **Pass Rate:** 98.4% | **Runtime:** ~64 seconds
 
 ```bash
 # Run all tests
