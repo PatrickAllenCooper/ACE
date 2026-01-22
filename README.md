@@ -8,18 +8,37 @@ ACE learns to design causal experiments through reinforcement learning. An AI ag
 
 ## Test Coverage
 
-**Current:** 60% (3,666/6,064 statements) | **Target:** 90%  
-**Tests:** 239 passing (99% pass rate) | **Runtime:** ~55 seconds
+**Coverage:** 67% (4,316/6,468 statements) | **Target:** 90% | **Progress:** 74% complete  
+**Tests:** 284 passing, 5 skipped | **Pass Rate:** 98.3% | **Runtime:** ~60 seconds
 
 ```bash
-# Run tests
+# Run all tests
 pytest tests/
 
-# With coverage
+# With coverage report
 pytest tests/ --cov=. --cov-report=html
+open htmlcov/index.html
+
+# Fast tests only
+pytest -m "not slow"
+
+# Parallel execution
+pytest -n 4
 ```
 
-See [TESTING.md](TESTING.md) for complete test suite documentation.
+### Test Suite Summary
+
+**21 test files, 284 tests covering:**
+- Core SCM classes and experimental engine (100% of critical components)
+- All baseline policies (Random, RoundRobin, MaxVariance)
+- Visualization functions (82% coverage)
+- Experiment modules (Complex SCM, Duffing, Phillips)
+- Reward functions, state encoding, early stopping
+- TransformerPolicy basics, DPOLogger, plotting utilities
+
+**Quality:** Statistical assertions for ML components, property-based testing with Hypothesis, integration tests for workflows, 98.3% pass rate, <1 minute execution.
+
+**Path to 90%:** Remaining components include detailed DPO training, PPO implementation, and deeper experiment tests. Estimated 10-12 hours to complete.
 
 ## Quick Start
 
