@@ -1814,7 +1814,7 @@ def main():
     parser.add_argument("--eps_explore", type=float, default=0.10, help="Exploration probability (coverage-seeking)")
     parser.add_argument("--undersampled_bonus", type=float, default=200.0, help="Strong bonus for severely under-sampled nodes (INCREASED from 100.0 to address policy collapse)")
     parser.add_argument("--diversity_constraint", action="store_true", help="Enforce mandatory diversity: reject candidates targeting over-sampled nodes when collapse detected")
-    parser.add_argument("--diversity_threshold", type=float, default=0.60, help="Threshold for mandatory diversity enforcement (e.g., 60% triggers constraint)")
+    parser.add_argument("--diversity_threshold", type=float, default=0.60, help="Threshold for mandatory diversity enforcement (e.g., 60 percent triggers constraint)")
     parser.add_argument("--val_bonus", type=float, default=1.5, help="Value novelty bonus scale (discourages repeated values)")
     parser.add_argument("--value_min", type=float, default=-5.0, help="Minimum intervention value accepted by the DSL")
     parser.add_argument("--value_max", type=float, default=5.0, help="Maximum intervention value accepted by the DSL")
@@ -1855,7 +1855,7 @@ def main():
     
     # NEW: Improved diversity penalties
     parser.add_argument("--diversity_reward_weight", type=float, default=0.3, help="Weight for diversity reward (0.0-1.0)")
-    parser.add_argument("--max_concentration", type=float, default=0.4, help="Maximum allowed concentration on any single node (reduced to 40%% from 50%% based on test results)")
+    parser.add_argument("--max_concentration", type=float, default=0.4, help="Maximum allowed concentration on any single node (reduced to 40 percent from 50 percent based on test results)")
     parser.add_argument("--concentration_penalty", type=float, default=200.0, help="Penalty for exceeding max_concentration")
     
     # NEW: Reference policy updates
