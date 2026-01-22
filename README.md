@@ -28,17 +28,19 @@ pytest -n 4
 
 ### Test Suite Summary
 
-**21 test files, 284 tests covering:**
+**26 test files, 324 tests covering:**
 - Core SCM classes and experimental engine (100% of critical components)
 - All baseline policies (Random, RoundRobin, MaxVariance)
 - Visualization functions (82% coverage)
-- Experiment modules (Complex SCM, Duffing, Phillips)
-- Reward functions, state encoding, early stopping
-- TransformerPolicy basics, DPOLogger, plotting utilities
+- Experiment modules (Complex SCM, Duffing, Phillips - basic + detailed)
+- Analysis tools (clamping detector 40%, regime analyzer 34%, compare methods 21%)
+- Reward functions, state encoding, early stopping, dedicated root learner
+- TransformerPolicy, HuggingFacePolicy basics, DPOLogger
+- Supervised pretraining, plotting utilities, ExperimentalDSL
 
-**Quality:** Statistical assertions for ML components, property-based testing with Hypothesis, integration tests for workflows, 98.3% pass rate, <1 minute execution.
+**Quality:** Statistical assertions for ML components, property-based testing with Hypothesis, integration tests for workflows, 98.4% pass rate, <1 minute execution.
 
-**Path to 90%:** Remaining components include detailed DPO training, PPO implementation, and deeper experiment tests. Estimated 10-12 hours to complete.
+**Path to 90%:** Remaining 20 percentage points include detailed DPO training functions, complete PPO implementation, deeper experiment mechanism tests, and final utilities. Estimated 7-9 hours to complete.
 
 ## Quick Start
 
