@@ -1868,12 +1868,26 @@ def main():
     # NEW: Reference policy updates
     parser.add_argument("--update_reference_interval", type=int, default=25, help="Update reference policy every N episodes (0=never)")
     
+    # Reproducibility and statistical validation
+    parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility (for multiple runs with different seeds)")
+    
     args = parser.parse_args()
+    
+    # Set random seed if provided (for statistical validation with multiple runs)
+    if args.seed is not None:
+        torch.manual_seed(args.seed)
+        np.random.seed(args.seed)
+        random.seed(args.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(args.seed)
+        logging.info(f"Random seed set to: {args.seed}")
     
     # Setup Directories
     run_started_at = datetime.now()
     timestamp = run_started_at.strftime("%Y%m%d_%H%M%S")
     run_dir = os.path.join(args.output, f"run_{timestamp}")
+    if args.seed is not None:
+        run_dir = os.path.join(args.output, f"run_{timestamp}_seed{args.seed}")
     os.makedirs(run_dir, exist_ok=True)
     
     # Logging Setup
