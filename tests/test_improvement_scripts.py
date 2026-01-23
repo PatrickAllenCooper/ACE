@@ -18,47 +18,11 @@ import os
 
 
 # =============================================================================
-# Multi-Seed Infrastructure Tests
+# Multi-Seed Infrastructure Tests (now in unified CLI)
 # =============================================================================
 
-@pytest.mark.unit
-def test_run_all_multi_seed_exists():
-    """Test that multi-seed script exists."""
-    script = Path("scripts/run_all_multi_seed.sh")
-    assert script.exists()
-
-
-@pytest.mark.unit
-def test_run_all_multi_seed_syntax():
-    """Test multi-seed script has valid syntax."""
-    script = Path("scripts/run_all_multi_seed.sh")
-    
-    result = subprocess.run(
-        ['bash', '-n', str(script)],
-        capture_output=True
-    )
-    
-    assert result.returncode == 0, f"Syntax error: {result.stderr}"
-
-
-@pytest.mark.unit
-def test_consolidate_multi_runs_exists():
-    """Test that consolidation script exists."""
-    script = Path("scripts/consolidate_multi_runs.sh")
-    assert script.exists()
-
-
-@pytest.mark.unit
-def test_consolidate_multi_runs_syntax():
-    """Test consolidation script syntax."""
-    script = Path("scripts/consolidate_multi_runs.sh")
-    
-    result = subprocess.run(
-        ['bash', '-n', str(script)],
-        capture_output=True
-    )
-    
-    assert result.returncode == 0
+# Note: Multi-seed and consolidation scripts consolidated into ace.sh
+# Tests moved to test_unified_cli.py
 
 
 @pytest.mark.unit
@@ -83,27 +47,11 @@ def test_compute_statistics_has_key_functions():
 
 
 # =============================================================================
-# Ablation Infrastructure Tests
+# Ablation Infrastructure Tests (now in unified CLI)
 # =============================================================================
 
-@pytest.mark.unit
-def test_run_ablations_exists():
-    """Test that ablation script exists."""
-    script = Path("scripts/run_ablations.sh")
-    assert script.exists()
-
-
-@pytest.mark.unit
-def test_run_ablations_syntax():
-    """Test ablation script syntax."""
-    script = Path("scripts/run_ablations.sh")
-    
-    result = subprocess.run(
-        ['bash', '-n', str(script)],
-        capture_output=True
-    )
-    
-    assert result.returncode == 0
+# Note: Ablation scripts consolidated into ace.sh
+# Tests moved to test_unified_cli.py
 
 
 @pytest.mark.unit
