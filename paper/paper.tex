@@ -430,12 +430,41 @@ To directly validate our claim that preference learning outperforms value-based 
 \label{sec:results}
 
 % =============================================================================
-% RESULTS INSERTION GUIDE
+% RESULTS INSERTION GUIDE - Complete After HPC Jobs Finish
 % =============================================================================
-% Placeholders use format: [METRIC_NAME] for numeric values to be inserted
-% Tables are specified with commented structure; uncomment and populate
-% Figures referenced as \ref{fig:*} need corresponding figure environments
-% After results return, replace bracketed placeholders with actual values
+% 
+% After run_all.sh jobs complete (Job ID: 23122264 and others):
+%
+% 1. PROCESS RESULTS:
+%    LATEST=$(ls -td results/paper_* | head -1)
+%    ./scripts/process_all_results.sh "$LATEST"
+%
+% 2. FILL TABLE 1 (Main Results):
+%    - Source: $LATEST/processed/tables/table1.txt
+%    - Location: Line ~478 (tab:main-results)
+%    - Replace: Red TODO items with actual ACE losses
+%
+% 3. VERIFY CLAIMS:
+%    - Line 485 (Strategic Concentration): $LATEST/processed/verification/claim_verification.txt
+%    - Line 661 (Clamping): $LATEST/processed/verification/clamping_verification.txt
+%    - Line 714 (Regime Selection): $LATEST/processed/verification/regime_verification.txt
+%    - Line 767 (Early Stopping): $LATEST/processed/verification/claim_verification.txt
+%
+% 4. ADD FIGURES (Missing 4 figures):
+%    - Complex SCM results: Copy from $LATEST/complex_scm/*.png
+%    - Duffing results: Copy from $LATEST/duffing/*.png  
+%    - Phillips results: Copy from $LATEST/phillips/*.png
+%    - Baseline comparison: Generate from processed/tables/table1.txt
+%
+% 5. REPLACE SCHEMATIC FIGURES:
+%    - Figure 3 (Learning curves): Use $LATEST/ace/training_curves.png
+%    - Figure 4 (Intervention dist): Use $LATEST/ace/strategy_analysis.png
+%
+% 6. SEARCH FOR RED TODO MARKERS:
+%    grep "textcolor{red}" paper.tex
+%    - 5 red markers indicate values to fill
+%
+% All TODOs marked with \textcolor{red}{...} for easy identification
 % =============================================================================
 
 We evaluate ACE across four domains of increasing complexity: a synthetic 5-node benchmark for controlled comparison, a complex 15-node SCM to test scaling, coupled Duffing oscillators for physical dynamics, and Phillips curve data for real-world economic modeling. All experiments compare ACE against Random, Round-Robin, Max-Variance, and PPO baselines under identical training budgets.
