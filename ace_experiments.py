@@ -1871,6 +1871,11 @@ def main():
     # Reproducibility and statistical validation
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility (for multiple runs with different seeds)")
     
+    # Ablation study flags (for validating design choices)
+    parser.add_argument("--no_per_node_convergence", action="store_true", help="Ablation: Disable per-node convergence (use global stopping only)")
+    parser.add_argument("--no_dedicated_root_learner", action="store_true", help="Ablation: Disable dedicated root learner")
+    parser.add_argument("--no_diversity_reward", action="store_true", help="Ablation: Set diversity_reward_weight to 0 (test IG-only)")
+    
     args = parser.parse_args()
     
     # Set random seed if provided (for statistical validation with multiple runs)
