@@ -130,11 +130,13 @@ Limitations of Current Approaches. Traditional methods for experimental design e
 
 These methods share two critical limitations: they treat each causal system in isolation, unable to transfer insights from prior experimental campaigns, and they optimize single objectives without balancing the multiple considerations experimentalists face in practice. A biologist may care not only about identifying the causal graph but also about minimizing reagent costs (which vary by orders of magnitude), completing experiments before grant renewal, and obtaining publishable-quality mechanism estimates---not just graph topology. Current methods cannot adapt to these multi-objective, context-dependent constraints.
 
-Our Approach. We present \textit{Active Causal Experimentalist} (ACE), a framework that formulates experimental design as a learnable sequential decision problem, mimicking how skilled experimentalists develop intuition over their careers. The key insight is to model the scientific process as an interaction between an \textit{experimentalist} (proposing interventions) and a \textit{learner} (updating beliefs about mechanisms), then train the experimentalist through experience.
+Our Approach. We present \textit{Active Causal Experimentalist} (ACE), a framework that formulates experimental design as a learnable sequential decision problem, mimicking how skilled experimentalists develop intuition over their careers. The key insight is to model the scientific process as an \emph{iterative cycle}: an \textit{experimentalist} proposes interventions, a \textit{learner} updates beliefs about mechanisms from the results, and the experimentalist adapts its strategy based on what was learned. Each experiment informs the next, creating a virtuous cycle of discovery.
+
+This mirrors real experimental practice. A biologist doesn't plan all 100 experiments upfront---they run experiment 1, analyze results, notice that perturbing gene A revealed unexpected interactions, then design experiment 2 to investigate those interactions. ACE formalizes this iterative process: after each intervention, the learner's updated state (which mechanisms are now understood, which remain uncertain) guides the policy's next proposal. This closed-loop interaction allows strategies to adapt as knowledge accumulates.
 
 Crucially, ACE learns from the \emph{outcomes} of experiments: did intervening on gene A provide more information than gene B? Did testing reactant concentration C help more than temperature T? By training via Direct Preference Optimization (DPO) \cite{rafailov2023direct} on such pairwise comparisons, ACE learns adaptive strategies without requiring explicit value function estimation---a critical advantage given the non-stationary nature of scientific discovery (the "best" next experiment changes as our knowledge grows).
 
-The result is a system that can assist experimentalists in practice: suggesting which experiment to run next based on current knowledge, learning from outcomes to improve future suggestions, and adapting to domain-specific constraints like intervention costs or time limits. For the experimentalist facing thousands of possible next experiments, ACE provides data-driven guidance that improves with experience.
+The result is a system that can assist experimentalists in practice: suggesting which experiment to run next based on current knowledge, learning from outcomes to improve future suggestions, and adapting to domain-specific constraints like intervention costs or time limits. This virtuous cycle---experiment → learn → adapt strategy → better experiment→ better learning---captures how experimental intuition develops and provides data-driven guidance that improves with each iteration.
 
 Our contributions are threefold: (1) We introduce a parsimonious three-component reward formulation that balances information gain, node importance, and exploration diversity, providing interpretable guidance without complex reward engineering; (2) We propose per-node convergence criteria and dedicated root learners to address the heterogeneous learning rates of exogenous (root cause) and endogenous (effect) variables in causal systems; (3) We demonstrate on synthetic and real-world domains that preference-based learning provides a stable alternative to value-based reinforcement learning for experimental design, achieving 80\% computational savings while maintaining competitive performance in discovering causal structure.
 
@@ -304,16 +306,19 @@ We formalize the interaction as a game between three components: an Environment 
 
 The experimentalist is a policy $\pi_\phi(c_t \mid s_t)$ mapping the learner's current state $s_t$ to an intervention $c_t$. We constrain interventions to single-node assignments via a domain-specific language: $c_t := \texttt{do}(V_i = \nu)$ where $V_i \in \mathcal{V}$ and $\nu \in [-5, 5]$. This ensures physical realizability while allowing rich exploration of the intervention space.
 
-At each step $t$, the interaction proceeds as follows:
+At each step $t$, the interaction proceeds as an \emph{iterative discovery cycle}:
 \begin{enumerate}
     \item The policy observes $s_t = (M_\theta, \{L_i\}_{i=1}^n)$ where $L_i$ is the current loss of mechanism $f_i$
-    \item The policy generates $K$ candidate interventions $\{c_1, \ldots, c_K\}$
+    \item The policy generates $K$ candidate interventions $\{c_1, \ldots, c_K\}$ based on current understanding
     \item Each candidate is evaluated by simulating its effect on a cloned learner
     \item The candidate yielding maximum loss reduction is executed: $c^* = \argmax_{c_k} \Delta \mathcal{L}(c_k)$
     \item Data $\mathcal{D}_t \sim P_{M^*}(\mathcal{V} \mid c^*)$ is collected and used to update $M_\theta$
+    \item The updated learner state $s_{t+1}$ (with improved mechanisms) informs the next intervention proposal
 \end{enumerate}
 
-This episodic protocol repeats for multiple trials, with a fresh learner initialized each episode to ensure the policy learns generalizable strategies rather than memorizing a single solution trajectory.
+This creates a \emph{virtuous cycle}: better understanding $\to$ more informed interventions $\to$ more informative data $\to$ better understanding. The cycle continues until per-node convergence criteria detect that all mechanisms have been learned, at which point the discovery process naturally terminates.
+
+This episodic protocol repeats for multiple trials, with a fresh learner initialized each episode to ensure the policy learns generalizable strategies rather than memorizing a single solution trajectory. Across episodes, the policy learns which intervention sequences tend to create productive discovery cycles.
 
 \subsection{Training via Direct Preference Optimization}
 
@@ -801,6 +806,8 @@ We presented ACE, a framework for learning experimental design strategies via Di
 Our three-component reward formulation demonstrates that parsimonious objectives can be as effective as complex reward shaping while maintaining interpretability. This finding has broader implications for active learning in science: the right learning algorithm (DPO's preference-based objective) combined with domain-appropriate architectural choices (dedicated root learner, per-node convergence) provides a principled foundation for experimental design.
 
 Our experimental evaluation on synthetic SCMs, physics simulations, and economic data validates that learned experimental policies can match or exceed traditional heuristics while providing interpretable, adaptive strategies. The 80\% reduction in computational time (40-60 episodes vs. 200) demonstrates that intelligent early stopping based on per-mechanism convergence provides significant practical benefits.
+
+Critically, the iterative nature of our approach---where each experiment's outcome immediately informs the next intervention proposal---creates a virtuous cycle of discovery that mirrors how skilled experimentalists work. Rather than planning all experiments upfront, the system adapts its strategy as understanding grows, concentrating effort where uncertainty remains and terminating when mechanisms converge. This closed-loop interaction between experimentation and learning is fundamental to efficient scientific discovery, yet rarely formalized in experimental design methods.
 
 Future work includes extending ACE to structure discovery (learning the graph topology itself), scaling to larger causal systems, and deployment in domains where intervention costs make sample efficiency critical---from clinical trial design where each experiment represents patient risk, to semiconductor manufacturing where process adjustments require costly production halts. The framework's ability to leverage pretrained language models suggests promising directions for incorporating domain knowledge from scientific literature, engineering specifications, or regulatory guidelines to guide experimental design.
 
