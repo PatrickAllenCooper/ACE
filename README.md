@@ -8,7 +8,7 @@ ACE learns to design causal experiments through reinforcement learning. An AI ag
 
 ## Test Coverage
 
-**Coverage:** 77% (6,638/8,568 statements) | **Target:** 90% | **Progress:** 86% complete  
+**Coverage:** 77% (6,638/8,568 statements) | **Target:** 90% | **Progress:** 86% complete 
 **Tests:** 552 passing, 6 skipped | **Pass Rate:** 98.9% | **Runtime:** ~122 seconds
 
 **Note:** 3 obsolete tests remain that reference deleted shell scripts (consolidated into `ace.sh`)
@@ -62,19 +62,19 @@ All operations are available through a single command-line interface:
 
 ```bash
 # Run specific experiments
-./ace.sh run ace          # ACE main
-./ace.sh run baselines    # Baselines
-./ace.sh run complex      # Complex SCM
-./ace.sh run duffing      # Duffing oscillator
-./ace.sh run phillips     # Phillips curve
+./ace.sh run ace # ACE main
+./ace.sh run baselines # Baselines
+./ace.sh run complex # Complex SCM
+./ace.sh run duffing # Duffing oscillator
+./ace.sh run phillips # Phillips curve
 ```
 
 ### Utilities
 
 ```bash
-./ace.sh test             # Run pipeline tests
-./ace.sh clean            # Clean up temporary files
-./ace.sh check-version    # Check environment versions
+./ace.sh test # Run pipeline tests
+./ace.sh clean # Clean up temporary files
+./ace.sh check-version # Check environment versions
 ```
 
 ### Results & Naming Convention
@@ -148,29 +148,29 @@ LATEST=$(ls -td results/paper_* | head -1)
 ## Current Status (January 21, 2026, 10:15 AM)
 
 ### Latest: All Fixes Complete - Ready to Launch
-**Status:** ✅ All improvements implemented and committed, ready for training
+**Status:** [DONE] All improvements implemented and committed, ready for training
 
 **What's Ready:**
-- ✅ ACE training fixes (adaptive diversity, novelty bonus, emergency retrain, speedups)
-- ✅ Observational training restored (every 3 steps + dedicated root learner)
-- ✅ PPO bug fixed (shape mismatch resolved)
-- ✅ Paper claims revised (3 accuracy fixes)
-- ✅ Verification tools created (clamping, regime analyzers)
-- ✅ Extraction scripts ready (auto-fill tables)
+- [DONE] ACE training fixes (adaptive diversity, novelty bonus, emergency retrain, speedups)
+- [DONE] Observational training restored (every 3 steps + dedicated root learner)
+- [DONE] PPO bug fixed (shape mismatch resolved)
+- [DONE] Paper claims revised (3 accuracy fixes)
+- [DONE] Verification tools created (clamping, regime analyzers)
+- [DONE] Extraction scripts ready (auto-fill tables)
 
 **Launch Training:**
 ```bash
-./pipeline_test.sh                  # Test (30 min)
-sbatch jobs/run_ace_main.sh         # ACE (4-6 hours)
-python baselines.py --baseline ppo  # PPO rerun (2 hours)
+./pipeline_test.sh # Test (30 min)
+sbatch jobs/run_ace_main.sh # ACE (4-6 hours)
+python baselines.py --baseline ppo # PPO rerun (2 hours)
 ```
 
 ### Recent Results (from logs copy/)
-- ✅ **Baselines:** Round-Robin 1.99 (best), Random 2.17, Max-Var 2.09
-- ✅ **Root learner:** 98.7% improvement documented
-- ✅ **Duffing & Phillips:** Complete
-- 🔄 **Complex SCM:** Running (greedy_collider)
-- ⏳ **ACE main:** Ready to launch with all fixes
+- [DONE] **Baselines:** Round-Robin 1.99 (best), Random 2.17, Max-Var 2.09
+- [DONE] **Root learner:** 98.7% improvement documented
+- [DONE] **Duffing & Phillips:** Complete
+- [PENDING] **Complex SCM:** Running (greedy_collider)
+- [PENDING] **ACE main:** Ready to launch with all fixes
 
 ## Key Features
 
@@ -185,48 +185,48 @@ python baselines.py --baseline ppo  # PPO rerun (2 hours)
 
 ```
 ACE/
-├── ace.sh                       # Unified CLI (all operations)
-├── ace_experiments.py           # Main ACE (DPO) experiment
-├── baselines.py                 # 4 baseline comparisons
-├── visualize.py                 # Result visualization
-├── compare_methods.py           # Table generation
-├── clamping_detector.py         # Verify Line 661 (clamping)
-├── regime_analyzer.py           # Verify Line 714 (regime selection)
+├── ace.sh # Unified CLI (all operations)
+├── ace_experiments.py # Main ACE (DPO) experiment
+├── baselines.py # 4 baseline comparisons
+├── visualize.py # Result visualization
+├── compare_methods.py # Table generation
+├── clamping_detector.py # Verify Line 661 (clamping)
+├── regime_analyzer.py # Verify Line 714 (regime selection)
 │
-├── run_all.sh                   # ⭐ HPC job orchestrator (5 jobs)
+├── run_all.sh # HPC job orchestrator (5 jobs)
 │
-├── jobs/                        # SLURM job scripts
-│   ├── run_ace_main.sh         # Job 1: ACE Main
-│   ├── run_baselines.sh        # Job 2: All baselines
-│   ├── run_complex_scm.sh      # Job 3: Complex 15-node
-│   ├── run_duffing.sh          # Job 4: Duffing oscillators
-│   └── run_phillips.sh         # Job 5: Phillips curve
+├── jobs/ # SLURM job scripts
+│ ├── run_ace_main.sh # Job 1: ACE Main
+│ ├── run_baselines.sh # Job 2: All baselines
+│ ├── run_complex_scm.sh # Job 3: Complex 15-node
+│ ├── run_duffing.sh # Job 4: Duffing oscillators
+│ └── run_phillips.sh # Job 5: Phillips curve
 │
-├── scripts/                     # Utility scripts
-│   ├── verify_claims.sh        # Verify paper claims
-│   ├── extract_ace.sh          # Extract ACE metrics
-│   ├── extract_baselines.sh    # Extract baseline metrics
-│   ├── pipeline_test.sh        # Quick validation
-│   └── ... (5 more scripts)
+├── scripts/ # Utility scripts
+│ ├── verify_claims.sh # Verify paper claims
+│ ├── extract_ace.sh # Extract ACE metrics
+│ ├── extract_baselines.sh # Extract baseline metrics
+│ ├── pipeline_test.sh # Quick validation
+│ └── ... (5 more scripts)
 │
-├── experiments/                 # Experiment modules
-│   ├── complex_scm.py          # 15-node hard benchmark
-│   ├── duffing_oscillators.py  # Physics (ODE-based)
-│   └── phillips_curve.py       # Economics (FRED data)
+├── experiments/ # Experiment modules
+│ ├── complex_scm.py # 15-node hard benchmark
+│ ├── duffing_oscillators.py # Physics (ODE-based)
+│ └── phillips_curve.py # Economics (FRED data)
 │
-├── tests/                       # Test suite
-│   ├── 470 tests (77% coverage)
-│   ├── 32 test files
-│   └── HPC workflow tests
+├── tests/ # Test suite
+│ ├── 470 tests (77% coverage)
+│ ├── 32 test files
+│ └── HPC workflow tests
 │
-├── paper/                       # LaTeX source
-├── results/                     # Experiment outputs (clean, copy-friendly)
-├── checkpoints/                 # Training checkpoints (separate, gitignored)
-├── logs/                        # Job logs
-└── guidance_documents/          # Complete documentation
-    ├── guidance_doc.txt        # Main guide
-    ├── WHAT_REMAINS.txt        # Integration TODO
-    └── EXPERIMENT_TO_CLAIM_MAPPING.txt  # Verification map
+├── paper/ # LaTeX source
+├── results/ # Experiment outputs (clean, copy-friendly)
+├── checkpoints/ # Training checkpoints (separate, gitignored)
+├── logs/ # Job logs
+└── guidance_documents/ # Complete documentation
+ ├── guidance_doc.txt # Main guide
+ ├── WHAT_REMAINS.txt # Integration TODO
+ └── EXPERIMENT_TO_CLAIM_MAPPING.txt # Verification map
 ```
 
 ## Usage
@@ -252,11 +252,11 @@ tail -f logs/ace_main_*.out
 ```bash
 # ACE with all improvements (recommended)
 python ace_experiments.py \
-  --episodes 200 \
-  --early_stopping \
-  --root_fitting \
-  --diversity_reward_weight 0.3 \
-  --output results
+ --episodes 200 \
+ --early_stopping \
+ --root_fitting \
+ --diversity_reward_weight 0.3 \
+ --output results
 
 # Baselines (improved obs training for fair comparison)
 python baselines.py --all_with_ppo --episodes 100
@@ -269,10 +269,10 @@ python visualize.py results/run_*/
 
 ```bash
 # Recommended configuration (enabled in run_all.sh)
---early_stopping                  # Per-node convergence detection
---use_per_node_convergence        # Intelligent stopping (recommended)
---early_stop_min_episodes 40      # Minimum episodes before stopping
---use_dedicated_root_learner      # Isolated root training (recommended)
+--early_stopping # Per-node convergence detection
+--use_per_node_convergence # Intelligent stopping (recommended)
+--early_stop_min_episodes 40 # Minimum episodes before stopping
+--use_dedicated_root_learner # Isolated root training (recommended)
 
 # All improvements auto-configured in ./run_all.sh
 # See guidance_documents/guidance_doc.txt for complete documentation
@@ -285,7 +285,7 @@ python visualize.py results/run_*/
 conda create -n ace python=3.10
 conda activate ace
 pip install torch transformers pandas matplotlib seaborn networkx
-conda install scipy pandas-datareader  # For Duffing/Phillips experiments
+conda install scipy pandas-datareader # For Duffing/Phillips experiments
 ```
 
 **HPC Setup:**
@@ -301,12 +301,12 @@ export MPLCONFIGDIR="/projects/$USER/cache/matplotlib"
 - **`CHANGELOG.md`** - Version history and improvements
 - **`RUN_ALL_SUMMARY.md`** - Experiment summaries
 - **`guidance_documents/guidance_doc.txt`** - Complete technical guide with:
-  - Project organization and structure
-  - HPC workflow documentation
-  - Test coverage details (77%, 470 tests)
-  - Checkpoint separation (checkpoints/ vs results/)
-  - Timestamp naming convention
-  - What remains for complete paper verification
+ - Project organization and structure
+ - HPC workflow documentation
+ - Test coverage details (77%, 470 tests)
+ - Checkpoint separation (checkpoints/ vs results/)
+ - Timestamp naming convention
+ - What remains for complete paper verification
 - **`guidance_documents/EXPERIMENT_TO_CLAIM_MAPPING.txt`** - Maps experiments to paper claims
 - **`guidance_documents/WHAT_REMAINS.txt`** - Integration TODO list
 - **`tests/README.md`** - Test suite developer guide
@@ -325,8 +325,8 @@ sbatch jobs/run_ace_main.sh
 **After experiments complete:**
 ```bash
 # 3. Verify specific claims
-python clamping_detector.py  # Verify clamping strategy
-python regime_analyzer.py     # Verify regime selection
+python clamping_detector.py # Verify clamping strategy
+python regime_analyzer.py # Verify regime selection
 
 # 4. Extract results
 ./extract_ace.sh

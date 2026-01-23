@@ -4,33 +4,33 @@
 
 Consolidated **21 shell scripts** into **1 unified CLI** (`ace.sh`) + **5 SLURM job templates** (`jobs/*.sh`)
 
-**Before:** 21 scattered scripts  
+**Before:** 21 scattered scripts 
 **After:** 6 total files (1 CLI + 5 job templates)
 
 ---
 
 ## Migration Mapping
 
-### Old Scripts → New Commands
+### Old Scripts -> New Commands
 
 | Old Script | New Command | Status |
 |------------|-------------|--------|
-| `run_all.sh` | `./ace.sh run all` | ✅ Replaced |
-| `scripts/run_all_multi_seed.sh` | `./ace.sh run-multi-seed [n]` | ✅ Replaced |
-| `scripts/run_ablations.sh` | `./ace.sh run-ablations` | ✅ Replaced |
-| `scripts/run_obs_ratio_ablation.sh` | `./ace.sh run-obs-ablation` | ✅ Replaced |
-| `scripts/run_ace_experiments.sh` | `./ace.sh run ace` | ✅ Replaced |
-| `scripts/process_all_results.sh` | `./ace.sh process <dir>` | ✅ Replaced |
-| `scripts/consolidate_multi_runs.sh` | `./ace.sh consolidate-multi-seed <dir>` | ✅ Replaced |
-| `scripts/extract_ace.sh` | `./ace.sh extract ace <dir>` | ✅ Replaced |
-| `scripts/extract_baselines.sh` | `./ace.sh extract baselines <dir>` | ✅ Replaced |
-| `scripts/verify_claims.sh` | `./ace.sh verify <dir>` | ✅ Replaced |
-| `scripts/sync_results_from_hpc.sh` | `./ace.sh sync-hpc` | ✅ Replaced |
-| `scripts/test_jan21_fixes.sh` | `./ace.sh test` | ✅ Replaced |
-| `scripts/pipeline_test.sh` | `./ace.sh test` | ✅ Replaced |
-| `scripts/cleanup.sh` | `./ace.sh clean` | ✅ Replaced |
-| `scripts/check_version.sh` | `./ace.sh check-version` | ✅ Replaced |
-| `scripts/launch_training.sh` | *Deprecated* | ⚠️ Remove |
+| `run_all.sh` | `./ace.sh run all` | [DONE] Replaced |
+| `scripts/run_all_multi_seed.sh` | `./ace.sh run-multi-seed [n]` | [DONE] Replaced |
+| `scripts/run_ablations.sh` | `./ace.sh run-ablations` | [DONE] Replaced |
+| `scripts/run_obs_ratio_ablation.sh` | `./ace.sh run-obs-ablation` | [DONE] Replaced |
+| `scripts/run_ace_experiments.sh` | `./ace.sh run ace` | [DONE] Replaced |
+| `scripts/process_all_results.sh` | `./ace.sh process <dir>` | [DONE] Replaced |
+| `scripts/consolidate_multi_runs.sh` | `./ace.sh consolidate-multi-seed <dir>` | [DONE] Replaced |
+| `scripts/extract_ace.sh` | `./ace.sh extract ace <dir>` | [DONE] Replaced |
+| `scripts/extract_baselines.sh` | `./ace.sh extract baselines <dir>` | [DONE] Replaced |
+| `scripts/verify_claims.sh` | `./ace.sh verify <dir>` | [DONE] Replaced |
+| `scripts/sync_results_from_hpc.sh` | `./ace.sh sync-hpc` | [DONE] Replaced |
+| `scripts/test_jan21_fixes.sh` | `./ace.sh test` | [DONE] Replaced |
+| `scripts/pipeline_test.sh` | `./ace.sh test` | [DONE] Replaced |
+| `scripts/cleanup.sh` | `./ace.sh clean` | [DONE] Replaced |
+| `scripts/check_version.sh` | `./ace.sh check-version` | [DONE] Replaced |
+| `scripts/launch_training.sh` | *Deprecated* | [WARNING] Remove |
 
 **Keep (SLURM job templates):**
 - `jobs/run_ace_main.sh` - Called by `sbatch`
@@ -113,7 +113,7 @@ Consolidated **21 shell scripts** into **1 unified CLI** (`ace.sh`) + **5 SLURM 
 2. **Consistent interface** - All operations follow same pattern
 3. **Better discoverability** - `./ace.sh help` shows everything
 4. **Easier maintenance** - Changes in one place
-5. **Cleaner repository** - 21 files → 6 files (72% reduction)
+5. **Cleaner repository** - 21 files -> 6 files (72% reduction)
 6. **Type safety** - Built-in validation and error messages
 7. **Better logging** - Color-coded output for all operations
 
@@ -126,26 +126,26 @@ Consolidated **21 shell scripts** into **1 unified CLI** (`ace.sh`) + **5 SLURM 
 ./ace.sh help
 
 # Run experiments
-./ace.sh run ace               # Single experiment
-./ace.sh run all               # All 5 experiments
-./ace.sh run-multi-seed 5      # Multi-seed validation
-./ace.sh run-ablations         # Ablation studies
-./ace.sh run-obs-ablation      # Obs ratio ablation
+./ace.sh run ace # Single experiment
+./ace.sh run all # All 5 experiments
+./ace.sh run-multi-seed 5 # Multi-seed validation
+./ace.sh run-ablations # Ablation studies
+./ace.sh run-obs-ablation # Obs ratio ablation
 
 # Post-process results
-./ace.sh process <dir>                    # Full post-processing
-./ace.sh extract ace <dir>                # Extract ACE metrics
-./ace.sh extract baselines <dir>          # Extract baseline metrics
-./ace.sh verify <dir>                     # Verify claims
-./ace.sh consolidate-multi-seed <dir>     # Consolidate multi-seed
+./ace.sh process <dir> # Full post-processing
+./ace.sh extract ace <dir> # Extract ACE metrics
+./ace.sh extract baselines <dir> # Extract baseline metrics
+./ace.sh verify <dir> # Verify claims
+./ace.sh consolidate-multi-seed <dir> # Consolidate multi-seed
 
 # HPC workflows
-./ace.sh sync-hpc              # Sync from HPC
+./ace.sh sync-hpc # Sync from HPC
 
 # Utilities
-./ace.sh test                  # Run tests
-./ace.sh clean                 # Clean up
-./ace.sh check-version         # Check versions
+./ace.sh test # Run tests
+./ace.sh clean # Clean up
+./ace.sh check-version # Check versions
 ```
 
 ---
@@ -176,7 +176,7 @@ rm scripts/check_version.sh
 rm scripts/launch_training.sh
 ```
 
-**Total to remove:** 16 shell scripts  
+**Total to remove:** 16 shell scripts 
 **Total to keep:** 1 CLI + 5 job templates = 6 files
 
 ---

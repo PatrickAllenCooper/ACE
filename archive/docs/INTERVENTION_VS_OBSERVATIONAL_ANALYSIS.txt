@@ -18,9 +18,9 @@ SCMLearner has intervention masking - excludes intervened node from training.
 - Buffer concatenation might lose intervention markers
 
 **Needed Refinement:**
-✅ Verify intervention masks are preserved through entire training pipeline
-✅ Add assertions to catch mask violations
-✅ Log intervention mask application for debugging
+[DONE] Verify intervention masks are preserved through entire training pipeline
+[DONE] Add assertions to catch mask violations
+[DONE] Log intervention mask application for debugging
 
 ---
 
@@ -83,9 +83,9 @@ Interventions do(X₁ = v) provide NO signal for learning P(X₁).
 - Synchronization between learners could be better
 
 **Needed Refinement:**
-✅ Ensure dedicated root learner uses SAME observational batches
-✅ Transfer more frequently (every episode instead of every 3?)
-✅ Validate roots converge properly (check final X₁, X₄ losses)
+[DONE] Ensure dedicated root learner uses SAME observational batches
+[DONE] Transfer more frequently (every episode instead of every 3?)
+[DONE] Validate roots converge properly (check final X₁, X₄ losses)
 
 ---
 
@@ -110,16 +110,16 @@ During replay consolidation:
 
 **Needed Refinement:**
 🔬 Option A: Balanced sampling from buffer
-   - Ensure 50/50 interventional:observational in each training batch
-   
+ - Ensure 50/50 interventional:observational in each training batch
+ 
 🔬 Option B: Separate buffers
-   - Interventional buffer (for endogenous mechanisms)
-   - Observational buffer (for all mechanisms, especially roots)
-   - Sample from both during training
+ - Interventional buffer (for endogenous mechanisms)
+ - Observational buffer (for all mechanisms, especially roots)
+ - Sample from both during training
 
 🔬 Option C: Weighted sampling
-   - Oversample observational data during replay
-   - Compensate for intervention dominance
+ - Oversample observational data during replay
+ - Compensate for intervention dominance
 
 **Recommended:**
 Try Option A (balanced sampling) - simplest and principled
@@ -134,7 +134,7 @@ But value diversity might not be enforced enough.
 
 **Analysis:**
 For learning X₃ = 0.5X₁ - X₂ + sin(X₂), we need:
-- Interventions on X₂ (target diversity) ✓ We have this
+- Interventions on X₂ (target diversity) [x] We have this
 - VARIED values of X₂ (value diversity) ❓ May need more
 
 If policy always does X₂ = 1.5, we only learn mechanism at one point.
@@ -145,8 +145,8 @@ Value novelty bonus encourages new values.
 But might not be strong enough.
 
 **Needed Refinement:**
-✅ Strengthen value novelty bonus (currently scaled 0-5, could go 0-10)
-✅ Add explicit value diversity metric (track value variance per target)
+[DONE] Strengthen value novelty bonus (currently scaled 0-5, could go 0-10)
+[DONE] Add explicit value diversity metric (track value variance per target)
 🔬 Ablation: Test value_novelty_scale {1.5, 3.0, 5.0, 10.0}
 
 ---
@@ -165,8 +165,8 @@ This would severely harm results.
 # Add assertion after mask creation:
 assert mask is not None, "Intervention mask must be defined"
 if intervened is not None:
-    assert mask[intervened_indices].sum() == 0, \
-        f"Intervened nodes must be masked: {intervened}"
+ assert mask[intervened_indices].sum() == 0, \
+ f"Intervened nodes must be masked: {intervened}"
 
 # Log mask application:
 logging.debug(f"Intervention mask: {mask.sum()}/{mask.numel()} active samples")
@@ -186,16 +186,16 @@ Finding optimal ratio could improve final performance.
 **Changes:**
 ```python
 # Current defaults:
---obs_train_interval 3  # Every 3 steps
---obs_train_samples 200  # 200 samples
+--obs_train_interval 3 # Every 3 steps
+--obs_train_samples 200 # 200 samples
 
 # Test alternatives:
---obs_train_interval 4  # Every 4 steps (25% observational)
---obs_train_samples 150  # Fewer samples per injection
+--obs_train_interval 4 # Every 4 steps (25% observational)
+--obs_train_samples 150 # Fewer samples per injection
 ```
 
 **Rationale:**
-- Reduce observational from 40% → 25%
+- Reduce observational from 40% -> 25%
 - Let interventional learning dominate more
 - Still prevent forgetting
 - Should improve convergence speed
@@ -224,7 +224,7 @@ int_batches = [b for b in self.buffer if b['intervened'] is not None]
 # Sample 50/50
 n_sample = min(len(obs_batches), len(int_batches), 10)
 balanced_buffer = random.sample(obs_batches, n_sample) + \
-                  random.sample(int_batches, n_sample)
+ random.sample(int_batches, n_sample)
 
 # Train on balanced sample instead of full buffer
 ```
@@ -242,7 +242,7 @@ May help probe full functional forms if policy gets stuck on single values.
 **Changes:**
 ```python
 # Increase value novelty bonus scale
---val_bonus 3.0  # Up from 1.5
+--val_bonus 3.0 # Up from 1.5
 
 # Or add explicit value diversity reward component
 ```
@@ -256,30 +256,30 @@ Check value_diversity.csv - are values actually varied per target?
 
 ### Must Do Before Rerunning:
 
-1. ✅ **Verify intervention masking** (30 min)
-   - Add assertions
-   - Add logging
-   - Run tests
+1. [DONE] **Verify intervention masking** (30 min)
+ - Add assertions
+ - Add logging
+ - Run tests
 
-2. ✅ **Add intervention mask validation test** (1 hour)
-   - Test that intervened nodes aren't trained
-   - Verify mask propagates through pipeline
+2. [DONE] **Add intervention mask validation test** (1 hour)
+ - Test that intervened nodes aren't trained
+ - Verify mask propagates through pipeline
 
 ### Should Do (If Time Before Rerun):
 
 3. 🔬 **Test observational ratio** (ablation)
-   - Include in ablation studies
-   - Test obs_train_interval {3, 4, 5}
+ - Include in ablation studies
+ - Test obs_train_interval {3, 4, 5}
 
 4. 🔬 **Implement balanced buffer sampling** (2 hours)
-   - Modify SCMLearner replay phase
-   - Sample 50/50 interventional:observational
+ - Modify SCMLearner replay phase
+ - Sample 50/50 interventional:observational
 
 ### Can Do Later:
 
 5. 🔬 **Tune value novelty** (ablation)
-   - Test during ablation studies
-   - Try val_bonus {1.5, 3.0, 5.0}
+ - Test during ablation studies
+ - Try val_bonus {1.5, 3.0, 5.0}
 
 ---
 
@@ -298,10 +298,10 @@ Check value_diversity.csv - are values actually varied per target?
 - Values already diverse: Minimal change
 
 **Best Case:**
-Fixing issues → 20-40% better results → Stronger paper
+Fixing issues -> 20-40% better results -> Stronger paper
 
 **Worst Case:**
-No issues exist → Marginal changes → Still Strong Accept
+No issues exist -> Marginal changes -> Still Strong Accept
 
 **Recommendation:**
 Verify masking (critical) and test obs ratio (high value/low cost ablation).

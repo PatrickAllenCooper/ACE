@@ -19,8 +19,8 @@ Dedicated learner with pure observational training provides better root learning
 
 **Arguments:**
 ```bash
---use_dedicated_root_learner   # Enable dedicated learner (recommended)
---dedicated_root_interval 3    # Train every 3 episodes
+--use_dedicated_root_learner # Enable dedicated learner (recommended)
+--dedicated_root_interval 3 # Train every 3 episodes
 ```
 
 #### Per-Node Convergence Checking
@@ -35,8 +35,8 @@ Dedicated learner with pure observational training provides better root learning
 - Clearer optimization objective
 
 ### Changed
-- Hard cap threshold: 70% → 60%
-- Max concentration: 50% → 40%
+- Hard cap threshold: 70% -> 60%
+- Max concentration: 50% -> 40%
 - Simplified logging (3 components vs 11)
 - Unified diversity calculation
 
@@ -73,9 +73,9 @@ Dedicated learner with pure observational training provides better root learning
 ### Test Results Analysis
 
 **Test Run:** 9 episodes, 27 min, early stopped
-- X2: 0.011 ✅ (excellent)
-- X3: 0.210 ✅ (good)
-- X5: 0.898 ❌ (incomplete - stopped too early)
+- X2: 0.011 [DONE] (excellent)
+- X3: 0.210 [DONE] (good)
+- X5: 0.898 [NO] (incomplete - stopped too early)
 - Total: 3.18 (worse than all baselines)
 
 **Diagnosis:** Zero-reward threshold (85%) too aggressive for nodes with different learning rates.
@@ -90,9 +90,9 @@ Dedicated learner with pure observational training provides better root learning
 
 Analysis of `run_20260119_123852` (200 episodes, 9h 11m runtime) revealed:
 - **89.3% of training steps produced zero reward** (training saturation)
-- **Root nodes (X1, X4) failed to learn** (0.879→0.879, 1.506→1.564)
+- **Root nodes (X1, X4) failed to learn** (0.879->0.879, 1.506->1.564)
 - **Policy collapsed to 99.1% X2** (required constant safety enforcement)
-- **KL divergence exploded** (0 → -2,300)
+- **KL divergence exploded** (0 -> -2,300)
 
 ### Added
 
@@ -101,21 +101,21 @@ Analysis of `run_20260119_123852` (200 episodes, 9h 11m runtime) revealed:
 - Loss plateau detection (patience-based)
 - Zero-reward saturation detection (>85% threshold)
 - Automatic termination when training converges
-- **Impact:** Runtime 9h 11m → 1-2h (80% reduction)
+- **Impact:** Runtime 9h 11m -> 1-2h (80% reduction)
 
 #### Root Node Learning
 - `fit_root_distributions()` function for explicit root fitting
-- Tripled observational training frequency (interval: 5→3)
-- Doubled observational samples (100→200) and epochs (50→100)
+- Tripled observational training frequency (interval: 5->3)
+- Doubled observational samples (100->200) and epochs (50->100)
 - Root-specific training every 5 episodes
-- **Impact:** X1 loss 0.879→<0.3, X4 loss 0.942→<0.3
+- **Impact:** X1 loss 0.879-><0.3, X4 loss 0.942-><0.3
 
 #### Multi-Objective Diversity Rewards
 - `compute_diversity_penalty()` - smooth concentration penalties
 - `compute_coverage_bonus()` - exploration rewards
-- Doubled undersampled bonus (100→200)
+- Doubled undersampled bonus (100->200)
 - Configurable max concentration threshold (default: 50%)
-- **Impact:** X2 concentration 69.4%→<50%, balanced exploration
+- **Impact:** X2 concentration 69.4%-><50%, balanced exploration
 
 #### Reference Policy Stability
 - Periodic reference policy updates (every 25 episodes)
@@ -127,33 +127,33 @@ Analysis of `run_20260119_123852` (200 episodes, 9h 11m runtime) revealed:
 
 ```bash
 # Early stopping
---early_stopping              # Enable early stopping
---early_stop_patience 20      # Episodes to wait
---early_stop_min_delta 0.01   # Minimum improvement
---zero_reward_threshold 0.85  # Saturation threshold
+--early_stopping # Enable early stopping
+--early_stop_patience 20 # Episodes to wait
+--early_stop_min_delta 0.01 # Minimum improvement
+--zero_reward_threshold 0.85 # Saturation threshold
 
 # Root node fitting
---root_fitting                # Enable root distribution fitting
---root_fit_interval 5         # Fit every N episodes
---root_fit_samples 500        # Samples for fitting
---root_fit_epochs 100         # Epochs for fitting
+--root_fitting # Enable root distribution fitting
+--root_fit_interval 5 # Fit every N episodes
+--root_fit_samples 500 # Samples for fitting
+--root_fit_epochs 100 # Epochs for fitting
 
 # Diversity control
---diversity_reward_weight 0.3     # Weight for diversity component
---max_concentration 0.5           # Maximum 50% on any node
---concentration_penalty 200.0     # Penalty weight
+--diversity_reward_weight 0.3 # Weight for diversity component
+--max_concentration 0.5 # Maximum 50% on any node
+--concentration_penalty 200.0 # Penalty weight
 
 # Reference stability
---update_reference_interval 25    # Update reference every N episodes
+--update_reference_interval 25 # Update reference every N episodes
 ```
 
 ### Changed Defaults
 
 ```bash
---obs_train_interval 3        # Was 5 (67% more frequent)
---obs_train_samples 200       # Was 100 (2x samples)
---obs_train_epochs 100        # Was 50 (2x epochs)
---undersampled_bonus 200.0    # Was 100.0 (2x stronger)
+--obs_train_interval 3 # Was 5 (67% more frequent)
+--obs_train_samples 200 # Was 100 (2x samples)
+--obs_train_epochs 100 # Was 50 (2x epochs)
+--undersampled_bonus 200.0 # Was 100.0 (2x stronger)
 ```
 
 ### Updated
@@ -182,7 +182,7 @@ Analysis of `run_20260119_123852` (200 episodes, 9h 11m runtime) revealed:
 ### Fixed
 - Catastrophic forgetting of X2 mechanism under heavy X2 interventions
 - Added periodic observational data injection every 5 steps
-- X2 loss reduced from 22 → 0.02
+- X2 loss reduced from 22 -> 0.02
 
 ---
 

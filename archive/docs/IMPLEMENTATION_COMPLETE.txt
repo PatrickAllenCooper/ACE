@@ -1,9 +1,9 @@
-# Critical Improvements: Implementation Complete ✅
+# Critical Improvements: Implementation Complete [DONE]
 
 ## Summary: All Infrastructure Ready for Strong Accept Path
 
 **Status:** All 5 critical phases implemented
-**Impact:** Paper strength 6.5/10 → 9.0/10 (when experiments complete)
+**Impact:** Paper strength 6.5/10 -> 9.0/10 (when experiments complete)
 **Time Invested:** ~8 hours implementation
 **Ready to Execute:** Yes - all scripts tested and committed
 
@@ -11,31 +11,31 @@
 
 ## What Was Implemented
 
-### ✅ Phase 1: Statistical Validation Infrastructure
+### [DONE] Phase 1: Statistical Validation Infrastructure
 
 **Impact:** +1.0 point (biggest improvement)
 
 **Created:**
 1. `--seed` argument in ace_experiments.py
-   - Full random seed control (torch, numpy, random, CUDA)
-   - Seed appended to output directory names
+ - Full random seed control (torch, numpy, random, CUDA)
+ - Seed appended to output directory names
 
 2. `scripts/run_all_multi_seed.sh` (252 lines)
-   - Runs all 5 experiments with 5 different seeds
-   - Submits 25 HPC jobs (5 seeds × 5 experiments)
-   - Seeds: 42, 123, 456, 789, 1011
-   - Outputs: `results/multi_run_TIMESTAMP/seed_*/`
+ - Runs all 5 experiments with 5 different seeds
+ - Submits 25 HPC jobs (5 seeds × 5 experiments)
+ - Seeds: 42, 123, 456, 789, 1011
+ - Outputs: `results/multi_run_TIMESTAMP/seed_*/`
 
 3. `scripts/consolidate_multi_runs.sh` (130 lines)
-   - Aggregates all seed runs
-   - Calls compute_statistics.py for analysis
-   - Creates comprehensive summary
+ - Aggregates all seed runs
+ - Calls compute_statistics.py for analysis
+ - Creates comprehensive summary
 
 4. `scripts/compute_statistics.py` (186 lines)
-   - Computes: mean, std, 95% confidence intervals
-   - Performs: paired t-tests, effect sizes
-   - Generates: LaTeX table with `mean ± std` format
-   - Ready for: Direct paper inclusion
+ - Computes: mean, std, 95% confidence intervals
+ - Performs: paired t-tests, effect sizes
+ - Generates: LaTeX table with `mean ± std` format
+ - Ready for: Direct paper inclusion
 
 **Enables:**
 - Error bars in all figures
@@ -45,30 +45,30 @@
 
 ---
 
-### ✅ Phase 2: Ablation Study Infrastructure
+### [DONE] Phase 2: Ablation Study Infrastructure
 
 **Impact:** +0.5 points (justifies design choices)
 
 **Created:**
 1. Ablation flags in ace_experiments.py:
-   - `--no_per_node_convergence`
-   - `--no_dedicated_root_learner`
-   - `--no_diversity_reward`
+ - `--no_per_node_convergence`
+ - `--no_dedicated_root_learner`
+ - `--no_diversity_reward`
 
 2. `scripts/run_ablations.sh` (156 lines)
-   - Runs 4 ablation configurations:
-     1. No per-node convergence
-     2. No dedicated root learner
-     3. No diversity reward
-     4. IG only (no importance/diversity)
-   - Submits 4 HPC jobs
-   - Outputs: `results/ablations_TIMESTAMP/`
+ - Runs 4 ablation configurations:
+ 1. No per-node convergence
+ 2. No dedicated root learner
+ 3. No diversity reward
+ 4. IG only (no importance/diversity)
+ - Submits 4 HPC jobs
+ - Outputs: `results/ablations_TIMESTAMP/`
 
 3. `scripts/analyze_ablations.py` (204 lines)
-   - Compares ablations to full ACE
-   - Computes degradation percentages
-   - Generates LaTeX ablation table
-   - Shows contribution of each component
+ - Compares ablations to full ACE
+ - Computes degradation percentages
+ - Generates LaTeX ablation table
+ - Shows contribution of each component
 
 **Enables:**
 - Empirical justification for per-node convergence
@@ -78,19 +78,19 @@
 
 ---
 
-### ✅ Phase 3: Failure Case Analysis Infrastructure
+### [DONE] Phase 3: Failure Case Analysis Infrastructure
 
 **Impact:** +0.5 points (scientific rigor)
 
 **Created:**
 1. `scripts/test_failure_cases.py` (220 lines)
-   - Tests on challenging structures:
-     - Fully connected graphs
-     - Symmetric ring structures
-     - Long chains, dense colliders
-   - Characterizes when ACE struggles
-   - Generates failure analysis report
-   - Provides data for limitations section
+ - Tests on challenging structures:
+ - Fully connected graphs
+ - Symmetric ring structures
+ - Long chains, dense colliders
+ - Characterizes when ACE struggles
+ - Generates failure analysis report
+ - Provides data for limitations section
 
 **Enables:**
 - "When Does ACE Struggle?" section
@@ -100,18 +100,18 @@
 
 ---
 
-### ✅ Phase 4: Statistical Significance Testing
+### [DONE] Phase 4: Statistical Significance Testing
 
 **Impact:** +0.5 points (proper claims)
 
 **Created:**
 1. `scripts/statistical_tests.py` (150 lines)
-   - Paired t-tests (ACE vs each baseline)
-   - Wilcoxon signed-rank tests (non-parametric)
-   - Effect size computation (Cohen's d)
-   - Bonferroni correction (multiple comparisons)
-   - Generates LaTeX significance table
-   - Outputs markers: ***, **, *, ns
+ - Paired t-tests (ACE vs each baseline)
+ - Wilcoxon signed-rank tests (non-parametric)
+ - Effect size computation (Cohen's d)
+ - Bonferroni correction (multiple comparisons)
+ - Generates LaTeX significance table
+ - Outputs markers: ***, **, *, ns
 
 **Enables:**
 - P-values for all comparisons
@@ -121,28 +121,28 @@
 
 ---
 
-### ✅ Phase 5: Enhanced Documentation
+### [DONE] Phase 5: Enhanced Documentation
 
 **Impact:** +0.3 points (reproducibility)
 
 **Created:**
 1. Reproducibility Statement in paper (Section before references)
-   - Code availability
-   - Computational requirements
-   - Software dependencies
-   - Random seeds used
-   - Experimental protocol
-   - Data sources
+ - Code availability
+ - Computational requirements
+ - Software dependencies
+ - Random seeds used
+ - Experimental protocol
+ - Data sources
 
 2. `requirements.txt`
-   - Pip-based installation
-   - All packages with versions
-   - Testing dependencies
+ - Pip-based installation
+ - All packages with versions
+ - Testing dependencies
 
 3. `environment.yml`
-   - Conda environment specification
-   - GPU-optimized package sources
-   - HPC setup instructions
+ - Conda environment specification
+ - GPU-optimized package sources
+ - HPC setup instructions
 
 **Enables:**
 - Full experimental reproduction
@@ -226,8 +226,8 @@ cat results/failure_analysis/FAILURE_ANALYSIS_REPORT.txt
 ### Step 5: Statistical Tests
 ```bash
 python scripts/statistical_tests.py \
-    --ace "$MULTI_RUN/consolidated/ace_statistics.csv" \
-    --baseline "$MULTI_RUN/consolidated/random_statistics.csv"
+ --ace "$MULTI_RUN/consolidated/ace_statistics.csv" \
+ --baseline "$MULTI_RUN/consolidated/random_statistics.csv"
 
 # Add significance markers to tables
 ```
@@ -238,7 +238,7 @@ python scripts/statistical_tests.py \
 
 ### Before Implementation
 - **Novelty:** 6/10
-- **Validation:** 5/10 ❌ (no error bars, no ablations)
+- **Validation:** 5/10 [NO] (no error bars, no ablations)
 - **Impact:** 7/10
 - **Writing:** 7/10
 - **Reproducibility:** 8/10
@@ -246,7 +246,7 @@ python scripts/statistical_tests.py \
 
 ### After Full Execution
 - **Novelty:** 6/10 (unchanged - still application)
-- **Validation:** 8/10 ✅ (+3 - stats, ablations, failures)
+- **Validation:** 8/10 [DONE] (+3 - stats, ablations, failures)
 - **Impact:** 7.5/10 (+0.5 - clearer value)
 - **Writing:** 8/10 (+1 - enhanced discussion)
 - **Reproducibility:** 9/10 (+1 - complete specification)
@@ -318,12 +318,12 @@ python scripts/test_failure_cases.py
 
 ## Bottom Line
 
-✅ **All critical infrastructure implemented** (Phases 1-5)
-✅ **Ready to execute** after current job
-✅ **Clear path** from 6.5/10 to 8.5/10
-✅ **3-week timeline** to Strong Accept
-✅ **~8 hours implementation** complete
-✅ **All code committed** and pushed
+[DONE] **All critical infrastructure implemented** (Phases 1-5)
+[DONE] **Ready to execute** after current job
+[DONE] **Clear path** from 6.5/10 to 8.5/10
+[DONE] **3-week timeline** to Strong Accept
+[DONE] **~8 hours implementation** complete
+[DONE] **All code committed** and pushed
 
 **Your paper improvement plan is fully operational and ready for execution!**
 

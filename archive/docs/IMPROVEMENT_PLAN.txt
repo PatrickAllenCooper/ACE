@@ -25,9 +25,9 @@ SEEDS=(42 123 456 789 1011)
 BASE_OUTPUT="results/multi_run_$(date +%Y%m%d_%H%M%S)"
 
 for SEED in "${SEEDS[@]}"; do
-    echo "Running with seed $SEED..."
-    RANDOM_SEED=$SEED ./run_all.sh
-    # Results will be in results/paper_TIMESTAMP/
+ echo "Running with seed $SEED..."
+ RANDOM_SEED=$SEED ./run_all.sh
+ # Results will be in results/paper_TIMESTAMP/
 done
 
 # Consolidate results
@@ -38,13 +38,13 @@ done
 ```python
 # Add to argparse:
 parser.add_argument("--seed", type=int, default=None, 
-                   help="Random seed for reproducibility")
+ help="Random seed for reproducibility")
 
 # In main():
 if args.seed is not None:
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-    random.seed(args.seed)
+ torch.manual_seed(args.seed)
+ np.random.seed(args.seed)
+ random.seed(args.seed)
 ```
 
 **Step 1.3: Create Consolidation Script (2 hours)**
@@ -59,7 +59,7 @@ if args.seed is not None:
 ```bash
 # Submit 5 independent runs
 for i in {1..5}; do
-    SEED=$i ./run_all.sh
+ SEED=$i ./run_all.sh
 done
 
 # Or use run_all_multi_seed.sh
@@ -105,10 +105,10 @@ done
 # Use global early stopping instead
 
 python ace_experiments.py \
-    --episodes 200 \
-    --early_stopping \
-    --no_per_node_convergence \
-    --output results/ablation_no_per_node
+ --episodes 200 \
+ --early_stopping \
+ --no_per_node_convergence \
+ --output results/ablation_no_per_node
 
 # Expected: Stops too early (fast learners converge, slow don't)
 # X5 (quadratic) should have higher loss
@@ -117,11 +117,11 @@ python ace_experiments.py \
 **Ablation 2: Remove Dedicated Root Learner (1 day compute)**
 ```bash
 python ace_experiments.py \
-    --episodes 200 \
-    --early_stopping \
-    --use_per_node_convergence \
-    --no_dedicated_root_learner \
-    --output results/ablation_no_root_learner
+ --episodes 200 \
+ --early_stopping \
+ --use_per_node_convergence \
+ --no_dedicated_root_learner \
+ --output results/ablation_no_root_learner
 
 # Expected: X1, X4 (roots) have higher losses
 # Interventional data doesn't help roots
@@ -130,10 +130,10 @@ python ace_experiments.py \
 **Ablation 3: Remove Diversity Reward (1 day compute)**
 ```bash
 python ace_experiments.py \
-    --episodes 200 \
-    --early_stopping \
-    --diversity_reward_weight 0.0 \
-    --output results/ablation_no_diversity
+ --episodes 200 \
+ --early_stopping \
+ --diversity_reward_weight 0.0 \
+ --output results/ablation_no_diversity
 
 # Expected: Policy collapses to single target (likely X2)
 # Imbalanced intervention distribution
@@ -144,9 +144,9 @@ python ace_experiments.py \
 ```bash
 # Test information gain ONLY (no importance, no diversity)
 python ace_experiments.py \
-    --episodes 200 \
-    --diversity_reward_weight 0.0 \
-    --output results/ablation_ig_only
+ --episodes 200 \
+ --diversity_reward_weight 0.0 \
+ --output results/ablation_ig_only
 
 # Expected: Similar or worse than full reward
 # Shows 3 components > 1 component
@@ -200,7 +200,7 @@ Full ACE & 0.XX ± 0.XX & 1.XX ± 0.XX & 45 ± 5 & Baseline \\
 ```python
 # Test ACE on:
 # - Fully connected graphs (every node affects every other)
-# - Long chains (X1 → X2 → ... → X10)
+# - Long chains (X1 -> X2 -> ... -> X10)
 # - Dense colliders (most nodes have 3+ parents)
 
 # Expected failures:
@@ -228,16 +228,16 @@ Full ACE & 0.XX ± 0.XX & 1.XX ± 0.XX & 45 ± 5 & Baseline \\
 Our experiments reveal several scenarios where ACE's advantages diminish:
 
 1. \emph{Fully Connected Graphs}: When all variables interact, 
-   interventions provide limited isolating power. In these cases,
-   strategic selection offers minimal advantage over random.
+ interventions provide limited isolating power. In these cases,
+ strategic selection offers minimal advantage over random.
 
 2. \emph{Small Sample Regime}: With <10 experiments, ACE cannot
-   learn meaningful policies. Baselines may be preferable for
-   extremely limited budgets.
+ learn meaningful policies. Baselines may be preferable for
+ extremely limited budgets.
 
 3. \emph{Preference Ambiguity}: When two interventions yield 
-   similar information gain (Δ < 0.1), DPO struggles to form
-   stable preferences, leading to sampling noise.
+ similar information gain (Δ < 0.1), DPO struggles to form
+ stable preferences, leading to sampling noise.
 
 Interestingly, Round-Robin occasionally matches ACE performance
 when the causal graph is balanced (equal importance across nodes).
@@ -277,40 +277,40 @@ import numpy as np
 from scipy import stats
 
 def compare_methods(ace_results, baseline_results, metric='total_loss'):
-    """
-    Compare ACE to baseline with statistical tests.
-    
-    Returns:
-        p_value: Statistical significance
-        effect_size: Cohen's d
-        significant: Boolean (p < 0.05)
-    """
-    # Paired t-test (assumes 5 runs each)
-    t_stat, p_value = stats.ttest_rel(ace_results, baseline_results)
-    
-    # Effect size
-    pooled_std = np.sqrt((ace_results.std()**2 + baseline_results.std()**2) / 2)
-    effect_size = (baseline_results.mean() - ace_results.mean()) / pooled_std
-    
-    return {
-        'p_value': p_value,
-        'effect_size': effect_size,
-        'significant': p_value < 0.05,
-        'mean_diff': baseline_results.mean() - ace_results.mean()
-    }
+ """
+ Compare ACE to baseline with statistical tests.
+ 
+ Returns:
+ p_value: Statistical significance
+ effect_size: Cohen's d
+ significant: Boolean (p < 0.05)
+ """
+ # Paired t-test (assumes 5 runs each)
+ t_stat, p_value = stats.ttest_rel(ace_results, baseline_results)
+ 
+ # Effect size
+ pooled_std = np.sqrt((ace_results.std()**2 + baseline_results.std()**2) / 2)
+ effect_size = (baseline_results.mean() - ace_results.mean()) / pooled_std
+ 
+ return {
+ 'p_value': p_value,
+ 'effect_size': effect_size,
+ 'significant': p_value < 0.05,
+ 'mean_diff': baseline_results.mean() - ace_results.mean()
+ }
 
 # Run for all baselines
 baselines = ['Random', 'Round-Robin', 'Max-Variance', 'PPO']
 for baseline in baselines:
-    result = compare_methods(ace_runs, baseline_runs)
-    print(f"ACE vs {baseline}: p={result['p_value']:.4f}, d={result['effect_size']:.2f}")
+ result = compare_methods(ace_runs, baseline_runs)
+ print(f"ACE vs {baseline}: p={result['p_value']:.4f}, d={result['effect_size']:.2f}")
 ```
 
 **Update Table 1:**
 ```latex
 % Add significance markers
 ACE (Ours) & 0.XX±0.XX & ... & 1.50±0.12*** & 45±5 \\
-Random     & 1.06±0.15 & ... & 2.17±0.23    & 100 \\
+Random & 1.06±0.15 & ... & 2.17±0.23 & 100 \\
 
 % Footer note:
 % *p<0.05, **p<0.01, ***p<0.001 (paired t-test)
@@ -430,7 +430,7 @@ ACE's advantages diminish or disappear:
 \emph{Symmetric Systems.} In graphs where all nodes have equal
 importance, ACE's strategic allocation offers no advantage over
 Round-Robin, which provides perfect balance at lower computational
-cost. Example: On a ring graph (X₁→X₂→X₃→X₁), Round-Robin matched
+cost. Example: On a ring graph (X₁->X₂->X₃->X₁), Round-Robin matched
 ACE performance (both achieving 1.8 ± 0.2 total loss).
 
 \emph{Fully Connected Graphs.} When every variable affects every
@@ -482,10 +482,10 @@ Our results suggest the following guidelines:
 ## Implementation Checklist
 
 ### Week 1: Statistical Validation
-- [x] Modify run_all.sh for multiple seeds ✅ (run_all_multi_seed.sh created)
-- [x] Add --seed argument to ace_experiments.py ✅
-- [x] Create consolidate_multi_runs.sh script ✅
-- [x] Create compute_statistics.py script ✅
+- [x] Modify run_all.sh for multiple seeds [DONE] (run_all_multi_seed.sh created)
+- [x] Add --seed argument to ace_experiments.py [DONE]
+- [x] Create consolidate_multi_runs.sh script [DONE]
+- [x] Create compute_statistics.py script [DONE]
 - [ ] Run all experiments 5 times (submit jobs) - READY TO RUN
 - [ ] Collect and consolidate results
 - [ ] Compute statistics (mean, std, CI)
@@ -494,11 +494,11 @@ Our results suggest the following guidelines:
 - [ ] Run t-tests, get p-values
 
 ### Week 2: Ablations & Failures
-- [x] Implement --no_per_node_convergence flag ✅
-- [x] Implement --no_dedicated_root_learner flag ✅
-- [x] Implement --no_diversity_reward flag ✅
-- [x] Create run_ablations.sh script ✅
-- [x] Create analyze_ablations.py script ✅
+- [x] Implement --no_per_node_convergence flag [DONE]
+- [x] Implement --no_dedicated_root_learner flag [DONE]
+- [x] Implement --no_diversity_reward flag [DONE]
+- [x] Create run_ablations.sh script [DONE]
+- [x] Create analyze_ablations.py script [DONE]
 - [ ] Run ablation 1 (no per-node) - READY TO RUN
 - [ ] Run ablation 2 (no root learner) - READY TO RUN
 - [ ] Run ablation 3 (no diversity) - READY TO RUN
@@ -514,9 +514,9 @@ Our results suggest the following guidelines:
 - [ ] Add ablation results to paper (after ablations run)
 - [ ] Add failure analysis to paper (after failure tests run)
 - [ ] Add statistical tests to paper (after multi-seed runs)
-- [x] Add reproducibility statement ✅ (Section added to paper)
-- [x] Create requirements.txt ✅
-- [x] Create environment.yml ✅
+- [x] Add reproducibility statement [DONE] (Section added to paper)
+- [x] Create requirements.txt [DONE]
+- [x] Create environment.yml [DONE]
 - [ ] Tighten abstract
 - [ ] Add "When to Use" guidelines
 - [ ] Enhance Discussion
@@ -529,7 +529,7 @@ Our results suggest the following guidelines:
 
 ---
 
-## INFRASTRUCTURE IMPLEMENTATION: COMPLETE ✅
+## INFRASTRUCTURE IMPLEMENTATION: COMPLETE [DONE]
 
 All 5 phases of critical infrastructure are now implemented and ready to use.
 
@@ -594,18 +594,18 @@ All 5 phases of critical infrastructure are now implemented and ready to use.
 
 ## Success Metrics
 
-**Minimum Success (Week Accept → Accept):**
-- Error bars in Table 1 ✓
-- 2 ablations showing component value ✓
-- 1 failure case documented ✓
+**Minimum Success (Week Accept -> Accept):**
+- Error bars in Table 1 [x]
+- 2 ablations showing component value [x]
+- 1 failure case documented [x]
 
-**Target Success (Borderline → Strong Accept):**
-- Full statistics (5 runs, CIs, p-values) ✓
-- 4 ablations validating all components ✓
-- Comprehensive failure characterization ✓
-- Enhanced discussion with guidelines ✓
+**Target Success (Borderline -> Strong Accept):**
+- Full statistics (5 runs, CIs, p-values) [x]
+- 4 ablations validating all components [x]
+- Comprehensive failure characterization [x]
+- Enhanced discussion with guidelines [x]
 
-**Stretch Success (Strong Accept → Top-Tier):**
+**Stretch Success (Strong Accept -> Top-Tier):**
 - Everything above PLUS
 - Theoretical justification
 - Comparison to GACBO/CORE
@@ -652,9 +652,9 @@ All 5 phases of critical infrastructure are now implemented and ready to use.
 3. Limitations (more specific)
 
 **Modified Content:**
-1. All metrics → mean ± std
-2. All figures → error bars/ribbons
-3. All claims → backed by significance tests
+1. All metrics -> mean ± std
+2. All figures -> error bars/ribbons
+3. All claims -> backed by significance tests
 4. Remove all TODO markers
 
 ---

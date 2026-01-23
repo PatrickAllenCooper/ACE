@@ -1,8 +1,8 @@
 # ACE: Autonomous Causal Experimentation
 
-## Latest Update: January 21, 2026 - 77% Test Coverage Achieved 🎯
+## Latest Update: January 21, 2026 - 77% Test Coverage Achieved 
 
-**Status:** ✅ Comprehensive test suite implemented - 470 tests, 77% coverage
+**Status:** [DONE] Comprehensive test suite implemented - 470 tests, 77% coverage
 
 **Testing Achievement:** 
 - 77% coverage (6,469/8,400 statements) - Target: 90% - Progress: 86% complete
@@ -13,7 +13,7 @@
 - Major gains: analysis tools (40% clamping, 34% regime, 21% compare), visualize (82%)
 - Remaining to 90%: 20 percentage points (~7-9 hours estimated)
 
-**Previous Status:** ✅ All improvements implemented and committed, ready for DPO training
+**Previous Status:** [DONE] All improvements implemented and committed, ready for DPO training
 
 ---
 
@@ -24,33 +24,33 @@
 ```
 ACE/
 ├── README.md, CHANGELOG.md, START_HERE.md, RUN_ALL_SUMMARY.md
-├── ace_experiments.py           # Main ACE (DPO) experiment
-├── baselines.py                 # Baseline comparisons  
-├── visualize.py                 # Result visualization
-├── compare_methods.py           # Method comparison & tables
-├── clamping_detector.py         # Verify clamping claim
-├── regime_analyzer.py           # Verify regime selection claim
-├── run_all.sh                   # ⭐ HPC job orchestrator
-├── jobs/                        # SLURM job scripts (5 jobs)
-├── scripts/                     # Utility scripts (9 scripts)
-├── experiments/                 # Additional experiments (3 modules)
-├── tests/                       # Test suite (77% coverage, 470 tests)
-├── paper/                       # LaTeX source
-├── results/                     # Experiment results (copy-friendly, no checkpoints)
-├── checkpoints/                 # Training checkpoints (separate, gitignored)
-├── logs/                        # Job logs
-└── guidance_documents/          # This file
+├── ace_experiments.py # Main ACE (DPO) experiment
+├── baselines.py # Baseline comparisons 
+├── visualize.py # Result visualization
+├── compare_methods.py # Method comparison & tables
+├── clamping_detector.py # Verify clamping claim
+├── regime_analyzer.py # Verify regime selection claim
+├── run_all.sh # HPC job orchestrator
+├── jobs/ # SLURM job scripts (5 jobs)
+├── scripts/ # Utility scripts (9 scripts)
+├── experiments/ # Additional experiments (3 modules)
+├── tests/ # Test suite (77% coverage, 470 tests)
+├── paper/ # LaTeX source
+├── results/ # Experiment results (copy-friendly, no checkpoints)
+├── checkpoints/ # Training checkpoints (separate, gitignored)
+├── logs/ # Job logs
+└── guidance_documents/ # This file
 ```
 
 ### HPC Workflow (run_all.sh)
 
 **Submits 5 Jobs to Support Paper Claims:**
 
-1. **Job 1: ACE Main** → Table 1 (ACE results), Section 3.4.1
-2. **Job 2: Baselines** → Table 1 (Random, RR, MaxVar, PPO), Section 3.8  
-3. **Job 3: Complex SCM** → Section 3.4.2 (hard benchmark)
-4. **Job 4: Duffing** → Section 3.6 (clamping strategy)
-5. **Job 5: Phillips** → Section 3.7 (regime selection)
+1. **Job 1: ACE Main** -> Table 1 (ACE results), Section 3.4.1
+2. **Job 2: Baselines** -> Table 1 (Random, RR, MaxVar, PPO), Section 3.8 
+3. **Job 3: Complex SCM** -> Section 3.4.2 (hard benchmark)
+4. **Job 4: Duffing** -> Section 3.6 (clamping strategy)
+5. **Job 5: Phillips** -> Section 3.7 (regime selection)
 
 **Output Naming Convention (Timestamp-based):**
 - Format: `results/paper_YYYYMMDD_HHMMSS/`
@@ -60,63 +60,63 @@ ACE/
 
 **Finding Latest Run:**
 ```bash
-ls -td results/paper_* | head -1        # Latest run directory
-tail -f $(ls -t logs/ace_main_*.out | head -1)  # Latest ACE log
+ls -td results/paper_* | head -1 # Latest run directory
+tail -f $(ls -t logs/ace_main_*.out | head -1) # Latest ACE log
 ```
 
 **Verification Scripts:**
-- `clamping_detector.py` → Verify Line 661 claim (clamping)
-- `regime_analyzer.py` → Verify Line 714 claim (regime selection)
-- `scripts/verify_claims.sh` → Line 767 (early stopping), Line 485 (concentration)
-- `compare_methods.py` → Generate Table 1
+- `clamping_detector.py` -> Verify Line 661 claim (clamping)
+- `regime_analyzer.py` -> Verify Line 714 claim (regime selection)
+- `scripts/verify_claims.sh` -> Line 767 (early stopping), Line 485 (concentration)
+- `compare_methods.py` -> Generate Table 1
 
-### What's Complete ✅
+### What's Complete [DONE]
 
-1. ✅ run_all.sh submits all necessary jobs
-2. ✅ All 5 job scripts exist and are executable
-3. ✅ Verification scripts exist (clamping, regime, compare)
-4. ✅ Extraction scripts exist (extract_ace.sh, extract_baselines.sh)
-5. ✅ All experiments are runnable
-6. ✅ Project structure is organized
-7. ✅ 77% test coverage validates components
+1. [DONE] run_all.sh submits all necessary jobs
+2. [DONE] All 5 job scripts exist and are executable
+3. [DONE] Verification scripts exist (clamping, regime, compare)
+4. [DONE] Extraction scripts exist (extract_ace.sh, extract_baselines.sh)
+5. [DONE] All experiments are runnable
+6. [DONE] Project structure is organized
+7. [DONE] 77% test coverage validates components
 
-### What's Complete for Paper Verification ✅
+### What's Complete for Paper Verification [DONE]
 
 **Automated Post-Processing Workflow:**
 
-1. ✅ **Integrated Post-Processing Script**
-   - Created: `scripts/process_all_results.sh`
-   - Orchestrates:
-     - Extract metrics from all jobs
-     - Run verification (clamping, regime, concentration, early stopping)
-     - Generate comparison tables
-     - Create figures
-     - Produce claim verification report
-   - Single command: `./scripts/process_all_results.sh RESULTS_DIR`
-   - Integrated into run_all.sh workflow
+1. [DONE] **Integrated Post-Processing Script**
+ - Created: `scripts/process_all_results.sh`
+ - Orchestrates:
+ - Extract metrics from all jobs
+ - Run verification (clamping, regime, concentration, early stopping)
+ - Generate comparison tables
+ - Create figures
+ - Produce claim verification report
+ - Single command: `./scripts/process_all_results.sh RESULTS_DIR`
+ - Integrated into run_all.sh workflow
 
 2. **LaTeX Table Generation**
-   - `compare_methods.py` exists but need LaTeX output format
-   - Need automated Table 1 generation ready for paper
+ - `compare_methods.py` exists but need LaTeX output format
+ - Need automated Table 1 generation ready for paper
 
 3. **Claim-to-Evidence Mapping**
-   - Document which paper claim is supported by which job/script
-   - Automated verification all claims have supporting data
+ - Document which paper claim is supported by which job/script
+ - Automated verification all claims have supporting data
 
 4. **Dependencies Documentation**
-   - Need: `requirements.txt` for pip users
-   - Need: `environment.yml` for conda users
+ - Need: `requirements.txt` for pip users
+ - Need: `environment.yml` for conda users
 
 **Important (Best Practices):**
 
 5. **Results Documentation**
-   - Need: `results/README.md` explaining output structure
+ - Need: `results/README.md` explaining output structure
 
 6. **Post-Job Automation**
-   - Workflow: run_all.sh completes → auto-extract → auto-verify → auto-tables
+ - Workflow: run_all.sh completes -> auto-extract -> auto-verify -> auto-tables
 
 7. **Figure Generation Automation**
-   - Batch process all visualizations for paper
+ - Batch process all visualizations for paper
 
 **Recommended Action Plan:**
 
@@ -142,9 +142,9 @@ This would generate:
 
 **Complete improvements (19 total):**
 1. Adaptive diversity threshold - allows strategic 60-75% concentration
-2. Value novelty bonus - fixes zero-reward saturation (99% → 40-60%)
+2. Value novelty bonus - fixes zero-reward saturation (99% -> 40-60%)
 3. Emergency retraining - prevents gradient death
-4. Dynamic candidate reduction - 3-4x faster episodes (13.5m → 3-5m)
+4. Dynamic candidate reduction - 3-4x faster episodes (13.5m -> 3-5m)
 5. Improved early stopping - triggers at 50-80 episodes
 6. PPO bug fix - shape mismatch resolved
 7. **Observational training restored** - prevents mechanism forgetting (every 3 steps)
@@ -154,8 +154,8 @@ This would generate:
 
 **Launch Commands:**
 ```bash
-./pipeline_test.sh           # Validate (30 min)
-sbatch jobs/run_ace_main.sh  # Launch DPO training (4-6 hours)
+./pipeline_test.sh # Validate (30 min)
+sbatch jobs/run_ace_main.sh # Launch DPO training (4-6 hours)
 ```
 
 **Key Feature:** Dual observational training (step-level + episode-level) prevents catastrophic forgetting while enabling interventional learning.
@@ -190,18 +190,18 @@ ACE is a system for learning Structural Causal Models (SCMs) through autonomous 
 The ground truth SCM contains a **collider structure** that is particularly difficult to learn:
 
 ```
-     X1 ──────────┬──────────→ X3 (COLLIDER)
-      │           │             ↑
-      └───→ X2 ───┘─────────────┘
-      
-     X4 ──────────→ X5
+ X1 ──────────┬──────────-> X3 (COLLIDER)
+ │ │ ↑
+ └───-> X2 ───┘─────────────┘
+
+ X4 ──────────-> X5
 ```
 
 **Ground Truth Mechanisms:**
-- X1 ~ N(0, 1)  [exogenous root]
-- X4 ~ N(2, 1)  [exogenous root]
+- X1 ~ N(0, 1) [exogenous root]
+- X4 ~ N(2, 1) [exogenous root]
 - X2 = 2.0 * X1 + 1.0 + ε
-- X3 = 0.5 * X1 - X2 + sin(X2) + ε  **[COLLIDER - 2 parents]**
+- X3 = 0.5 * X1 - X2 + sin(X2) + ε **[COLLIDER - 2 parents]**
 - X5 = 0.2 * X4² + ε
 
 **Why X3 is Hard:**
@@ -215,27 +215,27 @@ The ground truth SCM contains a **collider structure** that is particularly diff
 
 ## Current Status (2026-01-21, 10:15 AM)
 
-### Ready to Launch DPO Training ✅
+### Ready to Launch DPO Training [DONE]
 
 **All improvements committed (7 git commits):**
-- ✅ Training fixes: Adaptive diversity, novelty bonus, emergency retrain, speedups
-- ✅ Observational training: RESTORED (step-level + dedicated root learner)
-- ✅ PPO bug: FIXED (shape mismatch resolved)
-- ✅ Paper revisions: 3 claims corrected for accuracy
-- ✅ Verification tools: clamping detector, regime analyzer, extraction scripts
-- ✅ Git: Clean, ready to push
+- [DONE] Training fixes: Adaptive diversity, novelty bonus, emergency retrain, speedups
+- [DONE] Observational training: RESTORED (step-level + dedicated root learner)
+- [DONE] PPO bug: FIXED (shape mismatch resolved)
+- [DONE] Paper revisions: 3 claims corrected for accuracy
+- [DONE] Verification tools: clamping detector, regime analyzer, extraction scripts
+- [DONE] Git: Clean, ready to push
 
 **Experimental Status:**
-- ✅ Baselines: Complete (Round-Robin 1.99 best, Random 2.17, Max-Var 2.09)
-- ✅ Root learner: Validated (98.7% improvement)
-- ✅ Duffing & Phillips: Complete
-- 🔄 Complex SCM: Running (greedy_collider)
-- ⏳ ACE main: Ready to launch with all fixes
+- [DONE] Baselines: Complete (Round-Robin 1.99 best, Random 2.17, Max-Var 2.09)
+- [DONE] Root learner: Validated (98.7% improvement)
+- [DONE] Duffing & Phillips: Complete
+- [PENDING] Complex SCM: Running (greedy_collider)
+- [PENDING] ACE main: Ready to launch with all fixes
 
 **Launch Commands:**
 ```bash
-./pipeline_test.sh           # Test fixes (30 min)
-sbatch jobs/run_ace_main.sh  # ACE training (4-6 hours)
+./pipeline_test.sh # Test fixes (30 min)
+sbatch jobs/run_ace_main.sh # ACE training (4-6 hours)
 ```
 
 **What Will Run:**
@@ -247,27 +247,27 @@ sbatch jobs/run_ace_main.sh  # ACE training (4-6 hours)
 
 **After Training:**
 ```bash
-./verify_claims.sh           # Verify all paper claims
-./extract_ace.sh             # Extract metrics for tables
-python compare_methods.py    # Generate Table 1
+./verify_claims.sh # Verify all paper claims
+./extract_ace.sh # Extract metrics for tables
+python compare_methods.py # Generate Table 1
 ```
 
 ### Paper Readiness
-- ✅ All 5 experiments analyzed and aligned
-- ✅ 3 paper claims revised for accuracy (lines 609, 661, 714)
-- ⏳ Need ACE results to fill Table 1
-- ⏳ Need verification of behavioral claims
+- [DONE] All 5 experiments analyzed and aligned
+- [DONE] 3 paper claims revised for accuracy (lines 609, 661, 714)
+- [PENDING] Need ACE results to fill Table 1
+- [PENDING] Need verification of behavioral claims
 - 📅 ETA to submission: 3-5 days after launch
 
 ### Paper Experiments Status
 | Experiment | Paper Section | Status |
 |------------|---------------|--------|
-| Synthetic 5-node SCM | 3.4.1 | ✅ `ace_experiments.py` |
-| Complex 15-node SCM | 3.4.2 (NEW) | ✅ `experiments/complex_scm.py` |
-| Baselines (Random, Round-Robin, Max-Variance) | 3.8 | ✅ `baselines.py` |
-| PPO Comparison | Discussion | ✅ `baselines.py` |
-| Coupled Duffing Oscillators | 3.6 | ✅ `experiments/duffing_oscillators.py` |
-| US Phillips Curve (FRED) | 3.7 | ✅ `experiments/phillips_curve.py` |
+| Synthetic 5-node SCM | 3.4.1 | [DONE] `ace_experiments.py` |
+| Complex 15-node SCM | 3.4.2 (NEW) | [DONE] `experiments/complex_scm.py` |
+| Baselines (Random, Round-Robin, Max-Variance) | 3.8 | [DONE] `baselines.py` |
+| PPO Comparison | Discussion | [DONE] `baselines.py` |
+| Coupled Duffing Oscillators | 3.6 | [DONE] `experiments/duffing_oscillators.py` |
+| US Phillips Curve (FRED) | 3.7 | [DONE] `experiments/phillips_curve.py` |
 
 ### Historical Context
 Analysis of `run_20260103_141404` revealed original failure:
@@ -280,7 +280,7 @@ Analysis of `run_20260103_141404` revealed original failure:
 ## Current Solution Approach
 
 ### 1. Problem-First Prompt Restructuring
-Old prompt buried loss info and ended with "DO" → biased toward X1.
+Old prompt buried loss info and ended with "DO" -> biased toward X1.
 New prompt:
 - STARTS with "PROBLEM: Node losses - X3=1.82, X2=0.01..."
 - Explicitly says "To fix X3, intervene on parents X1, X2"
@@ -334,7 +334,7 @@ Each run generates:
 
 ### Why Document Results?
 
-1. **Audit Trail:** Clear path from raw data → evidence → paper claims
+1. **Audit Trail:** Clear path from raw data -> evidence -> paper claims
 2. **Prevent Loss:** Don't lose important findings in log files
 3. **Track Claims:** Know which claims are supported vs aspirational
 4. **Review Readiness:** Easy to verify all claims before submission
@@ -342,9 +342,9 @@ Each run generates:
 ### What to Document
 
 Document EVERY experimental run that:
-- ✅ Supports a paper claim
-- ⚠️ Partially supports a paper claim
-- ❌ Contradicts a paper claim
+- [DONE] Supports a paper claim
+- [WARNING] Partially supports a paper claim
+- [NO] Contradicts a paper claim
 - 🔬 Tests a specific hypothesis
 
 ### When to Document
@@ -358,20 +358,20 @@ Document EVERY experimental run that:
 ### How to Document
 
 1. **Add entry to `results/RESULTS_LOG.md`** with:
-   - Date and run ID
-   - Key metrics and findings
-   - Which paper lines/claims it supports
-   - Path to evidence files
-   - Any caveats or issues
+ - Date and run ID
+ - Key metrics and findings
+ - Which paper lines/claims it supports
+ - Path to evidence files
+ - Any caveats or issues
 
 2. **For major findings, create `results/claim_evidence/[claim].md`**
-   - Detailed evidence for specific claim
-   - Multiple runs supporting same claim
-   - Statistical analysis if available
+ - Detailed evidence for specific claim
+ - Multiple runs supporting same claim
+ - Statistical analysis if available
 
 3. **Save publication-ready figures to `results/figures/`**
-   - Include metadata about source run
-   - Use consistent naming convention
+ - Include metadata about source run
+ - Use consistent naming convention
 
 ### Example Workflow
 
@@ -403,16 +403,16 @@ cp results/paper_*/ace/learning_curves.png results/figures/
 ### Before Writing Paper Claims
 
 **DO:**
-- ✅ Check `results/RESULTS_LOG.md` for supporting evidence
-- ✅ Use actual numbers from documented runs
-- ✅ Reference specific evidence files
-- ✅ Note any caveats or limitations
+- [DONE] Check `results/RESULTS_LOG.md` for supporting evidence
+- [DONE] Use actual numbers from documented runs
+- [DONE] Reference specific evidence files
+- [DONE] Note any caveats or limitations
 
 **DON'T:**
-- ❌ Write claims before having results
-- ❌ Use placeholder values
-- ❌ Make aspirational claims without marking them
-- ❌ Forget to document negative results
+- [NO] Write claims before having results
+- [NO] Use placeholder values
+- [NO] Make aspirational claims without marking them
+- [NO] Forget to document negative results
 
 ### Before Paper Submission
 
@@ -431,9 +431,9 @@ See `results/README.md` for detailed templates and examples.
 
 ### Comprehensive Test Coverage (January 21, 2026)
 
-**Status:** 60% coverage achieved, continuing toward 90% goal  
-**Tests:** 239 passing (99% pass rate)  
-**Documentation:** See `TESTING.md` for complete guide  
+**Status:** 60% coverage achieved, continuing toward 90% goal 
+**Tests:** 239 passing (99% pass rate) 
+**Documentation:** See `TESTING.md` for complete guide 
 **Framework:** Modern pytest with statistical and property-based testing
 
 #### Testing Strategy
@@ -469,8 +469,8 @@ pytest>=8.0.0
 pytest-cov>=5.0.0
 pytest-mock>=3.12.0
 pytest-timeout>=2.2.0
-pytest-xdist>=3.5.0      # Parallel execution
-hypothesis>=6.100.0      # Property-based testing
+pytest-xdist>=3.5.0 # Parallel execution
+hypothesis>=6.100.0 # Property-based testing
 ```
 
 **Running Tests:**
@@ -495,18 +495,18 @@ pytest -n auto
 
 ```
 tests/
-├── conftest.py              # Shared fixtures
-├── pytest.ini               # Configuration
+├── conftest.py # Shared fixtures
+├── pytest.ini # Configuration
 ├── test_ground_truth_scm.py # Core SCM tests
-├── test_student_scm.py      # Student model tests
-├── test_llm_policy.py       # LLM policy tests
-├── test_dpo_trainer.py      # DPO training tests
+├── test_student_scm.py # Student model tests
+├── test_llm_policy.py # LLM policy tests
+├── test_dpo_trainer.py # DPO training tests
 ├── test_reward_functions.py # Reward computation tests
-├── baselines/               # Baseline policy tests
-├── integration/             # E2E workflow tests
-├── statistical/             # Property tests
-├── regression/              # Performance tracking
-└── experiments/             # Experiment-specific tests
+├── baselines/ # Baseline policy tests
+├── integration/ # E2E workflow tests
+├── statistical/ # Property tests
+├── regression/ # Performance tracking
+└── experiments/ # Experiment-specific tests
 ```
 
 #### Key Fixtures
@@ -514,35 +514,35 @@ tests/
 ```python
 @pytest.fixture
 def seed_everything():
-    """Set all random seeds for reproducibility."""
-    
+ """Set all random seeds for reproducibility."""
+
 @pytest.fixture
 def ground_truth_scm():
-    """GroundTruthSCM instance."""
-    
+ """GroundTruthSCM instance."""
+
 @pytest.fixture
 def student_scm():
-    """Untrained StudentSCM instance."""
-    
+ """Untrained StudentSCM instance."""
+
 @pytest.fixture
 def mock_llm():
-    """Mock LLM for GPU-free testing."""
-    
+ """Mock LLM for GPU-free testing."""
+
 @pytest.fixture
 def test_output_dir():
-    """Temporary directory for test outputs."""
+ """Temporary directory for test outputs."""
 ```
 
 #### Test Markers
 
 ```python
-@pytest.mark.unit           # Fast, isolated tests
-@pytest.mark.integration    # Multi-component tests
-@pytest.mark.slow           # End-to-end tests (>30s)
-@pytest.mark.statistical    # Probabilistic assertions
-@pytest.mark.regression     # Performance tracking
-@pytest.mark.requires_gpu   # GPU-dependent tests
-@pytest.mark.requires_hf    # HuggingFace models required
+@pytest.mark.unit # Fast, isolated tests
+@pytest.mark.integration # Multi-component tests
+@pytest.mark.slow # End-to-end tests (>30s)
+@pytest.mark.statistical # Probabilistic assertions
+@pytest.mark.regression # Performance tracking
+@pytest.mark.requires_gpu # GPU-dependent tests
+@pytest.mark.requires_hf # HuggingFace models required
 ```
 
 #### Example Test
@@ -551,23 +551,23 @@ def test_output_dir():
 @pytest.mark.unit
 @pytest.mark.statistical
 def test_x3_collider_mechanism(scm, seed_everything):
-    """Test X3 = 0.5*X1 - X2 + sin(X2) mechanism."""
-    seed_everything(42)
-    n = 10000
-    
-    # Generate observational data
-    data = scm.generate(n)
-    
-    # Compute expected X3
-    expected = 0.5 * data['X1'] - data['X2'] + torch.sin(data['X2'])
-    
-    # Assert match (allowing for noise std=0.1)
-    actual = data['X3']
-    residuals = (actual - expected).abs()
-    
-    # Should be centered near 0 with std ≈ 0.1
-    assert residuals.mean() == pytest.approx(0.0, abs=0.05)
-    assert residuals.std() == pytest.approx(0.1, abs=0.05)
+ """Test X3 = 0.5*X1 - X2 + sin(X2) mechanism."""
+ seed_everything(42)
+ n = 10000
+
+ # Generate observational data
+ data = scm.generate(n)
+
+ # Compute expected X3
+ expected = 0.5 * data['X1'] - data['X2'] + torch.sin(data['X2'])
+
+ # Assert match (allowing for noise std=0.1)
+ actual = data['X3']
+ residuals = (actual - expected).abs()
+
+ # Should be centered near 0 with std ≈ 0.1
+ assert residuals.mean() == pytest.approx(0.0, abs=0.05)
+ assert residuals.std() == pytest.approx(0.1, abs=0.05)
 ```
 
 #### CI/CD Integration
@@ -614,10 +614,10 @@ def test_x3_collider_mechanism(scm, seed_everything):
 
 | Milestone | Unit Cov | Integration Cov | Overall Cov |
 |-----------|----------|----------------|-------------|
-| Week 2    | 50%      | 0%             | 40%         |
-| Week 4    | 80%      | 50%            | 70%         |
-| Week 6    | 90%      | 80%            | 85%         |
-| Complete  | 95%      | 90%            | 90%+        |
+| Week 2 | 50% | 0% | 40% |
+| Week 4 | 80% | 50% | 70% |
+| Week 6 | 90% | 80% | 85% |
+| Complete | 95% | 90% | 90%+ |
 
 **Quality Targets:**
 - All tests pass on Python 3.9-3.11
@@ -636,24 +636,24 @@ The core ACE framework with LLM-based policy and DPO training.
 Implements four baseline intervention strategies for comparison:
 
 1. **Random Policy (Lower Bound)**
-   - Uniformly samples target node and intervention value
-   - Represents unguided, passive exploration
+ - Uniformly samples target node and intervention value
+ - Represents unguided, passive exploration
 
 2. **Round-Robin (Systematic Heuristic)**
-   - Cycles through nodes in fixed topological order
-   - Tests if adaptive, non-uniform sampling is necessary
+ - Cycles through nodes in fixed topological order
+ - Tests if adaptive, non-uniform sampling is necessary
 
 3. **Max-Variance (Uncertainty Sampling)**
-   - Greedy active learning using MC Dropout
-   - Selects interventions maximizing predictive variance
-   - Represents standard "greedy" optimal experimental design
+ - Greedy active learning using MC Dropout
+ - Selects interventions maximizing predictive variance
+ - Represents standard "greedy" optimal experimental design
 
 4. **PPO (Proximal Policy Optimization)**
-   - Actor-Critic RL baseline for fair comparison with DPO
-   - Same reward signal: Information Gain + coverage bonuses
-   - Same replay buffer, observational training interval
-   - Uses GAE for advantage estimation, clipped surrogate objective
-   - Tests paper's claim that DPO outperforms value-based RL
+ - Actor-Critic RL baseline for fair comparison with DPO
+ - Same reward signal: Information Gain + coverage bonuses
+ - Same replay buffer, observational training interval
+ - Uses GAE for advantage estimation, clipped surrogate objective
+ - Tests paper's claim that DPO outperforms value-based RL
 
 ```bash
 # Run individual baseline
@@ -671,7 +671,7 @@ python baselines.py --all_with_ppo --episodes 100
 
 ### Visualization: `visualize.py`
 ```bash
-python visualize.py run_YYYYMMDD_HHMMSS/  # Success verification dashboard
+python visualize.py run_YYYYMMDD_HHMMSS/ # Success verification dashboard
 ```
 
 ### Additional Experiments: `experiments/`
@@ -702,11 +702,11 @@ This should reveal advantages of strategic intervention policies.
 
 ### Full Pipeline: `run_all.sh` (HPC/SLURM)
 ```bash
-sbatch run_all.sh                           # Full paper experiments
-QUICK=true sbatch run_all.sh                # Quick validation
-ACE_EPISODES=200 sbatch run_all.sh          # Custom episodes
-squeue -u $USER                             # Monitor job
-tail -f logs/paper_*.out                    # View progress
+sbatch run_all.sh # Full paper experiments
+QUICK=true sbatch run_all.sh # Quick validation
+ACE_EPISODES=200 sbatch run_all.sh # Custom episodes
+squeue -u $USER # Monitor job
+tail -f logs/paper_*.out # View progress
 ```
 
 ---
@@ -716,41 +716,41 @@ tail -f logs/paper_*.out                    # View progress
 ### ACE Main Script
 ```bash
 python ace_experiments.py \
-    --episodes 100 \
-    --pretrain_steps 100 \        # Supervised pre-training before DPO
-    --pretrain_interval 50 \      # Re-train every N episodes
-    --smart_breaker \             # Prioritize collider parents in collapse breaker
-    --obs_train_interval 5 \      # Observational training every N steps (0=disabled)
-    --obs_train_samples 100 \     # Samples per observational injection
-    --obs_train_epochs 50 \       # Training epochs for observational data
-    --debug_parsing               # Enable parse debug logging
+ --episodes 100 \
+ --pretrain_steps 100 \ # Supervised pre-training before DPO
+ --pretrain_interval 50 \ # Re-train every N episodes
+ --smart_breaker \ # Prioritize collider parents in collapse breaker
+ --obs_train_interval 5 \ # Observational training every N steps (0=disabled)
+ --obs_train_samples 100 \ # Samples per observational injection
+ --obs_train_epochs 50 \ # Training epochs for observational data
+ --debug_parsing # Enable parse debug logging
 ```
 
 ### Baselines Script
 ```bash
 python baselines.py \
-    --baseline random \           # Or: round_robin, max_variance, ppo
-    --all \                       # Run all baselines (excluding PPO)
-    --all_with_ppo \              # Run all baselines including PPO
-    --episodes 50 \               # Number of episodes
-    --steps 25 \                  # Steps per episode
-    --obs_train_interval 5 \      # Observational training interval
-    --ppo_lr 3e-4 \               # PPO learning rate
-    --ppo_epochs 4 \              # PPO epochs per update
-    --ppo_clip 0.2 \              # PPO clip epsilon
-    --output results              # Output directory
+ --baseline random \ # Or: round_robin, max_variance, ppo
+ --all \ # Run all baselines (excluding PPO)
+ --all_with_ppo \ # Run all baselines including PPO
+ --episodes 50 \ # Number of episodes
+ --steps 25 \ # Steps per episode
+ --obs_train_interval 5 \ # Observational training interval
+ --ppo_lr 3e-4 \ # PPO learning rate
+ --ppo_epochs 4 \ # PPO epochs per update
+ --ppo_clip 0.2 \ # PPO clip epsilon
+ --output results # Output directory
 ```
 
 ### Run All Script (Paper Experiments)
 ```bash
 python run_all.py \
-    --quick \                     # Fast validation (~5 min)
-    --full \                      # Full paper experiments (~2-4 hours)
-    --ace_episodes 500 \          # Override ACE episodes
-    --baseline_episodes 100 \     # Override baseline episodes
-    --use_custom \                # Use custom transformer (faster)
-    --skip_ppo \                  # Skip PPO baseline
-    --timeout 14400               # Timeout per experiment (seconds)
+ --quick \ # Fast validation (~5 min)
+ --full \ # Full paper experiments (~2-4 hours)
+ --ace_episodes 500 \ # Override ACE episodes
+ --baseline_episodes 100 \ # Override baseline episodes
+ --use_custom \ # Use custom transformer (faster)
+ --skip_ppo \ # Skip PPO baseline
+ --timeout 14400 # Timeout per experiment (seconds)
 ```
 
 ---
@@ -758,9 +758,9 @@ python run_all.py \
 ## Success Criteria
 
 ### Primary (All mechanisms learned)
-1. **X3 Loss < 0.5** - The collider mechanism is learned ✅ (achieved ~0.07)
+1. **X3 Loss < 0.5** - The collider mechanism is learned [DONE] (achieved ~0.07)
 2. **X2 Loss < 1.0** - The linear mechanism is preserved (requires obs training)
-3. **X5 Loss < 0.5** - The quadratic mechanism is learned ✅ (achieved ~0.18)
+3. **X5 Loss < 0.5** - The quadratic mechanism is learned [DONE] (achieved ~0.18)
 4. **X1, X4 Loss < 1.0** - Root distributions captured
 
 ### Secondary (Training health)
@@ -782,12 +782,12 @@ python run_all.py \
 1. Check `metrics.csv` - Is X2 getting interventions?
 2. Check `value_diversity.csv` - Are X2 values diverse (not stuck at single value)?
 3. Check `dpo_training.csv` - Is preference_margin positive?
-4. Check `mechanism_contrast.png` - Are X2→X3 and X1→X3 slices accurate?
+4. Check `mechanism_contrast.png` - Are X2->X3 and X1->X3 slices accurate?
 
 ### If X2 mechanism is forgotten (high loss):
 1. Verify `--obs_train_interval` is enabled (default: 3)
 2. Check intervention distribution - if >90% X2, increase observational training
-3. Check `mechanism_contrast.png` - Is X1→X2 line flat (untrained network)?
+3. Check `mechanism_contrast.png` - Is X1->X2 line flat (untrained network)?
 
 ### If root nodes (X1, X4) aren't learning:
 1. Enable `--root_fitting` for explicit root distribution fitting
@@ -812,14 +812,14 @@ python run_all.py \
 
 ### Problem: Catastrophic Forgetting of X2 Mechanism
 Analysis of `run_20260113_060752` and `run_20260114_095334` revealed:
-- X3 collider was learned successfully (loss ~0.07) ✓
-- X2 mechanism was **catastrophically forgotten** (loss ~22) ✗
+- X3 collider was learned successfully (loss ~0.07) [x]
+- X2 mechanism was **catastrophically forgotten** (loss ~22) [x]
 - Intervention distribution was 98.9% X2, only 1.1% X1
 
 **Root Cause:**
 When `DO(X2=v)` is applied, X2 is set directly to value `v`. This means:
-1. The student's X2 mechanism `f(X1) → X2` is **never called**
-2. The X1→X2 relationship `X2 = 2·X1 + 1` receives no gradient updates
+1. The student's X2 mechanism `f(X1) -> X2` is **never called**
+2. The X1->X2 relationship `X2 = 2·X1 + 1` receives no gradient updates
 3. After 1500+ X2 interventions, the X2 mechanism network outputs garbage
 
 ### Solution: Periodic Observational Training
@@ -827,9 +827,9 @@ Every N steps, inject observational data (no intervention) to preserve all mecha
 
 ```python
 # New CLI arguments:
---obs_train_interval 5    # Train on observational data every 5 steps
---obs_train_samples 100   # Number of samples per injection
---obs_train_epochs 50     # Training epochs for observational data
+--obs_train_interval 5 # Train on observational data every 5 steps
+--obs_train_samples 100 # Number of samples per injection
+--obs_train_epochs 50 # Training epochs for observational data
 ```
 
 **Implementation:**
@@ -851,20 +851,20 @@ Analysis of `run_20260112_011254` revealed a new failure mode:
 - The agent correctly shifted from X1 to X2.
 - However, it collapsed to a **single static value** `DO(X2 = 1.5)`.
 - **Consequence:** 
-    - The learner observed a 1D slice of the X3 mechanism ($X3 = f(X1, 1.5)$).
-    - This slice is easily fit by a linear model, resulting in **Zero Training Loss**.
-    - The validation set (where X2 varies) showed **High Error**, but the reward signal (delta loss) was zero because the agent kept repeating the same "perfect" action.
-    - The standard Collapse Breaker failed because it injected X1 (correlated) or X4 (irrelevant), never forcing X2 to vary.
+ - The learner observed a 1D slice of the X3 mechanism ($X3 = f(X1, 1.5)$).
+ - This slice is easily fit by a linear model, resulting in **Zero Training Loss**.
+ - The validation set (where X2 varies) showed **High Error**, but the reward signal (delta loss) was zero because the agent kept repeating the same "perfect" action.
+ - The standard Collapse Breaker failed because it injected X1 (correlated) or X4 (irrelevant), never forcing X2 to vary.
 
 ### Solution: Value-Aware Collapse Breaker
 We implemented a principled extension to the Smart Breaker:
-1.  **Context Detection:** Identifies if the collapsed node is a **Parent of a Collider** (e.g., X2 is parent of X3).
-2.  **Constraint:** Recognizes that for collider parents, *existence* of intervention isn't enough; *variance* is required.
-3.  **Action:** Injects an intervention for the **SAME NODE** (X2) but with a **RADICALLY DIFFERENT VALUE** (e.g., flipping sign or moving to bounds).
-4.  **Mechanism:**
-    - Calculates mean of recent values (e.g., 1.5).
-    - Samples `new_val` from a disjoint range (e.g., [-5, 0]).
-    - This forces the learner to predict on a new support region, exposing the error in its simplified model and generating a strong gradient signal.
+1. **Context Detection:** Identifies if the collapsed node is a **Parent of a Collider** (e.g., X2 is parent of X3).
+2. **Constraint:** Recognizes that for collider parents, *existence* of intervention isn't enough; *variance* is required.
+3. **Action:** Injects an intervention for the **SAME NODE** (X2) but with a **RADICALLY DIFFERENT VALUE** (e.g., flipping sign or moving to bounds).
+4. **Mechanism:**
+ - Calculates mean of recent values (e.g., 1.5).
+ - Samples `new_val` from a disjoint range (e.g., [-5, 0]).
+ - This forces the learner to predict on a new support region, exposing the error in its simplified model and generating a strong gradient signal.
 
 ### Expected Outcome
 - The logs should show `[Smart Breaker] Injected 'DO X2 = -3.5' (value_diversity_for_collider_parent...)`.
@@ -877,20 +877,20 @@ We implemented a principled extension to the Smart Breaker:
 
 ### Changes
 1. **SCM Graph Visualization** (`visualize_scm_graph`)
-   - Generates `scm_graph.png` for each run
-   - Shows node types: root (green), intermediate (blue), collider (red), leaf (purple)
-   - Displays mechanism equations and final losses
-   - Uses hierarchical layout for clear causal structure
+ - Generates `scm_graph.png` for each run
+ - Shows node types: root (green), intermediate (blue), collider (red), leaf (purple)
+ - Displays mechanism equations and final losses
+ - Uses hierarchical layout for clear causal structure
 
 2. **DPO Training Logger** (`DPOLogger`)
-   - Tracks loss, preference margins, sigmoid inputs, KL divergence
-   - Periodic health reports every 100 steps
-   - Warns when DPO appears stuck (loss ~0.693, negative preference margin)
-   - Saves to `dpo_training.csv` for post-hoc analysis
+ - Tracks loss, preference margins, sigmoid inputs, KL divergence
+ - Periodic health reports every 100 steps
+ - Warns when DPO appears stuck (loss ~0.693, negative preference margin)
+ - Saves to `dpo_training.csv` for post-hoc analysis
 
 3. **Enhanced DPO Loss Function**
-   - Now logs all components for diagnosis
-   - Extracts winner/loser targets for tracking
+ - Now logs all components for diagnosis
+ - Extracts winner/loser targets for tracking
 
 ---
 
@@ -937,9 +937,9 @@ Added fast adaptation phase that trains on NEW data before replay consolidation.
 ### Problems Identified from January 19, 2026 HPC Run Analysis
 Based on detailed artifact analysis of `run_20260119_123852`:
 1. **Training Saturation:** 89.3% of steps (3,358/3,760) produced zero reward
-2. **Root Node Failure:** X1 showed NO learning (0.879→0.879), X4 got worse (1.506→1.564)
+2. **Root Node Failure:** X1 showed NO learning (0.879->0.879), X4 got worse (1.506->1.564)
 3. **Policy Collapse:** LLM generated X2 for 99.1% of candidates
-4. **KL Divergence Explosion:** Reference policy diverged from 0 → -2,300
+4. **KL Divergence Explosion:** Reference policy diverged from 0 -> -2,300
 
 ### Solutions Implemented
 
@@ -951,10 +951,10 @@ Based on detailed artifact analysis of `run_20260119_123852`:
 
 **New Arguments:**
 ```bash
---early_stopping              # Enable early stopping
---early_stop_patience 20      # Episodes to wait before stopping
---early_stop_min_delta 0.01   # Minimum improvement threshold
---zero_reward_threshold 0.85  # Stop if 85% steps have zero reward
+--early_stopping # Enable early stopping
+--early_stop_patience 20 # Episodes to wait before stopping
+--early_stop_min_delta 0.01 # Minimum improvement threshold
+--zero_reward_threshold 0.85 # Stop if 85% steps have zero reward
 ```
 
 #### 2. Root Node Learning Enhancements
@@ -963,9 +963,9 @@ Based on detailed artifact analysis of `run_20260119_123852`:
 
 **Updated Defaults:**
 ```bash
---obs_train_interval 3        # Was 5 (67% more frequent)
---obs_train_samples 200       # Was 100 (2x samples)
---obs_train_epochs 100        # Was 50 (2x epochs)
+--obs_train_interval 3 # Was 5 (67% more frequent)
+--obs_train_samples 200 # Was 100 (2x samples)
+--obs_train_epochs 100 # Was 50 (2x epochs)
 ```
 
 **New Function:** `fit_root_distributions()` (lines 1470-1547)
@@ -975,15 +975,15 @@ Based on detailed artifact analysis of `run_20260119_123852`:
 
 **New Arguments:**
 ```bash
---root_fitting                # Enable root-specific fitting
---root_fit_interval 5         # Fit every N episodes
---root_fit_samples 500        # Samples for root fitting
---root_fit_epochs 100         # Epochs for root fitting
+--root_fitting # Enable root-specific fitting
+--root_fit_interval 5 # Fit every N episodes
+--root_fit_samples 500 # Samples for root fitting
+--root_fit_epochs 100 # Epochs for root fitting
 ```
 
 **Expected Impact:**
-- X1 loss: 0.879 → <0.3 (66% reduction)
-- X4 loss: 0.942 → <0.3 (68% reduction)
+- X1 loss: 0.879 -> <0.3 (66% reduction)
+- X4 loss: 0.942 -> <0.3 (68% reduction)
 
 #### 3. Multi-Objective Diversity Rewards
 **Problem:** Policy collapsed to 69.4% X2, requiring constant hard-cap enforcement
@@ -995,14 +995,14 @@ Based on detailed artifact analysis of `run_20260119_123852`:
 
 **Updated Defaults:**
 ```bash
---undersampled_bonus 200.0    # Was 100.0 (2x stronger)
+--undersampled_bonus 200.0 # Was 100.0 (2x stronger)
 ```
 
 **New Arguments:**
 ```bash
---diversity_reward_weight 0.3     # Weight for diversity in multi-objective reward
---max_concentration 0.5           # Maximum 50% on any single node
---concentration_penalty 200.0     # Penalty weight for exceeding max
+--diversity_reward_weight 0.3 # Weight for diversity in multi-objective reward
+--max_concentration 0.5 # Maximum 50% on any single node
+--concentration_penalty 200.0 # Penalty weight for exceeding max
 ```
 
 **Reward Formula (Updated):**
@@ -1013,17 +1013,17 @@ final_score = base_score + diversity_weight * diversity_score
 ```
 
 **Expected Impact:**
-- X2 concentration: 69.4% → <50%
-- X4 interventions: 0.9% → >15% (16x increase)
-- X5 interventions: 0.0% → >10%
+- X2 concentration: 69.4% -> <50%
+- X4 interventions: 0.9% -> >15% (16x increase)
+- X5 interventions: 0.0% -> >10%
 
 #### 4. Reference Policy Stability
-**Problem:** KL divergence from 0 → -2,300 (policy abandoned supervised initialization)
+**Problem:** KL divergence from 0 -> -2,300 (policy abandoned supervised initialization)
 **Solution:** Periodic reference policy updates
 
 **New Arguments:**
 ```bash
---update_reference_interval 25    # Update reference every N episodes
+--update_reference_interval 25 # Update reference every N episodes
 ```
 
 **Implementation:** Updates reference policy independently of supervised re-training,
@@ -1034,31 +1034,31 @@ keeping KL divergence bounded and maintaining connection to initialization.
 **Recommended Command (All Improvements):**
 ```bash
 python ace_experiments.py \
-  --episodes 200 \
-  --early_stopping \
-  --early_stop_patience 20 \
-  --obs_train_interval 3 \
-  --obs_train_samples 200 \
-  --obs_train_epochs 100 \
-  --root_fitting \
-  --root_fit_interval 5 \
-  --undersampled_bonus 200.0 \
-  --diversity_reward_weight 0.3 \
-  --max_concentration 0.5 \
-  --update_reference_interval 25 \
-  --pretrain_steps 200 \
-  --pretrain_interval 25 \
-  --smart_breaker \
-  --output results/ace_improved
+ --episodes 200 \
+ --early_stopping \
+ --early_stop_patience 20 \
+ --obs_train_interval 3 \
+ --obs_train_samples 200 \
+ --obs_train_epochs 100 \
+ --root_fitting \
+ --root_fit_interval 5 \
+ --undersampled_bonus 200.0 \
+ --diversity_reward_weight 0.3 \
+ --max_concentration 0.5 \
+ --update_reference_interval 25 \
+ --pretrain_steps 200 \
+ --pretrain_interval 25 \
+ --smart_breaker \
+ --output results/ace_improved
 ```
 
 **Quick Test (10 episodes):**
 ```bash
 python ace_experiments.py \
-  --episodes 10 \
-  --early_stopping \
-  --root_fitting \
-  --output results/test
+ --episodes 10 \
+ --early_stopping \
+ --root_fitting \
+ --output results/test
 ```
 
 ### Expected Overall Performance

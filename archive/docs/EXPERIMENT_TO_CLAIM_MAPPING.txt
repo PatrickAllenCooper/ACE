@@ -15,12 +15,12 @@ This document verifies that run_all.sh submits all experiments needed to support
 - PPO baseline losses
 
 **Provided by:**
-- ✅ Job 1 (ACE Main) → ACE results
-- ✅ Job 2 (Baselines) → Random, Round-Robin, Max-Variance, PPO results
-- ✅ Extraction: `scripts/extract_ace.sh`, `scripts/extract_baselines.sh`
-- ✅ Table generation: `compare_methods.py`
+- [DONE] Job 1 (ACE Main) -> ACE results
+- [DONE] Job 2 (Baselines) -> Random, Round-Robin, Max-Variance, PPO results
+- [DONE] Extraction: `scripts/extract_ace.sh`, `scripts/extract_baselines.sh`
+- [DONE] Table generation: `compare_methods.py`
 
-**Status:** ✅ COMPLETE - All 5 methods covered
+**Status:** [DONE] COMPLETE - All 5 methods covered
 
 ---
 
@@ -32,14 +32,14 @@ This document verifies that run_all.sh submits all experiments needed to support
 - Superior performance vs baselines
 
 **Provided by:**
-- ✅ Job 1 (ACE Main) → Full ACE experiment with all features
-- ✅ Job 2 (Baselines) → Comparison data
-- ✅ Verification: `scripts/verify_claims.sh` checks:
-  - Line 767: Early stopping (40-60 episodes)
-  - Line 485: Strategic concentration (X1+X2 > 60%)
-- ✅ Metrics: `results/paper_*/ace/metrics.csv`, `node_losses.csv`
+- [DONE] Job 1 (ACE Main) -> Full ACE experiment with all features
+- [DONE] Job 2 (Baselines) -> Comparison data
+- [DONE] Verification: `scripts/verify_claims.sh` checks:
+ - Line 767: Early stopping (40-60 episodes)
+ - Line 485: Strategic concentration (X1+X2 > 60%)
+- [DONE] Metrics: `results/paper_*/ace/metrics.csv`, `node_losses.csv`
 
-**Status:** ✅ COMPLETE
+**Status:** [DONE] COMPLETE
 
 ---
 
@@ -50,11 +50,11 @@ This document verifies that run_all.sh submits all experiments needed to support
 - Multiple colliders, nested colliders
 
 **Provided by:**
-- ✅ Job 3 (Complex SCM) → 15-node experiment
-- ✅ Code: `experiments/complex_scm.py`
-- ✅ Job script: `jobs/run_complex_scm.sh`
+- [DONE] Job 3 (Complex SCM) -> 15-node experiment
+- [DONE] Code: `experiments/complex_scm.py`
+- [DONE] Job script: `jobs/run_complex_scm.sh`
 
-**Status:** ✅ COMPLETE
+**Status:** [DONE] COMPLETE
 
 ---
 
@@ -65,13 +65,13 @@ This document verifies that run_all.sh submits all experiments needed to support
 - ODE integration validation
 
 **Provided by:**
-- ✅ Job 4 (Duffing) → Physics experiment
-- ✅ Code: `experiments/duffing_oscillators.py`
-- ✅ Job script: `jobs/run_duffing.sh`
-- ✅ Verification: `clamping_detector.py` checks for do(X2 ≈ 0) pattern
-- ✅ Claim: Line 661 (verified by clamping_detector.py)
+- [DONE] Job 4 (Duffing) -> Physics experiment
+- [DONE] Code: `experiments/duffing_oscillators.py`
+- [DONE] Job script: `jobs/run_duffing.sh`
+- [DONE] Verification: `clamping_detector.py` checks for do(X2 ≈ 0) pattern
+- [DONE] Claim: Line 661 (verified by clamping_detector.py)
 
-**Status:** ✅ COMPLETE
+**Status:** [DONE] COMPLETE
 
 ---
 
@@ -82,13 +82,13 @@ This document verifies that run_all.sh submits all experiments needed to support
 - Time series causal discovery
 
 **Provided by:**
-- ✅ Job 5 (Phillips) → Economics experiment
-- ✅ Code: `experiments/phillips_curve.py`
-- ✅ Job script: `jobs/run_phillips.sh`
-- ✅ Verification: `regime_analyzer.py` checks intervention timing
-- ✅ Claim: Line 714 (high-volatility regime selection)
+- [DONE] Job 5 (Phillips) -> Economics experiment
+- [DONE] Code: `experiments/phillips_curve.py`
+- [DONE] Job script: `jobs/run_phillips.sh`
+- [DONE] Verification: `regime_analyzer.py` checks intervention timing
+- [DONE] Claim: Line 714 (high-volatility regime selection)
 
-**Status:** ✅ COMPLETE
+**Status:** [DONE] COMPLETE
 
 ---
 
@@ -101,12 +101,12 @@ This document verifies that run_all.sh submits all experiments needed to support
 - Fair comparison (same reward signal)
 
 **Provided by:**
-- ✅ Job 2 (Baselines) → All 4 baselines
-- ✅ Code: `baselines.py`
-- ✅ Fair comparison: Same reward, same obs training
-- ✅ PPO bug fixed: Shape mismatch resolved
+- [DONE] Job 2 (Baselines) -> All 4 baselines
+- [DONE] Code: `baselines.py`
+- [DONE] Fair comparison: Same reward, same obs training
+- [DONE] PPO bug fixed: Shape mismatch resolved
 
-**Status:** ✅ COMPLETE
+**Status:** [DONE] COMPLETE
 
 ---
 
@@ -115,85 +115,85 @@ This document verifies that run_all.sh submits all experiments needed to support
 ### Line 123: "80% computational savings"
 **Claim:** 40-60 episodes vs. 200 baseline
 **Verification:**
-- ✅ Job 1: ACE with early stopping
-- ✅ `scripts/verify_claims.sh` checks episode count
-- ✅ Calculates reduction percentage
+- [DONE] Job 1: ACE with early stopping
+- [DONE] `scripts/verify_claims.sh` checks episode count
+- [DONE] Calculates reduction percentage
 
-**Status:** ✅ Can be verified
+**Status:** [DONE] Can be verified
 
 ### Line 485: "Strategic concentration on collider parents"
 **Claim:** ACE concentrates on X1 and X2 (>60%)
 **Verification:**
-- ✅ Job 1: ACE experiment
-- ✅ `scripts/verify_claims.sh` analyzes target distribution
-- ✅ Uses `metrics.csv` to calculate X1+X2 percentage
+- [DONE] Job 1: ACE experiment
+- [DONE] `scripts/verify_claims.sh` analyzes target distribution
+- [DONE] Uses `metrics.csv` to calculate X1+X2 percentage
 
-**Status:** ✅ Can be verified
+**Status:** [DONE] Can be verified
 
 ### Line 661: "Clamping strategy: do(X2 = 0)"
 **Claim:** ACE discovers clamping in Duffing
 **Verification:**
-- ✅ Job 4: Duffing experiment
-- ✅ `clamping_detector.py` analyzes intervention values
-- ✅ Checks for clustering near zero
+- [DONE] Job 4: Duffing experiment
+- [DONE] `clamping_detector.py` analyzes intervention values
+- [DONE] Checks for clustering near zero
 
-**Status:** ✅ Can be verified
+**Status:** [DONE] Can be verified
 
 ### Line 714: "Query high-volatility regimes"
 **Claim:** ACE selects 1970s, 2008 crisis periods
 **Verification:**
-- ✅ Job 5: Phillips experiment
-- ✅ `regime_analyzer.py` maps interventions to historical periods
-- ✅ Calculates volatility distribution
+- [DONE] Job 5: Phillips experiment
+- [DONE] `regime_analyzer.py` maps interventions to historical periods
+- [DONE] Calculates volatility distribution
 
-**Status:** ✅ Can be verified
+**Status:** [DONE] Can be verified
 
 ### Line 767: "40-60 episodes vs. 200"
 **Claim:** Early stopping at 40-60 episodes
 **Verification:**
-- ✅ Job 1: ACE with early stopping enabled
-- ✅ `scripts/verify_claims.sh` extracts episode count
-- ✅ Compares to baseline 100 episodes
+- [DONE] Job 1: ACE with early stopping enabled
+- [DONE] `scripts/verify_claims.sh` extracts episode count
+- [DONE] Compares to baseline 100 episodes
 
-**Status:** ✅ Can be verified
+**Status:** [DONE] Can be verified
 
 ---
 
 ## Summary: Experiment Completeness
 
-### ✅ ALL EXPERIMENTS PRESENT
+### [DONE] ALL EXPERIMENTS PRESENT
 
 **5 Jobs Cover All Paper Sections:**
-- ✅ Section 3.4.1 (Main ACE)
-- ✅ Section 3.4.2 (Complex SCM)
-- ✅ Section 3.6 (Duffing)
-- ✅ Section 3.7 (Phillips)
-- ✅ Section 3.8 (Baselines)
+- [DONE] Section 3.4.1 (Main ACE)
+- [DONE] Section 3.4.2 (Complex SCM)
+- [DONE] Section 3.6 (Duffing)
+- [DONE] Section 3.7 (Phillips)
+- [DONE] Section 3.8 (Baselines)
 
 **Table 1 Complete:**
-- ✅ ACE results (Job 1)
-- ✅ Random baseline (Job 2)
-- ✅ Round-Robin baseline (Job 2)
-- ✅ Max-Variance baseline (Job 2)
-- ✅ PPO baseline (Job 2)
+- [DONE] ACE results (Job 1)
+- [DONE] Random baseline (Job 2)
+- [DONE] Round-Robin baseline (Job 2)
+- [DONE] Max-Variance baseline (Job 2)
+- [DONE] PPO baseline (Job 2)
 
 **All Quantitative Claims Verifiable:**
-- ✅ 80% computational savings (Line 123)
-- ✅ Strategic concentration (Line 485)
-- ✅ Clamping strategy (Line 661)
-- ✅ Regime selection (Line 714)
-- ✅ Early stopping (Line 767)
+- [DONE] 80% computational savings (Line 123)
+- [DONE] Strategic concentration (Line 485)
+- [DONE] Clamping strategy (Line 661)
+- [DONE] Regime selection (Line 714)
+- [DONE] Early stopping (Line 767)
 
 ---
 
 ## What We Have vs What We Need
 
-### ✅ Experiments: COMPLETE
+### [DONE] Experiments: COMPLETE
 - All 5 necessary experiments
 - All verification scripts
 - All extraction scripts
 
-### ⚠️ Integration: INCOMPLETE
+### [WARNING] Integration: INCOMPLETE
 - Missing: Automated post-processing
 - Missing: LaTeX table generation
 - Missing: Automated claim verification report
@@ -204,7 +204,7 @@ This document verifies that run_all.sh submits all experiments needed to support
 
 1. **scripts/process_all_results.sh** (automate everything)
 2. **compare_methods.py --latex** (LaTeX table output)
-3. **Automated verification report** (all claims ✅ or ❌)
+3. **Automated verification report** (all claims [DONE] or [NO])
 
 **Estimated effort:** ~6 hours to complete integration
 
@@ -212,7 +212,7 @@ This document verifies that run_all.sh submits all experiments needed to support
 
 ## Conclusion
 
-✅ **ALL EXPERIMENTS PRESENT**
+[DONE] **ALL EXPERIMENTS PRESENT**
 
 We have every experiment needed to verify every paper claim:
 - 5 jobs cover all sections
@@ -220,6 +220,6 @@ We have every experiment needed to verify every paper claim:
 - All quantitative claims are verifiable
 - All verification scripts exist
 
-**What's missing:** Integration layer to automate results → tables → verified claims
+**What's missing:** Integration layer to automate results -> tables -> verified claims
 
 **Bottom line:** Experiments are complete. Just need post-processing automation.

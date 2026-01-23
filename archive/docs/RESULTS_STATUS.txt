@@ -2,17 +2,17 @@
 
 ## Job 23122264 Results: From OLD Code (Pre-Improvements)
 
-⚠️ CRITICAL NOTE: The currently running/completed job 23122264 was started
+[WARNING] CRITICAL NOTE: The currently running/completed job 23122264 was started
 BEFORE all the recent improvements were implemented.
 
 What This Job DOES NOT Have:
 =============================
 
-1. ❌ --seed argument (wasn't implemented yet)
-2. ❌ Multi-seed runs (infrastructure didn't exist)
-3. ❌ Ablation flags (weren't implemented yet)
-4. ❌ Large-scale experiments (large_scale_scm.py didn't exist)
-5. ❌ Statistical validation framework (created after job started)
+1. [NO] --seed argument (wasn't implemented yet)
+2. [NO] Multi-seed runs (infrastructure didn't exist)
+3. [NO] Ablation flags (weren't implemented yet)
+4. [NO] Large-scale experiments (large_scale_scm.py didn't exist)
+5. [NO] Statistical validation framework (created after job started)
 
 Timeline:
 - Job 23122264 started: ~January 22 evening
@@ -22,19 +22,19 @@ Timeline:
 What These Results CAN Be Used For:
 ====================================
 
-✅ PRELIMINARY VALIDATION:
+[DONE] PRELIMINARY VALIDATION:
 - Verify experiments run successfully
 - Check that code executes on HPC
 - Get initial performance estimates
 - Fill placeholder values temporarily
 
-✅ SINGLE-RUN RESULTS:
+[DONE] SINGLE-RUN RESULTS:
 - Initial Table 1 values (no error bars)
 - Initial figure generation
 - Preliminary claim verification
 - Proof that workflow works
 
-✅ DEBUGGING:
+[DONE] DEBUGGING:
 - Identify any issues with current code
 - Check output formats
 - Verify post-processing scripts work
@@ -43,14 +43,14 @@ What These Results CAN Be Used For:
 What These Results CANNOT Be Used For:
 =======================================
 
-❌ FINAL PAPER SUBMISSION:
+[NO] FINAL PAPER SUBMISSION:
 - No statistical validation (only 1 run)
 - No error bars or confidence intervals
 - No significance testing (need n=5)
 - No ablation studies
 - Cannot support strong statistical claims
 
-❌ STRONG ACCEPT VALIDATION:
+[NO] STRONG ACCEPT VALIDATION:
 - Missing all critical improvements
 - Single-run results are weak
 - Reviewers would reject for lack of rigor
@@ -61,50 +61,50 @@ Next Steps Required:
 After Job 23122264 Completes:
 
 1. REVIEW PRELIMINARY RESULTS (1 day)
-   - Check if experiments ran successfully
-   - Verify outputs are sensible
-   - Use to fill initial paper TODOs temporarily
-   
+ - Check if experiments ran successfully
+ - Verify outputs are sensible
+ - Use to fill initial paper TODOs temporarily
+ 
 2. RUN IMPROVED EXPERIMENTS (2-3 weeks)
-   
-   Multi-Seed Runs (CRITICAL):
-   ./scripts/run_all_multi_seed.sh
-   - Runs with NEW code (has --seed)
-   - 5 runs with different seeds
-   - Generates statistics for Table 1
-   
-   Ablation Studies (CRITICAL):
-   ./scripts/run_ablations.sh
-   - Runs with NEW code (has ablation flags)
-   - 4 ablation configurations
-   - Validates design choices
-   
-   Large-Scale Test (IMPORTANT):
-   sbatch jobs for large_scale_scm.py
-   - Tests scalability to 30 nodes
-   - Shows strategic advantage at scale
+ 
+ Multi-Seed Runs (CRITICAL):
+ ./scripts/run_all_multi_seed.sh
+ - Runs with NEW code (has --seed)
+ - 5 runs with different seeds
+ - Generates statistics for Table 1
+ 
+ Ablation Studies (CRITICAL):
+ ./scripts/run_ablations.sh
+ - Runs with NEW code (has ablation flags)
+ - 4 ablation configurations
+ - Validates design choices
+ 
+ Large-Scale Test (IMPORTANT):
+ sbatch jobs for large_scale_scm.py
+ - Tests scalability to 30 nodes
+ - Shows strategic advantage at scale
 
 3. PROCESS IMPROVED RESULTS (1 week)
-   - Consolidate multi-seed runs
-   - Analyze ablations
-   - Generate statistics
-   - Update paper with proper validation
+ - Consolidate multi-seed runs
+ - Analyze ablations
+ - Generate statistics
+ - Update paper with proper validation
 
 4. FINALIZE PAPER (1 week)
-   - Replace single-run with multi-run statistics
-   - Add ablation table
-   - Add failure analysis
-   - Remove all TODOs
-   - Ready for STRONG ACCEPT
+ - Replace single-run with multi-run statistics
+ - Add ablation table
+ - Add failure analysis
+ - Remove all TODOs
+ - Ready for STRONG ACCEPT
 
 Timeline:
 =========
 
-Current Job Results:    Available now (preliminary only)
-Multi-Seed Runs:        Submit after Job 23122264, ~1 week
-Ablation Runs:          Submit with multi-seed, ~3 days
-Result Processing:      After runs complete, ~1 week
-Paper Finalization:     After processing, ~1 week
+Current Job Results: Available now (preliminary only)
+Multi-Seed Runs: Submit after Job 23122264, ~1 week
+Ablation Runs: Submit with multi-seed, ~3 days
+Result Processing: After runs complete, ~1 week
+Paper Finalization: After processing, ~1 week
 
 Total: ~4 weeks from now to submission-ready paper
 
@@ -140,8 +140,8 @@ MUST run new jobs with improved code:
 - Only THEN have Strong Accept-quality results
 
 The improvements make the difference between:
-- 6.5/10 (single run) → Borderline/Weak Accept
-- 8.5/10 (multi-seed + ablations) → Strong Accept
+- 6.5/10 (single run) -> Borderline/Weak Accept
+- 8.5/10 (multi-seed + ablations) -> Strong Accept
 
 Don't submit with only Job 23122264 results!
 Run improved experiments first!
