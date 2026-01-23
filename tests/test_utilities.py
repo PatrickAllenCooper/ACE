@@ -144,10 +144,11 @@ def test_visualize_scm_graph_with_losses(ground_truth_scm, tmp_path):
 
 @pytest.mark.unit
 def test_save_checkpoint_basic(tmp_path):
-    """Test checkpoint saving."""
+    """Test checkpoint saving to checkpoints/ directory."""
     from ace_experiments import save_checkpoint, TransformerPolicy, ExperimentalDSL
+    import os
     
-    run_dir = tmp_path / "run"
+    run_dir = tmp_path / "run_test"
     run_dir.mkdir()
     
     # Create dummy policy
@@ -156,20 +157,29 @@ def test_save_checkpoint_basic(tmp_path):
     policy = TransformerPolicy(dsl, torch.device('cpu'))
     optimizer = torch.optim.Adam(policy.parameters())
     
-    # Save checkpoint
-    save_checkpoint(
-        run_dir=str(run_dir),
-        episode=10,
-        policy_net=policy,
-        optimizer=optimizer,
-        loss_history=[1.0, 0.8, 0.6],
-        reward_history=[5.0, 6.0, 7.0],
-        recent_actions=['DO X1 = 1.0', 'DO X2 = 2.0']
-    )
+    # Change to tmp directory for test isolation
+    original_dir = os.getcwd()
+    os.chdir(tmp_path)
     
-    # Should create checkpoint file
-    checkpoint_files = list(run_dir.glob("checkpoint_*.pt"))
-    assert len(checkpoint_files) > 0
+    try:
+        # Save checkpoint
+        save_checkpoint(
+            run_dir=str(run_dir),
+            episode=10,
+            policy_net=policy,
+            optimizer=optimizer,
+            loss_history=[1.0, 0.8, 0.6],
+            reward_history=[5.0, 6.0, 7.0],
+            recent_actions=['DO X1 = 1.0', 'DO X2 = 2.0']
+        )
+        
+        # Should create checkpoint in checkpoints/run_test/
+        checkpoint_dir = tmp_path / "checkpoints" / "run_test"
+        assert checkpoint_dir.exists()
+        checkpoint_files = list(checkpoint_dir.glob("checkpoint_*.pt"))
+        assert len(checkpoint_files) > 0
+    finally:
+        os.chdir(original_dir)
 
 
 # =============================================================================
