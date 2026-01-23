@@ -1,0 +1,73 @@
+# What Remains to Complete Paper Verification
+
+## Critical Items for run_all.sh → Paper Claims
+
+### 1. Integrated Post-Processing Script (HIGH PRIORITY)
+**File:** scripts/process_all_results.sh
+**Purpose:** Orchestrate all post-job processing
+**Should do:**
+```bash
+#!/bin/bash
+RESULTS_DIR=$1  # e.g., results/paper_20260121_143052
+
+# Extract metrics
+./scripts/extract_ace.sh "$RESULTS_DIR"
+./scripts/extract_baselines.sh "$RESULTS_DIR"
+
+# Verify claims
+python clamping_detector.py "$RESULTS_DIR/duffing"
+python regime_analyzer.py "$RESULTS_DIR/phillips"
+./scripts/verify_claims.sh "$RESULTS_DIR"
+
+# Generate tables
+python compare_methods.py "$RESULTS_DIR" --latex > paper/table1.tex
+
+# Generate figures
+python visualize.py "$RESULTS_DIR"/*/ --paper-format
+
+# Summary report
+echo "All paper claims verified and tables generated"
+```
+
+### 2. LaTeX Table Output (HIGH PRIORITY)
+**File:** compare_methods.py (enhance)
+**Add:** --latex flag to output paper-ready Table 1
+**Format:** LaTeX tabular environment ready to paste into paper.tex
+
+### 3. Dependencies Documentation (MEDIUM PRIORITY)
+**Files needed:**
+- requirements.txt (pip)
+- environment.yml (conda)
+
+### 4. Results Documentation (MEDIUM PRIORITY)
+**File:** results/README.md
+**Content:** Explain output structure, how to process results
+
+### 5. Claim Verification Report (MEDIUM PRIORITY)
+**Template:** After processing, generate report showing:
+- Line 661 (clamping): ✅ or ❌
+- Line 714 (regime): ✅ or ❌
+- Line 767 (early stopping): ✅ or ❌
+- Line 485 (concentration): ✅ or ❌
+- Table 1 (all baselines): ✅ or ❌
+
+## Current Status
+
+✅ run_all.sh submits all 5 jobs with timestamps
+✅ Outputs to results/paper_YYYYMMDD_HHMMSS/
+✅ Logs to logs/JOBNAME_YYYYMMDD_HHMMSS_JOBID.out
+✅ All verification scripts exist
+✅ All extraction scripts exist
+
+⚠️ Missing integration layer between job completion and paper artifacts
+⚠️ Manual steps required to go from results → tables
+
+## Estimated Effort
+
+- Integrated post-processing script: 2-3 hours
+- LaTeX table output: 1 hour
+- Dependencies files: 30 minutes
+- Results documentation: 1 hour
+- Automated report: 1 hour
+
+Total: ~6 hours to complete verification pipeline

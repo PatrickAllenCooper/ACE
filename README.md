@@ -26,9 +26,19 @@ pytest -m "not slow"
 pytest -n 4
 ```
 
+### Results & Naming Convention
+
+**All experimental runs use timestamp-based naming:**
+- Format: `results/paper_YYYYMMDD_HHMMSS/`
+- Example: `results/paper_20260121_143052/`
+- Latest run: `ls -td results/paper_* | head -1`
+- Logs: `logs/ace_main_YYYYMMDD_HHMMSS_JOBID.out`
+
+This ensures the latest run is always obvious and results sort chronologically.
+
 ### Test Suite Summary
 
-**26 test files, 324 tests covering:**
+**32 test files, 470 tests covering:**
 - Core SCM classes and experimental engine (100% of critical components)
 - All baseline policies (Random, RoundRobin, MaxVariance)
 - Visualization functions (82% coverage)
