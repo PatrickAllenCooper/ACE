@@ -230,15 +230,25 @@ These adaptive methods represent substantial progress over static designs. Howev
 
 The intersection of causal discovery with modern deep learning has yielded differentiable structure learning methods. While not directly addressing intervention design, works such as \cite{lorch2021dibs} and \cite{kalainathan2022structural} demonstrate that gradient-based optimization can be effective for causal structure learning. These approaches suggest that neural architectures might be capable of learning effective experimental strategies, though this connection has not been previously explored.
 
-\subsection{The Gap: Learning Experimental Strategies}
+\subsection{Reinforcement Learning for Experimental Design}
 
-Despite extensive theoretical and algorithmic progress, existing approaches to experimental design for causal discovery suffer from key limitations. First, they typically require explicit encoding of the hypothesis space and cannot leverage natural language understanding of domain knowledge. Second, they do not learn from the history of experimental strategies across different problem instances, instead treating each causal discovery task in isolation.
+Recent work has begun exploring reinforcement learning for scientific discovery tasks. \cite{zhou2021optimizing} applied RL to Bayesian optimization for materials discovery, while \cite{roch2020bandits} used multi-armed bandits for adaptive clinical trial design. However, these applications focus on optimization (finding best parameters) rather than causal structure discovery, where the goal is learning relationships rather than outcomes.
 
-The theoretical landscape established by \cite{meek1995causal} for causal inference with background knowledge, combined with modern characterizations of the problem space \cite{eberhardt2017introduction, glymour2019review, vowels2022d}, reveals significant gaps between worst-case bounds and average-case performance. This suggests that learned, domain-specific experimental strategies could potentially outperform generic algorithms, particularly when the causal structures exhibit regularities that can be exploited through experience.
+Critically, standard RL approaches face a fundamental challenge in our setting: non-stationarity. As the learner improves its causal model, the value of different interventions changes---what was informative early on may become redundant later. Value-based RL methods (Q-learning, actor-critic) struggle with such shifting rewards. This motivates our use of preference-based learning (DPO), which compares interventions pairwise rather than assigning absolute values, providing more stable training signals when optimal strategies evolve during learning.
 
-Furthermore, while existing methods optimize for single objectives such as minimizing the number of interventions or maximizing information gain, real experimental design often requires balancing multiple considerations including cost, feasibility, and parameter identification accuracy. In drug discovery, a single clinical trial may cost millions of dollars, making the difference between 50 and 100 required experiments economically decisive. In manufacturing, some interventions (adjusting machine settings) are cheap while others (halting production lines) are prohibitively expensive. The rigid optimization frameworks of current approaches struggle to incorporate such heterogeneous cost structures in a flexible manner.
+\subsection{The Gap: From Algorithms to Experimentalist Tools}
 
-This gap motivates the exploration of learning-based approaches that can discover experimental strategies through experience, adapt to specific problem domains, and balance multiple objectives implicitly through interaction with the causal system. By framing experimental design as a sequential decision problem where strategies can be refined through self-play and active learning, we open new avenues for AI-assisted discovery that extend from laboratory science to industrial process optimization and data-driven decision making.
+Despite extensive theoretical and algorithmic progress, existing approaches fall short of what experimentalists need in practice:
+
+1. Predefined strategies cannot adapt to domain-specific patterns. A biologist learns that "perturbing transcription factors before downstream genes" works well for gene regulatory networks, but current methods cannot capture or transfer such domain heuristics.
+
+2. Single-objective optimization ignores multi-faceted experimental constraints. The difference between 50 and 100 clinical trials is economically decisive (\$50-100M), yet current methods optimize graph identifiability without considering cost, time, or parameter estimation quality.
+
+3. Static algorithms cannot leverage accumulating evidence about which intervention patterns work. An experimentalist running their 50th metabolic pathway study has intuition about productive experimental sequences that should inform the 51st study.
+
+The theoretical landscape established by \cite{meek1995causal} for causal inference with background knowledge, combined with modern characterizations of the problem space \cite{eberhardt2017introduction, glymour2019review, vowels2022d}, reveals significant gaps between worst-case bounds and average-case performance. This suggests that learned, domain-specific experimental strategies could outperform generic algorithms, particularly when causal structures within a domain exhibit regularities.
+
+Our work addresses this gap by treating experimental design as a learnable policy that can discover domain-appropriate strategies through experience, adapt to evolving knowledge states during discovery, and balance multiple objectives implicitly through preference-based training. This approach bridges the divide between theoretical causal discovery and the practical needs of experimentalists across scientific domains.
 
 \section{Methods}
 \label{sec:methods}
