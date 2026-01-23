@@ -1,0 +1,225 @@
+# Experiment to Paper Claim Mapping
+
+This document verifies that run_all.sh submits all experiments needed to support every paper claim.
+
+---
+
+## Paper Structure & Claims
+
+### Table 1: Method Comparison (Core Results)
+**What it needs:**
+- ACE final losses (X1, X2, X3, X4, X5, total)
+- Random baseline losses
+- Round-Robin baseline losses
+- Max-Variance baseline losses
+- PPO baseline losses
+
+**Provided by:**
+- ✅ Job 1 (ACE Main) → ACE results
+- ✅ Job 2 (Baselines) → Random, Round-Robin, Max-Variance, PPO results
+- ✅ Extraction: `scripts/extract_ace.sh`, `scripts/extract_baselines.sh`
+- ✅ Table generation: `compare_methods.py`
+
+**Status:** ✅ COMPLETE - All 5 methods covered
+
+---
+
+### Section 3.4.1: Main ACE Experiment (Simple 5-Node SCM)
+**What it needs:**
+- ACE learns collider X3
+- Early stopping triggers at 40-60 episodes (not 200)
+- Strategic concentration on X1 and X2 (collider parents)
+- Superior performance vs baselines
+
+**Provided by:**
+- ✅ Job 1 (ACE Main) → Full ACE experiment with all features
+- ✅ Job 2 (Baselines) → Comparison data
+- ✅ Verification: `scripts/verify_claims.sh` checks:
+  - Line 767: Early stopping (40-60 episodes)
+  - Line 485: Strategic concentration (X1+X2 > 60%)
+- ✅ Metrics: `results/paper_*/ace/metrics.csv`, `node_losses.csv`
+
+**Status:** ✅ COMPLETE
+
+---
+
+### Section 3.4.2: Complex 15-Node SCM (Hard Benchmark)
+**What it needs:**
+- Demonstrates ACE handles complex SCMs
+- Shows strategic advantage over random sampling
+- Multiple colliders, nested colliders
+
+**Provided by:**
+- ✅ Job 3 (Complex SCM) → 15-node experiment
+- ✅ Code: `experiments/complex_scm.py`
+- ✅ Job script: `jobs/run_complex_scm.sh`
+
+**Status:** ✅ COMPLETE
+
+---
+
+### Section 3.6: Duffing Oscillators (Physics Domain)
+**What it needs:**
+- ACE discovers "clamping" strategy: do(X2 = 0)
+- Physical decoupling of oscillators
+- ODE integration validation
+
+**Provided by:**
+- ✅ Job 4 (Duffing) → Physics experiment
+- ✅ Code: `experiments/duffing_oscillators.py`
+- ✅ Job script: `jobs/run_duffing.sh`
+- ✅ Verification: `clamping_detector.py` checks for do(X2 ≈ 0) pattern
+- ✅ Claim: Line 661 (verified by clamping_detector.py)
+
+**Status:** ✅ COMPLETE
+
+---
+
+### Section 3.7: Phillips Curve (Economics Domain)
+**What it needs:**
+- ACE learns to query high-volatility regimes
+- 1970s stagflation, 2008 crisis periods
+- Time series causal discovery
+
+**Provided by:**
+- ✅ Job 5 (Phillips) → Economics experiment
+- ✅ Code: `experiments/phillips_curve.py`
+- ✅ Job script: `jobs/run_phillips.sh`
+- ✅ Verification: `regime_analyzer.py` checks intervention timing
+- ✅ Claim: Line 714 (high-volatility regime selection)
+
+**Status:** ✅ COMPLETE
+
+---
+
+### Section 3.8: Baseline Comparisons
+**What it needs:**
+- Random policy results
+- Round-Robin policy results
+- Max-Variance (uncertainty sampling) results
+- PPO (value-based RL) results
+- Fair comparison (same reward signal)
+
+**Provided by:**
+- ✅ Job 2 (Baselines) → All 4 baselines
+- ✅ Code: `baselines.py`
+- ✅ Fair comparison: Same reward, same obs training
+- ✅ PPO bug fixed: Shape mismatch resolved
+
+**Status:** ✅ COMPLETE
+
+---
+
+## Key Quantitative Claims
+
+### Line 123: "80% computational savings"
+**Claim:** 40-60 episodes vs. 200 baseline
+**Verification:**
+- ✅ Job 1: ACE with early stopping
+- ✅ `scripts/verify_claims.sh` checks episode count
+- ✅ Calculates reduction percentage
+
+**Status:** ✅ Can be verified
+
+### Line 485: "Strategic concentration on collider parents"
+**Claim:** ACE concentrates on X1 and X2 (>60%)
+**Verification:**
+- ✅ Job 1: ACE experiment
+- ✅ `scripts/verify_claims.sh` analyzes target distribution
+- ✅ Uses `metrics.csv` to calculate X1+X2 percentage
+
+**Status:** ✅ Can be verified
+
+### Line 661: "Clamping strategy: do(X2 = 0)"
+**Claim:** ACE discovers clamping in Duffing
+**Verification:**
+- ✅ Job 4: Duffing experiment
+- ✅ `clamping_detector.py` analyzes intervention values
+- ✅ Checks for clustering near zero
+
+**Status:** ✅ Can be verified
+
+### Line 714: "Query high-volatility regimes"
+**Claim:** ACE selects 1970s, 2008 crisis periods
+**Verification:**
+- ✅ Job 5: Phillips experiment
+- ✅ `regime_analyzer.py` maps interventions to historical periods
+- ✅ Calculates volatility distribution
+
+**Status:** ✅ Can be verified
+
+### Line 767: "40-60 episodes vs. 200"
+**Claim:** Early stopping at 40-60 episodes
+**Verification:**
+- ✅ Job 1: ACE with early stopping enabled
+- ✅ `scripts/verify_claims.sh` extracts episode count
+- ✅ Compares to baseline 100 episodes
+
+**Status:** ✅ Can be verified
+
+---
+
+## Summary: Experiment Completeness
+
+### ✅ ALL EXPERIMENTS PRESENT
+
+**5 Jobs Cover All Paper Sections:**
+- ✅ Section 3.4.1 (Main ACE)
+- ✅ Section 3.4.2 (Complex SCM)
+- ✅ Section 3.6 (Duffing)
+- ✅ Section 3.7 (Phillips)
+- ✅ Section 3.8 (Baselines)
+
+**Table 1 Complete:**
+- ✅ ACE results (Job 1)
+- ✅ Random baseline (Job 2)
+- ✅ Round-Robin baseline (Job 2)
+- ✅ Max-Variance baseline (Job 2)
+- ✅ PPO baseline (Job 2)
+
+**All Quantitative Claims Verifiable:**
+- ✅ 80% computational savings (Line 123)
+- ✅ Strategic concentration (Line 485)
+- ✅ Clamping strategy (Line 661)
+- ✅ Regime selection (Line 714)
+- ✅ Early stopping (Line 767)
+
+---
+
+## What We Have vs What We Need
+
+### ✅ Experiments: COMPLETE
+- All 5 necessary experiments
+- All verification scripts
+- All extraction scripts
+
+### ⚠️ Integration: INCOMPLETE
+- Missing: Automated post-processing
+- Missing: LaTeX table generation
+- Missing: Automated claim verification report
+
+### Required for Complete Workflow
+
+**After run_all.sh completes, need:**
+
+1. **scripts/process_all_results.sh** (automate everything)
+2. **compare_methods.py --latex** (LaTeX table output)
+3. **Automated verification report** (all claims ✅ or ❌)
+
+**Estimated effort:** ~6 hours to complete integration
+
+---
+
+## Conclusion
+
+✅ **ALL EXPERIMENTS PRESENT**
+
+We have every experiment needed to verify every paper claim:
+- 5 jobs cover all sections
+- Table 1 has all 5 methods
+- All quantitative claims are verifiable
+- All verification scripts exist
+
+**What's missing:** Integration layer to automate results → tables → verified claims
+
+**Bottom line:** Experiments are complete. Just need post-processing automation.
