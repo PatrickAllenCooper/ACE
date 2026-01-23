@@ -21,8 +21,10 @@ import os
 # Multi-Seed Infrastructure Tests (now in unified CLI)
 # =============================================================================
 
-# Note: Multi-seed and consolidation scripts consolidated into ace.sh
-# Tests moved to test_unified_cli.py
+# Note: Multi-seed and consolidation scripts consolidated into ace.sh CLI
+# All shell script tests moved to test_unified_cli.py
+
+# These scripts no longer exist - consolidated into ace.sh
 
 
 @pytest.mark.unit
@@ -50,8 +52,10 @@ def test_compute_statistics_has_key_functions():
 # Ablation Infrastructure Tests (now in unified CLI)
 # =============================================================================
 
-# Note: Ablation scripts consolidated into ace.sh
-# Tests moved to test_unified_cli.py
+# Note: Ablation scripts consolidated into ace.sh CLI
+# All shell script tests moved to test_unified_cli.py
+
+# These scripts no longer exist - consolidated into ace.sh
 
 
 @pytest.mark.unit
