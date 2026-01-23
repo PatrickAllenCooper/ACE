@@ -862,6 +862,8 @@ In experimental design for causal discovery, the magnitude of information gain $
 
 DPO sidesteps this issue entirely by learning from \textit{rankings} rather than magnitudes. The relative ordering---which of two interventions is better---remains stable even as absolute rewards decay. This invariance to reward scale makes DPO naturally suited to scientific discovery where diminishing returns are unavoidable.
 
+\emph{Why Preference Learning Works for Experimental Design.} The theoretical justification stems from the Bradley-Terry model underlying DPO: preference probabilities $P(y_w \succ y_l \mid s)$ depend only on reward \emph{differences}, not absolute magnitudes. When rewards are non-stationary (shifting over time), differences can remain stable even as individual rewards change. Formally, if $r_t(a) = f(t) \cdot r_0(a)$ where $f(t)$ is a time-varying scale factor, the preference $P(a \succ b)$ depends on $r_0(a) - r_0(b)$, which is invariant to $f(t)$. This scale-invariance property provides robustness to the inherent non-stationarity of experimental design, where information gain decays as $\mathcal{O}(1/t)$ with accumulated evidence \cite{murphy2001active}.
+
 \subsection{Reward Design Principles}
 
 A natural temptation in active learning is to engineer complex reward functions with many auxiliary bonuses (coverage, novelty, balance, disentanglement, etc.). However, we find that a parsimonious three-component reward---information gain, node importance, and diversity---performs competitively with uncertainty sampling baselines while maintaining interpretability.
