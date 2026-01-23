@@ -176,14 +176,22 @@ class SCMLearner:
                 parents = self.student.get_parents(node)
                 y_true = batch_new["data"][node]
                 
-                # Check intervention mask
+                # Check intervention mask (CRITICAL: Prevents training on intervened nodes)
                 mask = None
                 if batch_new.get("intervened") == node:
                     mask = torch.zeros(y_true.shape[0], dtype=torch.bool)
+                    # ASSERTION: Verify intervened node is fully masked
+                    assert mask.sum().item() == 0, \
+                        f"Intervened node {node} must be fully masked (got {mask.sum().item()} active)"
                 else:
                     mask = torch.ones(y_true.shape[0], dtype=torch.bool)
+                    # ASSERTION: Verify non-intervened node is fully active
+                    assert mask.sum().item() == y_true.shape[0], \
+                        f"Non-intervened node {node} should be fully active"
                 
                 if mask.sum().item() == 0:
+                    # Log when skipping intervened node
+                    logging.debug(f"  Skipping intervened node {node} (correctly masked)")
                     continue
                     
                 if not parents:
@@ -215,6 +223,7 @@ class SCMLearner:
             combined_data[node] = torch.cat(tensors, dim=0)
 
             # Mask out samples where THIS node was directly intervened on.
+            # CRITICAL: This preserves causal semantics - don't train mechanism on overridden values
             masks = []
             for b in self.buffer:
                 n = b["data"][node].shape[0]
@@ -223,6 +232,12 @@ class SCMLearner:
                 else:
                     masks.append(torch.ones(n, dtype=torch.bool))
             combined_mask[node] = torch.cat(masks, dim=0)
+            
+            # LOGGING: Track mask statistics for debugging
+            n_masked = (combined_mask[node] == 0).sum().item()
+            n_total = combined_mask[node].numel()
+            if n_masked > 0:
+                logging.debug(f"  Node {node}: {n_masked}/{n_total} samples masked ({n_masked/n_total*100:.1f}%)")
             
         losses = []
         for epoch in range(n_epochs):
@@ -1839,9 +1854,12 @@ def main():
     parser.add_argument("--pretrain_interval", type=int, default=50, help="Re-run pre-training every N episodes (0=disabled)")
     parser.add_argument("--smart_breaker", action="store_true", default=True, help="Use smart collapse breaker that prioritizes collider parents")
     # CRITICAL FIX: Periodic Observational Training to prevent mechanism forgetting
-    parser.add_argument("--obs_train_interval", type=int, default=3, help="Train on observational data every N steps (0=disabled) - INCREASED from 5 for better root learning")
-    parser.add_argument("--obs_train_samples", type=int, default=200, help="Number of observational samples per training injection - INCREASED from 100")
-    parser.add_argument("--obs_train_epochs", type=int, default=100, help="Training epochs for observational data - INCREASED from 50")
+    parser.add_argument("--obs_train_interval", type=int, default=3, help="Train on observational data every N steps (0=disabled) - TUNABLE: try 3-5 for different interventional:observational ratios")
+    parser.add_argument("--obs_train_samples", type=int, default=200, help="Number of observational samples per training injection - TUNABLE: try 100-250")
+    parser.add_argument("--obs_train_epochs", type=int, default=100, help="Training epochs for observational data - TUNABLE: try 50-150")
+    
+    # Observational training tuning (for ablation studies)
+    parser.add_argument("--test_obs_ratio", action="store_true", help="Experimental: Test observational training ratio ablation")
     
     # NEW: Early stopping parameters to detect training saturation
     parser.add_argument("--early_stopping", action="store_true", help="Enable early stopping when training plateaus")
