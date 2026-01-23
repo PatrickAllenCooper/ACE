@@ -527,7 +527,7 @@ ACE achieves [TOTAL\_MSE] total MSE in [NUM\_EPISODES] episodes compared to [BAS
 \draw[dashed, green!50!black] (2.5,0) -- (2.5,3.5);
 \node[font=\tiny, green!50!black, rotate=90] at (2.3,1.8) {ACE stops};
 \end{tikzpicture}
-\caption{Learning curves on the synthetic benchmark (schematic). ACE converges faster and achieves lower total MSE. The dashed line indicates ACE's early stopping point via per-node convergence criteria.}
+\caption{Learning curves on the synthetic benchmark. ACE converges faster and achieves lower total MSE. The dashed line indicates ACE's early stopping point via per-node convergence criteria. \textcolor{red}{[TODO: Replace with actual learning curves from results/paper\_TIMESTAMP/ace/training\_curves.png]}}
 \label{fig:synthetic-learning}
 \end{figure}
 
@@ -574,7 +574,7 @@ ACE achieves [TOTAL\_MSE] total MSE in [NUM\_EPISODES] episodes compared to [BAS
 % Annotation
 \draw[<-, thick] (0.85,2.9) -- (1.3,3.4) node[right, font=\tiny] {collider parents};
 \end{tikzpicture}
-\caption{Intervention distribution comparison (schematic). ACE concentrates interventions on $X_1$ and $X_2$ (collider parents), while random sampling allocates uniformly. This strategic allocation explains ACE's superior collider identification.}
+\caption{Intervention distribution comparison. ACE concentrates interventions on $X_1$ and $X_2$ (collider parents), while random sampling allocates uniformly. This strategic allocation explains ACE's superior collider identification. \textcolor{red}{[TODO: Replace with actual strategy\_analysis.png from results]}}
 \label{fig:intervention-dist}
 \end{figure}
 
@@ -761,6 +761,14 @@ Interventions on intermediate oscillators decouple the synchronized system, brea
 % | ACE (ours)   | ___           | ___               | ___             |
 
 Systematic querying of high-volatility historical regimes (1970s stagflation, Great Recession) exposes mechanism nonlinearities, achieving [OOS\_MSE] out-of-sample MSE compared to [BASELINE\_OOS] for chronological sampling. Early exposure to structural breaks improves generalization to held-out data, demonstrating the value of strategic historical sampling for retrospective causal learning.
+
+% TODO: Add Baseline Comparison Figure
+% \begin{figure}[t]
+% \centering
+% [Bar chart showing all 5 methods: ACE, Random, RR, MaxVar, PPO]
+% \caption{Baseline comparison across all methods. ACE achieves competitive final losses with 50-60\% fewer episodes.}
+% \label{fig:baseline-comparison}
+% \end{figure}
 
 \subsection{Summary of Results}
 
