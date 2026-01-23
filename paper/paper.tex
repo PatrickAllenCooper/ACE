@@ -253,7 +253,9 @@ Our work addresses this gap by treating experimental design as a learnable polic
 \section{Methods}
 \label{sec:methods}
 
-We formulate causal experimental design as a sequential decision problem where a policy learns to select interventions by observing their effect on a learner's epistemic state. Our framework consists of three components: an oracle environment representing ground truth, a learner estimating mechanisms, and an experimentalist proposing interventions (Figure~\ref{fig:framework}). The experimentalist is trained via Direct Preference Optimization to prefer interventions yielding higher information gain.
+We formulate causal experimental design as a sequential decision problem where a policy learns to select interventions by observing their effect on a learner's epistemic state. Critically, the policy must learn \emph{both} which variable to intervene upon (target selection) \emph{and} what value to set it to (functional intervention approximation)---a joint action space that distinguishes our approach from methods that only address target selection.
+
+Our framework consists of three components: an oracle environment representing ground truth, a learner estimating mechanisms, and an experimentalist proposing interventions (Figure~\ref{fig:framework}). The experimentalist is trained via Direct Preference Optimization to prefer interventions yielding higher information gain, learning to approximate the functional relationship between intervention values and information gain without explicit function modeling.
 
 \begin{figure}[t]
 \centering
