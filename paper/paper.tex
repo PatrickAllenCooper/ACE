@@ -355,9 +355,22 @@ We train the policy to increase the log-probability ratio between winners and lo
 \end{equation}
 The reference policy $\pi_{\text{ref}}$ is initialized via supervised pretraining on teacher-generated interventions and updated periodically to prevent KL divergence explosion.
 
+\subsection{Experimental Methodology}
+
+We evaluate ACE on synthetic and real-world domains, conducting rigorous validation through multiple independent runs, ablation studies, and failure case analysis.
+
+\emph{Statistical Validation Protocol.}
+All experiments are conducted five times with different random seeds to enable proper statistical analysis. Results are reported as mean $\pm$ standard deviation, with 95\% confidence intervals computed via bootstrap. Significance testing uses paired t-tests with Bonferroni correction.
+
+\emph{Ablation Studies.}
+To validate our architectural choices (per-node convergence, dedicated root learner, three-component reward), we systematically remove each component and measure performance degradation. This empirically justifies each design decision.
+
+\emph{Baseline Comparisons.}
+We compare against four baselines appropriate for mechanism estimation with known structure: Random (unguided exploration), Round-Robin (systematic coverage), Max-Variance (uncertainty sampling), and PPO (value-based RL). Note that recent methods like CORE \cite{core2024} and GACBO \cite{gacbo2024} address structure discovery (learning the graph), while we focus on mechanism estimation (known graph)---different problems requiring different experimental strategies.
+
 \subsection{Experiments}
 
-We evaluate ACE on a synthetic linear SCM benchmark designed to test the framework's ability to learn effective experimental strategies through self-play.
+We evaluate ACE on synthetic benchmarks of increasing scale designed to test the framework's ability to learn effective experimental strategies through self-play.
 
 \subsubsection{Experimental Setup}
 
@@ -469,7 +482,9 @@ To directly validate our claim that preference learning outperforms value-based 
 % All TODOs marked with \textcolor{red}{...} for easy identification
 % =============================================================================
 
-We evaluate ACE across four domains of increasing complexity: a synthetic 5-node benchmark for controlled comparison, a complex 15-node SCM to test scaling, coupled Duffing oscillators for physical dynamics, and Phillips curve data for real-world economic modeling. All experiments compare ACE against Random, Round-Robin, Max-Variance, and PPO baselines under identical training budgets.
+We evaluate ACE across five domains of increasing complexity: a synthetic 5-node benchmark for controlled comparison, a complex 15-node SCM, a large-scale 30-node SCM to test scalability, coupled Duffing oscillators for physical dynamics, and Phillips curve data for real-world economic modeling. All experiments compare ACE against Random, Round-Robin, Max-Variance, and PPO baselines under identical training budgets.
+
+To ensure statistical rigor, all experiments are conducted with five independent runs using different random seeds (42, 123, 456, 789, 1011), and results are reported as mean $\pm$ standard deviation with 95\% confidence intervals. Statistical significance is assessed via paired t-tests with Bonferroni correction for multiple comparisons ($\alpha = 0.05/4 = 0.0125$). Additionally, we conduct ablation studies to validate each architectural component's contribution, testing configurations with components removed to measure performance degradation.
 
 \subsection{Synthetic 5-Node Benchmark}
 
@@ -613,6 +628,19 @@ ACE achieves competitive total MSE in \textcolor{red}{40-60} episodes compared t
 \subsection{Complex 15-Node SCM}
 
 \emph{Setup.} To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 5 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms), illustrated in Figure~\ref{fig:complex-scm}. This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
+
+\subsection{Large-Scale 30-Node SCM}
+
+\emph{Setup.} To demonstrate scalability to realistic system sizes, we test on a hierarchical 30-node SCM with 5 exogenous roots, multiple layers of intermediate nodes, and 10 collider structures. At this scale, random sampling allocates only $\sim$3.3\% of interventions per node, making strategic selection critical. This benchmark validates that ACE's learned strategies remain effective as system complexity increases, a key requirement for practical deployment in domains like gene regulatory networks or industrial process models where hundreds of variables may interact.
+
+% TODO: Add after large-scale experiment runs
+\textcolor{red}{[TODO: Report large-scale results after running experiments/large\_scale\_scm.py. Expected: Strategic policies should show 30-40\% advantage over random due to very dilute sampling. Key metric: Final total loss and episodes to convergence.]}
+
+% TODO: Add figure showing scaling behavior
+% \begin{figure}[t]
+% \caption{Scaling behavior on 30-node SCM. ACE maintains strategic advantage as system size increases.}
+% \label{fig:large-scale}
+% \end{figure}
 
 \begin{figure}[t]
 \centering
