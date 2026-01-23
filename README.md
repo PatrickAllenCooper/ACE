@@ -54,21 +54,42 @@ This ensures the latest run is always obvious and results sort chronologically.
 
 ## Quick Start
 
+### Running Experiments
+
 ```bash
-# HPC: Full experiments (all improvements enabled)
+# HPC: Full paper experiments (all 5 jobs)
 ./run_all.sh
 
-# HPC: Quick validation  
+# HPC: Quick validation (10 episodes each)
 QUICK=true ./run_all.sh
 
-# Local: Single experiment
+# Local: Single ACE experiment
 python ace_experiments.py --episodes 200 --early_stopping --use_dedicated_root_learner
 
-# Baselines
+# Local: All baselines
 python baselines.py --all_with_ppo --episodes 100
 
-# Visualize
-python visualize.py results/run_*/
+# Visualize latest results
+python visualize.py $(ls -td results/paper_* | head -1)/*/
+```
+
+### After Experiments Complete
+
+```bash
+# Find latest results
+LATEST=$(ls -td results/paper_* | head -1)
+
+# Extract metrics
+./scripts/extract_ace.sh "$LATEST"
+./scripts/extract_baselines.sh "$LATEST"
+
+# Verify paper claims
+./scripts/verify_claims.sh "$LATEST"
+python clamping_detector.py "$LATEST/duffing"
+python regime_analyzer.py "$LATEST/phillips"
+
+# Generate comparison table
+python compare_methods.py "$LATEST"
 ```
 
 ## Current Status (January 21, 2026, 10:15 AM)
@@ -111,21 +132,50 @@ python baselines.py --baseline ppo  # PPO rerun (2 hours)
 
 ```
 ACE/
-├── ace_experiments.py        # Main ACE (DPO) experiment
-├── baselines.py              # 4 baseline comparisons
-├── visualize.py              # Result visualization
-├── run_all.sh                # HPC job orchestrator
-├── experiments/              # Additional validation experiments
-│   ├── complex_scm.py           # Hard 15-node benchmark
-│   ├── duffing_oscillators.py   # Physics (ODE-based)
-│   └── phillips_curve.py        # Economics (FRED data)
-├── jobs/                     # SLURM job scripts
-│   ├── run_ace_main.sh
-│   ├── run_baselines.sh
-│   ├── run_duffing.sh
-│   └── run_phillips.sh
-└── guidance_documents/
-    └── guidance_doc.txt      # Comprehensive technical guide
+├── README.md, CHANGELOG.md, START_HERE.md, RUN_ALL_SUMMARY.md
+├── LICENSE
+│
+├── ace_experiments.py           # Main ACE (DPO) experiment
+├── baselines.py                 # 4 baseline comparisons
+├── visualize.py                 # Result visualization
+├── compare_methods.py           # Table generation
+├── clamping_detector.py         # Verify Line 661 (clamping)
+├── regime_analyzer.py           # Verify Line 714 (regime selection)
+│
+├── run_all.sh                   # ⭐ HPC job orchestrator (5 jobs)
+│
+├── jobs/                        # SLURM job scripts
+│   ├── run_ace_main.sh         # Job 1: ACE Main
+│   ├── run_baselines.sh        # Job 2: All baselines
+│   ├── run_complex_scm.sh      # Job 3: Complex 15-node
+│   ├── run_duffing.sh          # Job 4: Duffing oscillators
+│   └── run_phillips.sh         # Job 5: Phillips curve
+│
+├── scripts/                     # Utility scripts
+│   ├── verify_claims.sh        # Verify paper claims
+│   ├── extract_ace.sh          # Extract ACE metrics
+│   ├── extract_baselines.sh    # Extract baseline metrics
+│   ├── pipeline_test.sh        # Quick validation
+│   └── ... (5 more scripts)
+│
+├── experiments/                 # Experiment modules
+│   ├── complex_scm.py          # 15-node hard benchmark
+│   ├── duffing_oscillators.py  # Physics (ODE-based)
+│   └── phillips_curve.py       # Economics (FRED data)
+│
+├── tests/                       # Test suite
+│   ├── 470 tests (77% coverage)
+│   ├── 32 test files
+│   └── HPC workflow tests
+│
+├── paper/                       # LaTeX source
+├── results/                     # Experiment outputs (clean, copy-friendly)
+├── checkpoints/                 # Training checkpoints (separate, gitignored)
+├── logs/                        # Job logs
+└── guidance_documents/          # Complete documentation
+    ├── guidance_doc.txt        # Main guide
+    ├── WHAT_REMAINS.txt        # Integration TODO
+    └── EXPERIMENT_TO_CLAIM_MAPPING.txt  # Verification map
 ```
 
 ## Usage
@@ -195,11 +245,20 @@ export MPLCONFIGDIR="/projects/$USER/cache/matplotlib"
 
 ## Documentation
 
-- **`README.md`** (this file) - Quick start and overview
-- **`START_HERE.md`** - Current work entry point (Jan 21 pipeline fixes)
+- **`README.md`** (this file) - Quick start, overview, test coverage
+- **`START_HERE.md`** - Current work entry point
 - **`CHANGELOG.md`** - Version history and improvements
-- **`guidance_documents/guidance_doc.txt`** - Complete technical reference
-- **`results/RESULTS_LOG.md`** - Running log of experimental findings
+- **`RUN_ALL_SUMMARY.md`** - Experiment summaries
+- **`guidance_documents/guidance_doc.txt`** - Complete technical guide with:
+  - Project organization and structure
+  - HPC workflow documentation
+  - Test coverage details (77%, 470 tests)
+  - Checkpoint separation (checkpoints/ vs results/)
+  - Timestamp naming convention
+  - What remains for complete paper verification
+- **`guidance_documents/EXPERIMENT_TO_CLAIM_MAPPING.txt`** - Maps experiments to paper claims
+- **`guidance_documents/WHAT_REMAINS.txt`** - Integration TODO list
+- **`tests/README.md`** - Test suite developer guide
 
 ## Next Run
 
