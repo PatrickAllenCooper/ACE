@@ -164,7 +164,7 @@ cmd_run_ablations() {
     # Full model (baseline)
     log_info "Submitting full model..."
     JOB=$(sbatch --parsable \
-        --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
+        --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
         --job-name=ace_full \
         --output=logs/ablation_full_${TIMESTAMP}_%j.out \
         --error=logs/ablation_full_${TIMESTAMP}_%j.err \
@@ -174,7 +174,7 @@ cmd_run_ablations() {
     # No per-node convergence
     log_info "Submitting no-per-node-convergence ablation..."
     JOB=$(sbatch --parsable \
-        --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
+        --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
         --job-name=ace_no_pnc \
         --output=logs/ablation_no_pnc_${TIMESTAMP}_%j.out \
         --error=logs/ablation_no_pnc_${TIMESTAMP}_%j.err \
@@ -184,7 +184,7 @@ cmd_run_ablations() {
     # No dedicated root learner
     log_info "Submitting no-dedicated-root-learner ablation..."
     JOB=$(sbatch --parsable \
-        --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
+        --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
         --job-name=ace_no_root \
         --output=logs/ablation_no_root_${TIMESTAMP}_%j.out \
         --error=logs/ablation_no_root_${TIMESTAMP}_%j.err \
@@ -194,7 +194,7 @@ cmd_run_ablations() {
     # No diversity reward
     log_info "Submitting no-diversity-reward ablation..."
     JOB=$(sbatch --parsable \
-        --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
+        --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
         --job-name=ace_no_div \
         --output=logs/ablation_no_div_${TIMESTAMP}_%j.out \
         --error=logs/ablation_no_div_${TIMESTAMP}_%j.err \
@@ -228,7 +228,7 @@ cmd_run_obs_ablation() {
         log_info "Submitting obs_train_interval=$INTERVAL (~${PCT}% observational)..."
         
         JOB=$(sbatch --parsable \
-            --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
+            --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
             --job-name=obs_int${INTERVAL} \
             --output=logs/obs_interval${INTERVAL}_${TIMESTAMP}_%j.out \
             --error=logs/obs_interval${INTERVAL}_${TIMESTAMP}_%j.err \
