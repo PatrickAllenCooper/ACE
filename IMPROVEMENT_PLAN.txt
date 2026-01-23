@@ -482,11 +482,11 @@ Our results suggest the following guidelines:
 ## Implementation Checklist
 
 ### Week 1: Statistical Validation
-- [ ] Modify run_all.sh for multiple seeds
-- [ ] Add --seed argument to ace_experiments.py
-- [ ] Create consolidate_multi_runs.sh script
-- [ ] Create compute_statistics.py script
-- [ ] Run all experiments 5 times (submit jobs)
+- [x] Modify run_all.sh for multiple seeds ✅ (run_all_multi_seed.sh created)
+- [x] Add --seed argument to ace_experiments.py ✅
+- [x] Create consolidate_multi_runs.sh script ✅
+- [x] Create compute_statistics.py script ✅
+- [ ] Run all experiments 5 times (submit jobs) - READY TO RUN
 - [ ] Collect and consolidate results
 - [ ] Compute statistics (mean, std, CI)
 - [ ] Update Table 1 with statistics
@@ -494,12 +494,16 @@ Our results suggest the following guidelines:
 - [ ] Run t-tests, get p-values
 
 ### Week 2: Ablations & Failures
-- [ ] Implement --no_per_node_convergence flag
-- [ ] Run ablation 1 (no per-node)
-- [ ] Run ablation 2 (no root learner)
-- [ ] Run ablation 3 (no diversity)
-- [ ] Run ablation 4 (IG only) - optional
-- [ ] Create ablation results table
+- [x] Implement --no_per_node_convergence flag ✅
+- [x] Implement --no_dedicated_root_learner flag ✅
+- [x] Implement --no_diversity_reward flag ✅
+- [x] Create run_ablations.sh script ✅
+- [x] Create analyze_ablations.py script ✅
+- [ ] Run ablation 1 (no per-node) - READY TO RUN
+- [ ] Run ablation 2 (no root learner) - READY TO RUN
+- [ ] Run ablation 3 (no diversity) - READY TO RUN
+- [ ] Run ablation 4 (IG only) - READY TO RUN
+- [ ] Create ablation results table (analyze_ablations.py generates)
 - [ ] Test on fully connected graph
 - [ ] Test on symmetric ring graph
 - [ ] Document all failure cases
