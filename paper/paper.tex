@@ -198,11 +198,15 @@ This formulation highlights the key challenge: optimal experimental design requi
 
 \section{Related Works}
 
+Our work builds on three research traditions: theoretical causal discovery, adaptive experimental design, and reinforcement learning for scientific applications. We position our contribution relative to each and explain why existing approaches fall short for the experimentalist use cases described above.
+
 \subsection{Theoretical Foundations of Causal Discovery}
 
 The problem of learning causal structures from interventional data has been extensively studied from both theoretical and algorithmic perspectives. Fundamental complexity results by \cite{chickering1996learning, chickering2004large} established that learning Bayesian networks is NP-hard, even with large samples, setting the stage for decades of research into tractable approximations and special cases. Despite this computational intractability, the causal discovery community has developed strong theoretical bounds on the number of interventions required for structure identification.
 
-The seminal work of \cite{eberhardt2005number, eberhardt2006n} established that $n-1$ single-node interventions are sufficient and sometimes necessary to identify all causal relations among $n$ variables in the worst case. This line of research culminated in \cite{eberhardt2007thesis}, which showed that when parallel interventions are allowed, only $\lceil\log_2(n)\rceil$ experiments suffice. These results provide the theoretical backdrop against which all practical causal discovery algorithms must be evaluated.
+The seminal work of \cite{eberhardt2005number, eberhardt2006n} established that $n-1$ single-node interventions are sufficient and sometimes necessary to identify all causal relations among $n$ variables in the worst case. This line of research culminated in \cite{eberhardt2007thesis}, which showed that when parallel interventions are allowed, only $\lceil\log_2(n)\rceil$ experiments suffice.
+
+However, these theoretical bounds assume worst-case scenarios and provide little guidance for the sequential, adaptive decision-making that characterizes real experimental practice. An experimentalist with partial knowledge after 10 experiments needs to know which variable to perturb \emph{next}---not how many experiments are sufficient in the worst case. The gap between theoretical bounds and practical strategies motivates adaptive approaches.
 
 \subsection{Optimal Experimental Design for Causal Discovery}
 
@@ -210,13 +214,17 @@ The question of how to optimally select interventions has spawned multiple resea
 
 From an information-theoretic perspective, \cite{murphy2001active} pioneered the use of expected information gain for intervention selection, while \cite{shanmugam2015learning} proved that greedy approaches can achieve a $(1-1/e)$ approximation factor for the optimal intervention set. More recently, \cite{kocaoglu2017cost} and \cite{ghassami2018budgeted} addressed the budgeted experiment design problem, where interventions have varying costs, showing that even approximate solutions remain computationally challenging.
 
+While these methods provide principled intervention selection, they share a critical limitation for experimental practice: they require full probabilistic models or explicit hypothesis spaces. An experimentalist cannot easily encode "I think gene regulation follows a cascade but I'm unsure of the branching structure" into these frameworks. Moreover, they optimize locally (next best experiment) without considering the trajectory of future learning---analogous to a chess player considering only the immediate next move rather than planning several moves ahead.
+
 \subsection{Adaptive and Active Learning Strategies}
 
-A parallel line of research has focused on adaptive strategies that leverage information from previous experiments to guide future interventions. \cite{hauser2012characterization, hauser2014two} characterized interventional Markov equivalence classes and proposed two optimal strategies for their identification, demonstrating that adaptive approaches can significantly outperform static designs in practice. \cite{cho2016reconstructing} extended these ideas to biological networks, showing 40-60\% reductions in required experiments through active learning.
+A parallel line of research has focused on adaptive strategies that leverage information from previous experiments to guide future interventions. \cite{hauser2012characterization, hauser2014two} characterized interventional Markov equivalence classes and proposed two optimal strategies for their identification, demonstrating that adaptive approaches can significantly outperform static designs in practice. \cite{cho2016reconstructing} extended these ideas to biological networks, showing 40-60\% reductions in required experiments through active learning---a significant advance for biologists facing expensive perturbation experiments.
 
 Recent advances by \cite{squires2020permutation, squires2020active} have connected the intervention design problem to graph coloring and clique tree decompositions, providing new algorithmic tools that exploit graph structure. Their permutation-based approaches are particularly notable for handling unknown intervention targets, a common scenario in biological applications.
 
-The sample complexity of causal graph learning has been further refined by \cite{wang2018sample}, while \cite{akbari2021recursive} addressed the challenging case of recursive causal structure learning with latent variables and selection bias. These works collectively establish that while worst-case bounds are pessimistic, significant improvements are possible when structural assumptions can be leveraged.
+The sample complexity of causal graph learning has been further refined by \cite{wang2018sample}, while \cite{akbari2021recursive} addressed the challenging case of recursive causal structure learning with latent variables and selection bias.
+
+These adaptive methods represent substantial progress over static designs. However, they still operate within predefined algorithmic frameworks: each method commits to a specific strategy (e.g., uncertainty sampling, separating system construction) that cannot adapt its fundamental approach based on the specific characteristics of the causal system being studied. An experimentalist working on metabolic networks develops intuition about which intervention patterns work well for that domain---current methods cannot capture or transfer such domain-specific experimental strategies.
 
 \subsection{Neural and Differentiable Approaches}
 
