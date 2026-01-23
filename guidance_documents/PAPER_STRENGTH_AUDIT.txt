@@ -1,0 +1,195 @@
+# ACE Paper Systematic Audit
+
+## Overall Assessment: BORDERLINE to WEAK ACCEPT (6.5/10)
+
+Assuming positive experimental outcomes, your paper would likely receive:
+- **NeurIPS/ICML**: Borderline/Weak Accept (lacks theory)
+- **ICLR/AISTATS**: Weak Accept/Accept (solid application)
+- **UAI/AAAI**: Accept (novel for causal discovery)
+
+---
+
+## Strengths (8 Strong Points)
+
+1. ✅ **Novel Application** - First use of DPO for causal experimental design
+2. ✅ **Well-Motivated** - Concrete examples from biology, materials, neuroscience
+3. ✅ **Real Gap** - Addresses non-stationary rewards in active learning
+4. ✅ **Multiple Domains** - Synthetic, physics (Duffing), economics (Phillips)
+5. ✅ **Comprehensive Baselines** - Random, Round-Robin, Max-Variance, PPO
+6. ✅ **Practical Innovations** - Per-node convergence, dedicated root learner
+7. ✅ **Current Related Work** - 16 new citations (2023-2025), ironclad
+8. ✅ **Reproducible** - Code available, 77% test coverage, automated workflow
+
+---
+
+## Critical Weaknesses (8 Major Gaps)
+
+1. ❌ **No Theory** - Pure application, no sample complexity/regret bounds
+2. ❌ **No Statistical Validation** - Single runs, no error bars or confidence intervals  
+3. ❌ **No Ablation Studies** - Cannot justify why each component is necessary
+4. ❌ **Limited Scale** - Only 5-15 nodes (real systems have 100s of variables)
+5. ❌ **Assumes Known Graph** - Major limitation acknowledged but not addressed
+6. ❌ **No Failure Analysis** - Only shows successes, not when/why it fails
+7. ❌ **Missing Recent Baselines** - No comparison to CORE, GACBO (2024 methods)
+8. ❌ **Heavily Synthetic** - Only Phillips uses real data (and historical, not live)
+
+---
+
+## Detailed Component Scores
+
+### Novelty: 6/10
+- Application of existing method (DPO) to new domain
+- Practical innovations are incremental
+- No new theory or algorithms
+**Gap:** Needs theoretical contribution or algorithmic innovation
+
+### Experimental Validation: 5/10
+- Good domain coverage
+- Multiple baselines
+- Missing: statistics, ablations, large scale, failure cases
+**Gap:** Needs empirical rigor (error bars, significance tests)
+
+### Impact Potential: 7/10
+- Clear applications (drug discovery, materials)
+- Addresses pain point (expensive experiments)
+- Automated science vision compelling
+**Gap:** Needs deployment demonstration
+
+### Writing: 7/10
+- Clear motivation
+- Good structure
+- Terms well-defined
+**Gap:** Abstract dense, could be punchier
+
+### Reproducibility: 8/10
+- Code available
+- Methods detailed
+- Test suite comprehensive
+**Gap:** Need explicit reproducibility statement in paper
+
+### Related Work: 8/10
+- Comprehensive coverage
+- Recent (2023-2025)
+- Clear positioning
+**Strength:** This is solid now
+
+---
+
+## Path to STRONG ACCEPT (8-9/10)
+
+### CRITICAL (Must Do - ~2 weeks)
+
+**1. Statistical Validation** (+1.0 point)
+- Run all experiments 5 times with different seeds
+- Add mean ± std to all metrics
+- Include error bars in all figures
+- Report confidence intervals in Table 1
+- Run t-tests for statistical significance
+
+**2. Ablation Studies** (+0.5 points)
+- Remove per-node convergence → show performance degrades
+- Remove dedicated root learner → show root learning suffers
+- Remove diversity reward → show policy collapses
+- Show 3-component > complex multi-term rewards
+
+**3. Failure Analysis** (+0.5 points)
+- Identify cases where ACE underperforms baselines
+- Characterize difficult causal structures
+- Show DPO failure modes
+- Honest discussion of limitations
+
+**4. Statistical Significance** (+0.5 points)
+- Paired t-tests for ACE vs each baseline
+- Report p-values in Table 1
+- Claims supported by significance
+
+**Total Impact:** 6.5/10 → 9/10 (STRONG ACCEPT)
+
+### IMPORTANT (Should Do - if time)
+
+**5. Recent Method Comparison** (+0.3 points)
+- Compare to GACBO or CORE (2024 methods)
+- Show why DPO beats recent RL approaches
+
+**6. Larger Scale** (+0.4 points)
+- Test on 30-50 node networks
+- Show scaling behavior
+
+**7. Theoretical Justification** (+0.3 points)
+- Informal argument for why DPO works
+- Sample complexity discussion
+- Connection to regret bounds
+
+---
+
+## Most Critical Missing Piece
+
+**Statistical Validation (No Error Bars)**
+
+Every table, every claim, every "ACE achieves X" statement is based on a SINGLE RUN. This is a major red flag for reviewers. Standard practice in ML is 3-5 runs minimum.
+
+**Current Table 1:**
+```
+ACE: 1.50 total loss
+```
+
+**Should Be:**
+```
+ACE: 1.50 ± 0.12 total loss (n=5)
+```
+
+**Impact on Review:**
+- Without: "How do we know this isn't random chance?"
+- With: "Results are statistically validated"
+
+**Cost:** ~1 week (rerun experiments 5 times)
+**Benefit:** +1.0 point, shifts verdict significantly
+
+---
+
+## Recommended Action Plan
+
+### Option 1: Quick Improvement (2 weeks → Accept)
+1. Run experiments 5 times (1 week of compute)
+2. Add error bars everywhere (2 days)
+3. Statistical significance tests (1 day)
+4. Add 3 ablation studies (2 days)
+5. Add failure analysis section (1 day)
+
+**Result:** 6.5/10 → 8/10 (Strong Accept as empirical paper)
+
+### Option 2: Submit As-Is (Risky)
+- Fill TODOs with single-run results
+- Submit immediately
+- Hope reviewers are lenient
+
+**Result:** Likely Borderline/Weak Accept with requests for:
+- Multiple runs
+- Statistical validation
+- Ablations
+
+Then need to do Option 1 for revision anyway.
+
+### Option 3: Major Revision (1 month → Top-Tier)
+- Everything in Option 1
+- Add theoretical analysis
+- Larger scale experiments
+- Real experimental validation
+
+**Result:** 6.5/10 → 9/10 (Top-tier Strong Accept)
+
+---
+
+## Bottom Line
+
+**Current State:** Well-written application paper with solid engineering
+
+**Honest Assessment:** 6.5/10 (Borderline/Weak Accept)
+
+**Missing:** Empirical rigor that top venues expect
+
+**Easiest Path to Strong Accept:**
+Run experiments 5 times, add error bars, do ablations, analyze failures
+(~2 weeks additional work → 8/10)
+
+**Your paper has good bones - it just needs statistical validation to be strong.**
