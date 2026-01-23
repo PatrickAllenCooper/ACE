@@ -2,32 +2,23 @@
 
 ## Critical Items for run_all.sh → Paper Claims
 
-### 1. Integrated Post-Processing Script (HIGH PRIORITY)
-**File:** scripts/process_all_results.sh
+### 1. Integrated Post-Processing Script ✅ COMPLETE
+**File:** scripts/process_all_results.sh ✅ Created
 **Purpose:** Orchestrate all post-job processing
-**Should do:**
+**Does:**
+- Extract metrics from all experiments
+- Verify all paper claims (Lines 485, 661, 714, 767)
+- Generate comparison tables
+- Copy all figures
+- Create comprehensive summary report
+
+**Usage:**
 ```bash
-#!/bin/bash
-RESULTS_DIR=$1  # e.g., results/paper_20260121_143052
-
-# Extract metrics
-./scripts/extract_ace.sh "$RESULTS_DIR"
-./scripts/extract_baselines.sh "$RESULTS_DIR"
-
-# Verify claims
-python clamping_detector.py "$RESULTS_DIR/duffing"
-python regime_analyzer.py "$RESULTS_DIR/phillips"
-./scripts/verify_claims.sh "$RESULTS_DIR"
-
-# Generate tables
-python compare_methods.py "$RESULTS_DIR" --latex > paper/table1.tex
-
-# Generate figures
-python visualize.py "$RESULTS_DIR"/*/ --paper-format
-
-# Summary report
-echo "All paper claims verified and tables generated"
+LATEST=$(ls -td results/paper_* | head -1)
+./scripts/process_all_results.sh "$LATEST"
 ```
+
+**Integrated into run_all.sh** - Instructions shown after job submission
 
 ### 2. LaTeX Table Output (HIGH PRIORITY)
 **File:** compare_methods.py (enhance)

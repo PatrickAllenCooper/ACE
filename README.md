@@ -76,20 +76,22 @@ python visualize.py $(ls -td results/paper_* | head -1)/*/
 ### After Experiments Complete
 
 ```bash
-# Find latest results
+# Single command to process all results
 LATEST=$(ls -td results/paper_* | head -1)
+./scripts/process_all_results.sh "$LATEST"
 
-# Extract metrics
-./scripts/extract_ace.sh "$LATEST"
-./scripts/extract_baselines.sh "$LATEST"
+# This automatically:
+# - Extracts all metrics
+# - Verifies all paper claims (Lines 485, 661, 714, 767)
+# - Generates Table 1
+# - Creates all figures
+# - Produces summary report
 
-# Verify paper claims
-./scripts/verify_claims.sh "$LATEST"
-python clamping_detector.py "$LATEST/duffing"
-python regime_analyzer.py "$LATEST/phillips"
-
-# Generate comparison table
-python compare_methods.py "$LATEST"
+# Outputs in: results/paper_TIMESTAMP/processed/
+# - tables/table1.txt
+# - figures/*.png
+# - verification/*.txt
+# - PROCESSING_SUMMARY.txt
 ```
 
 ## Current Status (January 21, 2026, 10:15 AM)
