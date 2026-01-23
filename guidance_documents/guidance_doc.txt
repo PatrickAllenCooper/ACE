@@ -49,6 +49,18 @@ ACE/
 4. **Job 4: Duffing** → Section 3.6 (clamping strategy)
 5. **Job 5: Phillips** → Section 3.7 (regime selection)
 
+**Output Naming Convention (Timestamp-based):**
+- Format: `results/paper_YYYYMMDD_HHMMSS/`
+- Example: `results/paper_20260121_143052/`
+- Latest run is always last alphabetically (ls -t or ls | tail -1)
+- Each run contains: `ace/`, `baselines/`, `complex_scm/`, `duffing/`, `phillips/`
+
+**Finding Latest Run:**
+```bash
+ls -td results/paper_* | head -1        # Latest run directory
+tail -f $(ls -t logs/ace_main_*.out | head -1)  # Latest ACE log
+```
+
 **Verification Scripts:**
 - `clamping_detector.py` → Verify Line 661 claim (clamping)
 - `regime_analyzer.py` → Verify Line 714 claim (regime selection)
