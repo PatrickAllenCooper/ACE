@@ -146,38 +146,10 @@ def test_statistical_tests_has_functions():
 
 
 # =============================================================================
-# HPC Sync Script Tests
+# HPC Sync Script Tests (now in unified CLI)
 # =============================================================================
 
-@pytest.mark.unit
-def test_sync_results_from_hpc_exists():
-    """Test that HPC sync script exists."""
-    script = Path("scripts/sync_results_from_hpc.sh")
-    assert script.exists()
-
-
-@pytest.mark.unit
-def test_sync_results_from_hpc_syntax():
-    """Test HPC sync script syntax."""
-    script = Path("scripts/sync_results_from_hpc.sh")
-    
-    result = subprocess.run(
-        ['bash', '-n', str(script)],
-        capture_output=True
-    )
-    
-    assert result.returncode == 0
-
-
-@pytest.mark.unit
-def test_sync_results_from_hpc_mentions_rsync():
-    """Test that sync script uses rsync."""
-    script = Path("scripts/sync_results_from_hpc.sh")
-    content = script.read_text()
-    
-    assert 'rsync' in content
-    assert 'ssh' in content
-    assert 'process_all_results.sh' in content
+# Scripts consolidated into ace.sh - see test_unified_cli.py
 
 
 # =============================================================================
@@ -423,34 +395,19 @@ def test_all_critical_phases_have_infrastructure():
 def test_complete_workflow_documented():
     """Test that complete workflow is documented."""
     
-    # Check that workflow is documented somewhere
+    # Check that workflow is documented (now via CLI)
     docs_to_check = [
-        "IMPROVEMENT_PLAN.txt",
-        "IMPLEMENTATION_COMPLETE.txt",
-        "README.md"
+        "README.md",
+        "SCRIPT_CONSOLIDATION.md",
+        "guidance_documents/guidance_doc.txt"
     ]
     
     found_workflow = False
     for doc in docs_to_check:
         if Path(doc).exists():
             content = Path(doc).read_text()
-            if 'run_all_multi_seed' in content or 'multi-seed' in content.lower():
+            if 'multi-seed' in content.lower() or './ace.sh' in content:
                 found_workflow = True
                 break
     
     assert found_workflow, "Complete workflow not documented"
-
-
-@pytest.mark.unit
-def test_all_scripts_reference_correct_hpc_path():
-    """Test that HPC-related scripts use correct server path."""
-    
-    hpc_path = "/projects/paco0228/ACE"
-    hpc_host = "paco0228@login.rc.colorado.edu"
-    
-    # Check sync script
-    sync_script = Path("scripts/sync_results_from_hpc.sh")
-    if sync_script.exists():
-        content = sync_script.read_text()
-        assert hpc_host in content
-        assert '/projects/paco0228' in content or 'HPC_PROJECT_DIR' in content
