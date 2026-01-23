@@ -15,6 +15,113 @@
 
 **Previous Status:** ✅ All improvements implemented and committed, ready for DPO training
 
+---
+
+## Project Organization & HPC Workflow Verification
+
+### Project Structure (Clean & Organized)
+
+```
+ACE/
+├── README.md, CHANGELOG.md, START_HERE.md, RUN_ALL_SUMMARY.md
+├── ace_experiments.py           # Main ACE (DPO) experiment
+├── baselines.py                 # Baseline comparisons  
+├── visualize.py                 # Result visualization
+├── compare_methods.py           # Method comparison & tables
+├── clamping_detector.py         # Verify clamping claim
+├── regime_analyzer.py           # Verify regime selection claim
+├── run_all.sh                   # ⭐ HPC job orchestrator
+├── jobs/                        # SLURM job scripts (5 jobs)
+├── scripts/                     # Utility scripts (9 scripts)
+├── experiments/                 # Additional experiments (3 modules)
+├── tests/                       # Test suite (77% coverage, 470 tests)
+├── paper/                       # LaTeX source
+└── guidance_documents/          # This file
+```
+
+### HPC Workflow (run_all.sh)
+
+**Submits 5 Jobs to Support Paper Claims:**
+
+1. **Job 1: ACE Main** → Table 1 (ACE results), Section 3.4.1
+2. **Job 2: Baselines** → Table 1 (Random, RR, MaxVar, PPO), Section 3.8  
+3. **Job 3: Complex SCM** → Section 3.4.2 (hard benchmark)
+4. **Job 4: Duffing** → Section 3.6 (clamping strategy)
+5. **Job 5: Phillips** → Section 3.7 (regime selection)
+
+**Verification Scripts:**
+- `clamping_detector.py` → Verify Line 661 claim (clamping)
+- `regime_analyzer.py` → Verify Line 714 claim (regime selection)
+- `scripts/verify_claims.sh` → Line 767 (early stopping), Line 485 (concentration)
+- `compare_methods.py` → Generate Table 1
+
+### What's Complete ✅
+
+1. ✅ run_all.sh submits all necessary jobs
+2. ✅ All 5 job scripts exist and are executable
+3. ✅ Verification scripts exist (clamping, regime, compare)
+4. ✅ Extraction scripts exist (extract_ace.sh, extract_baselines.sh)
+5. ✅ All experiments are runnable
+6. ✅ Project structure is organized
+7. ✅ 77% test coverage validates components
+
+### What's Missing for Complete Paper Verification ⚠️
+
+**Critical (Required for Paper):**
+
+1. **Integrated Post-Processing Workflow**
+   - Need: `scripts/process_all_results.sh` to orchestrate:
+     - Extract metrics from all jobs
+     - Run verification (clamping, regime, concentration, early stopping)
+     - Generate comparison tables
+     - Create figures
+     - Produce claim verification report
+
+2. **LaTeX Table Generation**
+   - `compare_methods.py` exists but need LaTeX output format
+   - Need automated Table 1 generation ready for paper
+
+3. **Claim-to-Evidence Mapping**
+   - Document which paper claim is supported by which job/script
+   - Automated verification all claims have supporting data
+
+4. **Dependencies Documentation**
+   - Need: `requirements.txt` for pip users
+   - Need: `environment.yml` for conda users
+
+**Important (Best Practices):**
+
+5. **Results Documentation**
+   - Need: `results/README.md` explaining output structure
+
+6. **Post-Job Automation**
+   - Workflow: run_all.sh completes → auto-extract → auto-verify → auto-tables
+
+7. **Figure Generation Automation**
+   - Batch process all visualizations for paper
+
+**Recommended Action Plan:**
+
+```bash
+# After run_all.sh completes:
+./scripts/extract_ace.sh results/paper_TIMESTAMP/
+./scripts/extract_baselines.sh results/paper_TIMESTAMP/
+./scripts/verify_claims.sh results/paper_TIMESTAMP/
+python compare_methods.py results/paper_TIMESTAMP/ --latex
+python visualize.py results/paper_TIMESTAMP/*/ --paper-format
+```
+
+Or ideally:
+```bash
+./scripts/process_all_results.sh results/paper_TIMESTAMP/
+```
+
+This would generate:
+- Table 1 (LaTeX format)
+- All verification reports
+- All paper figures
+- Claim verification summary
+
 **Complete improvements (19 total):**
 1. Adaptive diversity threshold - allows strategic 60-75% concentration
 2. Value novelty bonus - fixes zero-reward saturation (99% → 40-60%)
