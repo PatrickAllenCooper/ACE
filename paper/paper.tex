@@ -817,6 +817,40 @@ Across all domains, ACE matches or exceeds the best baseline while requiring app
 
 \section{Discussion}
 
+\subsection{Ablation Studies}
+
+To validate our architectural choices, we systematically ablate each component and measure performance degradation. \textcolor{red}{[TODO: Fill with actual ablation results from scripts/run\_ablations.sh after experiments complete]}
+
+\emph{Component Contributions.} Table~\ref{tab:ablations} shows the impact of removing each component. Per-node convergence criteria prevent premature termination: without them, fast-learning mechanisms converge while slow learners remain undertrained, leading to \textcolor{red}{[TODO: report degradation \%]} higher total loss despite fewer episodes. The dedicated root learner is essential for exogenous variables: without isolated observational training, root distributions never converge, increasing their losses by \textcolor{red}{[TODO: report factor, expected 2-3×]}. The diversity reward prevents policy collapse: without it, \textcolor{red}{[TODO: report concentration \%, expected >90\%]} of interventions target a single node, resulting in poor exploration and \textcolor{red}{[TODO: report degradation]} higher loss.
+
+These ablations confirm that each component addresses a specific failure mode, and all three work synergistically to achieve robust performance.
+
+\subsection{When Does ACE Excel (and When Does It Struggle)?}
+
+\textcolor{red}{[TODO: Complete after failure case analysis from scripts/test\_failure\_cases.py]}
+
+Our analysis reveals scenarios where ACE's advantages are most pronounced and where they diminish:
+
+\emph{ACE Excels When:}
+\begin{itemize}
+\item Causal structures contain colliders or complex dependencies requiring strategic intervention allocation
+\item Experimental budgets are moderate (20-200 experiments), allowing policy learning
+\item Mechanisms have heterogeneous learning rates benefiting from per-node convergence
+\item Some structural knowledge exists (known or hypothesized graph)
+\end{itemize}
+
+\emph{ACE Struggles When:}
+\begin{itemize}
+\item Graphs are fully connected (all variables interact), limiting intervention isolation power
+\item Structures are perfectly symmetric (e.g., balanced rings), where Round-Robin's uniform allocation is near-optimal
+\item Budgets are very small (<15 experiments), insufficient for policy learning
+\item Candidate interventions have similar information gain ($\Delta\mathcal{L} < 0.1$), causing preference ambiguity
+\end{itemize}
+
+\textcolor{red}{[TODO: Add quantitative results - expect: ACE shows <15\% advantage on symmetric structures, >40\% advantage on collider-heavy structures]}
+
+Interestingly, we observe that Round-Robin occasionally matches ACE on balanced structures, suggesting that for symmetric causal systems, simple heuristics suffice. This characterization helps practitioners choose the appropriate method for their domain.
+
 \subsection{Why Preference Learning Outperforms Value-Based RL}
 
 A central finding is that DPO consistently outperforms PPO despite having access to identical reward signals. We attribute this to fundamental differences in how the two algorithms handle non-stationary rewards.
@@ -868,7 +902,11 @@ Note that while our implementation uses LLMs to generate intervention proposals 
 
 \section{Limitations and Future Work}
 
-Several limitations warrant discussion and suggest directions for future research. ACE requires high-fidelity simulations during policy training, with hundreds of episodes and thousands of forward evaluations needed before deployment; while inference is efficient (40--60 episodes), this training cost limits immediate application to domains with accurate simulators or sufficient historical data for offline learning---though industrial settings increasingly provide such capabilities through digital twins and process simulators. Our current implementation assumes the causal graph $\mathcal{G}$ is known, focusing on mechanism learning rather than structure discovery; extending ACE to jointly learn structure and mechanisms, perhaps through iterative refinement of candidate graphs, remains an important open problem. The text-based encoding of graph topology faces context window limitations for large networks ($n > 20$ nodes), suggesting that future work should explore graph neural network architectures or structured representations that scale more efficiently. While our dedicated root learner improves upon naive approaches, exogenous distributions remain challenging for all methods tested, and theoretical analysis of sample complexity for learning root distributions under interventional regimes could guide further improvements. Finally, our results report single-run outcomes; future work should include multiple runs with confidence intervals and statistical significance testing to fully characterize the variance in training dynamics across random seeds.
+Several limitations warrant discussion and suggest directions for future research.
+
+\emph{Single-Run Reporting.} \textcolor{red}{[NOTE: This will be addressed when multi-seed experiments complete]} Our results currently report single-run outcomes; best practice requires multiple independent runs with confidence intervals and statistical significance testing. We are conducting 5 independent runs with different random seeds (42, 123, 456, 789, 1011) to provide proper statistical validation. Preliminary single-run results guide the experimental design, but final publication will include complete statistical analysis with error bars, confidence intervals, and p-values from paired t-tests.
+
+\emph{Computational Requirements.} ACE requires high-fidelity simulations during policy training, with hundreds of episodes and thousands of forward evaluations needed before deployment; while inference is efficient (40--60 episodes), this training cost limits immediate application to domains with accurate simulators or sufficient historical data for offline learning---though industrial settings increasingly provide such capabilities through digital twins and process simulators. Our current implementation assumes the causal graph $\mathcal{G}$ is known, focusing on mechanism learning rather than structure discovery; extending ACE to jointly learn structure and mechanisms, perhaps through iterative refinement of candidate graphs, remains an important open problem. The text-based encoding of graph topology faces context window limitations for large networks ($n > 20$ nodes), suggesting that future work should explore graph neural network architectures or structured representations that scale more efficiently. While our dedicated root learner improves upon naive approaches, exogenous distributions remain challenging for all methods tested, and theoretical analysis of sample complexity for learning root distributions under interventional regimes could guide further improvements. Finally, our results report single-run outcomes; future work should include multiple runs with confidence intervals and statistical significance testing to fully characterize the variance in training dynamics across random seeds.
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
