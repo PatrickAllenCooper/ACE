@@ -26,6 +26,55 @@ pytest -m "not slow"
 pytest -n 4
 ```
 
+## Quick Start
+
+### Unified CLI
+
+All operations are available through a single command-line interface:
+
+```bash
+# Show all available commands
+./ace.sh help
+
+# Run all experiments (creates timestamped results directory)
+./ace.sh run all
+
+# Run multi-seed validation (for statistical significance)
+./ace.sh run-multi-seed 5
+
+# Run ablation studies
+./ace.sh run-ablations
+
+# Run observational ratio ablation
+./ace.sh run-obs-ablation
+
+# Post-process results
+./ace.sh process results/paper_YYYYMMDD_HHMMSS/
+
+# Sync from HPC and process locally
+./ace.sh sync-hpc
+./ace.sh process results/paper_YYYYMMDD_HHMMSS/
+```
+
+### Individual Experiments
+
+```bash
+# Run specific experiments
+./ace.sh run ace          # ACE main
+./ace.sh run baselines    # Baselines
+./ace.sh run complex      # Complex SCM
+./ace.sh run duffing      # Duffing oscillator
+./ace.sh run phillips     # Phillips curve
+```
+
+### Utilities
+
+```bash
+./ace.sh test             # Run pipeline tests
+./ace.sh clean            # Clean up temporary files
+./ace.sh check-version    # Check environment versions
+```
+
 ### Results & Naming Convention
 
 **All experimental runs use timestamp-based naming:**
@@ -134,9 +183,7 @@ python baselines.py --baseline ppo  # PPO rerun (2 hours)
 
 ```
 ACE/
-├── README.md, CHANGELOG.md, START_HERE.md, RUN_ALL_SUMMARY.md
-├── LICENSE
-│
+├── ace.sh                       # Unified CLI (all operations)
 ├── ace_experiments.py           # Main ACE (DPO) experiment
 ├── baselines.py                 # 4 baseline comparisons
 ├── visualize.py                 # Result visualization
