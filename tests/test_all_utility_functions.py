@@ -19,10 +19,11 @@ from pathlib import Path
 
 @pytest.mark.unit
 def test_save_checkpoint_creates_file(tmp_path):
-    """Test save_checkpoint creates checkpoint file."""
+    """Test save_checkpoint creates checkpoint file in checkpoints/ directory."""
     from ace_experiments import save_checkpoint, TransformerPolicy, ExperimentalDSL
+    import os
     
-    run_dir = tmp_path / "run"
+    run_dir = tmp_path / "run_test1"
     run_dir.mkdir()
     
     nodes = ['X1', 'X2', 'X3']
@@ -30,28 +31,37 @@ def test_save_checkpoint_creates_file(tmp_path):
     policy = TransformerPolicy(dsl, torch.device('cpu'), d_model=32)
     optimizer = torch.optim.Adam(policy.parameters())
     
-    # Save checkpoint
-    save_checkpoint(
-        run_dir=str(run_dir),
-        episode=5,
-        policy_net=policy,
-        optimizer=optimizer,
-        loss_history=[1.0, 0.8],
-        reward_history=[5.0, 6.0],
-        recent_actions=['DO X1 = 1.0']
-    )
+    original_dir = os.getcwd()
+    os.chdir(tmp_path)
     
-    # Should create checkpoint file
-    checkpoints = list(run_dir.glob("checkpoint_*.pt"))
-    assert len(checkpoints) > 0
+    try:
+        # Save checkpoint
+        save_checkpoint(
+            run_dir=str(run_dir),
+            episode=5,
+            policy_net=policy,
+            optimizer=optimizer,
+            loss_history=[1.0, 0.8],
+            reward_history=[5.0, 6.0],
+            recent_actions=['DO X1 = 1.0']
+        )
+        
+        # Should create checkpoint in checkpoints/run_test1/
+        checkpoint_dir = tmp_path / "checkpoints" / "run_test1"
+        assert checkpoint_dir.exists()
+        checkpoints = list(checkpoint_dir.glob("checkpoint_*.pt"))
+        assert len(checkpoints) > 0
+    finally:
+        os.chdir(original_dir)
 
 
 @pytest.mark.unit
 def test_save_checkpoint_with_empty_history(tmp_path):
     """Test save_checkpoint with minimal data."""
     from ace_experiments import save_checkpoint, TransformerPolicy, ExperimentalDSL
+    import os
     
-    run_dir = tmp_path / "run"
+    run_dir = tmp_path / "run_test2"
     run_dir.mkdir()
     
     nodes = ['X1', 'X2']
@@ -59,20 +69,28 @@ def test_save_checkpoint_with_empty_history(tmp_path):
     policy = TransformerPolicy(dsl, torch.device('cpu'), d_model=16)
     optimizer = torch.optim.Adam(policy.parameters())
     
-    # Save with empty histories
-    save_checkpoint(
-        run_dir=str(run_dir),
-        episode=0,
-        policy_net=policy,
-        optimizer=optimizer,
-        loss_history=[],
-        reward_history=[],
-        recent_actions=[]
-    )
+    original_dir = os.getcwd()
+    os.chdir(tmp_path)
     
-    # Should still create file
-    checkpoints = list(run_dir.glob("checkpoint_*.pt"))
-    assert len(checkpoints) > 0
+    try:
+        # Save with empty histories
+        save_checkpoint(
+            run_dir=str(run_dir),
+            episode=0,
+            policy_net=policy,
+            optimizer=optimizer,
+            loss_history=[],
+            reward_history=[],
+            recent_actions=[]
+        )
+        
+        # Should create file in checkpoints/run_test2/
+        checkpoint_dir = tmp_path / "checkpoints" / "run_test2"
+        assert checkpoint_dir.exists()
+        checkpoints = list(checkpoint_dir.glob("checkpoint_*.pt"))
+        assert len(checkpoints) > 0
+    finally:
+        os.chdir(original_dir)
 
 
 # =============================================================================
