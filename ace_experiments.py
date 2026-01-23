@@ -1307,8 +1307,15 @@ def visualize_contrast_save(oracle, student, results_dir):
 # ----------------------------------------------------------------
 def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history, 
                    reward_history, recent_actions):
-    """Save training checkpoint for recovery."""
-    checkpoint_path = os.path.join(run_dir, f"checkpoint_ep{episode}.pt")
+    """Save training checkpoint for recovery.
+    
+    Checkpoints saved to checkpoints/ directory (separate from results/)
+    for easy results copying without large checkpoint files.
+    """
+    # Save to checkpoints/ directory, not results/
+    checkpoint_dir = os.path.join("checkpoints", os.path.basename(run_dir))
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_ep{episode}.pt")
     
     try:
         torch.save({
@@ -1320,11 +1327,11 @@ def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
             'recent_actions': list(recent_actions),  # Convert deque to list for saving
         }, checkpoint_path)
         
-        logging.info(f"✓ Saved checkpoint at episode {episode}")
+        logging.info(f"✓ Saved checkpoint to {checkpoint_path}")
         
         # Cleanup old checkpoints (keep only last 3)
         import glob
-        checkpoints = sorted(glob.glob(os.path.join(run_dir, "checkpoint_ep*.pt")))
+        checkpoints = sorted(glob.glob(os.path.join(checkpoint_dir, "checkpoint_ep*.pt")))
         if len(checkpoints) > 3:
             for old_checkpoint in checkpoints[:-3]:
                 os.remove(old_checkpoint)
