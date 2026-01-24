@@ -109,11 +109,7 @@
 % \printAffiliationsAndNotice{\icmlEqualContribution}
 
 \begin{abstract}
-Discovering causal relationships requires running controlled experiments to identify which variables influence each other. The challenge of optimal experimental design---selecting interventions that most efficiently reveal causal structure---is central to scientific discovery, yet current approaches rely on static heuristics that cannot adapt as knowledge accumulates.
-
-We propose Active Causal Experimentalist (ACE), a framework that learns experimental design strategies via Direct Preference Optimization (DPO). ACE trains a policy to propose interventions by ranking their information gain for learning structural causal model mechanisms. Unlike value-based reinforcement learning, which struggles with non-stationary rewards as the learner improves, DPO's preference-based objective remains stable by learning from pairwise comparisons rather than absolute reward magnitudes.
-
-We introduce per-node convergence criteria for intelligent early stopping and a dedicated root learner for exogenous variables. Across synthetic benchmarks, physics simulations, and economic data, ACE matches or exceeds uncertainty sampling baselines while reducing experimental budgets by 50\%, with particular advantages for identifying collider structures.
+Discovering causal relationships requires running controlled experiments to identify which variables influence each other. Current approaches rely on static heuristics that cannot adapt as knowledge accumulates. We propose Active Causal Experimentalist (ACE), a framework that learns experimental design strategies via Direct Preference Optimization. ACE trains a policy to propose interventions by ranking their information gain, using preference-based learning that remains stable under non-stationary rewards. We introduce per-node convergence criteria and dedicated root learners to address heterogeneous learning rates. Across synthetic benchmarks, physics simulations, and economic data, ACE matches or exceeds baselines while reducing experimental budgets by 50\%.
 \end{abstract}
 
 \section{Introduction}
