@@ -128,7 +128,7 @@ Our contributions are: (1) a three-component reward balancing information gain, 
 
 \subsection{Notation and Problem Formulation}
 
-We adopt Pearl's causal framework \cite{pearl2009causality}. A Structural Causal Model (SCM) $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$ consists of exogenous variables $\mathcal{U} = \{U_1, \ldots, U_m\}$, endogenous variables $\mathcal{V} = \{V_1, \ldots, V_n\}$, structural equations $\mathcal{F} = \{f_1, \ldots, f_n\}$ where $V_i = f_i(\text{Pa}_i, U_i)$, and distribution $P(\mathcal{U})$ over exogenous variables.
+We adopt Pearl's causal framework \cite{pearl2009causality,pearl09,pearl95}. A Structural Causal Model (SCM) $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$ consists of exogenous variables $\mathcal{U} = \{U_1, \ldots, U_m\}$, endogenous variables $\mathcal{V} = \{V_1, \ldots, V_n\}$, structural equations $\mathcal{F} = \{f_1, \ldots, f_n\}$ where $V_i = f_i(\text{Pa}_i, U_i)$, and distribution $P(\mathcal{U})$ over exogenous variables.
 
 The causal relationships encoded in $\mathcal{M}$ induce a directed acyclic graph (DAG) $\mathcal{G} = (\mathcal{V}, \mathcal{E})$, where $(V_j, V_i) \in \mathcal{E}$ if and only if $V_j \in \text{Pa}_i$. The observational distribution is given by:
 \begin{equation}
@@ -167,9 +167,9 @@ The challenge: predefined heuristics fail to adapt strategies based on evolving 
 
 Our work builds on theoretical causal discovery, adaptive experimental design, and reinforcement learning for scientific applications. Learning causal structures is NP-hard \cite{chickering1996learning}, yet theoretical work establishes intervention bounds: $n-1$ single-node interventions suffice to identify $n$-variable systems \cite{eberhardt2005number,eberhardt2006n}. However, worst-case bounds provide limited guidance for adaptive practice.
 
-Information-theoretic methods select interventions by expected information gain \cite{murphy2001active}, achieving $(1-1/e)$ approximation \cite{shanmugam2015learning}. Recent Bayesian approaches \cite{bayesian_oed_causal2023,causally_informed_active2023} minimize posterior entropy. Adaptive methods leverage previous experiments \cite{hauser2012characterization,cho2016reconstructing}, achieving 40-60\% experiment reductions. However, these optimize locally without considering future trajectories or adapting to system-specific characteristics.
+Information-theoretic methods select interventions by expected information gain \cite{murphy2001active}, achieving $(1-1/e)$ approximation \cite{shanmugam2015learning}. Recent Bayesian approaches \cite{bayesian_oed_causal2023,causally_informed_active2023} minimize posterior entropy, with optimization perspectives on experimental design emerging \cite{experimental_design_optimization2024}. Adaptive methods leverage previous experiments \cite{hauser2012characterization,cho2016reconstructing}, achieving 40-60\% experiment reductions. However, these optimize locally without considering future trajectories or adapting to system-specific characteristics.
 
-Recent work explores differentiable structure learning \cite{lorch2021dibs} and LLMs for discovery \cite{llm_science_survey2025}, but benchmarks show LLMs struggle with experimental design \cite{boxinggym2025,autobench2025}. RL approaches tackle structure discovery: CORE \cite{core2024} and GACBO \cite{gacbo2024} learn which edges exist. We address mechanism estimation (how variables affect each other), assuming known structure---a different problem requiring different strategies. Both settings face non-stationarity as learners improve. We use DPO, which provides more stable training than value-based RL for evolving rewards \cite{dpo_survey2024}.
+Recent work explores differentiable structure learning \cite{lorch2021dibs} and LLMs for discovery \cite{llm_science_survey2025,llm_scientific_method2025}, but benchmarks show LLMs struggle with experimental design \cite{boxinggym2025,autobench2025,agentexpt2024}. RL approaches tackle structure discovery: CORE \cite{core2024} and GACBO \cite{gacbo2024} learn which edges exist, with related work on variable-agnostic exploration \cite{vacerl2024} and hierarchical causal RL \cite{hierarchical_causal_rl2025,causal_rl_survey2025}. We address mechanism estimation (how variables affect each other), assuming known structure---a different problem requiring different strategies. Both settings face non-stationarity as learners improve. We use DPO, which provides more stable training than value-based RL for evolving rewards \cite{dpo_survey2024,active_dpo2024,activedpo2024}.
 
 Existing approaches fall short: predefined strategies cannot adapt to domain patterns, single-objective optimization ignores multi-faceted constraints, and static algorithms cannot leverage accumulating evidence. We address this by treating experimental design as a learnable policy.
 
@@ -276,7 +276,7 @@ Round-Robin: Cycles through nodes in fixed order $V_{t \pmod n}$ (systematic cov
 
 Max-Variance: Selects $c^* = \arg\max_c \sum_{V_j} \text{Var}_{M_\theta}[V_j \mid c]$ using Monte Carlo Dropout (uncertainty sampling baseline).
 
-PPO: Actor-critic with identical reward shaping to ACE, using GAE ($\lambda=0.95$), clipped objective ($\epsilon=0.2$), and entropy regularization. This isolates DPO's algorithmic contribution from reward design.
+PPO \cite{schulman2017proximal}: Actor-critic with identical reward shaping to ACE, using GAE ($\lambda=0.95$), clipped objective ($\epsilon=0.2$), and entropy regularization. This isolates DPO's algorithmic contribution from reward design.
 
 \section{Experimental Evaluation}
 \label{sec:results}
