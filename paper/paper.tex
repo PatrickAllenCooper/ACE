@@ -352,30 +352,33 @@ Setup. We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to 
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    node distance=1.2cm,
-    every node/.style={circle, draw, minimum size=0.8cm, font=\small},
-    arrow/.style={-{Stealth[length=2mm]}, thick},
-    label/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}
+    scale=1.0,
+    node/.style={circle, draw, thick, minimum size=0.9cm, font=\normalsize},
+    collider/.style={circle, draw, thick, minimum size=0.9cm, font=\normalsize, fill=red!15},
+    arrow/.style={-{Stealth[length=3mm]}, very thick},
+    edge_label/.style={font=\footnotesize, above, midway}
 ]
-% Left subgraph: collider structure
-\node (X1) {$X_1$};
-\node (X2) [right=of X1] {$X_2$};
-\node (X3) [right=of X2, fill=red!20] {$X_3$};
 
-\draw[arrow] (X1) -- node[label, above] {linear} (X2);
-\draw[arrow] (X2) -- node[label, above] {nonlin.} (X3);
-\draw[arrow] (X1) to[bend left=40] node[label, above] {} (X3);
+% Collider subgraph
+\node[node] (X1) at (0,0) {$X_1$};
+\node[node] (X2) at (2.5,0) {$X_2$};
+\node[collider] (X3) at (5,0) {$X_3$};
 
-% Right subgraph: quadratic
-\node (X4) [right=1.8cm of X3] {$X_4$};
-\node (X5) [right=of X4] {$X_5$};
+\draw[arrow] (X1) -- node[edge_label] {linear} (X2);
+\draw[arrow] (X2) -- node[edge_label] {nonlinear} (X3);
+\draw[arrow] (X1) to[bend left=30] node[edge_label, above=2pt] {} (X3);
 
-\draw[arrow] (X4) -- node[label, above] {quad.} (X5);
+% Separate subgraph
+\node[node] (X4) at (7.5,0) {$X_4$};
+\node[node] (X5) at (10,0) {$X_5$};
+
+\draw[arrow] (X4) -- node[edge_label] {quadratic} (X5);
 
 % Annotations
-\node[draw=none, below=0.3cm of X3, font=\scriptsize] {collider};
+\node[below=0.4cm of X3, font=\small, text=red!70!black] {collider};
+
 \end{tikzpicture}
-\caption{Structure of the synthetic 5-node benchmark SCM. $X_3$ (shaded) is a collider receiving edges from both $X_1$ and $X_2$. The disconnected subgraph $X_4 \to X_5$ tests quadratic mechanism learning.}
+\caption{Synthetic 5-node benchmark. $X_3$ (shaded) is a collider with edges from $X_1$ and $X_2$. The disconnected pair $X_4 \to X_5$ tests quadratic mechanisms.}
 \label{fig:synthetic-scm}
 \end{figure}
 
