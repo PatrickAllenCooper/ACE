@@ -171,29 +171,13 @@ The challenge: predefined heuristics fail to adapt strategies based on evolving 
 
 \section{Related Works}
 
-Our work builds on three research traditions: theoretical causal discovery, adaptive experimental design, and reinforcement learning for scientific applications. We position our contribution relative to each and explain why existing approaches fall short for the experimentalist use cases described above.
+Our work builds on theoretical causal discovery, adaptive experimental design, and reinforcement learning for scientific applications. Learning causal structures is NP-hard \cite{chickering1996learning}, yet theoretical work establishes intervention bounds: $n-1$ single-node interventions suffice to identify $n$-variable systems \cite{eberhardt2005number,eberhardt2006n}. However, worst-case bounds provide limited guidance for adaptive practice.
 
-\subsection{Theoretical Foundations of Causal Discovery}
+Information-theoretic methods select interventions by expected information gain \cite{murphy2001active}, achieving $(1-1/e)$ approximation \cite{shanmugam2015learning}. Recent Bayesian approaches \cite{bayesian_oed_causal2023,causally_informed_active2023} minimize posterior entropy. Adaptive methods leverage previous experiments \cite{hauser2012characterization,cho2016reconstructing}, achieving 40-60\% experiment reductions. However, these optimize locally without considering future trajectories or adapting to system-specific characteristics.
 
-Learning causal structures is NP-hard \cite{chickering1996learning}, yet theoretical work establishes intervention bounds: $n-1$ single-node interventions suffice to identify $n$-variable systems \cite{eberhardt2005number,eberhardt2006n}. However, worst-case bounds provide limited guidance for adaptive, sequential experimental practice.
+Recent work explores differentiable structure learning \cite{lorch2021dibs} and LLMs for discovery \cite{llm_science_survey2025}, but benchmarks show LLMs struggle with experimental design \cite{boxinggym2025,autobench2025}. RL approaches tackle structure discovery: CORE \cite{core2024} and GACBO \cite{gacbo2024} learn which edges exist. We address mechanism estimation (how variables affect each other), assuming known structure---a different problem requiring different strategies. Both settings face non-stationarity as learners improve. We use DPO, which provides more stable training than value-based RL for evolving rewards \cite{dpo_survey2024}.
 
-\subsection{Optimal Experimental Design}
-
-Information-theoretic methods select interventions by expected information gain \cite{murphy2001active}, achieving $(1-1/e)$ approximation \cite{shanmugam2015learning}. Recent Bayesian approaches \cite{bayesian_oed_causal2023,causally_informed_active2023} minimize posterior entropy without expensive inference. However, these methods optimize locally without considering future learning trajectories.
-
-\subsection{Adaptive Learning Strategies}
-
-Adaptive methods leverage previous experiments to guide future interventions \cite{hauser2012characterization,cho2016reconstructing}, achieving 40-60\% experiment reductions. However, these operate within predefined frameworks that cannot adapt based on system-specific characteristics or transfer domain-specific experimental intuition.
-
-\subsection{Neural and LLM Approaches}
-
-Recent work explores differentiable structure learning \cite{lorch2021dibs} and LLMs for discovery \cite{llm_science_survey2025}. However, benchmarks show LLMs struggle with experimental design \cite{boxinggym2025,autobench2025}, suggesting they require structured frameworks---a gap our work addresses.
-
-\subsection{RL for Causal Discovery}
-
-Recent RL approaches tackle structure discovery: CORE \cite{core2024} and GACBO \cite{gacbo2024} learn which edges exist. We address mechanism estimation (how variables affect each other), assuming known structure---a different problem requiring different intervention strategies. Both settings face non-stationarity as learners improve. We use DPO, which provides more stable training than value-based RL for evolving rewards \cite{dpo_survey2024}.
-
-Despite progress, existing approaches fall short: predefined strategies cannot adapt to domain patterns, single-objective optimization ignores multi-faceted constraints, and static algorithms cannot leverage accumulating evidence. We address this by treating experimental design as a learnable policy that adapts through experience.
+Existing approaches fall short: predefined strategies cannot adapt to domain patterns, single-objective optimization ignores multi-faceted constraints, and static algorithms cannot leverage accumulating evidence. We address this by treating experimental design as a learnable policy.
 
 \section{Methods}
 \label{sec:methods}
