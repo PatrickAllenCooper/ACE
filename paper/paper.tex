@@ -179,63 +179,25 @@ Our work builds on three research traditions: theoretical causal discovery, adap
 
 \subsection{Theoretical Foundations of Causal Discovery}
 
-The problem of learning causal structures from interventional data has been extensively studied from both theoretical and algorithmic perspectives. Fundamental complexity results by \cite{chickering1996learning, chickering2004large} established that learning Bayesian networks is NP-hard, even with large samples, setting the stage for decades of research into tractable approximations and special cases. Despite this computational intractability, the causal discovery community has developed strong theoretical bounds on the number of interventions required for structure identification.
+Learning causal structures is NP-hard \cite{chickering1996learning}, yet theoretical work establishes intervention bounds: $n-1$ single-node interventions suffice to identify $n$-variable systems \cite{eberhardt2005number,eberhardt2006n}. However, worst-case bounds provide limited guidance for adaptive, sequential experimental practice.
 
-The seminal work of \cite{eberhardt2005number, eberhardt2006n} established that $n-1$ single-node interventions are sufficient and sometimes necessary to identify all causal relations among $n$ variables in the worst case. This line of research culminated in \cite{eberhardt2007thesis}, which showed that when parallel interventions are allowed, only $\lceil\log_2(n)\rceil$ experiments suffice.
+\subsection{Optimal Experimental Design}
 
-However, these theoretical bounds assume worst-case scenarios and provide little guidance for the sequential, adaptive decision-making that characterizes real experimental practice. An experimentalist with partial knowledge after 10 experiments needs to know which variable to perturb next---not how many experiments are sufficient in the worst case. The gap between theoretical bounds and practical strategies motivates adaptive approaches.
+Information-theoretic methods select interventions by expected information gain \cite{murphy2001active}, achieving $(1-1/e)$ approximation \cite{shanmugam2015learning}. Recent Bayesian approaches \cite{bayesian_oed_causal2023,causally_informed_active2023} minimize posterior entropy without expensive inference. However, these methods optimize locally without considering future learning trajectories.
 
-\subsection{Optimal Experimental Design for Causal Discovery}
+\subsection{Adaptive Learning Strategies}
 
-The question of how to optimally select interventions has spawned multiple research directions. \cite{hyttinen2013experiment} introduced the concept of separating systems, providing a systematic approach to intervention design that guarantees identifiability while minimizing the number of experiments. Their work extends beyond simple DAGs to handle cyclic models and latent confounders \cite{hyttinen2013discovering}, though at increased experimental cost.
+Adaptive methods leverage previous experiments to guide future interventions \cite{hauser2012characterization,cho2016reconstructing}, achieving 40-60\% experiment reductions. However, these operate within predefined frameworks that cannot adapt based on system-specific characteristics or transfer domain-specific experimental intuition.
 
-From an information-theoretic perspective, \cite{murphy2001active} pioneered the use of expected information gain for intervention selection, while \cite{shanmugam2015learning} proved that greedy approaches can achieve a $(1-1/e)$ approximation factor for the optimal intervention set. More recently, \cite{kocaoglu2017cost} and \cite{ghassami2018budgeted} addressed the budgeted experiment design problem, where interventions have varying costs, showing that even approximate solutions remain computationally challenging.
+\subsection{Neural and LLM Approaches}
 
-Recent Bayesian approaches have made significant progress. \cite{bayesian_oed_causal2023} sequentially selects interventions minimizing expected posterior entropy without expensive posterior inference on hypothetical datasets. \cite{causally_informed_active2023} develops a closed-form acquisition function for optimal interventions, demonstrating success on single-cell transcriptomic experiments. \cite{experimental_design_optimization2024} provides an optimization lens on experimental design for causal inference.
+Recent work explores differentiable structure learning \cite{lorch2021dibs} and LLMs for discovery \cite{llm_science_survey2025}. However, benchmarks show LLMs struggle with experimental design \cite{boxinggym2025,autobench2025}, suggesting they require structured frameworks---a gap our work addresses.
 
-While these methods provide principled intervention selection, they share critical limitations for experimental practice. They require full probabilistic models or explicit hypothesis spaces---an experimentalist cannot easily encode "I think gene regulation follows a cascade but I'm unsure of the branching structure" into these frameworks. Moreover, they optimize locally (next best experiment) without considering the trajectory of future learning---analogous to a chess player considering only the immediate next move rather than planning several moves ahead.
+\subsection{RL for Causal Discovery}
 
-\subsection{Adaptive and Active Learning Strategies}
+Recent RL approaches tackle structure discovery: CORE \cite{core2024} and GACBO \cite{gacbo2024} learn which edges exist. We address mechanism estimation (how variables affect each other), assuming known structure---a different problem requiring different intervention strategies. Both settings face non-stationarity as learners improve. We use DPO, which provides more stable training than value-based RL for evolving rewards \cite{dpo_survey2024}.
 
-A parallel line of research has focused on adaptive strategies that leverage information from previous experiments to guide future interventions. \cite{hauser2012characterization, hauser2014two} characterized interventional Markov equivalence classes and proposed two optimal strategies for their identification, demonstrating that adaptive approaches can significantly outperform static designs in practice. \cite{cho2016reconstructing} extended these ideas to biological networks, showing 40-60\% reductions in required experiments through active learning---a significant advance for biologists facing expensive perturbation experiments.
-
-Recent advances by \cite{squires2020permutation, squires2020active} have connected the intervention design problem to graph coloring and clique tree decompositions, providing new algorithmic tools that exploit graph structure. Their permutation-based approaches are particularly notable for handling unknown intervention targets, a common scenario in biological applications.
-
-The sample complexity of causal graph learning has been further refined by \cite{wang2018sample}, while \cite{akbari2021recursive} addressed the challenging case of recursive causal structure learning with latent variables and selection bias.
-
-These adaptive methods represent substantial progress over static designs. However, they still operate within predefined algorithmic frameworks: each method commits to a specific strategy (e.g., uncertainty sampling, separating system construction) that cannot adapt its fundamental approach based on the specific characteristics of the causal system being studied. An experimentalist working on metabolic networks develops intuition about which intervention patterns work well for that domain---current methods cannot capture or transfer such domain-specific experimental strategies.
-
-\subsection{Neural Approaches and LLMs for Scientific Discovery}
-
-The intersection of causal discovery with modern deep learning has yielded differentiable structure learning methods. While not directly addressing intervention design, works such as \cite{lorch2021dibs} and \cite{kalainathan2022structural} demonstrate that gradient-based optimization can be effective for causal structure learning.
-
-More recently, large language models have emerged as tools for scientific discovery. A comprehensive 2025 survey \cite{llm_science_survey2025} identifies three autonomy levels: LLMs as tools (task automation), analysts (data modeling), and scientists (exploratory discovery). However, recent benchmarks reveal significant limitations: BoxingGym \cite{boxinggym2025} shows that current LLMs (including GPT-4) struggle with experimental design and theory revision, while Auto-Bench \cite{autobench2025} demonstrates performance drops as causal discovery problems grow complex.
-
-These findings suggest that while LLMs possess capabilities useful for scientific discovery (reasoning, code execution, tool use \cite{llm_scientific_method2025}), they require structured frameworks and training objectives to effectively design experiments---a gap our work addresses through preference-based learning specialized for causal discovery.
-
-\subsection{Reinforcement Learning and Active Learning for Causal Discovery}
-
-The past two years have seen growing interest in applying RL to causal discovery. CORE \cite{core2024} presents a deep RL approach that learns to sequentially reconstruct causal graphs while planning informative interventions, scaling to 10-variable graphs. GACBO \cite{gacbo2024} combines causal Bayesian optimization with active structure discovery, jointly learning causal graphs while optimizing through interventions. These methods tackle the challenging problem of structure discovery---learning which edges exist in the causal graph.
-
-Problem Setting Distinction. Crucially, these methods address a different problem than ours: they learn graph structure (which variables affect which), while we assume structure is known and learn mechanisms (how variables affect each other). This distinction is important: structure discovery requires interventions that reveal edge existence/absence, while mechanism estimation requires interventions that probe functional relationships. CORE and GACBO excel at the former; ACE focuses on the latter. Both problems are valuable, but they require different intervention strategies and are not directly comparable.
-
-Our problem setting---known structure, unknown mechanisms---arises commonly in practice: domain experts often know (or hypothesize) which variables interact but need to estimate interaction strengths and functional forms. For instance, a biologist may know gene A regulates gene B but needs to characterize the dose-response relationship. This mechanism estimation problem, while narrower than full structure discovery, enables more focused experimental design and is the appropriate scope for our contribution.
-
-Despite addressing different problems, these methods face a shared challenge: non-stationarity. As the learner improves (whether learning structure or mechanisms), intervention values shift. Value-based RL methods (Q-learning, actor-critic) struggle with such shifting rewards \cite{causal_rl_survey2025}. This motivates our use of preference-based learning (DPO), which compares interventions pairwise rather than assigning absolute values. Recent advances in active learning for DPO \cite{active_dpo2024, activedpo2024} demonstrate that preference-based methods provide more stable training signals when optimal strategies evolve---precisely the scenario in both structure discovery and mechanism estimation. The comprehensive DPO survey \cite{dpo_survey2024} confirms that preference learning offers advantages over value-based methods in settings with non-stationary rewards.
-
-\subsection{The Gap: From Algorithms to Experimentalist Tools}
-
-Despite extensive theoretical and algorithmic progress, existing approaches fall short of what experimentalists need in practice:
-
-1. Predefined strategies cannot adapt to domain-specific patterns. A biologist learns that "perturbing transcription factors before downstream genes" works well for gene regulatory networks, but current methods cannot capture or transfer such domain heuristics.
-
-2. Single-objective optimization ignores multi-faceted experimental constraints. The difference between 50 and 100 clinical trials is economically decisive (\$50-100M), yet current methods optimize graph identifiability without considering cost, time, or parameter estimation quality.
-
-3. Static algorithms cannot leverage accumulating evidence about which intervention patterns work. An experimentalist running their 50th metabolic pathway study has intuition about productive experimental sequences that should inform the 51st study.
-
-The theoretical landscape established by \cite{meek1995causal} for causal inference with background knowledge, combined with modern characterizations of the problem space \cite{eberhardt2017introduction, glymour2019review, vowels2022d}, reveals significant gaps between worst-case bounds and average-case performance. This suggests that learned, domain-specific experimental strategies could outperform generic algorithms, particularly when causal structures within a domain exhibit regularities.
-
-Our work addresses this gap by treating experimental design as a learnable policy that can discover domain-appropriate strategies through experience, adapt to evolving knowledge states during discovery, and balance multiple objectives implicitly through preference-based training. This approach bridges the divide between theoretical causal discovery and the practical needs of experimentalists across scientific domains.
+Despite progress, existing approaches fall short: predefined strategies cannot adapt to domain patterns, single-objective optimization ignores multi-faceted constraints, and static algorithms cannot leverage accumulating evidence. We address this by treating experimental design as a learnable policy that adapts through experience.
 
 \section{Methods}
 \label{sec:methods}
@@ -347,46 +309,28 @@ We compare against four baselines appropriate for mechanism estimation with know
 
 We evaluate ACE on synthetic benchmarks of increasing scale designed to test the framework's ability to learn effective experimental strategies through self-play.
 
-\subsubsection{Experimental Setup}
+\subsubsection{Implementation Details}
 
-Ground Truth Environment. We construct a 5-node SCM with the graph structure $\mathcal{G} = \{X_1 \to X_2, X_2 \to X_3, X_1 \to X_3, X_4 \to X_5\}$. The structural equations incorporate both linear and nonlinear mechanisms. The root nodes $X_1$ and $X_4$ are sampled from Gaussian distributions $\mathcal{N}(0,1)$ and $\mathcal{N}(2,1)$ respectively. The dependent variables follow $X_2 = 2X_1 + 1 + \epsilon_2$, $X_3 = 0.5X_1 - X_2 + \sin(X_2) + \epsilon_3$, and $X_5 = 0.2X_4^2 + \epsilon_5$, where $\epsilon_i \sim \mathcal{N}(0, 0.01)$ represents exogenous noise. This design tests the agent's ability to prioritize interventions on nodes with complex functional dependencies, particularly the nonlinear interaction governing $X_3$.
+Ground Truth: 5-node SCM with linear and nonlinear mechanisms ($X_2 = 2X_1 + 1$, $X_3 = 0.5X_1 - X_2 + \sin(X_2)$, $X_5 = 0.2X_4^2$), Gaussian noise $\sigma=0.01$.
 
-Learner Architecture. The student model $M_\theta$ parameterizes each mechanism $f_i: \mathbb{R}^{|\text{Pa}_i|} \to \mathbb{R}$ using neural networks with 2 hidden layers of 64 units each with ReLU activations. For mechanisms with parents, we learn the functional relationship; for root nodes (no parents), we learn Gaussian parameters $(\mu, \sigma)$. The model is trained via Adam with learning rate $2 \times 10^{-3}$ on mean squared error between predictions and observations, with 100 gradient steps per experimental sample.
+Learner: Neural networks (2 layers, 64 units, ReLU) parameterize mechanisms; Gaussian parameters for roots. Trained via Adam (lr=$2 \times 10^{-3}$, 100 steps/sample).
 
-Experimentalist Policy. We implement $\pi_\phi$ using Qwen2.5-1.5B \cite{qwen2.5}, a 1.5B parameter language model. The policy receives a structured prompt encoding: (1) the causal graph structure, (2) current per-node losses $\{L_i\}_{i=1}^n$, and (3) recent intervention history. The model generates interventions autoregressively as text: \texttt{do}($V_i$ = $\nu$), which are parsed and validated against the DSL grammar. We employ temperature 0.7 sampling to balance exploration and coherence.
+Policy: Qwen2.5-1.5B \cite{qwen2.5} generates interventions from prompts encoding graph structure, per-node losses, and history (temperature 0.7).
 
 \subsection{Training Protocol}
 
-Episodic Learning.
-Training proceeds over episodes, each starting with a randomly initialized learner $M_\theta$. This episodic reset forces the policy to learn strategies that generalize across different learner states rather than optimizing for a single convergence trajectory.
+Episodes start with fresh learners to learn generalizable strategies. Policy initialized via supervised pretraining on 200 teacher interventions. At each step: generate $K=4$ candidates, construct preference pairs from best/worst, update via DPO (lr=$10^{-5}$, $\beta=0.1$). Reference policy updated every 25 episodes.
 
-Supervised Initialization.
-We initialize $\pi_\phi$ via supervised pretraining on 200 teacher-generated interventions that target high-loss nodes. This provides a reasonable prior, preventing the cold-start problem where untrained LLMs generate syntactically invalid or degenerate proposals.
-
-Per-Step DPO Update.
-At each step, we generate $K=4$ candidates, evaluate each via forward simulation, and construct a preference pair from the best and worst candidates. The policy is updated via gradient descent on $\mathcal{L}_{\text{DPO}}$ with learning rate $10^{-5}$ and $\beta=0.1$. The reference policy is updated every 25 episodes to prevent unbounded KL divergence.
-
-Intelligent Early Stopping.
-Rather than training for a fixed number of episodes, we employ per-node convergence criteria. Let $L_i^{(t)}$ denote the loss of mechanism $f_i$ at episode $t$. Training terminates when:
-\begin{equation}
-\forall i \in \{1, \ldots, n\}, \quad L_i^{(t)} < \tau_i \text{ for } p \text{ consecutive episodes}
-\end{equation}
-where $\tau_i$ are node-specific thresholds (0.5 for mechanisms with parents, 1.0 for roots) and $p=10$. This criterion respects the heterogeneous learning dynamics of different mechanisms, preventing premature termination when only fast learners have converged. A minimum of 40 episodes is enforced to ensure adequate exploration before early stopping is considered.
+Per-node early stopping: training terminates when $\forall i, L_i^{(t)} < \tau_i$ for 10 consecutive episodes (minimum 40 episodes enforced).
 
 \subsection{Addressing Heterogeneous Learning Rates}
 
-The Root Node Problem.
-Exogenous variables (roots with no parents) present a fundamental challenge: under intervention $\text{do}(V_i = x)$, the natural distribution $P(V_i)$ is never observed. Interventional data provides no signal for learning root distributions---any policy optimizing for information gain on mechanisms will systematically neglect roots, whose losses remain at initialization while endogenous mechanisms converge.
+Roots cannot learn from interventions (natural distribution never observed). Solution: dedicated root learner trained on observational data, transferring estimates to main model.
 
-We address this via a dedicated root learner---a separate module trained exclusively on observational data $\mathcal{D}^{\text{obs}} \sim P_{M^*}(\mathcal{V})$ with no interventions. For root nodes, this learner estimates parameters $(\mu_i, \sigma_i)$ via maximum likelihood and periodically transfers these estimates to the main student model. This isolation ensures root distributions are learned from appropriate data, decoupling their learning from the intervention-driven training loop.
-
-Per-Node Convergence Criteria.
-Mechanisms exhibit heterogeneous learning rates: linear relationships converge rapidly (5-10 episodes), while quadratic functions require substantially more data (40-50 episodes), and root distributions require specialized treatment. Global early stopping based on aggregate metrics (e.g., fraction of zero-reward steps) risks premature termination when fast learners converge but slow learners remain incomplete.
-
-We address this via per-node convergence monitoring: the system tracks whether each node $V_i$ has achieved its target loss $L_i < \tau_i$ for $p$ consecutive episodes. Training terminates only when all nodes simultaneously satisfy their criteria. This ensures complete mechanism recovery before stopping, respecting the inherent heterogeneity in mechanism complexity.
+Mechanisms have heterogeneous rates (linear: 5-10 episodes; quadratic: 40-50 episodes). Per-node convergence ensures all mechanisms recover before stopping.
 
 \subsubsection{Evaluation Metrics}
-We assess performance along two dimensions. Mechanism reconstruction measures the student's ability to recover the ground truth structural equations, quantified by prediction MSE across all nodes on the validation set. Strategic preference analyzes the agent's learned intervention distribution by sampling 100 proposals from the trained policy and examining the frequency with which each node is targeted as well as the distribution of proposed intervention values. An effective agent should concentrate interventions on nodes with complex dependencies and propose values that maximally inform the learner about mechanism boundaries.
+Mechanism reconstruction: prediction MSE on validation set. Strategic preference: intervention distribution analysis (node targeting frequency, value diversity).
 
 % Physical and Economic Domain Details moved to Results section
 
