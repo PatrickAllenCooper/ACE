@@ -240,74 +240,32 @@ Our framework consists of three components: an oracle environment representing g
 
 \subsection{Problem Formulation}
 
-We formalize the interaction as a game between three components: an Environment (Oracle), a Learner (Student), and an Experimentalist (Agent).
+Environment $M^*$: Ground truth SCM with structural equations $v_i = f_i(\text{Pa}_i, u_i)$ supporting interventions $do(V_i=x)$.
 
-The Environment ($M^*$): Let $M^*$ denote the ground truth SCM governing the system, defined by the tuple $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$, where $\mathcal{V} = \{V_1, \dots, V_n\}$ are endogenous variables, $\mathcal{U}$ are exogenous noise variables, and $\mathcal{F}$ is a set of structural equations $v_i = f_i(\text{Pa}_i, u_i)$. The environment supports an intervention operator $do(V_i=x)$, which replaces the structural equation for $V_i$ with a constant, generating interventional distribution $P_{M^*}(\mathcal{V} \mid do(V_i=x))$.
-
-The Learner ($M_\theta$): The learner represents the system's current state of knowledge. We assume a constraint where the causal graph structure $\mathcal{G}$ is known (or hypothesized), and the objective is to estimate the unknown mechanisms $f_i$. The learner is parameterized by $\theta$ and generates predictions $y_{\text{model}} \sim P_{M_\theta}(\mathcal{V} \mid c)$, where $c$ is an experimental condition. The learner's objective is to minimize the divergence between its predictions and the environment's true outcomes:
+Learner $M_\theta$: Estimates mechanisms assuming known graph $\mathcal{G}$, minimizing:
 \begin{equation}
-    \theta^* = \arg\min_\theta \mathbb{E}_{c \sim \pi_\phi} \left[ \mathcal{L}(P_{M^*}(\cdot|c), P_{M_\theta}(\cdot|c)) \right]
+\theta^* = \arg\min_\theta \mathbb{E}_{c \sim \pi_\phi} \left[ \mathcal{L}(P_{M^*}(\cdot|c), P_{M_\theta}(\cdot|c)) \right]
 \end{equation}
 
-\subsection{Experimental Policy and Interaction Loop}
+\subsection{Interaction Loop}
 
-The experimentalist is a policy $\pi_\phi(c_t \mid s_t)$ mapping the learner's current state $s_t$ to an intervention $c_t$. We constrain interventions to single-node assignments via a domain-specific language: $c_t := \texttt{do}(V_i = \nu)$ where $V_i \in \mathcal{V}$ and $\nu \in [-5, 5]$. This ensures physical realizability while allowing rich exploration of the intervention space.
+Policy $\pi_\phi(c_t \mid s_t)$ maps state $s_t = (M_\theta, \{L_i\})$ to intervention $c_t := \texttt{do}(V_i = \nu)$ where $\nu \in [-5, 5]$. At each step: (1) generate $K$ candidates, (2) simulate effect on cloned learner, (3) execute best $c^* = \argmax_{c_k} \Delta \mathcal{L}(c_k)$, (4) collect data and update $M_\theta$. Training terminates when per-node convergence criteria are met.
 
-At each step $t$, the interaction proceeds as an iterative discovery cycle:
-\begin{enumerate}
-    \item The policy observes $s_t = (M_\theta, \{L_i\}_{i=1}^n)$ where $L_i$ is the current loss of mechanism $f_i$
-    \item The policy generates $K$ candidate interventions $\{c_1, \ldots, c_K\}$ based on current understanding
-    \item Each candidate is evaluated by simulating its effect on a cloned learner
-    \item The candidate yielding maximum loss reduction is executed: $c^* = \argmax_{c_k} \Delta \mathcal{L}(c_k)$
-    \item Data $\mathcal{D}_t \sim P_{M^*}(\mathcal{V} \mid c^*)$ is collected and used to update $M_\theta$
-    \item The updated learner state $s_{t+1}$ (with improved mechanisms) informs the next intervention proposal
-\end{enumerate}
+\subsection{Direct Preference Optimization}
 
-This creates a virtuous cycle: better understanding $\to$ more informed interventions $\to$ more informative data $\to$ better understanding. The cycle continues until per-node convergence criteria detect that all mechanisms have been learned, at which point the discovery process naturally terminates.
-
-This episodic protocol repeats for multiple trials, with a fresh learner initialized each episode to ensure the policy learns generalizable strategies rather than memorizing a single solution trajectory. Across episodes, the policy learns which intervention sequences tend to create productive discovery cycles.
-
-\subsection{Training via Direct Preference Optimization}
-
-Rather than training with value-based RL, which requires estimating future information gain (a noisy, non-stationary signal), we employ Direct Preference Optimization (DPO) \cite{rafailov2023direct}. DPO learns from pairwise preferences over interventions, bypassing explicit reward modeling.
-
-Preference Construction.
-At each step, we generate $K=4$ candidate interventions and evaluate each by forward simulation:
+We train via DPO \cite{rafailov2023direct}, learning from pairwise preferences rather than estimating non-stationary values. Reward combines information gain $\Delta \mathcal{L}$, node importance $w(V_i, \{L_j\})$, and diversity $D(V_i, H)$:
 \begin{equation}
-R(c_k, s_t) = \mathcal{L}(M_\theta, \mathcal{V}^{val}) - \mathcal{L}(M_{\theta'}^{(k)}, \mathcal{V}^{val})
+R(c, s) = \Delta \mathcal{L} + \alpha \cdot w(V_i, \{L_j\}) + \beta \cdot D(V_i, H)
 \end{equation}
-where $M_{\theta'}^{(k)}$ is the learner after training on data from $c_k$, and $\mathcal{V}^{val}$ is a validation set. We construct preference pairs $(y_w, y_l)$ by selecting the highest-reward candidate as winner and lowest as loser.
 
-Reward Function.
-To prevent reward hacking and policy collapse, we augment information gain with two additional components:
-\begin{equation}
-R(c, s) = \underbrace{\Delta \mathcal{L}}_{\text{information gain}} + \underbrace{\alpha \cdot w(V_i, \{L_j\})}_{\text{node importance}} + \underbrace{\beta \cdot D(V_i, H)}_{\text{diversity}}
-\end{equation}
-where $w(V_i, \{L_j\})$ weights intervention on $V_i$ by the losses of its children (encouraging root-cause interventions), and $D(V_i, H)$ is a unified diversity score combining entropy of the intervention distribution, undersampling bonuses, and concentration penalties. This three-component formulation balances exploitation (information gain) with exploration (diversity) while maintaining interpretability.
-
-DPO Training.
-We train the policy to increase the log-probability ratio between winners and losers:
+DPO loss:
 \begin{equation}
 \mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(s, y_w, y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\phi(y_w \mid s)}{\pi_{\text{ref}}(y_w \mid s)} - \beta \log \frac{\pi_\phi(y_l \mid s)}{\pi_{\text{ref}}(y_l \mid s)} \right) \right]
 \end{equation}
-The reference policy $\pi_{\text{ref}}$ is initialized via supervised pretraining on teacher-generated interventions and updated periodically to prevent KL divergence explosion.
 
 \subsection{Experimental Methodology}
 
-We evaluate ACE on synthetic and real-world domains, conducting rigorous validation through multiple independent runs, ablation studies, and failure case analysis.
-
-Statistical Validation Protocol.
-All experiments are conducted five times with different random seeds to enable proper statistical analysis. Results are reported as mean $\pm$ standard deviation, with 95\% confidence intervals computed via bootstrap. Significance testing uses paired t-tests with Bonferroni correction.
-
-Ablation Studies.
-To validate our architectural choices (per-node convergence, dedicated root learner, three-component reward), we systematically remove each component and measure performance degradation. This empirically justifies each design decision.
-
-Baseline Comparisons.
-We compare against four baselines appropriate for mechanism estimation with known structure: Random (unguided exploration), Round-Robin (systematic coverage), Max-Variance (uncertainty sampling), and PPO (value-based RL). Note that recent methods like CORE \cite{core2024} and GACBO \cite{gacbo2024} address structure discovery (learning the graph), while we focus on mechanism estimation (known graph)---different problems requiring different experimental strategies.
-
-\subsection{Experiments}
-
-We evaluate ACE on synthetic benchmarks of increasing scale designed to test the framework's ability to learn effective experimental strategies through self-play.
+Five independent runs per experiment (seeds: 42, 123, 456, 789, 1011). Results: mean $\pm$ std with 95\% CI, paired t-tests with Bonferroni correction. Ablations validate each component. Baselines: Random, Round-Robin, Max-Variance, PPO. Note: CORE/GACBO \cite{core2024,gacbo2024} address structure discovery (different problem).
 
 \subsubsection{Implementation Details}
 
