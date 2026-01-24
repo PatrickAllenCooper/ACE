@@ -336,30 +336,30 @@ Setup. We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to 
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    scale=1.0,
-    node/.style={circle, draw, thick, minimum size=0.9cm, font=\normalsize},
-    collider/.style={circle, draw, thick, minimum size=0.9cm, font=\normalsize, fill=red!15},
-    arrow/.style={-{Stealth[length=3mm]}, very thick},
-    edge_label/.style={font=\footnotesize, above, midway}
+    scale=0.65,
+    node/.style={circle, draw, thick, minimum size=0.7cm, font=\small},
+    collider/.style={circle, draw, thick, minimum size=0.7cm, font=\small, fill=red!15},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    edge_label/.style={font=\tiny, above, midway}
 ]
 
 % Collider subgraph
 \node[node] (X1) at (0,0) {$X_1$};
-\node[node] (X2) at (2.5,0) {$X_2$};
-\node[collider] (X3) at (5,0) {$X_3$};
+\node[node] (X2) at (2,0) {$X_2$};
+\node[collider] (X3) at (4,0) {$X_3$};
 
-\draw[arrow] (X1) -- node[edge_label] {linear} (X2);
-\draw[arrow] (X2) -- node[edge_label] {nonlinear} (X3);
-\draw[arrow] (X1) to[bend left=30] node[edge_label, above=2pt] {} (X3);
+\draw[arrow] (X1) -- node[edge_label] {lin} (X2);
+\draw[arrow] (X2) -- node[edge_label] {nonlin} (X3);
+\draw[arrow] (X1) to[bend left=25] (X3);
 
 % Separate subgraph
-\node[node] (X4) at (7.5,0) {$X_4$};
-\node[node] (X5) at (10,0) {$X_5$};
+\node[node] (X4) at (5.5,0) {$X_4$};
+\node[node] (X5) at (7.5,0) {$X_5$};
 
-\draw[arrow] (X4) -- node[edge_label] {quadratic} (X5);
+\draw[arrow] (X4) -- node[edge_label] {quad} (X5);
 
-% Annotations
-\node[below=0.4cm of X3, font=\small, text=red!70!black] {collider};
+% Annotation
+\node[below=0.25cm of X3, font=\tiny, text=red!70!black] {collider};
 
 \end{tikzpicture}
 \caption{Synthetic 5-node benchmark. $X_3$ (shaded) is a collider with edges from $X_1$ and $X_2$. The disconnected pair $X_4 \to X_5$ tests quadratic mechanisms.}
@@ -575,9 +575,9 @@ Setup. We apply ACE to a chain of three coupled nonlinear oscillators governed b
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    node distance=1.5cm,
-    mass/.style={circle, draw, minimum size=0.9cm, font=\small, thick},
-    spring/.style={decorate, decoration={zigzag, segment length=4pt, amplitude=2pt}},
+    scale=0.55,
+    mass/.style={circle, draw, minimum size=0.7cm, font=\small, thick},
+    spring/.style={decorate, decoration={zigzag, segment length=3pt, amplitude=1.5pt}},
     arrow/.style={-{Stealth[length=2mm]}, thick},
     dasharrow/.style={-{Stealth[length=2mm]}, thick, dashed, red!60}
 ]
@@ -589,23 +589,23 @@ Setup. We apply ACE to a chain of three coupled nonlinear oscillators governed b
 \draw[spring] (M1) -- (M2);
 \draw[spring] (M2) -- (M3);
 
-\node[font=\scriptsize, below=0.5cm of M2] {(a) True coupling};
+\node[font=\tiny, below=0.4cm of M2] {(a) True};
 
 % Right panel: Apparent structure
-\node[mass] (N1) at (5.8,0) {$X_1$};
-\node[mass] (N2) at (7.6,0) {$X_2$};
-\node[mass] (N3) at (9.4,0) {$X_3$};
+\node[mass] (N1) at (5.5,0) {$X_1$};
+\node[mass] (N2) at (7.3,0) {$X_2$};
+\node[mass] (N3) at (9.1,0) {$X_3$};
 
 \draw[spring] (N1) -- (N2);
 \draw[spring] (N2) -- (N3);
-\draw[dasharrow] (N1) to[bend left=35] (N3);
+\draw[dasharrow] (N1) to[bend left=30] (N3);
 
-\node[font=\scriptsize, below=0.5cm of N2] {(b) Apparent (spurious)};
+\node[font=\tiny, below=0.4cm of N2] {(b) Apparent};
 
 % Annotation
-\node[font=\scriptsize, red!70, above=0.15cm of N1, xshift=1.8cm] {sync};
+\node[font=\tiny, red!70, above=0.12cm of N2] {sync};
 \end{tikzpicture}
-\caption{Coupled Duffing oscillators. (a) True chain coupling via springs. (b) Apparent full connectivity due to synchronization creates spurious correlation (dashed). ACE discovers that clamping $X_2$ breaks the spurious $X_1$--$X_3$ correlation.}
+\caption{Coupled Duffing oscillators. (a) True chain coupling. (b) Synchronization creates spurious correlation (dashed). ACE discovers clamping $X_2$ breaks spurious $X_1$--$X_3$ correlation.}
 \label{fig:duffing-scm}
 \end{figure}
 
