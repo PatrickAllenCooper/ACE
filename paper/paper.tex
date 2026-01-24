@@ -336,30 +336,29 @@ Setup. We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to 
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    scale=0.65,
-    node/.style={circle, draw, thick, minimum size=0.7cm, font=\small},
-    collider/.style={circle, draw, thick, minimum size=0.7cm, font=\small, fill=red!15},
-    arrow/.style={-{Stealth[length=2mm]}, thick},
-    edge_label/.style={font=\tiny, above, midway}
+    scale=0.75,
+    node/.style={circle, draw, thick, minimum size=0.65cm, font=\footnotesize},
+    collider/.style={circle, draw, thick, minimum size=0.65cm, font=\footnotesize, fill=red!15},
+    arrow/.style={-{Stealth[length=2mm]}, thick}
 ]
 
 % Collider subgraph
 \node[node] (X1) at (0,0) {$X_1$};
-\node[node] (X2) at (2,0) {$X_2$};
-\node[collider] (X3) at (4,0) {$X_3$};
+\node[node] (X2) at (1.8,0) {$X_2$};
+\node[collider] (X3) at (3.6,0) {$X_3$};
 
-\draw[arrow] (X1) -- node[edge_label] {lin} (X2);
-\draw[arrow] (X2) -- node[edge_label] {nonlin} (X3);
-\draw[arrow] (X1) to[bend left=25] (X3);
+\draw[arrow] (X1) -- (X2);
+\draw[arrow] (X2) -- (X3);
+\draw[arrow] (X1) to[bend left=20] (X3);
 
-% Separate subgraph
-\node[node] (X4) at (5.5,0) {$X_4$};
-\node[node] (X5) at (7.5,0) {$X_5$};
+% Separate subgraph  
+\node[node] (X4) at (5,0) {$X_4$};
+\node[node] (X5) at (6.8,0) {$X_5$};
 
-\draw[arrow] (X4) -- node[edge_label] {quad} (X5);
+\draw[arrow] (X4) -- (X5);
 
-% Annotation
-\node[below=0.25cm of X3, font=\tiny, text=red!70!black] {collider};
+% Annotation below to avoid overlap
+\node[below=0.35cm of X3, font=\scriptsize, text=red!70!black] {\textit{collider}};
 
 \end{tikzpicture}
 \caption{Synthetic 5-node benchmark. $X_3$ (shaded) is a collider with edges from $X_1$ and $X_2$. The disconnected pair $X_4 \to X_5$ tests quadratic mechanisms.}
