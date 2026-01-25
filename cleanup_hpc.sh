@@ -207,6 +207,26 @@ cleanup_python_cache() {
     fi
 }
 
+cleanup_misplaced_slurm_logs() {
+    log_info "Cleaning misplaced SLURM logs in base directory..."
+    
+    # Find slurm-*.out files in base directory (should be in logs/)
+    SLURM_FILES=$(ls slurm-*.out 2>/dev/null | wc -l)
+    
+    if [ "$SLURM_FILES" -gt 0 ]; then
+        if [ "$DRY_RUN" = true ]; then
+            echo "  Would remove $SLURM_FILES slurm-*.out files from base directory"
+            ls slurm-*.out 2>/dev/null | head -5
+            [ "$SLURM_FILES" -gt 5 ] && echo "  ... and $((SLURM_FILES - 5)) more"
+        else
+            rm -f slurm-*.out 2>/dev/null || true
+            log_success "Removed $SLURM_FILES slurm-*.out files from base directory"
+        fi
+    else
+        log_info "  No misplaced SLURM logs found"
+    fi
+}
+
 # ============================================================================
 # Main Cleanup
 # ============================================================================
@@ -229,6 +249,8 @@ if [ "$DRY_RUN" = false ]; then
 fi
 
 # Run cleanup operations
+cleanup_misplaced_slurm_logs
+echo ""
 cleanup_old_results
 echo ""
 cleanup_checkpoints
