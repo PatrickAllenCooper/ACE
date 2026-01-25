@@ -114,7 +114,7 @@ for SEED in "${SEEDS[@]}"; do
             --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=10:00:00 \
             --job-name=ace_s${SEED} \
             --output=logs/ace_seed${SEED}_${TIMESTAMP}_%j.out \
-            --error=logs/ace_seed${SEED}_${TIMESTAMP}_%j.err \
+            --error=logs/ace_seed${TIMESTAMP}_%j.err \
             --wrap="python ace_experiments.py \
                 --episodes $EPISODES \
                 --seed $SEED \
@@ -124,8 +124,7 @@ for SEED in "${SEEDS[@]}"; do
                 --obs_train_interval 3 \
                 --obs_train_samples 200 \
                 --obs_train_epochs 100 \
-                --output $SEED_DIR \
-                --verbose")
+                --output $SEED_DIR")
         
         JOB_IDS+=($JOB)
         echo "  Job ID: $JOB"
