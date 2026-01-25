@@ -3,7 +3,7 @@
 # ============================================================================
 # Environment Setup for ACE on HPC
 # ============================================================================
-# Loads required modules and activates Python environment
+# Activates Python environment for running scripts on login node
 #
 # Usage:
 #   source setup_env.sh
@@ -11,12 +11,11 @@
 #   . setup_env.sh
 #
 # Note: Must use 'source' or '.' to activate conda in current shell
+# Note: CUDA is NOT loaded here (login nodes don't have GPUs)
+#       CUDA is loaded automatically on compute nodes by SLURM
 # ============================================================================
 
-echo "Setting up ACE environment on HPC..."
-
-# Load CUDA module if needed
-module load cuda/11.8 2>/dev/null || echo "  (cuda module not needed or already loaded)"
+echo "Setting up ACE Python environment..."
 
 # Activate conda environment
 # Try common environment names
