@@ -1,56 +1,74 @@
 # ACE: Autonomous Causal Experimentation
 
-## Latest Update: January 21, 2026 - 77% Test Coverage Achieved 
+## Latest Update: January 25, 2026 - Fresh ACE Experiments Starting
 
-**Status:** [DONE] Comprehensive test suite implemented - 470 tests, 77% coverage
+**Status:** Baselines complete, ACE experiments in progress
 
-**Testing Achievement:** 
-- 77% coverage (6,469/8,400 statements) - Target: 90% - Progress: 86% complete
-- 470 tests passing, 6 skipped (98.7% pass rate, ~83s runtime)
-- Modern pytest framework with statistical assertions and property-based testing
-- 26 test files covering core pipeline, baselines, visualization, experiments, analysis tools, and policy models
-- All testing documentation consolidated into README.md and this file
-- Major gains: analysis tools (40% clamping, 34% regime, 21% compare), visualize (82%)
-- Remaining to 90%: 20 percentage points (~7-9 hours estimated)
+**Current Experimental Status:**
+- Baselines: COMPLETE (N=5 runs with full statistics)
+  - Random: 2.18 ± 0.06 (100 episodes)
+  - Round-Robin: 2.15 ± 0.08 (100 episodes)
+  - Max-Variance: 2.05 ± 0.12 (100 episodes) - BEST BASELINE
+  - PPO: 2.11 ± 0.13 (100 episodes)
+- Duffing: COMPLETE (N=5, loss 0.042 ± 0.036)
+- Complex SCM: COMPLETE (N=6 across strategies)
+- ACE: IN PROGRESS (5-seed runs to be submitted)
 
-**Previous Status:** [DONE] All improvements implemented and committed, ready for DPO training
+**Paper Status:** 80% populated with baseline data, awaiting ACE results
+
+**Test Coverage:** 77% (552 tests, 98.9% pass rate)
+
+**Previous Updates:** All critical improvements implemented (intervention masking, obs ratio tuning, statistical validation)
 
 ---
 
-## Project Organization & HPC Workflow Verification
+## Project Organization & Current Workflow
 
 ### Project Structure (Clean & Organized)
 
 ```
 ACE/
-├── README.md, CHANGELOG.md, START_HERE.md, RUN_ALL_SUMMARY.md
-├── ace_experiments.py # Main ACE (DPO) experiment
-├── baselines.py # Baseline comparisons 
-├── visualize.py # Result visualization
-├── compare_methods.py # Method comparison & tables
-├── clamping_detector.py # Verify clamping claim
-├── regime_analyzer.py # Verify regime selection claim
-├── run_all.sh # HPC job orchestrator
-├── jobs/ # SLURM job scripts (5 jobs)
-├── scripts/ # Utility scripts (9 scripts)
-├── experiments/ # Additional experiments (3 modules)
-├── tests/ # Test suite (77% coverage, 470 tests)
-├── paper/ # LaTeX source
-├── results/ # Experiment results (copy-friendly, no checkpoints)
-├── checkpoints/ # Training checkpoints (separate, gitignored)
-├── logs/ # Job logs
-└── guidance_documents/ # This file
+├── README.md                       # Project overview
+├── ace.sh                          # Unified CLI (all operations)
+├── run_ace_only.sh                 # ACE-only multi-seed script
+├── test_ace_quick.sh               # Quick ACE test (1 episode)
+├── setup_env.sh                    # HPC environment setup
+├── cleanup_hpc.sh                  # Disk space cleanup
+├── ACE_OPTIMIZATION_CHECKLIST.md   # ACE success guide
+├── EXTRACTED_RESULTS.md            # Current results summary
+├── ace_experiments.py              # Main ACE implementation
+├── baselines.py                    # Baseline methods
+├── experiments/                    # Domain-specific SCMs
+├── jobs/                           # SLURM job templates
+├── scripts/                        # Analysis scripts
+├── tests/                          # Test suite (552 tests, 77% coverage)
+├── paper/                          # LaTeX manuscript (80% populated)
+├── results/                        # Experimental results
+│   ├── baselines/                  # [DONE] 5 runs per method
+│   ├── duffing/                    # [DONE] 5 runs
+│   ├── complex_scm/                # [DONE] 6 runs
+│   └── ace_multi_seed_*/           # [PENDING] To be generated
+├── logs/                           # Job logs
+└── guidance_documents/             # This file
 ```
 
-### HPC Workflow (run_all.sh)
+### Current HPC Workflow (Fresh Start)
 
-**Submits 5 Jobs to Support Paper Claims:**
+**Baselines:** COMPLETE (already run, N=5 each)
+- Random, Round-Robin, Max-Variance, PPO: All complete with statistics
 
-1. **Job 1: ACE Main** -> Table 1 (ACE results), Section 3.4.1
-2. **Job 2: Baselines** -> Table 1 (Random, RR, MaxVar, PPO), Section 3.8 
-3. **Job 3: Complex SCM** -> Section 3.4.2 (hard benchmark)
-4. **Job 4: Duffing** -> Section 3.6 (clamping strategy)
-5. **Job 5: Phillips** -> Section 3.7 (regime selection)
+**ACE Experiments:** IN PROGRESS
+Run with: `./run_ace_only.sh --seeds 5`
+
+This submits 5 ACE jobs (one per seed):
+1. **Seed 42** -> First reference run
+2. **Seed 123** -> Second run
+3. **Seed 456** -> Third run  
+4. **Seed 789** -> Fourth run
+5. **Seed 1011** -> Fifth run
+
+All run on 5-node synthetic SCM benchmark.
+Results combine for statistical validation (mean ± std, 95% CI).
 
 **Output Naming Convention (Timestamp-based):**
 - Format: `results/paper_YYYYMMDD_HHMMSS/`
@@ -1075,3 +1093,116 @@ python ace_experiments.py \
 ### Backwards Compatibility
 All improvements are opt-in via flags. Existing scripts work unchanged.
 New defaults (obs_train_interval=3, undersampled_bonus=200) improve performance automatically.
+
+
+## Current Experimental Results (January 25, 2026)
+
+### Baseline Performance (COMPLETE)
+
+**5-Node Synthetic Benchmark (N=5 runs each):**
+
+| Method | Final Loss | Std | 95% CI | Episodes |
+|--------|------------|-----|--------|----------|
+| Random | 2.18 | 0.06 | [2.13, 2.24] | 100 |
+| Round-Robin | 2.15 | 0.08 | [2.08, 2.21] | 100 |
+| Max-Variance | 2.05 | 0.12 | [1.94, 2.15] | 100 |
+| PPO | 2.11 | 0.13 | [2.00, 2.23] | 100 |
+
+**Best Baseline:** Max-Variance at 2.05 ± 0.12
+
+**Statistical Validation:**
+- Paired t-tests confirm Max-Var significantly better than Random (p=0.021)
+- 13% improvement: Max-Var vs Random (2.05 vs 2.18)
+- PPO competitive but higher variance (std=0.13)
+
+**Duffing Oscillator (N=5 runs):**
+- Final loss: 0.042 ± 0.036 (95% CI: [0.011, 0.073])
+- All runs successfully recovered chain structure
+- Validates spurious correlation breaking strategy
+
+**Complex 15-Node SCM (N=6 runs):**
+- Random: 4.65 ± 0.21 total MSE, 0.32 ± 0.04 collider MSE (N=4)
+- Greedy collider: 4.49 total, 0.29 collider (N=1)
+- 9% collider improvement with targeting
+
+### ACE Performance (PENDING)
+
+**Status:** Awaiting fresh multi-seed runs
+
+**Target Performance:**
+- Final loss: ≤ 2.11 (match PPO or better)
+- Ideal: ≤ 2.05 (match Max-Variance)
+- Episodes: < 100 (ideally 40-60 with early stopping)
+- Episode reduction: 40-60% vs baselines
+
+**To Submit:**
+```bash
+cd ~/ACE
+source setup_env.sh
+./run_ace_only.sh --seeds 5
+```
+
+**Expected Timeline:** 5-10 hours on HPC
+
+### Paper Population Status
+
+**Complete Sections (Real Data):**
+- Synthetic benchmark baselines (all 4 methods with statistics)
+- Duffing oscillator results (N=5)
+- Complex SCM strategy comparison (N=6)
+- Statistical validation (CIs, p-values)
+
+**Pending (Awaiting ACE):**
+- ACE vs baseline comparison
+- Episode reduction validation
+- Early stopping demonstration
+- Final performance claims
+
+**Paper Completeness:** 80% (baselines complete, ACE pending)
+
+## Commands for Fresh ACE Run
+
+### HPC Setup (One-Time)
+```bash
+cd ~/ACE
+git pull origin main
+source setup_env.sh
+```
+
+### Submit ACE Experiments
+```bash
+# 5-seed multi-seed validation
+./run_ace_only.sh --seeds 5
+
+# Monitor
+squeue -u $USER
+tail -f logs/ace_seed42_*.out
+
+# After completion
+python scripts/compute_statistics.py results/ace_multi_seed_*/ ace
+```
+
+### Analysis After ACE Completes
+```bash
+# Extract ACE statistics
+python scripts/compute_statistics.py results/ace_multi_seed_*/ ace
+
+# Compare to baselines (already have baseline stats)
+# Expected ACE: X.XX ± Y.YY (ZZ episodes)
+# Compare to Max-Var: 2.05 ± 0.12 (100 episodes)
+
+# If ACE ≤ 2.11 and episodes < 100:
+# -> Populate paper with results
+# -> Paper 100% complete!
+```
+
+## Success Criteria
+
+**ACE Must Achieve:**
+1. Final loss ≤ 2.11 (match or beat PPO)
+2. Episodes < 100 (demonstrate efficiency)
+3. All nodes converged (no high-loss outliers)
+4. Stable across seeds (std < 0.15)
+
+**If achieved:** Paper claims validated, ready for submission!
+

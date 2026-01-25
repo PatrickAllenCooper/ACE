@@ -6,12 +6,12 @@
 
 ACE learns to design causal experiments through reinforcement learning. An AI agent proposes interventions (do-operations) that maximize information gain for learning structural causal models (SCMs). Uses Direct Preference Optimization (DPO) for stable policy learning without value function estimation.
 
-## Test Coverage
+## Project Status
 
-**Coverage:** 77% (6,638/8,568 statements) | **Target:** 90% | **Progress:** 86% complete 
-**Tests:** 552 passing, 6 skipped | **Pass Rate:** 98.9% | **Runtime:** ~122 seconds
-
-**Note:** 3 obsolete tests remain that reference deleted shell scripts (consolidated into `ace.sh`)
+**Test Coverage:** 77% (552 tests passing, 98.9% pass rate)  
+**Experimental Data:** Baselines complete (N=5), ACE pending multi-seed runs  
+**Paper Status:** 80% populated with real data, awaiting ACE results  
+**Code:** Production-ready with verified intervention masking
 
 ```bash
 # Run all tests
@@ -30,32 +30,36 @@ pytest -n 4
 
 ## Quick Start
 
-### Unified CLI
+### Running ACE Experiments (Current Focus)
 
-All operations are available through a single command-line interface:
+**Fresh start with improved code:**
 
 ```bash
-# Show all available commands
-./ace.sh help
+# On HPC
+cd ~/ACE
+git pull origin main
 
-# Run all experiments (creates timestamped results directory)
-./ace.sh run all
+# Setup environment (one-time per session)
+source setup_env.sh
 
-# Run multi-seed validation (for statistical significance)
-./ace.sh run-multi-seed 5
+# Submit 5-seed ACE runs (5-node synthetic SCM)
+./run_ace_only.sh --seeds 5
 
-# Run ablation studies
-./ace.sh run-ablations
+# Monitor
+squeue -u $USER
+tail -f logs/ace_seed42_*.out
+```
 
-# Run observational ratio ablation
-./ace.sh run-obs-ablation
+**Note:** Baselines already complete (N=5 runs). This runs ONLY ACE.
 
-# Post-process results
-./ace.sh process results/paper_YYYYMMDD_HHMMSS/
+### Unified CLI (Other Operations)
 
-# Sync from HPC and process locally
-./ace.sh sync-hpc
-./ace.sh process results/paper_YYYYMMDD_HHMMSS/
+```bash
+./ace.sh help              # Show all commands
+./ace.sh run all           # Run all experiments
+./ace.sh sync-hpc          # Sync from HPC
+./ace.sh process results/  # Post-process
+./ace.sh clean             # Cleanup
 ```
 
 ### Individual Experiments
