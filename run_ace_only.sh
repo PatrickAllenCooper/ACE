@@ -84,19 +84,28 @@ for SEED in "${SEEDS[@]}"; do
     echo "Submitting ACE with seed $SEED..."
     
     if [ "$TEST_MODE" = true ]; then
-        # Test mode: run locally with verbose output
-        echo "  Running locally (test mode)..."
-        python ace_experiments.py \
-            --episodes $EPISODES \
-            --seed $SEED \
-            --early_stopping \
-            --use_per_node_convergence \
-            --use_dedicated_root_learner \
-            --output "$SEED_DIR" \
-            --verbose \
-            2>&1 | tee "$SEED_DIR/test_output.log"
+        # Test mode: still submit to SLURM (needs GPU) but with shorter time limit
+        echo "  Submitting test job (shorter time limit)..."
+        JOB=$(sbatch --parsable \
+            --nodes=1 --partition=aa100 --qos=normal \
+            --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=2:00:00 \
+            --job-name=ace_test_s${SEED} \
+            --output=logs/ace_test_seed${SEED}_${TIMESTAMP}_%j.out \
+            --error=logs/ace_test_seed${SEED}_${TIMESTAMP}_%j.err \
+            --wrap="python ace_experiments.py \
+                --episodes $EPISODES \
+                --seed $SEED \
+                --early_stopping \
+                --use_per_node_convergence \
+                --use_dedicated_root_learner \
+                --obs_train_interval 3 \
+                --obs_train_samples 200 \
+                --obs_train_epochs 100 \
+                --output $SEED_DIR")
         
-        echo "  Test complete! Check: $SEED_DIR/test_output.log"
+        JOB_IDS+=($JOB)
+        echo "  Job ID: $JOB"
+        echo "  Monitor: tail -f logs/ace_test_seed${SEED}_${TIMESTAMP}_${JOB}.out"
         
     else
         # Production mode: submit to HPC

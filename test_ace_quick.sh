@@ -38,25 +38,38 @@ if ! python -c "import torch" 2>/dev/null; then
     exit 1
 fi
 
-OUTPUT_DIR="results/ace_quick_test_$(date +%Y%m%d_%H%M%S)"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+OUTPUT_DIR="results/ace_quick_test_${TIMESTAMP}"
 mkdir -p "$OUTPUT_DIR"
 
-echo "Running ACE for 1 episode with verbose logging..."
+echo "Submitting quick ACE test job (1 episode)..."
 echo "Output: $OUTPUT_DIR"
 echo ""
 
-# Run with maximum verbosity
-python ace_experiments.py \
-    --episodes 1 \
-    --seed 42 \
-    --early_stopping \
-    --use_per_node_convergence \
-    --use_dedicated_root_learner \
-    --obs_train_interval 3 \
-    --obs_train_samples 200 \
-    --obs_train_epochs 100 \
-    --output "$OUTPUT_DIR" \
-    2>&1 | tee "$OUTPUT_DIR/test_log.txt"
+# Submit as SLURM job (even for quick test - needs GPU)
+JOB=$(sbatch --parsable \
+    --nodes=1 --partition=aa100 --qos=normal \
+    --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=0:30:00 \
+    --job-name=ace_test \
+    --output=logs/ace_quick_test_${TIMESTAMP}_%j.out \
+    --error=logs/ace_quick_test_${TIMESTAMP}_%j.err \
+    --wrap="python ace_experiments.py \
+        --episodes 1 \
+        --seed 42 \
+        --early_stopping \
+        --use_per_node_convergence \
+        --use_dedicated_root_learner \
+        --obs_train_interval 3 \
+        --obs_train_samples 200 \
+        --obs_train_epochs 100 \
+        --output $OUTPUT_DIR")
+
+echo "Job submitted: $JOB"
+echo "Monitor: squeue -j $JOB"
+echo "Log: logs/ace_quick_test_${TIMESTAMP}_${JOB}.out"
+echo ""
+echo "Wait ~5-10 minutes, then check results:"
+echo "  tail -f logs/ace_quick_test_${TIMESTAMP}_${JOB}.out"
 
 echo ""
 echo "=========================================="
