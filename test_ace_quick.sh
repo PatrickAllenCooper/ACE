@@ -10,6 +10,10 @@
 # - No errors or crashes
 #
 # Usage: ./test_ace_quick.sh
+#
+# IMPORTANT: Source setup_env.sh first if on HPC!
+#   source setup_env.sh
+#   ./test_ace_quick.sh
 # ============================================================================
 
 set -e
@@ -18,6 +22,21 @@ echo "=========================================="
 echo "  QUICK ACE TEST (1 Episode)"
 echo "=========================================="
 echo ""
+
+# Check if Python/PyTorch available
+if ! python -c "import torch" 2>/dev/null; then
+    echo "ERROR: PyTorch not found!"
+    echo ""
+    echo "On HPC, run this first:"
+    echo "  source setup_env.sh"
+    echo ""
+    echo "This will:"
+    echo "  1. Activate conda environment"
+    echo "  2. Load CUDA modules"
+    echo "  3. Set cache directories"
+    echo ""
+    exit 1
+fi
 
 OUTPUT_DIR="results/ace_quick_test_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUTPUT_DIR"
