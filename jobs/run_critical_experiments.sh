@@ -1,9 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=critical_expts
 #SBATCH --partition=aa100
+#SBATCH --qos=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
 #SBATCH --time=08:00:00
@@ -35,10 +36,25 @@ echo "Node: $SLURM_NODELIST"
 echo "Started: $(date)"
 echo "=============================================="
 
-# Setup environment
+# --- Environment Setup ---
+if command -v module &> /dev/null; then
+    module purge || true
+    module load cuda || echo "Warning: Could not load cuda module."
+fi
+
+export HF_HOME="${HF_HOME:-/projects/$USER/cache/huggingface}"
+export MPLCONFIGDIR="${MPLCONFIGDIR:-/projects/$USER/cache/matplotlib}"
+mkdir -p "$HF_HOME" "$MPLCONFIGDIR" 2>/dev/null || true
+
+if [ "$CONDA_DEFAULT_ENV" != "ace" ]; then
+    if [ -f "/projects/$USER/miniconda3/etc/profile.d/conda.sh" ]; then
+        source /projects/$USER/miniconda3/etc/profile.d/conda.sh
+        conda activate ace
+    fi
+fi
+
+# Change to submission directory
 cd $SLURM_SUBMIT_DIR
-source ~/.bashrc
-conda activate ace_env
 
 # Create logs directory
 mkdir -p logs
