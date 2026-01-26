@@ -232,46 +232,44 @@ The experimentalist policy $\pi_\phi(c_t \mid s_t)$ observes the current state $
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    node distance=0.8cm,
-    box/.style={rectangle, draw, rounded corners, minimum width=2.4cm, minimum height=0.7cm, font=\scriptsize, thick, align=center},
+    node distance=1.0cm and 2.0cm,
+    box/.style={rectangle, draw, rounded corners, minimum width=2.6cm, minimum height=0.8cm, font=\scriptsize, thick, align=center},
     state/.style={box, fill=blue!15},
     process/.style={box, fill=orange!15},
     decision/.style={box, fill=green!15},
     update/.style={box, fill=purple!15},
     arrow/.style={-{Stealth[length=2mm]}, thick},
-    label/.style={font=\tiny, midway, fill=white, inner sep=1pt}
+    annot/.style={font=\tiny, gray}
 ]
 
-% Left column: Candidate Generation
-\node[state] (state) at (0,0) {Observe State\\$s_t = (M_\theta, \{L_i\})$};
+% Main vertical flow
+\node[state] (state) {Observe State\\$s_t = (M_\theta, \{L_i\})$};
 \node[process, below=of state] (gen) {Generate $K=4$\\Candidates};
-\node[font=\tiny, right=0.1cm of gen] {$\{c_1, c_2, c_3, c_4\}$};
-
-% Middle column: Evaluation
 \node[process, below=of gen] (sim) {Simulate on\\Cloned Learner};
-\node[font=\tiny, right=0.1cm of sim] {$\Delta\mathcal{L}(c_k)$};
 \node[decision, below=of sim] (select) {Select Best\\$c^* = \argmax \Delta\mathcal{L}$};
-
-% Right side: Execution and Update
 \node[process, below=of select] (exec) {Execute $c^*$\\on Environment};
 \node[update, below=of exec] (learn) {Update Learner\\$M_\theta \leftarrow M_\theta'$};
 
-% DPO branch
-\node[update, right=1.5cm of sim] (dpo) {DPO Update\\$(c_{\text{best}}, c_{\text{worst}})$};
+% DPO branch (to the right)
+\node[update, right=of sim] (dpo) {DPO Update\\$(c_{\text{best}}, c_{\text{worst}})$};
 
-% Arrows
+% Main flow arrows
 \draw[arrow] (state) -- (gen);
 \draw[arrow] (gen) -- (sim);
 \draw[arrow] (sim) -- (select);
 \draw[arrow] (select) -- (exec);
 \draw[arrow] (exec) -- (learn);
-\draw[arrow] (sim) -- node[label, above] {preferences} (dpo);
-\draw[arrow, dashed, gray] (dpo) -- ++(0,1.5) -| node[label, above, pos=0.25] {$\pi_\phi$ update} (state);
-\draw[arrow, dashed, gray] (learn) -- ++(-2.5,0) |- node[label, left, pos=0.75] {next step} (state);
 
-% Annotations
-\node[font=\tiny, gray, align=left] at (-2.2,-1.2) {LLM\\policy};
-\node[font=\tiny, gray, align=left] at (3.8,-2.8) {reward:\\$R = \Delta\mathcal{L} + \alpha w + \beta D$};
+% DPO arrow
+\draw[arrow] (sim) -- node[annot, above] {preferences} (dpo);
+
+% Feedback loops
+\draw[arrow, dashed, gray] (dpo.north) -- ++(0,0.6) -| (state.east);
+\draw[arrow, dashed, gray] (learn.west) -- ++(-1.2,0) |- (state.west);
+
+% Side annotations (positioned to avoid overlap)
+\node[annot, left=0.8cm of gen] {LLM policy};
+\node[annot, right=0.3cm of dpo.south east, anchor=north west] {$R = \Delta\mathcal{L} + \alpha w + \beta D$};
 
 \end{tikzpicture}
 \caption{ACE algorithm for one experimental step. The policy observes the learner's state and per-node losses, generates $K$ candidate interventions, simulates each on a cloned learner to estimate information gain, selects and executes the best candidate, then updates both the learner (with new data) and the policy (via DPO on preference pairs). Dashed arrows indicate feedback loops.}
