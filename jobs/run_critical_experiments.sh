@@ -63,13 +63,13 @@ echo "Changed to: $(pwd)"
 mkdir -p logs
 
 # Verify run_critical_experiments.py exists
-if [ ! -f "run_critical_experiments.py" ]; then
-    echo "ERROR: run_critical_experiments.py not found in $(pwd)"
-    echo "Contents of directory:"
-    ls -la *.py 2>/dev/null | head -20
+if [ ! -f "scripts/runners/run_critical_experiments.py" ]; then
+    echo "ERROR: scripts/runners/run_critical_experiments.py not found in $(pwd)"
+    echo "Contents of scripts/runners/:"
+    ls -la scripts/runners/*.py 2>/dev/null | head -20
     exit 1
 fi
-echo "Found run_critical_experiments.py"
+echo "Found scripts/runners/run_critical_experiments.py"
 
 # Show Python and conda info
 echo "Python: $(which python)"
@@ -81,19 +81,19 @@ EXPERIMENT=${1:-all}
 case $EXPERIMENT in
     extended)
         echo "Running: Extended Baselines Only"
-        python run_critical_experiments.py --extended-baselines --seeds 42 123 456 789 1011
+        python scripts/runners/run_critical_experiments.py --extended-baselines --seeds 42 123 456 789 1011
         ;;
     ablation)
         echo "Running: Lookahead Ablation Only"
-        python run_critical_experiments.py --lookahead-ablation --seeds 42 123 456 789 1011
+        python scripts/runners/run_critical_experiments.py --lookahead-ablation --seeds 42 123 456 789 1011
         ;;
     complex)
         echo "Running: Complex 15-Node SCM Only"
-        python run_critical_experiments.py --complex-scm --seeds 42 123 456 789 1011
+        python scripts/runners/run_critical_experiments.py --complex-scm --seeds 42 123 456 789 1011
         ;;
     all|*)
         echo "Running: ALL Critical Experiments"
-        python run_critical_experiments.py --all --seeds 42 123 456 789 1011
+        python scripts/runners/run_critical_experiments.py --all --seeds 42 123 456 789 1011
         ;;
 esac
 
