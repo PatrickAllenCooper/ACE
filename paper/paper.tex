@@ -227,7 +227,56 @@ The \emph{learner} $M_\theta$ maintains estimates of the causal mechanisms, assu
 
 \subsection{Interaction Loop}
 
-The experimentalist policy $\pi_\phi(c_t \mid s_t)$ observes the current state $s_t = (M_\theta, \{L_i\})$, which includes the learner's parameters and per-node loss estimates, and proposes an intervention $c_t := \texttt{do}(V_i = \nu)$ where $\nu \in [-5, 5]$. Each experimental step proceeds as follows: the policy generates $K$ candidate interventions, simulates their effect on a cloned learner to estimate information gain, executes the best candidate $c^* = \argmax_{c_k} \Delta \mathcal{L}(c_k)$, collects the resulting data from the environment, and updates the learner $M_\theta$. Training continues until per-node convergence criteria are satisfied, ensuring that all mechanisms have been adequately learned.
+The experimentalist policy $\pi_\phi(c_t \mid s_t)$ observes the current state $s_t = (M_\theta, \{L_i\})$, which includes the learner's parameters and per-node loss estimates, and proposes an intervention $c_t := \texttt{do}(V_i = \nu)$ where $\nu \in [-5, 5]$. Figure~\ref{fig:algorithm} details the procedure for each experimental step. The policy generates $K$ candidate interventions, simulates their effect on a cloned learner to estimate information gain, executes the best candidate $c^* = \argmax_{c_k} \Delta \mathcal{L}(c_k)$, collects the resulting data from the environment, and updates the learner $M_\theta$. Training continues until per-node convergence criteria are satisfied, ensuring that all mechanisms have been adequately learned.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm,
+    box/.style={rectangle, draw, rounded corners, minimum width=2.4cm, minimum height=0.7cm, font=\scriptsize, thick, align=center},
+    state/.style={box, fill=blue!15},
+    process/.style={box, fill=orange!15},
+    decision/.style={box, fill=green!15},
+    update/.style={box, fill=purple!15},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    label/.style={font=\tiny, midway, fill=white, inner sep=1pt}
+]
+
+% Left column: Candidate Generation
+\node[state] (state) at (0,0) {Observe State\\$s_t = (M_\theta, \{L_i\})$};
+\node[process, below=of state] (gen) {Generate $K=4$\\Candidates};
+\node[font=\tiny, right=0.1cm of gen] {$\{c_1, c_2, c_3, c_4\}$};
+
+% Middle column: Evaluation
+\node[process, below=of gen] (sim) {Simulate on\\Cloned Learner};
+\node[font=\tiny, right=0.1cm of sim] {$\Delta\mathcal{L}(c_k)$};
+\node[decision, below=of sim] (select) {Select Best\\$c^* = \argmax \Delta\mathcal{L}$};
+
+% Right side: Execution and Update
+\node[process, below=of select] (exec) {Execute $c^*$\\on Environment};
+\node[update, below=of exec] (learn) {Update Learner\\$M_\theta \leftarrow M_\theta'$};
+
+% DPO branch
+\node[update, right=1.5cm of sim] (dpo) {DPO Update\\$(c_{\text{best}}, c_{\text{worst}})$};
+
+% Arrows
+\draw[arrow] (state) -- (gen);
+\draw[arrow] (gen) -- (sim);
+\draw[arrow] (sim) -- (select);
+\draw[arrow] (select) -- (exec);
+\draw[arrow] (exec) -- (learn);
+\draw[arrow] (sim) -- node[label, above] {preferences} (dpo);
+\draw[arrow, dashed, gray] (dpo) -- ++(0,1.5) -| node[label, above, pos=0.25] {$\pi_\phi$ update} (state);
+\draw[arrow, dashed, gray] (learn) -- ++(-2.5,0) |- node[label, left, pos=0.75] {next step} (state);
+
+% Annotations
+\node[font=\tiny, gray, align=left] at (-2.2,-1.2) {LLM\\policy};
+\node[font=\tiny, gray, align=left] at (3.8,-2.8) {reward:\\$R = \Delta\mathcal{L} + \alpha w + \beta D$};
+
+\end{tikzpicture}
+\caption{ACE algorithm for one experimental step. The policy observes the learner's state and per-node losses, generates $K$ candidate interventions, simulates each on a cloned learner to estimate information gain, selects and executes the best candidate, then updates both the learner (with new data) and the policy (via DPO on preference pairs). Dashed arrows indicate feedback loops.}
+\label{fig:algorithm}
+\end{figure}
 
 \subsection{Direct Preference Optimization}
 
