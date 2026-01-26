@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=ace_stats
-#SBATCH --partition=shared
+#SBATCH --partition=aa100
 #SBATCH --qos=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -11,7 +11,7 @@
 
 # Statistical Tests Job Script
 # Generates formal significance tests for ACE vs baselines
-# NOTE: This is CPU-only (no GPU needed)
+# NOTE: This is CPU-only (no GPU needed but using aa100 partition)
 
 # --- Environment Setup ---
 export MPLCONFIGDIR="${MPLCONFIGDIR:-/projects/$USER/cache/matplotlib}"
