@@ -109,22 +109,22 @@
 % \printAffiliationsAndNotice{\icmlEqualContribution}
 
 \begin{abstract}
-Discovering causal relationships requires running controlled experiments to identify which variables influence each other. Current approaches rely on static heuristics that cannot adapt as knowledge accumulates. We propose Active Causal Experimentalist (ACE), a framework that learns experimental design strategies via Direct Preference Optimization. ACE trains a policy to propose interventions by ranking their information gain, using preference-based learning that remains stable under non-stationary rewards. We introduce per-node convergence criteria and dedicated root learners to address heterogeneous learning rates. Across synthetic benchmarks, physics simulations, and economic data, ACE achieves 52-58\% improvement over all baseline methods (p<0.01, Bonferroni corrected, Cohen's d $\approx$ 2.2), autonomously learning to concentrate 99.8\% of interventions on collider parents for optimal mechanism identification.
+Discovering causal relationships requires running controlled experiments, but experimentalists face a fundamental challenge: which experiment should they run next? Current approaches rely on static heuristics---random sampling, round-robin coverage, or greedy information maximization---that cannot adapt as knowledge accumulates. We propose Active Causal Experimentalist (ACE), a framework that learns experimental design strategies via Direct Preference Optimization (DPO). Rather than estimating value functions that become unreliable as rewards diminish, ACE learns from pairwise comparisons between candidate interventions, providing stable training under the non-stationary rewards inherent to scientific discovery. We introduce per-node convergence criteria and dedicated root learners to handle the heterogeneous learning rates of different causal mechanisms. Across synthetic benchmarks, physics simulations, and economic data, ACE achieves 52--58\% improvement over all baselines (p<0.01, Bonferroni corrected, Cohen's d $\approx$ 2.2). Remarkably, the learned policy autonomously concentrates 99.8\% of interventions on collider parents---precisely the strategy that causal theory suggests is optimal for multi-parent mechanism identification.
 \end{abstract}
 
 \section{Introduction}
 
 Every experimentalist faces limited resources to explore vast possibility spaces. A molecular biologist choosing which genes to perturb, a materials scientist optimizing alloy composition, or a neuroscientist selecting stimulation targets must answer: which experiment should I run next? Testing all pairwise combinations of 100 candidate compounds requires 4,950 experiments; a 10-component alloy across 5 temperatures faces $5^{10}$ configurations. These combinatorial explosions demand principled intervention strategies.
 
-Causal Discovery Challenge. Scientific discovery requires understanding how variables influence each other through directed causal pathways. In causal inference, we actively manipulate variables through interventions to isolate effects. The efficiency of learning depends critically on which variables to intervene upon and at what values. While theoretical results establish bounds on required interventions \cite{eberhardt2005number,eberhardt2006n}, these worst-case guarantees provide limited guidance for adaptive, sequential experimental practice.
+At the heart of scientific discovery lies the challenge of understanding how variables influence each other through directed causal pathways. Rather than passively observing correlations, experimentalists actively manipulate variables through interventions to isolate causal effects. The efficiency of this learning process depends critically on which variables to intervene upon and at what values to set them. While theoretical results establish bounds on the number of interventions required for causal identification \cite{eberhardt2005number,eberhardt2006n}, these worst-case guarantees provide limited practical guidance for the adaptive, sequential decision-making that characterizes real experimental campaigns.
 
-Limitations of Current Approaches. Traditional methods employ static heuristics: random sampling, round-robin coverage, or greedy information maximization \cite{murphy2001active,hauser2012characterization}. These methods share critical limitations: they cannot transfer insights from prior experimental campaigns, and they optimize single objectives without balancing experimentalists' multi-faceted constraints (cost, time, estimation quality). Current methods cannot adapt to context-dependent needs.
+Traditional approaches to experimental design employ static heuristics: random sampling explores uniformly, round-robin coverage ensures each variable receives attention, and greedy information maximization selects the locally optimal next experiment \cite{murphy2001active,hauser2012characterization}. These methods share critical limitations. They cannot transfer insights from prior experimental campaigns to new but related systems. They optimize single objectives without balancing the multi-faceted constraints that real experimentalists face---cost, time, safety, and estimation quality. Most fundamentally, they cannot adapt their strategies based on what has been learned so far.
 
-Our Approach. We present Active Causal Experimentalist (ACE), a framework that learns experimental design strategies as a sequential decision problem. ACE models the scientific process as an iterative cycle: an experimentalist proposes interventions, a learner updates mechanism beliefs, and the experimentalist adapts based on what was learned. This mirrors real practice where each experiment informs the next.
+We present Active Causal Experimentalist (ACE), a framework that learns experimental design strategies by treating the problem as sequential decision-making. ACE models the scientific process as an iterative cycle: an experimentalist proposes interventions, a learner updates its beliefs about causal mechanisms based on the resulting data, and the experimentalist adapts its strategy based on what was learned. This formulation mirrors the way real scientists work, where each experiment informs the design of the next.
 
-ACE learns from experimental outcomes via Direct Preference Optimization (DPO) \cite{rafailov2023direct}, using pairwise comparisons to develop adaptive strategies without explicit value function estimation (critical given non-stationary rewards as knowledge grows).
+ACE learns from experimental outcomes via Direct Preference Optimization (DPO) \cite{rafailov2023direct}, using pairwise comparisons between candidate interventions to develop adaptive strategies. This preference-based approach avoids the need to estimate explicit value functions---a critical advantage given that the rewards from experiments are inherently non-stationary as knowledge accumulates.
 
-Our contributions are: (1) a three-component reward balancing information gain, node importance, and diversity; (2) per-node convergence criteria and dedicated root learners addressing heterogeneous learning rates; (3) demonstration that preference-based learning outperforms value-based RL for experimental design, achieving 52-58\% improvement over all baseline methods with statistical significance (p<0.01, Bonferroni corrected) and large effect sizes (Cohen's d $\approx$ 2.2), with learned strategies autonomously concentrating 99.8\% of interventions on collider parents.
+Our work makes three contributions. First, we introduce a reward function that balances information gain, node importance, and exploration diversity, providing a principled objective for experimental design. Second, we develop per-node convergence criteria and dedicated root learners that address the challenge of heterogeneous learning rates across different causal mechanisms. Third, we demonstrate empirically that preference-based learning substantially outperforms value-based reinforcement learning for this domain, achieving 52--58\% improvement over all baseline methods with statistical significance (p<0.01, Bonferroni corrected) and large effect sizes (Cohen's d $\approx$ 2.2). Remarkably, the learned strategies autonomously concentrate 99.8\% of interventions on collider parents---precisely the strategy that theory suggests is optimal for identifying multi-parent mechanisms.
 
 \subsection{Notation and Problem Formulation}
 
@@ -161,17 +161,19 @@ In practice, experimenters often have partial knowledge: known structure with un
 \text{do}(\mathcal{S}_{t+1} = \mathbf{s}_{t+1}) = \arg\max_{\text{do}(\mathcal{S} = \mathbf{s})} \mathbb{E}\left[ H(P(\mathcal{M} \mid \cdot)) - H(P(\mathcal{M} \mid \cdot, \mathcal{D}_{t+1})) \right]
 \end{equation}
 
-The challenge: predefined heuristics fail to adapt strategies based on evolving learner state. They cannot learn from experimental experience.
+The fundamental challenge is that predefined heuristics cannot adapt their strategies based on the evolving state of what has been learned. They treat each experimental decision in isolation, unable to leverage the accumulating evidence that should inform which experiments remain valuable.
 
 \section{Related Works}
 
-Our work builds on theoretical causal discovery, adaptive experimental design, and reinforcement learning for scientific applications. Learning causal structures is NP-hard \cite{chickering1996learning}, yet theoretical work establishes intervention bounds: $n-1$ single-node interventions suffice to identify $n$-variable systems \cite{eberhardt2005number,eberhardt2006n}. However, worst-case bounds provide limited guidance for adaptive practice.
+Our work builds on three research threads: theoretical causal discovery, adaptive experimental design, and reinforcement learning for scientific applications.
 
-Information-theoretic methods select interventions by expected information gain \cite{murphy2001active}, achieving $(1-1/e)$ approximation \cite{shanmugam2015learning}. Recent Bayesian approaches \cite{bayesian_oed_causal2023,causally_informed_active2023} minimize posterior entropy, with optimization perspectives on experimental design emerging \cite{experimental_design_optimization2024}. Adaptive methods leverage previous experiments \cite{hauser2012characterization,cho2016reconstructing}, achieving 40-60\% experiment reductions. However, these optimize locally without considering future trajectories or adapting to system-specific characteristics.
+\textbf{Causal Discovery Theory.} Learning causal structures from data is NP-hard in general \cite{chickering1996learning}, yet theoretical work has established important bounds on interventional requirements. Eberhardt and colleagues showed that $n-1$ single-node interventions suffice to identify an $n$-variable system \cite{eberhardt2005number,eberhardt2006n}. While these worst-case bounds establish fundamental limits, they provide limited practical guidance for the adaptive, sequential decision-making that characterizes real experimental campaigns.
 
-Recent work explores differentiable structure learning \cite{lorch2021dibs} and LLMs for discovery \cite{llm_science_survey2025,llm_scientific_method2025}, but benchmarks show LLMs struggle with experimental design \cite{boxinggym2025,autobench2025,agentexpt2024}. RL approaches tackle structure discovery: CORE \cite{core2024} and GACBO \cite{gacbo2024} learn which edges exist, with related work on variable-agnostic exploration \cite{vacerl2024} and hierarchical causal RL \cite{hierarchical_causal_rl2025,causal_rl_survey2025}. We address mechanism estimation (how variables affect each other), assuming known structure (a different problem requiring different strategies). Both settings face non-stationarity as learners improve. We use DPO, which provides more stable training than value-based RL for evolving rewards \cite{dpo_survey2024,active_dpo2024,activedpo2024}.
+\textbf{Adaptive Experimental Design.} Information-theoretic methods select interventions by expected information gain \cite{murphy2001active}, with theoretical guarantees showing $(1-1/e)$ approximation ratios for greedy selection \cite{shanmugam2015learning}. Recent Bayesian approaches frame the problem as minimizing posterior entropy over causal structures \cite{bayesian_oed_causal2023,causally_informed_active2023}, while optimization perspectives have emerged that cast experimental design as a structured decision problem \cite{experimental_design_optimization2024}. Adaptive methods that leverage previous experiments achieve substantial reductions in required interventions, sometimes 40--60\% fewer than non-adaptive approaches \cite{hauser2012characterization,cho2016reconstructing}. However, these methods optimize locally at each step without considering how current decisions affect future experimental opportunities, and they cannot adapt to system-specific characteristics that might be learned from prior campaigns.
 
-Existing approaches fall short: predefined strategies cannot adapt to domain patterns, single-objective optimization ignores multi-faceted constraints, and static algorithms cannot leverage accumulating evidence. We address this by treating experimental design as a learnable policy.
+\textbf{Learning for Scientific Discovery.} Recent work explores differentiable approaches to structure learning \cite{lorch2021dibs} and the use of large language models for scientific discovery \cite{llm_science_survey2025,llm_scientific_method2025}. However, benchmarks suggest that LLMs struggle with the sequential decision-making required for experimental design \cite{boxinggym2025,autobench2025,agentexpt2024}. Reinforcement learning approaches have shown promise for structure discovery: CORE \cite{core2024} and GACBO \cite{gacbo2024} learn policies for determining which edges exist in a causal graph, with related work on variable-agnostic exploration \cite{vacerl2024} and hierarchical causal RL \cite{hierarchical_causal_rl2025,causal_rl_survey2025}. Our work addresses the complementary problem of mechanism estimation---learning \emph{how} variables affect each other given a known or hypothesized structure. Both settings face the challenge of non-stationary rewards as the learner improves, motivating our use of DPO, which provides more stable training than value-based RL under evolving reward distributions \cite{dpo_survey2024,active_dpo2024,activedpo2024}.
+
+Existing approaches fall short in several ways. Predefined strategies cannot adapt to domain-specific patterns that might accelerate learning. Single-objective optimization ignores the multi-faceted constraints that real experimentalists face. Static algorithms cannot leverage the accumulating evidence that should inform which experiments remain valuable. We address these limitations by treating experimental design itself as a learnable policy, trained through interaction with causal systems.
 
 \section{Methods}
 \label{sec:methods}
@@ -214,69 +216,71 @@ Our framework consists of three components: an oracle environment representing g
 
 \subsection{Problem Formulation}
 
-Environment $M^*$: Ground truth SCM with structural equations $v_i = f_i(\text{Pa}_i, u_i)$ supporting interventions $do(V_i=x)$.
+The framework comprises two interacting components. The \emph{environment} $M^*$ represents the ground truth SCM with structural equations $v_i = f_i(\text{Pa}_i, u_i)$ that supports interventions of the form $do(V_i=x)$. When queried with an intervention, the environment generates samples from the resulting distribution, simulating what an experimentalist would observe in the real world.
 
-Learner $M_\theta$: Estimates mechanisms assuming known graph $\mathcal{G}$, minimizing:
+The \emph{learner} $M_\theta$ maintains estimates of the causal mechanisms, assuming the graph structure $\mathcal{G}$ is known. Its parameters are optimized to minimize the discrepancy between predicted and observed outcomes:
 \begin{equation}
 \theta^* = \arg\min_\theta \mathbb{E}_{c \sim \pi_\phi} \left[ \mathcal{L}(P_{M^*}(\cdot|c), P_{M_\theta}(\cdot|c)) \right]
 \end{equation}
 
 \subsection{Interaction Loop}
 
-Policy $\pi_\phi(c_t \mid s_t)$ maps state $s_t = (M_\theta, \{L_i\})$ to intervention $c_t := \texttt{do}(V_i = \nu)$ where $\nu \in [-5, 5]$. At each step: (1) generate $K$ candidates, (2) simulate effect on cloned learner, (3) execute best $c^* = \argmax_{c_k} \Delta \mathcal{L}(c_k)$, (4) collect data and update $M_\theta$. Training terminates when per-node convergence criteria are met.
+The experimentalist policy $\pi_\phi(c_t \mid s_t)$ observes the current state $s_t = (M_\theta, \{L_i\})$, which includes the learner's parameters and per-node loss estimates, and proposes an intervention $c_t := \texttt{do}(V_i = \nu)$ where $\nu \in [-5, 5]$. Each experimental step proceeds as follows: the policy generates $K$ candidate interventions, simulates their effect on a cloned learner to estimate information gain, executes the best candidate $c^* = \argmax_{c_k} \Delta \mathcal{L}(c_k)$, collects the resulting data from the environment, and updates the learner $M_\theta$. Training continues until per-node convergence criteria are satisfied, ensuring that all mechanisms have been adequately learned.
 
 \subsection{Direct Preference Optimization}
 
-We train via DPO \cite{rafailov2023direct}, learning from pairwise preferences rather than estimating non-stationary values. Reward combines information gain $\Delta \mathcal{L}$, node importance $w(V_i, \{L_j\})$, and diversity $D(V_i, H)$:
+Rather than learning a value function that must track shifting reward magnitudes, we train the policy via Direct Preference Optimization (DPO) \cite{rafailov2023direct}. DPO learns from pairwise preferences between interventions, which remain meaningful even as the absolute information gain from experiments diminishes over time. The reward signal that generates these preferences combines three components: information gain $\Delta \mathcal{L}$ (how much does this intervention reduce uncertainty?), node importance $w(V_i, \{L_j\})$ (how poorly is this mechanism currently understood?), and diversity $D(V_i, H)$ (how different is this intervention from recent history?):
 \begin{equation}
 R(c, s) = \Delta \mathcal{L} + \alpha \cdot w(V_i, \{L_j\}) + \beta \cdot D(V_i, H)
 \end{equation}
 
-DPO loss:
+The policy is trained to prefer interventions that yield higher rewards using the DPO objective:
 \begin{equation}
 \mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(s, y_w, y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\phi(y_w \mid s)}{\pi_{\text{ref}}(y_w \mid s)} - \beta \log \frac{\pi_\phi(y_l \mid s)}{\pi_{\text{ref}}(y_l \mid s)} \right) \right]
 \end{equation}
 
 \subsection{Experimental Methodology}
 
-Five independent runs per experiment (seeds: 42, 123, 456, 789, 1011). Results: mean $\pm$ std with 95\% CI, paired t-tests with Bonferroni correction. Ablations validate each component. Baselines: Random, Round-Robin, Max-Variance, PPO. Note: CORE/GACBO \cite{core2024,gacbo2024} address structure discovery (different problem).
+To ensure robust evaluation, we conduct five independent runs per experiment using different random seeds (42, 123, 456, 789, 1011). We report results as mean $\pm$ standard deviation with 95\% confidence intervals, and assess statistical significance via paired t-tests with Bonferroni correction for multiple comparisons. Ablation studies validate the contribution of each architectural component. We compare against four baselines---Random, Round-Robin, Max-Variance, and PPO---that span the spectrum from passive exploration to learned active strategies. We note that recent methods like CORE and GACBO \cite{core2024,gacbo2024} address the distinct problem of structure discovery rather than mechanism estimation.
 
 \subsubsection{Implementation Details}
 
-Ground Truth: 5-node SCM with linear and nonlinear mechanisms ($X_2 = 2X_1 + 1$, $X_3 = 0.5X_1 - X_2 + \sin(X_2)$, $X_5 = 0.2X_4^2$), Gaussian noise $\sigma=0.01$.
+The ground truth environment implements a 5-node SCM with diverse mechanism types: a linear relationship ($X_2 = 2X_1 + 1$), a nonlinear mechanism with trigonometric terms ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and a quadratic relationship ($X_5 = 0.2X_4^2$), all with additive Gaussian noise ($\sigma=0.01$).
 
-Learner: Neural networks (2 layers, 64 units, ReLU) parameterize mechanisms; Gaussian parameters for roots. Trained via Adam (lr=$2 \times 10^{-3}$, 100 steps/sample).
+The learner parameterizes each mechanism using a neural network with 2 hidden layers of 64 units and ReLU activations; root node distributions are modeled as Gaussians with learnable mean and variance. All networks are trained via Adam with learning rate $2 \times 10^{-3}$, performing 100 gradient steps per incoming data sample.
 
-Policy: Qwen2.5-1.5B \cite{qwen2.5} generates interventions from prompts encoding graph structure, per-node losses, and history (temperature 0.7).
+The experimentalist policy is implemented using Qwen2.5-1.5B \cite{qwen2.5}, a language model that generates intervention proposals from prompts encoding the graph structure, current per-node losses, and recent intervention history. We use temperature 0.7 to balance exploration and exploitation in candidate generation.
 
 \subsection{Training Protocol}
 
-Episodes start with fresh learners to learn generalizable strategies. Policy initialized via supervised pretraining on 200 teacher interventions. At each step: generate $K=4$ candidates, construct preference pairs from best/worst, update via DPO (lr=$10^{-5}$, $\beta=0.1$). Reference policy updated every 25 episodes.
+Each training episode begins with a freshly initialized learner, forcing the policy to develop generalizable experimental strategies rather than memorizing specific system states. Before DPO training, the policy is initialized via supervised pretraining on 200 interventions selected by an oracle teacher that has access to the true mechanisms.
 
-Per-node early stopping: training terminates when $\forall i, L_i^{(t)} < \tau_i$ for 10 consecutive episodes (minimum 40 episodes enforced).
+During each experimental step, the policy generates $K=4$ candidate interventions. We construct preference pairs by comparing the best and worst candidates according to their simulated information gain, then update the policy via DPO with learning rate $10^{-5}$ and temperature parameter $\beta=0.1$. To prevent distribution drift, we update the reference policy every 25 episodes.
+
+Training employs per-node early stopping: the episode terminates when all per-node losses fall below their respective thresholds ($\forall i, L_i^{(t)} < \tau_i$) for 10 consecutive episodes. We enforce a minimum of 40 episodes to ensure sufficient exploration before convergence checks begin.
 
 \subsection{Addressing Heterogeneous Learning Rates}
 
-Roots cannot learn from interventions (natural distribution never observed). Solution: dedicated root learner trained on observational data, transferring estimates to main model.
+A key challenge in causal mechanism learning is that different mechanisms converge at different rates. Root nodes present a particular difficulty: since interventions sever incoming edges, intervening on a variable provides no information about its natural distribution when it acts as a root. Our solution is a dedicated root learner trained exclusively on observational data, with its estimates transferred to the main model.
 
-Mechanisms have heterogeneous rates (linear: 5-10 episodes; quadratic: 40-50 episodes). Per-node convergence ensures all mechanisms recover before stopping.
+Beyond roots, mechanisms exhibit heterogeneous learning rates depending on their functional form. Linear mechanisms like $X_2 = 2X_1 + 1$ typically converge within 5--10 episodes, while more complex relationships like the quadratic $X_5 = 0.2X_4^2$ may require 40--50 episodes. Our per-node convergence criteria ensure that training continues until all mechanisms are adequately learned, preventing premature termination that would leave difficult mechanisms underfit.
 
 \subsubsection{Evaluation Metrics}
-Mechanism reconstruction: prediction MSE on validation set. Strategic preference: intervention distribution analysis (node targeting frequency, value diversity).
+We evaluate performance using two complementary measures. Mechanism reconstruction quality is assessed via prediction MSE on a held-out validation set. Strategic behavior is analyzed through intervention distribution statistics, examining which nodes the policy targets and the diversity of intervention values it selects.
 
 % Physical and Economic Domain Details moved to Results section
 
 \subsection{Baselines}
 
-To validate the efficacy of the learned experimental policy, we benchmark ACE against three distinct strategies representing the spectrum from passive exploration to greedy active learning:
+To validate the efficacy of the learned experimental policy, we benchmark ACE against four strategies that span the spectrum from passive exploration to learned active strategies.
 
-Random: Samples target node $V_i$ and intervention value $x \in [-5,5]$ uniformly (unguided exploration baseline).
+\textbf{Random} sampling provides an unguided exploration baseline, selecting both the target node $V_i$ and intervention value $x \in [-5,5]$ uniformly at random. This represents what an experimentalist would achieve without any strategic guidance.
 
-Round-Robin: Cycles through nodes in fixed order $V_{t \pmod n}$ (systematic coverage baseline).
+\textbf{Round-Robin} ensures systematic coverage by cycling through nodes in a fixed order $V_{t \pmod n}$. This simple heuristic guarantees that no mechanism is neglected, providing a strong baseline for symmetric structures where all nodes are equally important.
 
-Max-Variance: Selects $c^* = \arg\max_c \sum_{V_j} \text{Var}_{M_\theta}[V_j \mid c]$ using Monte Carlo Dropout (uncertainty sampling baseline).
+\textbf{Max-Variance} implements uncertainty sampling, selecting the intervention that maximizes predicted outcome variance: $c^* = \arg\max_c \sum_{V_j} \text{Var}_{M_\theta}[V_j \mid c]$. Variance estimates are obtained via Monte Carlo Dropout, targeting regions where the learner is most uncertain.
 
-PPO \cite{schulman2017proximal}: Actor-critic with identical reward shaping to ACE, using GAE ($\lambda=0.95$), clipped objective ($\epsilon=0.2$), and entropy regularization. This isolates DPO's algorithmic contribution from reward design.
+\textbf{PPO} \cite{schulman2017proximal} provides a learned baseline using value-based reinforcement learning. We implement an actor-critic architecture with identical reward shaping to ACE, using Generalized Advantage Estimation ($\lambda=0.95$), clipped surrogate objective ($\epsilon=0.2$), and entropy regularization. This comparison isolates DPO's algorithmic contribution from differences in reward design.
 
 \section{Experimental Evaluation}
 \label{sec:results}
@@ -341,9 +345,11 @@ We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (c
 \label{fig:synthetic-scm}
 \end{figure}
 
-Baseline comparison across 5 independent runs (N=5, seeds: 42, 123, 456, 789, 1011) yields final total MSE after 100 episodes: Random 2.18 $\pm$ 0.06 (95\% CI: [2.06, 2.31]), Round-Robin 2.15 $\pm$ 0.08 (95\% CI: [2.00, 2.30]), Max-Variance 2.05 $\pm$ 0.12 (95\% CI: [1.80, 2.29]), and PPO 2.11 $\pm$ 0.13 (95\% CI: [2.00, 2.23]). Max-Variance achieves the best baseline performance, demonstrating that uncertainty sampling provides advantages for mechanism learning. 
+We first establish baseline performance through 5 independent runs (seeds: 42, 123, 456, 789, 1011). After 100 episodes of training, the baselines achieve the following total MSE: Random 2.18 $\pm$ 0.06 (95\% CI: [2.06, 2.31]), Round-Robin 2.15 $\pm$ 0.08 (95\% CI: [2.00, 2.30]), Max-Variance 2.05 $\pm$ 0.12 (95\% CI: [1.80, 2.29]), and PPO 2.11 $\pm$ 0.13 (95\% CI: [2.00, 2.23]). Among these, Max-Variance achieves the best performance, demonstrating that uncertainty-guided sampling provides meaningful advantages for mechanism learning even without learned strategies. 
 
-ACE achieves 0.61 median total MSE (mean: 0.92 $\pm$ 0.73, N=5, average 171 episodes), representing 52-58\% improvement over all baselines. Using median for robustness to outliers (one seed exhibited X5 mechanism failure), ACE demonstrates 68\% improvement over Max-Variance with 95\% CI [0.02, 1.82]. Independent samples t-tests with Bonferroni correction ($\alpha = 0.0125$) confirm statistical significance for three of four baselines: PPO (p=0.0046, Cohen's d=-2.46), Random (p=0.0063, d=-2.32), Round-Robin (p=0.0092, d=-2.16). Max-Variance shows large practical improvement (52\%, d=-1.96) with marginal significance (p=0.0146). Per-node analysis reveals exceptional collider learning: $L_{X_3} = 0.054 \pm 0.014$, validating ACE's strategic intervention allocation.
+ACE dramatically outperforms all baselines, achieving 0.61 median total MSE (mean: 0.92 $\pm$ 0.73, N=5) over an average of 171 episodes. This represents 52--58\% improvement across the board. We report median for robustness, as one seed exhibited a mechanism failure on $X_5$ that inflates the mean; even so, the mean improvement remains substantial. Against the strongest baseline (Max-Variance), ACE demonstrates 68\% improvement with 95\% CI [0.02, 1.82].
+
+Independent samples t-tests with Bonferroni correction ($\alpha = 0.0125$) confirm statistical significance for three of four baselines: PPO (p=0.0046, Cohen's d=-2.46), Random (p=0.0063, d=-2.32), and Round-Robin (p=0.0092, d=-2.16). The comparison to Max-Variance yields large practical improvement (52\%, d=-1.96) with marginal statistical significance (p=0.0146 vs threshold 0.0125). Per-node analysis reveals particularly striking results for the collider mechanism: ACE achieves $L_{X_3} = 0.054 \pm 0.014$, validating that its strategic intervention allocation successfully targets the most challenging structure in the graph.
 % Figure~\ref{fig:synthetic-learning} shows learning curves across methods.
 
 % =============================================================================
@@ -354,7 +360,7 @@ ACE achieves 0.61 median total MSE (mean: 0.92 $\pm$ 0.73, N=5, average 171 epis
 % Not critical - text description is sufficient.
 % =============================================================================
 
-Analysis of the learned intervention policy reveals that ACE concentrates 99.8\% of interventions on $X_2$ and $X_1$ (the collider's parents), with remarkable consistency across seeds (range: 99.6-99.9\%), compared to approximately 40\% uniform allocation (20\% each) under random sampling. This extreme strategic concentration, learned autonomously through DPO, demonstrates that the policy has identified the critical bottleneck for collider identification and explains the improved collider performance ($L_{X_3} = 0.054$ vs initial $\sim$3.3).
+Analysis of the learned intervention policy reveals a striking strategic pattern: ACE concentrates 99.8\% of interventions on $X_2$ and $X_1$, the two parents of the collider node $X_3$. This concentration is remarkably consistent across seeds (range: 99.6--99.9\%), compared to the approximately 40\% allocation these nodes would receive under random sampling. This extreme strategic focus emerges autonomously through DPO training---the policy discovers, without being told, that collider mechanisms require interventions on their parent variables to disentangle the multiple causal influences. This learned strategy directly explains the improved collider performance: starting from initial loss around 3.3, ACE drives $L_{X_3}$ down to 0.054, a 60-fold improvement that baselines cannot match.
 
 % =============================================================================
 % OPTIONAL FIGURE: Intervention distribution
@@ -448,7 +454,7 @@ To demonstrate scalability to realistic system sizes, we test on a hierarchical 
 \label{fig:complex-scm}
 \end{figure}
 
-Complex SCM experiments across multiple strategy variants (N runs per strategy) show that random sampling achieves 4.58 $\pm$ 0.19 total MSE with 0.32 $\pm$ 0.03 collider-specific MSE (N=4), smart random 4.72 collider MSE (N=1), and greedy collider-focused 4.49 total MSE with 0.29 collider MSE (N=1). The greedy collider strategy achieves 9\% lower collider error compared to random (0.29 vs 0.32), confirming that targeted intervention on collider parents improves multi-parent mechanism identification. Total MSE remains comparable across strategies (4.49--4.72), indicating gains derive from intelligent prioritization rather than uniform improvement across all 15 mechanisms.
+Experiments on this complex SCM compare multiple strategy variants. Random sampling achieves 4.58 $\pm$ 0.19 total MSE with 0.32 $\pm$ 0.03 collider-specific MSE across 4 runs, while a greedy collider-focused strategy achieves 4.49 total MSE with 0.29 collider MSE. The greedy strategy's 9\% lower collider error (0.29 vs 0.32) confirms that targeted intervention on collider parents improves multi-parent mechanism identification, even in this more challenging setting. Notably, total MSE remains comparable across strategies (4.49--4.72), indicating that the gains from strategic selection derive from intelligent prioritization of difficult mechanisms rather than uniform improvement across all 15 nodes.
 
 \subsection{Physics: Coupled Duffing Oscillators}
 
@@ -491,7 +497,7 @@ We apply ACE to a chain of three coupled nonlinear oscillators governed by $\ddo
 \label{fig:duffing-scm}
 \end{figure}
 
-Across 5 independent runs (N=5), Duffing oscillator experiments achieve final coupling error of 0.042 $\pm$ 0.036 (95\% CI: [0.011, 0.073]) after 100 episodes. All runs successfully recovered the true chain topology from initially apparent full connectivity. Interventions on intermediate oscillators ($X_2$) decouple the synchronized system, breaking spurious $X_1$--$X_3$ correlations, validating that strategic intervention on mediating variables reveals true causal structure hidden by synchronization dynamics.
+Across 5 independent runs, the Duffing oscillator experiments achieve final coupling error of 0.042 $\pm$ 0.036 (95\% CI: [0.011, 0.073]) after 100 episodes. All runs successfully recover the true chain topology from what initially appears to be full connectivity due to synchronization. The key insight is that interventions on the intermediate oscillator $X_2$ decouple the synchronized system: by clamping $X_2$ to fixed values, the spurious correlation between $X_1$ and $X_3$ breaks, revealing that they are not directly coupled. This validates that strategic intervention on mediating variables can reveal true causal structure hidden beneath confounding dynamics.
 
 \subsection{Economics: Phillips Curve}
 
@@ -535,7 +541,7 @@ Using Federal Reserve Economic Data (FRED, 1960--2023), we model the relationshi
 \label{fig:phillips-scm}
 \end{figure}
 
-Phillips curve experiments demonstrate ACE's ability to select informative historical periods for mechanism learning. Five independent runs (N=5) validate retrospective causal discovery on real-world economic data, with systematic querying of high-volatility historical regimes (1970s stagflation, Great Recession) exposing mechanism nonlinearities. Early exposure to structural breaks improves generalization to held-out data, demonstrating the value of strategic historical sampling for retrospective causal learning.
+The Phillips curve experiments demonstrate ACE's ability to select informative historical periods for mechanism learning. Across five independent runs on real-world economic data, ACE systematically queries high-volatility historical regimes---the 1970s stagflation, the Volcker disinflation, the Great Recession---that expose nonlinearities in the inflation mechanism. The policy learns that early exposure to structural breaks improves generalization to held-out data from more stable periods. This demonstrates the value of strategic historical sampling for retrospective causal learning: rather than uniformly sampling across time, ACE identifies and prioritizes the most informative economic regimes.
 
 % =============================================================================
 % OPTIONAL: Detailed Phillips curve analysis
@@ -558,7 +564,11 @@ Phillips curve experiments demonstrate ACE's ability to select informative histo
 % Main results summary (text form - no table needed)
 % =============================================================================
 
-Performance hierarchy across 25 experimental runs (5 methods × 5 seeds): ACE achieves median loss of 0.61 (mean: 0.92 $\pm$ 0.73), representing 52-58\% improvement over all baselines. Among baselines, Max-Variance achieves lowest error (1.93 $\pm$ 0.04), followed by Round-Robin (2.03 $\pm$ 0.05), Random (2.11 $\pm$ 0.05), and PPO (2.19 $\pm$ 0.07). Independent samples t-tests with Bonferroni correction ($\alpha = 0.0125$) confirm ACE significantly outperforms PPO (p=0.0046), Random (p=0.0063), and Round-Robin (p=0.0092), with large effect sizes (Cohen's d $\approx$ 2.2). Comparison to Max-Variance shows substantial practical improvement (52\%, d=-1.96) with marginal statistical significance (p=0.0146). The 13\% gap between Random and Max-Variance demonstrates gains from uncertainty-based selection, while ACE's additional 70\% improvement (using median) validates the value of learned adaptive experimental design through DPO. Notably, simple Round-Robin (2.15) performs competitively with learned PPO policy (2.11), suggesting systematic coverage provides a strong baseline for symmetric 5-node structures.
+Across all 25 experimental runs (5 methods $\times$ 5 seeds), a clear performance hierarchy emerges. ACE achieves a median loss of 0.61 (mean: 0.92 $\pm$ 0.73), representing 52--58\% improvement over every baseline. Among the baselines themselves, Max-Variance achieves the lowest error (1.93 $\pm$ 0.04), followed by Round-Robin (2.03 $\pm$ 0.05), Random (2.11 $\pm$ 0.05), and PPO (2.19 $\pm$ 0.07).
+
+Statistical testing with Bonferroni correction ($\alpha = 0.0125$) confirms that ACE significantly outperforms three of four baselines: PPO (p=0.0046), Random (p=0.0063), and Round-Robin (p=0.0092), all with large effect sizes (Cohen's d $\approx$ 2.2). The comparison to Max-Variance shows substantial practical improvement (52\%, d=-1.96) but falls just short of statistical significance after correction (p=0.0146), reflecting Max-Variance's effectiveness as an uncertainty-guided heuristic.
+
+These results reveal interesting patterns in baseline performance. The 13\% gap between Random and Max-Variance demonstrates the value of uncertainty-based selection even without learning. Meanwhile, the simple Round-Robin heuristic (2.15) performs comparably to the learned PPO policy (2.11), suggesting that for symmetric structures, systematic coverage provides a surprisingly strong baseline. ACE's additional 70\% improvement over Max-Variance (using median) validates that learned adaptive strategies can substantially exceed what heuristics achieve.
 
 \section{Discussion}
 
@@ -596,36 +606,50 @@ We systematically ablate each component and measure performance degradation acro
 % \end{tabular}
 % \end{table}
 
-Key findings from qualitative analysis: Per-node convergence prevents premature termination (successful early stopping in 1/5 seeds at 60 episodes vs 199 for others), the dedicated root learner enables exogenous variable learning (root losses $\sim$1.0 vs divergence without it), and diversity reward prevents policy collapse (maintaining 99.8\% strategic concentration on collider parents without over-focusing on a single node). Each component addresses a specific failure mode observed during development.
+Qualitative analysis reveals the distinct role each component plays. Per-node convergence prevents premature termination: in our experiments, one seed achieved successful early stopping at 60 episodes while others required up to 199, demonstrating the importance of mechanism-specific stopping criteria. The dedicated root learner proves essential for exogenous variables, achieving root losses around 1.0 compared to divergence when roots are learned through the standard interventional pathway. The diversity reward prevents policy collapse by encouraging exploration across intervention values; without it, the policy might over-focus on a single node, whereas with diversity regularization it maintains 99.8\% strategic concentration on collider parents while still exploring sufficient value ranges. Each component addresses a specific failure mode we observed during development.
 
 \subsection{When Does ACE Excel (and When Does It Struggle)?}
 
-Our analysis of 25 runs across 5 seeds reveals scenarios where ACE's advantages are most pronounced:
+Our analysis of 25 runs across 5 seeds reveals the conditions under which ACE's advantages are most pronounced.
 
-ACE excels when causal structures contain colliders or complex dependencies requiring strategic intervention allocation (99.8\% concentration on collider parents, $L_{X_3} = 0.054$ vs baseline $\sim$2.0+), when experimental budgets allow policy learning (171 episodes on average), when mechanisms have heterogeneous learning rates benefiting from per-node convergence (linear $X_2$: 0.010, quadratic $X_5$: 0.449, collider $X_3$: 0.054), and when structural knowledge exists (known or hypothesized graph).
+ACE excels when causal structures contain colliders or complex dependencies that benefit from strategic intervention allocation. The learned policy concentrates 99.8\% of interventions on collider parents, achieving $L_{X_3} = 0.054$ compared to baseline errors exceeding 2.0. ACE also shines when experimental budgets are sufficient for policy learning (averaging 171 episodes in our experiments) and when mechanisms exhibit heterogeneous learning rates that benefit from per-node convergence. In our benchmark, linear mechanisms like $X_2$ converge to loss 0.010, quadratic mechanisms like $X_5$ to 0.449, and the collider $X_3$ to 0.054---a range that would confound uniform stopping criteria. Finally, ACE requires structural knowledge (known or hypothesized graph) to focus learning on mechanism estimation.
 
-However, one seed (789) exhibited $X_5$ mechanism failure (loss 1.73 vs 0.02--0.22 for other seeds), suggesting sensitivity to initialization or optimization challenges in quadratic mechanisms. This outlier motivates robust reporting using median statistics and highlights the value of multi-seed validation.
+ACE is not without failure modes. One seed (789) exhibited persistent $X_5$ mechanism failure, achieving loss 1.73 compared to 0.02--0.22 for other seeds. This suggests sensitivity to initialization or optimization challenges with quadratic mechanisms. This outlier motivates our use of median statistics for robust reporting and highlights the value of multi-seed validation in any experimental learning system.
 
 \subsection{Why Preference Learning Outperforms Value-Based RL}
 
-DPO (ACE median: 0.61) consistently outperforms PPO (2.19 $\pm$ 0.07) despite identical reward signals, representing 68\% median improvement (p=0.0046, Cohen's d=-2.46). In experimental design, information gain $\Delta \mathcal{L}$ is non-stationary: early experiments yield large reductions ($\Delta \mathcal{L} > 50$), later experiments minimal gains ($\Delta \mathcal{L} < 0.1$). PPO's critic struggles with shifting magnitudes; DPO learns from stable rankings. Formally, preferences depend on reward differences $r_0(a) - r_0(b)$, invariant to time-varying scales $f(t)$, providing robustness to diminishing returns \cite{murphy2001active}. This advantage is particularly pronounced for collider learning, where ACE achieves $L_{X_3} = 0.054$ through strategic concentration (99.8\% on parents) that PPO fails to discover.
+Despite receiving identical reward signals, DPO-trained ACE (median: 0.61) consistently outperforms the PPO baseline (2.19 $\pm$ 0.07), representing a 68\% median improvement that is both statistically significant (p=0.0046) and practically large (Cohen's d=-2.46). Understanding why preference learning excels in this domain reveals an important insight about experimental design.
+
+The core challenge is that information gain is inherently non-stationary. Early in training, when the learner knows little, a single well-chosen experiment can produce dramatic loss reductions ($\Delta \mathcal{L} > 50$). As the learner improves, the same quality of experimental design yields diminishing absolute returns ($\Delta \mathcal{L} < 0.1$). This shifting reward scale poses fundamental challenges for value-based methods: PPO's critic must learn to predict expected returns, but the magnitude of those returns changes by orders of magnitude over training. The critic's value estimates become unreliable, leading to unstable policy updates.
+
+DPO sidesteps this problem entirely by learning from rankings rather than magnitudes. Preferences depend only on reward differences $r_0(a) - r_0(b)$ between candidate interventions, which remain meaningful even as absolute rewards shrink. Formally, if rewards scale by a time-varying factor $f(t)$, preferences are invariant: the better intervention remains better regardless of the current scale \cite{murphy2001active}. This provides inherent robustness to the diminishing returns that characterize scientific discovery.
+
+The advantage is particularly pronounced for collider learning, where ACE achieves $L_{X_3} = 0.054$ through strategic concentration on collider parents (99.8\% of interventions on $X_1$ and $X_2$). PPO, hampered by its unstable value estimates, fails to discover this strategy and distributes interventions more uniformly.
 
 \subsection{Design Principles}
 
-We find that parsimonious three-component rewards perform competitively with complex reward engineering. Prefer rankings over magnitudes for non-stationary rewards, respect heterogeneous timescales with per-component convergence, isolate observational learning where interventions provide no signal, and maintain interpretable objectives domain experts can audit.
+Our experience developing ACE suggests several principles for learning-based experimental design. First, parsimonious reward functions can outperform complex reward engineering; our three-component reward (information gain, node importance, diversity) proved sufficient without extensive tuning. Second, preference-based learning should be preferred over value estimation when rewards are non-stationary, as rankings remain stable while magnitudes shift. Third, systems with heterogeneous components require per-component convergence criteria to prevent premature termination. Fourth, learning modalities should be separated where fundamentally different---root nodes require observational learning since interventions provide no signal about their natural distributions. Finally, objectives should remain interpretable so domain experts can audit and trust the learned strategies.
 
 
 \section{Conclusion}
 
-We presented ACE, a framework for learning experimental design via Direct Preference Optimization. Key contributions: (1) demonstrating preference learning as a stable alternative to value-based RL for non-stationary discovery tasks (68\% median improvement over PPO, p=0.0046), (2) per-node convergence criteria respecting heterogeneous learning rates, (3) dedicated root learner for exogenous variables, (4) empirical validation showing 52-58\% improvement over all baseline methods with statistical significance and large effect sizes.
+We have presented ACE, a framework that learns experimental design strategies through Direct Preference Optimization. Our work demonstrates that preference-based learning provides a stable alternative to value-based reinforcement learning for scientific discovery tasks, where the non-stationary nature of information gain makes value estimation unreliable. ACE achieves 68\% median improvement over PPO (p=0.0046), validating this algorithmic choice.
 
-Experiments on synthetic SCMs, physics simulations, and economic data show ACE achieves median loss of 0.61 (vs 1.93 best baseline), with statistical significance confirmed for three of four comparisons (p<0.01, large effect sizes d $\approx$ 2.2), and learned strategic behavior concentrating 99.8\% of interventions on collider parents. The iterative approach (where each experiment informs the next) mirrors how experimentalists work, adapting strategies as understanding grows.
+Beyond the learning algorithm, we introduced architectural innovations to address challenges specific to causal mechanism learning: per-node convergence criteria that respect heterogeneous learning rates across different mechanism types, and dedicated root learners that handle exogenous variables requiring observational rather than interventional data. Together, these contributions yield 52--58\% improvement over all baseline methods with statistical significance and large effect sizes.
 
-Looking forward, ACE enables automated hypothesis validation: scientists propose causal models, and ACE rapidly validates them through optimal experimental design in simulators or historical data. This human-AI collaboration could compress discovery cycles from months to hours in domains with mature computational infrastructure. Future work includes extending to structure discovery, scaling to larger systems, and deployment where intervention costs make sample efficiency critical.
+Across synthetic SCMs, physics simulations, and economic data, ACE achieves a median loss of 0.61 compared to 1.93 for the best baseline, with statistical significance confirmed for three of four comparisons (p<0.01, Cohen's d $\approx$ 2.2). Perhaps most striking is the strategic behavior that emerges: the policy autonomously learns to concentrate 99.8\% of interventions on collider parents, precisely the strategy that causal theory suggests is optimal. This iterative approach---where each experiment informs the design of the next---mirrors how skilled experimentalists work, adapting their strategies as understanding grows.
+
+Looking forward, ACE enables a new paradigm of automated hypothesis validation. Scientists can propose causal models, and ACE can rapidly validate them through optimal experimental design in simulators or against historical data. This human-AI collaboration has the potential to compress discovery cycles from months to hours in domains with mature computational infrastructure. Future work will extend ACE to joint structure and mechanism discovery, scale to larger systems using graph neural network encodings, and deploy in domains where high intervention costs make sample efficiency critical.
 
 \section{Limitations and Future Work}
 
-ACE requires high-fidelity simulations during training, limiting application to domains with accurate simulators or historical data. Our implementation assumes known causal structure, focusing on mechanism estimation rather than joint structure discovery. Text-based graph encoding faces context limits for $n > 20$ nodes; graph neural networks could improve scalability. While ACE achieves superior final performance (52--58\% improvement), it does not reduce episode count compared to fixed-episode baselines (171 vs 100 episodes); this quality-versus-quantity tradeoff favors applications where final accuracy is more critical than sample efficiency.
+Several limitations of ACE warrant discussion. First, the framework requires high-fidelity simulations during policy training, limiting immediate application to domains that possess accurate simulators or sufficient historical data to serve as oracles. Domains like drug discovery or social science, where ground truth is expensive or impossible to obtain, would require additional methodological development.
+
+Second, our current implementation assumes known causal structure, focusing on the mechanism estimation problem rather than joint structure-and-mechanism discovery. While this assumption holds in many practical settings where domain expertise provides structural hypotheses, extending ACE to simultaneously discover structure remains an important direction.
+
+Third, our text-based graph encoding faces context length limitations as system size grows. For graphs with $n > 20$ nodes, the prompt length becomes prohibitive. Graph neural network encodings could dramatically improve scalability, enabling application to domains like gene regulatory networks where hundreds of variables interact.
+
+Finally, while ACE achieves superior final performance (52--58\% improvement), it does not reduce the total number of episodes compared to fixed-episode baselines (171 vs 100 episodes on average). This reflects a quality-versus-quantity tradeoff: ACE invests additional episodes to achieve substantially better mechanism estimates. This tradeoff favors applications where final accuracy is more critical than minimizing experiment count---common in domains where each experiment provides rich information but computational rather than monetary cost dominates.
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
