@@ -43,7 +43,8 @@ STEPS="${STEPS:-25}"
 TIMESTAMP="${TIMESTAMP:-$(date +%Y%m%d_%H%M%S)}"
 
 # --- Use SCRATCH for run ---
-SCRATCH_DIR="/scratch/alpine1/$USER/ablation_${ABLATION}_${SEED}_$SLURM_JOB_ID"
+# Note: Use $SLURM_SCRATCH or check correct scratch path for your HPC
+SCRATCH_DIR="${SLURM_SCRATCH:-/scratch/alpine/$USER}/ablation_${ABLATION}_${SEED}_$SLURM_JOB_ID"
 mkdir -p "$SCRATCH_DIR"
 
 SCRATCH_OUTPUT="$SCRATCH_DIR/output"

@@ -28,7 +28,8 @@ if [ "$CONDA_DEFAULT_ENV" != "ace" ]; then
 fi
 
 # --- Use SCRATCH for working ---
-SCRATCH_DIR="/scratch/alpine1/$USER/ace_stats_$SLURM_JOB_ID"
+# Note: Use $SLURM_SCRATCH or check correct scratch path for your HPC
+SCRATCH_DIR="${SLURM_SCRATCH:-/scratch/alpine/$USER}/ace_stats_$SLURM_JOB_ID"
 mkdir -p "$SCRATCH_DIR"
 
 # Copy results to scratch for analysis
