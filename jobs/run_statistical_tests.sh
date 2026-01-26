@@ -5,13 +5,14 @@
 #SBATCH --qos=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=8G
 #SBATCH --time=00:30:00
 
 # Statistical Tests Job Script
 # Generates formal significance tests for ACE vs baselines
-# NOTE: This is CPU-only (no GPU needed but using aa100 partition)
+# NOTE: This is CPU-only but aa100 partition requires GPU allocation
 
 # --- Environment Setup ---
 export MPLCONFIGDIR="${MPLCONFIGDIR:-/projects/$USER/cache/matplotlib}"
