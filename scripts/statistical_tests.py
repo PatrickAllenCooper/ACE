@@ -212,9 +212,9 @@ def main():
     
     for _, row in df_results.iterrows():
         sig_marker = "$^{***}$" if row['p-value'] < 0.001 else ("$^{**}$" if row['p-value'] < 0.01 else ("$^{*}$" if row['p-value'] < alpha_corrected else ""))
-        cohens_d = row["Cohen's d"]
+        cohen_d_val = row["Cohen's d"]
         improvement_pct = row['Improvement %']
-        latex += f"{row['Method'].title()} & {row['Baseline Mean']:.2f} & {improvement_pct:+.1f}\\% & {row['p-value']:.4f} & {cohens_d:.2f} & {sig_marker} \\\\\n"
+        latex += f"{row['Method'].title()} & {row['Baseline Mean']:.2f} & {improvement_pct:+.1f}\\% & {row['p-value']:.4f} & {cohen_d_val:.2f} & {sig_marker} \\\\\n"
     
     latex += "\\bottomrule\n"
     latex += "\\end{tabular}\n"
