@@ -530,7 +530,7 @@ Experiments on this complex SCM compare multiple strategy variants. Random sampl
 
 \subsection{Physics: Coupled Duffing Oscillators}
 
-We apply ACE to a chain of three coupled Duffing oscillators \cite{duffing1918} governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), shown in Figure~\ref{fig:duffing-scm}, but correlations from synchronized oscillation initially suggest full connectivity.
+We apply ACE to a chain of three coupled Duffing oscillators \cite{kovacic2011duffing} governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), shown in Figure~\ref{fig:duffing-scm}, but correlations from synchronized oscillation initially suggest full connectivity.
 
 \begin{figure}[t]
 \centering
