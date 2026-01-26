@@ -3,7 +3,9 @@
 # Find what's using disk space in ACE directory
 #
 
-cd ~/ACE
+# Work from current directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
 echo "=================================================="
 echo "DISK SPACE ANALYSIS"

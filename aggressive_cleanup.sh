@@ -40,9 +40,12 @@ if [[ ! $REPLY == "yes" ]]; then
     exit 0
 fi
 
-cd ~/ACE
+# Work from current directory (don't assume ~/ACE)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
 echo ""
+echo "Working directory: $(pwd)"
 echo "Starting cleanup..."
 echo ""
 
@@ -55,11 +58,11 @@ echo "   Done"
 echo "2. Removing old ACE multi-seed runs..."
 cd results
 for dir in ace_multi_seed_*; do
-    if [ "$dir" != "ace_multi_seed_20260125_115453" ]; then
+    if [ "$dir" != "ace_multi_seed_20260125_115453" ] && [ -d "$dir" ]; then
         rm -rf "$dir"
     fi
 done
-cd ~/ACE
+cd "$SCRIPT_DIR"
 echo "   Done"
 
 # 3. Remove test runs
@@ -78,7 +81,7 @@ echo "5. Cleaning logs..."
 cd logs
 ls -t *.out 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
 ls -t *.err 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
-cd ~/ACE
+cd "$SCRIPT_DIR"
 echo "   Done"
 
 # 6. Remove Python cache
@@ -97,11 +100,11 @@ echo "   Done"
 echo "8. Cleaning old baseline runs..."
 cd results/baselines
 for dir in baselines_*; do
-    if [ "$dir" != "baselines_20260124_182827" ]; then
+    if [ "$dir" != "baselines_20260124_182827" ] && [ -d "$dir" ]; then
         rm -rf "$dir"
     fi
 done
-cd ~/ACE
+cd "$SCRIPT_DIR"
 echo "   Done"
 
 echo ""
