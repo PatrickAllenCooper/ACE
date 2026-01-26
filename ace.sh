@@ -166,8 +166,8 @@ cmd_run_ablations() {
     JOB=$(sbatch --parsable \
         --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
         --job-name=ace_full \
-        --output=logs/ablation_full_${TIMESTAMP}_%j.out \
-        --error=logs/ablation_full_${TIMESTAMP}_%j.err \
+        --output=results/logs/ablation_full_${TIMESTAMP}_%j.out \
+        --error=results/logs/ablation_full_${TIMESTAMP}_%j.err \
         --wrap="python ace_experiments.py --episodes 200 --early_stopping --use_per_node_convergence --use_dedicated_root_learner --output $ABLATION_DIR/full")
     JOB_IDS+=($JOB)
     
@@ -176,8 +176,8 @@ cmd_run_ablations() {
     JOB=$(sbatch --parsable \
         --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
         --job-name=ace_no_pnc \
-        --output=logs/ablation_no_pnc_${TIMESTAMP}_%j.out \
-        --error=logs/ablation_no_pnc_${TIMESTAMP}_%j.err \
+        --output=results/logs/ablation_no_pnc_${TIMESTAMP}_%j.out \
+        --error=results/logs/ablation_no_pnc_${TIMESTAMP}_%j.err \
         --wrap="python ace_experiments.py --episodes 200 --early_stopping --no_per_node_convergence --use_dedicated_root_learner --output $ABLATION_DIR/no_per_node_convergence")
     JOB_IDS+=($JOB)
     
@@ -186,8 +186,8 @@ cmd_run_ablations() {
     JOB=$(sbatch --parsable \
         --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
         --job-name=ace_no_root \
-        --output=logs/ablation_no_root_${TIMESTAMP}_%j.out \
-        --error=logs/ablation_no_root_${TIMESTAMP}_%j.err \
+        --output=results/logs/ablation_no_root_${TIMESTAMP}_%j.out \
+        --error=results/logs/ablation_no_root_${TIMESTAMP}_%j.err \
         --wrap="python ace_experiments.py --episodes 200 --early_stopping --use_per_node_convergence --no_dedicated_root_learner --output $ABLATION_DIR/no_dedicated_root_learner")
     JOB_IDS+=($JOB)
     
@@ -230,8 +230,8 @@ cmd_run_obs_ablation() {
         JOB=$(sbatch --parsable \
             --nodes=1 --partition=aa100 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=8:00:00 \
             --job-name=obs_int${INTERVAL} \
-            --output=logs/obs_interval${INTERVAL}_${TIMESTAMP}_%j.out \
-            --error=logs/obs_interval${INTERVAL}_${TIMESTAMP}_%j.err \
+            --output=results/logs/obs_interval${INTERVAL}_${TIMESTAMP}_%j.out \
+            --error=results/logs/obs_interval${INTERVAL}_${TIMESTAMP}_%j.err \
             --wrap="python ace_experiments.py --episodes 200 --early_stopping --use_per_node_convergence --use_dedicated_root_learner --obs_train_interval $INTERVAL --output $OBS_ABLATION_DIR/obs_interval_${INTERVAL}")
         
         JOB_IDS+=($JOB)
@@ -275,15 +275,15 @@ cmd_process() {
     
     log_info "Step 4/5: Analyzing regimes and clamping..."
     if [[ -d "$results_dir/duffing" ]]; then
-        python clamping_detector.py "$results_dir/duffing" || log_warning "Clamping detection failed"
+        python scripts/analysis/clamping_detector.py "$results_dir/duffing" || log_warning "Clamping detection failed"
     fi
     if [[ -d "$results_dir/phillips" ]]; then
-        python regime_analyzer.py "$results_dir/phillips" || log_warning "Regime analysis failed"
+        python scripts/analysis/regime_analyzer.py "$results_dir/phillips" || log_warning "Regime analysis failed"
     fi
     
     log_info "Step 5/5: Generating comparisons and figures..."
-    python compare_methods.py "$results_dir" || log_warning "Comparison failed"
-    python visualize.py "$results_dir"/*/ || log_warning "Visualization failed"
+    python scripts/analysis/compare_methods.py "$results_dir" || log_warning "Comparison failed"
+    python scripts/analysis/visualize.py "$results_dir"/*/ || log_warning "Visualization failed"
     
     # Generate summary
     log_info "Generating processing summary..."
@@ -301,7 +301,7 @@ $(ls "$results_dir"/*/metrics.csv 2>/dev/null | wc -l | xargs echo "  CSV files:
 $(ls "$results_dir"/*/node_losses.csv 2>/dev/null | wc -l | xargs echo "  Node loss files:")
 
 Claims Verified:
-$(grep -c "✓" "$results_dir/ace_summary.txt" 2>/dev/null || echo "  N/A")
+$(grep -c "COMPLETE" "$results_dir/ace_summary.txt" 2>/dev/null || echo "  N/A")
 
 Figures Generated:
 $(ls "$results_dir"/*/*.png 2>/dev/null | wc -l | xargs echo "  PNG files:")
@@ -404,7 +404,7 @@ results_dir = Path('$results_dir')
 ace_dir = results_dir / 'ace_main'
 baselines_dir = results_dir / 'baselines'
 
-print('\\n✓ Verification logic would run here')
+print('\\n[OK] Verification logic would run here')
 print(f'  ACE dir: {ace_dir}')
 print(f'  Baselines dir: {baselines_dir}')
 "

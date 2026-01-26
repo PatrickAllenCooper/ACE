@@ -925,7 +925,7 @@ def print_summary(results: Dict[str, pd.DataFrame]):
         for node in ["X1", "X2", "X3", "X4", "X5"]:
             col = f"loss_{node}"
             mean_loss = final_df[col].mean()
-            status = "✓" if mean_loss < 0.5 else "✗"
+            status = "[OK]" if mean_loss < 0.5 else "[FAIL]"
             print(f"  {node}: {mean_loss:.4f} {status}")
             
         # Intervention distribution

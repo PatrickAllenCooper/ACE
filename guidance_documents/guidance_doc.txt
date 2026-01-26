@@ -1,6 +1,16 @@
 # ACE: Autonomous Causal Experimentation
 
-## Latest Update: January 26, 2026 - Addressing ICML Reviewer Critiques
+## Latest Update: January 26, 2026 - Repository Reorganization & ICML Reviewer Response
+
+**Major Changes:**
+- **Repository Reorganization:** Scripts organized into logical directories
+  - `scripts/analysis/` - Analysis tools (visualize, compare, verify)
+  - `scripts/maintenance/` - Cleanup and maintenance scripts
+  - `scripts/runners/` - Local execution wrappers
+  - `jobs/workflows/` - Multi-seed and ablation orchestration
+  - `results/logs/` - Consolidated job logs
+  - `results/summaries/` - High-level result summaries
+  - `results/archive/` - Archived documentation
 
 **Status:** CRITICAL EXPERIMENTS NEEDED - Addressing reviewer concerns
 
@@ -36,24 +46,24 @@
 
 1. **Extended Baselines (171 episodes)** - ADDRESSES: unfair budget comparison
    ```bash
-   python run_critical_experiments.py --extended-baselines
+   python scripts/runners/run_critical_experiments.py --extended-baselines
    ```
 
 2. **Lookahead Ablation (Random Proposer)** - ADDRESSES: lookahead confound
    ```bash
-   python run_critical_experiments.py --lookahead-ablation
+   python scripts/runners/run_critical_experiments.py --lookahead-ablation
    ```
 
 3. **Complex 15-Node SCM (Full)** - ADDRESSES: scaling validation
    ```bash
-   python run_critical_experiments.py --complex-scm
+   python scripts/runners/run_critical_experiments.py --complex-scm
    ```
 
 4. **Run ALL critical experiments:**
    ```bash
    sbatch jobs/run_critical_experiments.sh
    # OR locally:
-   python run_critical_experiments.py --all --seeds 42 123 456 789 1011
+   python scripts/runners/run_critical_experiments.py --all --seeds 42 123 456 789 1011
    ```
 
 **Current Experimental Status:**
@@ -76,32 +86,61 @@
 
 ## Project Organization & Current Workflow
 
-### Project Structure (Clean & Organized)
+### Project Structure (Clean & Organized - Updated Jan 26, 2026)
 
 ```
 ACE/
 ├── README.md                       # Project overview
 ├── ace.sh                          # Unified CLI (all operations)
-├── run_ace_only.sh                 # ACE-only multi-seed script
-├── test_ace_quick.sh               # Quick ACE test (1 episode)
 ├── setup_env.sh                    # HPC environment setup
-├── cleanup_hpc.sh                  # Disk space cleanup
-├── ACE_OPTIMIZATION_CHECKLIST.md   # ACE success guide
-├── EXTRACTED_RESULTS.md            # Current results summary
 ├── ace_experiments.py              # Main ACE implementation
 ├── baselines.py                    # Baseline methods
 ├── experiments/                    # Domain-specific SCMs
 ├── jobs/                           # SLURM job templates
-├── scripts/                        # Analysis scripts
+│   ├── run_ace_main.sh             # ACE main experiment
+│   ├── run_baselines.sh            # Baselines
+│   ├── run_complex_scm.sh          # Complex SCM
+│   ├── run_duffing.sh              # Duffing oscillators
+│   ├── run_phillips.sh             # Phillips curve
+│   ├── run_ablations.sh            # Ablation studies
+│   ├── run_critical_experiments.sh # Critical experiments
+│   └── workflows/                  # Workflow orchestration
+│       ├── run_ace_only.sh         # ACE-only multi-seed script
+│       ├── submit_ablations.sh     # Ablation submission
+│       └── submit_ablations_scratch.sh
+├── scripts/                        # Analysis & utility scripts
+│   ├── analysis/                   # Analysis tools
+│   │   ├── visualize.py            # Result visualization
+│   │   ├── compare_methods.py      # Method comparison
+│   │   ├── clamping_detector.py    # Verify clamping strategy
+│   │   └── regime_analyzer.py      # Verify regime selection
+│   ├── maintenance/                # Cleanup & maintenance
+│   │   ├── cleanup_hpc.sh          # HPC disk cleanup
+│   │   ├── cleanup_space.sh        # Space cleanup
+│   │   ├── aggressive_cleanup.sh   # Aggressive cleanup
+│   │   └── find_large_files.sh     # Find large files
+│   ├── runners/                    # Local execution wrappers
+│   │   ├── test_ace_quick.sh       # Quick ACE test
+│   │   ├── run_ablations_local.sh  # Local ablations
+│   │   └── run_critical_experiments.py
+│   ├── compute_statistics.py       # Statistical analysis
+│   ├── statistical_tests.py        # Statistical tests
+│   ├── analyze_ablations.py        # Ablation analysis
+│   └── test_failure_cases.py       # Failure case testing
 ├── tests/                          # Test suite (552 tests, 77% coverage)
-├── paper/                          # LaTeX manuscript (80% populated)
+├── paper/                          # LaTeX manuscript
 ├── results/                        # Experimental results
-│   ├── baselines/                  # [DONE] 5 runs per method
-│   ├── duffing/                    # [DONE] 5 runs
-│   ├── complex_scm/                # [DONE] 6 runs
-│   └── ace_multi_seed_*/           # [PENDING] To be generated
-├── logs/                           # Job logs
-└── guidance_documents/             # This file
+│   ├── ace/                        # ACE runs and summaries
+│   ├── baselines/                  # Baseline runs
+│   ├── complex_scm/                # Complex SCM runs
+│   ├── duffing/                    # Duffing runs
+│   ├── phillips/                   # Phillips runs
+│   ├── logs/                       # Job logs (consolidated)
+│   ├── summaries/                  # Result summaries
+│   └── archive/                    # Archived results & docs
+└── guidance_documents/             # Project documentation
+    ├── guidance_doc.txt            # This file
+    └── status_archive/             # Archived status files
 ```
 
 ### Current HPC Workflow (Fresh Start)
@@ -110,7 +149,7 @@ ACE/
 - Random, Round-Robin, Max-Variance, PPO: All complete with statistics
 
 **ACE Experiments:** IN PROGRESS
-Run with: `./run_ace_only.sh --seeds 5`
+Run with: `./jobs/workflows/run_ace_only.sh --seeds 5`
 
 This submits 5 ACE jobs (one per seed):
 1. **Seed 42** -> First reference run
@@ -135,10 +174,10 @@ tail -f $(ls -t logs/ace_main_*.out | head -1) # Latest ACE log
 ```
 
 **Verification Scripts:**
-- `clamping_detector.py` -> Verify Line 661 claim (clamping)
-- `regime_analyzer.py` -> Verify Line 714 claim (regime selection)
+- `scripts/analysis/clamping_detector.py` -> Verify Line 661 claim (clamping)
+- `scripts/analysis/regime_analyzer.py` -> Verify Line 714 claim (regime selection)
 - `scripts/verify_claims.sh` -> Line 767 (early stopping), Line 485 (concentration)
-- `compare_methods.py` -> Generate Table 1
+- `scripts/analysis/compare_methods.py` -> Generate Table 1
 
 ### What's Complete [DONE]
 
@@ -195,8 +234,8 @@ tail -f $(ls -t logs/ace_main_*.out | head -1) # Latest ACE log
 ./scripts/extract_ace.sh results/paper_TIMESTAMP/
 ./scripts/extract_baselines.sh results/paper_TIMESTAMP/
 ./scripts/verify_claims.sh results/paper_TIMESTAMP/
-python compare_methods.py results/paper_TIMESTAMP/ --latex
-python visualize.py results/paper_TIMESTAMP/*/ --paper-format
+python scripts/analysis/compare_methods.py results/paper_TIMESTAMP/ --latex
+python scripts/analysis/visualize.py results/paper_TIMESTAMP/*/ --paper-format
 ```
 
 Or ideally:
@@ -246,7 +285,7 @@ QUICK=true ./run_all.sh
 # Individual components (with improvements)
 python ace_experiments.py --episodes 200 --early_stopping --root_fitting
 python baselines.py --all_with_ppo --episodes 100
-python visualize.py results/run_*/
+python scripts/analysis/visualize.py results/run_*/
 ```
 
 ---
@@ -319,7 +358,7 @@ sbatch jobs/run_ace_main.sh # ACE training (4-6 hours)
 ```bash
 ./verify_claims.sh # Verify all paper claims
 ./extract_ace.sh # Extract metrics for tables
-python compare_methods.py # Generate Table 1
+python scripts/analysis/compare_methods.py # Generate Table 1
 ```
 
 ### Paper Readiness
@@ -327,7 +366,7 @@ python compare_methods.py # Generate Table 1
 - [DONE] 3 paper claims revised for accuracy (lines 609, 661, 714)
 - [PENDING] Need ACE results to fill Table 1
 - [PENDING] Need verification of behavioral claims
-- 📅 ETA to submission: 3-5 days after launch
+- ETA to submission: 3-5 days after launch
 
 ### Paper Experiments Status
 | Experiment | Paper Section | Status |
@@ -415,7 +454,7 @@ Document EVERY experimental run that:
 - [DONE] Supports a paper claim
 - [WARNING] Partially supports a paper claim
 - [NO] Contradicts a paper claim
-- 🔬 Tests a specific hypothesis
+- [HYPOTHESIS] Tests a specific hypothesis
 
 ### When to Document
 
@@ -463,7 +502,7 @@ code results/RESULTS_LOG.md
 # Example: "Fills Table 1, line 428-437"
 
 # 6. Generate figures if needed
-python visualize.py results/paper_*/ace/
+python scripts/analysis/visualize.py results/paper_*/ace/
 cp results/paper_*/ace/learning_curves.png results/figures/
 
 # 7. Link to paper
@@ -741,7 +780,7 @@ python baselines.py --all_with_ppo --episodes 100
 
 ### Visualization: `visualize.py`
 ```bash
-python visualize.py run_YYYYMMDD_HHMMSS/ # Success verification dashboard
+python scripts/analysis/visualize.py run_YYYYMMDD_HHMMSS/ # Success verification dashboard
 ```
 
 ### Additional Experiments: `experiments/`
@@ -872,7 +911,7 @@ python run_all.py \
 
 ### General:
 4. Check `scm_graph.png` - Verify graph structure is correct
-5. Run `python visualize.py <run_dir>/` for comprehensive dashboard
+5. Run `python scripts/analysis/visualize.py <run_dir>/` for comprehensive dashboard
 
 ---
 
@@ -946,7 +985,7 @@ We implemented a principled extension to the Smart Breaker:
 ## 2026-01-11: Comprehensive Logging and SCM Visualization
 
 ### Changes
-1. **SCM Graph Visualization** (`visualize_scm_graph`)
+1. **SCM Graph Visualization** (`scripts/analysis/visualize.py`)
  - Generates `scm_graph.png` for each run
  - Shows node types: root (green), intermediate (blue), collider (red), leaf (purple)
  - Displays mechanism equations and final losses
@@ -1191,7 +1230,7 @@ New defaults (obs_train_interval=3, undersampled_bonus=200) improve performance 
 ```bash
 cd ~/ACE
 source setup_env.sh
-./run_ace_only.sh --seeds 5
+./jobs/workflows/run_ace_only.sh --seeds 5
 ```
 
 **Expected Timeline:** 5-10 hours on HPC
@@ -1228,7 +1267,7 @@ source setup_env.sh
 
 # Monitor
 squeue -u $USER
-tail -f logs/ace_seed42_*.out
+tail -f results/logs/ace_seed42_*.out
 
 # After completion
 python scripts/compute_statistics.py results/ace_multi_seed_*/ ace

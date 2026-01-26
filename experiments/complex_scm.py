@@ -402,7 +402,7 @@ def run_complex_scm_experiment(policy_type: str = "random", n_episodes: int = 20
     for collider in colliders:
         col = f"loss_{collider}"
         mean_loss = final_df[col].mean()
-        status = "✓" if mean_loss < 1.0 else "✗"
+        status = "[OK]" if mean_loss < 1.0 else "[FAIL]"
         logging.info(f"  {collider}: {mean_loss:.4f} {status}")
     
     # Intervention distribution
@@ -538,4 +538,4 @@ if __name__ == "__main__":
         output_dir=args.output
     )
     
-    print(f"\n✓ Experiment complete: {run_dir}")
+    print(f"\n[COMPLETE] Experiment complete: {run_dir}")

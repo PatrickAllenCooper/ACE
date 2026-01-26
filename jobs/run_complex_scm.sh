@@ -54,7 +54,7 @@ for POLICY in random smart_random greedy_collider; do
         --steps 30 \
         --output "${OUTPUT_DIR:-results/complex_scm}"
     
-    echo "✓ $POLICY complete"
+    echo "[COMPLETE] $POLICY complete"
 done
 
 # --- Summary ---

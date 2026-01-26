@@ -11,17 +11,16 @@ ACE learns to design causal experiments through reinforcement learning. An AI ag
 **MAJOR MILESTONE: ACE Results Complete and Excellent!**
 
 **Experimental Results:**
-- **ACE:** 0.61 median loss (55-58% better than all baselines!) ✓
-- **Baselines:** Complete (N=5 each: Random, Round-Robin, Max-Var, PPO) ✓
-- **Strategic Behavior:** 99.8% concentration on collider parents ✓
-- **Multi-Domain:** Synthetic, Duffing, Phillips, Complex SCM all complete ✓
+- **ACE:** 0.61 median loss (55-58% better than all baselines!) [COMPLETE]
+- **Baselines:** Complete (N=5 each: Random, Round-Robin, Max-Var, PPO) [COMPLETE]
+- **Strategic Behavior:** 99.8% concentration on collider parents [COMPLETE]
+- **Multi-Domain:** Synthetic, Duffing, Phillips, Complex SCM all complete [COMPLETE]
 
 **Paper Status:** 85% ready - Main results complete, needs ablations  
 **Test Coverage:** 77% (552 tests passing, 98.9% pass rate)  
 **Code:** Production-ready with verified intervention masking
 
-**See:** `RESULTS_SUMMARY_JAN26.txt` for detailed findings  
-**See:** `PAPER_READINESS_REPORT.md` for paper update workflow
+**See:** `results/summaries/RESULTS_SUMMARY_JAN26.txt` for detailed findings
 
 ```bash
 # Run all tests
@@ -53,11 +52,11 @@ git pull origin main
 source setup_env.sh
 
 # Submit 5-seed ACE runs (5-node synthetic SCM)
-./run_ace_only.sh --seeds 5
+./jobs/workflows/run_ace_only.sh --seeds 5
 
 # Monitor
 squeue -u $USER
-tail -f logs/ace_seed42_*.out
+tail -f results/logs/ace_seed42_*.out
 ```
 
 **Note:** Baselines already complete (N=5 runs). This runs ONLY ACE.
@@ -97,7 +96,7 @@ tail -f logs/ace_seed42_*.out
 - Format: `results/paper_YYYYMMDD_HHMMSS/`
 - Example: `results/paper_20260121_143052/`
 - Latest run: `ls -td results/paper_* | head -1`
-- Logs: `logs/ace_main_YYYYMMDD_HHMMSS_JOBID.out`
+- Logs: `results/logs/ace_main_YYYYMMDD_HHMMSS_JOBID.out`
 
 This ensures the latest run is always obvious and results sort chronologically.
 
@@ -117,74 +116,19 @@ This ensures the latest run is always obvious and results sort chronologically.
 
 **Path to 90%:** Remaining 20 percentage points include detailed DPO training functions, complete PPO implementation, deeper experiment mechanism tests, and final utilities. Estimated 7-9 hours to complete.
 
-## Quick Start
+## Current Status (Updated January 26, 2026)
 
-### Running Experiments
+**Repository Organization:** Clean and structured by function
+- Analysis tools in `scripts/analysis/`
+- Maintenance scripts in `scripts/maintenance/`
+- Workflow orchestration in `jobs/workflows/`
+- Results organized in `results/` with subdirectories
 
-```bash
-# HPC: Full paper experiments (all 5 jobs)
-./run_all.sh
-
-# HPC: Quick validation (10 episodes each)
-QUICK=true ./run_all.sh
-
-# Local: Single ACE experiment
-python ace_experiments.py --episodes 200 --early_stopping --use_dedicated_root_learner
-
-# Local: All baselines
-python baselines.py --all_with_ppo --episodes 100
-
-# Visualize latest results
-python visualize.py $(ls -td results/paper_* | head -1)/*/
-```
-
-### After Experiments Complete
-
-```bash
-# Single command to process all results
-LATEST=$(ls -td results/paper_* | head -1)
-./scripts/process_all_results.sh "$LATEST"
-
-# This automatically:
-# - Extracts all metrics
-# - Verifies all paper claims (Lines 485, 661, 714, 767)
-# - Generates Table 1
-# - Creates all figures
-# - Produces summary report
-
-# Outputs in: results/paper_TIMESTAMP/processed/
-# - tables/table1.txt
-# - figures/*.png
-# - verification/*.txt
-# - PROCESSING_SUMMARY.txt
-```
-
-## Current Status (January 21, 2026, 10:15 AM)
-
-### Latest: All Fixes Complete - Ready to Launch
-**Status:** [DONE] All improvements implemented and committed, ready for training
-
-**What's Ready:**
-- [DONE] ACE training fixes (adaptive diversity, novelty bonus, emergency retrain, speedups)
-- [DONE] Observational training restored (every 3 steps + dedicated root learner)
-- [DONE] PPO bug fixed (shape mismatch resolved)
-- [DONE] Paper claims revised (3 accuracy fixes)
-- [DONE] Verification tools created (clamping, regime analyzers)
-- [DONE] Extraction scripts ready (auto-fill tables)
-
-**Launch Training:**
-```bash
-./pipeline_test.sh # Test (30 min)
-sbatch jobs/run_ace_main.sh # ACE (4-6 hours)
-python baselines.py --baseline ppo # PPO rerun (2 hours)
-```
-
-### Recent Results (from logs copy/)
-- [DONE] **Baselines:** Round-Robin 1.99 (best), Random 2.17, Max-Var 2.09
-- [DONE] **Root learner:** 98.7% improvement documented
-- [DONE] **Duffing & Phillips:** Complete
-- [PENDING] **Complex SCM:** Running (greedy_collider)
-- [PENDING] **ACE main:** Ready to launch with all fixes
+**Experimental Status:**
+- **ACE:** Results complete (0.61 median loss, 55-58% improvement)
+- **Baselines:** Complete (N=5 each)
+- **Multi-Domain:** Duffing, Phillips, Complex SCM all complete
+- **Paper:** 85% ready, needs ablations for final submission
 
 ## Key Features
 
@@ -199,48 +143,32 @@ python baselines.py --baseline ppo # PPO rerun (2 hours)
 
 ```
 ACE/
-├── ace.sh # Unified CLI (all operations)
-├── ace_experiments.py # Main ACE (DPO) experiment
-├── baselines.py # 4 baseline comparisons
-├── visualize.py # Result visualization
-├── compare_methods.py # Table generation
-├── clamping_detector.py # Verify Line 661 (clamping)
-├── regime_analyzer.py # Verify Line 714 (regime selection)
-│
-├── run_all.sh # HPC job orchestrator (5 jobs)
-│
-├── jobs/ # SLURM job scripts
-│ ├── run_ace_main.sh # Job 1: ACE Main
-│ ├── run_baselines.sh # Job 2: All baselines
-│ ├── run_complex_scm.sh # Job 3: Complex 15-node
-│ ├── run_duffing.sh # Job 4: Duffing oscillators
-│ └── run_phillips.sh # Job 5: Phillips curve
-│
-├── scripts/ # Utility scripts
-│ ├── verify_claims.sh # Verify paper claims
-│ ├── extract_ace.sh # Extract ACE metrics
-│ ├── extract_baselines.sh # Extract baseline metrics
-│ ├── pipeline_test.sh # Quick validation
-│ └── ... (5 more scripts)
-│
-├── experiments/ # Experiment modules
-│ ├── complex_scm.py # 15-node hard benchmark
-│ ├── duffing_oscillators.py # Physics (ODE-based)
-│ └── phillips_curve.py # Economics (FRED data)
-│
-├── tests/ # Test suite
-│ ├── 470 tests (77% coverage)
-│ ├── 32 test files
-│ └── HPC workflow tests
-│
-├── paper/ # LaTeX source
-├── results/ # Experiment outputs (clean, copy-friendly)
-├── checkpoints/ # Training checkpoints (separate, gitignored)
-├── logs/ # Job logs
-└── guidance_documents/ # Complete documentation
- ├── guidance_doc.txt # Main guide
- ├── WHAT_REMAINS.txt # Integration TODO
- └── EXPERIMENT_TO_CLAIM_MAPPING.txt # Verification map
+├── README.md                       # Project overview
+├── ace.sh                          # Unified CLI (all operations)
+├── setup_env.sh                    # HPC environment setup
+├── ace_experiments.py              # Main ACE implementation
+├── baselines.py                    # Baseline methods
+├── experiments/                    # Domain-specific SCMs
+├── jobs/                           # SLURM job templates
+│   ├── workflows/                  # Workflow orchestration scripts
+│   │   ├── run_ace_only.sh         # ACE-only multi-seed script
+│   │   └── ...
+├── scripts/                        # Analysis scripts
+│   ├── analysis/                   # Analysis tools (visualize, verify)
+│   ├── maintenance/                # Cleanup scripts
+│   ├── runners/                    # Local execution wrappers
+├── tests/                          # Test suite (552 tests, 77% coverage)
+├── paper/                          # LaTeX manuscript
+├── results/                        # Experimental results
+│   ├── ace/                        # ACE runs and summaries
+│   ├── baselines/                  # Baseline runs
+│   ├── complex_scm/                # Complex SCM runs
+│   ├── duffing/                    # Duffing runs
+│   ├── phillips/                   # Phillips runs
+│   ├── logs/                       # Job logs
+│   ├── summaries/                  # Result summaries
+│   └── archive/                    # Archived results
+└── guidance_documents/             # Project documentation
 ```
 
 ## Usage
@@ -256,7 +184,7 @@ QUICK=true ./run_all.sh
 
 # Monitor jobs
 squeue -u $USER
-tail -f logs/ace_main_*.out
+tail -f results/logs/ace_main_*.out
 
 # Expected: ACE completes in 1-2h (was 9h), total 4-6h (was 12-15h)
 ```
@@ -276,7 +204,7 @@ python ace_experiments.py \
 python baselines.py --all_with_ppo --episodes 100
 
 # Visualize results
-python visualize.py results/run_*/
+python scripts/analysis/visualize.py results/run_*/
 ```
 
 ### Key Parameters
@@ -311,46 +239,83 @@ export MPLCONFIGDIR="/projects/$USER/cache/matplotlib"
 ## Documentation
 
 - **`README.md`** (this file) - Quick start, overview, test coverage
-- **`START_HERE.md`** - Current work entry point
-- **`CHANGELOG.md`** - Version history and improvements
-- **`RUN_ALL_SUMMARY.md`** - Experiment summaries
 - **`guidance_documents/guidance_doc.txt`** - Complete technical guide with:
- - Project organization and structure
- - HPC workflow documentation
- - Test coverage details (77%, 470 tests)
- - Checkpoint separation (checkpoints/ vs results/)
- - Timestamp naming convention
- - What remains for complete paper verification
+  - Project organization and structure
+  - HPC workflow documentation
+  - Test coverage details (77%, 470 tests)
+  - Checkpoint separation (checkpoints/ vs results/)
+  - Timestamp naming convention
+  - What remains for complete paper verification
 - **`guidance_documents/EXPERIMENT_TO_CLAIM_MAPPING.txt`** - Maps experiments to paper claims
 - **`guidance_documents/WHAT_REMAINS.txt`** - Integration TODO list
-- **`tests/README.md`** - Test suite developer guide
 
-## Next Run
+## Paper Submission Anonymization
 
-**Before running experiments:**
+**IMPORTANT:** This repository contains identifying information (git history, author commits).
+
+For anonymous paper submission:
+
 ```bash
-# 1. Test pipeline fixes (30 minutes)
-./pipeline_test.sh
+# On Windows (PowerShell)
+./create_anonymous_submission.ps1
 
-# 2. If tests pass, launch full run
+# On Linux/Mac
+bash create_anonymous_submission.sh
+```
+
+This creates a clean, anonymous copy at `../ACE-anonymous-submission/` with:
+- New git repository (no commit history)
+- Anonymous author: "Anonymous Researcher"
+- Anonymous email: "anonymous@institution.edu"
+- Submission-ready archive: `ACE-submission-YYYYMMDD.zip`
+
+**What's already anonymized:**
+- [OK] Paper (paper/paper.tex) uses "Anonymous Author(s)"
+- [OK] Code has no personal information or author tags
+- [OK] LICENSE is standard Apache 2.0 template
+
+**What the script fixes:**
+- [REQUIRED] Git commit history (contains author name/email)
+- [REQUIRED] Git configuration
+
+See `ANONYMIZE.md` for detailed instructions.
+
+## Running Experiments
+
+**Multi-seed ACE validation:**
+```bash
+# Submit 5-seed ACE runs
+./jobs/workflows/run_ace_only.sh --seeds 5
+
+# Monitor
+squeue -u $USER
+tail -f results/logs/ace_seed42_*.out
+```
+
+**Individual experiments:**
+```bash
+# ACE main
 sbatch jobs/run_ace_main.sh
+
+# Baselines
+sbatch jobs/run_baselines.sh
+
+# Domain-specific
+sbatch jobs/run_duffing.sh
+sbatch jobs/run_phillips.sh
+sbatch jobs/run_complex_scm.sh
 ```
 
-**After experiments complete:**
+**Analysis:**
 ```bash
-# 3. Verify specific claims
-python clamping_detector.py # Verify clamping strategy
-python regime_analyzer.py # Verify regime selection
+# Verify claims
+python scripts/analysis/clamping_detector.py results/duffing/
+python scripts/analysis/regime_analyzer.py results/phillips/
 
-# 4. Extract results
-./extract_ace.sh
-python compare_methods.py
+# Compare methods
+python scripts/analysis/compare_methods.py results/
 
-# 5. Document findings
-# Add entry to results/RESULTS_LOG.md
-
-# 6. Fill paper tables
-# Replace [PLACEHOLDER] in paper/paper.tex
+# Visualize
+python scripts/analysis/visualize.py results/*/
 ```
 
-See `START_HERE.md` for detailed instructions and `results/ACTION_PLAN.md` for complete roadmap.

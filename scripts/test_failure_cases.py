@@ -191,11 +191,11 @@ def main():
         relative = (r['final_loss'] - baseline_loss) / baseline_loss * 100
         
         if relative > 20:
-            verdict = "❌ SIGNIFICANT DEGRADATION"
+            verdict = "[FAIL] SIGNIFICANT DEGRADATION"
         elif relative > 5:
-            verdict = "⚠️ MODERATE DEGRADATION"
+            verdict = "[WARNING] MODERATE DEGRADATION"
         else:
-            verdict = "✓ COMPARABLE"
+            verdict = "[OK] COMPARABLE"
         
         print(f"  {r['scm']}: {relative:+.1f}% {verdict}")
     

@@ -773,11 +773,11 @@ class DPOLogger:
         
         # Health check warnings
         if avg_loss > 0.68:
-            logging.warning(f"  ⚠️ DPO loss near random chance (0.693) - model may not be learning!")
+            logging.warning(f"  [WARNING] DPO loss near random chance (0.693) - model may not be learning!")
         if pref_rate < 0.4:
-            logging.warning(f"  ⚠️ Policy rarely prefers winner - preference signal may be inverted!")
+            logging.warning(f"  [WARNING] Policy rarely prefers winner - preference signal may be inverted!")
         if abs(avg_kl) > 5.0:
-            logging.warning(f"  ⚠️ Large KL divergence from reference - consider updating reference policy")
+            logging.warning(f"  [WARNING] Large KL divergence from reference - consider updating reference policy")
             
     def save(self, results_dir):
         """Save DPO training history to CSV for analysis."""
@@ -1163,7 +1163,7 @@ def visualize_scm_graph(scm, results_dir, node_losses=None):
             plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map["intermediate"], 
                       markersize=15, label='Intermediate'),
             plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map["collider"], 
-                      markersize=15, label='Collider (multi-parent) ⚠️'),
+                      markersize=15, label='Collider (multi-parent)'),
             plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map["leaf"], 
                       markersize=15, label='Leaf (no children)'),
         ]
@@ -1342,7 +1342,7 @@ def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
             'recent_actions': list(recent_actions),  # Convert deque to list for saving
         }, checkpoint_path)
         
-        logging.info(f"✓ Saved checkpoint to {checkpoint_path}")
+        logging.info(f"[OK] Saved checkpoint to {checkpoint_path}")
         
         # Cleanup old checkpoints (keep only last 3)
         import glob
@@ -1378,11 +1378,11 @@ def create_emergency_save_handler(run_dir, oracle, history_data):
             try:
                 if student is not None:
                     visualize_contrast_save(oracle, student, run_dir)
-                    logging.info("✓ Saved mechanism_contrast.png")
+                    logging.info("[OK] Saved mechanism_contrast.png")
                 else:
-                    logging.warning("✗ No student available for mechanism contrast")
+                    logging.warning("[WARNING] No student available for mechanism contrast")
             except Exception as e:
-                logging.error(f"✗ Failed to save mechanism_contrast: {e}")
+                logging.error(f"[ERROR] Failed to save mechanism_contrast: {e}")
             
             # Save partial metrics
             try:
@@ -1399,9 +1399,9 @@ def create_emergency_save_handler(run_dir, oracle, history_data):
                         "step": history_data.get("step_history", []),
                     })
                     df.to_csv(os.path.join(run_dir, "metrics_interrupted.csv"), index=False)
-                    logging.info(f"✓ Saved {len(df)} records to metrics_interrupted.csv")
+                    logging.info(f"[OK] Saved {len(df)} records to metrics_interrupted.csv")
             except Exception as e:
-                logging.error(f"✗ Failed to save metrics: {e}")
+                logging.error(f"[ERROR] Failed to save metrics: {e}")
             
             # Save training curves
             try:
@@ -1412,9 +1412,9 @@ def create_emergency_save_handler(run_dir, oracle, history_data):
                               history_data.get("target_history", []),
                               history_data.get("value_history", []),
                               history_data.get("nodes", []))
-                    logging.info("✓ Saved training_curves.png and strategy_analysis.png")
+                    logging.info("[OK] Saved training_curves.png and strategy_analysis.png")
             except Exception as e:
-                logging.error(f"✗ Failed to save plots: {e}")
+                logging.error(f"[ERROR] Failed to save plots: {e}")
             
             logging.info("=" * 70)
             logging.info("Emergency save complete - exiting")
@@ -1473,7 +1473,7 @@ class EarlyStopping:
             # No improvement
             self.counter += 1
             if self.counter >= self.patience:
-                logging.info(f"⚠️  Early stopping: No loss improvement for {self.patience} episodes")
+                logging.info(f"[EARLY STOP] No loss improvement for {self.patience} episodes")
                 logging.info(f"   Best loss: {self.best_loss:.4f}, Current loss: {current_loss:.4f}")
                 return True
         return False
@@ -1503,7 +1503,7 @@ class EarlyStopping:
                 unconverged_nodes.append(f"{node}:{loss:.3f}(target<{target})")
         
         if all_converged and all(count >= patience for count in self.node_converged_count.values()):
-            logging.info(f"⚠️  Early stopping: ALL nodes converged for {patience} episodes")
+            logging.info(f"[EARLY STOP] ALL nodes converged for {patience} episodes")
             logging.info(f"   Converged: {', '.join(converged_nodes)}")
             return True
         
@@ -1527,7 +1527,7 @@ class EarlyStopping:
         zero_fraction = zero_count / len(recent_rewards)
         
         if zero_fraction > threshold:
-            logging.info(f"⚠️  Early stopping: {zero_fraction*100:.1f}% of last {len(recent_rewards)} steps had zero reward")
+            logging.info(f"[EARLY STOP] {zero_fraction*100:.1f}% of last {len(recent_rewards)} steps had zero reward")
             logging.info(f"   This indicates training saturation - learner has converged")
             return True
         return False
@@ -2027,38 +2027,38 @@ def main():
     signal.signal(signal.SIGINT, save_handler)   # Ctrl+C
     atexit.register(lambda: save_handler())      # Normal exit
     
-    logging.info("✓ Registered emergency save handlers (SIGTERM, SIGINT, atexit)")
+    logging.info("[OK] Registered emergency save handlers (SIGTERM, SIGINT, atexit)")
     
     # NEW: Log enabled improvements
     logging.info("\n" + "="*70)
     logging.info("TRAINING IMPROVEMENTS ENABLED:")
     logging.info("="*70)
     if args.early_stopping:
-        logging.info(f"✓ Early Stopping: patience={args.early_stop_patience}, min_episodes={args.early_stop_min_episodes}, min_delta={args.early_stop_min_delta}")
+        logging.info(f"[OK] Early Stopping: patience={args.early_stop_patience}, min_episodes={args.early_stop_min_episodes}, min_delta={args.early_stop_min_delta}")
         if args.use_per_node_convergence:
             logging.info(f"  Method: Per-node convergence (patience={args.node_convergence_patience}) - RECOMMENDED")
         else:
             logging.info(f"  Method: Zero-reward threshold ({args.zero_reward_threshold*100:.0f}%) - FALLBACK")
     else:
-        logging.info("✗ Early stopping disabled (use --early_stopping)")
+        logging.info("[DISABLED] Early stopping disabled (use --early_stopping)")
     
     if args.use_dedicated_root_learner:
-        logging.info(f"✓ Dedicated Root Learner: interval={args.dedicated_root_interval} - PRIMARY root learning method")
+        logging.info(f"[OK] Dedicated Root Learner: interval={args.dedicated_root_interval} - PRIMARY root learning method")
     else:
-        logging.info(f"✗ Dedicated root learner disabled - will use observational training fallback")
+        logging.info(f"[DISABLED] Dedicated root learner disabled - will use observational training fallback")
         logging.info(f"  Obs Training: interval={args.obs_train_interval}, samples={args.obs_train_samples}, epochs={args.obs_train_epochs}")
     
-    logging.info(f"✓ SIMPLIFIED REWARD SYSTEM: 3 components (was 11)")
+    logging.info(f"[OK] SIMPLIFIED REWARD SYSTEM: 3 components (was 11)")
     logging.info(f"  - Information gain (primary objective)")
     logging.info(f"  - Node importance (parent of high-loss nodes)")
     logging.info(f"  - Unified diversity (entropy + undersampling + concentration)")
-    logging.info(f"✓ Diversity weight: {args.diversity_reward_weight}, max_concentration: {args.max_concentration*100:.0f}%")
-    logging.info(f"✓ Hard Cap Threshold: 60% (backup safety mechanism)")
+    logging.info(f"[OK] Diversity weight: {args.diversity_reward_weight}, max_concentration: {args.max_concentration*100:.0f}%")
+    logging.info(f"[OK] Hard Cap Threshold: 60% (backup safety mechanism)")
     
     if args.update_reference_interval > 0:
-        logging.info(f"✓ Reference Policy Updates: every {args.update_reference_interval} episodes")
+        logging.info(f"[OK] Reference Policy Updates: every {args.update_reference_interval} episodes")
     else:
-        logging.info("✗ Reference policy updates disabled")
+        logging.info("[DISABLED] Reference policy updates disabled")
     
     logging.info("="*70 + "\n")
     
@@ -2078,7 +2078,7 @@ def main():
     dedicated_root_learner = None
     if args.use_dedicated_root_learner and root_nodes:
         dedicated_root_learner = DedicatedRootLearner(root_nodes)
-        logging.info(f"✓ Dedicated root learner initialized for {root_nodes}")
+        logging.info(f"[OK] Dedicated root learner initialized for {root_nodes}")
     
     # NEW: Early stopping initialization
     early_stopper = None
@@ -2089,7 +2089,7 @@ def main():
             min_delta=args.early_stop_min_delta,
             min_episodes=args.early_stop_min_episodes
         )
-        logging.info(f"✓ Early stopping enabled (patience={args.early_stop_patience}, min_delta={args.early_stop_min_delta}, min_episodes={args.early_stop_min_episodes})")
+        logging.info(f"[OK] Early stopping enabled (patience={args.early_stop_patience}, min_delta={args.early_stop_min_delta}, min_episodes={args.early_stop_min_episodes})")
         if args.use_per_node_convergence:
             logging.info(f"  Using per-node convergence (patience={args.node_convergence_patience})")
         else:
@@ -2725,13 +2725,13 @@ def main():
                         node_losses_final,
                         patience=args.node_convergence_patience
                     ):
-                        logging.info(f"✓ Per-node convergence detected at episode {episode}/{args.episodes}")
+                        logging.info(f"[CONVERGED] Per-node convergence detected at episode {episode}/{args.episodes}")
                         logging.info(f"   Final loss: {final_loss:.4f}, episodes trained: {episode+1}")
                         break
                 else:
                     # Fallback: Check loss-based stopping
                     if early_stopper.check_loss(final_loss):
-                        logging.info(f"✓ Early stopping triggered at episode {episode}/{args.episodes}")
+                        logging.info(f"[EARLY STOP] Triggered at episode {episode}/{args.episodes}")
                         logging.info(f"   Final loss: {final_loss:.4f}, episodes trained: {episode+1}")
                         break
                     
@@ -2743,7 +2743,7 @@ def main():
                         zero_fraction = zero_count / len(recent_window)
                         
                         if zero_fraction >= args.zero_reward_threshold:
-                            logging.info(f"✓ Training saturation detected at episode {episode}/{args.episodes}")
+                            logging.info(f"[EARLY STOP] Training saturation detected at episode {episode}/{args.episodes}")
                             logging.info(f"   Zero-reward fraction: {zero_fraction:.1%} (threshold: {args.zero_reward_threshold:.1%})")
                             logging.info(f"   Episodes trained: {episode+1}")
                             break
@@ -2766,7 +2766,7 @@ def main():
                 visualize_contrast_save(M_star, current_student, run_dir)
                 save_plots(run_dir, loss_history, reward_history, 
                           target_history, value_history, dsl.nodes)
-                logging.info(f"✓ Saved intermediate visualizations at episode {episode}")
+                logging.info(f"[OK] Saved intermediate visualizations at episode {episode}")
             except Exception as e:
                 logging.error(f"Failed to save intermediate visualizations: {e}")
 
