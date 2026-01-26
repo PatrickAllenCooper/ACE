@@ -368,7 +368,7 @@ ACE concentrates 99.8\% of interventions on $X_2$ and $X_1$ (the collider's pare
 
 \subsection{Complex 15-Node SCM}
 
-Setup. To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 6 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms), illustrated in Figure~\ref{fig:complex-scm}. This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
+Setup. To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes where every endogenous node is a collider (11 colliders total, 4 roots), with mixed functional forms (linear, polynomial, trigonometric, interaction terms), illustrated in Figure~\ref{fig:complex-scm}. This collider-dense structure creates a particularly challenging experimental design problem. This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
 
 \subsection{Large-Scale 30-Node SCM}
 
@@ -405,15 +405,15 @@ Setup. To demonstrate scalability to realistic system sizes, we test on a hierar
 \node[root] (R4) at (6,0) {$R_4$};
 
 % Layer 1
-\node[regular] (A) at (1,-1.2) {$A$};
+\node[collider] (A) at (1,-1.2) {$A$};
 \node[collider] (C1) at (3,-1.2) {$C_1$};
-\node[regular] (B) at (5,-1.2) {$B$};
+\node[collider] (B) at (5,-1.2) {$B$};
 
 % Layer 2
 \node[collider] (C2) at (0,-2.4) {$C_2$};
-\node[regular] (D) at (2,-2.4) {$D$};
+\node[collider] (D) at (2,-2.4) {$D$};
 \node[collider] (C3) at (4,-2.4) {$C_3$};
-\node[regular] (E) at (6,-2.4) {$E$};
+\node[collider] (E) at (6,-2.4) {$E$};
 
 % Layer 3
 \node[collider] (F) at (1,-3.6) {$F$};
@@ -443,11 +443,10 @@ Setup. To demonstrate scalability to realistic system sizes, we test on a hierar
 \draw[arrow] (E) -- (C5);
 
 % Legend
-\node[root, label=right:{\scriptsize Root}] at (7.5,-0.5) {};
-\node[collider, label=right:{\scriptsize Collider}] at (7.5,-1.3) {};
-\node[regular, label=right:{\scriptsize Other}] at (7.5,-2.1) {};
+\node[root, label=right:{\scriptsize Root (4)}] at (7.5,-0.5) {};
+\node[collider, label=right:{\scriptsize Collider (11)}] at (7.5,-1.3) {};
 \end{tikzpicture}
-\caption{Structure of the complex 15-node SCM. Collider nodes (red, 6 total: $C_1$--$C_5$ and $F$) require interventions on multiple parents for identification. Root nodes (blue) are exogenous. Nested colliders ($C_4$, $C_5$) test reasoning about causal depth.}
+\caption{Structure of the complex 15-node SCM with 4 roots (blue) and 11 colliders (red). Every endogenous node has exactly two parents, making this a collider-dense structure that challenges experimental design strategies. Root nodes are exogenous. Nested colliders ($C_4$, $C_5$) at layer 3 test reasoning about causal depth.}
 \label{fig:complex-scm}
 \end{figure}
 
