@@ -368,7 +368,7 @@ ACE concentrates 99.8\% of interventions on $X_2$ and $X_1$ (the collider's pare
 
 \subsection{Complex 15-Node SCM}
 
-Setup. To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 5 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms), illustrated in Figure~\ref{fig:complex-scm}. This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
+Setup. To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes, 6 colliders (including nested structures), and mixed functional forms (linear, polynomial, trigonometric, interaction terms), illustrated in Figure~\ref{fig:complex-scm}. This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
 
 \subsection{Large-Scale 30-Node SCM}
 
@@ -416,7 +416,7 @@ Setup. To demonstrate scalability to realistic system sizes, we test on a hierar
 \node[regular] (E) at (6,-2.4) {$E$};
 
 % Layer 3
-\node[regular] (F) at (1,-3.6) {$F$};
+\node[collider] (F) at (1,-3.6) {$F$};
 \node[collider] (C4) at (3,-3.6) {$C_4$};
 \node[collider] (C5) at (5,-3.6) {$C_5$};
 
@@ -447,7 +447,7 @@ Setup. To demonstrate scalability to realistic system sizes, we test on a hierar
 \node[collider, label=right:{\scriptsize Collider}] at (7.5,-1.3) {};
 \node[regular, label=right:{\scriptsize Other}] at (7.5,-2.1) {};
 \end{tikzpicture}
-\caption{Structure of the complex 15-node SCM. Collider nodes (red) require interventions on multiple parents for identification. Root nodes (blue) are exogenous. Nested colliders ($C_4$, $C_5$) test reasoning about causal depth.}
+\caption{Structure of the complex 15-node SCM. Collider nodes (red, 6 total: $C_1$--$C_5$ and $F$) require interventions on multiple parents for identification. Root nodes (blue) are exogenous. Nested colliders ($C_4$, $C_5$) test reasoning about causal depth.}
 \label{fig:complex-scm}
 \end{figure}
 
