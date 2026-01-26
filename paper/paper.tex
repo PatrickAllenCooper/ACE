@@ -296,7 +296,7 @@ To ensure robust evaluation, we conduct five independent runs per experiment usi
 
 The ground truth environment implements a 5-node SCM with diverse mechanism types: a linear relationship ($X_2 = 2X_1 + 1$), a nonlinear mechanism with trigonometric terms ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and a quadratic relationship ($X_5 = 0.2X_4^2$), all with additive Gaussian noise ($\sigma=0.01$).
 
-The learner parameterizes each mechanism using a neural network with 2 hidden layers of 64 units and ReLU activations; root node distributions are modeled as Gaussians with learnable mean and variance. All networks are trained via Adam with learning rate $2 \times 10^{-3}$, performing 100 gradient steps per incoming data sample.
+The learner parameterizes each mechanism using a neural network with 2 hidden layers of 64 units and ReLU activations; root node distributions are modeled as Gaussians with learnable mean and variance. All networks are trained via Adam \cite{kingma2015adam} with learning rate $2 \times 10^{-3}$, performing 100 gradient steps per incoming data sample.
 
 The experimentalist policy is implemented using Qwen2.5-1.5B \cite{qwen2.5}, a language model that generates intervention proposals from prompts encoding the graph structure, current per-node losses, and recent intervention history. We use temperature 0.7 to balance exploration and exploitation in candidate generation.
 
@@ -530,7 +530,7 @@ Experiments on this complex SCM compare multiple strategy variants. Random sampl
 
 \subsection{Physics: Coupled Duffing Oscillators}
 
-We apply ACE to a chain of three coupled nonlinear oscillators governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), shown in Figure~\ref{fig:duffing-scm}, but correlations from synchronized oscillation initially suggest full connectivity.
+We apply ACE to a chain of three coupled Duffing oscillators \cite{duffing1918} governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), shown in Figure~\ref{fig:duffing-scm}, but correlations from synchronized oscillation initially suggest full connectivity.
 
 \begin{figure}[t]
 \centering
@@ -573,7 +573,7 @@ Across 5 independent runs, the Duffing oscillator experiments achieve final coup
 
 \subsection{Economics: Phillips Curve}
 
-Using Federal Reserve Economic Data (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}), as shown in Figure~\ref{fig:phillips-scm}. The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
+Using Federal Reserve Economic Data \cite{fred2024} (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}), as shown in Figure~\ref{fig:phillips-scm}. The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
 
 \begin{figure}[t]
 \centering
@@ -688,7 +688,7 @@ DPO-trained ACE (median: 0.61) consistently outperforms PPO (2.19 $\pm$ 0.07) de
 
 The core challenge is that information gain is inherently non-stationary. Early in training, when the learner knows little, a single well-chosen experiment can produce dramatic loss reductions ($\Delta \mathcal{L} > 50$). As the learner improves, the same quality of experimental design yields diminishing absolute returns ($\Delta \mathcal{L} < 0.1$). This shifting reward scale poses fundamental challenges for value-based methods: PPO's critic must learn to predict expected returns, but the magnitude of those returns changes by orders of magnitude over training. The critic's value estimates become unreliable, leading to unstable policy updates.
 
-DPO sidesteps this problem entirely by learning from rankings rather than magnitudes. Preferences depend only on reward differences $r_0(a) - r_0(b)$ between candidate interventions, which remain meaningful even as absolute rewards shrink. Formally, if rewards scale by a time-varying factor $f(t)$, preferences are invariant: the better intervention remains better regardless of the current scale \cite{murphy2001active}. This provides inherent robustness to the diminishing returns that characterize scientific discovery.
+DPO sidesteps this problem entirely by learning from rankings rather than magnitudes. Preferences depend only on reward differences $r_0(a) - r_0(b)$ between candidate interventions, which remain meaningful even as absolute rewards shrink. Formally, if rewards scale by a time-varying factor $f(t)$, preferences are invariant: the better intervention remains better regardless of the current scale \cite{rafailov2023direct}. This provides inherent robustness to the diminishing returns that characterize scientific discovery.
 
 The advantage is particularly pronounced for collider learning, where ACE achieves $L_{X_3} = 0.054$ through strategic concentration on collider parents (99.8\% of interventions on $X_1$ and $X_2$). PPO, hampered by its unstable value estimates, fails to discover this strategy and distributes interventions more uniformly.
 
