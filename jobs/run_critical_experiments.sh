@@ -34,6 +34,8 @@ echo "Critical Experiments for ICML Response"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Started: $(date)"
+echo "Working Directory: $(pwd)"
+echo "Submit Directory: $SLURM_SUBMIT_DIR"
 echo "=============================================="
 
 # --- Environment Setup ---
@@ -55,9 +57,23 @@ fi
 
 # Change to submission directory
 cd $SLURM_SUBMIT_DIR
+echo "Changed to: $(pwd)"
 
 # Create logs directory
 mkdir -p logs
+
+# Verify run_critical_experiments.py exists
+if [ ! -f "run_critical_experiments.py" ]; then
+    echo "ERROR: run_critical_experiments.py not found in $(pwd)"
+    echo "Contents of directory:"
+    ls -la *.py 2>/dev/null | head -20
+    exit 1
+fi
+echo "Found run_critical_experiments.py"
+
+# Show Python and conda info
+echo "Python: $(which python)"
+echo "Conda env: $CONDA_DEFAULT_ENV"
 
 # Parse argument for selective execution
 EXPERIMENT=${1:-all}
