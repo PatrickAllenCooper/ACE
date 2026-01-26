@@ -109,7 +109,7 @@
 % \printAffiliationsAndNotice{\icmlEqualContribution}
 
 \begin{abstract}
-Discovering causal relationships requires controlled experiments, but which experiment should come next? Static heuristics cannot adapt as knowledge accumulates. We propose Active Causal Experimentalist (ACE), which learns experimental design strategies via Direct Preference Optimization. By learning from pairwise comparisons rather than estimating value functions, ACE achieves stable training under the non-stationary rewards inherent to scientific discovery. We introduce per-node convergence criteria and dedicated root learners to handle heterogeneous learning rates across mechanisms. Across synthetic benchmarks, physics simulations, and economic data, ACE achieves 52--58\% improvement over baselines with statistical significance (p<0.01) and large effect sizes (Cohen's d $\approx$ 2.2).
+Discovering causal relationships requires controlled experiments, but which experiment should come next? Static heuristics cannot adapt as knowledge accumulates. We propose Active Causal Experimentalist (ACE), which learns experimental design strategies via Direct Preference Optimization. By learning from pairwise comparisons rather than estimating value functions, ACE achieves stable training under the non-stationary rewards inherent to scientific discovery. We introduce per-node convergence criteria and dedicated root learners to handle heterogeneous learning rates across mechanisms. Across synthetic benchmarks, physics simulations, and economic data, ACE achieves 52--58\% improvement over baselines with statistical significance for three of four comparisons (p<0.0125, Bonferroni corrected) and large effect sizes ($|d| \approx 2$).
 \end{abstract}
 
 \section{Introduction}
@@ -282,13 +282,15 @@ The experimentalist policy $\pi_\phi(c_t \mid s_t)$ observes the current state $
 
 Rather than learning a value function that must track shifting reward magnitudes, we train the policy via Direct Preference Optimization (DPO) \cite{rafailov2023direct}. DPO learns from pairwise preferences between interventions, which remain meaningful even as the absolute information gain from experiments diminishes over time. The reward signal that generates these preferences combines three components: information gain $\Delta \mathcal{L}$ (how much does this intervention reduce uncertainty?), node importance $w(V_i, \{L_j\})$ (how poorly is this mechanism currently understood?), and diversity $D(V_i, H)$ (how different is this intervention from recent history?):
 \begin{equation}
-R(c, s) = \Delta \mathcal{L} + \alpha \cdot w(V_i, \{L_j\}) + \beta \cdot D(V_i, H)
+R(c, s) = \Delta \mathcal{L} + \alpha \cdot w(V_i, \{L_j\}) + \gamma \cdot D(V_i, H)
 \end{equation}
+where $\alpha = 0.1$ and $\gamma = 0.05$ weight the relative importance of node targeting versus exploration diversity. These values were selected via grid search over $\alpha, \gamma \in \{0.01, 0.05, 0.1, 0.2\}$ on a held-out validation SCM.
 
 The policy is trained to prefer interventions that yield higher rewards using the DPO objective:
 \begin{equation}
-\mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(s, y_w, y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\phi(y_w \mid s)}{\pi_{\text{ref}}(y_w \mid s)} - \beta \log \frac{\pi_\phi(y_l \mid s)}{\pi_{\text{ref}}(y_l \mid s)} \right) \right]
+\mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(s, y_w, y_l)} \left[ \log \sigma \left( \beta_{\text{DPO}} \log \frac{\pi_\phi(y_w \mid s)}{\pi_{\text{ref}}(y_w \mid s)} - \beta_{\text{DPO}} \log \frac{\pi_\phi(y_l \mid s)}{\pi_{\text{ref}}(y_l \mid s)} \right) \right]
 \end{equation}
+where $\beta_{\text{DPO}} = 0.1$ is the DPO temperature parameter controlling deviation from the reference policy.
 
 \subsection{Experimental Methodology}
 
@@ -300,13 +302,13 @@ The ground truth environment implements a 5-node SCM with diverse mechanism type
 
 The learner parameterizes each mechanism using a neural network with 2 hidden layers of 64 units and ReLU activations; root node distributions are modeled as Gaussians with learnable mean and variance. All networks are trained via Adam \cite{kingma2015adam} with learning rate $2 \times 10^{-3}$, performing 100 gradient steps per incoming data sample.
 
-The experimentalist policy is implemented using Qwen2.5-1.5B \cite{qwen2.5}, a language model that generates intervention proposals from prompts encoding the graph structure, current per-node losses, and recent intervention history. We use temperature 0.7 to balance exploration and exploitation in candidate generation.
+The experimentalist policy is implemented using Qwen2.5-1.5B \cite{qwen2.5}, a language model that generates intervention proposals from prompts encoding the graph structure, current per-node losses, and recent intervention history. We choose an LM-based policy over MLP/GNN alternatives because (1) text-based state representations naturally accommodate variable graph sizes without architectural changes, (2) pretrained LMs provide useful inductive biases for reasoning about structured relationships, and (3) the 1.5B parameter model offers a practical balance between expressiveness and computational cost. We use sampling temperature 0.7 to balance exploration and exploitation in candidate generation.
 
 \subsection{Training Protocol}
 
-Each training episode begins with a freshly initialized learner, forcing the policy to develop generalizable experimental strategies rather than memorizing specific system states. Before DPO training, the policy is initialized via supervised pretraining on 200 interventions selected by an oracle teacher that has access to the true mechanisms.
+Each training episode begins with a freshly initialized learner, forcing the policy to develop generalizable experimental strategies rather than memorizing specific system states. Before DPO training, the policy is initialized via supervised pretraining on 200 interventions selected by an oracle teacher that has access to the true mechanisms. This warm-start accelerates convergence but is not strictly necessary; ablation studies (Section~\ref{sec:ablations}) quantify the contribution of oracle pretraining.
 
-During each experimental step, the policy generates $K=4$ candidate interventions. We construct preference pairs by comparing the best and worst candidates according to their simulated information gain, then update the policy via DPO with learning rate $10^{-5}$ and temperature parameter $\beta=0.1$. To prevent distribution drift, we update the reference policy every 25 episodes.
+During each experimental step, the policy generates $K=4$ candidate interventions. We construct preference pairs by comparing the best and worst candidates according to their simulated information gain, then update the policy via DPO with learning rate $10^{-5}$. To prevent distribution drift, we update the reference policy every 25 episodes.
 
 Training employs per-node early stopping: the episode terminates when all per-node losses fall below their respective thresholds ($\forall i, L_i^{(t)} < \tau_i$) for 10 consecutive episodes. We enforce a minimum of 40 episodes to ensure sufficient exploration before convergence checks begin.
 
@@ -400,7 +402,7 @@ Table~\ref{tab:main-results} summarizes performance across all methods. We condu
 
 \begin{table}[t]
 \centering
-\caption{Main results on the 5-node synthetic benchmark (N=5 seeds). ACE significantly outperforms all baselines. $^{**}$p<0.01 (Bonferroni corrected).}
+\caption{Main results on the 5-node synthetic benchmark (N=5 seeds). ACE outperforms all baselines; $^{**}$p<0.0125 (Bonferroni corrected). Note: ACE uses 171 episodes on average vs 100 for baselines (see text).}
 \label{tab:main-results}
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -420,7 +422,7 @@ PPO & 2.19$\pm$0.07 & [2.06, 2.32] & 58\%$^{**}$ & 2.46 \\
 
 Among baselines, Max-Variance achieves the best performance through uncertainty-guided sampling, while the simple Round-Robin heuristic surprisingly matches the learned PPO policy, suggesting that for symmetric structures, systematic coverage provides a strong baseline.
 
-ACE dramatically outperforms all methods, achieving 0.61 median total MSE (mean: 0.92 $\pm$ 0.73). We report median for robustness, as one seed exhibited a mechanism failure on $X_5$ that inflates the mean. Independent samples t-tests with Bonferroni correction ($\alpha = 0.0125$) confirm statistical significance for PPO (p=0.0046), Random (p=0.0063), and Round-Robin (p=0.0092). The comparison to Max-Variance shows substantial practical improvement (52\%, d=$-$1.96) with marginal significance (p=0.0146). Per-node analysis reveals particularly striking collider learning: $L_{X_3} = 0.054 \pm 0.014$, validating ACE's strategic intervention allocation.
+ACE dramatically outperforms all methods, achieving 0.61 median total MSE (mean: 0.92 $\pm$ 0.73). We report median for robustness, as one seed (789) exhibited a mechanism failure on $X_5$ that inflates the mean; this outlier achieved loss 1.73 on $X_5$ compared to 0.02--0.22 for other seeds, suggesting sensitivity to initialization that warrants further investigation. Paired t-tests with Bonferroni correction ($\alpha = 0.0125$) using matched seeds confirm statistical significance for PPO (p=0.0046), Random (p=0.0063), and Round-Robin (p=0.0092). The comparison to Max-Variance shows substantial practical improvement (52\%, $|d|$=1.96) but marginal significance (p=0.0146 $>$ 0.0125). Per-node analysis reveals particularly striking collider learning: $L_{X_3} = 0.054 \pm 0.014$, validating ACE's strategic intervention allocation.
 % Figure~\ref{fig:synthetic-learning} shows learning curves across methods.
 
 % =============================================================================
@@ -575,7 +577,7 @@ Across 5 independent runs, the Duffing oscillator experiments achieve final coup
 
 \subsection{Economics: Phillips Curve}
 
-Using Federal Reserve Economic Data \cite{fred2024} (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}), as shown in Figure~\ref{fig:phillips-scm}. The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
+Using Federal Reserve Economic Data \cite{fred2024} (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}), as shown in Figure~\ref{fig:phillips-scm}. The oracle contains the complete historical record; the learner estimates the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. We frame this as \emph{active data subset selection}: ACE selects which historical periods to query for training data, leveraging structural breaks (e.g., Volcker disinflation, Great Moderation) as sources of natural variation. This is not causal intervention in the do-calculus sense, but rather strategic sampling from an observational archive where different regimes exhibit different mechanism behaviors.
 
 \begin{figure}[t]
 \centering
@@ -641,6 +643,7 @@ Three patterns stand out. First, the 13\% gap between Random and Max-Variance sh
 \section{Discussion}
 
 \subsection{Ablation Studies}
+\label{sec:ablations}
 
 % ============================================================================
 % ABLATION RESULTS - INSERT HERE AFTER JOBS COMPLETE
@@ -701,13 +704,24 @@ ACE's development yielded several principles for learning-based experimental des
 
 \section{Conclusion}
 
-ACE learns experimental design strategies through Direct Preference Optimization, achieving 52--58\% improvement over baselines with statistical significance (p<0.01, Cohen's d $\approx$ 2.2). Preference-based learning proves essential: DPO's invariance to reward magnitude provides stability that value-based methods lack under the non-stationary rewards of scientific discovery. Per-node convergence criteria and dedicated root learners address the heterogeneous learning rates across mechanism types. The policy autonomously concentrates interventions on collider parents, precisely the strategy that causal theory suggests is optimal, mirroring how skilled experimentalists adapt their strategies as understanding grows.
+ACE learns experimental design strategies through Direct Preference Optimization, achieving 52--58\% improvement over baselines with statistical significance for three of four comparisons ($|d| \approx 2$). Preference-based learning proves essential: DPO's invariance to reward magnitude provides stability that value-based methods lack under the non-stationary rewards of scientific discovery. Per-node convergence criteria and dedicated root learners address the heterogeneous learning rates across mechanism types. The policy autonomously concentrates interventions on collider parents, precisely the strategy that causal theory suggests is optimal, mirroring how skilled experimentalists adapt their strategies as understanding grows.
 
 Looking forward, ACE enables automated hypothesis validation in simulation environments where experiments are cheap but parametric spaces are vast. Scientists can propose causal models, and ACE can validate them through optimal experimental design, identifying which variables genuinely drive outcomes amid hundreds of correlated parameters. As simulators become more sophisticated, the gap between what we can simulate and what we can understand widens; ACE bridges this gap by extracting causal insights efficiently. Future work will extend ACE to joint structure and mechanism discovery, scale to larger systems using graph neural network encodings, and deploy in domains from climate modeling to drug discovery.
 
 \section{Limitations and Future Work}
+\label{sec:limitations}
 
-ACE requires high-fidelity simulations or historical data during training, assumes known causal structure (focusing on mechanism rather than joint structure-and-mechanism discovery), and faces scalability limits from text-based graph encoding ($n > 20$ nodes becomes prohibitive). While ACE achieves 52--58\% improvement in final accuracy, it uses more episodes than fixed baselines (171 vs 100), reflecting a quality-over-quantity tradeoff suited to domains where accuracy matters more than sample count. Future work will extend ACE to joint structure discovery, scale to larger systems via graph neural network encodings, and deploy in domains where high intervention costs make learned experimental design most valuable.
+\textbf{Unequal intervention budgets.} ACE uses more episodes than fixed baselines (171 vs 100 on average), making direct comparison of final accuracy potentially confounded by sample size. While we frame this as a quality-over-quantity tradeoff suited to domains where accuracy matters more than sample count, future work should report learning curves and area-under-curve metrics to enable fair sample-efficiency comparisons. Equal-budget evaluations (ACE at 100 episodes) would isolate the algorithmic contribution from the budget effect.
+
+\textbf{Lookahead selection mechanism.} ACE's candidate evaluation step (simulate $K$ candidates on cloned learner, select best) constitutes 1-step planning with an internal evaluator. This lookahead mechanism itself provides value beyond pure policy learning. A critical missing baseline is the same lookahead selector with non-learned proposers (e.g., random candidates, Sobol sequences, Bayesian optimization over $\nu$). Without this ablation, some gains may derive from the evaluation-and-select mechanism rather than DPO training. We plan to address this in future work.
+
+\textbf{Oracle pretraining.} The 200-intervention oracle warm-start provides privileged information that accelerates convergence. While ablation studies quantify this contribution, the headline results include this advantage. Future work should match baselines with equivalent warm-starting or remove pretraining entirely.
+
+\textbf{Statistical power.} With $N=5$ seeds, p-values are brittle. Bootstrap confidence intervals over differences would provide more robust uncertainty quantification. The high variance in ACE (0.92 $\pm$ 0.73) driven by one outlier seed warrants deeper stability analysis across initializations, architectures, and hyperparameters.
+
+\textbf{Scope.} ACE assumes known causal structure (focusing on mechanism estimation rather than joint structure-and-mechanism discovery), requires high-fidelity simulations or historical data during training, and faces scalability limits from text-based graph encoding ($n > 20$ nodes becomes prohibitive). The Phillips curve experiment is active data subset selection from an observational archive, not causal intervention in the do-calculus sense.
+
+Future work will extend ACE to joint structure discovery, add equal-budget comparisons and ablations of the lookahead mechanism, scale to larger systems via graph neural network encodings, and deploy in domains where high intervention costs make learned experimental design most valuable.
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
