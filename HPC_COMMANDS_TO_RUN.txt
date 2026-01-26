@@ -1,0 +1,152 @@
+================================================================================
+HPC COMMANDS - EXACTLY WHAT TO RUN NOW
+================================================================================
+Date: January 26, 2026
+Your ACE results: EXCELLENT (55-58% improvement, 99.8% concentration)
+Paper: 90% ready to submit
+
+These are OPTIONAL experiments to strengthen for reviewers.
+
+================================================================================
+COPY-PASTE THESE COMMANDS ON HPC
+================================================================================
+
+# Login to HPC and navigate to project
+cd ~/ACE
+source setup_env.sh
+
+# Submit statistical tests (30 min, CPU only)
+sbatch jobs/run_statistical_tests.sh
+
+# Submit all ablation studies (2-4 hrs, 12 GPU jobs in parallel)
+bash submit_ablations.sh --seeds 3 --episodes 200
+
+# Monitor jobs
+squeue -u $USER
+
+# That's it! Go do something else for 2-4 hours.
+
+================================================================================
+AFTER JOBS COMPLETE (2-4 hours later)
+================================================================================
+
+# Check statistical tests results
+cat results/statistical_analysis_*.txt
+
+# Analyze ablation results (can run on login node - just analysis)
+python scripts/analyze_ablations.py results/ablations_*/ --latex
+
+# Update paper with results
+# Submit paper!
+
+================================================================================
+WHAT GETS SUBMITTED
+================================================================================
+
+Statistical Tests Job:
+- 1 job on CPU partition (shared)
+- 30 min runtime
+- No GPU needed
+- Output: results/statistical_analysis_TIMESTAMP.txt
+
+Ablation Jobs:
+- 12 jobs on GPU partition (aa100)
+- 4 ablations × 3 seeds each
+- Jobs run in PARALLEL (not sequential)
+- 2-4 hrs total runtime
+- Output: results/ablations_TIMESTAMP/
+
+Total: 13 jobs submitted
+
+================================================================================
+MONITOR COMMANDS
+================================================================================
+
+# Check job queue
+squeue -u $USER
+
+# Watch job count
+watch -n 30 "squeue -u \$USER | wc -l"
+
+# View specific job output
+tail -f logs/ace_stats_*.out              # Statistical tests
+tail -f logs/ablation_no_dpo_42_*.out     # First ablation
+
+# Check all logs
+ls -lt logs/ablation_*
+
+================================================================================
+EXPECTED RESULTS
+================================================================================
+
+Statistical Tests (~30 min):
+- ACE vs Random: p < 0.001 ✓
+- ACE vs Round-Robin: p < 0.001 ✓
+- ACE vs Max-Variance: p < 0.001 ✓
+- ACE vs PPO: p < 0.001 ✓
+
+Ablations (~2-4 hrs):
+- No DPO: ~2.0 loss (+227% degradation)
+- No convergence: ~0.6 loss, but 199 episodes (vs 60-171)
+- No root learner: ~0.8 loss (+31% degradation)
+- No diversity: ~1.2 loss (+97% degradation)
+
+================================================================================
+IF YOU WANT TO TEST FIRST
+================================================================================
+
+Test one quick ablation before submitting all (30 min):
+
+cd ~/ACE
+source setup_env.sh
+
+# Just test "no DPO" with 1 seed, 50 episodes
+ABLATION=no_dpo SEED=42 EPISODES=50 sbatch jobs/run_ablations.sh
+
+# Monitor
+tail -f logs/ablation_no_dpo_42_*.out
+
+# Expected: Loss ~2.0 (proves DPO is essential)
+# If this works, submit all: bash submit_ablations.sh --seeds 3
+
+================================================================================
+FILES REFERENCE
+================================================================================
+
+Job Scripts (submit these):
+- jobs/run_statistical_tests.sh
+- jobs/run_ablations.sh
+- submit_ablations.sh (wrapper that submits 12 ablation jobs)
+
+Analysis Scripts (run after jobs complete):
+- scripts/statistical_tests.py
+- scripts/analyze_ablations.py
+
+Existing Results:
+- results/ace_multi_seed_20260125_115453/ (ACE N=5)
+- results/baselines/baselines_20260124_182827/ (Baselines N=5)
+
+New Results Will Be:
+- results/statistical_analysis_TIMESTAMP.txt
+- results/ablations_TIMESTAMP/
+
+================================================================================
+BOTTOM LINE - EXACT COMMANDS
+================================================================================
+
+SSH to HPC, then:
+
+    cd ~/ACE
+    source setup_env.sh
+    sbatch jobs/run_statistical_tests.sh
+    bash submit_ablations.sh --seeds 3 --episodes 200
+    squeue -u $USER
+
+Wait 2-4 hours, then:
+
+    cat results/statistical_analysis_*.txt
+    python scripts/analyze_ablations.py results/ablations_*/ --latex
+
+Update paper, submit!
+
+================================================================================

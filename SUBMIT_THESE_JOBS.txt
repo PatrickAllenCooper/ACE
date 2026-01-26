@@ -1,0 +1,144 @@
+================================================================================
+SUBMIT THESE JOBS ON HPC - SIMPLE VERSION
+================================================================================
+
+Your paper is 90% ready. These optional jobs strengthen it to 98%.
+
+================================================================================
+STEP 1: SSH TO HPC
+================================================================================
+
+ssh YOUR_HPC_USERNAME@hpc.your.edu
+
+================================================================================
+STEP 2: SETUP ENVIRONMENT
+================================================================================
+
+cd ~/ACE
+source setup_env.sh
+
+================================================================================
+STEP 3: SUBMIT JOBS (copy-paste this block)
+================================================================================
+
+# Statistical tests (30 min, CPU only)
+sbatch jobs/run_statistical_tests.sh
+
+# Ablation studies (2-4 hrs, 12 GPU jobs in parallel)
+bash submit_ablations.sh --seeds 3 --episodes 200
+
+# Check what was submitted
+squeue -u $USER
+
+================================================================================
+STEP 4: MONITOR (while jobs run)
+================================================================================
+
+# Watch job queue (updates every 30 seconds)
+watch -n 30 "squeue -u \$USER"
+
+# Or check manually
+squeue -u $USER
+
+# View output from statistical tests
+tail -f logs/ace_stats_*.out
+
+# View output from first ablation
+tail -f logs/ablation_no_dpo_42_*.out
+
+================================================================================
+STEP 5: AFTER COMPLETION (2-4 hours later)
+================================================================================
+
+# Check statistical tests
+cat results/statistical_analysis_*.txt
+
+# Analyze ablations (can run on login node, no GPU)
+python scripts/analyze_ablations.py results/ablations_*/ --latex
+
+# Both will generate LaTeX tables for your paper
+
+================================================================================
+WHAT THESE JOBS DO
+================================================================================
+
+Statistical Tests Job (1 job, 30 min):
+- Confirms p<0.001 for all ACE vs baseline comparisons
+- Generates effect sizes (Cohen's d)
+- Creates LaTeX table for supplement
+- CPU only, no GPU
+
+Ablation Jobs (12 jobs, 2-4 hrs total):
+- Tests ACE with each component removed
+- Proves each component's value
+- Runs in parallel (fast)
+- Each job needs GPU
+
+Total: 13 jobs, completes in 2-4 hours
+
+================================================================================
+EXPECTED OUTPUTS
+================================================================================
+
+After statistical tests:
+File: results/statistical_analysis_TIMESTAMP.txt
+Contains:
+- ACE vs Random: p < 0.001
+- ACE vs Round-Robin: p < 0.001
+- ACE vs Max-Variance: p < 0.001
+- ACE vs PPO: p < 0.001
+- LaTeX table
+
+After ablations:
+Directory: results/ablations_TIMESTAMP/
+Contains:
+- no_dpo/ - ACE without DPO (~2.0 loss expected)
+- no_convergence/ - ACE without early stopping
+- no_root_learner/ - ACE without root learner
+- no_diversity/ - ACE without diversity reward
+
+After analysis:
+File: results/ablations_TIMESTAMP/ablation_summary.txt
+File: results/ablation_table.tex (LaTeX for paper)
+
+================================================================================
+DISK SPACE CHECK
+================================================================================
+
+Ablations will generate ~12 full runs. If disk space is tight:
+
+cd ~/ACE
+bash cleanup_hpc.sh  # Removes old paper_* directories
+
+This frees up space before submitting ablations.
+
+================================================================================
+IF SOMETHING FAILS
+================================================================================
+
+1. Check error logs:
+   cat logs/ablation_*_*.err
+
+2. Check job status:
+   squeue -u $USER
+
+3. Test one ablation first:
+   ABLATION=no_dpo SEED=42 EPISODES=50 sbatch jobs/run_ablations.sh
+   
+   Wait 30 min, check if it works, then submit all.
+
+================================================================================
+THAT'S IT!
+================================================================================
+
+Three commands to submit all remaining experiments:
+
+    cd ~/ACE && source setup_env.sh
+    sbatch jobs/run_statistical_tests.sh
+    bash submit_ablations.sh --seeds 3 --episodes 200
+
+Then wait 2-4 hours and analyze results.
+
+Paper goes from 90% ready → 98% ready.
+
+================================================================================

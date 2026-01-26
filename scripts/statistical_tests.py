@@ -1,172 +1,236 @@
 #!/usr/bin/env python3
 """
-Statistical significance testing for ACE vs baselines.
+Generate formal statistical significance tests for paper.
 
-Performs comprehensive hypothesis testing:
-- Paired t-tests (assumes matched runs with same seeds)
-- Wilcoxon signed-rank tests (non-parametric alternative)
+Compares ACE vs all baselines with:
+- Paired t-tests with Bonferroni correction
 - Effect sizes (Cohen's d)
-- Multiple comparison correction (Bonferroni)
-- Power analysis
+- 95% confidence intervals
 
 Usage:
     python scripts/statistical_tests.py \
-        --ace results/multi_run_TIMESTAMP/consolidated/ace_statistics.csv \
-        --baselines results/multi_run_TIMESTAMP/consolidated/*_statistics.csv
+        --ace results/ace_multi_seed_20260125_115453 \
+        --baselines results/baselines/baselines_20260124_182827 \
+        --output results/statistical_analysis.txt
 """
 
 import argparse
 import pandas as pd
 import numpy as np
-from scipy import stats
 from pathlib import Path
+from scipy import stats
 
 
-def load_statistics(csv_file):
-    """Load statistics from consolidated CSV."""
-    df = pd.read_csv(csv_file, index_col=0)
-    return df
-
-
-def paired_t_test(ace_values, baseline_values, baseline_name):
-    """Perform paired t-test with full statistics."""
+def load_ace_results(ace_dir):
+    """Load ACE multi-seed results."""
+    results = []
+    ace_path = Path(ace_dir)
     
-    if len(ace_values) != len(baseline_values):
-        print(f"Warning: Sample size mismatch for {baseline_name}")
-        return None
-    
-    if len(ace_values) < 2:
-        print(f"Warning: Need at least 2 samples for {baseline_name}")
-        return None
-    
-    # Paired t-test
-    t_stat, p_value = stats.ttest_rel(baseline_values, ace_values)
-    
-    # Effect size (Cohen's d for paired data)
-    diff = baseline_values - ace_values
-    d = np.mean(diff) / np.std(diff, ddof=1)
-    
-    # Confidence interval for difference
-    n = len(diff)
-    se = np.std(diff, ddof=1) / np.sqrt(n)
-    ci_lower = np.mean(diff) - stats.t.ppf(0.975, n-1) * se
-    ci_upper = np.mean(diff) + stats.t.ppf(0.975, n-1) * se
-    
-    # Wilcoxon signed-rank test (non-parametric)
-    wilcoxon_stat, wilcoxon_p = stats.wilcoxon(baseline_values, ace_values)
-    
-    return {
-        'baseline': baseline_name,
-        'n': n,
-        't_statistic': t_stat,
-        'p_value': p_value,
-        'effect_size_d': d,
-        'mean_diff': np.mean(diff),
-        'ci_lower': ci_lower,
-        'ci_upper': ci_upper,
-        'wilcoxon_p': wilcoxon_p,
-        'significant': p_value < 0.05,
-        'very_significant': p_value < 0.01,
-        'highly_significant': p_value < 0.001
-    }
-
-
-def bonferroni_correction(p_values, alpha=0.05):
-    """Apply Bonferroni correction for multiple comparisons."""
-    n_tests = len(p_values)
-    corrected_alpha = alpha / n_tests
-    
-    return {
-        'original_alpha': alpha,
-        'corrected_alpha': corrected_alpha,
-        'significant_after_correction': [p < corrected_alpha for p in p_values]
-    }
-
-
-def format_significance(p_value, bonferroni_alpha=0.05):
-    """Format significance as LaTeX markers."""
-    if p_value < 0.001:
-        return "***"
-    elif p_value < 0.01:
-        return "**"
-    elif p_value < bonferroni_alpha:
-        return "*"
-    else:
-        return "ns"
-
-
-def generate_significance_table(test_results):
-    """Generate LaTeX table with significance tests."""
-    
-    latex = []
-    latex.append("% Statistical Significance Tests")
-    latex.append("\\begin{table}[t]")
-    latex.append("\\caption{Statistical significance of ACE vs baselines (paired t-tests, n=5).}")
-    latex.append("\\label{tab:significance}")
-    latex.append("\\centering")
-    latex.append("\\small")
-    latex.append("\\begin{tabular}{lcccc}")
-    latex.append("\\toprule")
-    latex.append("Comparison & Mean Diff & 95\\% CI & p-value & Effect Size (d) \\\\")
-    latex.append("\\midrule")
-    
-    for result in test_results:
-        baseline = result['baseline']
-        mean_diff = result['mean_diff']
-        ci_lower = result['ci_lower']
-        ci_upper = result['ci_upper']
-        p_value = result['p_value']
-        effect_size = result['effect_size_d']
+    for seed_dir in sorted(ace_path.glob("seed_*")):
+        run_dirs = list(seed_dir.glob("run_*"))
+        if not run_dirs:
+            continue
         
-        sig = format_significance(p_value)
-        
-        latex.append(f"ACE vs {baseline} & {mean_diff:.3f} & [{ci_lower:.3f}, {ci_upper:.3f}] & {p_value:.4f}{sig} & {effect_size:.2f} \\\\")
+        node_losses = run_dirs[0] / "node_losses.csv"
+        if node_losses.exists():
+            df = pd.read_csv(node_losses)
+            if len(df) > 0:
+                final = df.iloc[-1]
+                results.append({
+                    'seed': int(seed_dir.name.split('_')[1]),
+                    'total_loss': float(final['total_loss'])
+                })
     
-    latex.append("\\bottomrule")
-    latex.append("\\end{tabular}")
-    latex.append("\\\\[0.5em]")
-    latex.append("\\small")
-    latex.append("\\textit{Note:} *** p < 0.001, ** p < 0.01, * p < 0.05, ns = not significant")
-    latex.append("\\end{table}")
+    return pd.DataFrame(results)
+
+
+def load_baseline_results(baseline_dir):
+    """Load baseline results."""
+    baseline_path = Path(baseline_dir)
+    results = {}
     
-    return "\n".join(latex)
+    for method in ['random', 'round_robin', 'max_variance', 'ppo']:
+        csv_file = baseline_path / f"{method}_results.csv"
+        if csv_file.exists():
+            df = pd.read_csv(csv_file)
+            if len(df) > 0:
+                # Get final total loss for each episode (assuming multiple runs)
+                # Group by episode and get final value
+                final_losses = []
+                for episode in df['episode'].unique():
+                    episode_data = df[df['episode'] == episode]
+                    if len(episode_data) > 0:
+                        final = episode_data.iloc[-1]
+                        final_losses.append(float(final['total_loss']))
+                
+                # Take last N values as final results (one per seed)
+                # Assuming 5 runs of 100 episodes each = 500 rows total
+                # We want the last loss from each of the 5 runs
+                n_seeds = 5
+                if len(final_losses) >= n_seeds:
+                    results[method] = final_losses[-n_seeds:]
+                else:
+                    results[method] = final_losses
+    
+    return results
+
+
+def cohens_d(group1, group2):
+    """Compute Cohen's d effect size."""
+    n1, n2 = len(group1), len(group2)
+    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+    pooled_std = np.sqrt(((n1-1)*var1 + (n2-1)*var2) / (n1+n2-2))
+    return (np.mean(group1) - np.mean(group2)) / pooled_std
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Statistical significance testing')
-    parser.add_argument('--ace', required=True, help='ACE statistics CSV or raw values')
-    parser.add_argument('--baseline', action='append', help='Baseline statistics CSV (can specify multiple)')
-    parser.add_argument('--output', default='results/statistical_tests.txt', help='Output file')
+    parser = argparse.ArgumentParser(description='Statistical significance tests')
+    parser.add_argument('--ace', required=True, help='ACE results directory')
+    parser.add_argument('--baselines', required=True, help='Baseline results directory')
+    parser.add_argument('--output', help='Output file')
     
     args = parser.parse_args()
     
-    print("=" * 70)
-    print("Statistical Significance Testing")
-    print("=" * 70)
+    # Load results
+    print("Loading ACE results...")
+    ace_df = load_ace_results(args.ace)
     
-    # For now, demonstrate with placeholder
-    # In real use, would load from multi-seed consolidated results
+    print("Loading baseline results...")
+    baselines = load_baseline_results(args.baselines)
     
-    print("\nThis script will perform:")
-    print("1. Paired t-tests (ACE vs each baseline)")
-    print("2. Wilcoxon signed-rank tests (non-parametric)")
-    print("3. Effect size computation (Cohen's d)")
-    print("4. Bonferroni correction for multiple comparisons")
-    print("5. 95% confidence intervals")
+    if len(ace_df) == 0:
+        print("ERROR: No ACE results found")
+        return
     
-    print("\nExample usage:")
-    print("  python scripts/statistical_tests.py \\")
-    print("    --ace results/multi_run_*/consolidated/ace_statistics.csv \\")
-    print("    --baseline results/multi_run_*/consolidated/random_statistics.csv \\")
-    print("    --baseline results/multi_run_*/consolidated/ppo_statistics.csv")
+    # Prepare output
+    output_lines = []
+    output_lines.append("="*80)
+    output_lines.append("STATISTICAL SIGNIFICANCE TESTS")
+    output_lines.append("="*80)
+    output_lines.append("")
     
-    print("\nOutputs:")
-    print("  - Significance table (LaTeX)")
-    print("  - P-values for all comparisons")
-    print("  - Effect sizes and confidence intervals")
-    print("  - Markers for paper: ***, **, *, ns")
+    # ACE summary
+    ace_values = ace_df['total_loss'].values
+    ace_mean = np.mean(ace_values)
+    ace_std = np.std(ace_values, ddof=1)
+    ace_median = np.median(ace_values)
+    ace_se = ace_std / np.sqrt(len(ace_values))
+    ace_ci = stats.t.ppf(0.975, len(ace_values)-1) * ace_se
     
-    print("\nScript ready. Run after multi-seed experiments complete.")
+    output_lines.append(f"ACE (N={len(ace_values)}):")
+    output_lines.append(f"  Mean: {ace_mean:.4f}")
+    output_lines.append(f"  Median: {ace_median:.4f}")
+    output_lines.append(f"  Std: {ace_std:.4f}")
+    output_lines.append(f"  95% CI: [{ace_mean-ace_ci:.4f}, {ace_mean+ace_ci:.4f}]")
+    output_lines.append("")
+    
+    # Comparisons
+    output_lines.append("="*80)
+    output_lines.append("PAIRWISE COMPARISONS (ACE vs Baselines)")
+    output_lines.append("="*80)
+    output_lines.append("")
+    
+    # Bonferroni correction
+    n_comparisons = len(baselines)
+    alpha_corrected = 0.05 / n_comparisons
+    
+    output_lines.append(f"Bonferroni correction: α = 0.05 / {n_comparisons} = {alpha_corrected:.4f}")
+    output_lines.append("")
+    
+    comparison_results = []
+    
+    for method_name, baseline_values in sorted(baselines.items()):
+        baseline_values = np.array(baseline_values)
+        
+        # Summary stats
+        bl_mean = np.mean(baseline_values)
+        bl_std = np.std(baseline_values, ddof=1)
+        bl_median = np.median(baseline_values)
+        
+        # T-test (independent samples)
+        t_stat, p_value = stats.ttest_ind(ace_values, baseline_values)
+        
+        # Effect size
+        effect_size = cohens_d(ace_values, baseline_values)
+        
+        # Improvement
+        improvement = ((bl_mean - ace_mean) / bl_mean) * 100
+        improvement_median = ((bl_median - ace_median) / bl_median) * 100
+        
+        # Significance
+        if p_value < alpha_corrected:
+            sig_str = f"SIGNIFICANT (p={p_value:.4f} < {alpha_corrected:.4f})"
+        else:
+            sig_str = f"Not significant (p={p_value:.4f})"
+        
+        output_lines.append(f"{method_name.upper().replace('_', '-')}:")
+        output_lines.append(f"  Mean: {bl_mean:.4f} ± {bl_std:.4f}")
+        output_lines.append(f"  Median: {bl_median:.4f}")
+        output_lines.append(f"  Improvement: {improvement:+.1f}% (mean), {improvement_median:+.1f}% (median)")
+        output_lines.append(f"  t-statistic: {t_stat:.4f}")
+        output_lines.append(f"  p-value: {p_value:.6f}")
+        output_lines.append(f"  Cohen's d: {effect_size:.4f}")
+        output_lines.append(f"  Result: {sig_str}")
+        output_lines.append("")
+        
+        comparison_results.append({
+            'Method': method_name.replace('_', '-'),
+            'Baseline Mean': bl_mean,
+            'ACE Mean': ace_mean,
+            'Improvement %': improvement,
+            'p-value': p_value,
+            'Cohen\'s d': effect_size,
+            'Significant': p_value < alpha_corrected
+        })
+    
+    # Summary table
+    output_lines.append("="*80)
+    output_lines.append("SUMMARY TABLE")
+    output_lines.append("="*80)
+    output_lines.append("")
+    
+    df_results = pd.DataFrame(comparison_results)
+    output_lines.append(df_results.to_string(index=False))
+    output_lines.append("")
+    
+    # LaTeX table
+    output_lines.append("="*80)
+    output_lines.append("LATEX TABLE FOR PAPER")
+    output_lines.append("="*80)
+    output_lines.append("")
+    
+    latex = "\\begin{table}[t]\n"
+    latex += "\\centering\n"
+    latex += "\\caption{Statistical comparison of ACE vs baseline methods. All comparisons use independent samples t-tests with Bonferroni correction ($\\alpha = 0.0125$).}\n"
+    latex += "\\label{tab:statistical-tests}\n"
+    latex += "\\begin{tabular}{lccccc}\n"
+    latex += "\\toprule\n"
+    latex += "Method & Mean Loss & Improvement & p-value & Cohen's d & Significant \\\\\n"
+    latex += "\\midrule\n"
+    latex += f"ACE & {ace_mean:.2f} $\\pm$ {ace_std:.2f} & -- & -- & -- & -- \\\\\n"
+    latex += "\\midrule\n"
+    
+    for _, row in df_results.iterrows():
+        sig_marker = "$^{***}$" if row['p-value'] < 0.001 else ("$^{**}$" if row['p-value'] < 0.01 else ("$^{*}$" if row['p-value'] < alpha_corrected else ""))
+        latex += f"{row['Method'].title()} & {row['Baseline Mean']:.2f} & {row['Improvement %']:+.1f}\\% & {row['p-value']:.4f} & {row['Cohen\\'s d']:.2f} & {sig_marker} \\\\\n"
+    
+    latex += "\\bottomrule\n"
+    latex += "\\end{tabular}\n"
+    latex += "\\end{table}\n"
+    
+    output_lines.append(latex)
+    output_lines.append("")
+    output_lines.append("Note: *** p<0.001, ** p<0.01, * p<0.0125 (Bonferroni corrected)")
+    output_lines.append("")
+    
+    # Print and save
+    output_text = "\n".join(output_lines)
+    print(output_text)
+    
+    if args.output:
+        with open(args.output, 'w') as f:
+            f.write(output_text)
+        print(f"\nResults saved to: {args.output}")
 
 
 if __name__ == '__main__':

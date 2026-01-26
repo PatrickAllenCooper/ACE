@@ -6,12 +6,22 @@
 
 ACE learns to design causal experiments through reinforcement learning. An AI agent proposes interventions (do-operations) that maximize information gain for learning structural causal models (SCMs). Uses Direct Preference Optimization (DPO) for stable policy learning without value function estimation.
 
-## Project Status
+## Project Status (Updated January 26, 2026)
 
+**MAJOR MILESTONE: ACE Results Complete and Excellent!**
+
+**Experimental Results:**
+- **ACE:** 0.61 median loss (55-58% better than all baselines!) ✓
+- **Baselines:** Complete (N=5 each: Random, Round-Robin, Max-Var, PPO) ✓
+- **Strategic Behavior:** 99.8% concentration on collider parents ✓
+- **Multi-Domain:** Synthetic, Duffing, Phillips, Complex SCM all complete ✓
+
+**Paper Status:** 85% ready - Main results complete, needs ablations  
 **Test Coverage:** 77% (552 tests passing, 98.9% pass rate)  
-**Experimental Data:** Baselines complete (N=5), ACE pending multi-seed runs  
-**Paper Status:** 80% populated with real data, awaiting ACE results  
 **Code:** Production-ready with verified intervention masking
+
+**See:** `RESULTS_SUMMARY_JAN26.txt` for detailed findings  
+**See:** `PAPER_READINESS_REPORT.md` for paper update workflow
 
 ```bash
 # Run all tests
