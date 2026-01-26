@@ -14,6 +14,24 @@
 - Expanded Limitations section with 5 dedicated paragraphs on known issues
 - Removed topology recovery claim from Duffing section
 
+**POTENTIAL REVIEWER CONCERNS (Address in writing if no time for experiments):**
+
+1. **Oracle pretraining** - 200 interventions from oracle is substantial privileged info.
+   - Even if ablated, it's in main results. Reviewers may object.
+   - WRITING FIX: Emphasize in Limitations that this warm-start accelerates but isn't necessary; ablation quantifies contribution. Could add sentence: "We view oracle pretraining as analogous to expert demonstrations in imitation learning; future work will explore curriculum alternatives."
+
+2. **N=5 seeds** - Thin by ML standards. One outlier (seed 789) drives high variance.
+   - N=10 would be more robust but may not have time.
+   - WRITING FIX: Add to Limitations: "With N=5 seeds, statistical power is limited; we report medians for robustness to the observed outlier and recommend N>=10 for future studies."
+
+3. **Phillips curve framing** - Acknowledged as "active data subset selection" not causal intervention.
+   - May still read as weak or overreaching.
+   - WRITING FIX: Consider downplaying in abstract/intro, framing as "demonstration of strategic historical sampling" rather than causal experiment. Possibly move to appendix if space allows.
+
+4. **LM policy overhead** - Qwen2.5-1.5B may seem like overkill.
+   - Reviewers may ask "why not a simple MLP policy?"
+   - WRITING FIX: Strengthen justification already in paper (variable graphs, pretrained biases, cost balance). Add: "We chose an LM over MLP/GNN because (1) text prompts naturally handle variable-size graphs without architectural changes, (2) pretrained representations transfer useful inductive biases, and (3) 1.5B is smallest model with robust instruction-following. An MLP baseline would require fixed graph encoding, limiting generalization."
+
 **CRITICAL EXPERIMENTS TO RUN:**
 
 1. **Extended Baselines (171 episodes)** - ADDRESSES: unfair budget comparison
