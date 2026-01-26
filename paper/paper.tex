@@ -656,13 +656,7 @@ Looking forward, ACE enables a new paradigm of automated hypothesis validation. 
 
 \section{Limitations and Future Work}
 
-Several limitations of ACE warrant discussion. First, the framework requires high-fidelity simulations during policy training, limiting immediate application to domains that possess accurate simulators or sufficient historical data to serve as oracles. Domains like drug discovery or social science, where ground truth is expensive or impossible to obtain, would require additional methodological development.
-
-Second, our current implementation assumes known causal structure, focusing on the mechanism estimation problem rather than joint structure-and-mechanism discovery. While this assumption holds in many practical settings where domain expertise provides structural hypotheses, extending ACE to simultaneously discover structure remains an important direction.
-
-Third, our text-based graph encoding faces context length limitations as system size grows. For graphs with $n > 20$ nodes, the prompt length becomes prohibitive. Graph neural network encodings could dramatically improve scalability, enabling application to domains like gene regulatory networks where hundreds of variables interact.
-
-Finally, while ACE achieves superior final performance (52--58\% improvement), it does not reduce the total number of episodes compared to fixed-episode baselines (171 vs 100 episodes on average). This reflects a quality-versus-quantity tradeoff: ACE invests additional episodes to achieve substantially better mechanism estimates. This tradeoff favors applications where final accuracy is more critical than minimizing experiment count---common in domains where each experiment provides rich information but computational rather than monetary cost dominates.
+ACE requires high-fidelity simulations or historical data during training, assumes known causal structure (focusing on mechanism rather than joint structure-and-mechanism discovery), and faces scalability limits from text-based graph encoding ($n > 20$ nodes becomes prohibitive). While ACE achieves 52--58\% improvement in final accuracy, it uses more episodes than fixed baselines (171 vs 100), reflecting a quality-over-quantity tradeoff suited to domains where accuracy matters more than sample count. Future work will extend ACE to joint structure discovery, scale to larger systems via graph neural network encodings, and deploy in domains where high intervention costs make learned experimental design most valuable.
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
