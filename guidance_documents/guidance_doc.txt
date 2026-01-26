@@ -1,34 +1,54 @@
 # ACE: Autonomous Causal Experimentation
 
-## Latest Update: January 26, 2026 - Paper Writing Improved
+## Latest Update: January 26, 2026 - Addressing ICML Reviewer Critiques
 
-**Status:** ALL EXPERIMENTS COMPLETE - Paper prose refined for publication quality
+**Status:** CRITICAL EXPERIMENTS NEEDED - Addressing reviewer concerns
 
-**Recent Changes:**
-- Improved paper writing throughout: expanded terse sentences, added narrative flow
-- Removed choppy inline headers (Setup., Results., Limitations.)
-- Each section now tells a coherent story while maintaining technical rigor
-- Related Works restructured with clear subsections
-- DPO vs PPO explanation expanded with intuitive reasoning
-- Conclusion rewritten to emphasize key contributions narratively
+**Reviewer Response Changes Made:**
+- Fixed beta notation overload (reward weight gamma vs DPO temperature beta_DPO)
+- Added explicit hyperparameter values (alpha=0.1, gamma=0.05, beta_DPO=0.1)
+- Added LM policy justification (variable graphs, pretrained biases, cost balance)
+- Fixed statistical test inconsistency (paired t-tests, Bonferroni correction)
+- Softened p-value claims (3/4 significant, Max-Var marginal)
+- Clarified Phillips curve as "active data subset selection" not causal intervention
+- Expanded Limitations section with 5 dedicated paragraphs on known issues
+- Removed topology recovery claim from Duffing section
+
+**CRITICAL EXPERIMENTS TO RUN:**
+
+1. **Extended Baselines (171 episodes)** - ADDRESSES: unfair budget comparison
+   ```bash
+   python run_critical_experiments.py --extended-baselines
+   ```
+
+2. **Lookahead Ablation (Random Proposer)** - ADDRESSES: lookahead confound
+   ```bash
+   python run_critical_experiments.py --lookahead-ablation
+   ```
+
+3. **Complex 15-Node SCM (Full)** - ADDRESSES: scaling validation
+   ```bash
+   python run_critical_experiments.py --complex-scm
+   ```
+
+4. **Run ALL critical experiments:**
+   ```bash
+   sbatch jobs/run_critical_experiments.sh
+   # OR locally:
+   python run_critical_experiments.py --all --seeds 42 123 456 789 1011
+   ```
 
 **Current Experimental Status:**
-- ACE: COMPLETE (N=5 seeds, EXCELLENT results!)
-  - **Median: 0.61 total loss (mean: 0.92 ± 0.73)**
-  - **52-58% improvement over ALL baselines**
-  - Strategic concentration: 99.8% on collider parents (X1+X2)
-  - Collider learning: X3 loss 0.054 (vs ~3.3 initial)
-  - 4/5 seeds successful, 1 outlier for failure analysis
-- Baselines: COMPLETE (N=5 runs with full statistics)
-  - Random: 2.18 ± 0.06 (100 episodes)
-  - Round-Robin: 2.15 ± 0.08 (100 episodes)
-  - Max-Variance: 2.05 ± 0.12 (100 episodes) - BEST BASELINE
-  - PPO: 2.11 ± 0.13 (100 episodes)
-- Duffing: COMPLETE (N=5, loss 0.042 ± 0.036)
-- Phillips: COMPLETE (N=5, needs analysis)
-- Complex SCM: COMPLETE (N=6 across strategies)
+- ACE: COMPLETE (N=5 seeds)
+  - Median: 0.61 total loss (mean: 0.92 +/- 0.73)
+  - 52-58% improvement over baselines (3/4 significant)
+  - Strategic concentration: 99.8% on collider parents
+- Baselines (100 episodes): COMPLETE - NEED 171-EPISODE EXTENSION
+- Duffing: COMPLETE (N=5, loss 0.042 +/- 0.036)
+- Phillips: COMPLETE (N=5)
+- Complex SCM: PARTIAL - NEED FULL COMPARISON
 
-**Paper Status:** 95% complete - Prose polished, awaiting ablation results
+**Paper Status:** 90% complete - Awaiting critical experiments for reviewer response
 
 **Test Coverage:** 77% (552 tests, 98.9% pass rate)
 
