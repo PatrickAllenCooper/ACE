@@ -307,7 +307,7 @@ To ensure statistical rigor, all experiments are conducted with five independent
 
 \subsection{Synthetic 5-Node Benchmark}
 
-Setup. We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (collider), $X_4 \to X_5$, shown in Figure~\ref{fig:synthetic-scm}. Mechanisms include linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) relationships with Gaussian noise ($\sigma = 0.1$). Root distributions are $X_1 \sim \mathcal{N}(0,1)$, $X_4 \sim \mathcal{N}(2,1)$. This benchmark tests collider identification (requiring interventions on both $X_1$ and $X_2$) and diverse mechanism types.
+We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (collider), $X_4 \to X_5$, shown in Figure~\ref{fig:synthetic-scm}. Mechanisms include linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) relationships with Gaussian noise ($\sigma = 0.1$). Root distributions are $X_1 \sim \mathcal{N}(0,1)$, $X_4 \sim \mathcal{N}(2,1)$. This benchmark tests collider identification (requiring interventions on both $X_1$ and $X_2$) and diverse mechanism types.
 
 \begin{figure}[t]
 \centering
@@ -341,7 +341,7 @@ Setup. We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to 
 \label{fig:synthetic-scm}
 \end{figure}
 
-Results. Baseline comparison across 5 independent runs (N=5, seeds: 42, 123, 456, 789, 1011). Final total MSE after 100 episodes: Random 2.18 $\pm$ 0.06 (95\% CI: [2.06, 2.31]), Round-Robin 2.15 $\pm$ 0.08 (95\% CI: [2.00, 2.30]), Max-Variance 2.05 $\pm$ 0.12 (95\% CI: [1.80, 2.29]), and PPO 2.11 $\pm$ 0.13 (95\% CI: [2.00, 2.23]). Max-Variance achieves the best baseline performance, demonstrating that uncertainty sampling provides advantages for mechanism learning. 
+Baseline comparison across 5 independent runs (N=5, seeds: 42, 123, 456, 789, 1011) yields final total MSE after 100 episodes: Random 2.18 $\pm$ 0.06 (95\% CI: [2.06, 2.31]), Round-Robin 2.15 $\pm$ 0.08 (95\% CI: [2.00, 2.30]), Max-Variance 2.05 $\pm$ 0.12 (95\% CI: [1.80, 2.29]), and PPO 2.11 $\pm$ 0.13 (95\% CI: [2.00, 2.23]). Max-Variance achieves the best baseline performance, demonstrating that uncertainty sampling provides advantages for mechanism learning. 
 
 ACE achieves 0.61 median total MSE (mean: 0.92 $\pm$ 0.73, N=5, average 171 episodes), representing 52-58\% improvement over all baselines. Using median for robustness to outliers (one seed exhibited X5 mechanism failure), ACE demonstrates 68\% improvement over Max-Variance with 95\% CI [0.02, 1.82]. Independent samples t-tests with Bonferroni correction ($\alpha = 0.0125$) confirm statistical significance for three of four baselines: PPO (p=0.0046, Cohen's d=-2.46), Random (p=0.0063, d=-2.32), Round-Robin (p=0.0092, d=-2.16). Max-Variance shows large practical improvement (52\%, d=-1.96) with marginal significance (p=0.0146). Per-node analysis reveals exceptional collider learning: $L_{X_3} = 0.054 \pm 0.014$, validating ACE's strategic intervention allocation.
 % Figure~\ref{fig:synthetic-learning} shows learning curves across methods.
@@ -354,9 +354,7 @@ ACE achieves 0.61 median total MSE (mean: 0.92 $\pm$ 0.73, N=5, average 171 epis
 % Not critical - text description is sufficient.
 % =============================================================================
 
-Intervention Distribution. 
-% Figure~\ref{fig:intervention-dist} visualizes the learned intervention policy. 
-ACE concentrates 99.8\% of interventions on $X_2$ and $X_1$ (the collider's parents), with remarkable consistency across seeds (range: 99.6-99.9\%), compared to approximately 40\% uniform allocation (20\% each) under random sampling. This extreme strategic concentration, learned autonomously through DPO, demonstrates that the policy has identified the critical bottleneck for collider identification and explains the improved collider performance ($L_{X_3} = 0.054$ vs initial $\sim$3.3).
+Analysis of the learned intervention policy reveals that ACE concentrates 99.8\% of interventions on $X_2$ and $X_1$ (the collider's parents), with remarkable consistency across seeds (range: 99.6-99.9\%), compared to approximately 40\% uniform allocation (20\% each) under random sampling. This extreme strategic concentration, learned autonomously through DPO, demonstrates that the policy has identified the critical bottleneck for collider identification and explains the improved collider performance ($L_{X_3} = 0.054$ vs initial $\sim$3.3).
 
 % =============================================================================
 % OPTIONAL FIGURE: Intervention distribution
@@ -368,11 +366,11 @@ ACE concentrates 99.8\% of interventions on $X_2$ and $X_1$ (the collider's pare
 
 \subsection{Complex 15-Node SCM}
 
-Setup. To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes where every endogenous node is a collider (11 colliders total, 4 roots), with mixed functional forms (linear, polynomial, trigonometric, interaction terms), illustrated in Figure~\ref{fig:complex-scm}. This collider-dense structure creates a particularly challenging experimental design problem. This setting dilutes random sampling across many nodes ($\sim$6.7\% per node), favoring strategic policies that can identify high-value intervention targets.
+To test scaling and strategic advantage, we evaluate on a complex SCM with 15 nodes where every endogenous node is a collider (11 colliders total, 4 roots), with mixed functional forms (linear, polynomial, trigonometric, interaction terms), illustrated in Figure~\ref{fig:complex-scm}. This collider-dense structure creates a particularly challenging experimental design problem, diluting random sampling across many nodes ($\sim$6.7\% per node) and favoring strategic policies that can identify high-value intervention targets.
 
 \subsection{Large-Scale 30-Node SCM}
 
-Setup. To demonstrate scalability to realistic system sizes, we test on a hierarchical 30-node SCM with 5 exogenous roots, multiple layers of intermediate nodes, and 10 collider structures. At this scale, random sampling allocates only $\sim$3.3\% of interventions per node, making strategic selection critical. This benchmark validates that ACE's learned strategies remain effective as system complexity increases, a key requirement for practical deployment in domains like gene regulatory networks or industrial process models where hundreds of variables may interact.
+To demonstrate scalability to realistic system sizes, we test on a hierarchical 30-node SCM with 5 exogenous roots, multiple layers of intermediate nodes, and 10 collider structures. At this scale, random sampling allocates only $\sim$3.3\% of interventions per node, making strategic selection critical. This benchmark validates that ACE's learned strategies remain effective as system complexity increases, a key requirement for practical deployment in domains like gene regulatory networks or industrial process models where hundreds of variables may interact.
 
 % =============================================================================
 % OPTIONAL: Large-scale 30-node experiment (not critical for acceptance)
@@ -450,11 +448,11 @@ Setup. To demonstrate scalability to realistic system sizes, we test on a hierar
 \label{fig:complex-scm}
 \end{figure}
 
-Results. Complex SCM experiments across multiple strategy variants (N runs per strategy) show: random sampling achieves 4.58 $\pm$ 0.19 total MSE with 0.32 $\pm$ 0.03 collider-specific MSE (N=4), smart random 4.72 collider MSE (N=1), and greedy collider-focused 4.49 total MSE with 0.29 collider MSE (N=1). The greedy collider strategy achieves 9% lower collider error compared to random (0.29 vs 0.32), confirming that targeted intervention on collider parents improves multi-parent mechanism identification. Total MSE remains comparable across strategies (4.49-4.72), indicating gains derive from intelligent prioritization rather than uniform improvement across all 15 mechanisms.
+Complex SCM experiments across multiple strategy variants (N runs per strategy) show that random sampling achieves 4.58 $\pm$ 0.19 total MSE with 0.32 $\pm$ 0.03 collider-specific MSE (N=4), smart random 4.72 collider MSE (N=1), and greedy collider-focused 4.49 total MSE with 0.29 collider MSE (N=1). The greedy collider strategy achieves 9\% lower collider error compared to random (0.29 vs 0.32), confirming that targeted intervention on collider parents improves multi-parent mechanism identification. Total MSE remains comparable across strategies (4.49--4.72), indicating gains derive from intelligent prioritization rather than uniform improvement across all 15 mechanisms.
 
 \subsection{Physics: Coupled Duffing Oscillators}
 
-Setup. We apply ACE to a chain of three coupled nonlinear oscillators governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), shown in Figure~\ref{fig:duffing-scm}, but correlations from synchronized oscillation initially suggest full connectivity.
+We apply ACE to a chain of three coupled nonlinear oscillators governed by $\ddot{x}_i + \delta \dot{x}_i + \alpha x_i + \beta x_i^3 = F_i(t) + k(x_{i-1} - x_i) + k(x_{i+1} - x_i)$. The oracle simulates continuous dynamics via RK4 integration ($\Delta t = 0.01$) while the learner observes discrete samples. The true coupling structure is a chain ($X_1 \leftrightarrow X_2 \leftrightarrow X_3$), shown in Figure~\ref{fig:duffing-scm}, but correlations from synchronized oscillation initially suggest full connectivity.
 
 \begin{figure}[t]
 \centering
@@ -493,11 +491,11 @@ Setup. We apply ACE to a chain of three coupled nonlinear oscillators governed b
 \label{fig:duffing-scm}
 \end{figure}
 
-Results. Across 5 independent runs (N=5), Duffing oscillator experiments achieve final coupling error of 0.042 $\pm$ 0.036 (95\% CI: [0.011, 0.073]) after 100 episodes. All runs successfully recovered the true chain topology from initially apparent full connectivity. Interventions on intermediate oscillators (X2) decouple the synchronized system, breaking spurious X1-X3 correlations. This validates that strategic intervention on mediating variables reveals true causal structure hidden by synchronization dynamics.
+Across 5 independent runs (N=5), Duffing oscillator experiments achieve final coupling error of 0.042 $\pm$ 0.036 (95\% CI: [0.011, 0.073]) after 100 episodes. All runs successfully recovered the true chain topology from initially apparent full connectivity. Interventions on intermediate oscillators ($X_2$) decouple the synchronized system, breaking spurious $X_1$--$X_3$ correlations, validating that strategic intervention on mediating variables reveals true causal structure hidden by synchronization dynamics.
 
 \subsection{Economics: Phillips Curve}
 
-Setup. Using Federal Reserve Economic Data (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}), as shown in Figure~\ref{fig:phillips-scm}. The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
+Using Federal Reserve Economic Data (FRED, 1960--2023), we model the relationship between unemployment (\texttt{UNRATE}), federal funds rate (\texttt{FEDFUNDS}), inflation expectations (\texttt{MICH}), and core CPI (\texttt{CPILFESL}), as shown in Figure~\ref{fig:phillips-scm}. The oracle contains the complete historical record; the learner attempts to recover the mechanism $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE selects which historical regimes to query, treating structural breaks (e.g., Volcker disinflation, Great Moderation) as natural experiments.
 
 \begin{figure}[t]
 \centering
@@ -537,7 +535,7 @@ Setup. Using Federal Reserve Economic Data (FRED, 1960--2023), we model the rela
 \label{fig:phillips-scm}
 \end{figure}
 
-Results. Phillips curve experiments demonstrate ACE's ability to select informative historical periods for mechanism learning. Five independent runs (N=5) validate retrospective causal discovery on real-world economic data. Systematic querying of high-volatility historical regimes (1970s stagflation, Great Recession) exposes mechanism nonlinearities. Early exposure to structural breaks improves generalization to held-out data, demonstrating the value of strategic historical sampling for retrospective causal learning.
+Phillips curve experiments demonstrate ACE's ability to select informative historical periods for mechanism learning. Five independent runs (N=5) validate retrospective causal discovery on real-world economic data, with systematic querying of high-volatility historical regimes (1970s stagflation, Great Recession) exposing mechanism nonlinearities. Early exposure to structural breaks improves generalization to held-out data, demonstrating the value of strategic historical sampling for retrospective causal learning.
 
 % =============================================================================
 % OPTIONAL: Detailed Phillips curve analysis
@@ -604,9 +602,9 @@ Key findings from qualitative analysis: Per-node convergence prevents premature 
 
 Our analysis of 25 runs across 5 seeds reveals scenarios where ACE's advantages are most pronounced:
 
-ACE excels when: (1) causal structures contain colliders or complex dependencies requiring strategic intervention allocation (99.8\% concentration on collider parents, $L_{X_3} = 0.054$ vs baseline $\sim$2.0+), (2) experimental budgets allow policy learning (171 episodes on average), (3) mechanisms have heterogeneous learning rates benefiting from per-node convergence (linear X2: 0.010, quadratic X5: 0.449, collider X3: 0.054), and (4) structural knowledge exists (known or hypothesized graph).
+ACE excels when causal structures contain colliders or complex dependencies requiring strategic intervention allocation (99.8\% concentration on collider parents, $L_{X_3} = 0.054$ vs baseline $\sim$2.0+), when experimental budgets allow policy learning (171 episodes on average), when mechanisms have heterogeneous learning rates benefiting from per-node convergence (linear $X_2$: 0.010, quadratic $X_5$: 0.449, collider $X_3$: 0.054), and when structural knowledge exists (known or hypothesized graph).
 
-Failure modes: One seed (789) exhibited X5 mechanism failure (loss 1.73 vs 0.02-0.22 for other seeds), suggesting sensitivity to initialization or optimization challenges in quadratic mechanisms. This outlier motivates robust reporting using median statistics and highlights the value of multi-seed validation.
+However, one seed (789) exhibited $X_5$ mechanism failure (loss 1.73 vs 0.02--0.22 for other seeds), suggesting sensitivity to initialization or optimization challenges in quadratic mechanisms. This outlier motivates robust reporting using median statistics and highlights the value of multi-seed validation.
 
 \subsection{Why Preference Learning Outperforms Value-Based RL}
 
@@ -627,9 +625,7 @@ Looking forward, ACE enables automated hypothesis validation: scientists propose
 
 \section{Limitations and Future Work}
 
-Several limitations warrant discussion and suggest directions for future research.
-
-Limitations. ACE requires high-fidelity simulations during training, limiting application to domains with accurate simulators or historical data. Our implementation assumes known causal structure, focusing on mechanism estimation rather than joint structure discovery. Text-based graph encoding faces context limits for $n > 20$ nodes; graph neural networks could improve scalability. While ACE achieves superior final performance (52-58\% improvement), it does not reduce episode count compared to fixed-episode baselines (171 vs 100 episodes); this quality-versus-quantity tradeoff favors applications where final accuracy is more critical than sample efficiency.
+ACE requires high-fidelity simulations during training, limiting application to domains with accurate simulators or historical data. Our implementation assumes known causal structure, focusing on mechanism estimation rather than joint structure discovery. Text-based graph encoding faces context limits for $n > 20$ nodes; graph neural networks could improve scalability. While ACE achieves superior final performance (52--58\% improvement), it does not reduce episode count compared to fixed-episode baselines (171 vs 100 episodes); this quality-versus-quantity tradeoff favors applications where final accuracy is more critical than sample efficiency.
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
