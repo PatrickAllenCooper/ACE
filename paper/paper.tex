@@ -126,6 +126,38 @@ ACE learns from experimental outcomes via Direct Preference Optimization (DPO) \
 
 Our work makes three contributions. First, we introduce a reward function that balances information gain, node importance, and exploration diversity, providing a principled objective for experimental design. Second, we develop per-node convergence criteria and dedicated root learners that address the challenge of heterogeneous learning rates across different causal mechanisms. Third, we demonstrate empirically that preference-based learning substantially outperforms value-based reinforcement learning for this domain, achieving 52--58\% improvement over all baseline methods with statistical significance (p<0.01, Bonferroni corrected) and large effect sizes (Cohen's d $\approx$ 2.2). Remarkably, the learned strategies autonomously concentrate 99.8\% of interventions on collider parents---precisely the strategy that theory suggests is optimal for identifying multi-parent mechanisms.
 
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    box/.style={rectangle, draw, rounded corners, minimum width=2.2cm, minimum height=1cm, font=\small, thick, align=center},
+    env/.style={box, fill=blue!15},
+    learn/.style={box, fill=orange!15},
+    agent/.style={box, fill=green!15},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick},
+    label/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}
+]
+% Main components
+\node[env] (env) at (0,0) {Environment\\$M^*$};
+\node[learn] (learn) at (4,0) {Learner\\$M_\theta$};
+\node[agent] (agent) at (2,-2.2) {Experimentalist\\$\pi_\phi$};
+
+% Arrows with labels
+\draw[arrow] (agent) -- node[label, left, xshift=-2pt] {$\text{do}(V_i\!=\!\nu)$} (env);
+\draw[arrow] (env) -- node[label, above] {$\mathcal{D} \sim P_{M^*}$} (learn);
+\draw[arrow] (learn) -- node[label, right, xshift=2pt] {$\{L_i\}$} (agent);
+
+% DPO annotation
+\draw[arrow, dashed, gray] (agent.south) -- ++(0,-0.6) node[below, font=\scriptsize, gray] {DPO update};
+
+% Preference pairs
+\node[font=\scriptsize, gray, align=center] at (5.5,-2.2) {preference\\$(y_w, y_l)$};
+\draw[-{Stealth}, gray, dashed] (4.8,-2.2) -- (agent.east);
+\end{tikzpicture}
+\caption{ACE framework overview. The experimentalist $\pi_\phi$ proposes interventions, the environment $M^*$ generates data, and the learner $M_\theta$ updates its mechanism estimates. Per-node losses $\{L_i\}$ inform the next intervention. DPO training uses preference pairs constructed from candidate comparisons.}
+\label{fig:framework}
+\end{figure}
+
 \subsection{Notation and Problem Formulation}
 
 We adopt Pearl's causal framework \cite{pearl2009causality,pearl09,pearl95}. A Structural Causal Model (SCM) $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$ consists of exogenous variables $\mathcal{U} = \{U_1, \ldots, U_m\}$, endogenous variables $\mathcal{V} = \{V_1, \ldots, V_n\}$, structural equations $\mathcal{F} = \{f_1, \ldots, f_n\}$ where $V_i = f_i(\text{Pa}_i, U_i)$, and distribution $P(\mathcal{U})$ over exogenous variables.
@@ -181,38 +213,6 @@ Existing approaches fall short in several ways. Predefined strategies cannot ada
 We formulate causal experimental design as a sequential decision problem where a policy learns to select interventions by observing their effect on a learner's epistemic state. Critically, the policy must learn both which variable to intervene upon (target selection) and what value to set it to (functional intervention approximation), a joint action space that distinguishes our approach from methods that only address target selection.
 
 Our framework consists of three components: an oracle environment representing ground truth, a learner estimating mechanisms, and an experimentalist proposing interventions (Figure~\ref{fig:framework}). The experimentalist is trained via Direct Preference Optimization to prefer interventions yielding higher information gain, learning to approximate the functional relationship between intervention values and information gain without explicit function modeling.
-
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}[
-    node distance=1.2cm,
-    box/.style={rectangle, draw, rounded corners, minimum width=2.2cm, minimum height=1cm, font=\small, thick, align=center},
-    env/.style={box, fill=blue!15},
-    learn/.style={box, fill=orange!15},
-    agent/.style={box, fill=green!15},
-    arrow/.style={-{Stealth[length=2.5mm]}, thick},
-    label/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}
-]
-% Main components
-\node[env] (env) at (0,0) {Environment\\$M^*$};
-\node[learn] (learn) at (4,0) {Learner\\$M_\theta$};
-\node[agent] (agent) at (2,-2.2) {Experimentalist\\$\pi_\phi$};
-
-% Arrows with labels
-\draw[arrow] (agent) -- node[label, left, xshift=-2pt] {$\text{do}(V_i\!=\!\nu)$} (env);
-\draw[arrow] (env) -- node[label, above] {$\mathcal{D} \sim P_{M^*}$} (learn);
-\draw[arrow] (learn) -- node[label, right, xshift=2pt] {$\{L_i\}$} (agent);
-
-% DPO annotation
-\draw[arrow, dashed, gray] (agent.south) -- ++(0,-0.6) node[below, font=\scriptsize, gray] {DPO update};
-
-% Preference pairs
-\node[font=\scriptsize, gray, align=center] at (5.5,-2.2) {preference\\$(y_w, y_l)$};
-\draw[-{Stealth}, gray, dashed] (4.8,-2.2) -- (agent.east);
-\end{tikzpicture}
-\caption{ACE framework overview. The experimentalist $\pi_\phi$ proposes interventions, the environment $M^*$ generates data, and the learner $M_\theta$ updates its mechanism estimates. Per-node losses $\{L_i\}$ inform the next intervention. DPO training uses preference pairs constructed from candidate comparisons.}
-\label{fig:framework}
-\end{figure}
 
 \subsection{Problem Formulation}
 
