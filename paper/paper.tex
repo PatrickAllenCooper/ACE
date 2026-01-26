@@ -398,19 +398,20 @@ Table~\ref{tab:main-results} summarizes performance across all methods. We condu
 
 \begin{table}[t]
 \centering
-\caption{Main results on the 5-node synthetic benchmark. All methods evaluated over N=5 seeds. ACE significantly outperforms all baselines with large effect sizes. $^{**}$p<0.01, $^{*}$p<0.0125 (Bonferroni corrected).}
+\caption{Main results on the 5-node synthetic benchmark (N=5 seeds). ACE significantly outperforms all baselines. $^{**}$p<0.01 (Bonferroni corrected).}
 \label{tab:main-results}
-\begin{tabular}{lcccc}
+\small
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-Method & Loss (mean $\pm$ std) & 95\% CI & Improv. & Cohen's d \\
+Method & Loss (mean$\pm$std) & 95\% CI & Impr. & $d$ \\
 \midrule
-\textbf{ACE (ours)} & \textbf{0.92 $\pm$ 0.73} & [0.02, 1.82] & -- & -- \\
+\textbf{ACE (ours)} & \textbf{0.92$\pm$0.73} & [0.02, 1.82] & -- & -- \\
 \quad median & 0.61 & & & \\
 \midrule
-Max-Variance & 1.93 $\pm$ 0.04 & [1.80, 2.06] & +52\% & $-$1.96 \\
-Round-Robin & 2.03 $\pm$ 0.05 & [1.93, 2.13] & +55\%$^{**}$ & $-$2.16 \\
-Random & 2.11 $\pm$ 0.05 & [2.01, 2.21] & +56\%$^{**}$ & $-$2.32 \\
-PPO & 2.19 $\pm$ 0.07 & [2.06, 2.32] & +58\%$^{**}$ & $-$2.46 \\
+Max-Var. & 1.93$\pm$0.04 & [1.80, 2.06] & 52\% & 1.96 \\
+Round-Robin & 2.03$\pm$0.05 & [1.93, 2.13] & 55\%$^{**}$ & 2.16 \\
+Random & 2.11$\pm$0.05 & [2.01, 2.21] & 56\%$^{**}$ & 2.32 \\
+PPO & 2.19$\pm$0.07 & [2.06, 2.32] & 58\%$^{**}$ & 2.46 \\
 \bottomrule
 \end{tabular}
 \end{table}
