@@ -1,0 +1,162 @@
+================================================================================
+USING SCRATCH STORAGE FOR REMAINING EXPERIMENTS
+================================================================================
+
+You have 9.5TB available on /scratch/alpine1 vs only 2.6GB on /projects.
+Use scratch for intermediate files, keep only final results in /projects.
+
+================================================================================
+SCRATCH-BASED WORKFLOW
+================================================================================
+
+STATISTICAL TESTS:
+------------------
+cd /projects/paco0228/ACE
+sbatch jobs/run_statistical_tests_scratch.sh
+
+What it does:
+1. Copies ACE + baseline results to /scratch (temporary)
+2. Runs analysis on /scratch
+3. Copies final .txt file back to /projects/results/
+4. Cleans up /scratch automatically
+
+Space used in /projects: ~1MB (just the .txt output)
+
+
+ABLATION STUDIES:
+-----------------
+cd /projects/paco0228/ACE
+bash submit_ablations_scratch.sh --seeds 3 --episodes 200
+
+What it does:
+1. Each job runs on /scratch/alpine1/$USER/ablation_*/
+2. Training happens on scratch (checkpoints, temp files)
+3. Only essential results copied back (.csv, .png)
+4. Checkpoints NOT copied (saves ~80% space)
+5. Each job cleans its scratch directory
+
+Space used in /projects: ~2-3GB total (vs ~20-30GB without scratch)
+
+================================================================================
+KEY DIFFERENCES FROM REGULAR WORKFLOW
+================================================================================
+
+REGULAR (uses /projects):
+- All files written to /projects
+- Checkpoints stored (~1-2GB per run)
+- Total space: 20-30GB for 12 ablations
+- Risk: Out of space
+
+SCRATCH-BASED (uses /scratch):
+- Intermediate files on /scratch (9.5TB available)
+- Only final results copied to /projects
+- Total space in /projects: 2-3GB
+- No risk of out of space
+
+================================================================================
+WHAT GETS COPIED BACK TO /PROJECTS
+================================================================================
+
+For each ablation run:
+✓ metrics.csv (episode-level metrics)
+✓ node_losses.csv (per-node losses)
+✓ dpo_training.csv (DPO diagnostics)
+✓ value_diversity.csv (intervention values)
+✓ *.png (visualization plots)
+
+NOT copied (saves space):
+✗ *.pt (PyTorch checkpoints - 1-2GB each)
+✗ Temporary training files
+✗ Intermediate data
+
+Result: ~200MB per run vs ~2GB per run = 90% space savings
+
+================================================================================
+EXACT COMMANDS TO RUN
+================================================================================
+
+cd /projects/paco0228/ACE
+
+# Statistical tests (30 min, ~1MB output)
+sbatch jobs/run_statistical_tests_scratch.sh
+
+# Ablation studies (2-4 hrs, ~2-3GB total output)
+bash submit_ablations_scratch.sh --seeds 3 --episodes 200
+
+# Monitor
+squeue -u paco0228
+
+# After completion
+cat results/statistical_analysis_*.txt
+python scripts/analyze_ablations.py results/ablations_*/ --latex
+
+================================================================================
+SPACE COMPARISON
+================================================================================
+
+WITHOUT SCRATCH:
+- 12 ablations × 2GB each = 24GB
+- Current available: 2.6GB
+- Result: OUT OF SPACE
+
+WITH SCRATCH:
+- 12 ablations × 200MB each = 2.4GB
+- Current available: 50-100GB (after cleanup)
+- Result: PLENTY OF SPACE
+
+================================================================================
+MONITORING SCRATCH USAGE
+================================================================================
+
+# Check your scratch usage
+du -sh /scratch/alpine1/$USER/
+
+# See what's currently on scratch
+ls -lh /scratch/alpine1/$USER/
+
+# Scratch is auto-cleaned after each job completes
+
+================================================================================
+FILES CREATED
+================================================================================
+
+NEW (Scratch-based):
+✓ jobs/run_statistical_tests_scratch.sh
+✓ jobs/run_ablations_scratch.sh
+✓ submit_ablations_scratch.sh
+
+OLD (Regular - don't use these, out of space):
+- jobs/run_statistical_tests.sh
+- jobs/run_ablations.sh
+- submit_ablations.sh
+
+Use the *_scratch.sh versions!
+
+================================================================================
+AFTER JOBS COMPLETE
+================================================================================
+
+Results will be in /projects:
+- results/statistical_analysis_TIMESTAMP.txt
+- results/ablations_TIMESTAMP/no_dpo/seed_*/
+- results/ablations_TIMESTAMP/no_convergence/seed_*/
+- results/ablations_TIMESTAMP/no_root_learner/seed_*/
+- results/ablations_TIMESTAMP/no_diversity/seed_*/
+
+Scratch will be empty (auto-cleaned).
+
+Total space used: 2-3GB (vs 20-30GB without scratch)
+
+================================================================================
+RECOMMENDATION
+================================================================================
+
+Use scratch-based workflow for ALL future HPC jobs.
+
+It's faster (scratch is on local SSD), has more space (9.5TB),
+and automatically cleans up after each job.
+
+Just remember: Scratch is temporary! Always copy important results
+back to /projects before the job ends.
+
+================================================================================
