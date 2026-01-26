@@ -265,7 +265,7 @@ The experimentalist policy $\pi_\phi(c_t \mid s_t)$ observes the current state $
 \draw[arrow] (sim) -- node[annot, above] {pairs} (dpo);
 
 % Feedback loops with labels
-\draw[arrow, dashed, gray] (dpo.north) -- ++(0,0.5) -| node[annot, pos=0.25, above] {$\pi_\phi$ update} (state.east);
+\draw[arrow, dashed, gray] (dpo.east) -- ++(0.4,0) |- node[annot, pos=0.75, right] {$\pi_\phi$ update} (state.east);
 \draw[arrow, dashed, gray] (learn.west) -- ++(-0.9,0) |- node[annot, pos=0.25, left] {next step} (state.west);
 
 % Side annotation
