@@ -1,0 +1,120 @@
+================================================================================
+URGENT: FREE UP DISK SPACE ON HPC
+================================================================================
+
+Current: 248GB / 250GB used (only 2.6GB free!)
+Need to clean before running ablations (which will use ~20-30GB more)
+
+================================================================================
+IMMEDIATE ACTIONS (Run on HPC)
+================================================================================
+
+cd ~/ACE
+
+# 1. DRY RUN FIRST - See what will be removed
+bash cleanup_hpc.sh --dry-run
+
+# 2. If it looks good, run actual cleanup
+bash cleanup_hpc.sh
+
+# This will prompt you for confirmation before removing:
+# - Old paper_* directories (keeping only latest)
+# - Old checkpoints
+# - Old logs (>7 days)
+# - Python cache
+
+Expected to free: 50-100GB
+
+================================================================================
+ALTERNATIVE: MANUAL CLEANUP (If script has issues)
+================================================================================
+
+# Remove old paper_* results (you said you copied these out)
+cd ~/ACE/results
+ls -td paper_* | tail -n +2 | xargs rm -rf
+
+# Remove test runs (not needed)
+rm -rf ace_quick_test_* ace_test_*
+
+# Remove old ACE multi-seed runs (keep only latest)
+ls -td ace_multi_seed_* | tail -n +2 | xargs rm -rf
+
+# Remove PyTorch checkpoints (can be regenerated)
+find . -name "*.pt" -delete
+
+# Remove Python cache
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+
+# Remove old logs
+cd ~/ACE/logs
+ls -t *.out | tail -n +20 | xargs rm -f
+ls -t *.err | tail -n +20 | xargs rm -f
+
+# Check space freed
+cd ~/ACE
+curc-quota
+
+================================================================================
+WHAT TO KEEP (Essential for paper)
+================================================================================
+
+✓ results/ace_multi_seed_20260125_115453/ (latest ACE N=5)
+✓ results/baselines/baselines_20260124_182827/ (baselines N=5)
+✓ results/duffing/duffing_20260124_*/ (5 runs)
+✓ results/phillips/phillips_20260124_*/ (5 runs)
+✓ results/complex_scm/complex_scm_*/ (6 runs)
+
+TOTAL NEEDED: ~10-20GB
+
+================================================================================
+WHAT TO DELETE (Already copied out)
+================================================================================
+
+✗ results/paper_20260119_*/ (old runs, already analyzed)
+✗ results/paper_20260120_*/ (old runs, already analyzed)
+✗ results/paper_20260121_*/ (old runs, already analyzed)
+✗ results/paper_20260122_*/ (old runs, already analyzed)
+✗ results/ace_multi_seed_20260125_115009/ (superseded by 115453)
+✗ results/ace_quick_test_*/ (test runs)
+✗ results/ace_test_*/ (test runs)
+✗ checkpoints/**/*.pt (can regenerate)
+✗ Old logs (>7 days)
+
+CAN FREE: 50-100GB
+
+================================================================================
+AFTER CLEANUP - BEFORE SUBMITTING ABLATIONS
+================================================================================
+
+# Check space available
+curc-quota
+
+# You should have 50-100GB free
+# Ablations will need ~20-30GB
+# This leaves comfortable margin
+
+# Then safe to submit ablations:
+bash submit_ablations.sh --seeds 3 --episodes 200
+
+================================================================================
+QUICK CLEANUP COMMANDS (Copy-paste on HPC)
+================================================================================
+
+cd ~/ACE
+
+# See what will be removed
+bash cleanup_hpc.sh --dry-run
+
+# If good, run it
+bash cleanup_hpc.sh
+
+# Or manual quick cleanup:
+cd ~/ACE/results
+rm -rf paper_20260119_* paper_20260120_* paper_20260121_* paper_20260122_*
+rm -rf ace_multi_seed_20260125_115009
+rm -rf ace_quick_test_* ace_test_*
+cd ~/ACE
+find . -name "*.pt" -delete
+curc-quota
+
+================================================================================
