@@ -9,6 +9,8 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=8G
 #SBATCH --time=00:30:00
+#SBATCH --output=logs/ace_stats_%j.out
+#SBATCH --error=logs/ace_stats_%j.err
 
 # Statistical Tests Job Script
 # Generates formal significance tests for ACE vs baselines
