@@ -358,7 +358,7 @@ To validate the efficacy of the learned experimental policy, we benchmark ACE ag
 % Paper is 95% ready. Ablations will bring to 98% (reviewer-proof).
 % =============================================================================
 
-We evaluate ACE across four domains of increasing complexity: a synthetic 5-node benchmark for controlled comparison, a complex 15-node SCM, coupled Duffing oscillators for physical dynamics, and Phillips curve data for real-world economic modeling. All experiments compare ACE against Random, Round-Robin, Max-Variance, and PPO baselines under identical training budgets.
+We evaluate ACE across four domains of increasing complexity: a synthetic 5-node benchmark for controlled comparison, a complex 15-node SCM for scaling validation, coupled Duffing oscillators for physical dynamics, and Phillips curve data for real-world economic modeling. The synthetic and complex SCM experiments include comprehensive baseline comparisons (Random, Round-Robin, Max-Variance, PPO) to quantify ACE's advantage. The Duffing and Phillips experiments demonstrate ACE's applicability to physics simulations and retrospective causal learning from observational data.
 
 To ensure statistical rigor, all experiments are conducted with five independent runs using different random seeds (42, 123, 456, 789, 1011), and results are reported as mean $\pm$ standard deviation with 95\% confidence intervals. Statistical significance is assessed via paired t-tests with Bonferroni correction for multiple comparisons ($\alpha = 0.05/4 = 0.0125$). Additionally, we conduct ablation studies to validate each architectural component's contribution, testing configurations with components removed to measure performance degradation.
 
@@ -580,7 +580,7 @@ We apply ACE to a chain of three coupled Duffing oscillators \cite{kovacic2011du
 \label{fig:duffing-scm}
 \end{figure}
 
-Across 5 independent runs, the Duffing oscillator experiments achieve final coupling error of 0.042 $\pm$ 0.036 (95\% CI: [0.011, 0.073]) after 100 episodes. All runs successfully learn the true coupling mechanisms despite the confounding synchronization dynamics. The key insight is that interventions on the intermediate oscillator $X_2$ decouple the synchronized system: by clamping $X_2$ to fixed values, the spurious correlation between $X_1$ and $X_3$ breaks, allowing accurate estimation of the direct $X_1 \leftrightarrow X_2$ and $X_2 \leftrightarrow X_3$ couplings. This validates that strategic intervention on mediating variables enables accurate mechanism learning even when observational correlations are misleading.
+Across 5 independent runs, ACE achieves final coupling error of 0.042 $\pm$ 0.036 (95\% CI: [0.011, 0.073]) after 100 episodes. All runs successfully learn the true coupling mechanisms despite the confounding synchronization dynamics. The key insight is that interventions on the intermediate oscillator $X_2$ decouple the synchronized system: by clamping $X_2$ to fixed values, the spurious correlation between $X_1$ and $X_3$ breaks, allowing accurate estimation of the direct $X_1 \leftrightarrow X_2$ and $X_2 \leftrightarrow X_3$ couplings. This demonstrates that ACE can discover intervention strategies that break spurious correlations in physics simulations where observational data alone would be misleading.
 
 \subsection{Economics: Phillips Curve}
 
@@ -624,7 +624,7 @@ Using Federal Reserve Economic Data \cite{fred2024} (FRED, 1960--2023), we model
 \label{fig:phillips-scm}
 \end{figure}
 
-The Phillips curve experiments demonstrate ACE's ability to select informative historical periods for mechanism learning. Across five independent runs on real-world economic data, ACE systematically queries high-volatility historical regimes (the 1970s stagflation, the Volcker disinflation, the Great Recession) that expose nonlinearities in the inflation mechanism. The policy learns that early exposure to structural breaks improves generalization to held-out data from more stable periods. This demonstrates the value of strategic historical sampling for retrospective causal learning: rather than uniformly sampling across time, ACE identifies and prioritizes the most informative economic regimes.
+The Phillips curve experiments demonstrate ACE's applicability to strategic historical sampling. Across five independent runs on real-world economic data, ACE systematically queries high-volatility historical regimes (the 1970s stagflation, the Volcker disinflation, the Great Recession) that expose nonlinearities in the inflation mechanism, showing that the learned policy transfers to observational data selection. This demonstrates ACE's broader applicability beyond controlled experimentation to retrospective causal learning, where strategic regime selection can identify informative natural experiments in historical archives.
 
 % =============================================================================
 % OPTIONAL: Detailed Phillips curve analysis
