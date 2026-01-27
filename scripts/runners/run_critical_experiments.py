@@ -504,44 +504,51 @@ def run_complex_ppo(scm, learner, episodes):
     Uses value-based RL with same reward as ACE (information gain + bonuses).
     Simplified implementation without full actor-critic for speed.
     """
-    from baselines import PPOPolicy
+    from baselines import PPOPolicy, ScientificCritic
     
     # Create PPO policy for complex SCM
-    # Use 15 nodes instead of 5
-    state_dim = len(scm.nodes) * 2  # node losses + intervention counts
-    n_nodes = len(scm.nodes)
-    n_values = 11  # Discretized intervention values
+    # PPOPolicy expects list of node names
+    policy = PPOPolicy(
+        nodes=scm.nodes,
+        graph=scm.graph if hasattr(scm, 'graph') else {},
+        value_min=-5.0,
+        value_max=5.0
+    )
     
-    policy = PPOPolicy(state_dim, n_nodes, n_values)
+    critic = ScientificCritic(scm) if hasattr(scm, 'generate') else None
     
     for ep in range(episodes):
         # Get current node losses for state
         node_losses = learner.evaluate()
         
-        # Simple state: just node losses (no full state encoding)
-        state = torch.tensor(list(node_losses.values()) + [0.0]*n_nodes, dtype=torch.float32)
-        
-        # Select intervention via PPO
-        node_idx, value_idx = policy.select_action(state)
-        node = scm.nodes[node_idx]
-        value = -5 + (value_idx / (n_values-1)) * 10  # Map to [-5, 5]
+        # Select intervention via PPO (expects student and oracle)
+        # PPO's select_intervention needs StudentSCM
+        target, value = policy.select_intervention(learner.student, oracle=scm, node_losses=node_losses)
         
         # Execute intervention
         losses_before = learner.evaluate()
-        data = scm.generate(100, interventions={node: value})
+        data = scm.generate(100, interventions={target: value})
         learner.train_step(data)
         losses_after = learner.evaluate()
         
-        # Compute reward (information gain)
-        reward = sum(losses_before.values()) - sum(losses_after.values())
+        # Compute reward (information gain + bonuses)
+        from baselines import calculate_reward_with_bonuses
+        reward = calculate_reward_with_bonuses(
+            sum(losses_before.values()),
+            sum(losses_after.values()),
+            target,
+            losses_before,
+            policy.intervention_counts,
+            scm.nodes,
+            scm.graph if hasattr(scm, 'graph') else {}
+        )
         
         # Store for PPO update
         done = (ep == episodes - 1)
         policy.store_reward(reward, done)
         
-        # Update policy every 10 episodes
-        if ep > 0 and ep % 10 == 0:
-            policy.update()
+        # Update policy every episode
+        policy.update()
     
     return learner.evaluate()
 
