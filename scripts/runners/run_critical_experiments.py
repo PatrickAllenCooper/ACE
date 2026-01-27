@@ -385,7 +385,7 @@ def create_complex_learner(scm):
     """Create learner for complex SCM."""
     from experiments.complex_scm import ComplexSCMLearner, ComplexStudentSCM
     student = ComplexStudentSCM(scm)
-    return ComplexSCMLearner(student)
+    return ComplexSCMLearner(student, oracle=scm)
 
 
 def get_collider_loss(losses: Dict[str, float], scm) -> float:

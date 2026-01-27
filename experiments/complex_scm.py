@@ -187,13 +187,27 @@ class ComplexStudentSCM(nn.Module):
 class ComplexSCMLearner:
     """Learner with replay buffer for complex SCM."""
     
-    def __init__(self, student: ComplexStudentSCM, lr: float = 1e-3, buffer_size: int = 50):
+    def __init__(self, student: ComplexStudentSCM, lr: float = 1e-3, buffer_size: int = 50, oracle=None):
         self.student = student
+        self.oracle = oracle
         self.optimizer = optim.Adam(student.parameters(), lr=lr)
         self.loss_fn = nn.MSELoss()
         self.buffer = []
         self.buffer_size = buffer_size
+        self._critic = None
         
+    def evaluate(self) -> Dict[str, float]:
+        """Evaluate current mechanism losses."""
+        if self._critic is None and self.oracle is not None:
+            self._critic = ComplexCritic(self.oracle)
+        
+        if self._critic is None:
+            # No oracle - return zeros
+            return {node: 0.0 for node in self.student.nodes}
+        
+        _, node_losses, _ = self._critic.evaluate(self.student)
+        return node_losses
+    
     def train_step(self, data: Dict[str, torch.Tensor], intervened: Optional[str] = None,
                    n_epochs: int = 100):
         """Train on new data, respecting intervention masks."""
