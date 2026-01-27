@@ -148,10 +148,10 @@ def run_extended_baselines(
             
             tracker.save(f"{output_dir}/{baseline_name}_seed{seed}_curve.csv")
         
-        # Save intermediate results after each seed
-        df_intermediate = pd.DataFrame(results)
-        df_intermediate.to_csv(f"{output_dir}/extended_baselines_summary_partial.csv", index=False)
-        print(f"  Saved intermediate results ({len(results)} runs)")
+        # CRITICAL: Save all results after each seed
+        df_all = pd.DataFrame(results)
+        df_all.to_csv(f"{output_dir}/extended_baselines_summary.csv", index=False)
+        print(f"\n  ✓ Seed {seed} complete - {len(results)} total runs saved")
     
     # Save final summary
     df = pd.DataFrame(results)
@@ -290,10 +290,10 @@ def run_lookahead_ablation(
         
         tracker.save(f"{output_dir}/random_lookahead_seed{seed}_curve.csv")
         
-        # Save intermediate results after each seed
-        df_intermediate = pd.DataFrame(results)
-        df_intermediate.to_csv(f"{output_dir}/lookahead_ablation_summary_partial.csv", index=False)
-        print(f"  Saved intermediate results ({len(results)} runs)")
+        # CRITICAL: Save all results after each seed
+        df_all = pd.DataFrame(results)
+        df_all.to_csv(f"{output_dir}/lookahead_ablation_summary.csv", index=False)
+        print(f"\n  ✓ Seed {seed} complete - saved to summary CSV")
     
     # Save final summary
     df = pd.DataFrame(results)
@@ -374,10 +374,17 @@ def run_complex_scm_experiments(
             'collider_loss': get_collider_loss(final_losses, scm)
         })
         
-        # CRITICAL: Save intermediate results after each seed
-        df_intermediate = pd.DataFrame(results)
-        df_intermediate.to_csv(f"{output_dir}/complex_scm_summary_partial.csv", index=False)
-        print(f"\n  Saved intermediate results ({len(results)} runs so far)")
+        # CRITICAL: Save all results after EVERY seed completion
+        df_all = pd.DataFrame(results)
+        df_all.to_csv(f"{output_dir}/complex_scm_summary.csv", index=False)
+        
+        # Also save seed-specific results
+        seed_results = [r for r in results if r['seed'] == seed]
+        df_seed = pd.DataFrame(seed_results)
+        df_seed.to_csv(f"{output_dir}/complex_scm_seed{seed}_results.csv", index=False)
+        
+        print(f"\n  ✓ Seed {seed} complete - saved {len(seed_results)} method results")
+        print(f"  Total progress: {len(results)}/{len(seeds)*4} runs")
     
     # Save final summary
     df = pd.DataFrame(results)
