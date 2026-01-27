@@ -152,7 +152,7 @@ def main():
         print("="*70)
         return 0
     else:
-        print(f"[FAIL] {errors} test(s) failed")
+        print("[FAIL] " + str(errors) + " test(s) failed")
         print("Fix errors before HPC submission")
         print("="*70)
         return 1
