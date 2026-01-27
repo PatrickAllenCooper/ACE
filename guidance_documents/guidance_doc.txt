@@ -12,7 +12,14 @@
   - `results/summaries/` - High-level result summaries
   - `results/archive/` - Archived documentation
 
-**Status:** CRITICAL EXPERIMENTS NEEDED - Addressing reviewer concerns
+**Status:** ABLATIONS FAILED & FIXED - Critical experiments queued
+
+**ABLATION CATASTROPHIC FAILURE (Jan 26, 6 PM):**
+- All 20+ ablation jobs failed silently (100+ GPU-hours wasted)
+- Root cause: Import bug in run_ablations_scratch.sh (cd to scratch before Python)
+- Zero output files produced despite jobs completing
+- Bug fixed, logic implemented, comprehensive tests added, verified locally
+- Ready to re-run with streamlined fast ablations (3-5h total)
 
 **Reviewer Response Changes Made:**
 - Fixed beta notation overload (reward weight gamma vs DPO temperature beta_DPO)
@@ -42,7 +49,24 @@
    - Reviewers may ask "why not a simple MLP policy?"
    - WRITING FIX: Strengthen justification already in paper (variable graphs, pretrained biases, cost balance). Add: "We chose an LM over MLP/GNN because (1) text prompts naturally handle variable-size graphs without architectural changes, (2) pretrained representations transfer useful inductive biases, and (3) 1.5B is smallest model with robust instruction-following. An MLP baseline would require fixed graph encoding, limiting generalization."
 
-**CRITICAL EXPERIMENTS TO RUN:**
+**RECOVERY PLAN - Ablations:**
+
+1. **On HPC, pull fixed code:**
+   ```bash
+   cd ~/ACE
+   git pull
+   python scripts/runners/verify_ablations.py  # Should show all PASS
+   ```
+
+2. **Submit fast ablations (OPTIONAL - Nice to have but not critical):**
+   ```bash
+   sbatch jobs/run_ablations_fast.sh
+   # Runtime: 3-5 hours (4 ablations × 3 seeds, early stopping)
+   ```
+
+3. **Or skip ablations and focus on critical experiments** (recommended if time-constrained)
+
+**CRITICAL EXPERIMENTS TO RUN (PRIORITY):**
 
 1. **Extended Baselines (171 episodes)** - ADDRESSES: unfair budget comparison
    ```bash
