@@ -136,11 +136,13 @@ def main():
         try:
             passed = test_func()
             status = "[PASS]" if passed else "[FAIL]"
-            print(f"{name:.<50} {status}")
+            padded_name = name + "." * (50 - len(name))
+            print(padded_name + " " + status)
             if not passed:
                 errors += 1
         except Exception as e:
-            print(f"{name:.<50} [ERROR]: {e}")
+            padded_name = name + "." * (50 - len(name))
+            print(padded_name + " [ERROR]: " + str(e))
             errors += 1
     
     print("="*70)
