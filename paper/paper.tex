@@ -280,11 +280,11 @@ The experimentalist policy $\pi_\phi(c_t \mid s_t)$ observes the current state $
 
 \subsection{Direct Preference Optimization}
 
-Rather than learning a value function that must track shifting reward magnitudes, we train the policy via Direct Preference Optimization (DPO) \cite{rafailov2023direct}. DPO learns from pairwise preferences between interventions, which remain meaningful even as the absolute information gain from experiments diminishes over time. The reward signal that generates these preferences combines three components: information gain $\Delta \mathcal{L}$ (how much does this intervention reduce uncertainty?), node importance $w(V_i, \{L_j\})$ (how poorly is this mechanism currently understood?), and diversity $D(V_i, H)$ (how different is this intervention from recent history?):
+Rather than learning a value function that must track shifting reward magnitudes, we train the policy via Direct Preference Optimization (DPO) \cite{rafailov2023direct}. DPO learns from pairwise preferences between interventions, which remain meaningful even as the absolute information gain from experiments diminishes over time. The reward signal that generates these preferences combines three components:
 \begin{equation}
 R(c, s) = \Delta \mathcal{L} + \alpha \cdot w(V_i, \{L_j\}) + \gamma \cdot D(V_i, H)
 \end{equation}
-where $\alpha = 0.1$ and $\gamma = 0.05$ weight the relative importance of node targeting versus exploration diversity. These values were selected via grid search over $\alpha, \gamma \in \{0.01, 0.05, 0.1, 0.2\}$ on a held-out validation SCM.
+where $\Delta \mathcal{L}$ is the information gain (reduction in prediction error), $w(V_i, \{L_j\})$ is node importance (weighted by current per-node losses to prioritize poorly-understood mechanisms), and $D(V_i, H)$ is diversity (encourages exploration of under-sampled nodes and intervention values to prevent policy collapse). The weights $\alpha = 0.1$ and $\gamma = 0.05$ balance node targeting versus exploration, selected via grid search over $\alpha, \gamma \in \{0.01, 0.05, 0.1, 0.2\}$ on a held-out validation SCM.
 
 The policy is trained to prefer interventions that yield higher rewards using the DPO objective:
 \begin{equation}
