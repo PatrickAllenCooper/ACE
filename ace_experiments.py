@@ -1896,6 +1896,25 @@ def main():
     
     args = parser.parse_args()
     
+    # ============================================================================
+    # ABLATION STUDY LOGIC
+    # ============================================================================
+    # Apply ablation flags to override normal configuration
+    if args.no_diversity_reward:
+        args.diversity_reward_weight = 0.0
+        logging.warning("ABLATION: Diversity reward disabled (weight=0)")
+    
+    if args.no_dedicated_root_learner:
+        args.use_dedicated_root_learner = False
+        args.root_fitting = False
+        logging.warning("ABLATION: Dedicated root learner disabled")
+    
+    if args.no_per_node_convergence:
+        args.use_per_node_convergence = False
+        logging.warning("ABLATION: Per-node convergence disabled (global stopping only)")
+    
+    # --custom is already handled at line 1949 (use_pretrained = not args.custom)
+    
     # Set random seed if provided (for statistical validation with multiple runs)
     if args.seed is not None:
         torch.manual_seed(args.seed)
