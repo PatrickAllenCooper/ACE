@@ -400,7 +400,7 @@ def run_complex_scm_experiments(
         df_seed.to_csv(f"{output_dir}/complex_scm_seed{seed}_results.csv", index=False)
         
         print(f"\n  ✓ Seed {seed} complete - saved {len(seed_results)} method results")
-        print(f"  Total progress: {len(results)}/{len(seeds)*4} runs")
+        print(f"  Total progress: {len(results)}/{len(seeds)*5} runs (5 methods per seed)")
     
     # Save final summary
     df = pd.DataFrame(results)
