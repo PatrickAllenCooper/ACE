@@ -334,6 +334,22 @@ def run_complex_scm_experiments(
         
         scm = ComplexGroundTruthSCM()
         
+        # PPO baseline (PRIORITY - run first)
+        print("\nRunning PPO...")
+        learner = create_complex_learner(scm)
+        final_losses = run_complex_ppo(scm, learner, episodes)
+        results.append({
+            'seed': seed, 'method': 'ppo', 'episodes': episodes,
+            'total_loss': sum(final_losses.values()),
+            'collider_loss': get_collider_loss(final_losses, scm)
+        })
+        
+        # CRITICAL: Save immediately after PPO
+        df_ppo = pd.DataFrame(results)
+        df_ppo.to_csv(f"{output_dir}/complex_scm_summary.csv", index=False)
+        df_ppo.to_csv(f"{output_dir}/complex_scm_seed{seed}_ppo.csv", index=False)
+        print(f"  ✓ PPO complete - SAVED")
+        
         # Random baseline
         print("\nRunning Random...")
         learner = create_complex_learner(scm)
@@ -478,6 +494,54 @@ def run_complex_random_lookahead(scm, learner, episodes, K=4):
         node, value = best_candidate
         data = scm.generate(100, interventions={node: value})
         learner.train_step(data)
+    
+    return learner.evaluate()
+
+
+def run_complex_ppo(scm, learner, episodes):
+    """
+    PPO policy for complex SCM.
+    Uses value-based RL with same reward as ACE (information gain + bonuses).
+    Simplified implementation without full actor-critic for speed.
+    """
+    from baselines import PPOPolicy
+    
+    # Create PPO policy for complex SCM
+    # Use 15 nodes instead of 5
+    state_dim = len(scm.nodes) * 2  # node losses + intervention counts
+    n_nodes = len(scm.nodes)
+    n_values = 11  # Discretized intervention values
+    
+    policy = PPOPolicy(state_dim, n_nodes, n_values)
+    
+    for ep in range(episodes):
+        # Get current node losses for state
+        node_losses = learner.evaluate()
+        
+        # Simple state: just node losses (no full state encoding)
+        state = torch.tensor(list(node_losses.values()) + [0.0]*n_nodes, dtype=torch.float32)
+        
+        # Select intervention via PPO
+        node_idx, value_idx = policy.select_action(state)
+        node = scm.nodes[node_idx]
+        value = -5 + (value_idx / (n_values-1)) * 10  # Map to [-5, 5]
+        
+        # Execute intervention
+        losses_before = learner.evaluate()
+        data = scm.generate(100, interventions={node: value})
+        learner.train_step(data)
+        losses_after = learner.evaluate()
+        
+        # Compute reward (information gain)
+        reward = sum(losses_before.values()) - sum(losses_after.values())
+        
+        # Store for PPO update
+        done = (ep == episodes - 1)
+        policy.store_reward(reward, done)
+        
+        # Update policy every 10 episodes
+        if ep > 0 and ep % 10 == 0:
+            policy.update()
     
     return learner.evaluate()
 
