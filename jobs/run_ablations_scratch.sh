@@ -97,9 +97,10 @@ esac
 echo ""
 
 # --- Run Ablation on SCRATCH ---
-cd "$SCRATCH_DIR"
+# Stay in submit directory so imports work, but write output to scratch
+cd "$SLURM_SUBMIT_DIR"
 
-python $SLURM_SUBMIT_DIR/ace_experiments.py \
+python ace_experiments.py \
     --episodes $EPISODES \
     --steps $STEPS \
     --seed $SEED \
