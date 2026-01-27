@@ -54,13 +54,13 @@ for ABLATION in no_convergence no_root_learner no_diversity; do
     
     case $ABLATION in
         no_convergence)
-            FLAGS="--no_per_node_convergence"
+            FLAGS="--custom --no_per_node_convergence"
             ;;
         no_root_learner)
-            FLAGS="--no_dedicated_root_learner"
+            FLAGS="--custom --no_dedicated_root_learner"
             ;;
         no_diversity)
-            FLAGS="--no_diversity_reward"
+            FLAGS="--custom --no_diversity_reward"
             ;;
     esac
     

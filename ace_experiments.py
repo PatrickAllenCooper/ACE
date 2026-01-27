@@ -1951,6 +1951,14 @@ def main():
         f.write("episode,step,node,value,is_breaker\n")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    # CRITICAL: Print to stdout immediately (before logging setup)
+    print(f"[STARTUP] ACE Experiment starting", flush=True)
+    print(f"[STARTUP] Device: {device}", flush=True)
+    print(f"[STARTUP] Run directory: {run_dir}", flush=True)
+    print(f"[STARTUP] Custom policy: {args.custom}", flush=True)
+    print(f"[STARTUP] Pretrain steps: {args.pretrain_steps}", flush=True)
+    
     logging.info(f"Starting ACE Experiment on {device}")
     logging.info(f"Config: {args}")
     logging.info(f"Run started at: {run_started_at.isoformat(timespec='seconds')}")
@@ -1958,19 +1966,29 @@ def main():
     logging.info(f"Command: {' '.join(sys.argv)}")
 
     # 1. Setup Environment
+    print("[STARTUP] Creating ground truth SCM...", flush=True)
     M_star = GroundTruthSCM()
     executor = ExperimentExecutor(M_star)
     temp_nodes = sorted(list(M_star.graph.nodes))
     dsl = ExperimentalDSL(temp_nodes, value_min=args.value_min, value_max=args.value_max)
     critic = ScientificCritic(M_star)
+    print("[STARTUP] Environment setup complete", flush=True)
 
     # 2. Setup Agent
     use_pretrained = not args.custom
     if use_pretrained:
+        print("[STARTUP] Loading HuggingFace model (this may take 2-5 minutes)...", flush=True)
         hf_token = args.token or os.getenv("HF_TOKEN")
-        policy_net = HuggingFacePolicy(args.model, dsl, device, token=hf_token)
+        try:
+            policy_net = HuggingFacePolicy(args.model, dsl, device, token=hf_token)
+            print("[STARTUP] HuggingFace model loaded successfully", flush=True)
+        except Exception as e:
+            print(f"[ERROR] Failed to load HuggingFace model: {e}", flush=True)
+            raise
     else:
+        print("[STARTUP] Creating custom transformer policy...", flush=True)
         policy_net = TransformerPolicy(dsl, device).to(device)
+        print("[STARTUP] Custom transformer created", flush=True)
 
     ref_policy = copy.deepcopy(policy_net)
     ref_policy.eval()
@@ -2119,6 +2137,9 @@ def main():
     recent_value_bins_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
 
     for episode in range(args.episodes):
+        # CRITICAL: Heartbeat message to stdout every episode
+        if episode % 5 == 0:
+            print(f"[PROGRESS] Episode {episode}/{args.episodes} starting", flush=True)
         current_student = StudentSCM(M_star)
         student_ref["student"] = current_student  # Update for emergency handler
         learner = SCMLearner(current_student, lr=args.learner_lr, buffer_steps=args.buffer_steps)
