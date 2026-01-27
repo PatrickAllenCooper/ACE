@@ -36,12 +36,16 @@ Usage:
 
 import argparse
 import os
+import sys
 import json
 import random
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 import copy
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 import torch
 import torch.nn as nn
