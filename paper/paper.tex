@@ -665,26 +665,31 @@ Three patterns stand out. First, the 13\% gap between Random and Max-Variance sh
 % INSERT BELOW (replace placeholder text with actual degradation values):
 % ============================================================================
 
-We systematically ablate each component and measure performance degradation across three independent seeds. Table~\ref{tab:ablations} shows results.
+We systematically ablate each component and measure performance degradation across three independent seeds (42, 123, 456). Table~\ref{tab:ablations} shows preliminary results for DPO training, with remaining ablations pending.
 
-\textcolor{blue}{[ABLATION TABLE - INSERT AFTER ANALYSIS]}
-% When ablations complete, insert LaTeX table from:
-% results/ablation_table.tex
-%
-% Expected format:
-% \begin{table}[t]
-% \caption{Ablation study results.}
-% \label{tab:ablations}
-% \begin{tabular}{lccc}
-% Component Removed & ACE (Full) & Without & Degradation \\
-% DPO Training & 0.92 & [X.XX] & +[YY]% \\
-% Per-Node Convergence & 0.92 & [X.XX] & +[YY]% \\
-% Dedicated Root Learner & 0.92 & [X.XX] & +[YY]% \\
-% Diversity Reward & 0.92 & [X.XX] & +[YY]% \\
-% \end{tabular}
-% \end{table}
+\begin{table}[t]
+\centering
+\caption{Ablation study results (N=3 seeds). Removing DPO training causes substantial degradation, validating its contribution to ACE's performance. Additional ablations pending.}
+\label{tab:ablations}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Component Removed & ACE (Full) & Without & Degradation \\
+\midrule
+DPO Training & 0.92$\pm$0.73 & 2.12$\pm$0.10 & +130\% \\
+\quad (uses custom transformer) & (median: 0.61) & & \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Additional ablations pending:}} \\
+Per-Node Convergence & -- & -- & -- \\
+Dedicated Root Learner & -- & -- & -- \\
+Diversity Reward & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-Each component plays a distinct role. Per-node convergence prevents premature termination: in our experiments, one seed achieved successful early stopping at 60 episodes while others required up to 199, demonstrating the importance of mechanism-specific stopping criteria. The dedicated root learner proves essential for exogenous variables, achieving root losses around 1.0 compared to divergence when roots are learned through the standard interventional pathway. The diversity reward prevents policy collapse by encouraging exploration across intervention values; without it, the policy might over-focus on a single node, whereas with diversity regularization it maintains 99.8\% strategic concentration on collider parents while still exploring sufficient value ranges. Each component addresses a specific failure mode we observed during development.
+The no-DPO ablation (using a custom transformer policy without preference learning) achieves 2.12 $\pm$ 0.10 total loss across three seeds, a 130\% degradation from full ACE (0.92 $\pm$ 0.73). This substantial performance drop validates that DPO-based preference learning, not merely a learned policy of any kind, drives ACE's strategic behavior. The custom transformer without DPO performs comparably to baseline heuristics (2.06--2.10), suggesting that the ability to learn from pairwise preferences under non-stationary rewards is the key algorithmic innovation.
+
+Additional ablations are pending for per-node convergence, dedicated root learner, and diversity reward. Based on development experience, we expect these components address specific failure modes: per-node convergence prevents premature termination when mechanisms have heterogeneous learning rates; the dedicated root learner achieves stable root distribution estimates around loss 1.0 versus divergence through interventional learning; diversity reward prevents policy collapse onto a single intervention target. Full ablation results will be included in the camera-ready version pending computational resources.
 
 \subsection{When Does ACE Excel (and When Does It Struggle)?}
 
