@@ -13,7 +13,9 @@
 
 # Run ONLY Complex 15-Node SCM Experiments
 # Extended baselines and lookahead ablation already complete
-# This completes the final 1/3 of critical experiments
+# NOW INCLUDES PPO (runs first, saves immediately)
+# 5 methods: PPO, Random, Round-Robin, Greedy Collider, Random Lookahead
+# Expected: ~6-8 hours for 5 seeds × 5 methods
 
 echo "=============================================="
 echo "Complex 15-Node SCM Experiments"
