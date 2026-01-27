@@ -504,18 +504,15 @@ def run_complex_ppo(scm, learner, episodes):
     Uses value-based RL with same reward as ACE (information gain + bonuses).
     Simplified implementation without full actor-critic for speed.
     """
-    from baselines import PPOPolicy, ScientificCritic
+    from baselines import PPOPolicy
     
     # Create PPO policy for complex SCM
-    # PPOPolicy expects list of node names
+    # PPOPolicy constructor: (nodes, value_min, value_max, lr, n_value_bins)
     policy = PPOPolicy(
         nodes=scm.nodes,
-        graph=scm.graph if hasattr(scm, 'graph') else {},
         value_min=-5.0,
         value_max=5.0
     )
-    
-    critic = ScientificCritic(scm) if hasattr(scm, 'generate') else None
     
     for ep in range(episodes):
         # Get current node losses for state
@@ -531,17 +528,8 @@ def run_complex_ppo(scm, learner, episodes):
         learner.train_step(data)
         losses_after = learner.evaluate()
         
-        # Compute reward (information gain + bonuses)
-        from baselines import calculate_reward_with_bonuses
-        reward = calculate_reward_with_bonuses(
-            sum(losses_before.values()),
-            sum(losses_after.values()),
-            target,
-            losses_before,
-            policy.intervention_counts,
-            scm.nodes,
-            scm.graph if hasattr(scm, 'graph') else {}
-        )
+        # Compute reward (simple information gain for complex SCM)
+        reward = sum(losses_before.values()) - sum(losses_after.values())
         
         # Store for PPO update
         done = (ep == episodes - 1)
