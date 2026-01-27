@@ -7,7 +7,6 @@ Tests everything before HPC execution.
 import subprocess
 import sys
 import os
-from pathlib import Path
 
 
 def test_runner_help():
@@ -45,7 +44,8 @@ def test_ace_ablation_flags():
         
         # If imports fail, check source code directly
         if result.returncode != 0 and 'torch' in result.stderr:
-            content = Path("ace_experiments.py").read_text()
+            with open("ace_experiments.py", 'r') as f:
+                content = f.read()
             required = ['--no_per_node_convergence', '--no_dedicated_root_learner', 
                        '--no_diversity_reward', '--custom']
             return all(('"' + flag + '"' in content or "'" + flag + "'" in content) for flag in required)
@@ -55,37 +55,41 @@ def test_ace_ablation_flags():
         return all(flag in result.stdout for flag in required)
     except Exception:
         # Fallback: check source
-        content = Path("ace_experiments.py").read_text()
+        with open("ace_experiments.py", 'r') as f:
+            content = f.read()
         return '--no_per_node_convergence' in content
 
 
 def test_job_script_qos():
     """Test 4: Job script has QoS."""
-    script_path = Path("jobs/run_ablations_fast.sh")
-    if not script_path.exists():
+    script_path = "jobs/run_ablations_fast.sh"
+    if not os.path.exists(script_path):
         return False
     
-    content = script_path.read_text()
+    with open(script_path, 'r') as f:
+        content = f.read()
     return "#SBATCH --qos=" in content and "normal" in content
 
 
 def test_job_script_path():
     """Test 5: Job script calls correct Python file."""
-    script_path = Path("jobs/run_ablations_fast.sh")
-    if not script_path.exists():
+    script_path = "jobs/run_ablations_fast.sh"
+    if not os.path.exists(script_path):
         return False
     
-    content = script_path.read_text()
+    with open(script_path, 'r') as f:
+        content = f.read()
     return "scripts/runners/run_ablations_fast.py" in content
 
 
 def test_scratch_script_import_fix():
     """Test 6: Scratch script stays in submit dir."""
-    script_path = Path("jobs/run_ablations_scratch.sh")
-    if not script_path.exists():
+    script_path = "jobs/run_ablations_scratch.sh"
+    if not os.path.exists(script_path):
         return False
     
-    content = script_path.read_text()
+    with open(script_path, 'r') as f:
+        content = f.read()
     lines = content.split('\n')
     
     # Find Python line
@@ -105,7 +109,8 @@ def test_scratch_script_import_fix():
 
 def test_ablation_logic_implemented():
     """Test 7: Ablation logic exists in ace_experiments.py."""
-    content = Path("ace_experiments.py").read_text()
+    with open("ace_experiments.py", 'r') as f:
+        content = f.read()
     
     required = [
         'if args.no_diversity_reward:',
