@@ -1,6 +1,15 @@
 # ACE: Autonomous Causal Experimentation
 
-## Latest Update: January 26, 2026 - Repository Reorganization & ICML Reviewer Response
+## Documentation Structure
+
+**This file:** Complete technical reference and current status
+**remaining_refinements.txt:** Paper strength assessment and improvement roadmap
+**README.md:** Documentation guide
+**status_archive/:** Historical documents (reference only)
+
+---
+
+## Latest Update: January 26, 2026 - Ablation Recovery & Experiments Running
 
 **Major Changes:**
 - **Repository Reorganization:** Scripts organized into logical directories
@@ -12,14 +21,27 @@
   - `results/summaries/` - High-level result summaries
   - `results/archive/` - Archived documentation
 
-**Status:** ABLATIONS FAILED & FIXED - Critical experiments queued
+**Status:** EXPERIMENTS RUNNING - All bugs fixed, jobs executing successfully
 
-**ABLATION CATASTROPHIC FAILURE (Jan 26, 6 PM):**
-- All 20+ ablation jobs failed silently (100+ GPU-hours wasted)
-- Root cause: Import bug in run_ablations_scratch.sh (cd to scratch before Python)
-- Zero output files produced despite jobs completing
-- Bug fixed, logic implemented, comprehensive tests added, verified locally
-- Ready to re-run with streamlined fast ablations (3-5h total)
+**Ablation Recovery (Jan 26, 7 PM):**
+- Previous 20+ ablation jobs failed due to import bug (cd to scratch broke imports)
+- Bug diagnosed and fixed: stay in SLURM_SUBMIT_DIR for imports
+- Ablation logic implemented (was defined but not used)
+- Unbuffered output added (python -u) for real-time monitoring
+- New simplified jobs running: 4 ablations × 3 seeds, 100 episodes max
+- Jobs ARE working - output goes to experiment.log, not SLURM stdout
+- Verified: value_diversity.csv growing (9.0K → 9.4K in 1 minute)
+
+**Running Experiments (Jan 26, 7:30 PM):**
+- Ablations: 4 jobs queued/running (no_dpo, no_convergence, no_root_learner, no_diversity)
+- Critical experiments: Job 23319499 queued
+- Expected completion: 6-8 AM Jan 27
+
+**Next Steps:**
+- Monitor results directories (not SLURM logs)
+- Analyze results when complete
+- Update paper with findings
+- See remaining_refinements.txt for path to STRONG ACCEPT
 
 **Reviewer Response Changes Made:**
 - Fixed beta notation overload (reward weight gamma vs DPO temperature beta_DPO)

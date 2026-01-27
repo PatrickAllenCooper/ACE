@@ -1,0 +1,233 @@
+# ACE Paper: Remaining Refinements for Strong Accept
+
+**Current Status:** Paper is competitive for ICML ACCEPT with positive experimental results.
+**Goal:** Strengthen from ACCEPT to STRONG ACCEPT.
+
+## Paper Strength Assessment (Post-Experiments)
+
+**If all running experiments return positive results:**
+
+### What We'll Have (ACCEPT Tier)
+
+| Component | Status |
+|-----------|--------|
+| Main results | 52-58% improvement, N=5 seeds, p<0.0125, d≈2 |
+| Fair budget comparison | Extended baselines (171 episodes) ✓ |
+| Lookahead confound | Random proposer ablation ✓ |
+| Scaling validation | 15-node full comparison ✓ |
+| Component validation | 4 ablations (N=3 seeds each) ✓ |
+| Statistical rigor | Paired t-tests, Bonferroni correction ✓ |
+| Multi-domain | Synthetic, Duffing, Phillips, Complex SCM ✓ |
+
+**Verdict:** Solid ICML paper, addresses major reviewer concerns.
+
+---
+
+## Remaining Weaknesses (Preventing STRONG ACCEPT)
+
+### 1. Oracle Pretraining (HIGH IMPACT)
+
+**Current:**
+- 200 interventions from oracle teacher in main results
+- Substantial privileged information
+- Even with ablation, it's in headline numbers
+
+**Reviewers will say:**
+"The main results include 200 oracle interventions. This makes it hard to assess the true algorithmic contribution."
+
+**Writing mitigation (if no time for experiments):**
+- Emphasize in Limitations: "Oracle pretraining accelerates convergence but is not necessary"
+- Add: "We view this as analogous to expert demonstrations in imitation learning"
+- Reference ablation: "Section X.X quantifies the contribution"
+
+**Experimental fix (STRONG ACCEPT level):**
+- Re-run ACE without oracle pretraining (5 seeds)
+- Use that as main result
+- Move oracle-pretrained results to supplementary
+- OR: Give baselines equivalent warm-start
+
+**Time:** ~6-8 hours
+**Impact:** Eliminates major reviewer objection
+
+---
+
+### 2. Sample Size (N=5 Seeds) (MEDIUM IMPACT)
+
+**Current:**
+- N=5 seeds (42, 123, 456, 789, 1011)
+- One outlier (seed 789) drives high variance (0.92 ± 0.73)
+- Brittle p-values with small sample
+
+**Reviewers will say:**
+"N=5 is thin by ML standards. With one outlier, statistical power is limited."
+
+**Writing mitigation:**
+- Add to Limitations: "With N=5 seeds, statistical power is limited"
+- "We report medians for robustness to the observed outlier"
+- "Recommend N≥10 for future studies"
+
+**Experimental fix (STRONG ACCEPT level):**
+- Run N=10 seeds total (add 5 more: 2022, 3033, 4044, 5055, 6066)
+- Tighter confidence intervals
+- More robust p-values
+- Can better characterize outlier frequency
+
+**Time:** ~10-12 hours (5 additional ACE runs)
+**Impact:** Substantially strengthens statistical claims
+
+---
+
+### 3. Phillips Curve Framing (LOW IMPACT)
+
+**Current:**
+- Acknowledged as "active data subset selection" not causal intervention
+- May read as overreach or weak validation
+
+**Reviewers will say:**
+"The Phillips curve isn't really causal experimentation - it's observational data mining."
+
+**Writing mitigation:**
+- Downplay in abstract/intro
+- Frame as "demonstration of strategic historical sampling"
+- Possibly move to supplementary materials
+- Emphasize synthetic + Duffing as primary validation
+
+**Experimental fix (not recommended):**
+- Drop Phillips curve entirely
+- Focus on 3 domains: synthetic, Duffing, Complex SCM
+
+**Time:** 0 (just editing)
+**Impact:** Removes potential criticism
+
+---
+
+### 4. LM Policy Overhead (LOW IMPACT)
+
+**Current:**
+- Qwen2.5-1.5B (1.5 billion parameters)
+- Justification provided but may seem excessive
+
+**Reviewers will say:**
+"Why use a 1.5B LM when a simple MLP/GNN would work?"
+
+**Writing mitigation (already in paper):**
+- Variable graph sizes without architectural changes
+- Pretrained inductive biases
+- 1.5B is smallest with robust instruction-following
+- Could strengthen: "MLP baseline would require fixed encoding"
+
+**Experimental fix:**
+- Add MLP policy baseline
+- Show it performs worse than LM
+
+**Time:** ~8-10 hours (implement + run)
+**Impact:** Validates LM choice empirically
+
+---
+
+## Prioritized Refinement Plan
+
+### Tier 1: Critical for Strong Accept (Do if possible)
+
+1. **Remove oracle pretraining from main results** (6-8h)
+   - Re-run ACE without oracle (N=5)
+   - Use as headline result
+   - Moves paper from "works with help" to "works autonomously"
+
+2. **Increase to N=10 seeds** (10-12h)
+   - Add 5 more seeds
+   - Tighter statistics
+   - Demonstrates robustness
+
+**Combined time:** 16-20 hours
+**Impact:** Transforms from ACCEPT to STRONG ACCEPT
+
+### Tier 2: Nice to Have
+
+3. **Downplay Phillips curve** (1h editing)
+   - Move to supplementary or remove
+   - Focus on synthetic + physics
+
+4. **Strengthen LM justification** (already done)
+   - Current writing is adequate
+
+### Tier 3: Optional
+
+5. **Add learning curves figure** (2-3h)
+   - Visualize sample efficiency
+   - Show AUC comparisons
+
+6. **Bootstrap confidence intervals** (4-5h)
+   - More robust than t-test CIs with N=5
+
+---
+
+## Current Experimental Status (Jan 26, 2026, 7:30 PM)
+
+**Running:**
+- Ablations (4 types × 3 seeds): In progress, 1-2h per job
+- Critical experiments: Queued, 5-7h runtime
+
+**Expected completion:** 6-8 AM tomorrow
+
+**After these complete, we have:**
+- Extended baselines ✓
+- Lookahead ablation ✓  
+- 15-node SCM ✓
+- Component ablations ✓
+
+**Paper will be:** Competitive ACCEPT with all major concerns addressed.
+
+**To reach STRONG ACCEPT:** Need Tier 1 refinements (no oracle in main results, N=10 seeds).
+
+---
+
+## Decision Point
+
+**If deadline allows (~24-48 hours):**
+→ Do Tier 1 refinements (oracle removal + N=10)
+→ Transforms to STRONG ACCEPT candidate
+
+**If deadline is tight (<24 hours):**
+→ Use current results with writing mitigations
+→ Solid ACCEPT, defensible in rebuttal
+→ Acknowledge limitations honestly
+
+---
+
+## Writing Mitigations (If No Time for Experiments)
+
+Add to Limitations section:
+
+**Oracle pretraining:**
+"While ablation studies (Section 5.1) quantify the contribution of oracle pretraining, our main results include this warm-start. We view this as analogous to expert demonstrations in imitation learning, providing a sample-efficient initialization. Future work will explore curriculum learning and self-play alternatives that eliminate this requirement."
+
+**Sample size:**
+"With N=5 seeds, statistical power is limited. We report medians for robustness to the observed outlier (seed 789), and recommend N≥10 for future studies to enable more precise effect size estimation and rare failure mode characterization."
+
+**Phillips curve:**
+"The Phillips curve demonstration represents active data subset selection from an observational archive rather than causal intervention in the do-calculus sense. We include it to illustrate ACE's broader applicability to strategic historical sampling, but our primary validation focuses on controlled experimental domains (synthetic SCM, Duffing oscillators, complex SCM)."
+
+---
+
+## Timeline Estimate
+
+**Current experiments (running):** 6-8 AM tomorrow
+**Analysis + paper update:** 2-3 hours
+**Proofreading:** 1-2 hours
+
+**Earliest submission:** Tomorrow afternoon (Jan 27)
+
+**With Tier 1 refinements:**
+- No oracle ACE runs: +8 hours
+- N=10 runs (5 more seeds): +12 hours  
+- Analysis: +3 hours
+- **Earliest submission:** Jan 28-29
+
+---
+
+## Recommendation
+
+**If deadline is Feb 1 or later:** Do Tier 1 refinements (strong accept candidate)
+**If deadline is Jan 28-29:** Use current results with writing mitigations (solid accept)
+**If deadline is Jan 27:** Submit with current results as-is (competitive but rushed)
