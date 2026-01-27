@@ -55,12 +55,12 @@ import pandas as pd
 
 # Import from existing codebase
 from baselines import (
-    GroundTruthSCM, 
+    GroundTruthSCM,
+    StudentSCM,
     SCMLearner, 
     run_random_policy,
     run_round_robin_policy,
-    run_max_variance_policy,
-    run_ppo_policy
+    run_max_variance_policy
 )
 from experiments.complex_scm import ComplexGroundTruthSCM
 
