@@ -147,8 +147,13 @@ def run_extended_baselines(
             })
             
             tracker.save(f"{output_dir}/{baseline_name}_seed{seed}_curve.csv")
+        
+        # Save intermediate results after each seed
+        df_intermediate = pd.DataFrame(results)
+        df_intermediate.to_csv(f"{output_dir}/extended_baselines_summary_partial.csv", index=False)
+        print(f"  Saved intermediate results ({len(results)} runs)")
     
-    # Save summary
+    # Save final summary
     df = pd.DataFrame(results)
     df.to_csv(f"{output_dir}/extended_baselines_summary.csv", index=False)
     print(f"\nSaved extended baseline results to {output_dir}")
@@ -284,8 +289,13 @@ def run_lookahead_ablation(
         })
         
         tracker.save(f"{output_dir}/random_lookahead_seed{seed}_curve.csv")
+        
+        # Save intermediate results after each seed
+        df_intermediate = pd.DataFrame(results)
+        df_intermediate.to_csv(f"{output_dir}/lookahead_ablation_summary_partial.csv", index=False)
+        print(f"  Saved intermediate results ({len(results)} runs)")
     
-    # Save summary
+    # Save final summary
     df = pd.DataFrame(results)
     df.to_csv(f"{output_dir}/lookahead_ablation_summary.csv", index=False)
     
@@ -363,8 +373,13 @@ def run_complex_scm_experiments(
             'total_loss': sum(final_losses.values()),
             'collider_loss': get_collider_loss(final_losses, scm)
         })
+        
+        # CRITICAL: Save intermediate results after each seed
+        df_intermediate = pd.DataFrame(results)
+        df_intermediate.to_csv(f"{output_dir}/complex_scm_summary_partial.csv", index=False)
+        print(f"\n  Saved intermediate results ({len(results)} runs so far)")
     
-    # Save summary
+    # Save final summary
     df = pd.DataFrame(results)
     df.to_csv(f"{output_dir}/complex_scm_summary.csv", index=False)
     
