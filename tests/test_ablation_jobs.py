@@ -387,5 +387,56 @@ class TestLocalAblationExecution:
         assert len(output_dirs) > 0, "No output directory created"
 
 
+class TestAblationLogicImplementation:
+    """Test that ablation logic is actually implemented in ace_experiments.py."""
+    
+    def test_ablation_logic_modifies_args(self):
+        """Verify ablation flags modify configuration."""
+        with open("ace_experiments.py") as f:
+            content = f.read()
+        
+        # Check that each ablation flag has implementation
+        assert "if args.no_diversity_reward:" in content
+        assert "args.diversity_reward_weight = 0.0" in content
+        
+        assert "if args.no_dedicated_root_learner:" in content
+        assert "args.use_dedicated_root_learner = False" in content
+        
+        assert "if args.no_per_node_convergence:" in content
+        assert "args.use_per_node_convergence = False" in content
+    
+    def test_ablation_flags_have_logging(self):
+        """Verify ablations log their activation."""
+        with open("ace_experiments.py") as f:
+            content = f.read()
+        
+        # Each ablation should log a warning
+        assert 'ABLATION: Diversity reward disabled' in content
+        assert 'ABLATION: Dedicated root learner disabled' in content
+        assert 'ABLATION: Per-node convergence disabled' in content
+
+
+class TestJobScriptUnbufferedOutput:
+    """Test job scripts use unbuffered Python output."""
+    
+    def test_single_ablation_has_unbuffered(self):
+        """Verify single ablation job uses python -u."""
+        with open("jobs/run_single_ablation.sh") as f:
+            content = f.read()
+        
+        assert "python -u" in content
+    
+    def test_all_slurm_jobs_have_time_limit(self):
+        """Verify all SLURM job scripts have time limits."""
+        import glob
+        
+        for script_path in glob.glob("jobs/run_*.sh"):
+            with open(script_path) as f:
+                content = f.read()
+            
+            if "#SBATCH" in content:  # Is a SLURM script
+                assert "#SBATCH --time=" in content, f"{script_path} missing time limit"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

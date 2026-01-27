@@ -141,7 +141,7 @@ class TestLearningCurveTracker:
         
         # Record some data
         tracker.record(1, 1.5, {'X1': 0.3, 'X2': 0.5, 'X3': 0.7})
-        tracker.record(2, 1.2, {'X1': 0.2, 'X2': 0.4, 'X3': 0.6})
+        tracker.record(2, 1.2, {'X1': 0.2, 'X4': 0.4, 'X3': 0.6})
         
         # Should have 2 episode records
         assert len(tracker.episode_losses) == 2
@@ -150,6 +150,115 @@ class TestLearningCurveTracker:
         
         # Should have 6 node records (2 episodes × 3 nodes)
         assert len(tracker.per_node_losses) == 6
+    
+    def test_tracker_to_dataframe(self):
+        """Test tracker converts to dataframe."""
+        sys.path.insert(0, 'scripts/runners')
+        try:
+            from run_critical_experiments import LearningCurveTracker
+            import pandas as pd
+        except ImportError:
+            pytest.skip("Cannot import without ML dependencies")
+            return
+        
+        tracker = LearningCurveTracker()
+        tracker.record(1, 1.5, {'X1': 0.3})
+        tracker.record(2, 1.2, {'X1': 0.2})
+        
+        df = tracker.to_dataframe()
+        
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 2
+        assert 'episode' in df.columns
+        assert 'total_loss' in df.columns
+    
+    def test_tracker_save(self, tmp_path):
+        """Test tracker saves to CSV."""
+        sys.path.insert(0, 'scripts/runners')
+        try:
+            from run_critical_experiments import LearningCurveTracker
+        except ImportError:
+            pytest.skip("Cannot import without ML dependencies")
+            return
+        
+        tracker = LearningCurveTracker()
+        tracker.record(1, 1.5, {'X1': 0.3})
+        
+        output_path = tmp_path / "test_curve.csv"
+        tracker.save(str(output_path))
+        
+        assert output_path.exists()
+        assert output_path.stat().st_size > 0
+
+
+class TestComplexSCMFunctions:
+    """Test complex SCM helper functions."""
+    
+    @pytest.mark.slow
+    def test_get_collider_loss(self):
+        """Test collider loss calculation."""
+        sys.path.insert(0, 'scripts/runners')
+        try:
+            from run_critical_experiments import get_collider_loss
+            from experiments.complex_scm import ComplexGroundTruthSCM
+        except ImportError:
+            pytest.skip("Cannot import without ML dependencies")
+            return
+        
+        scm = ComplexGroundTruthSCM()
+        losses = {'L1': 0.5, 'N1': 0.3, 'C1': 0.4, 'C2': 0.6, 'F3': 0.2, 'R1': 1.0}
+        
+        collider_loss = get_collider_loss(losses, scm)
+        
+        # Should average the 5 colliders
+        expected = (0.5 + 0.3 + 0.4 + 0.6 + 0.2) / 5
+        assert abs(collider_loss - expected) < 0.01
+    
+    @pytest.mark.slow
+    def test_run_complex_random(self):
+        """Test random policy on complex SCM."""
+        sys.path.insert(0, 'scripts/runners')
+        try:
+            from run_critical_experiments import run_complex_random, create_complex_learner
+            from experiments.complex_scm import ComplexGroundTruthSCM
+        except ImportError:
+            pytest.skip("Cannot import without ML dependencies")
+            return
+        
+        scm = ComplexGroundTruthSCM()
+        learner = create_complex_learner(scm)
+        
+        # Run for 1 episode
+        final_losses = run_complex_random(scm, learner, episodes=1)
+        
+        assert isinstance(final_losses, dict)
+        assert len(final_losses) > 0
+        assert all(isinstance(v, (int, float)) for v in final_losses.values())
+
+
+class TestJobScriptConfiguration:
+    """Test job script configurations."""
+    
+    def test_critical_job_has_unbuffered_python(self):
+        """Verify critical job uses python -u for unbuffered output."""
+        with open("jobs/run_critical_experiments.sh") as f:
+            content = f.read()
+        
+        assert "python -u" in content, "Missing unbuffered Python flag"
+    
+    def test_critical_job_correct_path(self):
+        """Verify critical job calls correct script path."""
+        with open("jobs/run_critical_experiments.sh") as f:
+            content = f.read()
+        
+        assert "scripts/runners/run_critical_experiments.py" in content
+    
+    def test_critical_job_has_qos(self):
+        """Verify critical job has QoS."""
+        with open("jobs/run_critical_experiments.sh") as f:
+            content = f.read()
+        
+        assert "#SBATCH --qos=normal" in content
 
 
 if __name__ == "__main__":
