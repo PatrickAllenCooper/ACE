@@ -723,17 +723,11 @@ Looking forward, ACE enables automated hypothesis validation in simulation envir
 \section{Limitations and Future Work}
 \label{sec:limitations}
 
-\textbf{Unequal intervention budgets (addressed).} We now report baselines at both 100 and 171 episodes, demonstrating that ACE's 70--71\% median improvement persists at matched budget. Baselines plateau (2.06--2.10) regardless of episode count, while ACE achieves 0.61 median, isolating algorithmic advantage from sample size effects.
+\textbf{Addressed limitations.} Equal-budget comparisons (171 episodes) demonstrate ACE's 70\% improvement persists independent of sample size. Random lookahead ablation (2.10 loss, comparable to baselines) confirms DPO-based proposal generation, not candidate evaluation alone, drives performance.
 
-\textbf{Lookahead selection mechanism (addressed).} We evaluate random proposer with lookahead (K=4, simulate, select best), achieving 2.10 $\pm$ 0.11, comparable to baselines without lookahead. The 66\% improvement of DPO-trained ACE over random lookahead confirms that learned proposal generation, not merely candidate evaluation, drives performance gains.
+\textbf{Remaining limitations.} The 200-intervention oracle warm-start provides privileged information; ablations quantify this but headline results include it. With N=5 seeds, statistical power is limited and one outlier drives high variance. ACE assumes known structure, requires simulation access during training, and faces scalability limits beyond 20 nodes. The Phillips curve demonstrates strategic historical sampling but is observational data selection, not causal intervention in the do-calculus sense.
 
-\textbf{Oracle pretraining.} The 200-intervention oracle warm-start provides privileged information that accelerates convergence. While ablation studies quantify this contribution, the headline results include this advantage. Future work should match baselines with equivalent warm-starting or remove pretraining entirely.
-
-\textbf{Statistical power.} With $N=5$ seeds, p-values are brittle. Bootstrap confidence intervals over differences would provide more robust uncertainty quantification. The high variance in ACE (0.92 $\pm$ 0.73) driven by one outlier seed warrants deeper stability analysis across initializations, architectures, and hyperparameters.
-
-\textbf{Scope.} ACE assumes known causal structure (focusing on mechanism estimation rather than joint structure-and-mechanism discovery), requires high-fidelity simulations or historical data during training, and faces scalability limits from text-based graph encoding ($n > 20$ nodes becomes prohibitive). The Phillips curve experiment is active data subset selection from an observational archive, not causal intervention in the do-calculus sense.
-
-Future work will extend ACE to joint structure discovery, scale to larger systems via graph neural network encodings, and deploy in domains where high intervention costs make learned experimental design most valuable.
+Future work will extend to joint structure discovery, scale to larger systems, and deploy where intervention costs make learned experimental design most valuable.
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
