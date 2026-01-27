@@ -7,16 +7,17 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
-#SBATCH --time=06:00:00
+#SBATCH --time=02:00:00
 #SBATCH --output=logs/ablation_fast_%j.out
 #SBATCH --error=logs/ablation_fast_%j.err
 
 # Fast Ablation Studies - Reduced episodes with early stopping
-# Expected runtime: 3-5 hours (vs 12+ for full ablations)
+# Expected runtime: 1-2 hours per ablation, 3-5 hours for all
 #
 # Usage:
-#   sbatch jobs/run_ablations_fast.sh           # Run all ablations
-#   ABLATION=no_dpo sbatch jobs/run_ablations_fast.sh  # Run specific ablation
+#   sbatch jobs/run_ablations_fast.sh                      # Run all ablations sequentially
+#   ABLATION=no_dpo sbatch jobs/run_ablations_fast.sh      # Run specific ablation (3 seeds)
+#   bash jobs/workflows/submit_ablations_fast.sh           # Submit all 4 in parallel
 
 echo "=============================================="
 echo "Fast Ablation Studies for ICML Response"
