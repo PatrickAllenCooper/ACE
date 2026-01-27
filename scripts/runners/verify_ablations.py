@@ -48,7 +48,7 @@ def test_ace_ablation_flags():
             content = Path("ace_experiments.py").read_text()
             required = ['--no_per_node_convergence', '--no_dedicated_root_learner', 
                        '--no_diversity_reward', '--custom']
-            return all(f'"{flag}"' in content or f"'{flag}'" in content for flag in required)
+            return all(('"' + flag + '"' in content or "'" + flag + "'" in content) for flag in required)
         
         required = ['--no_per_node_convergence', '--no_dedicated_root_learner', 
                     '--no_diversity_reward', '--custom']
