@@ -126,7 +126,10 @@ def run_extended_baselines(
             ('max_variance', run_max_variance_policy),
         ]:
             print(f"\nRunning {baseline_name}...")
-            learner = SCMLearner(scm)
+            # Import StudentSCM from baselines
+            from baselines import StudentSCM
+            student = StudentSCM(scm)
+            learner = SCMLearner(student, oracle=scm)
             tracker = LearningCurveTracker()
             
             # Modified to track learning curves
@@ -213,7 +216,9 @@ def run_lookahead_ablation(
         torch.manual_seed(seed)
         
         scm = GroundTruthSCM()
-        learner = SCMLearner(scm)
+        from baselines import StudentSCM
+        student = StudentSCM(scm)
+        learner = SCMLearner(student, oracle=scm)
         tracker = LearningCurveTracker()
         
         # Run lookahead with random proposals

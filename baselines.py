@@ -673,13 +673,27 @@ def calculate_reward_with_bonuses(loss_before: float, loss_after: float,
 class SCMLearner:
     """Learner that trains the student SCM on experimental data."""
     
-    def __init__(self, student: StudentSCM, lr: float = 2e-3, buffer_size: int = 50):
+    def __init__(self, student: StudentSCM, lr: float = 2e-3, buffer_size: int = 50, oracle: GroundTruthSCM = None):
         self.student = student
+        self.oracle = oracle
         self.optimizer = optim.Adam(student.parameters(), lr=lr)
         self.loss_fn = nn.MSELoss()
         self.buffer = []
         self.buffer_size = buffer_size
+        self._critic = None
         
+    def evaluate(self) -> Dict[str, float]:
+        """Evaluate current mechanism losses."""
+        if self._critic is None and self.oracle is not None:
+            self._critic = ScientificCritic(self.oracle)
+        
+        if self._critic is None or self._critic.val_data is None:
+            # No oracle/validation data - return zeros
+            return {node: 0.0 for node in self.student.nodes}
+        
+        _, node_losses = self._critic.evaluate(self.student)
+        return node_losses
+    
     def train_step(self, data: Dict[str, torch.Tensor], intervened: Optional[str] = None,
                    n_epochs: int = 50):
         """Train on new data, respecting intervention masks."""
@@ -761,6 +775,61 @@ class ScientificCritic:
         return total_loss, node_losses
 
 
+# ----------------------------------------------------------------
+# SIMPLE BASELINE RUNNERS FOR CRITICAL EXPERIMENTS
+# ----------------------------------------------------------------
+
+def run_random_policy(scm: GroundTruthSCM, learner, episodes: int):
+    """Run random intervention policy for fixed number of episodes."""
+    for ep in range(episodes):
+        node = random.choice(scm.nodes)
+        value = random.uniform(-5, 5)
+        data = scm.generate(100, interventions={node: value})
+        learner.train_step(data, intervened=node)
+    return learner.evaluate()
+
+
+def run_round_robin_policy(scm: GroundTruthSCM, learner, episodes: int):
+    """Run round-robin intervention policy."""
+    for ep in range(episodes):
+        node = scm.nodes[ep % len(scm.nodes)]
+        value = random.uniform(-5, 5)
+        data = scm.generate(100, interventions={node: value})
+        learner.train_step(data, intervened=node)
+    return learner.evaluate()
+
+
+def run_max_variance_policy(scm: GroundTruthSCM, learner, episodes: int):
+    """Run max-variance (uncertainty sampling) policy."""
+    for ep in range(episodes):
+        # Select node with highest prediction variance
+        max_var = -1
+        best_node = scm.nodes[0]
+        
+        learner.student.eval()  # Evaluation mode for variance estimation
+        with torch.no_grad():
+            for node in scm.nodes:
+                # Simple variance estimation from prediction uncertainty
+                # Generate test data
+                test_data = scm.generate(10, interventions=None)
+                preds = learner.student(test_data)
+                
+                # Variance of predictions for this node
+                variance = preds[node].var().item()
+                
+                if variance > max_var:
+                    max_var = variance
+                    best_node = node
+        
+        learner.student.train()  # Back to training mode
+        
+        value = random.uniform(-5, 5)
+        data = scm.generate(100, interventions={best_node: value})
+        learner.train_step(data, intervened=best_node)
+    
+    return learner.evaluate()
+
+
 def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
                  steps_per_episode: int = 25, obs_train_interval: int = 5,
                  obs_train_samples: int = 100) -> pd.DataFrame:
@@ -773,7 +842,7 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
     for episode in range(n_episodes):
         # Fresh student each episode
         student = StudentSCM(oracle)
-        learner = SCMLearner(student)
+        learner = SCMLearner(student, oracle=oracle)
         
         # Reset policy state if needed
         if hasattr(policy, 'reset'):
