@@ -81,19 +81,19 @@ EXPERIMENT=${1:-all}
 case $EXPERIMENT in
     extended)
         echo "Running: Extended Baselines Only"
-        python scripts/runners/run_critical_experiments.py --extended-baselines --seeds 42 123 456 789 1011
+        python -u scripts/runners/run_critical_experiments.py --extended-baselines --seeds 42 123 456 789 1011
         ;;
     ablation)
         echo "Running: Lookahead Ablation Only"
-        python scripts/runners/run_critical_experiments.py --lookahead-ablation --seeds 42 123 456 789 1011
+        python -u scripts/runners/run_critical_experiments.py --lookahead-ablation --seeds 42 123 456 789 1011
         ;;
     complex)
         echo "Running: Complex 15-Node SCM Only"
-        python scripts/runners/run_critical_experiments.py --complex-scm --seeds 42 123 456 789 1011
+        python -u scripts/runners/run_critical_experiments.py --complex-scm --seeds 42 123 456 789 1011
         ;;
     all|*)
         echo "Running: ALL Critical Experiments"
-        python scripts/runners/run_critical_experiments.py --all --seeds 42 123 456 789 1011
+        python -u scripts/runners/run_critical_experiments.py --all --seeds 42 123 456 789 1011
         ;;
 esac
 

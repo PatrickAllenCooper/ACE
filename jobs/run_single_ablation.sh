@@ -81,7 +81,7 @@ for SEED in 42 123 456; do
     
     OUTPUT_DIR="${BASE_OUTPUT}/${ABLATION}/seed_${SEED}"
     
-    python ace_experiments.py \
+    python -u ace_experiments.py \
         --episodes 100 \
         --steps 25 \
         --seed $SEED \
