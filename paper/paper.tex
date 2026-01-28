@@ -544,7 +544,7 @@ We apply ACE to a chain of three coupled Duffing oscillators \cite{kovacic2011du
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    scale=0.65,
+    scale=0.7,
     mass/.style={circle, draw, minimum size=0.7cm, font=\small, thick},
     spring/.style={decorate, decoration={zigzag, segment length=3pt, amplitude=1.5pt}},
     arrow/.style={-{Stealth[length=2mm]}, thick},
@@ -552,26 +552,26 @@ We apply ACE to a chain of three coupled Duffing oscillators \cite{kovacic2011du
 ]
 % Vertical layout
 % Left column: True structure
-\node[font=\tiny] at (-0.9,0) {(a) True};
+\node[font=\scriptsize, above=0.3cm of M1] {(a) True};
 \node[mass] (M1) at (0,0) {$X_1$};
-\node[mass] (M2) at (0,-1.5) {$X_2$};
-\node[mass] (M3) at (0,-3) {$X_3$};
+\node[mass] (M2) at (0,-1.7) {$X_2$};
+\node[mass] (M3) at (0,-3.4) {$X_3$};
 
 \draw[spring] (M1) -- (M2);
 \draw[spring] (M2) -- (M3);
 
 % Right column: Apparent structure
-\node[font=\tiny] at (2.4,0) {(b) Apparent};
-\node[mass] (N1) at (3,0) {$X_1$};
-\node[mass] (N2) at (3,-1.5) {$X_2$};
-\node[mass] (N3) at (3,-3) {$X_3$};
+\node[font=\scriptsize, above=0.3cm of N1] {(b) Apparent};
+\node[mass] (N1) at (3.5,0) {$X_1$};
+\node[mass] (N2) at (3.5,-1.7) {$X_2$};
+\node[mass] (N3) at (3.5,-3.4) {$X_3$};
 
 \draw[spring] (N1) -- (N2);
 \draw[spring] (N2) -- (N3);
 \draw[dasharrow] (N1) to[bend right=40] (N3);
 
 % Annotation
-\node[font=\tiny, red!70, right=0.1cm of N2] {sync};
+\node[font=\tiny, red!70, right=0.2cm of N2] {sync};
 \end{tikzpicture}
 \caption{Coupled Duffing oscillators. (a) True chain coupling. (b) Synchronization creates spurious correlation (dashed). ACE discovers clamping $X_2$ breaks spurious $X_1$--$X_3$ correlation.}
 \label{fig:duffing-scm}
