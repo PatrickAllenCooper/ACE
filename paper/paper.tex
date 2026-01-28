@@ -294,15 +294,15 @@ where $y_w, y_l$ are preferred/dispreferred interventions (conditioned on state 
 
 \subsection{Experimental Methodology}
 
-To ensure robust evaluation, we conduct five independent runs per experiment using different random seeds (42, 123, 456, 789, 1011). We report results as mean $\pm$ standard deviation with 95\% confidence intervals, and assess statistical significance via paired t-tests with Bonferroni correction for multiple comparisons. Ablation studies validate the contribution of each architectural component. We compare against four baselines (Random, Round-Robin, Max-Variance, and PPO) that span the spectrum from passive exploration to learned active strategies. We note that recent methods like CORE and GACBO \cite{core2024,gacbo2024} address the distinct problem of structure discovery rather than mechanism estimation.
+We conduct five independent runs per experiment (seeds: 42, 123, 456, 789, 1011), following standard practice for statistical validation in experimental ML. Results are reported as mean $\pm$ standard deviation, with statistical significance assessed via paired t-tests and Bonferroni correction ($\alpha = 0.0125$). We compare against four baselines spanning passive to learned strategies: Random, Round-Robin, Max-Variance, and PPO. Ablation studies validate each architectural component. Note that recent methods (CORE, GACBO \cite{core2024,gacbo2024}) address structure discovery; we focus on the complementary problem of mechanism estimation given known structure.
 
 \subsubsection{Implementation Details}
 
-Ground truth: 5-node SCM with linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) mechanisms, Gaussian noise ($\sigma=0.01$). Learner: 2-layer MLPs (64 units, ReLU), Gaussian roots, Adam optimizer \cite{kingma2015adam} (lr=$2 \times 10^{-3}$, 100 steps/sample). Policy: Qwen2.5-1.5B \cite{qwen2.5} for variable graph sizes (text-based state encoding accommodates changing structure without architectural modifications), temperature 0.7.
+Ground truth: 5-node SCM with linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) mechanisms. Gaussian noise ($\sigma=0.01$) ensures stochastic but learnable relationships. Learner: 2-layer MLPs (64 units, ReLU), sufficient capacity for the mechanism complexity; Gaussian roots with learnable parameters; Adam optimizer \cite{kingma2015adam} (lr=$2 \times 10^{-3}$, standard for neural SCM training). Policy: Qwen2.5-1.5B \cite{qwen2.5}, chosen because text-based prompts naturally handle variable graph sizes without architectural changes. Sampling temperature 0.7 balances exploration (diversity in candidates) and exploitation (high-quality proposals).
 
 \subsection{Training Protocol}
 
-Each episode begins with a fresh learner to develop generalizable strategies. The policy undergoes supervised pretraining on 200 oracle interventions (ablations quantify this contribution, Section~\ref{sec:ablations}), then generates $K=4$ candidates per step, constructing preference pairs from best/worst and updating via DPO (lr=$10^{-5}$). Per-node early stopping terminates when all losses converge ($\forall i, L_i^{(t)} < \tau_i$) for 10 consecutive episodes, with 40-episode minimum. Reference policy updates every 25 episodes prevent distribution drift.
+Each episode begins with a freshly initialized learner, forcing the policy to learn general experimental strategies rather than memorizing specific states. The policy receives 200 oracle interventions for supervised initialization (Section~\ref{sec:ablations} validates this accelerates but is not necessary). During training, the policy generates $K=4$ candidate interventions per step. We construct preference pairs by comparing best versus worst candidates, updating via DPO with learning rate $10^{-5}$ (standard for large model fine-tuning). Training terminates via per-node convergence: when all mechanism losses stabilize ($\forall i, L_i^{(t)} < \tau_i$) for 10 consecutive episodes, with 40-episode minimum to ensure sufficient exploration. Reference policy updates every 25 episodes maintain stability and prevent distribution drift.
 
 \subsection{Addressing Heterogeneous Learning Rates}
 
@@ -354,7 +354,7 @@ To ensure statistical rigor, all experiments are conducted with five independent
 
 \subsection{Synthetic 5-Node Benchmark}
 
-We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (collider), $X_4 \to X_5$, shown in Figure~\ref{fig:synthetic-scm}. Mechanisms include linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_1 - X_2 + \sin(X_2)$), and quadratic ($X_5 = 0.2X_4^2$) relationships with Gaussian noise ($\sigma = 0.1$). Root distributions are $X_1 \sim \mathcal{N}(0,1)$, $X_4 \sim \mathcal{N}(2,1)$. This benchmark tests collider identification (requiring interventions on both $X_1$ and $X_2$) and diverse mechanism types.
+We construct a 5-node SCM (Figure~\ref{fig:synthetic-scm}) designed to test key challenges: collider identification ($X_3$ with parents $X_1, X_2$), diverse mechanism types (linear $X_2$, nonlinear $X_3$ with trigonometric terms, quadratic $X_5$), and disconnected components ($X_4 \to X_5$). Mechanisms have Gaussian noise ($\sigma = 0.01$) for stable learning. Root distributions $X_1 \sim \mathcal{N}(0,1)$ and $X_4 \sim \mathcal{N}(2,1)$ provide distinct baselines. This controlled benchmark enables precise attribution of performance to experimental design strategies.
 
 \begin{figure}[t]
 \centering
