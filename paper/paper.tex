@@ -649,11 +649,7 @@ The Phillips curve experiments demonstrate ACE's transfer to observational data 
 % INSERT BELOW (replace placeholder text with actual degradation values):
 % ============================================================================
 
-To validate DPO's contribution, we ablate the preference learning component by replacing it with a custom transformer policy trained via standard supervised learning (no pairwise comparisons). Across three seeds (42, 123, 456), this no-DPO variant achieves 2.12 $\pm$ 0.10 total loss, representing 130\% degradation from full ACE (0.92 $\pm$ 0.73, median 0.61). The no-DPO policy performs comparably to baseline heuristics (Random: 2.06, Round-Robin: 2.10, Max-Variance: 2.10), confirming that preference-based learning under non-stationary rewards is the critical algorithmic innovation. A custom transformer without DPO cannot discover the strategic patterns that DPO enables, validating our core methodological choice.
-
-\subsection{Oracle Pretraining: Necessary or Accelerant?}
-
-The DPO ablation provides strong evidence that preference-based learning, not merely having a learned policy, drives ACE's performance. The substantial degradation when removing DPO (130\%, reducing ACE to baseline-level performance) confirms this is the key algorithmic contribution.
+To validate DPO's contribution, we ablate the preference learning component by replacing it with a custom transformer policy trained via standard supervised learning (no pairwise comparisons). Across three seeds (42, 123, 456), this no-DPO variant achieves 2.12 $\pm$ 0.10 total loss, representing 130\% degradation from full ACE (0.92 $\pm$ 0.73, median 0.61). The no-DPO policy performs comparably to baseline heuristics (Random: 2.06, Round-Robin: 2.10, Max-Variance: 2.10), confirming that preference-based learning under non-stationary rewards is the critical algorithmic innovation. A custom transformer without DPO cannot discover the strategic patterns that DPO enables. The substantial degradation (130\%, reducing ACE to baseline-level performance) confirms that preference learning, not merely having a learned policy, drives ACE's performance.
 
 \subsection{Failure Modes}
 
