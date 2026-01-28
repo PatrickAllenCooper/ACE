@@ -62,13 +62,11 @@ def run_ace_complex(seed=42, episodes=200, output_dir="results/ace_complex_scm",
     oracle = ComplexGroundTruthSCM()
     dsl = ExperimentalDSL(oracle.nodes, value_min=-5.0, value_max=5.0)
     
-    # Create policy
-    if use_custom:
-        print("[STARTUP] Creating custom transformer policy...")
-        policy_net = TransformerPolicy(dsl, device).to(device)
-    else:
-        print("[STARTUP] Loading HuggingFace policy...")
-        policy_net = HuggingFacePolicy("Qwen/Qwen2.5-1.5B", dsl, device)
+    # Create policy - always use Qwen for consistency with 5-node
+    print("[STARTUP] Loading Qwen2.5-1.5B policy...")
+    print("[STARTUP] This may take 2-5 minutes on first run...")
+    policy_net = HuggingFacePolicy("Qwen/Qwen2.5-1.5B", dsl, device)
+    print("[STARTUP] Model loaded successfully")
     
     ref_policy = copy.deepcopy(policy_net)
     ref_policy.eval()
@@ -76,26 +74,26 @@ def run_ace_complex(seed=42, episodes=200, output_dir="results/ace_complex_scm",
     optimizer = torch.optim.Adam(policy_net.parameters(), lr=1e-5)
     
     # Oracle pretraining (200 steps)
-    if not use_custom:
-        print("[STARTUP] Oracle pretraining...")
-        temp_student = ComplexStudentSCM(oracle)
-        temp_learner = ComplexSCMLearner(temp_student, oracle=oracle)
-        init_losses = temp_learner.evaluate()
-        
-        supervised_pretrain_llm(
-            policy_net,
-            temp_student,
-            oracle.graph,
-            oracle.nodes,
-            init_losses,
-            optimizer,
-            n_steps=200,
-            value_min=-5.0,
-            value_max=5.0
-        )
-        
-        ref_policy = copy.deepcopy(policy_net)
-        ref_policy.eval()
+    print("[STARTUP] Oracle pretraining (200 steps)...")
+    temp_student = ComplexStudentSCM(oracle)
+    temp_learner = ComplexSCMLearner(temp_student, oracle=oracle)
+    init_losses = temp_learner.evaluate()
+    
+    supervised_pretrain_llm(
+        policy_net,
+        temp_student,
+        oracle.graph,
+        oracle.nodes,
+        init_losses,
+        optimizer,
+        n_steps=200,
+        value_min=-5.0,
+        value_max=5.0
+    )
+    
+    ref_policy = copy.deepcopy(policy_net)
+    ref_policy.eval()
+    print("[STARTUP] Pretraining complete")
     
     # Training loop
     results = []
