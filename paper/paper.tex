@@ -358,24 +358,24 @@ We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (c
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    scale=0.7,
-    node distance=1.2cm,
-    root/.style={circle, draw, fill=blue!20, minimum size=0.7cm, font=\small, thick},
-    regular/.style={circle, draw, fill=gray!15, minimum size=0.7cm, font=\small, thick},
-    collider/.style={circle, draw, fill=red!25, minimum size=0.7cm, font=\small, thick},
-    arrow/.style={-{Stealth[length=2mm]}, thick}
+    scale=0.85,
+    node distance=1.8cm,
+    root/.style={circle, draw, fill=blue!20, minimum size=0.75cm, font=\small, thick},
+    regular/.style={circle, draw, fill=gray!15, minimum size=0.75cm, font=\small, thick},
+    collider/.style={circle, draw, fill=red!25, minimum size=0.75cm, font=\small, thick},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick}
 ]
 
 % Layer 0: Roots
 \node[root] (X1) at (0,0) {$X_1$};
-\node[root] (X4) at (3,0) {$X_4$};
+\node[root] (X4) at (3.5,0) {$X_4$};
 
 % Layer 1: Intermediates
-\node[regular] (X2) at (0,-1.5) {$X_2$};
-\node[regular] (X5) at (3,-1.5) {$X_5$};
+\node[regular] (X2) at (0,-2) {$X_2$};
+\node[regular] (X5) at (3.5,-2) {$X_5$};
 
 % Layer 2: Collider
-\node[collider] (X3) at (0,-3) {$X_3$};
+\node[collider] (X3) at (0,-4) {$X_3$};
 
 % Edges - Collider chain
 \draw[arrow] (X1) -- (X2);
@@ -386,9 +386,9 @@ We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (c
 \draw[arrow] (X4) -- (X5);
 
 % Legend (matching Figure 4 style)
-\node[root, label=right:{\scriptsize Root (2)}] at (4.5,-0.5) {};
-\node[regular, label=right:{\scriptsize Intermediate (2)}] at (4.5,-1.2) {};
-\node[collider, label=right:{\scriptsize Collider (1)}] at (4.5,-1.9) {};
+\node[root, label=right:{\scriptsize Root (2)}] at (5.2,-0.5) {};
+\node[regular, label=right:{\scriptsize Intermediate (2)}] at (5.2,-1.4) {};
+\node[collider, label=right:{\scriptsize Collider (1)}] at (5.2,-2.3) {};
 
 \end{tikzpicture}
 \caption{Synthetic 5-node benchmark with hierarchical structure. $X_1$ and $X_4$ are roots (blue), $X_2$ and $X_5$ are intermediates (gray), and $X_3$ is a collider (red) with edges from both $X_1$ and $X_2$. The disconnected chain $X_4 \to X_5$ tests quadratic mechanisms.}
