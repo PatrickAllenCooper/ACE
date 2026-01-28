@@ -59,7 +59,7 @@
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{ACE: Active Causal Experimentalism via Direct Preference Optimization}
+\icmltitlerunning{Active Causal Experimentalist: Learning Experimental Design via DPO}
 
 \begin{document}
 
@@ -287,7 +287,7 @@ where $c$ is a candidate intervention, $\sigma = (M_\theta, \{L_j\})$ is the sys
 
 The policy is trained via the DPO objective \cite{rafailov2023direct}:
 \begin{equation}
-\mathcal{L}_{\text{DPO}} = - \mathbb{E} \left[ \log \sigma \left( \beta \left[ \log \frac{\pi_\phi(y_w)}{\pi_{\text{ref}}(y_w)} - \log \frac{\pi_\phi(y_l)}{\pi_{\text{ref}}(y_l)} \right] \right) \right]
+\mathcal{L}_{\text{DPO}} = - \mathbb{E} \left[ \log \text{sigmoid} \left( \beta \left[ \log \frac{\pi_\phi(y_w)}{\pi_{\text{ref}}(y_w)} - \log \frac{\pi_\phi(y_l)}{\pi_{\text{ref}}(y_l)} \right] \right) \right]
 \end{equation}
 where $y_w, y_l$ are preferred/dispreferred interventions (conditioned on state $\sigma$), $\pi_{\text{ref}}$ is the reference policy, and $\beta = 0.1$ controls deviation magnitude.
 
