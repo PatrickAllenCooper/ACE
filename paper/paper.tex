@@ -376,23 +376,26 @@ We construct a 5-node SCM with structure $X_1 \to X_2 \to X_3$, $X_1 \to X_3$ (c
     arrow/.style={-{Stealth[length=2mm]}, thick}
 ]
 
-% Collider subgraph
+% Vertical layout - top to bottom
+% Layer 0: Root
 \node[node] (X1) at (0,0) {$X_1$};
-\node[node] (X2) at (1.8,0) {$X_2$};
-\node[collider] (X3) at (3.6,0) {$X_3$};
+\node[node] (X4) at (2.5,0) {$X_4$};
 
+% Layer 1
+\node[node] (X2) at (0,-1.5) {$X_2$};
+\node[node] (X5) at (2.5,-1.5) {$X_5$};
+
+% Layer 2: Collider
+\node[collider] (X3) at (0,-3) {$X_3$};
+
+% Edges
 \draw[arrow] (X1) -- (X2);
 \draw[arrow] (X2) -- (X3);
-\draw[arrow] (X1) to[bend left=20] (X3);
-
-% Separate subgraph  
-\node[node] (X4) at (5,0) {$X_4$};
-\node[node] (X5) at (6.8,0) {$X_5$};
-
+\draw[arrow] (X1) to[bend right=25] (X3);
 \draw[arrow] (X4) -- (X5);
 
-% Annotation below to avoid overlap
-\node[below=0.35cm of X3, font=\scriptsize, text=red!70!black] {\textit{collider}};
+% Annotation
+\node[right=0.1cm of X3, font=\scriptsize, text=red!70!black] {\textit{collider}};
 
 \end{tikzpicture}
 \caption{Synthetic 5-node benchmark. $X_3$ (shaded) is a collider with edges from $X_1$ and $X_2$. The disconnected pair $X_4 \to X_5$ tests quadratic mechanisms.}
@@ -547,35 +550,34 @@ We apply ACE to a chain of three coupled Duffing oscillators \cite{kovacic2011du
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-    scale=0.55,
+    scale=0.65,
     mass/.style={circle, draw, minimum size=0.7cm, font=\small, thick},
     spring/.style={decorate, decoration={zigzag, segment length=3pt, amplitude=1.5pt}},
     arrow/.style={-{Stealth[length=2mm]}, thick},
     dasharrow/.style={-{Stealth[length=2mm]}, thick, dashed, red!60}
 ]
-% Left panel: True structure
+% Vertical layout
+% Left column: True structure
+\node[font=\tiny] at (-0.9,0) {(a) True};
 \node[mass] (M1) at (0,0) {$X_1$};
-\node[mass] (M2) at (1.8,0) {$X_2$};
-\node[mass] (M3) at (3.6,0) {$X_3$};
+\node[mass] (M2) at (0,-1.5) {$X_2$};
+\node[mass] (M3) at (0,-3) {$X_3$};
 
 \draw[spring] (M1) -- (M2);
 \draw[spring] (M2) -- (M3);
 
-\node[font=\tiny, below=0.4cm of M2] {(a) True};
-
-% Right panel: Apparent structure
-\node[mass] (N1) at (5.5,0) {$X_1$};
-\node[mass] (N2) at (7.3,0) {$X_2$};
-\node[mass] (N3) at (9.1,0) {$X_3$};
+% Right column: Apparent structure
+\node[font=\tiny] at (2.4,0) {(b) Apparent};
+\node[mass] (N1) at (3,0) {$X_1$};
+\node[mass] (N2) at (3,-1.5) {$X_2$};
+\node[mass] (N3) at (3,-3) {$X_3$};
 
 \draw[spring] (N1) -- (N2);
 \draw[spring] (N2) -- (N3);
-\draw[dasharrow] (N1) to[bend left=30] (N3);
-
-\node[font=\tiny, below=0.4cm of N2] {(b) Apparent};
+\draw[dasharrow] (N1) to[bend right=40] (N3);
 
 % Annotation
-\node[font=\tiny, red!70, above=0.12cm of N2] {sync};
+\node[font=\tiny, red!70, right=0.1cm of N2] {sync};
 \end{tikzpicture}
 \caption{Coupled Duffing oscillators. (a) True chain coupling. (b) Synchronization creates spurious correlation (dashed). ACE discovers clamping $X_2$ breaks spurious $X_1$--$X_3$ correlation.}
 \label{fig:duffing-scm}
