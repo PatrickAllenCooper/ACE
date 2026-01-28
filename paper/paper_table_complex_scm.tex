@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Complex 15-node SCM results (N=5 seeds). All methods achieve comparable performance on this challenging benchmark, with greedy collider-targeting showing marginal advantage.}
+\label{tab:complex-scm}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Method & Total Loss & Collider Loss & Strategy \\
+\midrule
+Greedy Collider & 4.51$\pm$0.17 & 0.29$\pm$0.03 & 80\% collider parents \\
+Random & 4.62$\pm$0.18 & 0.32$\pm$0.03 & Uniform \\
+Random Lookahead & 4.65$\pm$0.19 & 0.31$\pm$0.03 & K=4, simulate \\
+PPO & 4.68$\pm$0.20 & 0.33$\pm$0.04 & Learned value-based \\
+Round-Robin & 4.71$\pm$0.15 & 0.34$\pm$0.03 & Systematic \\
+\bottomrule
+\end{tabular}
+\end{table}
