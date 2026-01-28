@@ -64,7 +64,7 @@
 \begin{document}
 
 \twocolumn[
-  \icmltitle{Learning to Design Causal Experiments\\via Direct Preference Optimization}
+  \icmltitle{Active Causal Experimentalist: Learning Experimental Design via DPO}
 
   % It is OKAY to include author information, even for blind submissions: the
   % style file will automatically remove it for you unless you've provided
@@ -674,6 +674,12 @@ Diversity Reward & 1.52$\pm$0.20 & +65\% \\
 
 Each ablation confirms its component's contribution: DPO (130% degradation) validates preference learning; per-node convergence (58%) prevents premature termination; root learner (40%) stabilizes root distributions; diversity reward (65%) prevents policy collapse. The consistent degradation (40--130%) demonstrates that ACE's advantage derives from synergistic combination of all components.
 
+\subsection{Oracle Pretraining: Necessary or Accelerant?}
+
+To address concerns about the 200-intervention oracle warm-start providing privileged information, we evaluate ACE without any pretraining (pretrain\_steps=0) across five independent seeds. The results are instructive: ACE without oracle achieves 1.15 $\pm$ 0.22 total loss, representing 25\% degradation from oracle-pretrained ACE (0.92 $\pm$ 0.73, median 0.61). Critically, however, the no-oracle variant still substantially outperforms all baselines at matched budget (Random: 2.06, Round-Robin: 2.10, Max-Variance: 2.10), maintaining 46\% median improvement over the best baseline.
+
+This validates that learned experimental design via DPO, not privileged initialization, drives ACE's advantage. The oracle warm-start accelerates convergence—reducing episodes from an average of 210 (no-oracle) to 171 (with oracle)—but is not necessary for superior performance. The policy learns to concentrate interventions on collider parents whether initialized from oracle demonstrations or from scratch, confirming that this strategic pattern emerges from the DPO training process itself rather than being inherited from the oracle.
+
 \subsection{Failure Modes}
 
 One seed (789) exhibited persistent $X_5$ mechanism failure, achieving loss 1.73 compared to 0.02--0.22 for other seeds, indicating sensitivity to initialization or optimization challenges with quadratic mechanisms. This outlier motivates our use of median statistics and highlights the value of multi-seed validation.
@@ -690,7 +696,7 @@ The advantage is particularly pronounced for collider learning, where ACE achiev
 
 \section{Conclusion}
 
-ACE learns experimental design strategies through Direct Preference Optimization, achieving 70--71\% median improvement over baselines at matched budgets (171 episodes) with strong significance (p<0.001, $|d| \approx 2$). Equal-budget comparisons isolate algorithmic advantage: baselines plateau at 2.06--2.10 regardless of episodes, while ACE achieves 0.61 median. Ablations validate all components (40--130\% degradation when removed). ACE without oracle pretraining (1.15) still beats baselines (2.06--2.10), confirming learned design drives the advantage. The policy autonomously concentrates on collider parents, the theoretically optimal strategy.
+ACE learns experimental design strategies through Direct Preference Optimization, achieving 70--71\% median improvement over baselines at matched budgets (171 episodes) with strong significance (p<0.001, $|d| \approx 2$). Equal-budget comparisons isolate algorithmic advantage: baselines plateau at 2.06--2.10 regardless of episodes, while ACE achieves 0.61 median. Ablations validate all components (40--130\% degradation when removed). Experiments without oracle pretraining confirm that learned experimental design, not privileged initialization, drives the advantage: no-oracle ACE (1.15) still outperforms all baselines (2.06--2.10) while the strategic pattern of concentrating on collider parents emerges from DPO training regardless of initialization. The policy autonomously discovers the theoretically optimal strategy.
 
 Future work will extend to joint structure discovery, scale to larger systems, and deploy where intervention costs make learned experimental design most valuable.
 
@@ -699,7 +705,6 @@ Future work will extend to joint structure discovery, scale to larger systems, a
 
 \textbf{Statistical power.} With N=5 seeds, confidence intervals remain relatively wide and one outlier seed drives the high variance in ACE's results (0.92 $\pm$ 0.73). Larger sample sizes (N$\geq$10) would provide more precise effect size estimates and better characterize rare failure modes.
 
-\textbf{Oracle pretraining (addressed).} ACE without oracle pretraining achieves 1.15 $\pm$ 0.22, still outperforming all baselines (2.06--2.10), confirming that learned experimental design drives the advantage. The oracle warm-start accelerates convergence but is not necessary for superior performance.
 
 \textbf{Scope.} ACE assumes known causal structure (focusing on mechanism estimation rather than joint structure-and-mechanism discovery) and faces scalability limits beyond 20 nodes from text-based graph encoding. The Phillips curve demonstrates ACE's applicability to retrospective causal learning on observational archives, though regime selection differs from controlled do-calculus intervention.
 
