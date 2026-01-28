@@ -192,8 +192,9 @@ with unknown parameters $\boldsymbol{\theta} = \{\theta_{ji}\}$ representing the
 
 In practice, experimenters often have partial knowledge: known structure with unknown mechanisms, or hypothesized relationships requiring validation. We formalize this as selecting interventions that reduce uncertainty about the true SCM:
 \begin{equation}
-\text{do}(\mathcal{S}_{t+1} = \mathbf{s}_{t+1}) = \arg\max_{\text{do}(\mathcal{S} = \mathbf{s})} \mathbb{E}\left[ H(P(\mathcal{M} \mid \cdot)) - H(P(\mathcal{M} \mid \cdot, \mathcal{D}_{t+1})) \right]
+c_{t+1}^* = \arg\max_{c} \mathbb{E}\left[ H(P(\mathcal{M})) - H(P(\mathcal{M} \mid \mathcal{D}_c)) \right]
 \end{equation}
+where $c = \text{do}(\mathcal{S} = \mathbf{s})$ denotes a candidate intervention and $\mathcal{D}_c$ is the data it would generate.
 
 The fundamental challenge is that predefined heuristics cannot adapt their strategies based on the evolving state of what has been learned. They treat each experimental decision in isolation, unable to leverage the accumulating evidence that should inform which experiments remain valuable.
 
