@@ -642,19 +642,6 @@ The Phillips curve experiments demonstrate ACE's applicability to strategic hist
 % Not critical - basic validation is sufficient for multi-domain demonstration
 % =============================================================================
 
-% =============================================================================
-% OPTIONAL FIGURE: Baseline comparison bar chart
-% =============================================================================
-% Available: results/baselines/baselines_20260124_182827/baseline_comparison.png
-% Text and statistics are comprehensive. Figure would be redundant.
-% =============================================================================
-
-\subsection{Summary of Results}
-
-Across all 25 experimental runs (5 methods $\times$ 5 seeds), a clear performance hierarchy emerges (Table~\ref{tab:main-results}). The large effect sizes (Cohen's d $\approx$ 2.2) indicate that ACE's improvements are not merely statistically significant but practically meaningful: the difference between roughly learning a mechanism and learning it well.
-
-Three patterns stand out. First, the 13\% gap between Random and Max-Variance shows that uncertainty-based selection provides value even without learned strategies. Second, Round-Robin performs comparably to PPO despite being a simple heuristic, indicating that for symmetric structures, systematic coverage is surprisingly effective. Third, ACE's 70\% median improvement over the best baseline confirms that learned adaptive strategies substantially exceed what any fixed heuristic achieves. ACE learns \emph{which} nodes matter most and concentrates resources accordingly.
-
 \section{Discussion}
 
 \subsection{Ablation Studies}
@@ -717,11 +704,6 @@ The core challenge is that information gain is inherently non-stationary. Early 
 DPO sidesteps this problem entirely by learning from rankings rather than magnitudes. Preferences depend only on reward differences $r_0(a) - r_0(b)$ between candidate interventions, which remain meaningful even as absolute rewards shrink. Formally, if rewards scale by a time-varying factor $f(t)$, preferences are invariant: the better intervention remains better regardless of the current scale \cite{rafailov2023direct}. This provides inherent robustness to the diminishing returns that characterize scientific discovery.
 
 The advantage is particularly pronounced for collider learning, where ACE achieves $L_{X_3} = 0.054$ through strategic concentration on collider parents (99.8\% of interventions on $X_1$ and $X_2$). PPO, hampered by its unstable value estimates, fails to discover this strategy and distributes interventions more uniformly.
-
-\subsection{Design Principles}
-
-ACE's development yielded several principles for learning-based experimental design. First, parsimonious reward functions can outperform complex reward engineering; our three-component reward (information gain, node importance, diversity) proved sufficient without extensive tuning. Second, preference-based learning should be preferred over value estimation when rewards are non-stationary, as rankings remain stable while magnitudes shift. Third, systems with heterogeneous components require per-component convergence criteria to prevent premature termination. Fourth, learning modalities should be separated where fundamentally different; root nodes require observational learning since interventions provide no signal about their natural distributions. Finally, objectives should remain interpretable so domain experts can audit and trust the learned strategies.
-
 
 \section{Conclusion}
 
