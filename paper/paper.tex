@@ -288,9 +288,9 @@ where $c$ is a candidate intervention, $\sigma = (M_\theta, \{L_j\})$ is the sys
 
 The policy is trained to prefer interventions that yield higher rewards using the DPO objective:
 \begin{equation}
-\mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(s, y_w, y_l)} \left[ \log \sigma \left( \beta_{\text{DPO}} \log \frac{\pi_\phi(y_w \mid s)}{\pi_{\text{ref}}(y_w \mid s)} - \beta_{\text{DPO}} \log \frac{\pi_\phi(y_l \mid s)}{\pi_{\text{ref}}(y_l \mid s)} \right) \right]
+\mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(\sigma, y_w, y_l)} \left[ \log \sigma \left( \beta \left[ \log \frac{\pi_\phi(y_w \mid \sigma)}{\pi_{\text{ref}}(y_w \mid \sigma)} - \log \frac{\pi_\phi(y_l \mid \sigma)}{\pi_{\text{ref}}(y_l \mid \sigma)} \right] \right) \right]
 \end{equation}
-where $\beta_{\text{DPO}} = 0.1$ is the DPO temperature parameter controlling deviation from the reference policy.
+where $y_w$ and $y_l$ are preferred and dispreferred interventions, $\pi_{\text{ref}}$ is the reference policy, and $\beta = 0.1$ is the temperature parameter controlling deviation from the reference.
 
 \subsection{Experimental Methodology}
 
