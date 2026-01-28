@@ -155,10 +155,11 @@ def run_ace_complex_full(seed=42, episodes=200, output_dir="results/ace_complex_
     ref_policy.eval()
     print("[STARTUP] Pretraining complete", flush=True)
     
-    # Training loop
+    # Training loop - run full episodes for complete evaluation
     results = []
     dpo_losses = []
-    early_stopper = EarlyStopping(patience=20, min_delta=0.01, min_episodes=40)
+    # Disable early stopping to get full 200 episode runs
+    # early_stopper = EarlyStopping(patience=20, min_delta=0.01, min_episodes=40)
     intervention_history = deque(maxlen=50)
     
     for episode in range(episodes):
@@ -272,10 +273,8 @@ def run_ace_complex_full(seed=42, episodes=200, output_dir="results/ace_complex_
             ref_policy.eval()
             logging.info(f"Reference policy updated at episode {episode}")
         
-        # Early stopping
-        if early_stopper.check_loss(total_loss):
-            print(f"[CONVERGED] Episode {episode}: {total_loss:.4f}", flush=True)
-            break
+        # Run full 200 episodes (no early stopping)
+        # This gives complete learning curves for comparison
     
     # Save results
     df = pd.DataFrame(results)
