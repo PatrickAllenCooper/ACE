@@ -400,25 +400,25 @@ Table~\ref{tab:main-results} summarizes performance across all methods. We condu
 
 \begin{table}[t]
 \centering
-\caption{Main results on the 5-node synthetic benchmark (N=5 seeds). ACE outperforms all baselines at both matched (171) and original (100) episode budgets; $^{**}$p<0.0125 (Bonferroni corrected).}
+\caption{Main results (N=5 seeds). ACE runs until per-node convergence (avg. 171 episodes). Baselines run for fixed episodes; $^{**}$p<0.0125 (Bonferroni corrected).}
 \label{tab:main-results}
 \small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Method & Loss (mean$\pm$std) & 95\% CI & Impr. & $d$ \\
+Method (episodes) & Loss & 95\% CI & Impr. & $d$ \\
 \midrule
-\textbf{ACE (171 ep)} & \textbf{0.92$\pm$0.73} & [0.02, 1.82] & -- & -- \\
+\textbf{ACE (171)} & \textbf{0.92$\pm$0.73} & [0.02, 1.82] & -- & -- \\
 \quad median & 0.61 & & & \\
 \midrule
-\multicolumn{5}{@{}l}{\textit{Baselines at matched budget (171 episodes):}} \\
-Random & 2.06$\pm$0.07 & [1.94, 2.18] & 70\%$^{**}$ & 2.08 \\
-Round-Robin & 2.10$\pm$0.11 & [1.91, 2.29] & 71\%$^{**}$ & 1.88 \\
-Max-Var. & 2.10$\pm$0.09 & [1.95, 2.25] & 71\%$^{**}$ & 2.01 \\
+\multicolumn{5}{@{}l}{\textit{Baselines with same episode count as ACE:}} \\
+Random (171) & 2.06$\pm$0.07 & [1.94, 2.18] & 70\%$^{**}$ & 2.08 \\
+Round-Robin (171) & 2.10$\pm$0.11 & [1.91, 2.29] & 71\%$^{**}$ & 1.88 \\
+Max-Var. (171) & 2.10$\pm$0.09 & [1.95, 2.25] & 71\%$^{**}$ & 2.01 \\
 \midrule
-\multicolumn{5}{@{}l}{\textit{Baselines at 100 episodes (original):}} \\
-Max-Var. & 1.93$\pm$0.04 & [1.80, 2.06] & 52\% & 1.96 \\
-Round-Robin & 2.03$\pm$0.05 & [1.93, 2.13] & 55\%$^{**}$ & 2.16 \\
-PPO & 2.19$\pm$0.07 & [2.06, 2.32] & 58\%$^{**}$ & 2.46 \\
+\multicolumn{5}{@{}l}{\textit{Baselines with fewer episodes:}} \\
+Max-Var. (100) & 1.93$\pm$0.04 & [1.80, 2.06] & 52\% & 1.96 \\
+Round-Robin (100) & 2.03$\pm$0.05 & [1.93, 2.13] & 55\%$^{**}$ & 2.16 \\
+PPO (100) & 2.19$\pm$0.07 & [2.06, 2.32] & 58\%$^{**}$ & 2.46 \\
 \bottomrule
 \end{tabular}
 \end{table}
