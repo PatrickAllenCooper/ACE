@@ -58,7 +58,7 @@ for SEED in 42 123 456 789 1011; do
     
     OUTPUT_DIR="${BASE_OUTPUT}/seed_${SEED}"
     
-    python -u experiments/run_ace_complex.py \
+    python -u experiments/run_ace_complex_full.py \
         --episodes 200 \
         --seed $SEED \
         --output "$OUTPUT_DIR"
