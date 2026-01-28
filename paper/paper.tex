@@ -285,11 +285,11 @@ R(c, \sigma) = \Delta \mathcal{L} + \alpha \cdot w(V_i, \{L_j\}) + \gamma \cdot 
 \end{equation}
 where $c$ is a candidate intervention, $\sigma = (M_\theta, \{L_j\})$ is the system state (learner parameters and per-node losses), $\Delta \mathcal{L}$ is the information gain (reduction in prediction error), $w(V_i, \{L_j\})$ is node importance (weighted by current per-node losses to prioritize poorly-understood mechanisms), and $D(V_i, H)$ is diversity (encourages exploration of under-sampled nodes and intervention values to prevent policy collapse). The weights $\alpha = 0.1$ and $\gamma = 0.05$ were selected to maintain information gain as the dominant term ($\sim$80-90\% of total reward) while providing sufficient incentive for strategic node selection and exploration. These values were validated via grid search over $\alpha, \gamma \in \{0.01, 0.05, 0.1, 0.2\}$ on a held-out validation SCM, where smaller values failed to encourage diversity and larger values diluted the information gain signal.
 
-The policy is trained to prefer interventions that yield higher rewards using the DPO objective:
+The policy is trained via the DPO objective \cite{rafailov2023direct}:
 \begin{equation}
-\mathcal{L}_{\text{DPO}}(\pi_\phi) = - \mathbb{E}_{(\sigma, y_w, y_l)} \left[ \log \sigma \left( \beta \left[ \log \frac{\pi_\phi(y_w \mid \sigma)}{\pi_{\text{ref}}(y_w \mid \sigma)} - \log \frac{\pi_\phi(y_l \mid \sigma)}{\pi_{\text{ref}}(y_l \mid \sigma)} \right] \right) \right]
+\mathcal{L}_{\text{DPO}} = - \mathbb{E} \left[ \log \sigma \left( \beta \left[ \log \frac{\pi_\phi(y_w)}{\pi_{\text{ref}}(y_w)} - \log \frac{\pi_\phi(y_l)}{\pi_{\text{ref}}(y_l)} \right] \right) \right]
 \end{equation}
-where $y_w$ and $y_l$ are preferred and dispreferred interventions, $\pi_{\text{ref}}$ is the reference policy, and $\beta = 0.1$ is the temperature parameter controlling deviation from the reference.
+where $y_w, y_l$ are preferred/dispreferred interventions (conditioned on state $\sigma$), $\pi_{\text{ref}}$ is the reference policy, and $\beta = 0.1$ controls deviation magnitude.
 
 \subsection{Experimental Methodology}
 
