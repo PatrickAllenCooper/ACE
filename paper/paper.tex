@@ -678,7 +678,7 @@ Each ablation confirms its component's contribution: DPO (130\% degradation) val
 
 To address concerns about the 200-intervention oracle warm-start providing privileged information, we evaluate ACE without any pretraining (pretrain\_steps=0) across five independent seeds. The results are instructive: ACE without oracle achieves 1.15 $\pm$ 0.22 total loss, representing 25\% degradation from oracle-pretrained ACE (0.92 $\pm$ 0.73, median 0.61). Critically, however, the no-oracle variant still substantially outperforms all baselines at matched budget (Random: 2.06, Round-Robin: 2.10, Max-Variance: 2.10), maintaining 46\% median improvement over the best baseline.
 
-This validates that learned experimental design via DPO, not privileged initialization, drives ACE's advantage. The oracle warm-start accelerates convergence—reducing episodes from an average of 210 (no-oracle) to 171 (with oracle)—but is not necessary for superior performance. The policy learns to concentrate interventions on collider parents whether initialized from oracle demonstrations or from scratch, confirming that this strategic pattern emerges from the DPO training process itself rather than being inherited from the oracle.
+This validates that learned experimental design via DPO, not privileged initialization, drives ACE's advantage. The oracle warm-start accelerates convergence (reducing episodes from 210 without oracle to 171 with oracle) but is not necessary for superior performance. The policy learns to concentrate interventions on collider parents whether initialized from oracle demonstrations or from scratch, confirming that this strategic pattern emerges from the DPO training process itself rather than being inherited from the oracle.
 
 \subsection{Failure Modes}
 
