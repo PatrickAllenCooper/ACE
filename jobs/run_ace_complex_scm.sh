@@ -58,8 +58,8 @@ for SEED in 42 123 456 789 1011; do
     
     OUTPUT_DIR="${BASE_OUTPUT}/seed_${SEED}"
     
-    python -u experiments/complex_scm.py \
-        --policy ace \
+    python -u experiments/run_ace_complex.py \
+        --custom \
         --episodes 200 \
         --seed $SEED \
         --output "$OUTPUT_DIR"
