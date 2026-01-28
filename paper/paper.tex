@@ -670,19 +670,21 @@ We systematically ablate each component and measure performance degradation acro
 
 \begin{table}[t]
 \centering
-\caption{Ablation study results (N=3 seeds). Each component contributes to ACE's performance; removing any causes substantial degradation.}
+\caption{Ablation study results (N=3 seeds). Removing any component causes substantial performance degradation.}
 \label{tab:ablations}
-\small
-\begin{tabular}{@{}lccc@{}}
+\footnotesize
+\begin{tabular}{@{}lcc@{}}
 \toprule
-Component Removed & ACE (Full) & Without & Degradation \\
+Component & Without & Degrad. \\
 \midrule
-DPO Training & 0.92$\pm$0.73 & 2.12$\pm$0.10 & +130\% \\
-\quad (uses custom transformer) & (median: 0.61) & & \\
-Per-Node Convergence & 0.92$\pm$0.73 & 1.45$\pm$0.18 & +58\% \\
-\quad (fixed 100 episodes) & & & \\
-Dedicated Root Learner & 0.92$\pm$0.73 & 1.29$\pm$0.15 & +40\% \\
-Diversity Reward & 0.92$\pm$0.73 & 1.52$\pm$0.20 & +65\% \\
+DPO Training & 2.12$\pm$0.10 & +130\% \\
+\quad (custom transformer) & & \\
+Per-Node Convergence & 1.45$\pm$0.18 & +58\% \\
+\quad (fixed episodes) & & \\
+Root Learner & 1.29$\pm$0.15 & +40\% \\
+Diversity Reward & 1.52$\pm$0.20 & +65\% \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{ACE (Full): 0.92$\pm$0.73, median 0.61}} \\
 \bottomrule
 \end{tabular}
 \end{table}
