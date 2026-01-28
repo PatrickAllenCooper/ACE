@@ -114,9 +114,7 @@ Discovering causal relationships requires controlled experiments, but which expe
 
 \section{Introduction}
 
-Every experimentalist faces limited resources to explore vast possibility spaces. A molecular biologist choosing which genes to perturb, a materials scientist optimizing alloy composition, or a neuroscientist selecting stimulation targets must answer: which experiment should I run next? Testing all pairwise combinations of 100 candidate compounds requires 4,950 experiments; a 10-component alloy across 5 temperatures faces $5^{10}$ configurations. These combinatorial explosions demand principled intervention strategies.
-
-Modern simulation environments amplify both the opportunity and the challenge. High-fidelity simulators in domains from climate modeling to drug discovery enable rapid, low-cost experimentation that would be impossible in physical systems. Yet these same simulators often expose vast parametric spaces with hundreds or thousands of interacting variables. In such settings, the goal is not merely prediction but causal understanding: identifying which parameters actually drive outcomes, distinguishing genuine causal pathways from spurious correlations, and discovering intervention targets that will generalize beyond the training distribution. Random exploration becomes hopelessly inefficient, while domain expertise may not scale to the complexity of modern simulations.
+Every experimentalist faces limited resources to explore vast possibility spaces. Testing all pairwise combinations of 100 compounds requires 4,950 experiments; a 10-component alloy across 5 temperatures faces $5^{10}$ configurations. Modern simulation environments—from climate modeling to drug discovery—enable rapid experimentation but expose vast parametric spaces with hundreds of interacting variables. The goal is not merely prediction but causal understanding: identifying which parameters actually drive outcomes, distinguishing causal pathways from spurious correlations, and discovering intervention targets that generalize. Random exploration becomes hopelessly inefficient, while domain expertise may not scale to simulation complexity.
 
 At the heart of scientific discovery lies the challenge of understanding how variables influence each other through directed causal pathways. Rather than passively observing correlations, experimentalists actively manipulate variables through interventions to isolate causal effects. The efficiency of this learning process depends critically on which variables to intervene upon and at what values to set them. While theoretical results establish bounds on the number of interventions required for causal identification \cite{eberhardt2005number,eberhardt2006n}, these worst-case guarantees provide limited practical guidance for the adaptive, sequential decision-making that characterizes real experimental campaigns.
 
@@ -328,13 +326,13 @@ We evaluate performance using two complementary measures. Mechanism reconstructi
 
 To validate the efficacy of the learned experimental policy, we benchmark ACE against four strategies that span the spectrum from passive exploration to learned active strategies.
 
-\textbf{Random Sampling} \cite{settles2009active} provides the fundamental baseline for any active learning system: uniform random selection of both target node $V_i$ and intervention value $x \in [-5,5]$. While naive, random sampling has proven surprisingly effective in high-dimensional spaces where strategic selection may overfit to spurious patterns. This baseline represents what an experimentalist would achieve without any domain knowledge or adaptive strategy, establishing a lower bound on performance.
+\textbf{Random} \cite{settles2009active}: Uniform random selection of target node and intervention value $x \in [-5,5]$, establishing a lower bound on performance.
 
-\textbf{Round-Robin} implements systematic experimental design in the tradition of Fisher \cite{fisher1935design}, cycling through nodes in a fixed topological order $V_{t \pmod n}$. This deterministic heuristic guarantees that every mechanism receives equal experimental attention, preventing the neglect of any variable. Round-Robin proves particularly effective for symmetric structures where all nodes are equally important or equally difficult to learn, and serves as a sanity check: any adaptive method that cannot outperform systematic coverage on asymmetric problems offers questionable value.
+\textbf{Round-Robin} \cite{fisher1935design}: Cycles through nodes in fixed order $V_{t \pmod n}$, ensuring equal coverage. Serves as a sanity check: adaptive methods should outperform systematic coverage on asymmetric problems.
 
-\textbf{Max-Variance} implements uncertainty sampling \cite{cohn1996active}, the dominant paradigm in pool-based active learning. At each step, we select the intervention maximizing predicted outcome variance: $c^* = \arg\max_c \sum_{V_j} \text{Var}_{M_\theta}[V_j \mid c]$. Variance estimates are obtained via Monte Carlo Dropout \cite{gal2016dropout}, which approximates Bayesian uncertainty by averaging predictions over multiple stochastic forward passes with dropout enabled at test time. This approach targets interventions where the learner is most uncertain, greedily reducing epistemic uncertainty without considering how current choices affect future learning opportunities.
+\textbf{Max-Variance} \cite{cohn1996active}: Selects interventions maximizing predicted outcome variance via Monte Carlo Dropout \cite{gal2016dropout}. Greedily reduces uncertainty without considering future learning opportunities.
 
-\textbf{PPO} \cite{schulman2017proximal} provides a learned baseline using value-based reinforcement learning, enabling direct comparison between preference-based (DPO) and value-based (PPO) approaches to experimental design. We implement an actor-critic architecture with identical reward shaping to ACE: the same information gain, node importance, and diversity components. The policy uses Generalized Advantage Estimation ($\lambda=0.95$) for variance reduction, a clipped surrogate objective ($\epsilon=0.2$) for stable updates, and entropy regularization to encourage exploration. This careful matching isolates DPO's algorithmic contribution from differences in reward design or network architecture.
+\textbf{PPO} \cite{schulman2017proximal}: Learned baseline using value-based RL with identical reward shaping to ACE (information gain, node importance, diversity). Uses actor-critic with GAE ($\lambda=0.95$), clipped updates ($\epsilon=0.2$), and entropy regularization. Isolates DPO's contribution from reward design differences.
 
 \section{Experimental Evaluation}
 \label{sec:results}
@@ -687,13 +685,9 @@ Each component validation reveals distinct contributions. The no-DPO ablation (2
 
 These ablations validate our architectural choices: each component addresses a specific failure mode we observed during development, and removing any substantially degrades performance. The consistent degradation across all ablations (40--130\%) demonstrates that ACE's advantage derives from the synergistic combination of preference-based learning, adaptive convergence, specialized root handling, and exploration diversity.
 
-\subsection{When Does ACE Excel (and When Does It Struggle)?}
+\subsection{Failure Modes}
 
-Analysis of 25 runs across 5 seeds identifies when ACE excels.
-
-ACE excels when causal structures contain colliders or complex dependencies that benefit from strategic intervention allocation. The learned policy concentrates 99.8\% of interventions on collider parents, achieving $L_{X_3} = 0.054$ compared to baseline errors exceeding 2.0. ACE also shines when experimental budgets are sufficient for policy learning (averaging 171 episodes in our experiments) and when mechanisms exhibit heterogeneous learning rates that benefit from per-node convergence. In our benchmark, linear mechanisms like $X_2$ converge to loss 0.010, quadratic mechanisms like $X_5$ to 0.449, and the collider $X_3$ to 0.054, a range that would confound uniform stopping criteria. Finally, ACE requires structural knowledge (known or hypothesized graph) to focus learning on mechanism estimation.
-
-ACE has failure modes. One seed (789) exhibited persistent $X_5$ mechanism failure, achieving loss 1.73 compared to 0.02--0.22 for other seeds, indicating sensitivity to initialization or optimization challenges with quadratic mechanisms. This outlier motivates our use of median statistics and highlights the value of multi-seed validation.
+One seed (789) exhibited persistent $X_5$ mechanism failure, achieving loss 1.73 compared to 0.02--0.22 for other seeds, indicating sensitivity to initialization or optimization challenges with quadratic mechanisms. This outlier motivates our use of median statistics and highlights the value of multi-seed validation.
 
 \subsection{Why Preference Learning Outperforms Value-Based RL}
 
