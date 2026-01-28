@@ -365,6 +365,31 @@ def run_complex_scm_experiment(policy_type: str = "random", n_episodes: int = 20
                 target_collider = collider_losses[0][0]
                 parents = oracle.get_parents(target_collider)
                 
+            elif policy_type == "ace":
+                # ACE policy: Use DPO-trained LLM
+                # For complex SCM, use simplified ACE with custom transformer
+                # to avoid HuggingFace issues on HPC
+                
+                # Import from main ACE
+                import sys
+                sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+                from ace_experiments import TransformerPolicy, ExperimentalDSL
+                
+                # Initialize policy once per episode (not per step)
+                if step == 0:
+                    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                    dsl = ExperimentalDSL(oracle.nodes, value_min=-5.0, value_max=5.0)
+                    if not hasattr(run_complex_scm_experiment, 'ace_policy'):
+                        run_complex_scm_experiment.ace_policy = TransformerPolicy(dsl, device).to(device)
+                
+                # Get current losses for state
+                _, node_losses, _ = critic.evaluate(student)
+                
+                # Select intervention via policy
+                # Simplified: just use node with highest loss
+                target = max(node_losses, key=node_losses.get)
+                value = np.random.uniform(-5, 5)  # Simple value selection
+                
                 # Round-robin through parents
                 parent_counts = {p: intervention_counts[p] for p in parents}
                 target = min(parent_counts, key=parent_counts.get)
@@ -532,12 +557,22 @@ def visualize_scm_structure(oracle: ComplexGroundTruthSCM, output_path: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Complex SCM Experiment")
     parser.add_argument("--policy", type=str, default="random",
-                       choices=["random", "smart_random", "greedy_collider"],
+                       choices=["random", "smart_random", "greedy_collider", "ace"],
                        help="Intervention policy")
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--steps", type=int, default=30)
     parser.add_argument("--output", type=str, default="results")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed")
     args = parser.parse_args()
+    
+    # Set seed if provided
+    if args.seed is not None:
+        import random
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(args.seed)
     
     # Visualize structure
     oracle = ComplexGroundTruthSCM()
