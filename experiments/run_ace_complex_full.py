@@ -175,9 +175,9 @@ def run_ace_complex_full(seed=42, episodes=200, output_dir="results/ace_complex_
             # Get current losses
             node_losses = learner.evaluate()
             
-        # Generate K=2 candidates (faster per episode, allows more episodes)
-        K = 2
-        candidates = []
+            # Generate K=2 candidates (faster per episode, allows more episodes)
+            K = 2
+            candidates = []
             
             for k in range(K):
                 try:
