@@ -19,14 +19,29 @@
 
 **Runs full ACE (with all optimizations) on complex 15-node SCM:**
 
-### Architecture Components (Matches 5-node):
+### Architecture Components (FULL ACE - Matches 5-node exactly):
 1. ✅ **Qwen2.5-1.5B Policy** - Same LLM as 5-node experiments
 2. ✅ **DPO Training** - Full preference learning from best/worst pairs
 3. ✅ **Oracle Pretraining** - 500 steps (increased from 200 for better init)
-4. ✅ **Lookahead Evaluation** - K=2 candidates evaluated on cloned learners
+4. ✅ **Lookahead Evaluation** - K=4 candidates evaluated on cloned learners with replay buffers
 5. ✅ **Observational Training** - Every 3 steps (CRITICAL - prevents forgetting)
 6. ✅ **Reference Policy Updates** - Every 25 episodes
-7. ✅ **Early Stopping** - Disabled for full 300 episodes
+7. ✅ **Sophisticated Reward System**:
+   - Information gain (primary)
+   - Node importance (parent of high-loss children)
+   - Unified diversity scoring
+   - Value novelty bonus
+   - Disentanglement bonus (collider parents)
+8. ✅ **Diversity Mechanisms**:
+   - Mandatory diversity constraints
+   - Collapse detection
+   - Smart collapse breakers (prioritize collider parents)
+   - Hard caps on node concentration (70% max)
+   - Forced diversity every 10 steps
+9. ✅ **Epistemic Curiosity** - Strategic loser selection (novel > collapsed)
+10. ✅ **Collider Parent Tracking** - Monitor intervention coverage on multi-parent nodes
+11. ✅ **Dynamic Candidate Count** - Reduces K=4→3 after warmup for efficiency
+12. ✅ **Early Stopping** - Per-node convergence detection (enabled)
 
 ### Key Parameters:
 ```python
