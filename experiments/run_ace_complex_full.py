@@ -146,7 +146,7 @@ def run_ace_complex_full(seed=42, episodes=200, output_dir="results/ace_complex_
         oracle.nodes,
         init_losses,
         optimizer,
-        n_steps=200,
+        n_steps=500,  # Increased from 200 for better initialization
         value_min=-5.0,
         value_max=5.0
     )
@@ -171,13 +171,13 @@ def run_ace_complex_full(seed=42, episodes=200, output_dir="results/ace_complex_
         learner = ComplexSCMLearner(student, oracle=oracle)
         
         # Run one training step
-        for step in range(25):  # 25 steps per episode
+        for step in range(50):  # Increased from 25 to 50 steps per episode
             # Get current losses
             node_losses = learner.evaluate()
             
-            # Generate K=4 candidates using policy
-            K = 4
-            candidates = []
+        # Generate K=2 candidates (faster per episode, allows more episodes)
+        K = 2
+        candidates = []
             
             for k in range(K):
                 try:
@@ -236,6 +236,13 @@ def run_ace_complex_full(seed=42, episodes=200, output_dir="results/ace_complex_
             # Execute best on actual learner
             data = oracle.generate(n_samples=100, interventions={best['target']: best['value']})
             learner.train_step(data)
+            
+            # CRITICAL: Observational training every 3 steps to prevent mechanism forgetting
+            if step > 0 and step % 3 == 0:
+                obs_data = oracle.generate(n_samples=200, interventions=None)
+                learner.train_step(obs_data)
+                if episode % 20 == 0 and step % 9 == 0:
+                    logging.info(f"  [Obs Training] Episode {episode}, Step {step}")
             
             intervention_history.append((best['target'], best['value']))
             

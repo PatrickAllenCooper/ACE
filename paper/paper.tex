@@ -47,7 +47,7 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}sq
+\newtheorem{definition}[theorem]{Definition}
 \newtheorem{assumption}[theorem]{Assumption}
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
@@ -59,12 +59,12 @@
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Active Causal Experimentalist: Learning Experimental Design via DPO}
+\icmltitlerunning{Active Causal Experimentalist (ACE): Learning Intervention Strategies via Direct Preference Optimization}
 
 \begin{document}
 
 \twocolumn[
-  \icmltitle{Active Causal Experimentalist: Learning Experimental Design via DPO}
+  \icmltitle{Active Causal Experimentalist (ACE): Learning Intervention Strategies via Direct Preference Optimization}
 
   % It is OKAY to include author information, even for blind submissions: the
   % style file will automatically remove it for you unless you've provided
@@ -109,7 +109,7 @@
 % \printAffiliationsAndNotice{\icmlEqualContribution}
 
 \begin{abstract}
-Discovering causal relationships requires controlled experiments, but which experiment should come next? We propose Active Causal Experimentalist (ACE), which learns to design experiments via Direct Preference Optimization. By comparing intervention outcomes pairwise rather than estimating value functions, ACE achieves stable training under non-stationary rewards. We introduce per-node convergence criteria and dedicated root learners to handle heterogeneous mechanism learning rates. Across synthetic benchmarks, physics simulations, and economic data, ACE achieves 70--71\% improvement over baselines at equal intervention counts (p<0.001, Cohen's $d \approx 2$). Comprehensive ablation studies validate all four architectural components: removing any causes 130--156\% degradation, reducing performance to baseline levels.
+Discovering causal relationships requires controlled experiments, but experimentalists face a sequential decision problem: each intervention reveals information that should inform what to try next. Traditional approaches such as random sampling, greedy information maximization, and round-robin coverage treat each decision in isolation, unable to learn adaptive strategies from experience. We propose Active Causal Experimentalist (ACE), which learns experimental design as a sequential policy. Our key insight is that while absolute information gains diminish as knowledge accumulates (making value-based RL unstable), \emph{relative} comparisons between candidate interventions remain meaningful throughout. ACE exploits this via Direct Preference Optimization, learning from pairwise intervention comparisons rather than non-stationary reward magnitudes. Across synthetic benchmarks, physics simulations, and economic data, ACE achieves 70--71\% improvement over baselines at equal intervention budgets ($p<0.001$, Cohen's $d \approx 2$). Notably, the learned policy autonomously discovers that collider mechanisms require concentrated interventions on parent variables, a theoretically-grounded strategy that emerges purely from experience. This suggests preference-based learning can recover principled experimental strategies, complementing theory with learned domain adaptation.
 \end{abstract}
 
 \section{Introduction}
@@ -202,9 +202,9 @@ Our work builds on three research threads: theoretical causal discovery, adaptiv
 
 \textbf{Causal Discovery Theory.} Learning causal structures is NP-hard \cite{chickering1996learning}. Eberhardt et al. showed $n-1$ interventions suffice for $n$-variable systems \cite{eberhardt2005number,eberhardt2006n}, but these worst-case bounds provide limited guidance for adaptive experimental design.
 
-\textbf{Adaptive Experimental Design.} Information-theoretic methods select interventions by expected gain \cite{murphy2001active}, with $(1-1/e)$ approximation guarantees \cite{shanmugam2015learning}. Bayesian approaches minimize posterior entropy \cite{bayesian_oed_causal2023,causally_informed_active2023}. Adaptive methods reduce required interventions versus non-adaptive \cite{hauser2012characterization,cho2016reconstructing}, but optimize locally without considering future opportunities or learning from prior campaigns.
+\textbf{Adaptive Experimental Design.} Information-theoretic methods select interventions by expected gain \cite{murphy2001active}, with $(1-1/e)$ approximation guarantees \cite{shanmugam2015learning}. Bayesian approaches minimize posterior entropy \cite{rainforth2024modern,murphy2001active}. Adaptive methods reduce required interventions versus non-adaptive \cite{hauser2012characterization,cho2016reconstructing}, but optimize locally without considering future opportunities or learning from prior campaigns.
 
-\textbf{Learning for Scientific Discovery.} Recent work explores differentiable structure learning \cite{lorch2021dibs} and LLMs for discovery \cite{llm_science_survey2025,llm_scientific_method2025}, though benchmarks show LLMs struggle with sequential decision-making \cite{boxinggym2025,autobench2025}. RL approaches (CORE \cite{core2024}, GACBO \cite{gacbo2024}) address structure discovery. We address mechanism estimation: learning \emph{how} variables affect each other given known structure. Both face non-stationary rewards, motivating DPO for stable training \cite{dpo_survey2024,active_dpo2024}.
+\textbf{Learning for Scientific Discovery.} Recent work explores differentiable structure learning \cite{lorch2021dibs} and LLMs for discovery \cite{llm_science_survey2025,llm_scientific_method2025}, though benchmarks show LLMs struggle with sequential decision-making \cite{boxinggym2025,autobench2025}. RL approaches (CORE \cite{core2024}, GACBO \cite{gacbo2024}) address structure discovery. We address mechanism estimation: learning \emph{how} variables affect each other given known structure. Both face non-stationary rewards, motivating DPO for stable training \cite{activedpo2024}.
 
 Existing approaches fall short in several ways. Predefined strategies cannot adapt to domain-specific patterns that might accelerate learning. Single-objective optimization ignores the multi-faceted constraints that real experimentalists face. Static algorithms cannot leverage the accumulating evidence that should inform which experiments remain valuable. We address these limitations by treating experimental design itself as a learnable policy, trained through interaction with causal systems.
 
@@ -302,7 +302,7 @@ Ground truth: 5-node SCM with linear ($X_2 = 2X_1 + 1$), nonlinear ($X_3 = 0.5X_
 
 \subsection{Training Protocol}
 
-Each episode begins with a freshly initialized learner, forcing the policy to learn general experimental strategies rather than memorizing specific states. The policy receives 200 oracle interventions for supervised initialization (Section~\ref{sec:ablations} validates this accelerates but is not necessary). During training, the policy generates $K=4$ candidate interventions per step. We construct preference pairs by comparing best versus worst candidates, updating via DPO with learning rate $10^{-5}$ (standard for large model fine-tuning). Training terminates via per-node convergence: when all mechanism losses stabilize ($\forall i, L_i^{(t)} < \tau_i$) for 10 consecutive episodes, with 40-episode minimum to ensure sufficient exploration. Reference policy updates every 25 episodes maintain stability and prevent distribution drift.
+Each episode begins with a freshly initialized learner, forcing the policy to learn general experimental strategies rather than memorizing specific states. The policy receives 200 oracle interventions for supervised initialization. During training, the policy generates $K=4$ candidate interventions per step. We construct preference pairs by comparing best versus worst candidates, updating via DPO with learning rate $10^{-5}$ (standard for large model fine-tuning). Training terminates via per-node convergence: when all mechanism losses stabilize ($\forall i, L_i^{(t)} < \tau_i$) for 10 consecutive episodes, with 40-episode minimum to ensure sufficient exploration. Reference policy updates every 25 episodes maintain stability and prevent distribution drift.
 
 \subsection{Addressing Heterogeneous Learning Rates}
 
@@ -695,9 +695,13 @@ The advantage is particularly pronounced for collider learning, where ACE achiev
 
 \section{Conclusion}
 
-ACE learns experimental design via Direct Preference Optimization, achieving 70--71\% improvement over baselines at equal episodes (171) with p<0.001 and Cohen's $d \approx 2$. Equal-episode comparisons isolate algorithmic contributions: baselines plateau at 2.06--2.10 regardless of episode count, while ACE reaches 0.61 median loss. Comprehensive ablation studies validate all four architectural components, with degradation ranging from 130--156\% when any is removed, confirming that each contributes substantially to ACE's performance. The policy autonomously discovers that concentrating interventions on collider parents is optimal, matching theoretical predictions through empirical learning.
+Efficient causal discovery requires strategic experimentation, but which intervention should come next? We addressed this by treating experimental design as a learnable policy. ACE learns to propose interventions via Direct Preference Optimization, using pairwise comparisons that remain meaningful even as absolute information gains diminish over the course of discovery.
 
-Future work will extend to joint structure discovery, scale to larger systems, and deploy where intervention costs make learned experimental design most valuable.
+ACE achieves 70--71\% improvement over baselines at equal intervention budgets (171 episodes), with p<0.001 and Cohen's $d \approx 2$. The comparison is informative: baselines plateau at 2.06--2.10 regardless of additional episodes, while ACE reaches 0.61 median loss, indicating that strategic adaptation—not simply more data—drives continued improvement. Ablation studies validate all four architectural components, with 130--156\% degradation when any is removed.
+
+A key finding is the policy's emergent behavior. Without explicit instruction, ACE learns to concentrate 99.8\% of interventions on collider parents, matching the strategy that causal theory identifies as optimal for multi-parent mechanisms. This suggests that preference learning can recover principled experimental strategies through experience, complementing theoretical understanding with learned domain adaptation.
+
+The approach extends beyond controlled experiments: our Phillips curve results demonstrate that ACE's principles transfer to strategic sampling from observational archives, where "interventions" become choices about which historical regimes to observe. Future work will extend to joint structure discovery, scale to larger systems, and deploy in domains where intervention costs make learned experimental design most valuable.
 
 \section{Limitations and Future Work}
 \label{sec:limitations}
@@ -708,6 +712,10 @@ Future work will extend to joint structure discovery, scale to larger systems, a
 \textbf{Scope.} ACE assumes known causal structure (focusing on mechanism estimation rather than joint structure-and-mechanism discovery) and faces scalability limits beyond 20 nodes from text-based graph encoding. The Phillips curve demonstrates ACE's applicability to retrospective causal learning on observational archives, though regime selection differs from controlled do-calculus intervention.
 
 Future work will extend to joint structure discovery, scale to larger systems, and deploy where intervention costs make learned experimental design most valuable.
+
+\section*{Impact Statement}
+
+This paper aims to advance machine learning for scientific discovery. By learning efficient experimental strategies, ACE could accelerate research in domains where interventions are costly, such as drug discovery and materials science. We do not anticipate direct negative societal consequences beyond those inherent to any method that accelerates causal discovery. Practitioners should validate that learned policies generalize appropriately to new domains and do not systematically neglect important experimental regions.
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
