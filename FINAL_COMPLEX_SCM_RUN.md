@@ -1,8 +1,17 @@
 # Final Complex 15-Node SCM Experiment - Overnight Run
 
-**Date:** January 28, 2026
+**Date:** January 28, 2026 (Updated: January 29, 2026)
 **Purpose:** Determine if ACE scales to 15-node complex SCM with full optimizations
-**Status:** Submitted as Job 23366125 on CURC HPC
+**Status:** FIXED - Critical indentation error found and corrected. Ready for resubmission.
+
+## Issue Found and Fixed
+
+**Problem:** Job 23366125 failed immediately due to Python syntax error in `experiments/run_ace_complex_full.py`
+- Lines 174-247: The `for step in range(50):` loop had incorrect indentation
+- The loop body wasn't properly indented, causing Python to fail on startup
+- Fixed in commit 82b55f3
+
+**Solution:** Corrected indentation so all loop body code is properly inside the for loop
 
 ---
 
@@ -39,18 +48,42 @@ Observational Training: Every 3 steps, 200 samples
 
 ## How to Execute
 
-### Submit Job (SLURM):
+### Resubmit Fixed Job (SLURM):
 ```bash
-# On CURC HPC
-cd ~/ACE
+# On CURC HPC - SSH into login node first
+ssh paco0228@login.rc.colorado.edu
+
+# Navigate to project
+cd /projects/paco0228/ACE
+
+# Pull latest fix
 git pull
 
-# Submit
+# Check for old logs from failed job
+ls -lh logs/ace_complex_s42_23366125.*
+
+# Clean up old failed run if it exists
+rm -f logs/ace_complex_s42_23366125.*
+
+# Submit the fixed job
 sbatch jobs/run_ace_complex_single_seed.sh
 
-# Monitor
+# Monitor (get the new job ID)
 squeue -u paco0228
+# Wait for job to start, then:
 tail -f logs/ace_complex_s42_*.out
+```
+
+### Check Job Status:
+```bash
+# Check if job is running or queued
+squeue -u paco0228
+
+# Check recent job history
+sacct -u paco0228 --format=JobID,JobName,State,Elapsed,ExitCode -S 2026-01-28
+
+# View error log if job failed
+cat logs/ace_complex_s42_23366125.err
 ```
 
 ### Expected Output:
