@@ -31,7 +31,7 @@
 ### Key Parameters:
 ```python
 Oracle Pretraining: 500 steps (vs 200 in 5-node)
-Candidates K: 2 (vs 4 in 5-node) - for speed
+Candidates K: 4 (same as 5-node) - full ACE method
 Steps per Episode: 50 (vs 25 in 5-node) - more learning
 Episodes: 300 (vs 171 avg in 5-node)
 Observational Training: Every 3 steps, 200 samples
