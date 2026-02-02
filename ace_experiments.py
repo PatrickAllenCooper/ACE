@@ -1902,16 +1902,22 @@ def main():
     # Apply ablation flags to override normal configuration
     if args.no_diversity_reward:
         args.diversity_reward_weight = 0.0
+        args.early_stopping = False  # CRITICAL: Disable early stopping for ablations
         logging.warning("ABLATION: Diversity reward disabled (weight=0)")
+        logging.warning("ABLATION: Early stopping disabled (will run full episodes)")
     
     if args.no_dedicated_root_learner:
         args.use_dedicated_root_learner = False
         args.root_fitting = False
+        args.early_stopping = False  # CRITICAL: Disable early stopping for ablations
         logging.warning("ABLATION: Dedicated root learner disabled")
+        logging.warning("ABLATION: Early stopping disabled (will run full episodes)")
     
     if args.no_per_node_convergence:
         args.use_per_node_convergence = False
+        args.early_stopping = False  # CRITICAL: Disable early stopping for ablations
         logging.warning("ABLATION: Per-node convergence disabled (global stopping only)")
+        logging.warning("ABLATION: Early stopping disabled (will run full episodes)")
     
     # --custom is already handled at line 1949 (use_pretrained = not args.custom)
     
