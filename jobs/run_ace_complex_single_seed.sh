@@ -76,10 +76,6 @@ python -u experiments/run_ace_complex_full.py \
     --obs_train_samples 200 \
     --obs_train_epochs 100 \
     --update_reference_interval 25 \
-    --early_stopping \
-    --use_per_node_convergence \
-    --early_stop_min_episodes 40 \
-    --node_convergence_patience 10 \
     --value_min -5.0 \
     --value_max 5.0
 

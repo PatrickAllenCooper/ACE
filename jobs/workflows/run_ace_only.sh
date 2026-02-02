@@ -95,8 +95,6 @@ for SEED in "${SEEDS[@]}"; do
             --wrap="python ace_experiments.py \
                 --episodes $EPISODES \
                 --seed $SEED \
-                --early_stopping \
-                --use_per_node_convergence \
                 --use_dedicated_root_learner \
                 --obs_train_interval 3 \
                 --obs_train_samples 200 \
@@ -118,8 +116,6 @@ for SEED in "${SEEDS[@]}"; do
             --wrap="python ace_experiments.py \
                 --episodes $EPISODES \
                 --seed $SEED \
-                --early_stopping \
-                --use_per_node_convergence \
                 --use_dedicated_root_learner \
                 --obs_train_interval 3 \
                 --obs_train_samples 200 \

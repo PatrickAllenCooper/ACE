@@ -57,13 +57,6 @@ python ace_experiments.py \
     --episodes ${EPISODES:-200} \
     --output "${OUTPUT_DIR:-results/ace}" \
     \
-    --early_stopping \
-    --early_stop_patience 20 \
-    --early_stop_min_episodes 40 \
-    --use_per_node_convergence \
-    --node_convergence_patience 10 \
-    --zero_reward_threshold 0.92 \
-    \
     --obs_train_interval 3 \
     --obs_train_samples 200 \
     --obs_train_epochs 100 \
