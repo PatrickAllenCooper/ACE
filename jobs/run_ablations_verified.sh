@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
-#SBATCH --time=08:00:00
+#SBATCH --time=12:00:00
 #SBATCH --output=logs/ablations_verified_%j.out
 #SBATCH --error=logs/ablations_verified_%j.err
 
@@ -48,21 +48,21 @@ echo ""
 # --- Set ablation type ---
 ABLATION="${ABLATION:-no_diversity}"
 
-case $ABLATION in
-    no_convergence)
-        ABLATION_FLAGS="--custom --no_per_node_convergence"
-        ;;
-    no_root_learner)
-        ABLATION_FLAGS="--custom --no_dedicated_root_learner"
-        ;;
-    no_diversity)
-        ABLATION_FLAGS="--custom --no_diversity_reward"
-        ;;
-    *)
-        echo "ERROR: Unknown ablation: $ABLATION (use: no_convergence, no_root_learner, no_diversity)"
-        exit 1
-        ;;
-esac
+    case $ABLATION in
+        no_convergence)
+            ABLATION_FLAGS="--no_per_node_convergence"
+            ;;
+        no_root_learner)
+            ABLATION_FLAGS="--no_dedicated_root_learner"
+            ;;
+        no_diversity)
+            ABLATION_FLAGS="--no_diversity_reward"
+            ;;
+        *)
+            echo "ERROR: Unknown ablation: $ABLATION (use: no_convergence, no_root_learner, no_diversity)"
+            exit 1
+            ;;
+    esac
 
 echo "Ablation type: $ABLATION"
 echo "Flags: $ABLATION_FLAGS"
@@ -92,6 +92,7 @@ for SEED in 42 123 456; do
         --undersampled_bonus 200.0 \
         --max_concentration 0.7 \
         --pretrain_steps 200 \
+        --model "Qwen/Qwen2.5-1.5B" \
         --pretrain_interval 25 \
         --smart_breaker \
         $ABLATION_FLAGS
