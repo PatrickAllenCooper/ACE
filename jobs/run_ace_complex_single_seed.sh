@@ -46,13 +46,20 @@ echo ""
 
 # Run seed 42 with all optimizations (FULL ACE architecture)
 SEED=42
-OUTPUT_DIR="results/ace_complex_scm_optimized"
-mkdir -p "$OUTPUT_DIR"
+
+# Use scratch for intermediate storage (faster, more space)
+SCRATCH_DIR="${SLURM_SCRATCH:-/scratch/local/$SLURM_JOB_ID}/ace_complex_scm_$SEED"
+FINAL_OUTPUT="results/ace_complex_scm_optimized"
+
+mkdir -p "$SCRATCH_DIR"
+mkdir -p "$FINAL_OUTPUT"
 
 echo "Running FULL ACE on Complex 15-Node SCM"
 echo "Seed: $SEED"
-echo "Output: $OUTPUT_DIR"
+echo "Scratch dir: $SCRATCH_DIR"
+echo "Final output: $FINAL_OUTPUT"
 echo "All ACE components enabled: DPO, Lookahead, Diversity, Smart Breakers, Obs Training"
+echo ""
 
 python -u experiments/run_ace_complex_full.py \
     --model "Qwen/Qwen2.5-1.5B" \
@@ -60,7 +67,7 @@ python -u experiments/run_ace_complex_full.py \
     --steps 50 \
     --candidates 4 \
     --seed $SEED \
-    --output "$OUTPUT_DIR" \
+    --output "$SCRATCH_DIR" \
     --lr 1e-5 \
     --learner_lr 2e-3 \
     --learner_epochs 100 \
@@ -81,6 +88,26 @@ python -u experiments/run_ace_complex_full.py \
 
 echo ""
 echo "=============================================="
+echo "Training complete: $(date)"
+echo "Copying results from scratch to projects..."
+echo "=============================================="
+
+# Copy results from scratch to projects
+cp -r "$SCRATCH_DIR/seed_${SEED}" "$FINAL_OUTPUT/" || {
+    echo "ERROR: Failed to copy results"
+    exit 1
+}
+
+# Verify copy
+COPIED_SIZE=$(du -sh "$FINAL_OUTPUT/seed_${SEED}" | cut -f1)
+echo "Copied $COPIED_SIZE to $FINAL_OUTPUT/seed_${SEED}"
+
+# Clean up scratch
+rm -rf "$SCRATCH_DIR"
+echo "Scratch cleaned"
+
+echo ""
+echo "=============================================="
 echo "Completed: $(date)"
-echo "Results: $OUTPUT_DIR/seed_${SEED}"
+echo "Final results: $FINAL_OUTPUT/seed_${SEED}"
 echo "=============================================="

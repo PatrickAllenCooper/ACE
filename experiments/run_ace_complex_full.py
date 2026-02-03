@@ -302,6 +302,9 @@ def run_ace_complex_full(args):
     cov_bonus_history = []
     score_history = []
     
+    # Per-episode results for incremental saving
+    episode_results = []
+    
     # Diversity tracking
     recent_action_counts = deque(maxlen=100)
     episode_action_counts = Counter()
@@ -631,8 +634,44 @@ def run_ace_complex_full(args):
                 if early_stopper.check_loss(total_loss):
                     logging.info(f"[EARLY STOP] at episode {episode}")
                     break
+        
+        # Evaluate and track final episode loss
+        final_episode_losses = learner.evaluate()
+        episode_total_loss = sum(final_episode_losses.values())
+        
+        # Store per-episode results
+        episode_result = {'episode': episode, 'total_loss': episode_total_loss}
+        for node, loss in final_episode_losses.items():
+            episode_result[f'loss_{node}'] = loss
+        episode_results.append(episode_result)
+        
+        # INCREMENTAL SAVE: Every 10 episodes to prevent data loss on timeout
+        if episode > 0 and episode % 10 == 0:
+            # Save step-by-step metrics
+            df_partial = pd.DataFrame({
+                "dpo_loss": loss_history,
+                "reward": reward_history,
+                "cov_bonus": cov_bonus_history,
+                "score": score_history,
+                "target": target_history,
+                "value": value_history,
+                "episode": episode_history,
+                "step": step_history,
+            })
+            df_partial.to_csv(os.path.join(run_dir, "metrics_partial.csv"), index=False)
+            
+            # Save per-episode results
+            df_results = pd.DataFrame(episode_results)
+            df_results.to_csv(os.path.join(run_dir, "results.csv"), index=False)
+            
+            # Save DPO training curve
+            df_dpo = pd.DataFrame({"episode": range(len(loss_history)), "dpo_loss": loss_history})
+            df_dpo.to_csv(os.path.join(run_dir, "dpo_training.csv"), index=False)
+            
+            if episode % 50 == 0:
+                logging.info(f"  [CHECKPOINT] Saved at episode {episode}, total_loss: {episode_total_loss:.2f}")
     
-    # Save metrics
+    # Save final metrics
     df = pd.DataFrame({
         "dpo_loss": loss_history,
         "reward": reward_history,
@@ -645,6 +684,14 @@ def run_ace_complex_full(args):
     })
     
     df.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
+    
+    # Save final per-episode results
+    df_episode_results = pd.DataFrame(episode_results)
+    df_episode_results.to_csv(os.path.join(run_dir, "results.csv"), index=False)
+    
+    # Save final DPO training
+    df_dpo_final = pd.DataFrame({"episode": range(len(loss_history)), "dpo_loss": loss_history})
+    df_dpo_final.to_csv(os.path.join(run_dir, "dpo_training.csv"), index=False)
     
     # Final evaluation
     final_losses = learner.evaluate()
@@ -659,6 +706,9 @@ def run_ace_complex_full(args):
         logging.info(f"  {node}: {final_losses[node]:.4f}")
     
     logging.info(f"\nResults saved to {run_dir}")
+    logging.info(f"  - results.csv: Per-episode losses ({len(episode_results)} episodes)")
+    logging.info(f"  - metrics.csv: Step-by-step details ({len(loss_history)} steps)")
+    logging.info(f"  - dpo_training.csv: DPO loss progression")
     
     return run_dir, df
 
