@@ -2806,6 +2806,28 @@ def main():
             save_checkpoint(run_dir, episode, policy_net, optimizer_agent,
                           loss_history, reward_history, recent_action_counts)
         
+        # --- INCREMENTAL RESULTS SAVES (every 10 episodes) ---
+        # Save node_losses.csv incrementally to prevent data loss on timeout
+        if episode > 0 and episode % 10 == 0 and node_loss_tracking:
+            node_loss_df_partial = pd.DataFrame(node_loss_tracking)
+            node_loss_df_partial.to_csv(os.path.join(run_dir, "node_losses.csv"), index=False)
+            
+            # Also save metrics.csv incrementally
+            df_partial = pd.DataFrame({
+                "dpo_loss": loss_history,
+                "reward": reward_history,
+                "cov_bonus": cov_bonus_history,
+                "score": score_history,
+                "target": target_history,
+                "value": value_history,
+                "episode": episode_history,
+                "step": step_history,
+            })
+            df_partial.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
+            
+            if episode % 50 == 0:
+                logging.info(f"  [INCREMENTAL SAVE] Saved results at episode {episode}")
+        
         # Save intermediate visualizations every 100 episodes
         if episode > 0 and episode % 100 == 0:
             try:

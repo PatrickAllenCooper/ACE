@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --output=logs/ablations_verified_%j.out
 #SBATCH --error=logs/ablations_verified_%j.err
 
@@ -70,14 +70,22 @@ echo ""
 
 # --- Run all 3 seeds sequentially ---
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BASE_OUTPUT="results/ablations_verified_${TIMESTAMP}"
+SCRATCH_BASE="${SLURM_SCRATCH:-/scratch/local/$SLURM_JOB_ID}/ablations_${ABLATION}_${TIMESTAMP}"
+FINAL_BASE="results/ablations_verified_${TIMESTAMP}"
+
+mkdir -p "$SCRATCH_BASE"
+mkdir -p "$FINAL_BASE"
+
+echo "Scratch dir: $SCRATCH_BASE"
+echo "Final output: $FINAL_BASE"
+echo ""
 
 for SEED in 42 123 456; do
     echo "========================================"
     echo "Running $ABLATION seed $SEED"
     echo "========================================"
     
-    OUTPUT_DIR="${BASE_OUTPUT}/${ABLATION}/seed_${SEED}"
+    OUTPUT_DIR="${SCRATCH_BASE}/${ABLATION}/seed_${SEED}"
     
     # CRITICAL: NO --early_stopping, NO --use_per_node_convergence
     # Let it run FULL 100 episodes to get true degradation
@@ -99,16 +107,30 @@ for SEED in 42 123 456; do
     
     echo "  ✓ Completed $ABLATION seed $SEED"
     
-    # CRITICAL: Save results immediately after each seed
-    if [ -f "$OUTPUT_DIR/run_*/node_losses.csv" 2>/dev/null ]; then
-        FINAL_LOSS=$(tail -1 $OUTPUT_DIR/run_*/node_losses.csv | cut -d',' -f3)
+    # CRITICAL: Copy results from scratch to projects immediately
+    FINAL_DIR="${FINAL_BASE}/${ABLATION}/seed_${SEED}"
+    mkdir -p "$FINAL_DIR"
+    cp -r "$OUTPUT_DIR/run_"* "$FINAL_DIR/" 2>/dev/null || echo "    Warning: Some files may not have copied"
+    
+    # Verify copy and report final loss
+    if [ -f "$FINAL_DIR/run_"*/node_losses.csv 2>/dev/null ]; then
+        FINAL_LOSS=$(tail -1 "$FINAL_DIR"/run_*/node_losses.csv 2>/dev/null | cut -d',' -f3)
         echo "    Final loss: $FINAL_LOSS"
+        echo "    Saved to: $FINAL_DIR"
     fi
     echo ""
 done
 
 echo "=============================================="
+echo "Copying all results from scratch to projects..."
+cp -r "$SCRATCH_BASE"/* "$FINAL_BASE/" 2>/dev/null
+
+# Clean scratch
+echo "Cleaning scratch directory..."
+rm -rf "$SCRATCH_BASE"
+
+echo "=============================================="
 echo "All seeds complete for $ABLATION"
 echo "Completed: $(date)"
-echo "Results: $BASE_OUTPUT"
+echo "Results: $FINAL_BASE"
 echo "=============================================="
