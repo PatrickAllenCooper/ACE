@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=ace_no_oracle
 #SBATCH --partition=aa100
-#SBATCH --qos=normal
+#SBATCH --qos=long
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
-#SBATCH --time=48:00:00
+#SBATCH --time=72:00:00
 #SBATCH --output=logs/ace_no_oracle_%j.out
 #SBATCH --error=logs/ace_no_oracle_%j.err
 

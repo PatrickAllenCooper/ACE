@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=ace_abl_verified
 #SBATCH --partition=aa100
-#SBATCH --qos=normal
+#SBATCH --qos=long
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
-#SBATCH --time=24:00:00
+#SBATCH --time=48:00:00
 #SBATCH --output=logs/ablations_verified_%j.out
 #SBATCH --error=logs/ablations_verified_%j.err
 
