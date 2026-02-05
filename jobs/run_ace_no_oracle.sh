@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
-#SBATCH --time=08:00:00
+#SBATCH --time=48:00:00
 #SBATCH --output=logs/ace_no_oracle_%j.out
 #SBATCH --error=logs/ace_no_oracle_%j.err
 
@@ -54,7 +54,7 @@ for SEED in 42 123 456 789 1011; do
     OUTPUT_DIR="${BASE_OUTPUT}/seed_${SEED}"
     
     python -u ace_experiments.py \
-        --custom \
+        --model "Qwen/Qwen2.5-1.5B" \
         --episodes 200 \
         --steps 25 \
         --seed $SEED \
