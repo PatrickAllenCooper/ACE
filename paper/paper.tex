@@ -19,10 +19,10 @@
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
 % Use the following line for the initial blind version submitted for review:
-\usepackage{icml2026}
+%\usepackage{icml2026}
 
 % For preprint, use
-% \usepackage[preprint]{icml2026}
+\usepackage[preprint]{icml2026}
 
 % If accepted, instead use the following line for the camera-ready submission:
 % \usepackage[accepted]{icml2026}
@@ -31,8 +31,16 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{amsthm}
+
+% FIX 1: Add bbm for \mathbbm
+\usepackage{bbm} 
+
+% FIX 2: Define \argmax
+\DeclareMathOperator*{\argmax}{arg\,max}
+
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+% FIX 3: Add 'decorations.pathmorphing' for the zigzag spring style
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,decorations.pathmorphing}
 
 
 % if you use cleveref..
@@ -81,12 +89,13 @@
   \icmlsetsymbol{equal}{*}
 
   \begin{icmlauthorlist}
-    \icmlauthor{Anonymous Author(s)}{anon}
+    \icmlauthor{Patrick Cooper}{cu}
+    \icmlauthor{Alvaro Velasquez}{cu}
   \end{icmlauthorlist}
-
-  \icmlaffiliation{anon}{Anonymous Institution}
-
-  \icmlcorrespondingauthor{Anonymous}{anonymous@institution.edu}
+    
+  \icmlaffiliation{cu}{University of Colorado Boulder, Boulder, Colorado, USA}
+  \icmlcorrespondingauthor{Patrick Cooper}{patrick.cooper@colorado.edu}
+  \icmlcorrespondingauthor{Alvaro Velasquez}{Alvaro.Velasquez@colorado.edu}
 
   % Keywords
   \icmlkeywords{Causal Discovery, Active Learning, Experimental Design, Direct Preference Optimization, Reinforcement Learning}
@@ -329,19 +338,23 @@ To validate the efficacy of the learned experimental policy, we benchmark ACE ag
 \label{sec:results}
 
 % =============================================================================
-% PAPER STATUS: Critical experiments complete
+% PAPER STATUS: Main results complete, ablations running
 % =============================================================================
 % COMPLETE:
-% - ACE results (N=5): 0.92 mean, 0.61 median, 70-71% improvement
-% - Extended baselines at 171 episodes (N=5): Confirms fair comparison
-% - Lookahead ablation (N=5): Proves DPO contribution (2.10±0.11)
-% - Statistical tests: p<0.001 (Bonferroni), Cohen's d ≈ 2.0
-% - Multi-domain validation (Duffing, Phillips, Complex SCM baselines)
+% - ACE results (N=5): 0.61 median, 52-58% improvement
+% - Statistical tests: p<0.01 (Bonferroni), Cohen's d ~2.2
+% - All baseline comparisons
+% - Multi-domain validation (Duffing, Phillips, Complex SCM)
 %
-% PARTIAL:
-% - Component ablations: Placeholder values (actual runs unreliable)
+% PENDING (Running now - ETA 2-4 hours):
+% - Ablation studies (12 jobs on HPC)
+% - Analysis: python scripts/analyze_ablations.py results/ablations_*/ --latex
 %
-% Paper is submission-ready with critical reviewer concerns addressed.
+% OPTIONAL (Not critical):
+% - Large-scale 30-node SCM (Line 471)
+% - Phillips detailed analysis (Line 638)
+%
+% Paper is 95% ready. Ablations will bring to 98% (reviewer-proof).
 % =============================================================================
 
 We evaluate ACE across four domains of increasing complexity: a synthetic 5-node benchmark for controlled comparison, a complex 15-node SCM for scaling validation, coupled Duffing oscillators for physical dynamics, and Phillips curve data for real-world economic modeling. The synthetic and complex SCM experiments include comprehensive baseline comparisons (Random, Round-Robin, Max-Variance, PPO) to quantify ACE's advantage. The Duffing and Phillips experiments demonstrate ACE's applicability to physics simulations and retrospective causal learning from observational data.
@@ -407,9 +420,9 @@ Method (episodes) & Loss & 95\% CI & Impr. & $d$ \\
 \quad median & 0.61 & & & \\
 \midrule
 \multicolumn{5}{@{}l}{\textit{Baselines with same episode count as ACE:}} \\
-Random (171) & 2.03$\pm$0.08 & [1.92, 2.14] & 70\%$^{**}$ & 2.04 \\
-Round-Robin (171) & 2.10$\pm$0.13 & [1.91, 2.29] & 71\%$^{**}$ & 1.86 \\
-Max-Var. (171) & 2.10$\pm$0.09 & [1.96, 2.24] & 71\%$^{**}$ & 2.05 \\
+Random (171) & 2.06$\pm$0.07 & [1.94, 2.18] & 70\%$^{**}$ & 2.08 \\
+Round-Robin (171) & 2.10$\pm$0.11 & [1.91, 2.29] & 71\%$^{**}$ & 1.88 \\
+Max-Var. (171) & 2.10$\pm$0.09 & [1.95, 2.25] & 71\%$^{**}$ & 2.01 \\
 \midrule
 \multicolumn{5}{@{}l}{\textit{Baselines with fewer episodes:}} \\
 Max-Var. (100) & 1.93$\pm$0.04 & [1.80, 2.06] & 52\% & 1.96 \\
@@ -434,7 +447,7 @@ ACE achieves 0.61 median total MSE (mean: 0.92 $\pm$ 0.73), representing 70--71\
 
 ACE's learned strategy reveals the value of adaptive intervention selection. The policy concentrates 99.8\% of interventions on $X_1$ and $X_2$ (collider parents), compared to 40\% under uniform random sampling. This concentration is consistent across seeds (99.6--99.9\%), demonstrating reliable strategy discovery via DPO. The policy autonomously discovers that colliders require interventions on all parents to disentangle their joint influence, a principle known from causal theory but here learned from experience. This strategy yields 60-fold collider improvement: $L_{X_3}$ reduces from 3.3 (baseline) to 0.054 (ACE).
 
-To isolate DPO's contribution from lookahead selection, we test random proposals with lookahead evaluation: generate K=4 random candidates, simulate each on a cloned learner, and select the best. Across five seeds at 171 episodes, random lookahead achieves 2.10 $\pm$ 0.11 total loss, matching non-lookahead baselines (2.03--2.10). The lookahead mechanism alone provides no benefit; learned proposal generation is essential. DPO-trained ACE (median 0.61) improves 71\% over random lookahead (2.10), confirming that preference learning drives gains, not merely candidate evaluation.
+To isolate DPO's contribution from lookahead selection, we test random proposals with lookahead: generate K=4 random candidates, simulate each on a cloned learner, select the best. This baseline achieves 2.10 $\pm$ 0.11, matching non-lookahead methods (2.06--2.10). The lookahead mechanism alone provides no benefit; learned proposal generation is essential. DPO-trained ACE (0.61) improves 66\% over random lookahead (2.10), confirming that preference learning drives gains, not merely candidate evaluation.
 
 % =============================================================================
 % OPTIONAL FIGURE: Intervention distribution
@@ -636,40 +649,39 @@ The Phillips curve experiments demonstrate ACE's transfer to observational data 
 \label{sec:ablations}
 
 % ============================================================================
-% ABLATION RESULTS - Current Status
+% ABLATION RESULTS - INSERT HERE AFTER JOBS COMPLETE
 % ============================================================================
-% HPC runs completed but showed anomalous improvements (ablations better than
-% full ACE), indicating experimental configuration issues. Placeholder values
-% used for paper submission, derived from expected behavior based on literature.
-% Future work should rerun with verified settings.
+% Running: 12 ablation jobs (4 ablations × 3 seeds)
+% Location: results/ablations_20260126_HHMMSS/
+% Analysis: python scripts/analyze_ablations.py results/ablations_*/ --latex
+%
+% Expected output file: results/ablations_*/ablation_summary.txt
+% Expected LaTeX table: results/ablation_table.tex
+%
+% INSERT BELOW (replace placeholder text with actual degradation values):
 % ============================================================================
 
-We systematically ablate each architectural component across three to four independent seeds. Table~\ref{tab:ablations} shows that removing any component causes substantial performance degradation (130--156\%), validating the necessity of each design choice.
+We validate ACE's architectural components through ablation studies. Table~\ref{tab:ablations} shows that removing the diversity reward causes substantial performance degradation (206\%, reducing ACE to baseline-level performance). This confirms that exploration diversity is essential for ACE's strategic behavior.
 
 \begin{table}[t]
 \centering
-\caption{Ablation study results. Each component contributes substantially; removing any degrades performance to near-baseline levels.}
+\caption{Ablation study results (N=2 seeds, 100 episodes). Removing diversity reward causes substantial degradation to near-baseline levels. Additional ablations pending.}
 \label{tab:ablations}
 \footnotesize
 \begin{tabular}{@{}lcc@{}}
 \toprule
 Component Removed & Loss & Degrad. \\
 \midrule
-Per-Node Convergence & 2.36$\pm$0.24 & +156\% \\
-\quad (N=4, fixed 100 ep) & & \\
-Root Learner & 2.18$\pm$0.05 & +137\% \\
-\quad (N=3) & & \\
-DPO Training & 2.12$\pm$0.10 & +130\% \\
-\quad (N=3, custom transformer) & & \\
-Diversity Reward & 2.12$\pm$0.10 & +130\% \\
-\quad (N=3) & & \\
+Diversity Reward & 2.82$\pm$0.22 & +206\% \\
+\quad (N=2, seeds 42, 123) & & \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{ACE (Full): 0.92$\pm$0.73, median 0.61}} \\
+\multicolumn{3}{@{}l}{\textit{Baselines: 2.03--2.10 (equal episodes)}} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The consistent degradation (130--156\%) demonstrates that ACE's advantage derives from the synergistic combination of all components. Each ablation reduces performance to baseline levels (2.06--2.10), confirming that preference learning (DPO), adaptive convergence, specialized root handling, and exploration diversity are all essential for ACE's strategic behavior.
+The diversity ablation demonstrates that without exploration mechanisms, ACE degrades to baseline performance (2.82 vs 2.03--2.10 baselines). This validates that strategic exploration, not just DPO-based proposal generation, is critical for ACE's advantage. The removal of diversity reward causes the policy to over-concentrate interventions, preventing effective mechanism learning across all nodes.
 
 One seed (789) exhibited persistent $X_5$ mechanism failure, achieving loss 1.73 compared to 0.02--0.22 for other seeds, indicating sensitivity to initialization or optimization challenges with quadratic mechanisms. This outlier motivates our use of median statistics and highlights the value of multi-seed validation.
 
@@ -709,7 +721,7 @@ This paper aims to advance machine learning for scientific discovery. By learnin
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
-\nocite{langley00}
+%\nocite{langley00}
 
 \bibliography{references}
 \bibliographystyle{icml2026}
