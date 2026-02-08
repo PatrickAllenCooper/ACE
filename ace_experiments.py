@@ -1324,11 +1324,12 @@ def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
                    reward_history, recent_actions):
     """Save training checkpoint for recovery.
     
-    Checkpoints saved to checkpoints/ directory (separate from results/)
-    for easy results copying without large checkpoint files.
+    Checkpoints saved to SCRATCH (not projects/) to save quota space.
+    Uses SLURM_SCRATCH env var if available, falls back to /scratch/alpine/$USER
     """
-    # Save to checkpoints/ directory, not results/
-    checkpoint_dir = os.path.join("checkpoints", os.path.basename(run_dir))
+    # Use scratch for checkpoints (saves projects/ quota)
+    scratch_base = os.environ.get('SLURM_SCRATCH', f'/scratch/alpine/{os.environ.get("USER", "unknown")}')
+    checkpoint_dir = os.path.join(scratch_base, "ace_checkpoints", os.path.basename(run_dir))
     os.makedirs(checkpoint_dir, exist_ok=True)
     checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_ep{episode}.pt")
     
