@@ -87,21 +87,25 @@ for SEED in 42 123 456; do
     
     OUTPUT_DIR="${SCRATCH_BASE}/${ABLATION}/seed_${SEED}"
     
-    # CRITICAL: NO --early_stopping, NO --use_per_node_convergence
-    # Let it run FULL 100 episodes to get true degradation
+    # CRITICAL: Start with FULL ACE configuration, then ablation flags disable components
+    # This ensures ablations actually remove something (not a no-op)
     python -u ace_experiments.py \
         --episodes 100 \
         --steps 25 \
         --seed $SEED \
         --output "$OUTPUT_DIR" \
+        --model "Qwen/Qwen2.5-1.5B" \
+        --pretrain_steps 200 \
+        --pretrain_interval 25 \
         --obs_train_interval 3 \
         --obs_train_samples 200 \
         --obs_train_epochs 100 \
+        --root_fitting \
+        --use_dedicated_root_learner \
+        --dedicated_root_interval 3 \
         --undersampled_bonus 200.0 \
+        --diversity_reward_weight 0.3 \
         --max_concentration 0.7 \
-        --pretrain_steps 200 \
-        --model "Qwen/Qwen2.5-1.5B" \
-        --pretrain_interval 25 \
         --smart_breaker \
         $ABLATION_FLAGS
     
