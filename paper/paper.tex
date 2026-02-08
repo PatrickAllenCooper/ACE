@@ -661,32 +661,29 @@ The Phillips curve experiments demonstrate ACE's transfer to observational data 
 % INSERT BELOW (replace placeholder text with actual degradation values):
 % ============================================================================
 
-We systematically ablate each architectural component across three to four independent seeds. Table~\ref{tab:ablations} shows that removing any component causes substantial performance degradation (130--156\%), validating the necessity of each design choice.
+We validate ACE's key architectural component through ablation. Table~\ref{tab:ablations} shows that removing the diversity reward causes substantial performance degradation (206\%), reducing ACE to baseline-level performance. This confirms that exploration diversity is essential for ACE's strategic behavior, complementing the DPO-based proposal generation validated by the lookahead ablation (Section~\ref{sec:results}).
 
 \begin{table}[t]
 \centering
-\caption{Ablation study results. Each component contributes substantially; removing any degrades performance to near-baseline levels.}
+\caption{Diversity reward ablation (N=2 seeds, 100 episodes). Removing diversity causes substantial degradation to near-baseline levels, validating its necessity for strategic exploration.}
 \label{tab:ablations}
 \footnotesize
 \begin{tabular}{@{}lcc@{}}
 \toprule
-Component Removed & Loss & Degrad. \\
+Configuration & Loss & Change \\
 \midrule
-Per-Node Convergence & 2.36$\pm$0.24 & +156\% \\
-\quad (N=4, fixed 100 ep) & & \\
-Root Learner & 2.18$\pm$0.05 & +137\% \\
-\quad (N=3) & & \\
-DPO Training & 2.12$\pm$0.10 & +130\% \\
-\quad (N=3, custom transformer) & & \\
-Diversity Reward & 2.12$\pm$0.10 & +130\% \\
-\quad (N=3) & & \\
+ACE (Full) & 0.92$\pm$0.73 & -- \\
+\quad median & 0.61 & -- \\
 \midrule
-\multicolumn{3}{@{}l}{\textit{ACE (Full): 0.92$\pm$0.73, median 0.61}} \\
+No Diversity Reward & 2.82$\pm$0.22 & +206\% \\
+\quad (N=2, seeds 42, 123) & & \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Baselines: 2.03--2.10 (equal episodes)}} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The consistent degradation (130--156\%) demonstrates that ACE's advantage derives from the synergistic combination of all components. Each ablation reduces performance to baseline levels (2.06--2.10), confirming that preference learning (DPO), adaptive convergence, specialized root handling, and exploration diversity are all essential for ACE's strategic behavior.
+Without diversity reward, ACE degrades to baseline performance (2.82 vs 2.03--2.10). The policy over-concentrates interventions on a single node, preventing balanced mechanism learning. Combined with the lookahead ablation (which proved DPO's contribution), this demonstrates that ACE's advantage derives from both learned proposal generation and strategic exploration diversity.
 
 One seed (789) exhibited persistent $X_5$ mechanism failure, achieving loss 1.73 compared to 0.02--0.22 for other seeds, indicating sensitivity to initialization or optimization challenges with quadratic mechanisms. This outlier motivates our use of median statistics and highlights the value of multi-seed validation.
 
@@ -704,7 +701,7 @@ The advantage is particularly pronounced for collider learning, where ACE achiev
 
 Efficient causal discovery requires strategic experimentation, but which intervention should come next? We addressed this by treating experimental design as a learnable policy. ACE learns to propose interventions via Direct Preference Optimization, using pairwise comparisons that remain meaningful even as absolute information gains diminish over the course of discovery.
 
-ACE achieves 70--71\% improvement over baselines at equal intervention budgets (171 episodes), with p<0.001 and Cohen's $d \approx 2$. The comparison is informative: baselines plateau at 2.06--2.10 regardless of additional episodes, while ACE reaches 0.61 median loss, indicating that strategic adaptation—not simply more data—drives continued improvement. Ablation studies validate all four architectural components, with 130--156\% degradation when any is removed.
+ACE achieves 70--71\% improvement over baselines at equal intervention budgets (171 episodes), with p<0.001 and Cohen's $d \approx 2$. The comparison is informative: baselines plateau at 2.03--2.10 regardless of additional episodes, while ACE reaches 0.61 median loss, indicating that strategic adaptation—not simply more data—drives continued improvement. Ablation studies validate key components: diversity reward removal causes 206\% degradation, while lookahead ablation confirms DPO proposal generation's contribution.
 
 A key finding is the policy's emergent behavior. Without explicit instruction, ACE learns to concentrate 99.8\% of interventions on collider parents, matching the strategy that causal theory identifies as optimal for multi-parent mechanisms. This suggests that preference learning can recover principled experimental strategies through experience, complementing theoretical understanding with learned domain adaptation.
 
