@@ -89,6 +89,8 @@ for SEED in 42 123 456; do
     
     # CRITICAL: Start with FULL ACE configuration, then ablation flags disable components
     # This ensures ablations actually remove something (not a no-op)
+    # NOTE: We DON'T use --early_stopping because ablation flags disable it anyway
+    # But we DO enable all other components so ablations can disable them
     python -u ace_experiments.py \
         --episodes 100 \
         --steps 25 \

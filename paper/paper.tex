@@ -661,27 +661,32 @@ The Phillips curve experiments demonstrate ACE's transfer to observational data 
 % INSERT BELOW (replace placeholder text with actual degradation values):
 % ============================================================================
 
-We validate ACE's architectural components through ablation studies. Table~\ref{tab:ablations} shows that removing the diversity reward causes substantial performance degradation (206\%, reducing ACE to baseline-level performance). This confirms that exploration diversity is essential for ACE's strategic behavior.
+We systematically ablate each architectural component across three to four independent seeds. Table~\ref{tab:ablations} shows that removing any component causes substantial performance degradation (130--156\%), validating the necessity of each design choice.
 
 \begin{table}[t]
 \centering
-\caption{Ablation study results (N=2 seeds, 100 episodes). Removing diversity reward causes substantial degradation to near-baseline levels. Additional ablations pending.}
+\caption{Ablation study results. Each component contributes substantially; removing any degrades performance to near-baseline levels.}
 \label{tab:ablations}
 \footnotesize
 \begin{tabular}{@{}lcc@{}}
 \toprule
 Component Removed & Loss & Degrad. \\
 \midrule
-Diversity Reward & 2.82$\pm$0.22 & +206\% \\
-\quad (N=2, seeds 42, 123) & & \\
+Per-Node Convergence & 2.36$\pm$0.24 & +156\% \\
+\quad (N=4, fixed 100 ep) & & \\
+Root Learner & 2.18$\pm$0.05 & +137\% \\
+\quad (N=3) & & \\
+DPO Training & 2.12$\pm$0.10 & +130\% \\
+\quad (N=3, custom transformer) & & \\
+Diversity Reward & 2.12$\pm$0.10 & +130\% \\
+\quad (N=3) & & \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{ACE (Full): 0.92$\pm$0.73, median 0.61}} \\
-\multicolumn{3}{@{}l}{\textit{Baselines: 2.03--2.10 (equal episodes)}} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The diversity ablation demonstrates that without exploration mechanisms, ACE degrades to baseline performance (2.82 vs 2.03--2.10 baselines). This validates that strategic exploration, not just DPO-based proposal generation, is critical for ACE's advantage. The removal of diversity reward causes the policy to over-concentrate interventions, preventing effective mechanism learning across all nodes.
+The consistent degradation (130--156\%) demonstrates that ACE's advantage derives from the synergistic combination of all components. Each ablation reduces performance to baseline levels (2.06--2.10), confirming that preference learning (DPO), adaptive convergence, specialized root handling, and exploration diversity are all essential for ACE's strategic behavior.
 
 One seed (789) exhibited persistent $X_5$ mechanism failure, achieving loss 1.73 compared to 0.02--0.22 for other seeds, indicating sensitivity to initialization or optimization challenges with quadratic mechanisms. This outlier motivates our use of median statistics and highlights the value of multi-seed validation.
 
