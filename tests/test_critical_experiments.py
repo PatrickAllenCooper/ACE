@@ -76,7 +76,7 @@ class TestBaselineFunctionSignatures:
         assert callable(getattr(SCMLearner, 'evaluate'))
 
 
-class TestCriticalExperiments Integration:
+class TestCriticalExperimentsIntegration:
     """Integration tests for critical experiments."""
     
     @pytest.mark.slow
