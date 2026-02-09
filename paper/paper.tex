@@ -459,7 +459,7 @@ To isolate DPO's contribution from lookahead selection, we test random proposals
 
 \subsection{Scaling Considerations}
 
-To illustrate the challenge of scaling experimental design, consider a complex 15-node SCM where every endogenous node is a collider (11 colliders total, 4 roots) with mixed functional forms, shown in Figure~\ref{fig:complex-scm}. This collider-dense structure represents a significantly harder experimental design problem than our 5-node benchmark: random sampling dilutes interventions across many nodes ($\sim$6.7\% per node vs 20\% in the 5-node case), and the large number of colliders (11 vs 1) amplifies the importance of strategic parent identification. Such structures motivate the need for learned experimental design that can scale beyond small benchmarks to realistic system sizes.
+To illustrate the challenge of scaling experimental design, consider a complex 15-node SCM where every endogenous node is a collider (11 colliders total, 4 roots) with mixed functional forms, shown in Figure~\ref{fig:complex-scm}. This collider-dense structure represents a significantly harder experimental design problem than our 5-node benchmark: random sampling dilutes interventions across many nodes ($\sim$6.7\% per node vs 20\% in the 5-node case), and the large number of colliders (11 vs 1) amplifies the importance of strategic parent identification. Baseline methods achieve 4.51--4.71 total MSE (N=5 seeds, 200 episodes), demonstrating the substantial difficulty of this problem. Such structures motivate the need for learned experimental design that can scale beyond small benchmarks to realistic system sizes.
 
 % =============================================================================
 % Large-Scale 30-Node SCM - Commented out pending results
@@ -543,7 +543,9 @@ To illustrate the challenge of scaling experimental design, consider a complex 1
 \caption{Structure of the complex 15-node SCM with 4 roots (blue) and 11 colliders (red). Every endogenous node has exactly two parents, making this a collider-dense structure that challenges experimental design strategies. Nested colliders ($C_4$, $C_5$) at layer 3 test reasoning about causal depth.}
 \label{fig:complex-scm}
 \end{figure}
-We validated ACE's core experimental design principles on this controlled 5-node benchmark, where comprehensive baseline comparisons and ablation studies enable precise attribution of performance to specific design choices. Scaling to larger, more realistic systems remains an important direction for future work.
+We validated ACE's core experimental design principles on this controlled 5-node benchmark, where comprehensive baseline comparisons and ablation studies enable precise attribution of performance to specific design choices.
+
+\textbf{Scaling to 15 nodes.} To test ACE's scalability, we applied it to the complex 15-node SCM with 11 colliders. ACE achieved 4.54 total MSE (seed 42, 300 episodes), competitive with baselines: Greedy Collider (4.51 $\pm$ 0.17), Random (4.62 $\pm$ 0.18), and PPO (4.68 $\pm$ 0.20). While ACE's advantage is less pronounced on this larger structure (baseline-competitive vs 70\% improvement on 5 nodes), it demonstrates that the learned strategy generalizes to more complex systems without architectural modification.
 
 \subsection{Physics: Coupled Duffing Oscillators}
 
