@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  ace-api:
+    build:
+      context: .
+      dockerfile: container/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      # Note: Pass your HF_TOKEN in if you need authenticated access to models
+      # - HF_TOKEN=${HF_TOKEN}
+      # To enable local GPU access in docker-compose, uncomment the below lines:
+      # deploy:
+      #   resources:
+      #     reservations:
+      #       devices:
+      #         - driver: nvidia
+      #           count: 1
+      #           capabilities: [gpu]

@@ -36,8 +36,7 @@ ACE/
 ├── scripts/                 # Analysis and utility scripts
 ├── tests/                   # Comprehensive test suite
 ├── results/                 # Experimental results
-├── guidance_documents/      # Development documentation
-└── docs/                    # Technical documentation and archives
+└── docs/                    # Technical documentation, development docs, and archives
 ```
 
 ---
@@ -126,10 +125,10 @@ sbatch jobs/run_ace_complex_single_seed.sh
 
 ## Documentation
 
-- **`FINAL_PAPER_RESULTS_SUMMARY.md`:** Complete experimental results
-- **`SUBMISSION_CHECKLIST.md`:** Paper submission preparation
-- **`guidance_documents/`:** Development and experimental planning docs
-- **`docs/`:** Technical documentation and archived status reports
+- **`docs/`**: Main documentation directory containing technical specs and archived reports
+- **`docs/submission/`**: Paper submission preparation and reports (e.g., `SUBMISSION_CHECKLIST.md`)
+- **`docs/development/`**: Development status, guidance, and experimental planning docs
+- **`docs/FINAL_PAPER_RESULTS_SUMMARY.md`**: Complete experimental results
 
 ---
 
