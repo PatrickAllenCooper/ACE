@@ -44,7 +44,7 @@
     .\scripts\deploy_azure.ps1 -Action logs
 
 .EXAMPLE
-    # Tear down everything (deletes resource group — irreversible)
+    # Tear down everything (deletes resource group - irreversible)
     .\scripts\deploy_azure.ps1 -Action teardown
 #>
 
@@ -63,7 +63,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # ============================================================
-# CONFIGURATION — edit these to match your Azure environment
+# CONFIGURATION - edit these to match your Azure environment
 # ============================================================
 $RESOURCE_GROUP   = "ace-rg"
 $LOCATION         = "eastus"
@@ -71,7 +71,7 @@ $ACR_NAME         = "aceregistry"          # Must be globally unique, alphanumer
 $ACA_ENV_NAME     = "ace-env"
 $APP_NAME         = "ace-api"
 $GPU_PROFILE_NAME = "gpu-t4"
-$GPU_PROFILE_TYPE = "NC4as_T4_v3"         # T4 GPU. For A100: "NC24ads_A100_v4"
+$GPU_PROFILE_TYPE = "NC4as_T4_v3"         # T4 GPU. For A100: NC24ads_A100_v4
 $CPU_CORES        = "4.0"
 $MEMORY_GI        = "16.0Gi"
 # ============================================================
@@ -117,7 +117,7 @@ function Get-AppFqdn {
 }
 
 # ============================================================
-# ACTION: setup — provision all Azure infrastructure (run once)
+# ACTION: setup - provision all Azure infrastructure (run once)
 # ============================================================
 function Invoke-Setup {
     Require-AzCli
@@ -159,7 +159,7 @@ function Invoke-Setup {
 }
 
 # ============================================================
-# ACTION: build — build Docker image and push to ACR
+# ACTION: build - build Docker image and push to ACR
 # ============================================================
 function Invoke-Build {
     Require-AzCli
@@ -185,7 +185,7 @@ function Invoke-Build {
 }
 
 # ============================================================
-# ACTION: deploy — create or update the container app
+# ACTION: deploy - create or update the container app
 # ============================================================
 function Invoke-Deploy {
     param([string]$Name = $APP_NAME)
@@ -239,10 +239,10 @@ function Invoke-Deploy {
 }
 
 # ============================================================
-# ACTION: scale — set replica count on the default app
+# ACTION: scale - set replica count on the default app
 # NOTE: Scaling a single app to multiple replicas is NOT the recommended
 # pattern for ACE. The model DSL is shared global state and the asyncio.Lock
-# only serializes within a single replica. Use `instances` instead.
+# only serializes within a single replica. Use "instances" instead.
 # This action is retained for cases where the core library is updated to
 # accept DSL as a per-call argument.
 # ============================================================
@@ -265,7 +265,7 @@ function Invoke-Scale {
 }
 
 # ============================================================
-# ACTION: instances — deploy N isolated named instances
+# ACTION: instances - deploy N isolated named instances
 # ============================================================
 function Invoke-Instances {
     Require-AzCli
@@ -290,12 +290,12 @@ function Invoke-Instances {
     }
 
     Write-Host "`nTo tear down all instances:"
-    $list = ($names | ForEach-Object { "`"$_`"" }) -join ", "
+    $list = ($names | ForEach-Object { '"{0}"' -f $_ }) -join ", "
     Write-Host "  @($list) | ForEach-Object { az containerapp delete --name `$_ --resource-group $RESOURCE_GROUP --yes }"
 }
 
 # ============================================================
-# ACTION: status — show running apps and their endpoints
+# ACTION: status - show running apps and their endpoints
 # ============================================================
 function Invoke-Status {
     Require-AzCli
@@ -312,13 +312,13 @@ function Invoke-Status {
             $resp = Invoke-RestMethod -Uri "https://$fqdn/health" -Method Get -TimeoutSec 10
             $resp | ConvertTo-Json
         } catch {
-            Write-Host "  Could not reach /health — container may still be starting."
+            Write-Host "  Could not reach /health - container may still be starting."
         }
     }
 }
 
 # ============================================================
-# ACTION: logs — stream live logs from the default app
+# ACTION: logs - stream live logs from the default app
 # ============================================================
 function Invoke-Logs {
     Require-AzCli
@@ -332,7 +332,7 @@ function Invoke-Logs {
 }
 
 # ============================================================
-# ACTION: teardown — delete the entire resource group (irreversible)
+# ACTION: teardown - delete the entire resource group (irreversible)
 # ============================================================
 function Invoke-Teardown {
     Require-AzCli
