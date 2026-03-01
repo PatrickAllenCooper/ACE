@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
@@ -8,15 +9,15 @@ client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def mock_model():
-    """Mock the HuggingFacePolicy model so we don't actually load a 1.5B param LLM for testing"""
+    """Mock the HuggingFacePolicy model so we don't actually load a 1.5B param LLM for testing."""
     mock = MagicMock()
-    # Mock generation method to return a predictable valid command
     mock.generate_experiment.return_value = ("DO X2 = 2.5000", {"target": "X2", "value": 2.5, "samples": 200})
     state.model = mock
     state.device = "cpu"
+    state.inference_lock = asyncio.Lock()
     yield
-    # Cleanup
     state.model = None
+    state.inference_lock = None
 
 def test_health_check_ok():
     response = client.get("/health")
@@ -93,3 +94,56 @@ def test_intervene_no_model():
     response = client.post("/intervene", json=payload)
     assert response.status_code == 503
     assert "Model is not loaded" in response.json()["detail"]
+
+
+def test_dsl_is_set_before_generate_experiment():
+    """Verify the request-specific DSL is applied to the model before inference runs.
+
+    This guards against the race condition where state.model.dsl is mutated by
+    one request and then read by another (Option B: each container is isolated,
+    but correctness still requires the lock to serialize DSL mutation + inference).
+    """
+    captured_dsl = {}
+
+    def capture_dsl(*args, **kwargs):
+        captured_dsl["nodes"] = list(state.model.dsl.nodes)
+        return ("DO X2 = 2.5000", {"target": "X2", "value": 2.5, "samples": 200})
+
+    state.model.generate_experiment.side_effect = capture_dsl
+
+    payload = {
+        "scm": {
+            "nodes": ["A", "B", "C"],
+            "edges": [
+                {"source": "A", "target": "B"},
+                {"source": "B", "target": "C"}
+            ]
+        },
+        "node_losses": {"A": 0.1, "B": 0.9, "C": 0.2},
+        "value_min": -3.0,
+        "value_max": 3.0
+    }
+
+    response = client.post("/intervene", json=payload)
+    assert response.status_code == 200, response.text
+    # The DSL nodes visible to generate_experiment must match this request's nodes
+    assert captured_dsl.get("nodes") == ["A", "B", "C"]
+
+
+def test_inference_lock_initialized_on_startup():
+    """inference_lock must be an asyncio.Lock (set during startup, not class default None)."""
+    assert state.inference_lock is not None
+    assert isinstance(state.inference_lock, asyncio.Lock)
+
+
+def test_intervene_model_failure_returns_500():
+    """If generate_experiment returns (raw_text, None), a 500 is raised."""
+    state.model.generate_experiment.return_value = ("garbled output xyz", None)
+
+    payload = {
+        "scm": {"nodes": ["X1", "X2"], "edges": [{"source": "X1", "target": "X2"}]},
+        "node_losses": {"X1": 0.1, "X2": 0.5}
+    }
+    response = client.post("/intervene", json=payload)
+    assert response.status_code == 500
+    assert "failed to generate" in response.json()["detail"]

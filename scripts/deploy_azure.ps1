@@ -32,11 +32,15 @@
     .\scripts\deploy_azure.ps1 -Action deploy
 
 .EXAMPLE
-    # Deploy 3 isolated instances for parallel seeds
+    # Deploy 3 isolated instances for parallel seeds (recommended multi-instance pattern)
     .\scripts\deploy_azure.ps1 -Action instances -Replicas 3
 
 .EXAMPLE
-    # Stream live logs
+    # Stream live logs from a specific named instance
+    .\scripts\deploy_azure.ps1 -Action logs -InstanceName ace-instance-2
+
+.EXAMPLE
+    # Stream live logs from the default app
     .\scripts\deploy_azure.ps1 -Action logs
 
 .EXAMPLE
@@ -236,9 +240,20 @@ function Invoke-Deploy {
 
 # ============================================================
 # ACTION: scale — set replica count on the default app
+# NOTE: Scaling a single app to multiple replicas is NOT the recommended
+# pattern for ACE. The model DSL is shared global state and the asyncio.Lock
+# only serializes within a single replica. Use `instances` instead.
+# This action is retained for cases where the core library is updated to
+# accept DSL as a per-call argument.
 # ============================================================
 function Invoke-Scale {
     Require-AzCli
+    if ($Replicas -gt 1) {
+        Write-Warning "Scaling to multiple replicas is unsafe with the current shared DSL design."
+        Write-Warning "Use '-Action instances -Replicas $Replicas' for parallel experiments instead."
+        $confirm = Read-Host "Continue anyway? (y/N)"
+        if ($confirm -ne "y") { return }
+    }
     Write-Host "`nScaling '$APP_NAME' to $Replicas replica(s)..."
     az containerapp update `
         --name $APP_NAME `

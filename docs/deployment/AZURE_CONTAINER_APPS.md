@@ -232,38 +232,17 @@ Invoke-RestMethod `
 
 ## Part 4: Deploying Multiple Parallel Instances
 
-For running multiple independent ACE experiments in parallel (e.g., different graph structures or seeds), you have two options:
+For running multiple independent ACE experiments in parallel (e.g., different seeds, different graph topologies), use **Option B: isolated named apps**. This is the recommended pattern for ACE.
 
-### Option A: Multiple Replicas of the Same App (Scale-Out)
+### Why Not Option A (Scaled Replicas)?
 
-Increase the replica count on the existing deployment. ACA load-balances requests across replicas. Each replica is stateless (model is loaded per-replica at startup), so this works transparently.
+Option A scales a single app to N replicas and load-balances requests across them. It is not safe for ACE in its current form. The `/intervene` handler mutates `state.model.dsl` — a shared global — before every inference call. Two simultaneous requests routed to the same replica would overwrite each other's graph context, producing silently wrong interventions. The `asyncio.Lock` in `app.py` prevents this within a single replica, but ACA's load balancer can route concurrent requests to any replica, and each replica has its own lock with no cross-replica coordination.
 
-```powershell
-# Scale to N parallel replicas
-$N = 3
+Option A would be correct only if `HuggingFacePolicy.generate_experiment` accepted the DSL as an argument rather than reading from `self.dsl`. That is a future improvement to the core library.
 
-az containerapp update `
-  --name $APP_NAME `
-  --resource-group $RESOURCE_GROUP `
-  --min-replicas $N `
-  --max-replicas $N
-```
+### Option B: Separate Named App Per Experiment (Recommended)
 
-Then send requests to the same FQDN — ACA routes to different replicas round-robin.
-
-Scale back down when done:
-
-```powershell
-az containerapp update `
-  --name $APP_NAME `
-  --resource-group $RESOURCE_GROUP `
-  --min-replicas 0 `
-  --max-replicas 1
-```
-
-### Option B: Separate Named App Per Experiment (Isolated Instances)
-
-Deploy fully independent container apps — useful when you want separate logs, different GPU SKUs, or different model versions per experiment.
+Deploy fully independent container apps — one per experiment. Each instance has its own model, its own DSL, its own logs, and can be torn down independently when the experiment is done.
 
 ```powershell
 function Deploy-AceInstance {

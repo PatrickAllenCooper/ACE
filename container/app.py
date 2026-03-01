@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import torch
@@ -54,6 +55,9 @@ class InterventionResponse(BaseModel):
 class AppState:
     device: str = "cpu"
     model: HuggingFacePolicy = None
+    # Serializes DSL mutation + inference so concurrent requests to the same
+    # replica cannot corrupt each other's graph context (state.model.dsl is shared).
+    inference_lock: asyncio.Lock = None
 
 state = AppState()
 
@@ -64,6 +68,7 @@ state = AppState()
 @app.on_event("startup")
 async def startup_event():
     logger.info("Starting up ACE API server...")
+    state.inference_lock = asyncio.Lock()
     state.device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Using device: {state.device}")
     
@@ -131,18 +136,20 @@ async def generate_intervention(req: InterventionRequest):
             value_min=req.value_min,
             value_max=req.value_max
         )
-        # Temporarily swap the policy's DSL to match this request's nodes
-        state.model.dsl = request_dsl
-        
+
         logger.info(f"Generating intervention for graph with {len(req.scm.nodes)} nodes and {len(edges)} edges.")
-        
+
         # 3. Generate Experiment
-        cmd_str, plan = state.model.generate_experiment(
-            scm_student=student_scm,
-            node_losses=req.node_losses,
-            intervention_history=req.intervention_history,
-            max_new_tokens=64
-        )
+        # Acquire lock before mutating the shared DSL on the model so concurrent
+        # requests to this replica cannot overwrite each other's graph context.
+        async with state.inference_lock:
+            state.model.dsl = request_dsl
+            cmd_str, plan = state.model.generate_experiment(
+                scm_student=student_scm,
+                node_losses=req.node_losses,
+                intervention_history=req.intervention_history,
+                max_new_tokens=64
+            )
         
         if plan is None:
              raise HTTPException(status_code=500, detail=f"Model failed to generate a valid intervention. Raw output: {cmd_str}")
