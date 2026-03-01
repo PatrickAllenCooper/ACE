@@ -10,13 +10,30 @@
 ---
 
 ## ===============================================================================
-FINAL STATUS - FEBRUARY 9, 2026
+STATUS - MARCH 1, 2026
 ===============================================================================
 
 PAPER STATUS: 98% COMPLETE - SUBMISSION READY
 
 All critical experiments completed and integrated into paper. Repository
 professionally organized and ready for publication.
+
+CLOUD DEPLOYMENT STATUS: Infrastructure defined, not yet provisioned.
+
+Azure Container Apps deployment added to enable cloud-hosted inference and
+parallel experiment scaling. See docs/deployment/AZURE_CONTAINER_APPS.md.
+
+Key files added (March 1, 2026):
+- container/Dockerfile (bugfix: removed erroneous mkdir for ace_experiments.py)
+- docs/deployment/AZURE_CONTAINER_APPS.md (complete CLI guide, multi-instance)
+- scripts/deploy_azure.ps1 (parameterized PowerShell deployment script)
+
+Next deployment steps:
+1. Install Azure CLI: winget install --exact --id Microsoft.AzureCLI
+2. Edit configuration variables in scripts/deploy_azure.ps1 (subscription, ACR name, etc.)
+3. Run: .\scripts\deploy_azure.ps1 -Action setup
+4. Run: .\scripts\deploy_azure.ps1 -Action build
+5. Run: .\scripts\deploy_azure.ps1 -Action deploy
 
 ===============================================================================
 

@@ -15,7 +15,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Create necessary directories
 RUN mkdir -p /app/container
-RUN mkdir -p /app/ace_experiments.py
 
 # Copy application code
 COPY container/ /app/container/
