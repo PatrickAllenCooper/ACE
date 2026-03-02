@@ -70,8 +70,8 @@ $LOCATION         = "eastus"
 $ACR_NAME         = "aceregistrypcooper"    # Must be globally unique, alphanumeric only
 $ACA_ENV_NAME     = "ace-env"
 $APP_NAME         = "ace-api"
-$GPU_PROFILE_NAME = "Consumption-GPU-NC8as-T4"   # T4 GPU. For A100: Consumption-GPU-NC24-A100
-$GPU_PROFILE_TYPE = "Consumption-GPU-NC8as-T4"   # Same name - consumption profiles need no add step
+$GPU_PROFILE_NAME = "gpu-t4"                      # Name used when referencing the profile
+$GPU_PROFILE_TYPE = "Consumption-GPU-NC8as-T4"   # SKU type. For A100: Consumption-GPU-NC24-A100
 $CPU_CORES        = "8.0"
 $MEMORY_GI        = "56.0Gi"
 # ============================================================
@@ -163,14 +163,14 @@ function Invoke-Setup {
         --enable-workload-profiles `
         --output none
 
-    Write-Host "[4/4] Verifying GPU workload profile '$GPU_PROFILE_NAME' is available..."
-    $available = az containerapp env workload-profile list-supported --location $LOCATION `
-        --query "[?name=='$GPU_PROFILE_NAME'].name" --output tsv
-    if ($available) {
-        Write-Host "  '$GPU_PROFILE_NAME' is available in '$LOCATION'. No add step needed for Consumption GPU profiles."
-    } else {
-        Write-Warning "  '$GPU_PROFILE_NAME' not found in '$LOCATION'. Check: az containerapp env workload-profile list-supported --location $LOCATION --output table"
-    }
+    Write-Host "[4/4] Adding GPU workload profile '$GPU_PROFILE_NAME' (type: $GPU_PROFILE_TYPE)..."
+    az containerapp env workload-profile add `
+        --name $ACA_ENV_NAME `
+        --resource-group $RESOURCE_GROUP `
+        --workload-profile-name $GPU_PROFILE_NAME `
+        --workload-profile-type $GPU_PROFILE_TYPE `
+        --output none
+    Write-Host "  GPU profile '$GPU_PROFILE_NAME' added."
 
     Write-Host "`nSetup complete."
     Write-Host "ACR login server: $(az acr show --name $ACR_NAME --query loginServer --output tsv)"
