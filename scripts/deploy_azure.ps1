@@ -74,7 +74,7 @@ $GPU_PROFILE_NAME = "gpu-t4"                      # Name used when referencing t
 $GPU_PROFILE_TYPE = "Consumption-GPU-NC8as-T4"   # SKU type. For A100: Consumption-GPU-NC24-A100
 $CPU_CORES        = "8.0"
 $MEMORY_GI        = "56.0Gi"
-$API_KEY          = "KGO9BcibdZhJvX4G5jNmPHxRGSbzNXfa80WufkP9Hkw"
+$API_KEY          = $env:ACE_API_KEY   # Set this in your shell: $env:ACE_API_KEY = "..."
 # ============================================================
 
 function Get-ImageName {
