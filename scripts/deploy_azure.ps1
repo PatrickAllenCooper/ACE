@@ -134,7 +134,7 @@ function Invoke-Setup {
         $states = $required | ForEach-Object {
             az provider show --namespace $_ --query registrationState --output tsv
         }
-        $pending = ($states | Where-Object { $_ -ne "Registered" }).Count
+        $pending = @($states | Where-Object { $_ -ne "Registered" }).Count
         Write-Host "  $pending provider(s) still registering..."
     } while ($pending -gt 0)
     Write-Host "  All providers registered."
