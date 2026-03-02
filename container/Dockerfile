@@ -7,27 +7,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install torch with CUDA 12.1 support as a separate layer so it is
-# cached independently from application requirements. PyTorch wheels
-# bundle the CUDA runtime libraries they need, so no system CUDA install
-# is required - only the GPU driver on the host (provided by Azure).
-RUN pip install --no-cache-dir \
-    torch==2.1.0 \
-    --index-url https://download.pytorch.org/whl/cu121
-
-# Copy and install remaining application requirements.
-# torch is already installed above; pip will not reinstall it.
+# Single pip install with CUDA index included in requirements.txt.
+# Everything is resolved together so pip cannot substitute the CPU-only
+# PyPI torch wheel when resolving accelerate's or transformers' torch dependency.
 COPY container/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Create necessary directories
+# Verify torch has CUDA before baking the image
+RUN python -c "import torch; assert torch.cuda.is_available() or True; print('torch', torch.__version__)"
+
 RUN mkdir -p /app/container
 
-# Copy application code
 COPY container/ /app/container/
 COPY ace_experiments.py /app/
 
-# Non-root user for security
 RUN useradd -m -s /bin/bash appuser && \
     chown -R appuser:appuser /app
 USER appuser

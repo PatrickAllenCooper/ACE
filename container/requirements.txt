@@ -1,10 +1,10 @@
-# torch is installed as a separate Dockerfile layer from the CUDA wheel index.
-# Do NOT add torch here - it would pull in the CPU-only PyPI wheel.
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.1.0+cu121
 fastapi>=0.100.0
 uvicorn>=0.23.0
 pydantic>=2.0.0
-transformers>=4.30.0
-accelerate>=0.20.0
+transformers>=4.30.0,<4.45.0
+accelerate>=0.20.0,<0.34.0
 numpy>=1.24.0
 networkx>=3.0
 matplotlib>=3.7.0
