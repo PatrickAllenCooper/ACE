@@ -109,11 +109,13 @@ function Get-AcrPassword {
 
 function Get-AppFqdn {
     param([string]$Name = $APP_NAME)
-    return (az containerapp show `
-        --name $Name `
-        --resource-group $RESOURCE_GROUP `
-        --query "properties.configuration.ingress.fqdn" `
-        --output tsv 2>$null)
+    try {
+        return (az containerapp show `
+            --name $Name `
+            --resource-group $RESOURCE_GROUP `
+            --query "properties.configuration.ingress.fqdn" `
+            --output tsv 2>$null)
+    } catch { return $null }
 }
 
 # ============================================================
@@ -215,12 +217,15 @@ function Invoke-Deploy {
     $envVars = "PYTHONUNBUFFERED=1"
     if ($token) { $envVars += " HF_TOKEN=$token" }
 
-    # Check if app already exists
-    $exists = az containerapp show `
-        --name $Name `
-        --resource-group $RESOURCE_GROUP `
-        --query "name" `
-        --output tsv 2>$null
+    # Check if app already exists (suppress errors - not found is expected on first deploy)
+    $exists = $null
+    try {
+        $exists = az containerapp show `
+            --name $Name `
+            --resource-group $RESOURCE_GROUP `
+            --query "name" `
+            --output tsv 2>$null
+    } catch { $exists = $null }
 
     if ($exists) {
         Write-Host "`nUpdating existing container app '$Name' with image '$image'..."
