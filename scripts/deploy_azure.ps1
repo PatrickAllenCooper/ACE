@@ -67,7 +67,7 @@ $ErrorActionPreference = "Stop"
 # ============================================================
 $RESOURCE_GROUP   = "ace-rg"
 $LOCATION         = "eastus"
-$ACR_NAME         = "aceregistry"          # Must be globally unique, alphanumeric only
+$ACR_NAME         = "aceregistrypcooper"    # Must be globally unique, alphanumeric only
 $ACA_ENV_NAME     = "ace-env"
 $APP_NAME         = "ace-api"
 $GPU_PROFILE_NAME = "gpu-t4"
@@ -121,6 +121,13 @@ function Get-AppFqdn {
 # ============================================================
 function Invoke-Setup {
     Require-AzCli
+
+    Write-Host "`n[0/4] Registering required resource providers (one-time, ~2 min)..."
+    foreach ($provider in @("Microsoft.ContainerRegistry", "Microsoft.App", "Microsoft.OperationalInsights", "Microsoft.ContainerService")) {
+        Write-Host "  Registering $provider..."
+        az provider register --namespace $provider --wait --output none
+    }
+    Write-Host "  All providers registered."
 
     Write-Host "`n[1/4] Creating resource group '$RESOURCE_GROUP' in '$LOCATION'..."
     az group create `
