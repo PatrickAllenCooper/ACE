@@ -74,6 +74,7 @@ $GPU_PROFILE_NAME = "gpu-t4"                      # Name used when referencing t
 $GPU_PROFILE_TYPE = "Consumption-GPU-NC8as-T4"   # SKU type. For A100: Consumption-GPU-NC24-A100
 $CPU_CORES        = "8.0"
 $MEMORY_GI        = "56.0Gi"
+$API_KEY          = "KGO9BcibdZhJvX4G5jNmPHxRGSbzNXfa80WufkP9Hkw"
 # ============================================================
 
 function Get-ImageName {
@@ -216,6 +217,7 @@ function Invoke-Deploy {
 
     $envVars = "PYTHONUNBUFFERED=1"
     if ($token) { $envVars += " HF_TOKEN=$token" }
+    if ($API_KEY) { $envVars += " API_KEY=$API_KEY" }
 
     # Check if app already exists (suppress errors - not found is expected on first deploy)
     $exists = $null

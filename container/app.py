@@ -4,7 +4,8 @@ import os
 import torch
 import networkx as nx
 from typing import List, Dict, Optional, Any
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, Security
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 
 # Ensure we can import from the parent directory where ACE core files are
@@ -22,6 +23,21 @@ app = FastAPI(
     description="Inference API to generate interventions for Causal Discovery using DPO",
     version="1.0.0"
 )
+
+# ----------------------------------------------------------------
+# API Key Authentication
+# ----------------------------------------------------------------
+
+_api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+async def require_api_key(key: str = Security(_api_key_header)):
+    expected = os.environ.get("API_KEY")
+    if not expected:
+        # No key configured — fail closed, do not allow unauthenticated access
+        raise HTTPException(status_code=503, detail="API key not configured on server.")
+    if key != expected:
+        raise HTTPException(status_code=403, detail="Invalid or missing API key.")
+    return key
 
 # ----------------------------------------------------------------
 # Pydantic Models for the API
@@ -105,7 +121,7 @@ async def health_check():
     }
 
 
-@app.post("/intervene", response_model=InterventionResponse)
+@app.post("/intervene", response_model=InterventionResponse, dependencies=[Depends(require_api_key)])
 async def generate_intervention(req: InterventionRequest):
     if state.model is None:
         raise HTTPException(status_code=503, detail="Model is not loaded or still initializing.")
