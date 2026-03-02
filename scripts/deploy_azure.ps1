@@ -175,29 +175,30 @@ function Invoke-Setup {
 }
 
 # ============================================================
-# ACTION: build - build Docker image and push to ACR
+# ACTION: build - build image in ACR (no local Docker required)
+# Uses ACR Tasks: the build runs in Azure, output goes to your registry.
 # ============================================================
 function Invoke-Build {
     Require-AzCli
-    Require-Docker
 
-    $image = Get-ImageName -Tag $ImageTag
-
-    Write-Host "`n[1/3] Logging in to ACR '$ACR_NAME'..."
-    az acr login --name $ACR_NAME
+    $tag = if ($ImageTag -eq "git") { git rev-parse --short HEAD } else { $ImageTag }
 
     # Confirm we are at the repo root (Dockerfile uses repo-root build context)
     if (-not (Test-Path "container/Dockerfile")) {
         throw "Run this script from the ACE repository root directory."
     }
 
-    Write-Host "[2/3] Building image '$image'..."
-    docker build --tag $image --file container/Dockerfile .
+    Write-Host "`nBuilding 'ace-api:$tag' via ACR Tasks (runs in Azure, no local Docker needed)..."
+    Write-Host "This takes 10-20 minutes on first build due to the PyTorch base image."
+    Write-Host "Streaming build logs:"
 
-    Write-Host "[3/3] Pushing '$image' to ACR..."
-    docker push $image
+    az acr build `
+        --registry $ACR_NAME `
+        --image "ace-api:$tag" `
+        --file container/Dockerfile `
+        .
 
-    Write-Host "`nImage pushed: $image"
+    Write-Host "`nImage built and pushed: $ACR_NAME.azurecr.io/ace-api:$tag"
 }
 
 # ============================================================
