@@ -1,9 +1,12 @@
 # ACE Container App Requirements
+# torch is intentionally omitted - provided by the pytorch/pytorch base image
+# with CUDA 12.1 support. Installing torch via pip would overwrite it with
+# the CPU-only PyPI wheel, breaking GPU inference.
 fastapi>=0.100.0
 uvicorn>=0.23.0
 pydantic>=2.0.0
-torch>=2.0.0
 transformers>=4.30.0
+accelerate>=0.20.0
 numpy>=1.24.0
 networkx>=3.0
 matplotlib>=3.7.0
