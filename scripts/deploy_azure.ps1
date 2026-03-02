@@ -122,11 +122,21 @@ function Get-AppFqdn {
 function Invoke-Setup {
     Require-AzCli
 
-    Write-Host "`n[0/4] Registering required resource providers (one-time, ~2 min)..."
+    Write-Host "`n[0/4] Registering required resource providers (fires in background, ~1-2 min)..."
     foreach ($provider in @("Microsoft.ContainerRegistry", "Microsoft.App", "Microsoft.OperationalInsights", "Microsoft.ContainerService")) {
-        Write-Host "  Registering $provider..."
-        az provider register --namespace $provider --wait --output none
+        az provider register --namespace $provider --output none
+        Write-Host "  Queued: $provider"
     }
+    Write-Host "  Waiting for providers to reach Registered state..."
+    $required = @("Microsoft.ContainerRegistry", "Microsoft.App", "Microsoft.OperationalInsights")
+    do {
+        Start-Sleep -Seconds 10
+        $states = $required | ForEach-Object {
+            az provider show --namespace $_ --query registrationState --output tsv
+        }
+        $pending = ($states | Where-Object { $_ -ne "Registered" }).Count
+        Write-Host "  $pending provider(s) still registering..."
+    } while ($pending -gt 0)
     Write-Host "  All providers registered."
 
     Write-Host "`n[1/4] Creating resource group '$RESOURCE_GROUP' in '$LOCATION'..."
