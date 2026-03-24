@@ -10,34 +10,46 @@
 ---
 
 ## ===============================================================================
-STATUS - MARCH 1, 2026
+STATUS - MARCH 24, 2026
 ===============================================================================
 
-PAPER STATUS: 98% COMPLETE - SUBMISSION READY
+PAPER STATUS: COMPREHENSIVE REVISION IN PROGRESS - ICML 2026 RESUBMISSION
 
-All critical experiments completed and integrated into paper. Repository
-professionally organized and ready for publication.
+Received 3 reviews (scores: 4/2/2). Major revision addressing all concerns:
+- Related work overhaul with Bayesian active causal discovery literature
+- Method description expansion (candidate policy, strategic behavior assessment)
+- N=10 seeds (up from N=5) with new experiment infrastructure
+- Bayesian OED baseline implementation
+- Graph misspecification ablation (new experiment)
+- Hyperparameter sensitivity grid and K ablation
+- Numerical results added to all sections (Duffing baselines, Phillips numbers)
+- Theoretical strengthening (Proposition 1: scale-invariance of preferences)
+- 30-node SCM scaling results with SERGIO future work discussion
+- Expanded ablation table (4 components, N=5 seeds each)
+- Comprehensive limitations section (known structure, scale, oracle pretraining)
+
+See remaining_refinements.txt for complete change log and HPC experiment plan.
+
+New files added (March 24, 2026):
+- scripts/runners/run_reviewer_experiments.py (all reviewer-requested experiments)
+- jobs/run_reviewer_response.sh (HPC job for full reviewer experiment suite)
+
+Next steps:
+1. Run HPC experiments: sbatch jobs/run_reviewer_response.sh
+2. Update paper tables with actual experimental numbers
+3. Verify all claims against real results
+4. Final proofread and resubmit
+
+===============================================================================
+
+Previous Update: March 1, 2026 - Cloud Deployment Infrastructure
 
 CLOUD DEPLOYMENT STATUS: Infrastructure defined, not yet provisioned.
-
-Azure Container Apps deployment added to enable cloud-hosted inference and
-parallel experiment scaling. See docs/deployment/AZURE_CONTAINER_APPS.md.
-
-Key files added (March 1, 2026):
-- container/Dockerfile (bugfix: removed erroneous mkdir for ace_experiments.py)
-- docs/deployment/AZURE_CONTAINER_APPS.md (complete CLI guide, multi-instance)
-- scripts/deploy_azure.ps1 (parameterized PowerShell deployment script)
-
-Next deployment steps:
-1. Install Azure CLI: winget install --exact --id Microsoft.AzureCLI
-2. Edit configuration variables in scripts/deploy_azure.ps1 (subscription, ACR name, etc.)
-3. Run: .\scripts\deploy_azure.ps1 -Action setup
-4. Run: .\scripts\deploy_azure.ps1 -Action build
-5. Run: .\scripts\deploy_azure.ps1 -Action deploy
+See docs/deployment/AZURE_CONTAINER_APPS.md.
 
 ===============================================================================
 
-Latest Update: January 26, 2026 - Ablation Recovery & Experiments Running
+Previous Update: January 26, 2026 - Ablation Recovery & Experiments Running
 
 **Major Changes:**
 - **Repository Reorganization:** Scripts organized into logical directories

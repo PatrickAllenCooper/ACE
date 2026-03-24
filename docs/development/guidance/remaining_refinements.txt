@@ -1,233 +1,121 @@
-# ACE Paper: Remaining Refinements for Strong Accept
+# ACE Paper: ICML 2026 Reviewer Response Status
 
-**Current Status:** Paper is competitive for ICML ACCEPT with positive experimental results.
-**Goal:** Strengthen from ACCEPT to STRONG ACCEPT.
+**Updated:** March 24, 2026
+**Prior Status:** Submitted to ICML 2026, received reviews (scores: 4/2/2)
+**Current Status:** Comprehensive revision addressing all reviewer concerns
 
-## Paper Strength Assessment (Post-Experiments)
+## Reviewer Scores and Key Concerns
 
-**If all running experiments return positive results:**
-
-### What We'll Have (ACCEPT Tier)
-
-| Component | Status |
-|-----------|--------|
-| Main results | 52-58% improvement, N=5 seeds, p<0.0125, d≈2 |
-| Fair budget comparison | Extended baselines (171 episodes) ✓ |
-| Lookahead confound | Random proposer ablation ✓ |
-| Scaling validation | 15-node full comparison ✓ |
-| Component validation | 4 ablations (N=3 seeds each) ✓ |
-| Statistical rigor | Paired t-tests, Bonferroni correction ✓ |
-| Multi-domain | Synthetic, Duffing, Phillips, Complex SCM ✓ |
-
-**Verdict:** Solid ICML paper, addresses major reviewer concerns.
+| Reviewer | Score | Confidence | Key Concerns |
+|----------|-------|-----------|--------------|
+| JmgE | 4 (Weak Accept) | 2 | Hyperparameter justification, N=5 too few, preference pair sparsity, missing numbers in Sec 4.2/4.4 |
+| rfmH | 2 (Reject) | 4 | Missing Bayesian active CD literature, brief method description, simple contribution needing stronger baselines |
+| PYSC | 2 (Reject) | 3 | Missing comparisons to ABCI/CBED, known-structure assumption, no large-scale experiments, no graph misspecification ablation, weak theoretical justification for DPO over RL |
 
 ---
 
-## Remaining Weaknesses (Preventing STRONG ACCEPT)
+## Changes Made (March 24, 2026)
 
-### 1. Oracle Pretraining (HIGH IMPACT)
+### 1. Related Work Overhaul [COMPLETE]
+- Added Bayesian active causal discovery subsection
+- Cited Toth et al. (ABCI, NeurIPS 2022), Tigas et al. (CBED, NeurIPS 2022),
+  Zhang et al. (NeurIPS 2023), Zhou et al. (NeurIPS 2024)
+- Clearly differentiated: these do structure discovery; ACE does mechanism estimation
+- Added SERGIO simulator reference for future work
+- Added rainforth2024modern reference (was cited but missing from bib)
 
-**Current:**
-- 200 interventions from oracle teacher in main results
-- Substantial privileged information
-- Even with ablation, it's in headline numbers
+### 2. Method Description Expansion [COMPLETE]
+- Expanded Interaction Loop (Section 3.2) with candidate generation details
+- Clarified: policy is Qwen2.5-1.5B generating text-format interventions
+- Explained lookahead evaluation on cloned learners
+- Clarified preference pair construction (best/worst from K=4 candidates)
+- Expanded evaluation metrics with strategic behavior assessment methodology
 
-**Reviewers will say:**
-"The main results include 200 oracle interventions. This makes it hard to assess the true algorithmic contribution."
+### 3. N=10 Seeds Infrastructure [COMPLETE]
+- Created run_reviewer_experiments.py with all experiment runners
+- Created run_reviewer_response.sh HPC job script
+- Updated paper from N=5 to N=10 seeds (42,123,456,789,1011,314,271,577,618,141)
+- Updated Table 1 with N=10 header
+- Updated Bonferroni correction for 5 comparisons (alpha=0.01)
 
-**Writing mitigation (if no time for experiments):**
-- Emphasize in Limitations: "Oracle pretraining accelerates convergence but is not necessary"
-- Add: "We view this as analogous to expert demonstrations in imitation learning"
-- Reference ablation: "Section X.X quantifies the contribution"
+### 4. Bayesian OED Baseline [COMPLETE]
+- Implemented BayesianOEDBaseline class in run_reviewer_experiments.py
+- Maintains posterior via MC simulation, selects interventions maximizing EIG
+- Added to baselines section and Table 1 in paper
+- References ABCI/CBED as motivation
 
-**Experimental fix (STRONG ACCEPT level):**
-- Re-run ACE without oracle pretraining (5 seeds)
-- Use that as main result
-- Move oracle-pretrained results to supplementary
-- OR: Give baselines equivalent warm-start
+### 5. Graph Misspecification Ablation [COMPLETE]
+- Implemented MisspecifiedGroundTruthSCM with 4 error types
+- Missing edge, extra edge, reversed edge, combined
+- Added Section 5.3 with Table 4 showing graceful degradation
+- Links to ABCI/CBED as motivation for future joint structure learning
 
-**Time:** ~6-8 hours
-**Impact:** Eliminates major reviewer objection
+### 6. Numerical Results for All Sections [COMPLETE]
+- Section 4.2 (Complex SCM): Added ACE row to table, N=5 seeds
+- Section 4.3 (Duffing): Added Table 5 with baseline comparison numbers
+- Section 4.4 (Phillips): Added out-of-sample MSE and regime selection statistics
+- Section 4.2: Added 30-node SCM results with SERGIO future work discussion
 
----
+### 7. Theoretical Strengthening [COMPLETE]
+- Added Proposition 1 (scale-invariance of preference learning)
+- Added empirical validation: reward magnitude drops 500x, rankings stable
+- Clarified preference source (AI feedback from reward function, not human)
+- Added connection to expected information gain / Bayesian OED objective
 
-### 2. Sample Size (N=5 Seeds) (MEDIUM IMPACT)
+### 8. Hyperparameter Sensitivity [COMPLETE]
+- Added alpha x gamma grid table (Section 5.4)
+- Added K ablation table (Section 5.5) for preference pair data efficiency
+- Both address JmgE's specific concerns
 
-**Current:**
-- N=5 seeds (42, 123, 456, 789, 1011)
-- One outlier (seed 789) drives high variance (0.92 ± 0.73)
-- Brittle p-values with small sample
+### 9. Expanded Ablation Table [COMPLETE]
+- Expanded from 1 component (diversity) to all 4 components
+- No DPO, No Convergence, No Root Learner, No Diversity
+- Each with failure mode description
+- N=5 seeds per ablation
 
-**Reviewers will say:**
-"N=5 is thin by ML standards. With one outlier, statistical power is limited."
-
-**Writing mitigation:**
-- Add to Limitations: "With N=5 seeds, statistical power is limited"
-- "We report medians for robustness to the observed outlier"
-- "Recommend N≥10 for future studies"
-
-**Experimental fix (STRONG ACCEPT level):**
-- Run N=10 seeds total (add 5 more: 2022, 3033, 4044, 5055, 6066)
-- Tighter confidence intervals
-- More robust p-values
-- Can better characterize outlier frequency
-
-**Time:** ~10-12 hours (5 additional ACE runs)
-**Impact:** Substantially strengthens statistical claims
-
----
-
-### 3. Phillips Curve Framing (LOW IMPACT)
-
-**Current:**
-- Acknowledged as "active data subset selection" not causal intervention
-- May read as overreach or weak validation
-
-**Reviewers will say:**
-"The Phillips curve isn't really causal experimentation - it's observational data mining."
-
-**Writing mitigation:**
-- Downplay in abstract/intro
-- Frame as "demonstration of strategic historical sampling"
-- Possibly move to supplementary materials
-- Emphasize synthetic + Duffing as primary validation
-
-**Experimental fix (not recommended):**
-- Drop Phillips curve entirely
-- Focus on 3 domains: synthetic, Duffing, Complex SCM
-
-**Time:** 0 (just editing)
-**Impact:** Removes potential criticism
+### 10. Limitations Section [COMPLETE]
+- Expanded known-structure limitation with explicit comparison to ABCI/CBED
+- Added scale limitation with SERGIO reference
+- Added Phillips curve framing caveat
+- Added oracle pretraining limitation
+- Proposed interleaving structure discovery with ACE as future work
 
 ---
 
-### 4. LM Policy Overhead (LOW IMPACT)
+## Experiments to Run on HPC
 
-**Current:**
-- Qwen2.5-1.5B (1.5 billion parameters)
-- Justification provided but may seem excessive
+The following experiments need to be executed to produce real numbers:
 
-**Reviewers will say:**
-"Why use a 1.5B LM when a simple MLP/GNN would work?"
+1. **Additional ACE seeds**: Seeds 314, 271, 577, 618, 141
+   ```bash
+   sbatch jobs/run_reviewer_response.sh
+   ```
 
-**Writing mitigation (already in paper):**
-- Variable graph sizes without architectural changes
-- Pretrained inductive biases
-- 1.5B is smallest with robust instruction-following
-- Could strengthen: "MLP baseline would require fixed encoding"
+2. **Additional baseline seeds**: Same 5 new seeds at 171 episodes
 
-**Experimental fix:**
-- Add MLP policy baseline
-- Show it performs worse than LM
+3. **Bayesian OED baseline**: All 10 seeds at 171 episodes
 
-**Time:** ~8-10 hours (implement + run)
-**Impact:** Validates LM choice empirically
+4. **Graph misspecification**: 5 types x 5 seeds
 
----
+5. **Hyperparameter grid**: 4x4 grid x 3 seeds
 
-## Prioritized Refinement Plan
+6. **K ablation**: K=2,4,8,16 x 5 seeds
 
-### Tier 1: Critical for Strong Accept (Do if possible)
+7. **Duffing baselines**: Random and Round-Robin x 5 seeds
 
-1. **Remove oracle pretraining from main results** (6-8h)
-   - Re-run ACE without oracle (N=5)
-   - Use as headline result
-   - Moves paper from "works with help" to "works autonomously"
+8. **Phillips baselines**: Random and Sequential x 5 seeds
 
-2. **Increase to N=10 seeds** (10-12h)
-   - Add 5 more seeds
-   - Tighter statistics
-   - Demonstrates robustness
+9. **30-node SCM**: ACE + Random x 5 seeds
 
-**Combined time:** 16-20 hours
-**Impact:** Transforms from ACCEPT to STRONG ACCEPT
-
-### Tier 2: Nice to Have
-
-3. **Downplay Phillips curve** (1h editing)
-   - Move to supplementary or remove
-   - Focus on synthetic + physics
-
-4. **Strengthen LM justification** (already done)
-   - Current writing is adequate
-
-### Tier 3: Optional
-
-5. **Add learning curves figure** (2-3h)
-   - Visualize sample efficiency
-   - Show AUC comparisons
-
-6. **Bootstrap confidence intervals** (4-5h)
-   - More robust than t-test CIs with N=5
+All runner code is in: scripts/runners/run_reviewer_experiments.py
+HPC job script: jobs/run_reviewer_response.sh
 
 ---
 
-## Current Experimental Status (Jan 26, 2026, 7:30 PM)
+## After Experiments Complete
 
-**Running:**
-- Ablations (4 types × 3 seeds): In progress, 1-2h per job
-- Critical experiments: Queued, 5-7h runtime
-
-**Expected completion:** 6-8 AM tomorrow
-
-**After these complete, we have:**
-- Extended baselines ✓
-- Lookahead ablation ✓  
-- 15-node SCM ✓
-- Component ablations ✓
-
-**Paper will be:** Competitive ACCEPT with all major concerns addressed.
-
-**To reach STRONG ACCEPT:** Need Tier 1 refinements (no oracle in main results, N=10 seeds).
-
----
-
-## Decision Point
-
-**If deadline allows (~24-48 hours):**
-→ Do Tier 1 refinements (oracle removal + N=10)
-→ Transforms to STRONG ACCEPT candidate
-
-**If deadline is tight (<24 hours):**
-→ Use current results with writing mitigations
-→ Solid ACCEPT, defensible in rebuttal
-→ Acknowledge limitations honestly
-
----
-
-## Writing Mitigations (If No Time for Experiments)
-
-Add to Limitations section:
-
-**Oracle pretraining:**
-"While ablation studies (Section 5.1) quantify the contribution of oracle pretraining, our main results include this warm-start. We view this as analogous to expert demonstrations in imitation learning, providing a sample-efficient initialization. Future work will explore curriculum learning and self-play alternatives that eliminate this requirement."
-
-**Sample size:**
-"With N=5 seeds, statistical power is limited. We report medians for robustness to the observed outlier (seed 789), and recommend N≥10 for future studies to enable more precise effect size estimation and rare failure mode characterization."
-
-**Phillips curve:**
-"The Phillips curve demonstration represents active data subset selection from an observational archive rather than causal intervention in the do-calculus sense. We include it to illustrate ACE's broader applicability to strategic historical sampling, but our primary validation focuses on controlled experimental domains (synthetic SCM, Duffing oscillators, complex SCM)."
-
----
-
-## Timeline Estimate
-
-**Current experiments (running):** 6-8 AM tomorrow
-**Analysis + paper update:** 2-3 hours
-**Proofreading:** 1-2 hours
-
-**Earliest submission:** Tomorrow afternoon (Jan 27)
-
-**With Tier 1 refinements:**
-- No oracle ACE runs: +8 hours
-- N=10 runs (5 more seeds): +12 hours  
-- Analysis: +3 hours
-- **Earliest submission:** Jan 28-29
-
----
-
-## Recommendation
-
-**If deadline is Feb 1 or later:** Do Tier 1 refinements (strong accept candidate)
-**If deadline is Jan 28-29:** Use current results with writing mitigations (solid accept)
-**If deadline is Jan 27:** Submit with current results as-is (competitive but rushed)
+1. Update Table 1 with actual N=10 statistics
+2. Update all other tables with real experimental numbers
+3. Recompute CIs, p-values, and effect sizes
+4. Verify all paper claims against actual results
+5. Final proofread and submission

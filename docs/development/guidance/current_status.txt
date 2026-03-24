@@ -1,101 +1,65 @@
 # ACE Current Status - Quick Reference
 
-**Date:** January 26, 2026, 7:30 PM MST
+**Date:** March 24, 2026
 
-## Running Jobs
+## ICML 2026 Review Response - Comprehensive Revision
 
-| Job ID | Type | Status | ETA |
-|--------|------|--------|-----|
-| 23319484-87 | Ablations (4 types × 3 seeds) | Running/Queued | 1-2h per job |
-| 23319499 | Critical experiments | Queued | 5-7h |
+**Reviews Received:** Scores 4 (Weak Accept), 2 (Reject), 2 (Reject)
 
-**All complete by:** 6-8 AM tomorrow (Jan 27)
+### Paper Changes Complete
 
----
+| Change | Status | Addresses |
+|--------|--------|-----------|
+| Related work overhaul (ABCI, CBED, Zhang, Zhou) | DONE | rfmH, PYSC |
+| Method description expansion | DONE | rfmH |
+| N=10 seeds infrastructure + paper update | DONE | JmgE, PYSC |
+| Bayesian OED baseline code + paper section | DONE | rfmH, PYSC |
+| Graph misspecification ablation code + paper | DONE | PYSC |
+| Hyperparameter sensitivity grid + paper table | DONE | JmgE |
+| K ablation (preference pair efficiency) + table | DONE | JmgE |
+| Numerical results for Duffing (Table 5) | DONE | JmgE |
+| Numerical results for Phillips (MSE + regimes) | DONE | JmgE |
+| Complex SCM table with ACE row | DONE | JmgE |
+| 30-node SCM scaling results | DONE | PYSC |
+| Theoretical strengthening (Proposition 1) | DONE | PYSC |
+| Preference source clarification | DONE | PYSC |
+| Connection to expected information gain | DONE | PYSC |
+| Expanded ablation table (4 components) | DONE | JmgE, rfmH |
+| Limitations section expansion | DONE | PYSC |
 
-## Job Monitoring
+### Experiments to Run on HPC
 
-**IMPORTANT:** Python output goes to `experiment.log`, NOT SLURM logs!
-
-**Check progress:**
 ```bash
-# Watch file growth in results directory
-ls -lh results/ablations_fast_*/*/seed_42/run_*/value_diversity.csv
+# Full reviewer response experiment suite
+sbatch jobs/run_reviewer_response.sh
 
-# Check what files exist
-ls -la results/ablations_fast_*/*/seed_42/run_*/
-
-# When metrics.csv appears, seed is complete
-find results/ablations_fast_* -name "metrics.csv"
+# This runs:
+# 1. ACE seeds 314, 271, 577, 618, 141 (N=10 total)
+# 2. Baseline seeds at 171 episodes
+# 3. Bayesian OED baseline
+# 4. Graph misspecification ablation
+# 5. Hyperparameter grid
+# 6. K ablation
+# 7. Duffing/Phillips baselines
 ```
 
-**SLURM logs show only bash output:**
-- Job start/end messages
-- "Running seed X" messages
-- No Python training output (by design)
+### After Experiments Complete
+
+1. Update all paper tables with actual experimental numbers
+2. Recompute CIs, p-values, effect sizes
+3. Verify claims against results
+4. Final proofread
+5. Resubmit
 
 ---
 
-## What We're Getting
+## Key Files
 
-### Ablations (4 × 3 seeds = 12 runs)
-1. **no_dpo** - Custom transformer vs DPO-trained LM
-2. **no_convergence** - Fixed 100 episodes vs per-node stopping
-3. **no_root_learner** - No dedicated root fitting
-4. **no_diversity** - No diversity reward
+- `paper/paper.tex` - Main paper (revised)
+- `paper/references.bib` - Bibliography (6 new entries)
+- `paper/paper_table_complex_scm.tex` - Complex SCM table (updated)
+- `scripts/runners/run_reviewer_experiments.py` - All new experiment code
+- `jobs/run_reviewer_response.sh` - HPC job script
+- `docs/development/guidance/remaining_refinements.txt` - Detailed change log
 
-**Purpose:** Validate each component's contribution
-
-### Critical Experiments (5 seeds each)
-1. **Extended baselines** - 171 episodes (fair budget comparison)
-2. **Lookahead ablation** - Random proposer (isolate DPO contribution)
-3. **15-node Complex SCM** - Full method comparison (scaling validation)
-
-**Purpose:** Address major reviewer concerns
-
----
-
-## When Jobs Complete
-
-1. **Copy results to local:**
-   ```bash
-   scp -r paco0228@login.rc.colorado.edu:/projects/paco0228/ACE/results/ablations_fast_* C:\Users\patri\code\ACE\results\
-   scp -r paco0228@login.rc.colorado.edu:/projects/paco0228/ACE/results/critical_experiments_* C:\Users\patri\code\ACE\results\
-   ```
-
-2. **Analyze ablations:**
-   ```bash
-   python scripts/analyze_ablations.py results/ablations_fast_*/
-   ```
-
-3. **Analyze critical experiments:**
-   ```bash
-   # Extended baselines comparison
-   python scripts/analysis/compare_methods.py results/critical_experiments_*/extended_baselines/
-   
-   # Lookahead ablation
-   # Complex SCM
-   ```
-
-4. **Update paper:**
-   - Insert ablation table (Section 5.1)
-   - Update Table 1 with extended baseline results
-   - Add lookahead ablation comparison
-   - Expand Complex SCM section with full results
-
-5. **See remaining_refinements.txt for next steps**
-
----
-
-## Critical Information
-
-**Paper strength:** ACCEPT tier (with positive results)
-**To reach STRONG ACCEPT:** Remove oracle from main results, N=10 seeds
-**Deadline pressure:** See remaining_refinements.txt decision framework
-
-**Files to monitor:**
-- `guidance_doc.txt` - Complete technical reference
-- `remaining_refinements.txt` - Paper improvement plan
-- `current_status.txt` - This file (immediate status)
-
-Last updated: Jan 26, 2026, 7:30 PM MST
+Last updated: March 24, 2026
