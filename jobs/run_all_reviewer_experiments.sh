@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
-#SBATCH --time=48:00:00
+#SBATCH --time=24:00:00
 #SBATCH --output=results/logs/reviewer_%j.out
 #SBATCH --error=results/logs/reviewer_%j.err
 
@@ -34,8 +34,11 @@
 #     - 30-node large-scale SCM           -> Phase 9
 #     - Formal DPO justification          -> (paper text, no experiment needed)
 #
-# Total estimated runtime: 20-36 hours on 1x A100.
+# Total estimated runtime: 14-22 hours on 1x A100.
 # All results land in $OUT/ with per-phase CSV summaries.
+#
+# Strategy: run lightweight CPU experiments FIRST (phases 3-10) so those
+# results are banked even if ACE GPU runs (phase 1) hit the 24h wall.
 #
 # Usage:
 #   cd ~/ACE
@@ -43,7 +46,7 @@
 #
 # ============================================================================
 
-set -euo pipefail
+set -uo pipefail
 
 # ---------------------------------------------------------------------------
 # Environment
@@ -81,43 +84,28 @@ echo "================================================================"
 # Helper: log phase boundaries
 phase() { echo -e "\n\n========== PHASE $1: $2 ==========" ; date ; }
 
-# ---------------------------------------------------------------------------
-# PHASE 1  --  Additional ACE seeds (GPU, ~2-4 h each x 5 = 10-20 h)
-# ---------------------------------------------------------------------------
-# We already have seeds 42 123 456 789 1011 from prior runs.
-# Run 5 more to reach N=10.
-phase 1 "ACE additional seeds (314 271 577 618 141)"
-
-for SEED in 314 271 577 618 141; do
-    echo "--- ACE seed $SEED ---"
-    python -u ace_experiments.py \
-        --episodes 200 \
-        --seed "$SEED" \
-        --use_dedicated_root_learner \
-        --dedicated_root_interval 3 \
-        --obs_train_interval 3 \
-        --obs_train_samples 200 \
-        --obs_train_epochs 100 \
-        --root_fitting \
-        --root_fit_interval 5 \
-        --root_fit_samples 500 \
-        --root_fit_epochs 100 \
-        --undersampled_bonus 200.0 \
-        --diversity_reward_weight 0.3 \
-        --max_concentration 0.7 \
-        --concentration_penalty 150.0 \
-        --update_reference_interval 25 \
-        --pretrain_steps 200 \
-        --pretrain_interval 25 \
-        --smart_breaker \
-        --output "$OUT/ace/seed_${SEED}" \
-        2>&1 | tee "$OUT/ace/seed_${SEED}.log" || echo "WARN: ACE seed $SEED failed"
-done
+# ===========================================================================
+# RUN LIGHTWEIGHT CPU PHASES FIRST (so results are banked early)
+# ===========================================================================
 
 # ---------------------------------------------------------------------------
-# PHASE 2  --  Additional baseline seeds at 171 episodes (~1-2 h)
+# PHASE A  --  Reviewer experiment suite (~3-6 h, CPU-only)
 # ---------------------------------------------------------------------------
-phase 2 "Baselines additional seeds (171 episodes)"
+# Bayesian OED baseline, graph misspecification, hyperparameter grid,
+# K ablation, Duffing baselines, Phillips baselines
+phase A "Reviewer experiment suite (Bayesian OED, graph misspec, hyperparam, K, Duffing, Phillips)"
+
+python -u scripts/runners/run_reviewer_experiments.py \
+    --all \
+    --seeds 42 123 456 789 1011 314 271 577 618 141 \
+    --episodes 171 \
+    --output "$OUT/suite" \
+    2>&1 | tee "$OUT/suite.log" || echo "WARN: reviewer suite had errors"
+
+# ---------------------------------------------------------------------------
+# PHASE B  --  Additional baseline seeds at 171 episodes (~1-2 h, CPU-only)
+# ---------------------------------------------------------------------------
+phase B "Baselines additional seeds (171 episodes)"
 
 for SEED in 314 271 577 618 141; do
     echo "--- Baselines seed $SEED ---"
@@ -131,23 +119,9 @@ for SEED in 314 271 577 618 141; do
 done
 
 # ---------------------------------------------------------------------------
-# PHASE 3-9  --  All remaining reviewer experiments (Python driver)
+# PHASE C  --  30-node large-scale SCM (~30 min, CPU-only)
 # ---------------------------------------------------------------------------
-# The Python script handles phases 3-9 internally; it only needs CPU
-# (no LLM inference), so each sub-experiment is fast.
-phase "3-9" "Reviewer experiment suite (Bayesian OED, graph misspec, hyperparam, K, Duffing, Phillips, 30-node)"
-
-python -u scripts/runners/run_reviewer_experiments.py \
-    --all \
-    --seeds 42 123 456 789 1011 314 271 577 618 141 \
-    --episodes 171 \
-    --output "$OUT/suite" \
-    2>&1 | tee "$OUT/suite.log" || echo "WARN: reviewer suite had errors"
-
-# ---------------------------------------------------------------------------
-# PHASE 10  --  30-node large-scale SCM (baselines only, no GPU needed)
-# ---------------------------------------------------------------------------
-phase 10 "30-node large-scale SCM"
+phase C "30-node large-scale SCM"
 
 python -u -c "
 import sys, os, random, copy, json
@@ -199,6 +173,47 @@ mean = df['total_mse'].mean()
 std  = df['total_mse'].std()
 print(f'  30-node Random: {mean:.3f} +/- {std:.3f}')
 " 2>&1 | tee "$OUT/large_scale.log" || echo "WARN: 30-node experiment had errors"
+
+
+# ===========================================================================
+# NOW RUN GPU-HEAVY ACE SEEDS (remaining time goes here)
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# PHASE D  --  Additional ACE seeds (GPU, ~2-4 h each x 5 = 10-20 h)
+# ---------------------------------------------------------------------------
+# We already have seeds 42 123 456 789 1011 from prior runs.
+# Run 5 more to reach N=10. Early stopping keeps each to ~40-80 episodes.
+phase D "ACE additional seeds (314 271 577 618 141)"
+
+for SEED in 314 271 577 618 141; do
+    echo "--- ACE seed $SEED ($(date)) ---"
+    python -u ace_experiments.py \
+        --episodes 200 \
+        --seed "$SEED" \
+        --early_stopping \
+        --early_stop_patience 20 \
+        --use_dedicated_root_learner \
+        --dedicated_root_interval 3 \
+        --obs_train_interval 3 \
+        --obs_train_samples 200 \
+        --obs_train_epochs 100 \
+        --root_fitting \
+        --root_fit_interval 5 \
+        --root_fit_samples 500 \
+        --root_fit_epochs 100 \
+        --undersampled_bonus 200.0 \
+        --diversity_reward_weight 0.3 \
+        --max_concentration 0.7 \
+        --concentration_penalty 150.0 \
+        --update_reference_interval 25 \
+        --pretrain_steps 200 \
+        --pretrain_interval 25 \
+        --smart_breaker \
+        --output "$OUT/ace/seed_${SEED}" \
+        2>&1 | tee "$OUT/ace/seed_${SEED}.log" || echo "WARN: ACE seed $SEED failed"
+    echo "--- ACE seed $SEED finished ($(date)) ---"
+done
 
 
 # ---------------------------------------------------------------------------
