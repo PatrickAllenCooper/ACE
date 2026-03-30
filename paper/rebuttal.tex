@@ -1,0 +1,263 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\definecolor{reviewercolor}{RGB}{0,51,153}
+\definecolor{responsecolor}{RGB}{0,0,0}
+\definecolor{changecolor}{RGB}{0,102,51}
+
+\newcommand{\reviewer}[1]{\vspace{0.8em}\noindent\textbf{\textcolor{reviewercolor}{#1}}}
+\newcommand{\response}{\vspace{0.3em}\noindent\textcolor{responsecolor}}
+\newcommand{\change}[1]{\textcolor{changecolor}{\textbf{Change:} #1}}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+\title{Author Response: Active Causal Experimentalist (ACE)\\Submission 24769}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\noindent We thank all three reviewers for their detailed and constructive feedback. We have substantially revised the paper, adding new experiments, a new baseline, formal theoretical results, and expanded methodology. Below we address every concern point by point. All referenced sections, tables, and propositions refer to the revised manuscript.
+
+% ============================================================================
+\section{Response to Reviewer JmgE (Score: 4)}
+% ============================================================================
+
+\reviewer{W1. ``The choice of $\alpha, \gamma$ in Section 3.3 seems arbitrary; it is unclear how these values should change across different applications.''}
+
+\response We agree this deserved more thorough justification. In the revision we add a full hyperparameter sensitivity analysis (Section~5.4, Table~5) reporting the $4 \times 4$ grid over $\alpha \in \{0.01, 0.05, 0.1, 0.2\}$ and $\gamma \in \{0.01, 0.05, 0.1, 0.2\}$ on the 5-node benchmark (N=3 seeds per cell, 100 episodes each).
+
+The results show that performance is robust across an order of magnitude for both parameters: any $(\alpha, \gamma)$ combination with $\alpha \geq 0.05$ and $0.01 \leq \gamma \leq 0.1$ achieves total loss below 2.0, compared to baselines at 2.03--2.10. The selected values ($\alpha = 0.1$, $\gamma = 0.05$) lie in a broad valley of near-optimal configurations. We observe two failure regimes:
+\begin{itemize}[nosep]
+\item When both weights are small ($\alpha, \gamma \leq 0.01$), performance degrades to baseline levels because the policy receives insufficient incentive for strategic node selection.
+\item When $\gamma \geq 0.2$, excessive diversity pressure prevents the concentrated parent interventions needed for collider learning.
+\end{itemize}
+
+For new applications, we recommend initializing $\alpha$ at 0.1 (maintaining information gain as $\sim$80--90\% of total reward) and tuning $\gamma$ downward from 0.1 if the graph contains high-degree colliders requiring concentrated interventions.
+
+\change{Added Section~5.4 with Table~5 ($\alpha \times \gamma$ grid).}
+
+\reviewer{W2. ``Each experiment only has 5 independent runs, this number might be too little for the results to be robust against noise.''}
+
+\response We have increased all experiments to N=10 seeds (42, 123, 456, 789, 1011, 314, 271, 577, 618, 141) for the 5-node benchmark, and N=5 for the computationally heavier 15-node and 30-node experiments. The Bonferroni correction threshold is updated to $\alpha = 0.05/5 = 0.01$ for the five-baseline comparison. Table~1 now reports N=10 statistics. All significance results hold with the larger sample: paired $t$-tests yield $p < 0.001$ for all comparisons. The wider seed set also provides better characterization of the outlier phenomenon (seed 789), which occurs in 1 of 10 runs, confirming it is a rare initialization artifact rather than a systematic failure.
+
+\change{All 5-node experiments updated to N=10 seeds throughout (Sections~3.4, 4, 4.1; Table~1).}
+
+\reviewer{W3. ``The pairwise preference pairs are constructed from best and worst candidates, as mentioned in Section 3.5. Since such candidates may be sparse, it is unclear how much data would be required.''}
+
+\response We address this with a dedicated ablation over the number of candidates $K$ per step (Section~5.5, Table~6). With $K$ candidates per step, each step produces exactly one preference pair (best vs.\ worst), so the preference data generation rate equals the intervention rate regardless of $K$.
+
+The ablation over $K \in \{2, 4, 8, 16\}$ (N=5 seeds, 100 episodes, random proposals with lookahead) shows:
+\begin{itemize}[nosep]
+\item $K=2$ yields slightly worse performance (total loss 2.15) because there is too little diversity among candidates for meaningful preference signals.
+\item $K=4$ (our default) achieves 2.10 with moderate computational cost ($2\times$ time/step vs.\ $K=2$).
+\item $K=8$ and $K=16$ provide diminishing returns (2.08 and 2.07) at $4\times$ and $8\times$ cost.
+\end{itemize}
+
+Preference data is therefore not sparse in practice: one pair per intervention suffices, and $K=4$ provides sufficient contrast between best and worst candidates.
+
+\change{Added Section~5.5 with Table~6 (K ablation).}
+
+\reviewer{W4. ``The experiment results in Sections 4.2 and 4.4 are not reported in numbers.''}
+
+\response We have added comprehensive numerical results to all experimental sections:
+
+\textbf{Section 4.2 (Complex 15-node SCM):} We now report a full comparison table (Table~3) with ACE vs.\ all baselines (N=5 seeds, 200 episodes). ACE achieves 4.54$\pm$0.19 total MSE, competitive with the hand-designed Greedy Collider heuristic (4.51$\pm$0.17) and outperforming Random (4.62$\pm$0.18), Round-Robin (4.71$\pm$0.15), and PPO (4.68$\pm$0.20). We also add 30-node results: ACE achieves 8.92$\pm$0.45 vs.\ Random 9.85$\pm$0.52, a 9.4\% improvement.
+
+\textbf{Section 4.3 (Duffing Oscillators):} Table~4 now reports baseline coupling errors: Random 0.185$\pm$0.067, Round-Robin 0.152$\pm$0.058, ACE 0.042$\pm$0.036 (77\% improvement over Random). ACE concentrates 62\% of interventions on the intermediate oscillator $X_2$, the node whose clamping breaks spurious synchronization-induced correlations.
+
+\textbf{Section 4.4 (Phillips Curve):} We now report out-of-sample CPI prediction MSE: ACE 0.31$\pm$0.08, random regime selection 0.52$\pm$0.12, sequential (chronological) 0.44$\pm$0.10. Regime selection statistics show ACE prioritizes 1970s stagflation (38\%), Volcker disinflation (24\%), and Great Recession (19\%).
+
+\change{Added Tables 3, 4; added numerical results to Section~4.4.}
+
+% ============================================================================
+\section{Response to Reviewer rfmH (Score: 2)}
+% ============================================================================
+
+\reviewer{W1. ``The discussion of prior work and positioning of the paper is insufficient. The authors make it seem as if pretty much all intervention designs in causal inference are random or heuristic.''}
+
+\response We acknowledge this was a significant gap. The revision adds a dedicated \textbf{Bayesian Active Causal Discovery} subsection to the Related Works (Section~2) discussing four key references:
+
+\begin{enumerate}[nosep]
+\item \textbf{Toth et al.\ (NeurIPS 2022)} -- Active Bayesian Causal Inference (ABCI): jointly performs causal discovery and reasoning via full Bayesian posteriors over causal graphs using Gaussian process models.
+\item \textbf{Tigas et al.\ (NeurIPS 2022)} -- CBED: embeds Bayesian causal discovery within optimal experimental design, selects both intervention targets and values, demonstrated on the DREAM gene regulatory network benchmark.
+\item \textbf{Zhang et al.\ (NeurIPS 2023)} -- extends Bayesian active causal discovery to multi-fidelity settings with mutual-information acquisition functions.
+\item \textbf{Zhou et al.\ (NeurIPS 2024)} -- polynomial-time DAG sampling for sample-efficient Bayesian graph learning from limited interventional data.
+\end{enumerate}
+
+We clearly articulate the distinction: these methods address \emph{structure discovery} (learning the DAG), while ACE addresses the complementary problem of \emph{mechanism estimation} (learning functional forms given known or hypothesized structure). While Bayesian approaches require explicit posterior computation over graph structures---combinatorial in the number of variables---ACE learns intervention strategies through policy optimization, avoiding posterior enumeration. We acknowledge the known-structure assumption as a limitation (Section~7) and propose interleaving ACE with structure discovery methods as future work.
+
+Additionally, we implement a \textbf{Bayesian OED baseline} (Section~3.7) that selects interventions maximizing expected information gain via Monte Carlo posterior simulation, adapted from the structure discovery setting to mechanism estimation for fair comparison. This baseline achieves 1.98$\pm$0.10 total loss at 171 episodes---better than heuristic baselines (2.06--2.10) but still substantially worse than ACE (0.92$\pm$0.73, median 0.61), confirming that ACE's learned policy discovers more effective strategies than greedy Bayesian optimization.
+
+\change{Rewrote Section~2 with Bayesian Active Causal Discovery subsection; added Bayesian OED baseline to Section~3.7 and Table~1.}
+
+\reviewer{Q2. ``How are the candidate policies created? Where does the experimentalist policy come from?''}
+
+\response We have expanded Section~3.2 with three detailed subsections:
+
+\textbf{Candidate generation.} The experimentalist policy is a Qwen2.5-1.5B language model fine-tuned via DPO. At each step, it receives a structured text prompt encoding: (i)~per-node mechanism losses $\{L_i\}$, (ii)~the graph structure (parent sets for each node), and (iii)~a summary of recent intervention history (last 5 interventions with their observed information gains). The model generates $K=4$ candidate interventions as structured text (e.g., ``DO X2 = 1.3''), each parsed into a target node $V_i$ and intervention value $\nu$. We use an LM rather than a fixed-architecture policy because text prompts naturally accommodate variable graph sizes without architectural changes.
+
+\textbf{Lookahead evaluation.} Each candidate $c_k$ is simulated on a \emph{cloned} learner $M_\theta$. The clone receives data from executing $c_k$ on the environment, and $\Delta\mathcal{L}(c_k) = L_{\text{before}} - L_{\text{after}}$ estimates information gain without commitment. The best candidate $c^* = \arg\max_{c_k} \Delta\mathcal{L}(c_k)$ is executed on the actual environment.
+
+\textbf{Preference pair construction.} The highest-reward candidate $c_{\text{best}}$ and lowest-reward $c_{\text{worst}}$ form a preference pair $(y_w, y_l)$ for DPO training. With $K=4$ candidates per step, one preference pair is generated per intervention---matching the experimental data rate.
+
+\change{Expanded Section~3.2 with Candidate Generation, Lookahead Evaluation, and Preference Pair Construction subsections.}
+
+\reviewer{Q3. ``The contribution seems relatively simple: a reward function and using preference optimization. This can be fine, but then there would need to be a convincing experimental evaluation, including state-of-the-art baselines.''}
+
+\response We agree that the algorithmic contribution is methodologically lean, and have strengthened the experimental evaluation accordingly:
+
+\begin{enumerate}[nosep]
+\item \textbf{Bayesian OED baseline} (Section~3.7, Table~1): Selects interventions maximizing expected information gain via MC posterior simulation. ACE outperforms it by 53\% (0.92 vs.\ 1.98, $p < 0.01$, Cohen's $d = 1.82$).
+\item \textbf{N=10 seeds} throughout for statistical robustness.
+\item \textbf{Four new ablation experiments}: hyperparameter sensitivity grid ($4 \times 4$, Table~5), $K$ ablation (Table~6), graph misspecification (Table~4a), 30-node scalability.
+\item \textbf{Formal theoretical result}: Proposition~1 proves scale-invariance of preference learning under diminishing information gain, with empirical validation showing reward magnitudes drop $500\times$ while relative rankings remain stable (Spearman $\rho > 0.85$).
+\item \textbf{Numerical results for all sections}: Duffing (Table~4), Phillips (MSE and regime statistics), 15-node (Table~3), 30-node results.
+\end{enumerate}
+
+\change{Added Bayesian OED baseline, expanded to N=10 seeds, added 4 new ablation experiments, added Proposition~1, added numerical results to all sections.}
+
+\reviewer{Q4. ``What is the ground truth 5-node SCM you mention in Section 3.4.1?''}
+
+\response The ground truth 5-node SCM is defined in Section~3.4.1 (Implementation Details). The structural equations are:
+\begin{itemize}[nosep]
+\item $X_1 \sim \mathcal{N}(0, 1)$, $X_4 \sim \mathcal{N}(2, 1)$ \hfill (exogenous roots)
+\item $X_2 = 2X_1 + 1 + \varepsilon$ \hfill (linear)
+\item $X_3 = 0.5X_1 - X_2 + \sin(X_2) + \varepsilon$ \hfill (nonlinear collider, parents $X_1, X_2$)
+\item $X_5 = 0.2X_4^2 + \varepsilon$ \hfill (quadratic)
+\end{itemize}
+with $\varepsilon \sim \mathcal{N}(0, 0.01)$. The graph is shown in Figure~3. The same SCM is used for all 5-node experiments; the 15-node and 30-node SCMs are separate systems described in Sections~4.2.
+
+\reviewer{Q5. ``How exactly is the `strategic behavior' assessed?''}
+
+\response We have added an explicit quantitative definition in Section~3.6.1 (Evaluation Metrics). Strategic behavior is assessed through three measures:
+\begin{enumerate}[nosep]
+\item \textbf{Intervention distribution}: the fraction of total interventions targeting each node, compared to the uniform baseline $1/n$. ACE concentrates 99.8\% on $X_1$ and $X_2$ (collider parents) vs.\ 40\% under uniform.
+\item \textbf{Theoretical alignment}: for collider nodes, we measure whether the policy concentrates interventions on the collider's \emph{parents}. Causal theory requires interventions on all parents to disentangle their joint influence on the collider.
+\item \textbf{Cross-seed consistency}: the standard deviation of per-node intervention fractions across 10 independent runs. ACE achieves $\sigma < 0.002$ for its parent-concentration strategy (99.6--99.9\% across seeds), indicating reliable discovery rather than seed-dependent artifacts.
+\end{enumerate}
+
+\change{Added three quantitative strategic behavior measures to Section~3.6.1.}
+
+% ============================================================================
+\section{Response to Reviewer PYSC (Score: 2)}
+% ============================================================================
+
+\reviewer{W1. ``The comparisons to existing work and especially the scale of experiments are quite limited. The structure is already assumed to be known which is an extremely simplified setting compared to [Tigas 2022, Zhou 2024] which scale even to much larger experiments.''}
+
+\response We address both the literature gap and the scale concern:
+
+\textbf{Literature.} Section~2 now contains a dedicated Bayesian Active Causal Discovery subsection discussing ABCI (Toth et al., 2022), CBED (Tigas et al., 2022), multi-fidelity methods (Zhang et al., 2023), and sample-efficient Bayesian learning (Zhou et al., 2024). We clearly differentiate: these methods address structure discovery; ACE addresses mechanism estimation. The problems are complementary, not competing.
+
+\textbf{Scale.} We now evaluate on three system sizes:
+\begin{itemize}[nosep]
+\item \textbf{5-node} (N=10 seeds): full baseline comparison, 70--71\% improvement.
+\item \textbf{15-node} (N=5 seeds, 11 colliders): Table~3 reports ACE at 4.54$\pm$0.19 vs.\ baselines 4.51--4.71.
+\item \textbf{30-node} (N=5 seeds, hierarchical): ACE achieves 8.92$\pm$0.45 vs.\ Random 9.85$\pm$0.52 (9.4\% improvement).
+\end{itemize}
+
+We note that the relative advantage narrows at larger scale (70\% at 5 nodes, 2\% at 15 nodes, 9.4\% at 30 nodes), which we attribute to the harder optimization landscape with many competing colliders. We cite the SERGIO gene regulatory network simulator (Dibaeinia \& Sinha, 2020) as an important next benchmark and discuss scalability limitations of text-based graph encoding beyond $\sim$50 nodes in Section~7.
+
+\textbf{Known-structure assumption.} We acknowledge this is a strong assumption (Section~7) but argue mechanism estimation is practically important: in many domains, causal structure is available from prior studies or structure-learning algorithms, while functional relationships remain unknown. We additionally provide a graph misspecification ablation (Section~5.3) to quantify robustness.
+
+\change{Added Bayesian Active CD subsection to Section~2; added 30-node results to Section~4.2; expanded Section~7; cited SERGIO.}
+
+\reviewer{Q1. ``If this is positioned as an empirical work then significantly more experiments and at larger scale are needed (e.g., using the SERGIO Simulator). Similarly why are there no ablations over graph misspecifications?''}
+
+\response We add both:
+
+\textbf{Graph misspecification ablation} (new Section~5.3, Table~4a): We test four types of graph error on the 5-node benchmark (N=5 seeds, 171 episodes):
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Graph Condition & Total Loss & Degradation \\
+\midrule
+Correct graph & 0.92$\pm$0.73 & -- \\
+Missing edge ($X_1 \to X_3$) & 1.45$\pm$0.82 & +58\% \\
+Extra edge ($X_1 \to X_5$) & 1.12$\pm$0.69 & +22\% \\
+Reversed edge ($X_1 \to X_2$) & 1.78$\pm$0.91 & +93\% \\
+Missing + Extra & 1.89$\pm$0.95 & +105\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Key findings: (i)~spurious edges (+22\%) are less harmful than missing edges (+58\%), since they only add unnecessary learner capacity; (ii)~reversed edges are most damaging (+93\%) because they fundamentally misspecify the data-generating process; (iii)~errors compound under multiple misspecifications (+105\%). These results quantify the practical cost of the known-structure assumption and motivate joint structure-mechanism learning as future work.
+
+\textbf{Scale:} We add 30-node hierarchical SCM results (Section~4.2) and cite SERGIO as the natural next benchmark (Section~7).
+
+\change{Added Section~5.3 with graph misspecification ablation (Table~4a); added 30-node results; cited SERGIO.}
+
+\reviewer{Q2. ``If it is positioned as a theoretical work then I would really appreciate insights when and how the approach is solving issues that RL would make. Like what are the limits and why would value-based RL really not work? And when does the proposed approach overlap or approximate maximizing expected information gain? Where and precisely do the preferences come from?''}
+
+\response We substantially strengthen the theoretical analysis in Section~5.6 of the revision:
+
+\textbf{1. Why value-based RL fails (Proposition~1).} We formalize the scale-invariance argument. If rewards decompose as $r_t(a) = f(t) \cdot g(a)$ where $f(t) > 0$ is a monotonically decreasing scale factor (diminishing information gain) and $g(a)$ captures action quality:
+\begin{itemize}[nosep]
+\item \emph{Preference invariance}: The ordering $r_t(a_w) > r_t(a_l)$ is invariant to $f(t)$, since $f(t) \cdot g(a_w) > f(t) \cdot g(a_l)$ for all $f(t) > 0$.
+\item \emph{Value non-stationarity}: Value-based methods must estimate $V(s) = \mathbb{E}[f(t) \cdot g(a)]$, which is non-stationary in $t$.
+\item \emph{DPO independence}: DPO's loss depends only on $\log \frac{\pi_\phi(a_w)}{\pi_{\text{ref}}(a_w)} - \log \frac{\pi_\phi(a_l)}{\pi_{\text{ref}}(a_l)}$, independent of $f(t)$.
+\end{itemize}
+
+\textbf{Empirical validation}: In our experiments, $\mathbb{E}[\Delta\mathcal{L}]$ drops by $\sim$500$\times$ between episodes 1--10 (mean 12.4) and episodes 150--170 (mean 0.024). Despite this, the Spearman rank correlation between candidate rewards at adjacent episodes exceeds 0.85 throughout. PPO's critic exhibits value prediction error growth from 0.02 (early) to 3.8 (late), directly correlated with policy degradation.
+
+\textbf{2. Connection to expected information gain.} ACE's $\Delta\mathcal{L}$ is a single-sample Monte Carlo estimate of the mutual information $I(\theta; \mathcal{D}_c \mid \sigma)$ between mechanism parameters $\theta$ and data $\mathcal{D}_c$ from intervention $c$. The node importance term $w(V_i, \{L_j\})$ acts as a non-uniform prior weighting that upweights poorly-learned mechanisms, approximating the Bayesian OED objective of maximizing posterior entropy reduction (Toth et al., 2022). ACE's greedy-per-step selection with DPO training thus approximates the same objective as Bayesian methods through policy learning rather than explicit posterior computation, trading exact inference for scalability and the ability to learn multi-step strategies.
+
+\textbf{3. Preference source.} We add an explicit clarification (Section~5.6): preferences are not human-provided. They arise from the composite reward function $R(c, \sigma)$ evaluated on simulated outcomes---the highest-reward candidate is ``preferred'' over the lowest. This is analogous to RLAIF (RL from AI Feedback); the reward function acts as the preference oracle.
+
+\change{Added Proposition~1 (scale-invariance); added empirical validation with 500$\times$ reward drop and Spearman correlations; added connection to mutual information / Bayesian OED; added preference source clarification.}
+
+\reviewer{W2. ``The benchmarks are much smaller than existing works which even learn the graph in addition and in realistic settings.''}
+
+\response We acknowledge this gap and address it along two axes:
+
+\textbf{Increased scale.} The revision evaluates on 5, 15, and 30-node systems (up from 5 and 15 only). While this remains smaller than CBED's DREAM benchmark (which operates on $\sim$20 genes with known knockouts), we demonstrate that ACE's strategic advantage persists at 30 nodes without architectural modification.
+
+\textbf{Complementary scope.} The key comparison is not ACE vs.\ ABCI/CBED as direct competitors, but as complementary methods addressing different sub-problems. ABCI and CBED solve structure discovery from scratch; ACE solves mechanism estimation given structure. In practice, the output of structure discovery methods \emph{is} the input to ACE: once ABCI identifies a likely graph, ACE can efficiently learn the quantitative relationships. We discuss this pipeline explicitly in Section~7.
+
+\textbf{Future work.} We identify the SERGIO simulator (Dibaeinia \& Sinha, 2020) as the appropriate next benchmark for biologically realistic evaluation and discuss the architectural changes (GNN policies, hierarchical decomposition) needed to scale beyond 50 nodes.
+
+\change{Added 30-node results; discussed complementary scope in Section~2; cited SERGIO in Section~7.}
+
+% ============================================================================
+\section{Summary of All Changes}
+% ============================================================================
+
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabular}{p{6cm}p{3cm}p{3cm}}
+\toprule
+\textbf{Change} & \textbf{Addresses} & \textbf{Location} \\
+\midrule
+Bayesian Active CD literature (Toth, Tigas, Zhang, Zhou) & rfmH W1, PYSC W1 & Section~2 \\
+Bayesian OED baseline & rfmH W1/Q3, PYSC W1 & Section~3.7, Table~1 \\
+Expanded method description (3 subsections) & rfmH Q2 & Section~3.2 \\
+Strategic behavior assessment (3 measures) & rfmH Q5 & Section~3.6.1 \\
+N=10 seeds (was N=5) & JmgE W2, PYSC & Sections~3.4, 4, Table~1 \\
+Hyperparameter sensitivity grid & JmgE W1 & Section~5.4, Table~5 \\
+K ablation (preference pair efficiency) & JmgE W3 & Section~5.5, Table~6 \\
+Graph misspecification ablation & PYSC Q1 & Section~5.3, Table~4a \\
+30-node SCM results & PYSC W1/W2 & Section~4.2 \\
+Numerical results: 15-node table & JmgE W4 & Table~3 \\
+Numerical results: Duffing baselines & JmgE W4 & Table~4 \\
+Numerical results: Phillips MSE + regimes & JmgE W4 & Section~4.4 \\
+Proposition~1 (scale-invariance) & PYSC Q2 & Section~5.6 \\
+Connection to expected information gain & PYSC Q2 & Section~5.6 \\
+Preference source clarification & PYSC Q2 & Section~5.6 \\
+Expanded ablation table (4 components) & JmgE, rfmH Q3 & Table~2 \\
+Expanded Limitations (4 paragraphs) & PYSC W1 & Section~7 \\
+SERGIO reference for future work & PYSC Q1 & Section~7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
