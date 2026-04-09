@@ -113,25 +113,10 @@ for SEED in 42 123 456; do
         --large_scale 30 \
         --episodes 300 \
         --seed "$SEED" \
-        --early_stopping \
-        --early_stop_patience 20 \
         --use_dedicated_root_learner \
-        --dedicated_root_interval 3 \
         --obs_train_interval 3 \
         --obs_train_samples 200 \
         --obs_train_epochs 100 \
-        --root_fitting \
-        --root_fit_interval 5 \
-        --root_fit_samples 500 \
-        --root_fit_epochs 100 \
-        --undersampled_bonus 200.0 \
-        --diversity_reward_weight 0.3 \
-        --max_concentration 0.7 \
-        --concentration_penalty 150.0 \
-        --update_reference_interval 25 \
-        --pretrain_steps 200 \
-        --pretrain_interval 25 \
-        --smart_breaker \
         --output "$OUT/large_scale/seed_${SEED}" \
         2>&1 | tee "$OUT/logs/large_scale_seed_${SEED}.log" \
         || echo "  WARN: 30-node seed $SEED had errors"
