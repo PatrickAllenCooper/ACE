@@ -234,53 +234,97 @@ def run_graph_misspecification_ablation(
     episodes: int = 171,
     output_dir: str = "results/graph_misspec",
 ):
-    """Run graph misspecification ablation experiments."""
+    """Run ACE with misspecified graph structures via --graph_misspec flag."""
+    import subprocess
+
     os.makedirs(output_dir, exist_ok=True)
     results = []
 
-    misspec_types = ["none", "missing_edge", "extra_edge", "reversed_edge", "missing_and_extra"]
+    misspec_types = [None, "missing_edge", "extra_edge", "reversed_edge", "missing_and_extra"]
 
     for misspec_type in misspec_types:
+        label = misspec_type or "none"
         for seed in seeds:
             print(f"\n{'='*60}")
-            print(f"GRAPH MISSPEC: {misspec_type} - Seed {seed}")
+            print(f"GRAPH MISSPEC (ACE): {label} - Seed {seed}")
             print(f"{'='*60}")
-            set_seed(seed)
 
-            scm = MisspecifiedGroundTruthSCM(misspec_type)
-            student = StudentSCM(scm)
-            learner = SCMLearner(student, oracle=scm)
+            run_dir = f"{output_dir}/{label}/seed_{seed}"
+            os.makedirs(run_dir, exist_ok=True)
 
-            final_losses = run_random_policy(scm, learner, episodes)
-            total_loss = sum(final_losses.values())
+            cmd = [
+                sys.executable, "-u", "ace_experiments.py",
+                "--episodes", str(episodes),
+                "--seed", str(seed),
+                "--early_stopping",
+                "--early_stop_patience", "20",
+                "--use_dedicated_root_learner",
+                "--dedicated_root_interval", "3",
+                "--obs_train_interval", "3",
+                "--obs_train_samples", "200",
+                "--obs_train_epochs", "100",
+                "--root_fitting",
+                "--root_fit_interval", "5",
+                "--root_fit_samples", "500",
+                "--root_fit_epochs", "100",
+                "--undersampled_bonus", "200.0",
+                "--diversity_reward_weight", "0.3",
+                "--max_concentration", "0.7",
+                "--concentration_penalty", "150.0",
+                "--update_reference_interval", "25",
+                "--pretrain_steps", "200",
+                "--pretrain_interval", "25",
+                "--smart_breaker",
+                "--output", run_dir,
+            ]
+            if misspec_type:
+                cmd.extend(["--graph_misspec", misspec_type])
+
+            result = subprocess.run(cmd, capture_output=False, text=True)
+
+            losses_file = None
+            for root_d, dirs, files in os.walk(run_dir):
+                for f in files:
+                    if f == "node_losses.csv":
+                        losses_file = os.path.join(root_d, f)
+                        break
+
+            if losses_file:
+                df_losses = pd.read_csv(losses_file)
+                last_ep = df_losses['episode'].max()
+                last = df_losses[df_losses['episode'] == last_ep].iloc[-1]
+                loss_cols = [c for c in df_losses.columns if c not in ['episode', 'step']]
+                total_loss = last[loss_cols].sum()
+            else:
+                total_loss = float('nan')
+                print(f"  WARNING: no node_losses.csv for {label} seed {seed}")
 
             results.append({
                 'seed': seed,
-                'misspec_type': misspec_type,
+                'misspec_type': label,
                 'episodes': episodes,
                 'total_loss': total_loss,
-                **{f'loss_{k}': v for k, v in final_losses.items()},
             })
-
-            print(f"  {misspec_type} seed {seed}: total_loss={total_loss:.4f}")
+            print(f"  {label} seed {seed}: total_loss={total_loss:.4f}")
 
     df = pd.DataFrame(results)
     df.to_csv(f"{output_dir}/graph_misspec_summary.csv", index=False)
 
     print(f"\n{'='*60}")
-    print("GRAPH MISSPECIFICATION SUMMARY")
+    print("GRAPH MISSPECIFICATION SUMMARY (ACE)")
     print(f"{'='*60}")
-    for mt in misspec_types:
+    for mt in [m or "none" for m in misspec_types]:
         subset = df[df['misspec_type'] == mt]
-        mean_loss = subset['total_loss'].mean()
-        std_loss = subset['total_loss'].std()
-        print(f"  {mt:20s}: {mean_loss:.3f} +/- {std_loss:.3f}")
+        if not subset.empty:
+            mean_loss = subset['total_loss'].mean()
+            std_loss = subset['total_loss'].std()
+            print(f"  {mt:20s}: {mean_loss:.3f} +/- {std_loss:.3f}")
 
     return df
 
 
 # ============================================================================
-# HYPERPARAMETER SENSITIVITY GRID
+# HYPERPARAMETER SENSITIVITY GRID (GPU -- runs ACE via subprocess)
 # ============================================================================
 
 def run_hyperparameter_grid(
@@ -289,46 +333,83 @@ def run_hyperparameter_grid(
     output_dir: str = "results/hyperparam_grid",
 ):
     """
-    Run hyperparameter sensitivity analysis for alpha and gamma.
-    Uses random policy with the reward function to evaluate sensitivity.
+    Run ACE with varied reward weights to test hyperparameter sensitivity.
+    Paper alpha (node importance) maps to --cov_bonus.
+    Paper gamma (diversity) maps to --diversity_reward_weight.
     """
+    import subprocess
+
     os.makedirs(output_dir, exist_ok=True)
     results = []
 
-    alpha_values = [0.01, 0.05, 0.1, 0.2]
+    alpha_to_cov = {0.01: 6.0, 0.05: 30.0, 0.1: 60.0, 0.2: 120.0}
     gamma_values = [0.01, 0.05, 0.1, 0.2]
 
-    for alpha in alpha_values:
+    for alpha, cov_bonus in alpha_to_cov.items():
         for gamma in gamma_values:
-            for seed in seeds[:3]:  # Use 3 seeds per combination for efficiency
-                set_seed(seed)
-                scm = GroundTruthSCM()
-                student = StudentSCM(scm)
-                learner = SCMLearner(student, oracle=scm)
+            for seed in seeds[:2]:
+                run_label = f"a{alpha}_g{gamma}_s{seed}"
+                run_dir = f"{output_dir}/{run_label}"
+                os.makedirs(run_dir, exist_ok=True)
 
-                final_losses = run_random_policy(scm, learner, episodes)
-                total_loss = sum(final_losses.values())
+                cmd = [
+                    sys.executable, "-u", "ace_experiments.py",
+                    "--episodes", str(episodes),
+                    "--seed", str(seed),
+                    "--early_stopping",
+                    "--early_stop_patience", "15",
+                    "--cov_bonus", str(cov_bonus),
+                    "--diversity_reward_weight", str(gamma),
+                    "--use_dedicated_root_learner",
+                    "--dedicated_root_interval", "3",
+                    "--obs_train_interval", "3",
+                    "--obs_train_samples", "200",
+                    "--obs_train_epochs", "100",
+                    "--root_fitting",
+                    "--pretrain_steps", "200",
+                    "--pretrain_interval", "25",
+                    "--smart_breaker",
+                    "--max_concentration", "0.7",
+                    "--output", run_dir,
+                ]
+                print(f"\n  Hyperparam grid: alpha={alpha} (cov={cov_bonus}), gamma={gamma}, seed={seed}")
+                result = subprocess.run(cmd, capture_output=False, text=True)
 
-                info_gain_frac = total_loss / (total_loss + alpha + gamma) if total_loss > 0 else 0
+                losses_file = None
+                for root_dir, dirs, files in os.walk(run_dir):
+                    for f in files:
+                        if f == "node_losses.csv":
+                            losses_file = os.path.join(root_dir, f)
+                            break
+
+                if losses_file:
+                    df_losses = pd.read_csv(losses_file)
+                    last_episode = df_losses['episode'].max()
+                    last = df_losses[df_losses['episode'] == last_episode].iloc[-1]
+                    total_loss = sum(last[c] for c in df_losses.columns if c.startswith('loss_') or c.startswith('X'))
+                    if total_loss == 0:
+                        loss_cols = [c for c in df_losses.columns if c not in ['episode', 'step', 'total_loss']]
+                        total_loss = last[loss_cols].sum() if loss_cols else last.get('total_loss', float('nan'))
+                else:
+                    total_loss = float('nan')
+                    print(f"    WARNING: no node_losses.csv found for {run_label}")
 
                 results.append({
-                    'seed': seed,
-                    'alpha': alpha,
-                    'gamma': gamma,
-                    'episodes': episodes,
+                    'seed': seed, 'alpha': alpha, 'gamma': gamma,
+                    'cov_bonus': cov_bonus, 'episodes': episodes,
                     'total_loss': total_loss,
-                    'info_gain_fraction': info_gain_frac,
-                    **{f'loss_{k}': v for k, v in final_losses.items()},
                 })
+                print(f"    total_loss={total_loss:.4f}")
 
     df = pd.DataFrame(results)
     df.to_csv(f"{output_dir}/hyperparam_grid_summary.csv", index=False)
 
     print(f"\n{'='*60}")
-    print("HYPERPARAMETER GRID (alpha x gamma)")
+    print("HYPERPARAMETER GRID (alpha x gamma) -- ACE")
     print(f"{'='*60}")
-    pivot = df.groupby(['alpha', 'gamma'])['total_loss'].mean().unstack()
-    print(pivot.to_string(float_format='%.3f'))
+    if not df.empty and not df['total_loss'].isna().all():
+        pivot = df.groupby(['alpha', 'gamma'])['total_loss'].mean().unstack()
+        print(pivot.to_string(float_format='%.3f'))
 
     return df
 

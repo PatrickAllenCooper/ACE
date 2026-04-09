@@ -1894,7 +1894,16 @@ def main():
     parser.add_argument("--no_per_node_convergence", action="store_true", help="Ablation: Disable per-node convergence (use global stopping only)")
     parser.add_argument("--no_dedicated_root_learner", action="store_true", help="Ablation: Disable dedicated root learner")
     parser.add_argument("--no_diversity_reward", action="store_true", help="Ablation: Set diversity_reward_weight to 0 (test IG-only)")
-    
+
+    # Graph misspecification ablation
+    parser.add_argument("--graph_misspec", type=str, default=None,
+                        choices=["missing_edge", "extra_edge", "reversed_edge", "missing_and_extra"],
+                        help="Ablation: modify student graph structure while keeping oracle intact")
+
+    # Large-scale SCM
+    parser.add_argument("--large_scale", type=int, default=None,
+                        help="Use a large-scale hierarchical SCM with N nodes instead of the 5-node default")
+
     args = parser.parse_args()
     
     # ============================================================================
@@ -1974,7 +1983,80 @@ def main():
 
     # 1. Setup Environment
     print("[STARTUP] Creating ground truth SCM...", flush=True)
-    M_star = GroundTruthSCM()
+    if args.large_scale:
+        from experiments.large_scale_scm import LargeScaleSCM as _LSCM
+        _lscm = _LSCM(args.large_scale)
+        _edges = []
+        for node, parents in _lscm.graph.items():
+            for p in parents:
+                _edges.append((p, node))
+        _ls_coeffs = {}
+        np.random.seed(args.seed if args.seed else 42)
+        for node, parents in _lscm.graph.items():
+            _ls_coeffs[node] = {p: float(np.random.uniform(0.3, 0.7)) for p in parents}
+
+        class _LargeGroundTruthSCM(CausalModel):
+            def __init__(self, edges, coeffs, noise_std=0.15):
+                super().__init__(edges)
+                self._coeffs = coeffs
+                self._noise_std = noise_std
+            def mechanisms(self, data, node, n_samples=1):
+                n = next(iter(data.values())).shape[0] if data else n_samples
+                noise = torch.randn(n) * self._noise_std
+                parents = self.get_parents(node)
+                if not parents:
+                    return torch.randn(n)
+                value = torch.zeros(n)
+                for p in parents:
+                    value = value + self._coeffs[node][p] * data[p]
+                node_num = int(node[1:])
+                if node_num % 5 == 0:
+                    value = value + 0.2 * torch.sin(value)
+                return value + noise
+            def generate(self, n_samples=1, interventions=None):
+                data = {}
+                interventions = interventions or {}
+                for node in self.topo_order:
+                    if node in interventions:
+                        data[node] = torch.full((n_samples,), float(interventions[node]))
+                    else:
+                        parents = self.get_parents(node)
+                        p_data = {p: data[p] for p in parents}
+                        data[node] = self.mechanisms(p_data, node, n_samples=n_samples)
+                return data
+        M_star = _LargeGroundTruthSCM(_edges, _ls_coeffs)
+        print(f"[STARTUP] Large-scale SCM: {args.large_scale} nodes, {len(_edges)} edges", flush=True)
+    else:
+        M_star = GroundTruthSCM()
+
+    if args.graph_misspec:
+        import copy as _copy
+        M_student_graph = _copy.deepcopy(M_star)
+        true_edges = list(M_star.graph.edges)
+        if args.graph_misspec == "missing_edge":
+            if ('X1', 'X3') in true_edges:
+                M_student_graph.graph.remove_edge('X1', 'X3')
+            print(f"[MISSPEC] Removed edge X1->X3", flush=True)
+        elif args.graph_misspec == "extra_edge":
+            M_student_graph.graph.add_edge('X1', 'X5')
+            print(f"[MISSPEC] Added spurious edge X1->X5", flush=True)
+        elif args.graph_misspec == "reversed_edge":
+            if ('X1', 'X2') in true_edges:
+                M_student_graph.graph.remove_edge('X1', 'X2')
+                M_student_graph.graph.add_edge('X2', 'X1')
+            M_student_graph.topo_order = list(nx.topological_sort(M_student_graph.graph))
+            M_student_graph.nodes = sorted(list(M_student_graph.graph.nodes))
+            print(f"[MISSPEC] Reversed edge X1->X2 to X2->X1", flush=True)
+        elif args.graph_misspec == "missing_and_extra":
+            if ('X1', 'X3') in true_edges:
+                M_student_graph.graph.remove_edge('X1', 'X3')
+            M_student_graph.graph.add_edge('X1', 'X5')
+            print(f"[MISSPEC] Removed X1->X3, added X1->X5", flush=True)
+        print(f"[MISSPEC] Student edges: {list(M_student_graph.graph.edges)}", flush=True)
+        print(f"[MISSPEC] Oracle edges:  {true_edges}", flush=True)
+    else:
+        M_student_graph = M_star
+
     executor = ExperimentExecutor(M_star)
     temp_nodes = sorted(list(M_star.graph.nodes))
     dsl = ExperimentalDSL(temp_nodes, value_min=args.value_min, value_max=args.value_max)
@@ -2004,7 +2086,7 @@ def main():
     # 2.5. Supervised Pre-training Phase (CRITICAL FIX for LLM ignoring prompt)
     if use_pretrained and args.pretrain_steps > 0:
         # Generate initial node losses for pre-training context
-        temp_student = StudentSCM(M_star)
+        temp_student = StudentSCM(M_student_graph)
         _, pretrain_losses = critic.evaluate_mechanisms_detailed(temp_student)
         
         supervised_pretrain_llm(
@@ -2046,7 +2128,7 @@ def main():
     
     # Create student reference container for emergency save handler
     # Using dict to allow mutation (reference updates during training)
-    student_ref = {"student": StudentSCM(M_star)}
+    student_ref = {"student": StudentSCM(M_student_graph)}
     
     # --- CRITICAL: EMERGENCY SAVE HANDLER ---
     # Register signal handlers for graceful shutdown on timeout/interruption
@@ -2147,7 +2229,7 @@ def main():
         # CRITICAL: Heartbeat message to stdout every episode
         if episode % 5 == 0:
             print(f"[PROGRESS] Episode {episode}/{args.episodes} starting", flush=True)
-        current_student = StudentSCM(M_star)
+        current_student = StudentSCM(M_student_graph)
         student_ref["student"] = current_student  # Update for emergency handler
         learner = SCMLearner(current_student, lr=args.learner_lr, buffer_steps=args.buffer_steps)
         episode_action_counts = Counter()
