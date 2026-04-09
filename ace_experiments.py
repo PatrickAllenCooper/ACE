@@ -661,14 +661,19 @@ class ScientificCritic:
                 node_losses[node] = loss
 
         # Evaluate mechanisms with parents using independent parent samples.
+        # Under graph misspecification, the student may have different parents
+        # than the oracle. We sample all variables the oracle needs, evaluate
+        # oracle truth, then evaluate the student using only its own parent set.
         with torch.no_grad():
             for node in student_scm.nodes:
-                parents = student_scm.get_parents(node)
-                if not parents:
+                student_parents = student_scm.get_parents(node)
+                if not student_parents:
                     continue
-                parent_ctx = {p: (torch.rand(n) * 8.0 - 4.0) for p in parents}  # U[-4, 4]
+                oracle_parents = self.test_oracle.get_parents(node)
+                all_parents = list(set(student_parents) | set(oracle_parents))
+                parent_ctx = {p: (torch.rand(n) * 8.0 - 4.0) for p in all_parents}
                 y_true = self.test_oracle.mechanisms(parent_ctx, node, n_samples=n)
-                p_tensor = torch.stack([parent_ctx[p] for p in parents], dim=1)
+                p_tensor = torch.stack([parent_ctx[p] for p in student_parents], dim=1)
                 y_pred = student_scm.mechanisms[node](p_tensor).squeeze()
                 loss = F.mse_loss(y_pred, y_true).item()
                 node_losses[node] = loss

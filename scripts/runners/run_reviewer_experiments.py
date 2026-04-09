@@ -293,8 +293,11 @@ def run_graph_misspecification_ablation(
                 df_losses = pd.read_csv(losses_file)
                 last_ep = df_losses['episode'].max()
                 last = df_losses[df_losses['episode'] == last_ep].iloc[-1]
-                loss_cols = [c for c in df_losses.columns if c not in ['episode', 'step']]
-                total_loss = last[loss_cols].sum()
+                if 'total_loss' in df_losses.columns:
+                    total_loss = float(last['total_loss'])
+                else:
+                    loss_cols = [c for c in df_losses.columns if c.startswith('loss_')]
+                    total_loss = float(last[loss_cols].sum())
             else:
                 total_loss = float('nan')
                 print(f"  WARNING: no node_losses.csv for {label} seed {seed}")
@@ -357,7 +360,7 @@ def run_hyperparameter_grid(
                     "--episodes", str(episodes),
                     "--seed", str(seed),
                     "--early_stopping",
-                    "--early_stop_patience", "15",
+                    "--early_stop_patience", "20",
                     "--cov_bonus", str(cov_bonus),
                     "--diversity_reward_weight", str(gamma),
                     "--use_dedicated_root_learner",
@@ -366,10 +369,16 @@ def run_hyperparameter_grid(
                     "--obs_train_samples", "200",
                     "--obs_train_epochs", "100",
                     "--root_fitting",
+                    "--root_fit_interval", "5",
+                    "--root_fit_samples", "500",
+                    "--root_fit_epochs", "100",
+                    "--undersampled_bonus", "200.0",
+                    "--max_concentration", "0.7",
+                    "--concentration_penalty", "150.0",
+                    "--update_reference_interval", "25",
                     "--pretrain_steps", "200",
                     "--pretrain_interval", "25",
                     "--smart_breaker",
-                    "--max_concentration", "0.7",
                     "--output", run_dir,
                 ]
                 print(f"\n  Hyperparam grid: alpha={alpha} (cov={cov_bonus}), gamma={gamma}, seed={seed}")
@@ -386,10 +395,11 @@ def run_hyperparameter_grid(
                     df_losses = pd.read_csv(losses_file)
                     last_episode = df_losses['episode'].max()
                     last = df_losses[df_losses['episode'] == last_episode].iloc[-1]
-                    total_loss = sum(last[c] for c in df_losses.columns if c.startswith('loss_') or c.startswith('X'))
-                    if total_loss == 0:
-                        loss_cols = [c for c in df_losses.columns if c not in ['episode', 'step', 'total_loss']]
-                        total_loss = last[loss_cols].sum() if loss_cols else last.get('total_loss', float('nan'))
+                    if 'total_loss' in df_losses.columns:
+                        total_loss = float(last['total_loss'])
+                    else:
+                        loss_cols = [c for c in df_losses.columns if c.startswith('loss_')]
+                        total_loss = float(last[loss_cols].sum())
                 else:
                     total_loss = float('nan')
                     print(f"    WARNING: no node_losses.csv found for {run_label}")
