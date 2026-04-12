@@ -47,8 +47,7 @@ for i in range(n):
 assert n >= 1, 'No GPUs found'
 "
 
-TS=$(date +%Y%m%d_%H%M%S)
-OUT="results/reviewer_azure_${TS}"
+OUT="results/reviewer_azure"
 mkdir -p "$OUT" "$OUT/logs"
 
 # Ensure /scratch exists (checkpoint writes)
@@ -108,6 +107,10 @@ echo ""
 echo ">>> Starting: 30-node ACE (3 seeds) on GPU 0 <<<"
 
 for SEED in 42 123 456; do
+    if find "$OUT/large_scale/seed_${SEED}" -name "node_losses.csv" 2>/dev/null | grep -q .; then
+        echo "  SKIP (already done): 30-node seed $SEED"
+        continue
+    fi
     echo "  30-node ACE seed $SEED ($(date))"
     CUDA_VISIBLE_DEVICES=0 python -u ace_experiments.py \
         --large_scale 30 \

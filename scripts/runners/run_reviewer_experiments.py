@@ -245,12 +245,25 @@ def run_graph_misspecification_ablation(
     for misspec_type in misspec_types:
         label = misspec_type or "none"
         for seed in seeds:
+            run_dir = f"{output_dir}/{label}/seed_{seed}"
+            os.makedirs(run_dir, exist_ok=True)
+
+            existing = None
+            for root_d, dirs, files in os.walk(run_dir):
+                if "node_losses.csv" in files:
+                    existing = os.path.join(root_d, "node_losses.csv")
+                    break
+            if existing:
+                print(f"  SKIP (already done): {label} seed {seed} -> {existing}")
+                df_losses = pd.read_csv(existing)
+                last = df_losses[df_losses['episode'] == df_losses['episode'].max()].iloc[-1]
+                total_loss = float(last['total_loss']) if 'total_loss' in df_losses.columns else float('nan')
+                results.append({'seed': seed, 'misspec_type': label, 'episodes': episodes, 'total_loss': total_loss})
+                continue
+
             print(f"\n{'='*60}")
             print(f"GRAPH MISSPEC (ACE): {label} - Seed {seed}")
             print(f"{'='*60}")
-
-            run_dir = f"{output_dir}/{label}/seed_{seed}"
-            os.makedirs(run_dir, exist_ok=True)
 
             cmd = [
                 sys.executable, "-u", "ace_experiments.py",
@@ -339,6 +352,19 @@ def run_hyperparameter_grid(
                 run_label = f"a{alpha}_g{gamma}_s{seed}"
                 run_dir = f"{output_dir}/{run_label}"
                 os.makedirs(run_dir, exist_ok=True)
+
+                existing = None
+                for root_dir, dirs, files in os.walk(run_dir):
+                    if "node_losses.csv" in files:
+                        existing = os.path.join(root_dir, "node_losses.csv")
+                        break
+                if existing:
+                    print(f"  SKIP (already done): {run_label} -> {existing}")
+                    df_losses = pd.read_csv(existing)
+                    last = df_losses[df_losses['episode'] == df_losses['episode'].max()].iloc[-1]
+                    total_loss = float(last['total_loss']) if 'total_loss' in df_losses.columns else float('nan')
+                    results.append({'seed': seed, 'alpha': alpha, 'gamma': gamma, 'cov_bonus': cov_bonus, 'episodes': episodes, 'total_loss': total_loss})
+                    continue
 
                 cmd = [
                     sys.executable, "-u", "ace_experiments.py",
@@ -646,8 +672,7 @@ def main():
     parser.add_argument("--output", type=str, default="results/reviewer_response")
     args = parser.parse_args()
 
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    base_dir = f"{args.output}_{timestamp}"
+    base_dir = args.output
     os.makedirs(base_dir, exist_ok=True)
 
     print(f"{'='*60}")
