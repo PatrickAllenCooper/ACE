@@ -1327,17 +1327,13 @@ def visualize_contrast_save(oracle, student, results_dir):
 # ----------------------------------------------------------------
 def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history, 
                    reward_history, recent_actions):
-    """Save training checkpoint for recovery.
+    """Save training checkpoint directly in run_dir for spot instance resilience.
     
-    Checkpoints saved to SCRATCH (not projects/) to save quota space.
-    Uses SLURM_SCRATCH env var if available, falls back to /scratch/alpine/$USER
+    Saves to run_dir/checkpoint.pt (overwrites previous checkpoint to save disk space).
+    Also saves state needed for full resume: student model is reconstructed fresh
+    each episode so only policy/optimizer/history state is needed.
     """
-    # Use scratch for checkpoints (saves projects/ quota)
-    scratch_base = os.environ.get('SLURM_SCRATCH', f'/scratch/alpine/{os.environ.get("USER", "unknown")}')
-    checkpoint_dir = os.path.join(scratch_base, "ace_checkpoints", os.path.basename(run_dir))
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_ep{episode}.pt")
-    
+    checkpoint_path = os.path.join(run_dir, "checkpoint.pt")
     try:
         torch.save({
             'episode': episode,
@@ -1345,19 +1341,9 @@ def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
             'optimizer_state_dict': optimizer.state_dict(),
             'loss_history': loss_history,
             'reward_history': reward_history,
-            'recent_actions': list(recent_actions),  # Convert deque to list for saving
+            'recent_actions': list(recent_actions),
         }, checkpoint_path)
-        
-        logging.info(f"[OK] Saved checkpoint to {checkpoint_path}")
-        
-        # Cleanup old checkpoints (keep only last 3)
-        import glob
-        checkpoints = sorted(glob.glob(os.path.join(checkpoint_dir, "checkpoint_ep*.pt")))
-        if len(checkpoints) > 3:
-            for old_checkpoint in checkpoints[:-3]:
-                os.remove(old_checkpoint)
-                logging.debug(f"  Removed old checkpoint: {os.path.basename(old_checkpoint)}")
-                
+        logging.info(f"[CHECKPOINT] Saved checkpoint at episode {episode} -> {checkpoint_path}")
     except Exception as e:
         logging.error(f"Failed to save checkpoint: {e}")
 
@@ -1948,9 +1934,31 @@ def main():
     # Setup Directories
     run_started_at = datetime.now()
     timestamp = run_started_at.strftime("%Y%m%d_%H%M%S")
-    run_dir = os.path.join(args.output, f"run_{timestamp}")
-    if args.seed is not None:
-        run_dir = os.path.join(args.output, f"run_{timestamp}_seed{args.seed}")
+
+    # Check if an existing run directory with a checkpoint exists (for spot instance resume)
+    existing_run_dir = None
+    checkpoint_to_load = None
+    if os.path.isdir(args.output):
+        candidates = sorted([
+            d for d in os.listdir(args.output)
+            if os.path.isdir(os.path.join(args.output, d)) and d.startswith("run_")
+        ])
+        for candidate in reversed(candidates):
+            candidate_path = os.path.join(args.output, candidate)
+            checkpoint_path = os.path.join(candidate_path, "checkpoint.pt")
+            if os.path.exists(checkpoint_path):
+                existing_run_dir = candidate_path
+                checkpoint_to_load = checkpoint_path
+                break
+
+    if existing_run_dir:
+        run_dir = existing_run_dir
+        print(f"[RESUME] Found existing run directory: {run_dir}", flush=True)
+        print(f"[RESUME] Checkpoint: {checkpoint_to_load}", flush=True)
+    else:
+        run_dir = os.path.join(args.output, f"run_{timestamp}")
+        if args.seed is not None:
+            run_dir = os.path.join(args.output, f"run_{timestamp}_seed{args.seed}")
     os.makedirs(run_dir, exist_ok=True)
     
     # Logging Setup
@@ -2089,7 +2097,8 @@ def main():
     optimizer_agent = optim.Adam(policy_net.parameters(), lr=args.lr)
 
     # 2.5. Supervised Pre-training Phase (CRITICAL FIX for LLM ignoring prompt)
-    if use_pretrained and args.pretrain_steps > 0:
+    # Skip if resuming from a checkpoint (pretraining already done)
+    if use_pretrained and args.pretrain_steps > 0 and checkpoint_to_load is None:
         # Generate initial node losses for pre-training context
         temp_student = StudentSCM(M_student_graph)
         _, pretrain_losses = critic.evaluate_mechanisms_detailed(temp_student)
@@ -2134,6 +2143,31 @@ def main():
     # Create student reference container for emergency save handler
     # Using dict to allow mutation (reference updates during training)
     student_ref = {"student": StudentSCM(M_student_graph)}
+
+    # --- SPOT INSTANCE RESUME ---
+    start_episode = 0
+    if checkpoint_to_load and os.path.exists(checkpoint_to_load):
+        try:
+            ckpt = torch.load(checkpoint_to_load, map_location=device)
+            start_episode = ckpt['episode'] + 1
+            policy_net.load_state_dict(ckpt['policy_state_dict'])
+            optimizer_agent.load_state_dict(ckpt['optimizer_state_dict'])
+            loss_history = list(ckpt.get('loss_history', []))
+            reward_history = list(ckpt.get('reward_history', []))
+            ref_policy = copy.deepcopy(policy_net)
+            ref_policy.eval()
+            print(f"[RESUME] Loaded checkpoint: resuming from episode {start_episode}", flush=True)
+            logging.info(f"[RESUME] Loaded checkpoint from {checkpoint_to_load}, resuming at episode {start_episode}")
+
+            # Load existing node_losses.csv if present so history is preserved
+            existing_node_losses = os.path.join(run_dir, "node_losses.csv")
+            if os.path.exists(existing_node_losses):
+                existing_df = pd.read_csv(existing_node_losses)
+                node_loss_tracking = existing_df.to_dict('records')
+                logging.info(f"[RESUME] Loaded {len(node_loss_tracking)} prior node-loss rows")
+        except Exception as e:
+            print(f"[RESUME] Failed to load checkpoint ({e}), starting fresh", flush=True)
+            logging.error(f"Checkpoint load failed: {e}")
     
     # --- CRITICAL: EMERGENCY SAVE HANDLER ---
     # Register signal handlers for graceful shutdown on timeout/interruption
@@ -2230,7 +2264,7 @@ def main():
     recent_values_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
     recent_value_bins_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
 
-    for episode in range(args.episodes):
+    for episode in range(start_episode, args.episodes):
         # CRITICAL: Heartbeat message to stdout every episode
         if episode % 5 == 0:
             print(f"[PROGRESS] Episode {episode}/{args.episodes} starting", flush=True)
@@ -2889,8 +2923,8 @@ def main():
                 logging.info(f"  [Early Stop Monitor] Zero-reward steps: {zero_pct:.1f}% (threshold: {args.zero_reward_threshold*100:.0f}%)")
         
         # --- INCREMENTAL CHECKPOINT SAVES ---
-        # Save checkpoint every 50 episodes for recovery
-        if episode > 0 and episode % 50 == 0:
+        # Save checkpoint every 5 episodes for spot instance resilience
+        if episode > start_episode and episode % 5 == 0:
             save_checkpoint(run_dir, episode, policy_net, optimizer_agent,
                           loss_history, reward_history, recent_action_counts)
         
