@@ -1328,18 +1328,19 @@ def visualize_contrast_save(oracle, student, results_dir):
 def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
                    reward_history, recent_actions, step=None, student=None,
                    node_loss_tracking=None, episode_action_counts=None,
-                   recent_rewards_for_stopping=None):
+                   recent_rewards_for_stopping=None, permanent=False):
     """Save training checkpoint directly in run_dir for spot instance resilience.
 
-    Saves to run_dir/checkpoint.pt (overwrites previous checkpoint to save disk space).
-    When step is provided, saves full step-level state so spot evictions only lose
-    the current step, not the whole episode.
+    Always overwrites run_dir/checkpoint.pt (rolling latest checkpoint).
+    When permanent=True, also writes run_dir/checkpoint_eNNN_sNNN.pt so it
+    survives subsequent overwrites. This lets callers save every step cheaply
+    while keeping durable milestones every N steps.
     """
     checkpoint_path = os.path.join(run_dir, "checkpoint.pt")
     try:
         data = {
             'episode': episode,
-            'step': step,  # None for episode-level saves, int for step-level
+            'step': step,
             'policy_state_dict': policy_net.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'loss_history': list(loss_history),
@@ -1355,8 +1356,21 @@ def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
         if recent_rewards_for_stopping is not None:
             data['recent_rewards_for_stopping'] = list(recent_rewards_for_stopping)
         torch.save(data, checkpoint_path)
+        if permanent and step is not None:
+            perm_path = os.path.join(run_dir, f"checkpoint_e{episode:03d}_s{step:03d}.pt")
+            import shutil
+            shutil.copy2(checkpoint_path, perm_path)
+            # Keep only the 3 most recent permanent checkpoints to save disk space
+            import glob
+            perm_files = sorted(glob.glob(os.path.join(run_dir, "checkpoint_e*_s*.pt")))
+            for old in perm_files[:-3]:
+                try:
+                    os.remove(old)
+                except Exception:
+                    pass
+            logging.info(f"[CHECKPOINT] Permanent milestone: {perm_path}")
         step_str = f"step {step}" if step is not None else "episode end"
-        logging.info(f"[CHECKPOINT] Saved at episode {episode} {step_str} -> {checkpoint_path}")
+        logging.debug(f"[CHECKPOINT] Saved at episode {episode} {step_str}")
     except Exception as e:
         logging.error(f"Failed to save checkpoint: {e}")
 
@@ -2938,18 +2952,19 @@ def main():
                     if episode % 10 == 0 and step % (args.obs_train_interval * 5) == 0:
                         logging.info(f"  [Obs Training] Step {step}: Injected {args.obs_train_samples} samples")
 
-                # --- STEP-LEVEL CHECKPOINT (every 10 steps ~3.5h on A100) ---
-                # Saves mid-episode so spot evictions only lose <10 steps, not full episodes
-                if step > 0 and step % 10 == 0:
-                    save_checkpoint(
-                        run_dir, episode, policy_net, optimizer_agent,
-                        loss_history, reward_history, recent_action_counts,
-                        step=step,
-                        student=current_student,
-                        node_loss_tracking=node_loss_tracking,
-                        episode_action_counts=episode_action_counts,
-                        recent_rewards_for_stopping=recent_rewards_for_stopping,
-                    )
+                # --- STEP-LEVEL CHECKPOINT (every step = rolling overwrite, every 10 = permanent) ---
+                # Rolling checkpoint.pt saved every step (~22 min loss on eviction).
+                # Permanent milestone checkpoint every 10 steps kept as durable backup.
+                save_checkpoint(
+                    run_dir, episode, policy_net, optimizer_agent,
+                    loss_history, reward_history, recent_action_counts,
+                    step=step,
+                    student=current_student,
+                    node_loss_tracking=node_loss_tracking,
+                    episode_action_counts=episode_action_counts,
+                    recent_rewards_for_stopping=recent_rewards_for_stopping,
+                    permanent=(step > 0 and step % 10 == 0),
+                )
         
         # --- EARLY STOPPING CHECKS ---
         # Check if training has saturated (most steps producing zero reward)
