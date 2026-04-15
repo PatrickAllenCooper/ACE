@@ -1325,25 +1325,38 @@ def visualize_contrast_save(oracle, student, results_dir):
 # ----------------------------------------------------------------
 # CHECKPOINT AND SAVE UTILITIES
 # ----------------------------------------------------------------
-def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history, 
-                   reward_history, recent_actions):
+def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
+                   reward_history, recent_actions, step=None, student=None,
+                   node_loss_tracking=None, episode_action_counts=None,
+                   recent_rewards_for_stopping=None):
     """Save training checkpoint directly in run_dir for spot instance resilience.
-    
+
     Saves to run_dir/checkpoint.pt (overwrites previous checkpoint to save disk space).
-    Also saves state needed for full resume: student model is reconstructed fresh
-    each episode so only policy/optimizer/history state is needed.
+    When step is provided, saves full step-level state so spot evictions only lose
+    the current step, not the whole episode.
     """
     checkpoint_path = os.path.join(run_dir, "checkpoint.pt")
     try:
-        torch.save({
+        data = {
             'episode': episode,
+            'step': step,  # None for episode-level saves, int for step-level
             'policy_state_dict': policy_net.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
-            'loss_history': loss_history,
-            'reward_history': reward_history,
+            'loss_history': list(loss_history),
+            'reward_history': list(reward_history),
             'recent_actions': list(recent_actions),
-        }, checkpoint_path)
-        logging.info(f"[CHECKPOINT] Saved checkpoint at episode {episode} -> {checkpoint_path}")
+        }
+        if student is not None:
+            data['student_state_dict'] = student.state_dict()
+        if node_loss_tracking is not None:
+            data['node_loss_tracking'] = list(node_loss_tracking)
+        if episode_action_counts is not None:
+            data['episode_action_counts'] = dict(episode_action_counts)
+        if recent_rewards_for_stopping is not None:
+            data['recent_rewards_for_stopping'] = list(recent_rewards_for_stopping)
+        torch.save(data, checkpoint_path)
+        step_str = f"step {step}" if step is not None else "episode end"
+        logging.info(f"[CHECKPOINT] Saved at episode {episode} {step_str} -> {checkpoint_path}")
     except Exception as e:
         logging.error(f"Failed to save checkpoint: {e}")
 
@@ -2146,25 +2159,48 @@ def main():
 
     # --- SPOT INSTANCE RESUME ---
     start_episode = 0
+    start_step = 0
+    resume_student_state = None
+    resume_episode_action_counts = None
+    resume_recent_rewards = None
     if checkpoint_to_load and os.path.exists(checkpoint_to_load):
         try:
             ckpt = torch.load(checkpoint_to_load, map_location=device)
-            start_episode = ckpt['episode'] + 1
+            ckpt_step = ckpt.get('step', None)
+
+            if ckpt_step is not None:
+                # Step-level checkpoint: resume mid-episode
+                start_episode = ckpt['episode']
+                start_step = ckpt_step + 1
+                resume_student_state = ckpt.get('student_state_dict', None)
+                resume_episode_action_counts = ckpt.get('episode_action_counts', None)
+                resume_recent_rewards = ckpt.get('recent_rewards_for_stopping', None)
+                print(f"[RESUME] Step-level checkpoint: resuming episode {start_episode} step {start_step}", flush=True)
+                logging.info(f"[RESUME] Step-level resume: episode={start_episode} step={start_step}")
+            else:
+                # Episode-level checkpoint: start next episode
+                start_episode = ckpt['episode'] + 1
+                start_step = 0
+                print(f"[RESUME] Episode-level checkpoint: resuming from episode {start_episode}", flush=True)
+                logging.info(f"[RESUME] Episode-level resume: start_episode={start_episode}")
+
             policy_net.load_state_dict(ckpt['policy_state_dict'])
             optimizer_agent.load_state_dict(ckpt['optimizer_state_dict'])
             loss_history = list(ckpt.get('loss_history', []))
             reward_history = list(ckpt.get('reward_history', []))
             ref_policy = copy.deepcopy(policy_net)
             ref_policy.eval()
-            print(f"[RESUME] Loaded checkpoint: resuming from episode {start_episode}", flush=True)
-            logging.info(f"[RESUME] Loaded checkpoint from {checkpoint_to_load}, resuming at episode {start_episode}")
 
-            # Load existing node_losses.csv if present so history is preserved
-            existing_node_losses = os.path.join(run_dir, "node_losses.csv")
-            if os.path.exists(existing_node_losses):
-                existing_df = pd.read_csv(existing_node_losses)
-                node_loss_tracking = existing_df.to_dict('records')
-                logging.info(f"[RESUME] Loaded {len(node_loss_tracking)} prior node-loss rows")
+            # Restore node_loss_tracking if saved
+            if 'node_loss_tracking' in ckpt:
+                node_loss_tracking = list(ckpt['node_loss_tracking'])
+                logging.info(f"[RESUME] Restored {len(node_loss_tracking)} node-loss rows from checkpoint")
+            else:
+                existing_node_losses = os.path.join(run_dir, "node_losses.csv")
+                if os.path.exists(existing_node_losses):
+                    existing_df = pd.read_csv(existing_node_losses)
+                    node_loss_tracking = existing_df.to_dict('records')
+                    logging.info(f"[RESUME] Loaded {len(node_loss_tracking)} prior node-loss rows from CSV")
         except Exception as e:
             print(f"[RESUME] Failed to load checkpoint ({e}), starting fresh", flush=True)
             logging.error(f"Checkpoint load failed: {e}")
@@ -2271,7 +2307,33 @@ def main():
         current_student = StudentSCM(M_student_graph)
         student_ref["student"] = current_student  # Update for emergency handler
         learner = SCMLearner(current_student, lr=args.learner_lr, buffer_steps=args.buffer_steps)
+
+        # Restore student state if resuming mid-episode
+        if episode == start_episode and resume_student_state is not None:
+            try:
+                current_student.load_state_dict(resume_student_state)
+                print(f"[RESUME] Restored student model at episode {episode} step {start_step}", flush=True)
+                logging.info(f"[RESUME] Restored student state at episode {episode}")
+            except Exception as e:
+                logging.warning(f"[RESUME] Could not restore student state: {e}, starting fresh")
+            resume_student_state = None  # Only restore once
+
+        # Restore episode_action_counts if resuming mid-episode
         episode_action_counts = Counter()
+        if episode == start_episode and resume_episode_action_counts:
+            episode_action_counts = Counter(resume_episode_action_counts)
+            resume_episode_action_counts = None
+
+        # Restore recent_rewards if resuming
+        if episode == start_episode and resume_recent_rewards:
+            for r in resume_recent_rewards:
+                recent_rewards_for_stopping.append(r)
+            resume_recent_rewards = None
+
+        # Determine step range: use start_step only for the resume episode
+        step_start = start_step if episode == start_episode else 0
+
+        episode_action_counts = episode_action_counts  # already set above
         best_mech_loss = float("inf")
         no_improve_steps = 0
 
@@ -2338,7 +2400,7 @@ def main():
                     logging.info(f"    [{idx+1}] '{failure[:200]}'")
 
 
-        for step in range(args.steps):
+        for step in range(step_start, args.steps):
             train_steps_total += 1
             # Evaluate mechanisms on interventional-style validation for better causal fidelity.
             loss_start, node_losses_start = critic.evaluate_mechanisms_detailed(current_student)
@@ -2875,6 +2937,19 @@ def main():
                     learner.train_step(obs_data, n_epochs=args.obs_train_epochs)
                     if episode % 10 == 0 and step % (args.obs_train_interval * 5) == 0:
                         logging.info(f"  [Obs Training] Step {step}: Injected {args.obs_train_samples} samples")
+
+                # --- STEP-LEVEL CHECKPOINT (every 10 steps ~3.5h on A100) ---
+                # Saves mid-episode so spot evictions only lose <10 steps, not full episodes
+                if step > 0 and step % 10 == 0:
+                    save_checkpoint(
+                        run_dir, episode, policy_net, optimizer_agent,
+                        loss_history, reward_history, recent_action_counts,
+                        step=step,
+                        student=current_student,
+                        node_loss_tracking=node_loss_tracking,
+                        episode_action_counts=episode_action_counts,
+                        recent_rewards_for_stopping=recent_rewards_for_stopping,
+                    )
         
         # --- EARLY STOPPING CHECKS ---
         # Check if training has saturated (most steps producing zero reward)
