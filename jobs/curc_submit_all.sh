@@ -26,7 +26,10 @@
 set -euo pipefail
 
 cd /projects/paco0228/ACE
-source setup_env.sh 2>/dev/null || true
+
+# Activate conda directly (bypass setup_env.sh which fails on login node)
+source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
+conda activate ace
 
 TS=$(date +%Y%m%d_%H%M%S)
 OUT="/projects/paco0228/ACE/results/curc_${TS}"
