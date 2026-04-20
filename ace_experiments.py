@@ -1325,52 +1325,97 @@ def visualize_contrast_save(oracle, student, results_dir):
 # ----------------------------------------------------------------
 # CHECKPOINT AND SAVE UTILITIES
 # ----------------------------------------------------------------
+def _checkpoint_dir_for(run_dir):
+    """Resolve where checkpoints should be written.
+
+    Priority:
+      1. ACE_CHECKPOINT_DIR env var (explicit override)
+      2. /scratch/alpine/$USER/ace_checkpoints/<basename(run_dir)> if available
+      3. Fall back to run_dir itself
+    """
+    explicit = os.environ.get("ACE_CHECKPOINT_DIR")
+    if explicit:
+        path = os.path.join(explicit, os.path.relpath(run_dir, "/"))
+        os.makedirs(path, exist_ok=True)
+        return path
+    user = os.environ.get("USER", "unknown")
+    scratch_root = f"/scratch/alpine/{user}"
+    if os.path.isdir("/scratch/alpine"):
+        path = os.path.join(scratch_root, "ace_checkpoints", os.path.basename(run_dir))
+        try:
+            os.makedirs(path, exist_ok=True)
+            return path
+        except Exception:
+            pass
+    return run_dir
+
+
+def _to_fp16_state_dict(state_dict):
+    """Cast all floating-point tensors in a state dict to float16 to halve checkpoint size."""
+    out = {}
+    for k, v in state_dict.items():
+        if torch.is_tensor(v) and v.is_floating_point():
+            out[k] = v.detach().to(torch.float16).contiguous().cpu()
+        elif torch.is_tensor(v):
+            out[k] = v.detach().cpu()
+        else:
+            out[k] = v
+    return out
+
+
 def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
                    reward_history, recent_actions, step=None, student=None,
                    node_loss_tracking=None, episode_action_counts=None,
                    recent_rewards_for_stopping=None, permanent=False):
-    """Save training checkpoint directly in run_dir for spot instance resilience.
+    """Save a compact training checkpoint.
 
-    Always overwrites run_dir/checkpoint.pt (rolling latest checkpoint).
-    When permanent=True, also writes run_dir/checkpoint_eNNN_sNNN.pt so it
-    survives subsequent overwrites. This lets callers save every step cheaply
-    while keeping durable milestones every N steps.
+    Optimizations applied to keep the checkpoint small enough to write
+    repeatedly on a quota-constrained filesystem:
+      - Writes to /scratch/alpine/$USER/ace_checkpoints/... when available
+        (instead of /projects which has small per-user quotas).
+      - Casts floating-point tensors to float16 (halves size).
+      - Drops the optimizer state (large, not needed for resume since DPO
+        re-warms the optimizer each step).
+      - Keeps only ONE permanent milestone (the latest), not N.
     """
-    checkpoint_path = os.path.join(run_dir, "checkpoint.pt")
+    ckpt_dir = _checkpoint_dir_for(run_dir)
+    checkpoint_path = os.path.join(ckpt_dir, "checkpoint.pt")
     try:
         data = {
             'episode': episode,
             'step': step,
-            'policy_state_dict': policy_net.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
+            'policy_state_dict': _to_fp16_state_dict(policy_net.state_dict()),
             'loss_history': list(loss_history),
             'reward_history': list(reward_history),
             'recent_actions': list(recent_actions),
         }
         if student is not None:
-            data['student_state_dict'] = student.state_dict()
+            data['student_state_dict'] = _to_fp16_state_dict(student.state_dict())
         if node_loss_tracking is not None:
             data['node_loss_tracking'] = list(node_loss_tracking)
         if episode_action_counts is not None:
             data['episode_action_counts'] = dict(episode_action_counts)
         if recent_rewards_for_stopping is not None:
             data['recent_rewards_for_stopping'] = list(recent_rewards_for_stopping)
-        torch.save(data, checkpoint_path)
+        # Atomic write: write to .tmp then rename
+        tmp_path = checkpoint_path + ".tmp"
+        torch.save(data, tmp_path)
+        os.replace(tmp_path, checkpoint_path)
         if permanent and step is not None:
-            perm_path = os.path.join(run_dir, f"checkpoint_e{episode:03d}_s{step:03d}.pt")
             import shutil
-            shutil.copy2(checkpoint_path, perm_path)
-            # Keep only the 3 most recent permanent checkpoints to save disk space
             import glob
-            perm_files = sorted(glob.glob(os.path.join(run_dir, "checkpoint_e*_s*.pt")))
-            for old in perm_files[:-3]:
+            perm_path = os.path.join(ckpt_dir, f"checkpoint_e{episode:03d}_s{step:03d}.pt")
+            shutil.copy2(checkpoint_path, perm_path)
+            # Keep only the 1 most recent permanent checkpoint
+            perm_files = sorted(glob.glob(os.path.join(ckpt_dir, "checkpoint_e*_s*.pt")))
+            for old in perm_files[:-1]:
                 try:
                     os.remove(old)
                 except Exception:
                     pass
             logging.info(f"[CHECKPOINT] Permanent milestone: {perm_path}")
         step_str = f"step {step}" if step is not None else "episode end"
-        logging.debug(f"[CHECKPOINT] Saved at episode {episode} {step_str}")
+        logging.debug(f"[CHECKPOINT] Saved at episode {episode} {step_str} -> {ckpt_dir}")
     except Exception as e:
         logging.error(f"Failed to save checkpoint: {e}")
 
@@ -1963,6 +2008,7 @@ def main():
     timestamp = run_started_at.strftime("%Y%m%d_%H%M%S")
 
     # Check if an existing run directory with a checkpoint exists (for spot instance resume)
+    # Look in BOTH the run dir itself and the scratch checkpoint location
     existing_run_dir = None
     checkpoint_to_load = None
     if os.path.isdir(args.output):
@@ -1972,10 +2018,35 @@ def main():
         ])
         for candidate in reversed(candidates):
             candidate_path = os.path.join(args.output, candidate)
-            checkpoint_path = os.path.join(candidate_path, "checkpoint.pt")
-            if os.path.exists(checkpoint_path):
-                existing_run_dir = candidate_path
-                checkpoint_to_load = checkpoint_path
+            # Check scratch first, fall back to run_dir
+            scratch_user = os.environ.get("USER", "unknown")
+            scratch_ckpt_dir = f"/scratch/alpine/{scratch_user}/ace_checkpoints/{os.path.basename(candidate_path)}"
+            scratch_ckpt = os.path.join(scratch_ckpt_dir, "checkpoint.pt")
+            local_ckpt = os.path.join(candidate_path, "checkpoint.pt")
+            for ckpt in [scratch_ckpt, local_ckpt]:
+                if os.path.exists(ckpt):
+                    # Try fallback to permanent if rolling is corrupt
+                    try:
+                        torch.load(ckpt, map_location='cpu', weights_only=False)
+                        existing_run_dir = candidate_path
+                        checkpoint_to_load = ckpt
+                        break
+                    except Exception:
+                        # Try permanent checkpoints in same dir
+                        import glob
+                        ckpt_dir = os.path.dirname(ckpt)
+                        perms = sorted(glob.glob(os.path.join(ckpt_dir, "checkpoint_e*_s*.pt")), reverse=True)
+                        for perm in perms:
+                            try:
+                                torch.load(perm, map_location='cpu', weights_only=False)
+                                existing_run_dir = candidate_path
+                                checkpoint_to_load = perm
+                                break
+                            except Exception:
+                                continue
+                        if checkpoint_to_load:
+                            break
+            if checkpoint_to_load:
                 break
 
     if existing_run_dir:
@@ -2198,8 +2269,15 @@ def main():
                 print(f"[RESUME] Episode-level checkpoint: resuming from episode {start_episode}", flush=True)
                 logging.info(f"[RESUME] Episode-level resume: start_episode={start_episode}")
 
-            policy_net.load_state_dict(ckpt['policy_state_dict'])
-            optimizer_agent.load_state_dict(ckpt['optimizer_state_dict'])
+            # Load fp16 policy weights, casting back to model's dtype
+            ckpt_policy = ckpt['policy_state_dict']
+            target_dtype = next(policy_net.parameters()).dtype
+            for k, v in ckpt_policy.items():
+                if torch.is_tensor(v) and v.is_floating_point() and v.dtype != target_dtype:
+                    ckpt_policy[k] = v.to(target_dtype)
+            policy_net.load_state_dict(ckpt_policy, strict=False)
+            # Optimizer state is no longer saved (too large); re-init from current policy
+            optimizer_agent = optim.Adam(policy_net.parameters(), lr=args.lr)
             loss_history = list(ckpt.get('loss_history', []))
             reward_history = list(ckpt.get('reward_history', []))
             ref_policy = copy.deepcopy(policy_net)
@@ -2325,7 +2403,12 @@ def main():
         # Restore student state if resuming mid-episode
         if episode == start_episode and resume_student_state is not None:
             try:
-                current_student.load_state_dict(resume_student_state)
+                # Cast fp16 weights back to model's dtype
+                target_dtype = next(current_student.parameters()).dtype
+                for k, v in resume_student_state.items():
+                    if torch.is_tensor(v) and v.is_floating_point() and v.dtype != target_dtype:
+                        resume_student_state[k] = v.to(target_dtype)
+                current_student.load_state_dict(resume_student_state, strict=False)
                 print(f"[RESUME] Restored student model at episode {episode} step {start_step}", flush=True)
                 logging.info(f"[RESUME] Restored student state at episode {episode}")
             except Exception as e:

@@ -35,11 +35,12 @@ class TestCheckpointSave:
         from collections import deque
 
         save_checkpoint(str(tmp_path), 42, student, opt, [0.1], [2.0], deque([1]))
-        ckpt = torch.load(str(tmp_path / "checkpoint.pt"), map_location='cpu')
+        ckpt = torch.load(str(tmp_path / "checkpoint.pt"), map_location='cpu', weights_only=False)
 
         assert ckpt['episode'] == 42
         assert 'policy_state_dict' in ckpt
-        assert 'optimizer_state_dict' in ckpt
+        # Optimizer state intentionally NOT saved (too large for tight quotas)
+        assert 'optimizer_state_dict' not in ckpt
         assert ckpt['loss_history'] == [0.1]
         assert ckpt['reward_history'] == [2.0]
 
