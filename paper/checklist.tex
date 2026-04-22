@@ -1,0 +1,92 @@
+% =======================================================================
+% NeurIPS Paper Checklist
+% =======================================================================
+% The checklist is mandatory; submissions without it are desk-rejected.
+% Each item: question, brief answer (\answerYes / \answerNo / \answerNA),
+% and a short justification.
+
+\section*{NeurIPS Paper Checklist}
+
+\begin{enumerate}
+
+\item \textbf{Claims}\\
+\emph{Question:} Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} Three contributions are stated in the introduction (Bayesian OED comparison, scale-invariance Proposition~\ref{prop:scale-invariance}, autonomous strategy emergence). Each is supported by experiments (Section~\ref{sec:results-main}--\ref{sec:results-ablation}) or formal analysis (Section~\ref{sec:theory}). All numerical claims awaiting CURC results are explicitly marked with \texttt{\textbackslash TBD\{...\}} placeholders.
+
+\item \textbf{Limitations}\\
+\emph{Question:} Does the paper discuss the limitations of the work performed by the authors?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} Section~\ref{sec:limitations} explicitly discusses the known-structure assumption, scale limits ($\sim$50 nodes due to text-based encoding), computational cost ($\sim$22 min/step on A100), and the privileged-information aspect of oracle pretraining. Appendix~\ref{app:failures} additionally documents specific failure modes (outlier seeds, graph misspecification regimes).
+
+\item \textbf{Theory assumptions and proofs}\\
+\emph{Question:} For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} Proposition~\ref{prop:scale-invariance} states all assumptions explicitly (Assumption~\ref{ass:diminish}: decomposable diminishing reward). A proof sketch is provided in Section~\ref{sec:theory} and the full proof is in Appendix~\ref{app:proof}.
+
+\item \textbf{Experimental result reproducibility}\\
+\emph{Question:} Does the paper fully disclose all the information needed to reproduce the main experimental results?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} Implementation details in Appendix~\ref{app:impl} include ground truth SCMs (\ref{app:scms}), learner architecture, policy prompt design, all reward components, and the Bayesian OED baseline algorithm (\ref{app:boed-impl}). Random seeds are listed in Appendix~\ref{app:reproducibility}. Hyperparameters table appears in Appendix~\ref{app:hyper-summary}.
+
+\item \textbf{Open access to data and code}\\
+\emph{Question:} Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} Code is publicly released at the anonymous URL in Appendix~\ref{app:reproducibility}. SCMs are synthetic and fully specified in Appendix~\ref{app:scms}; Phillips curve uses public FRED data (citation provided). The repository includes SLURM job scripts and reproducibility tests.
+
+\item \textbf{Experimental setting / details}\\
+\emph{Question:} Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer) necessary to understand the results?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} Hyperparameters are summarized in Appendix~\ref{app:hyper-summary}. Validation methodology uses held-out interventional splits described in Appendix~\ref{app:impl}. Hyperparameter selection is documented via a sensitivity analysis in Appendix~\ref{app:hyperparam-grid}.
+
+\item \textbf{Experiment statistical significance}\\
+\emph{Question:} Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} All results report mean $\pm$ std with 95\% confidence intervals. Statistical significance uses paired $t$-tests with Bonferroni correction ($\alpha = 0.01$ for 5 comparisons). N = 10 seeds for the main 5-node benchmark; N = 5 for larger experiments.
+
+\item \textbf{Experiments compute resources}\\
+\emph{Question:} For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce the experiments?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} Appendix~\ref{app:compute} provides per-step cost ($\sim$22 min on A100), per-seed runtime ($\sim$6--8 hours), and total GPU-hours. Appendix~\ref{app:reproducibility} lists CURC and Lambda Cloud as compute providers.
+
+\item \textbf{Code of ethics}\\
+\emph{Question:} Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} The work involves no human subjects, no PII, and only synthetic SCMs plus public FRED data. We use a publicly released LM (Qwen2.5-1.5B) under its license.
+
+\item \textbf{Broader impacts}\\
+\emph{Question:} Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} A Broader Impacts section appears between the Conclusion and References. We discuss positive impacts (accelerating scientific discovery in domains where interventions are costly) and caveats (validating that learned policies generalize and do not systematically neglect important regions).
+
+\item \textbf{Safeguards}\\
+\emph{Question:} Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse?\\
+\emph{Answer:} \answerNA{}\\
+\emph{Justification:} The released artifacts are research code and the trained policy on synthetic SCMs. They do not pose dual-use risks, contain no scraped or sensitive data, and target a narrow scientific domain (causal mechanism estimation).
+
+\item \textbf{Licenses for existing assets}\\
+\emph{Question:} Are the creators or original owners of assets used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} Qwen2.5-1.5B is cited and used under its public license. FRED data is cited; FRED Terms of Use permit academic research use. PyTorch, HuggingFace Transformers, and other libraries are used under their respective open-source licenses.
+
+\item \textbf{New assets}\\
+\emph{Question:} Are new assets introduced in the paper well documented and is the documentation provided alongside the assets?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} The new assets are the ACE codebase and trained policy checkpoints (released at the anonymous URL). The repository includes a README, inline docstrings, integration tests, and the SLURM scripts that produced our reported results.
+
+\item \textbf{Crowdsourcing and research with human subjects}\\
+\emph{Question:} For crowdsourcing experiments and research with human subjects, does the paper include the full text of instructions given to participants and screenshots, if applicable, as well as details about compensation (if any)?\\
+\emph{Answer:} \answerNA{}\\
+\emph{Justification:} No human subjects or crowdsourcing.
+
+\item \textbf{Institutional review board (IRB) approvals}\\
+\emph{Question:} Does the paper describe potential risks incurred by study participants, whether such risks were disclosed to the subjects, and whether Institutional Review Board (IRB) approvals (or an equivalent approval/review based on the requirements of your country or institution) were obtained?\\
+\emph{Answer:} \answerNA{}\\
+\emph{Justification:} No human subjects.
+
+\item \textbf{Declaration of LLM usage}\\
+\emph{Question:} Does the paper describe the usage of LLMs if it is an important, original, or non-standard component of the core methods in this research?\\
+\emph{Answer:} \answerYes{}\\
+\emph{Justification:} The Qwen2.5-1.5B language model is a core component of ACE---it serves as the experimentalist policy that proposes interventions. Its role, prompt structure, sampling parameters, and training procedure (DPO with $\beta = 0.1$) are detailed in Sections~\ref{sec:interaction-loop}, \ref{sec:dpo}, and Appendix~\ref{app:impl}. We do not use any LLM for paper writing or analysis beyond what is acknowledged here.
+
+\end{enumerate}

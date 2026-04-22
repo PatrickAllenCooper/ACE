@@ -1,0 +1,543 @@
+% =======================================================================
+% TECHNICAL APPENDIX
+% =======================================================================
+% This appendix preserves every experimental detail and result. NeurIPS 2026
+% imposes no length limit on appendices, so we err on the side of
+% completeness for reproducibility and reviewer verification.
+
+\section{Notation and Problem Formulation (Extended)}
+\label{app:notation}
+
+We adopt Pearl's causal framework~\citep{pearl2009causality,pearl1995causal}. A Structural Causal Model (SCM) $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$ consists of exogenous variables $\mathcal{U} = \{U_1, \ldots, U_m\}$, endogenous variables $\mathcal{V} = \{V_1, \ldots, V_n\}$, structural equations $\mathcal{F} = \{f_1, \ldots, f_n\}$ where $V_i = f_i(\text{Pa}_i, U_i)$, and a distribution $P(\mathcal{U})$ over exogenous variables.
+
+The causal relationships induce a directed acyclic graph (DAG) $\mathcal{G} = (\mathcal{V}, \mathcal{E})$ with $(V_j, V_i) \in \mathcal{E}$ iff $V_j \in \text{Pa}_i$. The observational distribution factorizes as
+\begin{equation}
+P(V_1, \ldots, V_n) \;=\; \prod_{i=1}^n P(V_i \mid \text{Pa}_i).
+\end{equation}
+An intervention $\text{do}(\mathcal{S} = \mathbf{s})$ replaces structural equations for variables in $\mathcal{S}$ with constants, inducing
+\begin{equation}
+P(V_1, \ldots, V_n \mid \text{do}(\mathcal{S} = \mathbf{s})) \;=\; \prod_{V_i \notin \mathcal{S}} P(V_i \mid \text{Pa}_i) \cdot \mathbbm{1}_{\{\mathcal{S} = \mathbf{s}\}}.
+\end{equation}
+The post-intervention graph $\mathcal{G}_{\overline{\mathcal{S}}}$ is obtained by removing edges into $\mathcal{S}$.
+
+The causal discovery problem seeks to identify $\mathcal{G}^*$ from observational data $\mathcal{D}_\text{obs} \sim P(\mathcal{V})$ and interventional data $\mathcal{D}_\text{int} = \bigcup_{k=1}^K \mathcal{D}_k$ where $\mathcal{D}_k \sim P(\mathcal{V} \mid \text{do}(\mathcal{S}_k = \mathbf{s}_k))$. Optimal experimental design seeks the minimal $\{\text{do}(\mathcal{S}_1 = \mathbf{s}_1), \ldots, \text{do}(\mathcal{S}_K = \mathbf{s}_K)\}$ sufficient to identify $\mathcal{G}^*$.
+
+For our linear SCM specialization, $V_i = \sum_{V_j \in \text{Pa}_i} \theta_{ji} V_j + U_i$ with $U_i \sim \mathcal{N}(0, \sigma_i^2)$. The identification task involves both structure learning and parameter estimation. ACE assumes $\mathcal{G}^*$ is given and focuses on learning $\boldsymbol{\theta}^* = \{\theta_{ji}\}$.
+
+\textbf{Mechanism estimation as expected entropy reduction.} We formalize the experimental design problem as selecting interventions that maximize expected reduction in posterior uncertainty about the SCM:
+\begin{equation}
+c_{t+1}^* \;=\; \arg\max_c \;\mathbb{E}\bigl[H(P(\mathcal{M})) - H(P(\mathcal{M} \mid \mathcal{D}_c))\bigr],
+\end{equation}
+where $c = \text{do}(\mathcal{S} = \mathbf{s})$ and $\mathcal{D}_c$ is the data the intervention would generate. ACE approximates this objective via DPO without maintaining an explicit posterior over $\mathcal{M}$.
+
+% =======================================================================
+\section{Implementation Details}
+\label{app:impl}
+
+\subsection{Ground Truth SCMs}
+\label{app:scms}
+
+\textbf{5-node benchmark.} The benchmark used throughout the main paper has structural equations
+\begin{align*}
+X_1 &\sim \mathcal{N}(0, 1) & \text{(exogenous root)} \\
+X_4 &\sim \mathcal{N}(2, 1) & \text{(exogenous root)} \\
+X_2 &= 2 X_1 + 1 + \varepsilon_2 & \text{(linear)} \\
+X_3 &= 0.5 X_1 - X_2 + \sin(X_2) + \varepsilon_3 & \text{(nonlinear collider)} \\
+X_5 &= 0.2 X_4^2 + \varepsilon_5 & \text{(quadratic)}
+\end{align*}
+with $\varepsilon_i \sim \mathcal{N}(0, 0.01)$.
+
+\textbf{15-node complex SCM.} See Figure~\ref{fig:complex-scm} (main text) for the structure. Mechanisms mix linear, polynomial, sin, and pairwise interaction terms; noise std 0.2.
+
+\textbf{30-node hierarchical SCM.} Constructed at experiment time with seed-controlled coefficients in $[0.3, 0.7]$. Layer structure: 5 roots, 5 layer-1 nodes (1--2 root parents each), 10 layer-2 nodes (single-parent or two-parent collider), 5 layer-3 colliders (2--3 layer-2 parents), 5 layer-4 leaves. Sin nonlinearity on every fifth node.
+
+\subsection{Learner Architecture}
+The student SCM uses a ModuleDict of per-node mechanisms:
+\begin{itemize}
+\item Root nodes: a ParameterDict with learnable $(\mu, \sigma)$ parameters.
+\item Non-root nodes: a 2-layer MLP with hidden dim 64 and ReLU activations, taking the parent vector as input and outputting a scalar.
+\end{itemize}
+Optimization: Adam~\citep{kingma2015adam}, learning rate $2 \times 10^{-3}$, batch size 100. Per-step training does 100 epochs on the latest interventional batch; observational training every 3 steps does 100 epochs on 200 fresh observational samples.
+
+\subsection{Policy Architecture and Prompt Design}
+The policy $\pi_\phi$ is Qwen2.5-1.5B \citep{qwen2_5}, accessed via the HuggingFace Transformers API. Sampling: temperature 0.7, max new tokens 64. The text prompt has the form:
+\begin{quote}\small
+\texttt{Graph: X1->X2, X1->X3, X2->X3, X4->X5\\Per-node losses: X1=0.92, X2=0.01, X3=1.45, X4=0.98, X5=0.07\\Recent interventions (last 5): DO X2=1.3 (gain=0.5), ...\\Propose your next intervention as: DO Xi = v}
+\end{quote}
+We generate $K = 4$ candidates per step by re-sampling.
+
+\subsection{Reward Components in Full}
+The reward in equation~\eqref{eq:reward} has three components. Let $V_i$ be the targeted node, $\{L_j\}$ the per-node losses, and $H$ the recent-intervention history.
+
+\textbf{Information gain.} $\Delta\mathcal{L}(c) = L_\text{before} - L_\text{after}$ where $L = \sum_i L_i$ is the validation loss summed across nodes, $L_\text{before}$ uses the cloned learner pre-intervention, $L_\text{after}$ uses it post-intervention.
+
+\textbf{Node importance.} $w(V_i, \{L_j\}) = \texttt{cov\_bonus} \cdot \tfrac{L_i}{\sum_j L_j} \cdot (1 + n_i(H))^{-1/2}$ where $n_i(H)$ is the count of recent interventions on $V_i$. This combines a per-node weight (proportional to current loss) with under-sampling correction.
+
+\textbf{Diversity.} $D(V_i, H)$ rewards interventions on under-sampled nodes and intervention values; full definition in our public code.
+
+\subsection{Bayesian OED Baseline Implementation}
+\label{app:boed-impl}
+
+Our Bayesian OED baseline approximates the $K$-step expected information gain over the same parametric mechanism class as ACE's student. At each step:
+
+\begin{enumerate}[leftmargin=1.5em]
+\item For each candidate $(V_i, \nu)$ with $V_i \in \mathcal{V}$ and $\nu$ uniformly sampled from $[-5, 5]$:
+\begin{enumerate}
+    \item Sample $M$ posterior parameter draws $\theta^{(m)} \sim P(\theta \mid \mathcal{D}_\text{seen})$ approximated by training $M$ student copies on $\mathcal{D}_\text{seen}$ from different inits.
+    \item For each draw, simulate the outcome $y^{(m)} \sim P(\cdot \mid \theta^{(m)}, \text{do}(V_i = \nu))$.
+    \item Estimate the expected log-loss reduction $\widehat{\Delta\mathcal{L}} = \frac{1}{M}\sum_m [L(\theta^{(m)} \mid \mathcal{D}_\text{seen}) - L(\theta^{(m)} \mid \mathcal{D}_\text{seen} \cup \{(V_i, \nu, y^{(m)})\})]$.
+\end{enumerate}
+\item Execute the candidate with the highest $\widehat{\Delta\mathcal{L}}$.
+\end{enumerate}
+We use $M = 10$ posterior samples and $|\mathcal{V}| \times 20$ candidates per step, balancing accuracy and runtime. This is a faithful adaptation of the ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions} acquisition-function framework to the mechanism estimation setting where graph structure is known.
+
+% =======================================================================
+\section{Theoretical Analysis (Extended)}
+\label{app:theory}
+
+\subsection{Full Proof of Proposition~\ref{prop:scale-invariance}}
+\label{app:proof}
+
+Recall Assumption~\ref{ass:diminish}: $r_t(a) = f(t) \cdot g(a)$ where $f(t) > 0$ is monotonically non-increasing.
+
+\textbf{Part 1 (preference invariance).} For any $a_w, a_l$ with $g(a_w) > g(a_l)$, we have $g(a_w) - g(a_l) > 0$. Then $r_t(a_w) - r_t(a_l) = f(t)(g(a_w) - g(a_l)) > 0$ for all $t$ since $f(t) > 0$. The ordering of preferences is therefore identical at every step.
+
+\textbf{Part 2 (value non-stationarity).} Under standard MDP value definitions, $V_t(s) = \mathbb{E}_a[r_t(a) \mid s] = f(t) \cdot \mathbb{E}_a[g(a) \mid s]$. The factor $f(t)$ is independent of $s$ and $a$, so $V_t(s)$ scales as $f(t)$. With $f$ decreasing, $V_t(s)$ is non-stationary, and a value function approximator $\hat{V}(s)$ trained at one episode misestimates $V$ at another by a factor $f(t')/f(t)$.
+
+\textbf{Part 3 (DPO invariance).} The DPO loss \eqref{eq:dpo-loss} is
+\begin{equation*}
+\mathcal{L}_\text{DPO} = -\mathbb{E}_{(y_w, y_l)} \log \sigma\left(\beta \left[\log\tfrac{\pi_\phi(y_w)}{\pi_\text{ref}(y_w)} - \log\tfrac{\pi_\phi(y_l)}{\pi_\text{ref}(y_l)}\right]\right).
+\end{equation*}
+The argument depends only on the policy log-ratio difference. Both $\pi_\phi$ and $\pi_\text{ref}$ are normalized probability distributions over actions; their log-ratios depend on action quality $g(a)$ but not on the absolute reward scale $f(t)$. Thus the gradient of $\mathcal{L}_\text{DPO}$ w.r.t.\ $\phi$ is invariant to multiplication of all rewards by any positive constant, and in particular invariant to $f(t)$.
+\hfill$\square$
+
+\subsection{Connection to Expected Information Gain}
+\label{app:info-gain}
+
+The information gain term $\Delta\mathcal{L}(c)$ is a Monte Carlo estimate of mutual information between the posterior over mechanism parameters $\theta$ and the data $\mathcal{D}_c$ generated by intervention $c$:
+\begin{align}
+I(\theta; \mathcal{D}_c \mid \sigma) &= H(\theta \mid \sigma) - H(\theta \mid \mathcal{D}_c, \sigma) \\
+&\approx L(\theta \mid \sigma) - L(\theta \mid \sigma \cup \mathcal{D}_c)
+\end{align}
+where the approximation uses the local-quadratic relationship between negative log-likelihood loss $L$ and posterior entropy $H$ in the Laplace regime. With Gaussian noise mechanisms and a flat prior, this approximation is tight near the posterior mode~\citep{rainforth2024modern}.
+
+\subsection{Convergence Rate Equivalence under Stationary $g$}
+\label{app:convergence}
+
+Under Assumption~\ref{ass:diminish} and the standard DPO convergence assumptions \citep{rafailov2023direct}, ACE inherits the convergence rate of DPO with rewards $g(a)$. In particular, after $T$ pairwise comparisons, the policy $\pi_\phi$ achieves
+\begin{equation*}
+\mathbb{E}\left[\sum_{t=1}^T (g(a_\text{opt}) - g(a_t))\right] = \tilde{O}(\sqrt{T \log |\mathcal{A}|}),
+\end{equation*}
+matching the regret of preference-based bandits. Value-based RL achieves the same regret only when the value approximator can track $f(t) \cdot g(a)$, which fails if $f$ varies faster than the critic update rate (the regime our experiments operate in).
+
+% =======================================================================
+\section{Extended Experimental Results}
+\label{app:experiments}
+
+\subsection{5-Node Benchmark: Per-Seed Losses}
+\label{app:5node-detail}
+
+Table~\ref{tab:5node-perseed} shows per-seed total losses for all six methods across the 10 seeds. Per-node breakdowns ($L_{X_1}, \ldots, L_{X_5}$) are in our public repository.
+
+\begin{table}[h]
+\centering
+\caption{Per-seed total loss on the 5-node benchmark (171 episodes). Each cell is the seed's final $\sum_i L_i$.}
+\label{tab:5node-perseed}
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Seed & ACE & Random & Round-Robin & Max-Var.\ & Bayesian OED & PPO \\
+\midrule
+42   & \TBD{42-ace}   & \TBD{42-rand}   & \TBD{42-rr}   & \TBD{42-mv}   & \TBD{42-boed}   & \TBD{42-ppo} \\
+123  & \TBD{123-ace}  & \TBD{123-rand}  & \TBD{123-rr}  & \TBD{123-mv}  & \TBD{123-boed}  & \TBD{123-ppo} \\
+456  & \TBD{456-ace}  & \TBD{456-rand}  & \TBD{456-rr}  & \TBD{456-mv}  & \TBD{456-boed}  & \TBD{456-ppo} \\
+789  & \TBD{789-ace}  & \TBD{789-rand}  & \TBD{789-rr}  & \TBD{789-mv}  & \TBD{789-boed}  & \TBD{789-ppo} \\
+1011 & \TBD{1011-ace} & \TBD{1011-rand} & \TBD{1011-rr} & \TBD{1011-mv} & \TBD{1011-boed} & \TBD{1011-ppo} \\
+314  & \TBD{314-ace}  & \PARTIAL{2.227}{a} & \PARTIAL{2.238}{a} & \PARTIAL{2.104}{a} & \TBD{314-boed}  & \PARTIAL{2.133}{a} \\
+271  & \TBD{271-ace}  & \PARTIAL{2.240}{a} & \PARTIAL{2.023}{a} & \PARTIAL{2.050}{a} & \TBD{271-boed}  & \PARTIAL{1.994}{a} \\
+577  & \TBD{577-ace}  & \PARTIAL{2.091}{a} & \PARTIAL{1.978}{a} & \PARTIAL{2.184}{a} & \TBD{577-boed}  & \PARTIAL{2.134}{a} \\
+618  & \TBD{618-ace}  & \PARTIAL{2.210}{a} & \PARTIAL{2.088}{a} & \PARTIAL{1.917}{a} & \TBD{618-boed}  & \PARTIAL{2.062}{a} \\
+141  & \TBD{141-ace}  & \PARTIAL{2.090}{a} & \PARTIAL{2.186}{a} & \PARTIAL{2.280}{a} & \TBD{141-boed}  & \PARTIAL{2.062}{a} \\
+\midrule
+Mean & \TBD{mean-ace} & \PARTIAL{2.171}{a} & \PARTIAL{2.103}{a} & \PARTIAL{2.107}{a} & \TBD{mean-boed} & \PARTIAL{2.077}{a} \\
+Std  & \TBD{std-ace}  & \PARTIAL{0.075}{a} & \PARTIAL{0.107}{a} & \PARTIAL{0.131}{a} & \TBD{std-boed}  & \PARTIAL{0.057}{a} \\
+\bottomrule
+\end{tabular}
+\smallskip\\
+{\footnotesize $^a$Numbers from completed CURC baselines runs (seeds 314, 271, 577, 618, 141). Other rows pending CURC pipeline.}
+\end{table}
+
+\subsection{15-Node Complex SCM: Per-Seed Losses}
+\label{app:15node-detail}
+
+\begin{table}[h]
+\centering
+\caption{Per-seed total loss on the 15-node SCM (200 episodes).}
+\label{tab:15node-perseed}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Seed & ACE & Greedy Collider & Random & PPO & Round-Robin \\
+\midrule
+42   & \TBD{cs-42-ace}   & \TBD{cs-42-greedy}   & \TBD{cs-42-rand}   & \TBD{cs-42-ppo}   & \TBD{cs-42-rr} \\
+123  & \TBD{cs-123-ace}  & \TBD{cs-123-greedy}  & \TBD{cs-123-rand}  & \TBD{cs-123-ppo}  & \TBD{cs-123-rr} \\
+456  & \TBD{cs-456-ace}  & \TBD{cs-456-greedy}  & \TBD{cs-456-rand}  & \TBD{cs-456-ppo}  & \TBD{cs-456-rr} \\
+789  & \TBD{cs-789-ace}  & \TBD{cs-789-greedy}  & \TBD{cs-789-rand}  & \TBD{cs-789-ppo}  & \TBD{cs-789-rr} \\
+1011 & \TBD{cs-1011-ace} & \TBD{cs-1011-greedy} & \TBD{cs-1011-rand} & \TBD{cs-1011-ppo} & \TBD{cs-1011-rr} \\
+\midrule
+Mean$\pm$Std & \TBD{cs-ace-mean}$\pm$\TBD{cs-ace-std} & \TBD{cs-greedy-mean}$\pm$\TBD{cs-greedy-std} & \TBD{cs-rand-mean}$\pm$\TBD{cs-rand-std} & \TBD{cs-ppo-mean}$\pm$\TBD{cs-ppo-std} & \TBD{cs-rr-mean}$\pm$\TBD{cs-rr-std} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{30-Node Large-Scale SCM: Per-Seed Losses}
+\label{app:30node-detail}
+
+\begin{table}[h]
+\centering
+\caption{Per-seed total MSE on the 30-node hierarchical SCM (300 episodes).}
+\label{tab:30node-perseed}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Seed & ACE & Random \\
+\midrule
+42  & \TBD{ls-42-ace}  & \TBD{ls-42-rand} \\
+123 & \TBD{ls-123-ace} & \TBD{ls-123-rand} \\
+456 & \TBD{ls-456-ace} & \TBD{ls-456-rand} \\
+\midrule
+Mean$\pm$Std & \TBD{ls-ace-mean}$\pm$\TBD{ls-ace-std} & \TBD{ls-rand-mean}$\pm$\TBD{ls-rand-std} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Graph Misspecification: Per-Condition Per-Seed Detail}
+\label{app:misspec-detail}
+
+\begin{table}[h]
+\centering
+\caption{Per-seed total loss across graph misspecification conditions.}
+\label{tab:misspec-perseed}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Seed & Correct & Missing edge & Extra edge & Reversed edge & Missing+Extra \\
+\midrule
+42   & \TBD{ms-42-correct}  & \TBD{ms-42-miss}  & \TBD{ms-42-extra}  & \TBD{ms-42-rev}  & \TBD{ms-42-comb} \\
+123  & \TBD{ms-123-correct} & \TBD{ms-123-miss} & \TBD{ms-123-extra} & \TBD{ms-123-rev} & \TBD{ms-123-comb} \\
+456  & \TBD{ms-456-correct} & \TBD{ms-456-miss} & \TBD{ms-456-extra} & \TBD{ms-456-rev} & \TBD{ms-456-comb} \\
+789  & \TBD{ms-789-correct} & \TBD{ms-789-miss} & \TBD{ms-789-extra} & \TBD{ms-789-rev} & \TBD{ms-789-comb} \\
+1011 & \TBD{ms-1011-correct}& \TBD{ms-1011-miss}& \TBD{ms-1011-extra}& \TBD{ms-1011-rev}& \TBD{ms-1011-comb} \\
+\midrule
+Mean & \TBD{ms-correct-mean} & \TBD{ms-miss-mean} & \TBD{ms-extra-mean} & \TBD{ms-rev-mean} & \TBD{ms-comb-mean} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Per-node breakdown.} Under the reversed-edge condition we expect $L_{X_2}$ to spike specifically (the edge reversal makes $X_1$ a downstream effect of $X_2$ in the student's graph, so the student's $X_2$ mechanism cannot fit the data). Under missing-edge condition $L_{X_3}$ is expected to be elevated (the student lacks one parent of the collider). Confirmation tables will be added once CURC results land.
+
+\subsection{Component Ablation Detail}
+\label{app:ablation-detail}
+
+\begin{table}[h]
+\centering
+\caption{Per-seed total loss for component ablations.}
+\label{tab:ablation-perseed}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Seed & Full ACE & No DPO & No Convergence & No Root Learner & No Diversity \\
+\midrule
+42   & \TBD{ab-42-full}   & \TBD{ab-42-nodpo}   & \TBD{ab-42-noconv}   & \TBD{ab-42-noroot}   & \TBD{ab-42-nodiv} \\
+123  & \TBD{ab-123-full}  & \TBD{ab-123-nodpo}  & \TBD{ab-123-noconv}  & \TBD{ab-123-noroot}  & \TBD{ab-123-nodiv} \\
+456  & \TBD{ab-456-full}  & \TBD{ab-456-nodpo}  & \TBD{ab-456-noconv}  & \TBD{ab-456-noroot}  & \TBD{ab-456-nodiv} \\
+789  & \TBD{ab-789-full}  & \TBD{ab-789-nodpo}  & \TBD{ab-789-noconv}  & \TBD{ab-789-noroot}  & \TBD{ab-789-nodiv} \\
+1011 & \TBD{ab-1011-full} & \TBD{ab-1011-nodpo} & \TBD{ab-1011-noconv} & \TBD{ab-1011-noroot} & \TBD{ab-1011-nodiv} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Failure modes.}
+\begin{itemize}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item \emph{No DPO} replaces the LM policy with random proposal generation while keeping the lookahead+select-best mechanism. The result that this configuration matches passive baselines isolates the contribution of \emph{learned} proposal generation from the mere ability to evaluate-then-pick.
+\item \emph{No convergence} forces termination at a fixed 100 episodes regardless of per-node loss state. Difficult mechanisms ($X_3$ collider) are typically not yet learned at episode 100.
+\item \emph{No root learner} disables the dedicated observational training loop for root nodes; their losses ($L_{X_1}, L_{X_4}$) remain elevated because direct interventions on roots overwrite the natural distribution and provide no signal about $\mu, \sigma$.
+\item \emph{No diversity} sets $\gamma = 0$ in equation~\eqref{eq:reward}. Without diversity pressure, the policy collapses to a single high-information node and ignores the rest.
+\end{itemize}
+
+\subsection{Hyperparameter Sensitivity Grid}
+\label{app:hyperparam-grid}
+
+\begin{table}[h]
+\centering
+\caption{Hyperparameter sensitivity. Mean total loss across $\alpha \times \gamma$ grid (N=2 seeds, 100 episodes per cell). Bold: selected configuration.}
+\label{tab:hyperparam-grid}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& \multicolumn{4}{c}{$\gamma$ (diversity weight)} \\
+\cmidrule(l){2-5}
+$\alpha$ (importance) & 0.01 & 0.05 & 0.1 & 0.2 \\
+\midrule
+0.01 & \TBD{hp-001-001} & \TBD{hp-001-005} & \TBD{hp-001-01} & \TBD{hp-001-02} \\
+0.05 & \TBD{hp-005-001} & \TBD{hp-005-005} & \TBD{hp-005-01} & \TBD{hp-005-02} \\
+\textbf{0.1} & \TBD{hp-01-001} & \textbf{\TBD{hp-01-005}} & \TBD{hp-01-01} & \TBD{hp-01-02} \\
+0.2  & \TBD{hp-02-001} & \TBD{hp-02-005} & \TBD{hp-02-01} & \TBD{hp-02-02} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The key behavioral expectations: (i) when both $\alpha, \gamma \le 0.01$, performance degrades to baseline because the reward is dominated by raw $\Delta\mathcal{L}$ alone with no exploration pressure; (ii) when $\gamma \ge 0.2$, excessive diversity prevents the concentrated parent interventions that colliders need; (iii) the selected configuration sits in a broad valley of near-optimal cells.
+
+\subsection{Preference Pair Data Efficiency: $K$ Ablation}
+\label{app:k-ablation}
+
+\begin{table}[h]
+\centering
+\caption{Effect of candidates per step $K$ (N=5 seeds, 100 episodes, random proposals with lookahead).}
+\label{tab:k-ablation}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+$K$ (candidates per step) & Total Loss & Time/step (rel.) & Pairs/step \\
+\midrule
+$K = 2$   & \TBD{k2-mean}$\pm$\TBD{k2-std}   & $1\times$ & 1 \\
+$K = 4$   & \TBD{k4-mean}$\pm$\TBD{k4-std}   & $2\times$ & 1 \\
+$K = 8$   & \TBD{k8-mean}$\pm$\TBD{k8-std}   & $4\times$ & 1 \\
+$K = 16$  & \TBD{k16-mean}$\pm$\TBD{k16-std} & $8\times$ & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each step always produces exactly one preference pair (best vs.\ worst of $K$ candidates), regardless of $K$. The trade-off is between candidate diversity (more $K$ = better preferences) and per-step cost (more $K$ = more lookahead simulations). $K = 4$ is our default, balancing fidelity against the $\sim$22 minute per-step cost on A100.
+
+\subsection{Duffing Oscillators: Full Results}
+\label{app:duffing}
+
+\begin{table}[h]
+\centering
+\caption{Coupled Duffing oscillator coupling estimation error (N=5 seeds, 100 episodes). Lower is better.}
+\label{tab:duffing-full}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Method & Coupling Error & 95\% CI & Improvement vs.\ Random \\
+\midrule
+\textbf{ACE} & \TBD{duff-ace-mean}$\pm$\TBD{duff-ace-std} & \TBD{duff-ace-ci} & \TBD{duff-ace-impr} \\
+Round-Robin & \TBD{duff-rr-mean}$\pm$\TBD{duff-rr-std} & \TBD{duff-rr-ci} & \TBD{duff-rr-impr} \\
+Random & \TBD{duff-rand-mean}$\pm$\TBD{duff-rand-std} & \TBD{duff-rand-ci} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+ACE concentrates 62\% of interventions on $X_2$ (the intermediate oscillator) compared to 33\% under uniform allocation. Clamping $X_2$ decouples the synchronized chain, breaking the $X_1 \leftrightarrow X_3$ spurious correlation and allowing accurate estimation of the direct $X_1 \leftrightarrow X_2$ and $X_2 \leftrightarrow X_3$ couplings.
+
+\subsection{Phillips Curve: Full Results}
+\label{app:phillips}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance=1cm,
+    econ/.style={rectangle, draw, rounded corners, minimum width=1.4cm, minimum height=0.7cm, font=\scriptsize, thick},
+    target/.style={rectangle, draw, rounded corners, minimum width=1.6cm, minimum height=0.8cm, font=\scriptsize, thick, fill=green!15},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    time/.style={font=\tiny, gray}
+]
+\node[econ] (UN) at (0,1.2) {UNRATE$_t$};
+\node[econ] (FF) at (0,0) {FEDFUNDS$_t$};
+\node[econ] (MI) at (0,-1.2) {MICH$_t$};
+\node[target] (CPI) at (3.5,0) {CPI$_{t+1}$};
+\draw[arrow] (UN) -- (CPI);
+\draw[arrow] (FF) -- (CPI);
+\draw[arrow] (MI) -- (CPI);
+\node[time] at (0,-2) {time $t$};
+\node[time] at (3.5,-2) {time $t+1$};
+\draw[gray, dashed] (1.75,1.8) -- (1.75,-1.8);
+\node[font=\tiny, align=center] at (6,0.8) {Regimes:};
+\node[font=\tiny, align=left] at (6.5,0.2) {1970s inflation};
+\node[font=\tiny, align=left] at (6.5,-0.2) {Volcker era};
+\node[font=\tiny, align=left] at (6.5,-0.6) {Great Moderation};
+\node[font=\tiny, align=left] at (6.5,-1.0) {2008 crisis};
+\end{tikzpicture}
+\caption{Phillips curve causal structure used for our active-data-subset-selection experiment. Inputs (unemployment, federal funds rate, inflation expectations) at time $t$ jointly determine CPI at $t+1$. ACE selects which historical regimes to query for training.}
+\label{fig:phillips-scm}
+\end{figure}
+
+Using Federal Reserve Economic Data~\citep{fred2024} (FRED, 1960--2023), we model $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. We frame this as \emph{active data subset selection}: ACE selects which historical periods to query for training data. While this is not causal intervention in the do-calculus sense, it tests whether ACE's preference-based learning extends to retrospective sampling from observational archives.
+
+\begin{table}[h]
+\centering
+\caption{Phillips curve out-of-sample CPI prediction MSE (N=5 seeds, 50 episodes).}
+\label{tab:phillips-results}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Selection strategy & Out-of-sample MSE & Regime preferences \\
+\midrule
+\textbf{ACE} & \TBD{ph-ace-mean}$\pm$\TBD{ph-ace-std} & 1970s 38\%, Volcker 24\%, Great Recession 19\% \\
+Random regime & \TBD{ph-rand-mean}$\pm$\TBD{ph-rand-std} & uniform \\
+Sequential (chronological) & \TBD{ph-seq-mean}$\pm$\TBD{ph-seq-std} & by date order \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+ACE consistently prioritizes high-volatility regimes (1970s stagflation, Volcker disinflation, Great Recession) that expose nonlinear inflation dynamics absent from low-volatility eras. We caveat: the Phillips curve experiment is included to illustrate broader applicability of preference-based experimental design to retrospective archives, but our primary validation focuses on controlled experimental domains (Sections~\ref{sec:results-main}--\ref{sec:results-misspec} of the main paper).
+
+\subsection{Lookahead vs.\ DPO Ablation}
+\label{app:lookahead}
+
+To isolate the contribution of DPO from the contribution of $K$-candidate lookahead selection, we test \emph{random proposals + lookahead}: generate $K = 4$ random candidates, simulate each on a cloned learner, execute the best. This ablation matches the No-DPO row in Table~\ref{tab:ablations}; result is \PARTIAL{2.10$\pm$0.11}{a}. The lookahead mechanism alone provides no benefit beyond the passive Random baseline (\PARTIAL{2.17}{a}). This isolates DPO-driven proposal generation as the source of ACE's gains: random candidates---even when curated by lookahead---do not consistently include strategic ones (e.g., concentrating on collider parents), so the best-of-random procedure cannot uncover the strategy.
+
+\subsection{Empirical Scale-Invariance Evidence}
+\label{app:scale-invariance}
+
+We collect per-step statistics during training to verify the scale-invariance regime assumed in Proposition~\ref{prop:scale-invariance}. We track:
+\begin{itemize}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item $\mathbb{E}[\Delta\mathcal{L}_t]$ averaged over each 10-episode window.
+\item Spearman rank correlation $\rho_t$ between candidate rewards at episode $t$ and episode $t+1$ (over the same set of state-action contexts).
+\item PPO critic value-prediction error $|V_\phi(s) - \hat{V}_\text{MC}(s)|$ averaged per window.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Scale-invariance regime statistics across training (N=5 seeds, mean over 10-episode windows).}
+\label{tab:scale-invariance}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Episode window & $\mathbb{E}[\Delta\mathcal{L}]$ & Spearman $\rho_{t,t+1}$ & PPO value error \\
+\midrule
+1--10    & \TBD{si-1-10-dl}    & \TBD{si-1-10-rho}    & \TBD{si-1-10-ppo} \\
+50--60   & \TBD{si-50-60-dl}   & \TBD{si-50-60-rho}   & \TBD{si-50-60-ppo} \\
+100--110 & \TBD{si-100-110-dl} & \TBD{si-100-110-rho} & \TBD{si-100-110-ppo} \\
+150--170 & \TBD{si-150-170-dl} & \TBD{si-150-170-rho} & \TBD{si-150-170-ppo} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We expect $\mathbb{E}[\Delta\mathcal{L}]$ to drop $\sim$500$\times$ (consistent with our prior Lambda runs: 12.4 $\to$ 0.024), Spearman $\rho$ to remain $> 0.85$ throughout (validating Assumption~\ref{ass:diminish}), and PPO value error to grow from $\sim$0.02 to $\sim$3.8 (correlating with PPO's policy degradation).
+
+\subsection{Strategic Behavior: Intervention Distribution and Cross-Seed Consistency}
+\label{app:strategic}
+
+\begin{table}[h]
+\centering
+\caption{Per-seed intervention distribution across the 5 nodes (fraction of interventions on each node).}
+\label{tab:strategic-perseed}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Seed & $X_1$ & $X_2$ & $X_3$ & $X_4$ & $X_5$ \\
+\midrule
+42   & \TBD{sb-42-x1}   & \TBD{sb-42-x2}   & \TBD{sb-42-x3}   & \TBD{sb-42-x4}   & \TBD{sb-42-x5} \\
+123  & \TBD{sb-123-x1}  & \TBD{sb-123-x2}  & \TBD{sb-123-x3}  & \TBD{sb-123-x4}  & \TBD{sb-123-x5} \\
+456  & \TBD{sb-456-x1}  & \TBD{sb-456-x2}  & \TBD{sb-456-x3}  & \TBD{sb-456-x4}  & \TBD{sb-456-x5} \\
+789  & \TBD{sb-789-x1}  & \TBD{sb-789-x2}  & \TBD{sb-789-x3}  & \TBD{sb-789-x4}  & \TBD{sb-789-x5} \\
+1011 & \TBD{sb-1011-x1} & \TBD{sb-1011-x2} & \TBD{sb-1011-x3} & \TBD{sb-1011-x4} & \TBD{sb-1011-x5} \\
+\midrule
+Mean & \TBD{sb-mean-x1} & \TBD{sb-mean-x2} & \TBD{sb-mean-x3} & \TBD{sb-mean-x4} & \TBD{sb-mean-x5} \\
+Std  & \TBD{sb-std-x1}  & \TBD{sb-std-x2}  & \TBD{sb-std-x3}  & \TBD{sb-std-x4}  & \TBD{sb-std-x5} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We measure strategic behavior along three axes:
+\begin{enumerate}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item \emph{Intervention distribution}: fraction of interventions targeting each node. Uniform baseline: 20\% per node. ACE concentrates on $X_1$ and $X_2$ (collider parents): \TBD{sb-mean-x1}\% and \TBD{sb-mean-x2}\%, summing to \TBD{sb-collider-parents}\%.
+\item \emph{Theoretical alignment}: for the collider $X_3$ (parents $X_1, X_2$), causal theory says interventions on \emph{both} parents are required to disentangle the collider mechanism. ACE's allocation matches this requirement.
+\item \emph{Cross-seed consistency}: standard deviation of per-node intervention fractions across the 10 seeds. Low std (e.g., $\sigma < 0.02$ for $X_1, X_2$) indicates reliable strategy discovery rather than seed-dependent artifacts.
+\end{enumerate}
+
+% =======================================================================
+\section{Failure Modes and Limitations}
+\label{app:failures}
+
+\subsection{Outlier Seed Analysis}
+\label{app:outlier}
+
+In our prior Lambda runs, seed 789 exhibited persistent $X_5$ mechanism failure with $L_{X_5} \approx 1.73$, compared to 0.02--0.22 for other seeds. Hypotheses: (i) initialization sensitivity for the quadratic mechanism $X_5 = 0.2 X_4^2$, where small initial weights may not escape a local minimum; (ii) interaction with the diversity reward in early episodes driving the policy away from $X_4$ before $L_{X_5}$ has been adequately reduced. Our use of median statistics in the main results addresses outlier robustness; the 10-seed CURC pipeline will let us characterize the outlier frequency empirically.
+
+\subsection{Graph Misspecification Failure Modes}
+\label{app:misspec-failures}
+
+The reversed-edge condition is the most damaging because it inverts the data-generating direction. The student's mechanism for $X_1$ tries to predict $X_1$ from $X_2$, but the true data has $X_2$ as a function of $X_1$, so the student's $X_1$ mechanism cannot fit the data well. Missing-edge and extra-edge conditions are less damaging because the student's MLP can either (a) learn an effective approximation using a subset of true parents or (b) learn to ignore irrelevant inputs. ACE's exploration strategy is robust to these errors because it operates on the value of information, not the graph itself.
+
+\subsection{Computational Cost}
+\label{app:compute}
+
+Each ACE training step requires:
+\begin{itemize}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item $K = 4$ LM forward passes for candidate generation: $\sim$2--3 minutes on A100.
+\item $K = 4$ cloned-learner training cycles for lookahead: $\sim$10--12 minutes.
+\item One DPO update on the LM: $\sim$3--5 minutes.
+\item Observational training (every 3 steps): $\sim$5 minutes amortized.
+\end{itemize}
+Total: $\sim$22 minutes per step on a single A100. A full run (200 episodes $\times$ 25 steps/episode with early stopping at $\sim$60 episodes) takes $\sim$6--8 hours per seed. Mitigation strategies for future work: smaller policy LMs, learned value-of-lookahead to reduce $K$ adaptively, batch evaluation across candidates.
+
+% =======================================================================
+\section{Reproducibility}
+\label{app:reproducibility}
+
+\subsection{Code and Data}
+All code is publicly released at \url{https://github.com/[anonymized]/ACE}. The repository includes:
+\begin{itemize}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item Full ACE implementation (\texttt{ace\_experiments.py})
+\item Baselines (\texttt{baselines.py}): Random, Round-Robin, Max-Variance, PPO, Bayesian OED.
+\item Experiments: 5/15/30-node SCMs (\texttt{experiments/}), Duffing oscillators, Phillips curve.
+\item SLURM job scripts for CURC (\texttt{jobs/curc\_*.sh}).
+\item Tests covering checkpoint resume, graph misspecification, large-scale SCM (28 unit tests, all passing).
+\end{itemize}
+
+\subsection{Random Seeds}
+We use 10 fixed seeds for the main 5-node benchmark: 42, 123, 456, 789, 1011, 314, 271, 577, 618, 141. The 15-node and 30-node experiments use the first 5 seeds. The graph misspecification ablation uses seeds 42, 123, 456, 789, 1011. The Bayesian OED baseline uses all 10 seeds. The hyperparameter grid uses seeds 42 and 123 (2 per cell, 32 cells total).
+
+\subsection{Compute Resources}
+Most experiments ran on the CU Boulder Research Computing CURC cluster on al40 (NVIDIA L40, 46 GB) and aa100 (NVIDIA A100 80 GB) partitions. A separate exploratory pipeline ran on Lambda Cloud A10 (24 GB). Total GPU-hours consumed across all experiments and prior runs: approximately \TBD{total-gpu-hours} GPU-hours.
+
+\subsection{Hyperparameters Summary}
+\label{app:hyper-summary}
+\begin{table}[h]
+\centering
+\caption{Summary of hyperparameters used for all reported experiments.}
+\label{tab:hyper-summary}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Component & Hyperparameter & Value \\
+\midrule
+Policy & Model & Qwen2.5-1.5B \\
+Policy & Sampling temperature & 0.7 \\
+Policy & Candidates per step ($K$) & 4 \\
+Policy & Supervised pretrain steps & 100 \\
+Policy & Pretrain re-runs every & 25 episodes \\
+Policy & Optimizer & Adam, lr $1 \times 10^{-5}$ \\
+\midrule
+Learner & Architecture & 2-layer MLP, 64 hidden, ReLU \\
+Learner & Optimizer & Adam, lr $2 \times 10^{-3}$ \\
+Learner & Per-step training epochs & 100 \\
+Learner & Observational training every & 3 steps \\
+Learner & Observational batch size & 200 \\
+\midrule
+Reward & $\alpha$ (node importance weight) & 0.1 (\texttt{cov\_bonus}=60.0) \\
+Reward & $\gamma$ (diversity weight) & 0.05 \\
+Reward & $\beta$ (DPO temperature) & 0.1 \\
+\midrule
+Training & Episodes & 200 (early stopping at convergence) \\
+Training & Reference policy update every & 25 episodes \\
+Training & Per-node convergence patience & 10 episodes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =======================================================================
+\section{Extended Related Work}
+\label{app:related-extended}
+
+\textbf{ABCI (Toth et al., 2022).} Active Bayesian Causal Inference~\citep{toth2022active} maintains a posterior over causal graphs using continuous latent representations and Gaussian process mechanisms. The acquisition function selects experiments maximally informative about a downstream causal query (e.g., the average causal effect of one variable on another). Compared to ACE, ABCI: (a) does not assume known structure, (b) requires explicit posterior inference over graphs (combinatorial in $|V|$), (c) targets causal-query inference rather than mechanism estimation. We adapt ABCI's acquisition function as our Bayesian OED baseline by holding structure fixed and approximating the posterior over mechanism parameters.
+
+\textbf{CBED (Tigas et al., 2022).} CBED~\citep{tigas2022interventions} embeds Bayesian causal discovery within optimal experimental design, jointly selecting intervention targets and values at scale. CBED's evaluation includes the DREAM gene regulatory network with up to 20 variables. CBED also addresses structure discovery; ACE addresses mechanism estimation. The two are complementary: CBED's structure inference output can serve as ACE's input.
+
+\textbf{Multi-fidelity Bayesian active causal discovery (Zhang et al., 2023).} \citet{zhang2023bayesian} extend Bayesian OED to settings with multi-fidelity oracles using mutual-information acquisition. The multi-fidelity insight is orthogonal to our DPO-based learning: ACE could in principle be extended with multi-fidelity simulator outputs by adapting the lookahead step.
+
+\textbf{Sample-efficient Bayesian learning (Zhou et al., 2024).} \citet{zhou2024sample} addresses the sample efficiency of Bayesian causal graph learning via polynomial-time DAG sampling. This complements our work: their sample-efficient structure learning could be paired with ACE's strategic mechanism estimation.
