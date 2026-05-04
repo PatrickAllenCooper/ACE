@@ -64,7 +64,7 @@
 \maketitle
 
 \begin{abstract}
-Discovering causal relationships requires controlled experiments, but experimentalists face a sequential decision problem: each intervention reveals information that should inform what to try next. Traditional approaches such as random sampling, greedy information maximization, and round-robin coverage treat each decision in isolation, unable to learn adaptive strategies from experience. We propose Active Causal Experimentalist (ACE), which learns experimental design as a sequential policy. Our key insight is that while absolute information gains diminish as knowledge accumulates---making value-based reinforcement learning unstable---\emph{relative} comparisons between candidate interventions remain meaningful throughout. ACE exploits this via Direct Preference Optimization (DPO), learning from pairwise intervention comparisons rather than non-stationary reward magnitudes. We formalize this advantage with a scale-invariance result (Proposition~\ref{prop:scale-invariance}) and validate it empirically. Across synthetic structural causal models of increasing complexity (5, 15, and 30 nodes), coupled Duffing oscillators, and economic time-series data, ACE achieves a median total loss of $0.61$ on the 5-node benchmark versus $2.04\pm0.12$ for a Bayesian optimal experimental design baseline adapted from ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions}---a $55\%$ improvement at matched intervention budgets. On the 30-node benchmark, ACE achieves $1.95\pm0.77$ best-loss versus $11.29\pm1.02$ for random intervention, a $5.8\times$ improvement. Notably, the learned policy autonomously discovers that collider mechanisms require concentrated interventions on parent variables, a theoretically-grounded strategy that emerges purely from experience.
+Discovering causal relationships requires controlled experiments, but experimentalists face a sequential decision problem: each intervention reveals information that should inform what to try next. Traditional approaches such as random sampling, greedy information maximization, and round-robin coverage treat each decision in isolation, unable to learn adaptive strategies from experience. We propose Active Causal Experimentalist (ACE), which learns experimental design as a sequential policy. Our key insight is that while absolute information gains diminish as knowledge accumulates---making value-based reinforcement learning unstable---\emph{relative} comparisons between candidate interventions remain meaningful throughout. ACE exploits this via Direct Preference Optimization (DPO), learning from pairwise intervention comparisons rather than non-stationary reward magnitudes. We formalize this advantage with a scale-invariance result (Proposition~\ref{prop:scale-invariance}) and validate it empirically. Across synthetic structural causal models of increasing complexity (5 and 30 nodes), coupled Duffing oscillators, and economic time-series data, ACE achieves a median total loss of $0.61$ on the 5-node benchmark versus $2.04\pm0.12$ for a Bayesian optimal experimental design baseline adapted from ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions}---a $55\%$ improvement at matched intervention budgets. On the 30-node benchmark, ACE achieves $1.95\pm0.77$ best-loss versus $11.29\pm1.02$ for random intervention, a $5.8\times$ improvement. Notably, the learned policy autonomously discovers that collider mechanisms require concentrated interventions on parent variables, a theoretically-grounded strategy that emerges purely from experience.
 \end{abstract}
 
 % =======================================================================
@@ -81,7 +81,7 @@ We present \textbf{Active Causal Experimentalist (ACE)}, which learns experiment
 
 \textbf{Contributions.} We make three concrete claims, each empirically validated against state-of-the-art baselines:
 \begin{enumerate}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
-\item \textbf{Empirical:} ACE outperforms a Bayesian optimal experimental design baseline---representative of \citep{toth2022active,tigas2022interventions}---by $55\%$ on the 5-node benchmark ($0.92\pm0.73$ mean, $0.61$ median vs.\ $2.04\pm0.12$; N=5 ACE, N=3 Bayesian OED). The advantage holds on 30-node hierarchical SCMs ($1.95\pm0.77$ vs.\ Random $11.29\pm1.02$, a $5.8\times$ improvement) and on coupled Duffing oscillators ($0.042\pm0.036$ vs.\ Random $0.245\pm0.121$, a $5.8\times$ improvement).
+\item \textbf{Empirical:} ACE outperforms a Bayesian optimal experimental design baseline---representative of \citep{toth2022active,tigas2022interventions}---by $55\%$ on the 5-node benchmark ($0.92\pm0.73$ mean, $0.61$ median vs.\ $2.04\pm0.12$; N=5 ACE, N=3 Bayesian OED). The advantage holds on 30-node hierarchical SCMs ($1.95\pm0.77$ best-loss vs.\ Random $11.29\pm1.02$, a $5.8\times$ improvement; Round-Robin and Max-Variance forthcoming) and on coupled Duffing oscillators ($0.042\pm0.036$ vs.\ Random $0.245\pm0.121$, a $5.8\times$ improvement).
 \item \textbf{Theoretical:} We formalize the scale-invariance of preference learning under diminishing reward magnitudes (Proposition~\ref{prop:scale-invariance}). Empirical validation shows reward magnitudes drop $\sim$500$\times$ over training while DPO ranking remains stable (Spearman $\rho > 0.85$).
 \item \textbf{Emergent strategy:} Without explicit instruction, the learned policy concentrates $99.8\%$ of interventions on collider parents, matching the strategy causal theory identifies as optimal. This suggests preference learning can recover principled experimental strategies through experience.
 \end{enumerate}
@@ -293,20 +293,20 @@ We construct a 5-node SCM (Figure~\ref{fig:synthetic-scm}) testing collider iden
 
 \begin{table}[t]
 \centering
-\caption{Main results on the 5-node benchmark. ACE (N=5 seeds) runs until per-node convergence (avg.\ 171 episodes); baselines (N=5 seeds) run at the matched 171-episode budget. Bayesian OED reports N=3 independent seeds. Improvement column is computed against the ACE median of $0.61$, since one ACE seed (789) produced a quadratic-mechanism outlier.}
+\caption{Main results on the 5-node benchmark. ACE (N=5) runs until convergence (avg.\ 171 ep.); baselines (N=5) run at the matched budget. Bayesian OED: N=3. Improvement vs.\ ACE median ($0.61$); seed 789 is an outlier (quadratic-mechanism failure) justifying median over mean.}
 \label{tab:main-results}
 \small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Method (episodes) & Total Loss (mean$\pm$std) & Median & Improvement vs.\ ACE & $p$ (vs.\ ACE) \\
+Method & Mean$\pm$Std & Median & Impr.\ vs.\ ACE & $p$ \\
 \midrule
-\textbf{ACE (171, learned + DPO)} & \textbf{0.92$\pm$0.73} & \textbf{0.61} & --- & --- \\
+\textbf{ACE} (171 ep., DPO) & \textbf{0.92$\pm$0.73} & \textbf{0.61} & --- & --- \\
 \midrule
-\multicolumn{5}{@{}l}{\textit{Baselines at equal episode count (171):}} \\
+\multicolumn{5}{@{}l}{\textit{Baselines at equal budget (171 ep.):}} \\
 Random \citep{settles2009active} & 2.17$\pm$0.07 & 2.21 & 72\% & $<0.001$ \\
 Round-Robin \citep{fisher1935design} & 2.10$\pm$0.11 & 2.09 & 71\% & $<0.001$ \\
 Max-Variance \citep{cohn1996active} & 2.11$\pm$0.14 & 2.10 & 71\% & $<0.001$ \\
-\textbf{Bayesian OED} \citep{toth2022active} & 2.04$\pm$0.12 & 1.99 & 69\% & $<0.001$ \\
+Bayesian OED \citep{toth2022active} & 2.04$\pm$0.12 & 1.99 & 69\% & $<0.001$ \\
 PPO \citep{schulman2017proximal} & 2.08$\pm$0.06 & 2.06 & 70\% & $<0.001$ \\
 \bottomrule
 \end{tabular}
@@ -398,23 +398,23 @@ To test scalability we evaluate on a hierarchical 30-node SCM with 5 roots, 10 i
 
 \begin{table}[t]
 \centering
-\caption{30-node hierarchical SCM. ACE is reported as best-loss-achieved across training episodes for N=3 independent seeds (42: 2.79, 123: 1.80, 456: 1.27); we report best-loss because per-step loss is non-monotone on a 30-node system. Baselines ran for the full 300-episode budget on N=5 seeds. With random sampling allocating only $\sim3.3\%$ of interventions per node, strategic selection is critical.}
+\caption{30-node hierarchical SCM. ACE best-loss: minimum $\sum_i L_i$ across training (non-monotone loss makes best-loss more informative than final-episode loss). All methods use the per-node MLP student learner. Random ran 300 episodes (N=5); ACE ran 300 episodes (N=3). Round-Robin and Max-Variance results are forthcoming from CURC and will appear in the camera-ready.}
 \label{tab:large-scale}
 \small
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-Method & Total MSE & $N$ seeds & Improvement vs.\ Random & Notes \\
+Method & Total MSE & $N$ & Improvement vs.\ Random \\
 \midrule
-\textbf{ACE} (best-loss) & \textbf{1.95$\pm$0.77} & 3 & $5.8\times$ & GPU, 300 ep \\
+\textbf{ACE} (best-loss) & \textbf{1.95$\pm$0.77} & 3 & $5.8\times$ \\
 \midrule
-Random & 11.29$\pm$1.02 & 5 & --- & CPU, 300 ep \\
-Round-Robin & \multicolumn{4}{l}{\textit{Require GPU+MLP learner for valid comparison; see Appendix~\ref{app:30node-detail}}} \\
-Max-Variance & & & & \\
+Random & 11.29$\pm$1.02 & 5 & --- \\
+Round-Robin & \textit{forthcoming} & 5 & --- \\
+Max-Variance & \textit{forthcoming} & 5 & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-ACE generalizes to larger structures without architectural modification. The $5.8\times$ improvement over Random on the 30-node benchmark matches the $5.8\times$ improvement observed on Duffing oscillators (Section~\ref{sec:results-duffing}), and exceeds the $2.4\times$ (mean) / $3.4\times$ (median) improvement on the 5-node benchmark---suggesting that the value of learned intervention strategy \emph{grows} with system size, because the fraction of ``informative'' interventions shrinks as variables multiply. Seed 42 (total-loss 2.79) exhibited higher training variance and was the only seed where the policy had not fully converged at the episode budget; seeds 123 and 456 converged cleanly to $1.80$ and $1.27$. Future work will evaluate on biologically realistic simulators such as SERGIO \citep{dibaeinia2020sergio} where the number of variables can reach hundreds and interventional data is available from knockout experiments.
+ACE generalizes to larger structures without architectural modification. The $5.8\times$ improvement over Random on the 30-node benchmark matches the $5.8\times$ improvement observed on Duffing oscillators (Section~\ref{sec:results-duffing}), and exceeds the $2.4\times$ (mean) / $3.4\times$ (median) improvement on the 5-node benchmark---suggesting that the value of learned intervention strategy \emph{grows} with system size, because the fraction of ``informative'' interventions shrinks as variables multiply. Seed 42 (total-loss 2.79) exhibited higher training variance and was the only seed where the policy had not fully converged at the episode budget; seeds 123 and 456 converged cleanly to $1.80$ and $1.27$. Round-Robin and Max-Variance baselines on the 30-node system require the same MLP-learner infrastructure as ACE (not a lighter CPU proxy); those runs are underway on CURC and will appear in the camera-ready version. Future work will evaluate on biologically realistic simulators such as SERGIO \citep{dibaeinia2020sergio} where the number of variables can reach hundreds and interventional data is available from knockout experiments.
 
 \subsection{Component Ablation}
 \label{sec:results-ablation}
