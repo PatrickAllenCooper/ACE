@@ -5,8 +5,8 @@
 # Existing results: seeds 42, 123, 456 (best-loss 2.79, 1.80, 1.27)
 # New seeds: 789, 1011 to get N=5 total matching the baseline set
 #
-# Usage (from /projects/anonuser/ACE):
-#   cd /projects/anonuser/ACE
+# Usage (from /projects/paco0228/ACE):
+#   cd /projects/paco0228/ACE
 #   bash jobs/curc_submit_ace_30node_extra_seeds.sh
 #
 # Results land in: results/curc_30node_baselines/ace/seed_{seed}/
@@ -23,12 +23,12 @@
 
 set -euo pipefail
 
-cd /projects/anonuser/ACE
+cd /projects/paco0228/ACE
 
-source /projects/anonuser/miniconda3/etc/profile.d/conda.sh
+source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-OUT="/projects/anonuser/ACE/results/curc_30node_ace_extra"
+OUT="/projects/paco0228/ACE/results/curc_30node_ace_extra"
 mkdir -p "$OUT/logs"
 
 echo "================================================================"
@@ -61,4 +61,4 @@ echo "Monitor with:  squeue -u \$USER"
 echo "Logs in:       $OUT/logs/"
 echo ""
 echo "When complete, pull locally:"
-echo "  scp -r anonuser@login.hpc.anon.edu:$OUT ./results/"
+echo "  scp -r paco0228@login.rc.colorado.edu:$OUT ./results/"
