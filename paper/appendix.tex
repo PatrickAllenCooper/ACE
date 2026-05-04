@@ -4,6 +4,55 @@
 % =======================================================================
 
 % =======================================================================
+\section{The Role of World Models in Causal Experimental Design}
+\label{app:world-models}
+% =======================================================================
+
+The choice of a pretrained language model as ACE's policy is not a matter of engineering convenience. It reflects a specific epistemological position about what is required to plan good experiments in causal domains, and about what kind of prior knowledge a policy must bring. This appendix develops that argument in full.
+
+\subsection{Experimental Design Requires a Forward Model}
+
+Pearl's causal hierarchy \citep{pearl2009causality,pearl2018book} distinguishes three rungs of causal knowledge: association (Rung 1), intervention (Rung 2), and counterfactual reasoning (Rung 3). Active experimental design operates at Rung 2. The question an experimentalist must answer at every step is not ``what do the data say?'' but ``what would happen if I intervened on $V_i$ with value $\nu$?'' Answering this question requires a forward model of the system that can simulate the downstream effects of hypothetical interventions.
+
+Crucially, the quality of the policy is bounded above by the quality of its forward model. An agent with a perfect forward model can compute expected information gain exactly and pick the optimal intervention. An agent with a uniform forward-model prior must rely entirely on observed data, episode by episode, to discover which interventions reveal informative causal structure. For any fixed intervention budget, there is a direct tradeoff: stronger prior forward knowledge permits fewer experiments.
+
+ACE's student SCM is an explicit forward model of the system, parameterized by per-node MLPs. But it begins training with random weights, which means it embodies only the weakest possible prior: that the mechanisms are whatever an MLP can represent. This is much weaker than what a human experimentalist brings to the same problem. A physicist intervening on a coupled oscillator chain already knows that clamping the middle oscillator decouples the endpoints. A molecular biologist designing a gene-knockout campaign already knows that transcription factors with many targets are high-value intervention points. An economist studying inflation dynamics already knows that monetary tightening episodes expose nonlinearities absent during stable regimes. These priors are not learned from experiment; they are brought to experiment.
+
+\subsection{Language Models Encode Causal Priors Through the Structure of Scientific Text}
+
+A language model pretrained on a corpus that includes scientific articles, textbooks, experimental reports, and technical derivations encodes, in its weights, a soft distribution over how variables in real systems relate causally. This encoding is not incidental but structural: scientific text is in the business of articulating causal claims. A textbook paragraph describing a chain of coupled oscillators contains sentences of the form ``an intervention on the middle oscillator decouples the endpoints,'' ``the coupling parameter $\kappa$ mediates synchronization,'' and ``clamping $X_2$ breaks the spurious correlation between $X_1$ and $X_3$.'' Each such sentence is an interventional claim (Rung 2), and each increases the language model's log-probability of generating similar interventional proposals when prompted with similar context.
+
+\citet{kiciman2023causal} demonstrate this empirically. They evaluate GPT-4 on pairwise causal direction queries across multiple benchmarks and find substantially above-chance performance, with the model correctly identifying the causal direction from contextual cues that are linguistic in origin (e.g., descriptions of temporal order, physical mechanism, domain-typical relationships). The LM has not learned causality through experimentation; it has absorbed the linguistic regularities under which causal statements are made in scientific text, and those regularities track real causal structure because they are produced by writers who understand that structure.
+
+\citet{hao2023reasoning} extend this observation into a framework. They frame language model reasoning as planning in a world model, where the LM serves simultaneously as the reasoner (the system generating action proposals) and the world model (the system predicting the outcomes of those actions). This dual role is exactly what ACE requires at each step: a policy that both proposes candidate interventions and has some implicit model of how those interventions will propagate through the system. The LM unifies these two functions in a single pretrained artifact.
+
+\citet{xie2022explanation} formalize the connection to Bayesian inference. They show that in-context learning corresponds to implicit Bayesian posterior update under the pretraining prior: given a prompt describing the current epistemic state (graph structure, per-node losses, recent interventions), the LM's next-token distribution approximates the Bayesian predictive distribution over continuations, conditioned on both the prompt and the pretrained prior. ACE exploits this machinery: the prompt at step $t$ encodes everything the agent has learned about the specific system, and the LM's generation is an approximate posterior predictive distribution over sensible interventions given that state.
+
+\subsection{Why Not a Fixed-Architecture MLP or Hand-Coded Heuristic?}
+
+Two obvious alternatives exist, and each forgoes the forward-model prior.
+
+An MLP policy trained from scratch on a single SCM inherits no causal prior. It must learn from experience that, for example, collider parents are high-value intervention targets. In our 5-node experiments, this is observable: random policies take on the order of 100 episodes to reach the baseline plateau of 2.10, while ACE's LM-based policy reaches a median of 0.61 in fewer episodes. The gap is not because the LM is learning faster; it is because the LM starts from a prior that already weakly favors strategic interventions, and DPO refines that prior rather than constructing it from nothing. An MLP at the same parameter count would have to both construct the prior and fit the system, within a fixed intervention budget.
+
+A hand-coded heuristic such as greedy expected information gain (Bayesian OED) does bring a prior, but it is the wrong kind. Greedy EIG is a one-step-lookahead acquisition function; it cannot reason about multi-step strategies like ``first resolve the identification of $X_2$ to unlock information about the $X_3$ collider.'' In our 5-node results, Bayesian OED plateaus at $2.04 \pm 0.12$, decisively below ACE at median $0.61$. The greedy prior is correct but shallow.
+
+A pretrained LM brings a qualitatively different kind of prior: one that is deep enough to encode multi-step experimental intuitions (because those intuitions appear in the training corpus as whole-paragraph descriptions of experimental strategy), but one that must be calibrated to the specific system. DPO performs that calibration. The LM without DPO is a broad but uncalibrated generator; DPO without a pretrained prior would be an empty calibrator. Together they form a policy that has both breadth and specificity.
+
+\subsection{Empirical Signatures of the Forward-Model Prior in ACE}
+
+Three empirical observations in the main paper are direct consequences of the forward-model framing.
+
+\emph{Transfer across domains.} The same LM weights produce sensible candidates on 5-node synthetic SCMs, 30-node hierarchical SCMs, coupled Duffing oscillators, and economic time series. No architectural change is needed across these domains. A fixed-architecture MLP would require re-training per domain; a hand-coded heuristic would require per-domain re-tuning. The LM's transfer is a signature of a domain-agnostic world-model prior being specialized by prompt context, in line with \citet{xie2022explanation}'s in-context-learning-as-Bayesian-inference account.
+
+\emph{Emergent collider concentration without explicit instruction.} ACE's $99.8\%$ concentration on collider parents is not something the policy was told to do. It emerges from preference optimization. The emergence is consistent with the LM having a prior that already weakly favors such concentrated interventions in collider contexts (because scientific text describing collider identification contains such prescriptions), with DPO sharpening that weak prior into a strong preference through observation of reward signal.
+
+\emph{Baseline convergence on 30-node.} Random, Round-Robin, and Max-Variance all converge to the same plateau at $\sim\!5.86$ on 30 nodes. This indicates that at this scale, no static heuristic can resolve the mechanism estimation problem within budget. What distinguishes ACE is not parameter count or compute but prior knowledge: ACE brings the LM's distribution over plausible interventions into a regime where purely data-driven methods stall.
+
+\subsection{What the Forward-Model Framing Does Not Claim}
+
+To be precise: we do not claim the LM is a correct or complete causal reasoner. \citet{boxinggym2025,autobench2025} show that LLMs struggle with long-horizon sequential experimental decisions in zero-shot settings, and \citet{llm_science_survey2025} survey the limitations of LLM causal discovery. Our claim is narrower. We claim that (i) a pretrained LM encodes a non-trivial forward-model prior, (ii) this prior is a better starting point than a uniform prior or a one-step-lookahead heuristic, and (iii) DPO provides the calibration machinery to specialize this prior to any specific system. ACE is best understood as a method for combining broad pretrained causal knowledge with narrow, calibrated preference learning, rather than as a claim that LMs alone can solve causal experimental design.
+
+% =======================================================================
 \section{Notation and Problem Formulation (Extended)}
 \label{app:notation}
 % =======================================================================
