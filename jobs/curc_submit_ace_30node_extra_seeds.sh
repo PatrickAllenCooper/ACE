@@ -38,21 +38,38 @@ echo " Output : $OUT"
 echo " Started: $(date)"
 echo "================================================================"
 
-for SEED in 789 1011; do
-    JOB=$(sbatch --parsable \
-        --job-name="ace30_s${SEED}" \
-        --partition=aa100 \
-        --qos=normal \
-        --nodes=1 --ntasks=1 --gres=gpu:1 \
-        --cpus-per-task=8 \
-        --mem=32G \
-        --time=08:00:00 \
-        --output="$OUT/logs/ace30_seed${SEED}_%j.out" \
-        --error="$OUT/logs/ace30_seed${SEED}_%j.err" \
-        --export=ALL,SEED=$SEED,OUT=$OUT \
-        jobs/curc_large_scale_seed.sh)
+# SLURM places us on a random A100 in the aa100 partition, which contains
+# both 40GB and 80GB cards. Previous runs that succeeded landed on 80GB by
+# luck. The 40GB cards run out of memory because Qwen2.5-1.5B active +
+# reference + cloned learners + KV cache + grads exceed 40GB.
+#
+# Mitigations applied:
+#   1. PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True in the worker script
+#      (reduces fragmentation, may give us enough headroom on 40GB cards).
+#   2. Submit each seed twice. Both jobs do the same work, but whichever
+#      lands on an 80GB card will complete in ~6h while the 40GB attempt
+#      may still OOM. With 2 attempts per seed, probability that at least
+#      one attempt per seed gets an 80GB card is high.
+#
+# After completion, cancel any duplicate that is still running and pick the
+# completed run for each seed.
 
-    echo "  Submitted: ACE seed=$SEED -> Job $JOB"
+for SEED in 789 1011; do
+    for ATTEMPT in 1 2; do
+        JOB=$(sbatch --parsable \
+            --job-name="ace30_s${SEED}a${ATTEMPT}" \
+            --partition=aa100 \
+            --qos=normal \
+            --nodes=1 --ntasks=1 --gres=gpu:1 \
+            --cpus-per-task=8 \
+            --mem=64G \
+            --time=08:00:00 \
+            --output="$OUT/logs/ace30_seed${SEED}_attempt${ATTEMPT}_%j.out" \
+            --error="$OUT/logs/ace30_seed${SEED}_attempt${ATTEMPT}_%j.err" \
+            --export=ALL,SEED=$SEED,OUT=$OUT \
+            jobs/curc_large_scale_seed.sh)
+        echo "  Submitted: ACE seed=$SEED attempt=$ATTEMPT -> Job $JOB"
+    done
 done
 
 echo ""
