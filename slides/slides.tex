@@ -29,7 +29,7 @@
 \subtitle{Learning Intervention Strategies via Direct Preference Optimization}
 \date{NeurIPS 2026}
 \author{Anonymous Authors}
-\institute{}
+\institute{\textit{Causal experimental design as a learnable policy}}
 
 \begin{document}
 
@@ -38,20 +38,25 @@
 
 % --------------- 2. THE QUESTION --------------------------------------------
 \begin{frame}{Sequential decisions in causal experiments}
+\textbf{Combinatorial explosion of candidate experiments.} 100 compounds pairwise =
+4{,}950 trials; a 10-component alloy at 5 temperatures = $5^{10}$ configurations;
+modern simulators expose hundreds of interacting variables.
+\vspace{0.6em}
+
+\centering
+\emph{``Where do you intervene first, and how does the answer change as you learn?''}
+\flushleft
+\vspace{0.6em}
+
+\textbf{Today's tools all treat each decision in isolation:}
 \begin{itemize}
-  \item Testing 100 candidate compounds pairwise: 4{,}950 experiments.
-  \item A 10-component alloy at 5 temperatures: $5^{10}$ configurations.
-  \item Modern simulators expose hundreds of interacting variables.
+\item Random / round-robin: no adaptation as knowledge accumulates.
+\item Greedy info-gain: one-step lookahead, no multi-step strategy.
+\item Bayesian posterior methods: combinatorial in $|V|$, capped at $\sim$20 nodes.
 \end{itemize}
 \vspace{0.4em}
-\textbf{Question.} Each intervention reveals information that should inform the
-next one. \emph{Where do you intervene first, and how does the answer change as you learn?}
-\vspace{0.4em}
-\begin{itemize}
-  \item Random sampling, round-robin coverage, and greedy info-gain treat each
-        decision in isolation.
-  \item No transfer of insight across systems; no adaptation as knowledge accumulates.
-\end{itemize}
+
+\textbf{ACE} learns the strategy as a sequential policy with DPO.
 \end{frame}
 
 % --------------- 3. PEARL'S CAUSAL HIERARCHY --------------------------------
@@ -133,14 +138,14 @@ is consistent with $A\!\to\!B$, $B\!\to\!A$, or $A\!\leftarrow\!C\!\rightarrow\!
 \end{frame}
 
 % --------------- 6. ALGORITHM STEP ------------------------------------------
-\begin{frame}{One ACE step}
+\begin{frame}[fragile]{One ACE step}
 \begin{columns}[T,onlytextwidth]
-\column{0.55\textwidth}
+\column{0.50\textwidth}
 \centering
 \begin{tikzpicture}[
-    scale=0.88, transform shape,
+    scale=0.78, transform shape,
     box/.style={rectangle, draw, rounded corners,
-                minimum width=2.6cm, minimum height=0.7cm,
+                minimum width=2.4cm, minimum height=0.6cm,
                 font=\scriptsize, thick, align=center},
     state/.style={box, fill=blue!15},
     process/.style={box, fill=orange!15},
@@ -148,29 +153,36 @@ is consistent with $A\!\to\!B$, $B\!\to\!A$, or $A\!\leftarrow\!C\!\rightarrow\!
     update/.style={box, fill=purple!15},
     arrow/.style={-{Stealth[length=2mm]}, thick}
 ]
-\node[state]    (s)    at (0,0)    {Observe state\\$s_t = (M_\theta,\{L_i\})$};
-\node[process]  (g)    at (0,-1.4) {Generate $K\!=\!4$\\candidates};
-\node[process]  (sim)  at (0,-2.8) {Simulate on\\cloned learner};
-\node[decision] (sel)  at (0,-4.2) {Select best\\$c^*=\argmax R$};
-\node[process]  (e)    at (0,-5.6) {Execute on env};
-\node[update]   (l)    at (0,-7.0) {Update learner};
-\node[update]   (dpo)  at (4.0,-2.8) {DPO update\\$(c_\text{best},c_\text{worst})$};
-\foreach \a/\b in {s/g, g/sim, sim/sel, sel/e, e/l} {\draw[arrow] (\a) -- (\b);}
+\node[state]    (s)    at (0,0)    {Observe $(M_\theta,\{L_i\})$};
+\node[process]  (g)    at (0,-1.1) {Generate $K\!=\!4$ candidates};
+\node[process]  (sim)  at (0,-2.2) {Simulate on cloned learner};
+\node[decision] (sel)  at (0,-3.3) {Select best $c^*\!=\!\argmax R$};
+\node[process]  (e)    at (0,-4.4) {Execute $c^*$ on env};
+\node[update]   (l)    at (0,-5.5) {Update learner};
+\node[update]   (dpo)  at (3.6,-2.2) {DPO on\\$(c_\text{best},c_\text{worst})$};
+\draw[arrow] (s) -- (g);
+\draw[arrow] (g) -- (sim);
+\draw[arrow] (sim) -- (sel);
+\draw[arrow] (sel) -- (e);
+\draw[arrow] (e) -- (l);
 \draw[arrow] (sim) -- (dpo);
-\draw[arrow, dashed, gray] (dpo) -- ++(1.0,0) |- (s.east);
+\draw[arrow, dashed, gray] (dpo) -- ++(0.7,0) |- (s.east);
 \end{tikzpicture}
-\column{0.45\textwidth}
+\column{0.50\textwidth}
 \small
-\textbf{Five steps each episode:}
-\begin{enumerate}
-\item Read graph + per-node losses + recent history into a text prompt.
-\item LM emits $K=4$ candidate $\text{do}(V_i\!=\!\nu)$.
-\item Lookahead: each candidate runs on a cloned learner.
-\item Execute the best; learner ingests the new data.
-\item DPO update: $(\text{best},\text{worst})$ pair refines the policy.
-\end{enumerate}
-\smallskip
-\textit{One preference pair per intervention; preference data scales with experiments.}
+The policy proposes $K\!=\!4$ candidates; each is evaluated by lookahead
+on a \emph{clone} of the learner. The best candidate is executed; the
+$(\text{best},\text{worst})$ pair becomes a preference for DPO.
+\medskip
+
+\textbf{Two streams of learning:}
+\begin{itemize}
+\item Learner $M_\theta$ improves from \emph{executed} interventions.
+\item Policy $\pi_\phi$ improves from \emph{preferences} between candidates.
+\end{itemize}
+\medskip
+
+\textit{One preference pair per intervention: preference data scales with the experimental budget.}
 \end{columns}
 \end{frame}
 
@@ -194,22 +206,32 @@ Default weights: $\alpha=0.1$, $\gamma=0.05$. $\Delta\mathcal{L}$ stays dominant
 
 % --------------- 8. WHY A LANGUAGE MODEL? -----------------------------------
 \begin{frame}{Why a language model?}
-\textbf{Active design at Rung 2 needs a forward model.} Quality of policy is bounded by
-quality of forward-model prior.
+\textbf{Active design at Rung 2 needs a forward model.}
+Policy quality is bounded by forward-model prior quality.
+\medskip
+
+\centering
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Policy class & Prior depth & Calibrated? \\
+\midrule
+MLP from scratch          & uniform (none)    & yes (slowly, from data) \\
+Greedy / Bayesian OED      & shallow (1 step)  & yes (closed-form) \\
+\textbf{Pretrained LM}     & \textbf{deep}     & no (until DPO) \\
+\textbf{Pretrained LM + DPO (ACE)} & \textbf{deep} & \textbf{yes} \\
+\bottomrule
+\end{tabular}
+\flushleft
+\medskip
+\small
+Scientific corpora are full of Rung-2 statements
+(\emph{``clamping $X_2$ breaks the synchronization''}); these raise $\log\pi$ on the
+corresponding interventions \emph{before} any DPO step.
+DPO then calibrates the prior to the specific system.
 \smallskip
-\begin{itemize}
-\item \textbf{MLP from scratch.} Uniform prior; must construct the forward model from
-      experience, episode by episode, within a fixed budget.
-\item \textbf{One-step Bayesian acquisition (Bayesian OED).} Correct but \emph{shallow}:
-      cannot reason about multi-step strategies like ``first resolve $X_2$ to unlock the
-      $X_3$ collider.''
-\item \textbf{Pretrained LM.} Encodes a \emph{deep} but uncalibrated prior over how
-      variables in real systems relate causally. Scientific corpora are full of
-      Rung-2 statements (``clamping $X_2$ breaks the synchronization''),
-      and these statements raise $\log\pi$ on the corresponding interventions.
-\end{itemize}
-\smallskip
-DPO supplies the calibration. The LM provides breadth; DPO provides specificity.
+
+\textbf{Slogan.} The LM provides breadth; DPO provides specificity.
 \end{frame}
 
 % --------------- 9. LM AS WORLD MODEL ---------------------------------------
@@ -295,21 +317,27 @@ early and late training, while candidate-rank Spearman $\rho$ stays $>0.85$ thro
 
 % --------------- 13. EXPERIMENTAL SETUP -------------------------------------
 \begin{frame}{Experimental setup}
-\textbf{Domains.}
-\begin{itemize}
-\item 5-node synthetic SCM (controlled diagnostic; collider, nonlinearity, disconnected component).
-\item 30-node hierarchical SCM (scaling test).
-\item Coupled Duffing oscillators (physics).
-\item Phillips Curve / FRED macroeconomic data (active data subset selection; appendix).
+\textbf{Four domains.}
+\begin{itemize}\itemsep=0.05em
+\item 5-node synthetic SCM (controlled diagnostic).
+\item 30-node hierarchical SCM (scalability test).
+\item Coupled Duffing oscillators (physics, with spurious correlation).
+\item Phillips Curve / FRED macroeconomic data (appendix).
 \end{itemize}
 \smallskip
-\textbf{Baselines.} Random; Round-Robin (Fisher 1935);
-Max-Variance (Cohn et al.\ 1996); Bayesian OED (Monte Carlo EIG, adapted from
-Toth et al.\ 2022 / Tigas et al.\ 2022); PPO (Schulman et al.\ 2017).
+
+\textbf{Five baselines.} Random; Round-Robin (Fisher 1935); Max-Variance
+(Cohn et al.\ 1996); Bayesian OED (Monte Carlo EIG, adapted from Toth et al.\ 2022,
+Tigas et al.\ 2022); PPO (Schulman et al.\ 2017).
 \smallskip
-\textbf{Seed counts.} ACE 5-node N=5; ACE 30-node N=3; baselines + PPO N=5;
-Bayesian OED N=3 (higher per-seed compute). All methods on the same MLP student
-learner for fairness.
+
+\textbf{Seed counts.}
+\begin{itemize}\itemsep=0.05em
+\item 5-node: ACE N=5, baselines + PPO N=5, Bayesian OED N=3.
+\item 30-node: ACE N=3, baselines N=5.
+\item Duffing, Phillips: N=5.
+\item All methods on the same MLP student learner for fair comparison.
+\end{itemize}
 \end{frame}
 
 % --------------- 14. 5-NODE BENCHMARK ---------------------------------------
@@ -432,12 +460,13 @@ PPO            & 2.08$\pm$0.06 & 2.06 & 70\% \\
 % --------------- 17. 30-NODE RESULTS (HEADLINE) -----------------------------
 \begin{frame}{30-node results: the headline}
 \centering
-\includegraphics[width=0.95\textwidth]{fig_30node_results.pdf}
-\vspace{0.3em}
-\begin{itemize}
-\item ACE descends to best-loss $\mathbf{1.95\pm 0.77}$; baselines plateau at $\mathbf{5.86}$ (stds $<0.08$).
-\item All three passive baselines indistinguishable: at scale, static heuristics cannot differentiate themselves.
-\item $\mathbf{3.0\times}$ improvement, robust to seed selection (stable-seed mean: $1.54$).
+\includegraphics[width=0.80\textwidth]{fig_30node_results.pdf}\\[0.2em]
+\flushleft
+\small
+\begin{itemize}\itemsep=0.1em
+\item ACE: $\mathbf{1.95\pm0.77}$ best-loss vs.\ baselines plateau $\mathbf{5.86}$ (stds $<\!0.08$).
+\item Common-plateau finding: at scale, static sampling heuristics are indistinguishable.
+\item Same MLP learner everywhere, so the $\mathbf{3.0\times}$ gap reflects policy quality alone.
 \end{itemize}
 \end{frame}
 
@@ -532,17 +561,18 @@ No diversity reward                   & $2.82\pm0.22$ & node collapse \\
 \column{0.55\textwidth}
 \small
 \begin{itemize}
-\item ACE concentrates $\mathbf{99.8\%}$ of interventions on $X_1, X_2$
-      (the parents of the collider $X_3$).
-\item \textbf{Causal-theoretic optimum}: identifying $f_3$ requires varying
-      both parents independently.
-\item \textbf{Cross-seed consistency:} per-node intervention-fraction std
-      is $<\!0.01$ for $X_1, X_2$. Strategy is robust to seed.
-\item Bayesian OED, with explicit one-step EIG, plateaus at $2.04$.
-      ACE's median is $0.61$ on the same budget.
+\item $\mathbf{99.8\%}$ of interventions on $X_1, X_2$, the two parents of
+      the collider $X_3$. (Uniform random would give $40\%$.)
+\item \textbf{Causal-theoretic optimum}: identifying $f_3(X_1,X_2)$ requires
+      varying both parents independently.
+\item \textbf{Robust across seeds}: std of intervention-fractions is $<\!0.01$
+      for $X_1, X_2$.
 \item The strategy was \emph{not} engineered. It emerged from preference
       optimization over the composite reward.
 \end{itemize}
+\smallskip
+\textit{Bayesian OED, with explicit EIG, plateaus at $2.04$.
+ACE median: $0.61$ on the same budget.}
 \end{columns}
 \end{frame}
 
@@ -570,12 +600,31 @@ No diversity reward                   & $2.82\pm0.22$ & node collapse \\
 
 % --------------- 22. THANK YOU ----------------------------------------------
 \begin{frame}[standout]
-Questions?
-\medskip\\
+Thank you
+\end{frame}
+
+% --------------- BACKUP --- HEADLINE NUMBERS --------------------------------
+\begin{frame}{Headline numbers (one slide)}
+\centering
+\large
+\begin{tabular}{@{}lc@{}}
+\toprule
+Result & Improvement \\
+\midrule
+5-node vs.\ Bayesian OED          & $55\%$  (median $0.61$ vs.\ $2.04$) \\
+30-node vs.\ baseline plateau     & $3.0\times$ \\
+Duffing oscillators vs.\ Random   & $5.8\times$ \\
+PPO at identical reward signal    & $70\%$ \\
+\midrule
+Collider-parent concentration     & $99.8\%$ (emergent) \\
+Reward magnitude collapse         & $\sim 500\times$ over training \\
+Spearman $\rho$ stability          & $> 0.85$ throughout \\
+\bottomrule
+\end{tabular}
+\vspace{0.6em}
+\flushleft
 \small
-ACE: experimental design as a learnable policy,\\
-trained by Direct Preference Optimization,\\
-with a pretrained LM as contextual forward model.
+\textbf{Code, data, paper:} released at the anonymous URL in the appendix.
 \end{frame}
 
 \end{document}
