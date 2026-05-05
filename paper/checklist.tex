@@ -12,12 +12,12 @@
 \item \textbf{Claims}\\
 \emph{Question:} Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?\\
 \emph{Answer:} \answerYes{}\\
-\emph{Justification:} Three contributions are stated in the introduction (Bayesian OED comparison, scale-invariance Proposition~\ref{prop:scale-invariance}, autonomous strategy emergence). Each is supported by experiments (Section~\ref{sec:results-main}--\ref{sec:results-ablation}) or formal analysis (Section~\ref{sec:theory}). All numerical claims awaiting CURC results are explicitly marked with \texttt{\textbackslash TBD\{...\}} placeholders.
+\emph{Justification:} Three contributions are stated in the introduction (Bayesian OED comparison, scale-invariance Proposition~\ref{prop:scale-invariance}, autonomous strategy emergence). Each is supported by experiments (Section~\ref{sec:results-main}--\ref{sec:results-ablation}) or formal analysis (Section~\ref{sec:theory}), with all numerical claims reported as mean$\pm$std with explicit per-experiment seed counts (per-seed tables in Appendix~\ref{app:5node-detail}--\ref{app:30node-detail}).
 
 \item \textbf{Limitations}\\
 \emph{Question:} Does the paper discuss the limitations of the work performed by the authors?\\
 \emph{Answer:} \answerYes{}\\
-\emph{Justification:} Section~\ref{sec:limitations} explicitly discusses the known-structure assumption, scale limits ($\sim$50 nodes due to text-based encoding), computational cost ($\sim$22 min/step on A100), and the privileged-information aspect of oracle pretraining. Appendix~\ref{app:failures} additionally documents specific failure modes (outlier seeds, graph misspecification regimes).
+\emph{Justification:} A dedicated Limitations and future work paragraph at the end of Section~\ref{sec:limitations} (Discussion) discusses the known-structure assumption (with quantitative comparison to ABCI/CBED computational regimes), scale limits ($\sim$50 nodes due to text-based encoding), computational cost ($\sim$22 min/step on A100), and the privileged-information aspect of oracle pretraining. Appendix~\ref{app:failures} additionally documents specific failure modes (outlier seeds, graph misspecification regimes).
 
 \item \textbf{Theory assumptions and proofs}\\
 \emph{Question:} For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?\\
@@ -42,7 +42,7 @@
 \item \textbf{Experiment statistical significance}\\
 \emph{Question:} Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?\\
 \emph{Answer:} \answerYes{}\\
-\emph{Justification:} All results report mean $\pm$ std with 95\% confidence intervals. Statistical significance uses paired $t$-tests with Bonferroni correction ($\alpha = 0.01$ for 5 comparisons). N = 10 seeds for the main 5-node benchmark; N = 5 for larger experiments.
+\emph{Justification:} All results report mean$\pm$std and explicit per-experiment $N$. Statistical significance uses paired $t$-tests with Bonferroni correction ($\alpha = 0.01$ for 5 comparisons). Seed counts: ACE (5-node) N=5; baselines and PPO (5-node) N=5; Bayesian OED (5-node) N=3 due to higher per-seed compute; ACE (30-node) N=3 with reported robustness across both N=3 mean and stable-seed-only mean; baselines (30-node) N=5; Duffing N=5; Phillips N=5.
 
 \item \textbf{Experiments compute resources}\\
 \emph{Question:} For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce the experiments?\\
@@ -57,7 +57,7 @@
 \item \textbf{Broader impacts}\\
 \emph{Question:} Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?\\
 \emph{Answer:} \answerYes{}\\
-\emph{Justification:} A Broader Impacts section appears between the Conclusion and References. We discuss positive impacts (accelerating scientific discovery in domains where interventions are costly) and caveats (validating that learned policies generalize and do not systematically neglect important regions).
+\emph{Justification:} A Broader Impacts section appears after the references. We discuss positive impacts (accelerating scientific discovery in domains where interventions are costly) and caveats (validating that learned policies generalize and do not systematically neglect important regions).
 
 \item \textbf{Safeguards}\\
 \emph{Question:} Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse?\\
