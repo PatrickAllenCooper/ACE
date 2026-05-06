@@ -99,29 +99,38 @@ for method, label in [("random", "Random"),
 
 # ── Build figure ────────────────────────────────────────────────────────
 fig, (axL, axR) = plt.subplots(
-    1, 2, figsize=(7.2, 2.9),
-    gridspec_kw={"width_ratios": [1.7, 1.0], "wspace": 0.32}
+    1, 2, figsize=(7.4, 3.1),
+    gridspec_kw={"width_ratios": [1.7, 1.0], "wspace": 0.34}
 )
 
-# === Panel A: learning curves (log scale) ===
+# === Panel A: learning curves (linear scale, distinct line styles) ===
+# Linear scale exposes the gap dramatically; log compresses it.
 method_label = {
-    "random": "Random",
-    "round_robin": "Round-Robin",
+    "random":       "Random",
+    "round_robin":  "Round-Robin",
     "max_variance": "Max-Variance",
 }
+linestyles = {
+    "random":       "-",
+    "round_robin":  "--",
+    "max_variance": ":",
+}
+# Plot baselines first (thin) then ACE on top (thick) for clear z-order.
 for method, agg in baseline_curves.items():
     label = method_label[method]
     c = COLORS[label]
-    axL.plot(agg["episode"], agg["mean"], color=c, label=label, lw=1.3)
+    axL.plot(agg["episode"], agg["mean"],
+             color=c, label=label, lw=1.2,
+             linestyle=linestyles[method])
     axL.fill_between(
         agg["episode"],
         agg["mean"] - agg["std"],
         agg["mean"] + agg["std"],
-        color=c, alpha=0.15, linewidth=0,
+        color=c, alpha=0.10, linewidth=0,
     )
 
 axL.plot(ace_agg["episode"], ace_agg["mean"],
-         color=COLORS["ACE"], label="ACE (ours)", lw=2.0, zorder=5)
+         color=COLORS["ACE"], label="ACE (ours)", lw=2.4, zorder=5)
 axL.fill_between(
     ace_agg["episode"],
     ace_agg["mean"] - ace_agg["std"],
@@ -129,17 +138,36 @@ axL.fill_between(
     color=COLORS["ACE"], alpha=0.22, linewidth=0, zorder=4,
 )
 
-axL.set_yscale("log")
+# Cluster annotation: arrow + label pointing at the baseline plateau.
+axL.annotate(
+    "Baselines collapse\nto common plateau",
+    xy=(110, 5.86),
+    xytext=(60, 4.2),
+    fontsize=8.5, color="#333333",
+    ha="center", va="center",
+    arrowprops=dict(arrowstyle="->", color="#555555", lw=0.7,
+                    connectionstyle="arc3,rad=0.18"),
+)
+# ACE annotation
+axL.annotate(
+    "ACE descends\nto 1.95",
+    xy=(70, 2.0),
+    xytext=(105, 2.6),
+    fontsize=8.5, color=COLORS["ACE"],
+    ha="left", va="center",
+    arrowprops=dict(arrowstyle="->", color=COLORS["ACE"], lw=0.7,
+                    connectionstyle="arc3,rad=-0.18"),
+)
+
 axL.set_xlabel("Episode")
 axL.set_ylabel("Best-loss-so-far (total MSE)")
 axL.set_title("(a) Convergence on 30-node SCM", loc="left", pad=6)
 axL.set_xlim(0, 150)
-axL.set_ylim(1.0, 30)
-axL.grid(True, which="major", linestyle=":", linewidth=0.4, alpha=0.5)
-axL.grid(True, which="minor", linestyle=":", linewidth=0.3, alpha=0.3)
-axL.legend(loc="upper right", frameon=False, handlelength=1.4)
+axL.set_ylim(0, 8)
+axL.grid(True, linestyle=":", linewidth=0.4, alpha=0.5)
+axL.legend(loc="upper right", frameon=False, handlelength=1.8, fontsize=8)
 
-# === Panel B: bar chart with per-seed scatter ===
+# === Panel B: bar chart with per-seed scatter, cleaner bracket ===
 labels = ["ACE\n(ours)", "Random", "Round-\nRobin", "Max-\nVariance"]
 means = [ace_final_mean,
          final_stats["Random"][0],
@@ -153,9 +181,9 @@ colors_bar = [COLORS["ACE"], COLORS["Random"], COLORS["Round-Robin"],
               COLORS["Max-Variance"]]
 
 x = np.arange(len(labels))
-bars = axR.bar(x, means, yerr=stds, color=colors_bar, alpha=0.72,
-               edgecolor="black", linewidth=0.5,
-               error_kw={"linewidth": 0.9, "capsize": 3.5})
+axR.bar(x, means, yerr=stds, color=colors_bar, alpha=0.78,
+        edgecolor="black", linewidth=0.5,
+        error_kw={"linewidth": 0.9, "capsize": 3.5})
 
 # Per-seed scatter overlays
 per_seed_data = [ace_best_per_seed,
@@ -165,29 +193,31 @@ per_seed_data = [ace_best_per_seed,
 rng = np.random.RandomState(0)
 for xi, vals in zip(x, per_seed_data):
     jitter = rng.uniform(-0.13, 0.13, size=len(vals))
-    axR.scatter(xi + jitter, vals, s=14, color="black",
+    axR.scatter(xi + jitter, vals, s=16, color="black",
                 edgecolors="white", linewidths=0.6, zorder=5, alpha=0.85)
 
-# Improvement annotation
-y_top = max(means) + max(stds) + 0.6
-axR.annotate("", xy=(0, ace_final_mean + 0.3),
-             xytext=(0, y_top + 0.2),
-             arrowprops=dict(arrowstyle="->", color="black", lw=0.7))
-axR.annotate("", xy=(1, final_stats["Random"][0] + 0.3),
-             xytext=(1, y_top + 0.2),
-             arrowprops=dict(arrowstyle="->", color="black", lw=0.7))
-axR.plot([0, 1], [y_top + 0.2, y_top + 0.2], "k-", lw=0.7)
-axR.text(0.5, y_top + 0.5, r"$3.0\times$",
-         ha="center", va="bottom", fontsize=9, fontweight="bold")
+# Cleaner improvement bracket: vertical dotted lines + horizontal dashed
+# line at baseline plateau, with a centered "3.0 x" callout.
+y_ace = ace_final_mean
+y_base = final_stats["Random"][0]
+# Horizontal reference line at baseline plateau
+axR.axhline(y=y_base, color="#888888", linestyle="--", lw=0.6, alpha=0.7,
+            zorder=1)
+# Bracket with two end ticks and a label between ACE bar (x=0) and Random bar (x=1)
+y_top = y_base + 0.95
+axR.plot([0, 0], [y_ace + 0.35, y_top], color="black", lw=0.7)
+axR.plot([1, 1], [y_base + 0.35, y_top], color="black", lw=0.7)
+axR.plot([0, 1], [y_top, y_top], color="black", lw=0.7)
+axR.text(0.5, y_top + 0.18, r"$\mathbf{3.0\times}$",
+         ha="center", va="bottom", fontsize=11, fontweight="bold")
 
 axR.set_xticks(x)
 axR.set_xticklabels(labels, fontsize=8)
 axR.set_ylabel("Total MSE at final eval")
-axR.set_ylim(0, y_top + 1.8)
+axR.set_ylim(0, y_top + 1.6)
 axR.set_title("(b) Final performance", loc="left", pad=6)
 axR.grid(True, axis="y", linestyle=":", linewidth=0.4, alpha=0.5)
 
-fig.suptitle("", y=1.0)  # handled in-panel
 fig.savefig(os.path.join(OUT_DIR, "fig_30node_results.pdf"),
             bbox_inches="tight")
 fig.savefig(os.path.join(OUT_DIR, "fig_30node_results.png"),

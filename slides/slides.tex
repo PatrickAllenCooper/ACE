@@ -295,23 +295,38 @@ early and late training, while candidate-rank Spearman $\rho$ stays $>0.85$ thro
 \end{frame}
 
 % --------------- 12. WHY PPO STRUGGLES --------------------------------------
-\begin{frame}{Why DPO beats value-based RL empirically}
+\begin{frame}[fragile]{Why DPO beats value-based RL empirically}
 \centering
-\begin{tikzpicture}
-\begin{scope}
-\draw[->,thick] (0,0) -- (5.5,0) node[right, font=\scriptsize] {episode};
-\draw[->,thick] (0,0) -- (0,3.0) node[above, font=\scriptsize] {magnitude};
-\draw[ACEred, thick]      plot[smooth, samples=50, domain=0:5] (\x, {2.6*exp(-0.6*\x) + 0.05}) node[right, font=\scriptsize, ACEred] {$\mathbb{E}[\Delta\mathcal{L}]$};
-\draw[blue!60!black, thick, dashed] plot[smooth, samples=50, domain=0:5] (\x, {0.05 + 0.55*\x}) node[right, font=\scriptsize, blue!60!black] {PPO critic err};
-\draw[gray, thick]        plot[smooth, samples=50, domain=0:5] (\x, {2.7}) node[right, font=\scriptsize, gray] {Spearman $\rho$};
+\begin{tikzpicture}[scale=0.78, font=\scriptsize, transform shape]
+% --- Panel (a): reward magnitude collapses ---
+\begin{scope}[xshift=0cm]
+\node[font=\small] at (2.5,3.0) {(a) reward magnitude};
+\draw[->,thick] (0,0) -- (5.0,0) node[below right, xshift=-3pt] {episode};
+\draw[->,thick] (0,0) -- (0,2.6) node[above left] {$\mathbb{E}[\Delta\mathcal{L}]$};
+\draw[ACEred, thick] plot[smooth, samples=50, domain=0.05:5] (\x, {2.3*exp(-0.7*\x) + 0.05});
+\node[ACEred, anchor=west, font=\tiny] at (0.4,2.05) {early: $\sim\!12$};
+\node[ACEred, anchor=west, font=\tiny] at (3.1,0.4) {late: $\sim\!0.024$};
+\draw[<->, thick, gray] (5.2,0.05) -- (5.2,2.3);
+\node[gray, font=\tiny, anchor=west] at (5.3,1.15) {$\sim\!500\times$};
+\end{scope}
+
+% --- Panel (b): preference rank stays stable ---
+\begin{scope}[xshift=8.5cm]
+\node[font=\small] at (2.5,3.0) {(b) preference rank};
+\draw[->,thick] (0,0) -- (5.0,0) node[below right, xshift=-3pt] {episode};
+\draw[->,thick] (0,0) -- (0,2.6) node[above left] {Spearman $\rho$};
+\draw[gray, dashed] (0,2.30) -- (5.0,2.30);
+\node[gray, anchor=west, font=\tiny] at (4.6,2.45) {$\rho\!=\!1$};
+\draw[ACEred, thick] plot[smooth, samples=40, domain=0:5] (\x, {2.0 + 0.13*sin(180*\x) - 0.03*\x});
+\node[ACEred, anchor=south, font=\tiny] at (2.5,0.3) {$\rho > 0.85$ throughout};
 \end{scope}
 \end{tikzpicture}
-\medskip
-\begin{itemize}
-\item ACE outperforms PPO by $70\%$ at \emph{identical reward signals}.
-\item PPO's critic accumulates value-prediction error from $0.02$ (early) $\to$ $3.8$ (late).
-\item DPO sidesteps the magnitude collapse: log-ratios are scale-invariant
-      (Proposition).
+\vspace{0.1em}
+\small
+\begin{itemize}\itemsep=0.05em
+\item Reward magnitude collapses $\sim\!500\times$, breaking PPO's value estimator (critic err $0.02\!\to\!3.8$).
+\item Spearman $\rho > 0.85$ throughout: \emph{preferences are stable while values are not}.
+\item DPO depends only on log-ratios, scale-invariant by construction (Proposition).
 \end{itemize}
 \end{frame}
 
@@ -332,12 +347,12 @@ Tigas et al.\ 2022); PPO (Schulman et al.\ 2017).
 \smallskip
 
 \textbf{Seed counts.}
-\begin{itemize}\itemsep=0.05em
-\item 5-node: ACE N=5, baselines + PPO N=5, Bayesian OED N=3.
-\item 30-node: ACE N=3, baselines N=5.
+\begin{itemize}\itemsep=0.02em
+\item 5-node: ACE N=5; baselines + PPO N=5; Bayesian OED N=3.
+\item 30-node: ACE N=3; baselines N=5.
 \item Duffing, Phillips: N=5.
-\item All methods on the same MLP student learner for fair comparison.
 \end{itemize}
+\textit{All methods share the same MLP student learner for fair comparison.}
 \end{frame}
 
 % --------------- 14. 5-NODE BENCHMARK ---------------------------------------
@@ -405,67 +420,74 @@ PPO            & 2.08$\pm$0.06 & 2.06 & 70\% \\
 \begin{frame}[fragile]{30-node hierarchical SCM}
 \centering
 \begin{tikzpicture}[
-    scale=0.78, transform shape,
-    root/.style={circle, draw, fill=blue!20, minimum size=0.5cm, font=\tiny, thick},
-    regular/.style={circle, draw, fill=gray!15, minimum size=0.5cm, font=\tiny, thick},
-    collider/.style={circle, draw, fill=red!25, minimum size=0.5cm, font=\tiny, thick},
-    arrow/.style={-{Stealth[length=1.5mm]}, thick}
+    scale=0.85, transform shape,
+    root/.style={circle, draw, fill=blue!20, minimum size=0.45cm, inner sep=0pt, font=\tiny, thick},
+    regular/.style={circle, draw, fill=gray!15, minimum size=0.45cm, inner sep=0pt, font=\tiny, thick},
+    collider/.style={circle, draw, fill=red!25, minimum size=0.45cm, inner sep=0pt, font=\tiny, thick},
+    arrow/.style={-{Stealth[length=1.2mm]}, semithick, gray!70}
 ]
-% Layer 0
-\node[root] (r1) at (0,0)   {$R_1$};
-\node[root] (r2) at (1.0,0) {$R_2$};
-\node[root] (r3) at (2.0,0) {$R_3$};
-\node[root] (r4) at (3.0,0) {$R_4$};
-\node[root] (r5) at (4.0,0) {$R_5$};
-% Layer 1
-\node[regular] (i1) at (0,-1.2)   {$I_1$};
-\node[regular] (i2) at (1.3,-1.2) {$I_2$};
-\node[regular] (i3) at (2.6,-1.2) {$I_3$};
-\node[regular] (i4) at (3.9,-1.2) {$I_4$};
-\node[regular] (i5) at (3.0,-1.2) {$I_5$};
-% Layer 2--3 (representative)
-\node[collider] (c1) at (0,-2.4)   {$C_1$};
-\node[collider] (c2) at (0.9,-2.4) {$C_2$};
-\node[collider] (c3) at (1.8,-2.4) {$C_3$};
-\node[collider] (c4) at (2.7,-2.4) {$C_4$};
-\node[collider] (c5) at (3.6,-2.4) {$C_5$};
-% Layer 4
-\node[regular] (l1) at (0,-3.6)   {$L_1$};
-\node[regular] (l2) at (1.5,-3.6) {$L_2$};
-\node[regular] (l3) at (3.0,-3.6) {$L_3$};
-% Edges (representative)
-\draw[arrow] (r1) -- (i1);
-\draw[arrow] (r2) -- (i1);
-\draw[arrow] (r2) -- (i2);
-\draw[arrow] (r5) -- (i5);
-\draw[arrow] (i1) -- (c1);
-\draw[arrow] (i2) -- (c2);
-\draw[arrow] (i5) -- (c5);
-\draw[arrow] (c1) -- (l1);
-\draw[arrow] (c2) -- (l2);
-\draw[arrow] (c5) -- (l3);
+% Even spacing within each layer; layer y-positions fixed.
+% Layer 0: 5 roots at x = 0,1,2,3,4
+\foreach \i in {1,...,5} { \node[root] (r\i) at (\i-1, 0) {}; }
+% Layer 1: 5 intermediates at x = 0.5, 1.5, 2.5, 3.5, 4.5 (midway between roots)
+\foreach \i [evaluate=\i as \xi using \i-1] in {1,...,5} { \node[regular] (i\i) at (\xi+0.5, -1.2) {}; }
+% Layer 2: 10 nodes (compressed display: show 5 representative + an ellipsis)
+\foreach \i [evaluate=\i as \xi using \i-1] in {1,...,5} { \node[regular] (n\i) at (\xi+0.5, -2.4) {}; }
+% Layer 3: 5 colliders (representative of 10) at the same x grid
+\foreach \i [evaluate=\i as \xi using \i-1] in {1,...,5} { \node[collider] (c\i) at (\xi+0.5, -3.6) {}; }
+% Layer 4: 5 leaves
+\foreach \i [evaluate=\i as \xi using \i-1] in {1,...,5} { \node[regular] (l\i) at (\xi+0.5, -4.8) {}; }
+% Edges (clear hierarchical pattern, each node has 1-2 parents)
+% Layer 0 -> 1
+\draw[arrow] (r1) -- (i1); \draw[arrow] (r2) -- (i1);
+\draw[arrow] (r2) -- (i2); \draw[arrow] (r3) -- (i2);
+\draw[arrow] (r3) -- (i3); \draw[arrow] (r4) -- (i3);
+\draw[arrow] (r4) -- (i4); \draw[arrow] (r5) -- (i4);
+\draw[arrow] (r5) -- (i5); \draw[arrow] (r1) -- (i5);
+% Layer 1 -> 2
+\draw[arrow] (i1) -- (n1); \draw[arrow] (i2) -- (n2);
+\draw[arrow] (i3) -- (n3); \draw[arrow] (i4) -- (n4);
+\draw[arrow] (i5) -- (n5);
+% Layer 2 -> 3 (collider pattern: each c has 2 parents)
+\draw[arrow] (n1) -- (c1); \draw[arrow] (n2) -- (c1);
+\draw[arrow] (n2) -- (c2); \draw[arrow] (n3) -- (c2);
+\draw[arrow] (n3) -- (c3); \draw[arrow] (n4) -- (c3);
+\draw[arrow] (n4) -- (c4); \draw[arrow] (n5) -- (c4);
+\draw[arrow] (n5) -- (c5); \draw[arrow] (n1) -- (c5);
+% Layer 3 -> 4
+\draw[arrow] (c1) -- (l1); \draw[arrow] (c2) -- (l2);
+\draw[arrow] (c3) -- (l3); \draw[arrow] (c4) -- (l4);
+\draw[arrow] (c5) -- (l5);
 % Layer captions
-\node[font=\scriptsize, gray, anchor=west] at (5.0,0)    {Layer 0: 5 roots};
-\node[font=\scriptsize, gray, anchor=west] at (5.0,-1.2) {Layer 1: 5 intermediates};
-\node[font=\scriptsize, gray, anchor=west] at (5.0,-2.4) {Layer 2--3: 20 nodes, 13 colliders};
-\node[font=\scriptsize, gray, anchor=west] at (5.0,-3.6) {Layer 4: 5 leaves};
+\node[font=\scriptsize, gray, anchor=west] at (5.4, 0)    {Layer 0: 5 roots};
+\node[font=\scriptsize, gray, anchor=west] at (5.4,-1.2)  {Layer 1: 5 intermediates};
+\node[font=\scriptsize, gray, anchor=west] at (5.4,-2.4)  {Layer 2: 10 nodes (5 shown)};
+\node[font=\scriptsize, gray, anchor=west] at (5.4,-3.6)  {Layer 3: 5 complex colliders};
+\node[font=\scriptsize, gray, anchor=west] at (5.4,-4.8)  {Layer 4: 5 leaves};
+% Legend
+\node[root, anchor=west]     at (5.4,-5.8) {};
+\node[font=\scriptsize, anchor=west] at (5.7,-5.8) {root};
+\node[regular, anchor=west]  at (6.4,-5.8) {};
+\node[font=\scriptsize, anchor=west] at (6.7,-5.8) {regular};
+\node[collider, anchor=west] at (7.6,-5.8) {};
+\node[font=\scriptsize, anchor=west] at (7.9,-5.8) {collider};
 \end{tikzpicture}
 \smallskip
-\begin{itemize}
-\item 30 nodes, 39 edges, 11 colliders. Five-layer hierarchy.
-\item Random sampling devotes only $\sim\!3.3\%$ of interventions per node.
+\begin{itemize}\itemsep=0.05em
+\item 30 nodes, 39 edges, 11 colliders distributed across 5 layers.
+\item Random sampling devotes only $\sim\!3.3\%$ of interventions per node, so strategic target selection is essential at this scale.
 \end{itemize}
 \end{frame}
 
 % --------------- 17. 30-NODE RESULTS (HEADLINE) -----------------------------
 \begin{frame}{30-node results: the headline}
 \centering
-\includegraphics[width=0.80\textwidth]{fig_30node_results.pdf}\\[0.2em]
+\includegraphics[width=0.78\textwidth]{fig_30node_results.pdf}\\[0.1em]
 \flushleft
-\small
-\begin{itemize}\itemsep=0.1em
+\footnotesize
+\begin{itemize}\itemsep=0.02em
 \item ACE: $\mathbf{1.95\pm0.77}$ best-loss vs.\ baselines plateau $\mathbf{5.86}$ (stds $<\!0.08$).
-\item Common-plateau finding: at scale, static sampling heuristics are indistinguishable.
+\item Static sampling heuristics are indistinguishable at this scale; only adaptation helps.
 \item Same MLP learner everywhere, so the $\mathbf{3.0\times}$ gap reflects policy quality alone.
 \end{itemize}
 \end{frame}
