@@ -373,10 +373,14 @@ To test scalability we evaluate on a hierarchical 30-node SCM with 5 roots, 10 i
 \draw[arrow] (cc2) -- (l1);
 \draw[arrow] (cc5) -- (l5);
 
-% Legend
-\node[root,    label=right:{\scriptsize Root (5)}]          at (4.2,-0.5) {};
-\node[regular, label=right:{\scriptsize Intermediate (20)}] at (4.2,-1.3) {};
-\node[collider,label=right:{\scriptsize Collider (13)}]     at (4.2,-2.1) {};
+% Horizontal legend below Layer 4, centered under the layer columns to avoid
+% overlapping the layer captions on the right.
+\node[root]                                 at (0.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (0.25,-7.2) {Root (5)};
+\node[regular]                              at (2.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (2.25,-7.2) {Intermediate (20)};
+\node[collider]                             at (5.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (5.25,-7.2) {Collider (13)};
 \end{tikzpicture}
 \caption{30-node hierarchical SCM. Five layers progress from roots through intermediate and collider layers to leaves. Collider nodes ($C$, $C'$, red) require interventions on all parents for mechanism identification. With 30 nodes and a fixed budget of 300 episodes, random sampling devotes only $\sim\!3.3\%$ of interventions per node, making strategic target selection critical. Node labels are schematic; actual nodes are $X_1$--$X_{30}$.}
 \label{fig:30node-scm}
