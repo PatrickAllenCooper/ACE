@@ -155,33 +155,38 @@
 \draw[line width=0.55pt, color=aceMuted] (c4.east) -- (look.west);
 
 % --- (5) Best / Worst (right of Lookahead) ---------------------------
+% Pulled rightward to x=5.30 so the look->best/worst arrows can be straight
+% horizontal (not diagonal) and have enough length for clear labels above/
+% below them.
 \node[block=aceGoldDk, fill=aceGold, line width=1.4pt,
       minimum width=1.50cm, minimum height=0.65cm]
-      (best) at (4.85, 2.05) {\textbf{best} $c^{*}$};
+      (best) at (5.30, 2.05) {\textbf{best} $c^{*}$};
 \node[block=aceRubyDk, fill=aceRuby, line width=1.0pt,
       minimum width=1.50cm, minimum height=0.65cm]
-      (worst) at (4.85, 0.85) {\textbf{worst} $c^{-}$};
+      (worst) at (5.30, 0.85) {\textbf{worst} $c^{-}$};
 
-% Short sloped labels follow their diagonal arrows with a generous 6pt
-% perpendicular offset. We drop the "R" because R is already defined in the
-% Lookahead block; this halves the label width and gives both labels room to
-% breathe between the look-east edge and the best/worst west edges.
-\draw[arrh] (look.east) --
-      node[lbl, sloped, above=6pt]{argmax} (best.west);
-\draw[arrh] (look.east) --
-      node[lbl, sloped, below=6pt]{argmin} (worst.west);
+% Straight horizontal arrows: emerge from Lookahead's right edge at the
+% same y as best/worst (not from the centered look.east), so the arrows
+% are parallel to the page baseline and labels can sit cleanly above/below.
+\draw[arrh] (3.35, 2.05) -- (best.west);
+\draw[arrh] (3.35, 0.85) -- (worst.west);
+% Horizontal labels above/below their arrows. Anchored at south_east /
+% north_east so the label's RIGHT edge sits 0.05 left of best.west /
+% worst.west, with no pixel of overlap into either block.
+\node[lbl, anchor=south east] at ($(best.west)+(-0.05, 0.13)$) {argmax $R$};
+\node[lbl, anchor=north east] at ($(worst.west)+(-0.05,-0.13)$) {argmin $R$};
 
 % --- (6) Environment + Learner (right of Best/Worst) -----------------
 \node[block=aceSkyDk, fill=aceSky, line width=1.4pt,
       minimum width=2.05cm, minimum height=1.00cm,
       align=center]
-      (env) at (7.95, 2.05) {%
+      (env) at (8.10, 2.05) {%
   \textbf{Environment} $M^{*}$\\[1pt]
   \scriptsize ground-truth SCM};
 \node[block=aceTealDk, fill=aceTeal, line width=1.4pt,
       minimum width=2.05cm, minimum height=1.00cm,
       align=center]
-      (learn) at (7.95, 0.45) {%
+      (learn) at (8.10, 0.45) {%
   \textbf{Learner} $M_\theta$\\[1pt]
   \scriptsize student SCM};
 
@@ -203,28 +208,30 @@
   preference pair $(c^{*},\, c^{-})$\\[1pt]
   $\mathcal{L}_{\mathrm{DPO}}=-\log\sigma\!\big(\beta\,\log\tfrac{\pi_\phi}{\pi_{\mathrm{ref}}}\big)$};
 
-% --- (8) Best/Worst -> DPO via a single merged channel ----------------
-% Exit from best.south_east and worst.south_east (NOT .east) so the
-% channel stays below y = best.south = 1.725, well clear of the
-% execute-c* arrow at y = 2.05. Channel runs down at x = 6.10 in the
-% gap between best/worst (right edge x=5.60) and env/learn (left edge
-% x=6.925), then turns left into DPO from its right edge.
+% --- (8) Best/Worst -> DPO via a single merged T-junction channel ------
+% The "best path" is one continuous arrow: best.south_east -> right to
+% the channel x -> long way down -> left into DPO's east edge.
+% The "worst path" is a short connector that joins the channel at a
+% T-junction at y=worst.south (0.525). Both paths are dashed in the
+% same color so visually they read as a single feedback signal merging.
+% Drawing each path as ONE \draw call (rather than separate stubs)
+% guarantees the dash pattern flows continuously through every corner.
 
-\draw[fbn] (best.south east)  -- (6.10, 1.725);
-\draw[fbn] (6.10, 1.725)      -- (6.10, 0.525);
-\draw[fbn] (worst.south east) -- (6.10, 0.525);
-\draw[fb]  (6.10, 0.525)      -- (6.10, -2.55) -- (dpo.east);
+\draw[fb]  (best.south east) -- (6.50, 1.725) -- (6.50, -2.55) -- (dpo.east);
+\draw[fbn] (worst.south east) -- (6.50, 0.525);
+
 \node[font=\scriptsize, color=aceVioDk, rotate=90, anchor=center]
-      at (6.27, -1.10) {$(c^{*},\, c^{-})$ pair};
+      at (6.67, -1.10) {$(c^{*},\, c^{-})$ pair};
 
 % --- (9) DPO -> Policy feedback (clean L: UP from DPO's NW corner, LEFT
-% directly to Policy's x, UP into Policy's south. Three orthogonal segments
-% with no doubling-back; horizontal travel is monotonically toward Policy.)
-\draw[fb] (dpo.north west) -- ($(dpo.north west)+(0,2.10)$)
-          -- (pol.south |- {0,0.20})
-          -- (pol.south);
-% Horizontal label sits in the clear gap below the upper horizontal segment
-% (between Policy's bottom and DPO's top). No overlap with any block.
+% directly to Policy's x, UP into Policy's south. Single \draw call with
+% absolute coordinates so the dash pattern flows through corners without
+% any visible breaks.)
+\draw[fb] (-2.40, -1.90) -- (-2.40, 0.20)
+          -- (-4.40, 0.20)
+          -- (-4.40, 0.475);
+% Horizontal label below the upper horizontal segment, in the clear gap
+% between Policy's bottom (y=0.475) and DPO's top (y=-1.90).
 \node[font=\scriptsize, color=aceVioDk, anchor=north]
       at (-3.40, 0.05) {policy gradient};
 
