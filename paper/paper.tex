@@ -395,18 +395,18 @@ To test scalability we evaluate on a hierarchical 30-node SCM with 5 roots, 10 i
 
 \begin{table}[t]
 \centering
-\caption{30-node hierarchical SCM. All methods use the per-node MLP student learner for a matched comparison. ACE (N=3) reports best-loss across training; baselines (N=5) report final-episode loss at the 150-episode budget. Corresponding learning curves and per-seed scatter are in Figure~\ref{fig:30node-results}.}
+\caption{30-node hierarchical SCM. All methods use the same per-node MLP student learner. We report both \emph{best} (minimum total MSE across training) and \emph{final} (last-episode total MSE) statistics so the comparison is symmetric. Static baselines plateau immediately, so best $\approx$ final. ACE training on 30 nodes is non-monotone, so best-loss is the natural summary of converged performance; final-loss is dominated by ACE seed 42's late-training instability (its training was cut off at 90 episodes mid-oscillation). ACE wins on both metrics. See Figure~\ref{fig:30node-results} for learning curves.}
 \label{tab:large-scale}
 \small
-\begin{tabular}{@{}lccc@{}}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-Method & Total MSE & $N$ & Improvement vs.\ baselines \\
+Method & Best MSE & Final MSE & $N$ & Improvement (best-vs-best) \\
 \midrule
-\textbf{ACE} (best-loss) & \textbf{1.95$\pm$0.77} & 3 & $3.0\times$ \\
+\textbf{ACE} & \textbf{1.95$\pm$0.77} & 4.13$\pm$3.61 & 3 & $3.0\times$ \\
 \midrule
-Random       & 5.85$\pm$0.04 & 5 & --- \\
-Round-Robin  & 5.86$\pm$0.07 & 5 & --- \\
-Max-Variance & 5.86$\pm$0.08 & 5 & --- \\
+Random       & 5.80$\pm$0.05 & 5.85$\pm$0.04 & 5 & --- \\
+Round-Robin  & 5.79$\pm$0.06 & 5.86$\pm$0.07 & 5 & --- \\
+Max-Variance & 5.80$\pm$0.04 & 5.86$\pm$0.08 & 5 & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -454,8 +454,8 @@ ACE assumes known causal structure. We analyze graph-error failure modes theoret
 
 \textbf{Emergent strategy beyond Bayesian OED.} Bayesian OED optimizes the same EIG objective ACE implicitly targets yet plateaus at $2.04\pm0.12$ while ACE reaches median $0.61$. The $99.8\%$ collider-parent concentration emerged from preference optimization without instruction, recovering a principled experimental strategy through experience.
 
-\paragraph{Limitations and future work.}\label{sec:limitations}
-ACE assumes known causal structure. This restricts scope relative to ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions}, but those methods operate in a different computational regime: Bayesian structure learning is NP-hard \citep{chickering1996learning} and the DAG space is super-exponential in $|V|$, rendering posterior maintenance intractable beyond $\sim$20 variables, so the 30-node regime is out of reach for posterior-maintaining methods even with recent advances \citep{zhou2024sample}. Empirical quantification of graph misspecification (Section~\ref{sec:results-misspec}) is our highest-priority follow-up. Text-based graph encoding caps scalability at $\sim$50 nodes; each ACE step is $\sim$22 min on A100 (Appendix~\ref{app:compute}). \emph{Budget accounting:} ``intervention budget'' counts \emph{executed} interventions; lookahead supplies DPO's training signal and is unused at deployment. Bayesian OED has the same many-candidate-per-step structure, and 30-node baselines plateau with seed-std $<\!0.08$ regardless of additional environment queries.
+\paragraph{Scope, limitations, and future work.}\label{sec:limitations}
+ACE addresses \emph{mechanism estimation given known causal structure}, the central task whenever a graph is available from domain expertise, prior literature, or an upstream structure-learning algorithm. Joint structure-and-mechanism methods (ABCI, CBED) target a different problem and operate in a different computational regime (NP-hard \citep{chickering1996learning}, posterior maintenance intractable beyond $\sim$20 variables \citep{zhou2024sample}); ACE complements rather than competes with them. Empirical quantification of graph misspecification (Section~\ref{sec:results-misspec}) and a structure-learning frontend are natural follow-ups. Text-based graph encoding caps scalability at $\sim$50 nodes; each ACE step is $\sim$22 min on A100. \emph{Budget accounting:} ``intervention budget'' counts \emph{executed} interventions; lookahead supplies DPO's training signal and is unused at deployment. Bayesian OED has the same many-candidate-per-step structure, and 30-node baselines plateau with seed-std $<\!0.08$ regardless of additional environment queries.
 
 % =======================================================================
 % References
