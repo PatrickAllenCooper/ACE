@@ -235,15 +235,15 @@
 \node[font=\scriptsize, color=aceVioDk, anchor=south]
       at (4.55, -2.45) {$(c^{*},\, c^{-})$ pair};
 
-% --- (9) DPO -> Policy feedback (clean L: UP from DPO's top edge (NOT
-% the bounding-box corner -- DPO has rounded corners so the corner
-% itself sits inside the visible boundary), LEFT to Policy's x, UP into
-% Policy's south. Single \draw call so the dash pattern flows through
-% corners without phase resets.
-\draw[fb] (-2.20, -1.90) -- (-2.20, 0.20)
-          -- (-4.40, 0.20)
-          -- (-4.40, 0.475);
-% Horizontal label below the upper horizontal segment, in the clear gap
+% --- (9) DPO -> Policy feedback. Orthogonal L (UP, LEFT, UP) with
+% rounded corners so the two 90 deg bends read as smooth quarter-arcs
+% rather than sharp angles. Single \draw call so the dash pattern flows
+% continuously through both rounded corners.
+\draw[fb, rounded corners=5pt]
+      (-2.20, -1.90) -- (-2.20, 0.20)
+                     -- (-4.40, 0.20)
+                     -- (-4.40, 0.475);
+% Label sits in the clear empty area below the upper horizontal segment,
 % between Policy's bottom (y=0.475) and DPO's top (y=-1.90).
 \node[font=\scriptsize, color=aceVioDk, anchor=north]
       at (-3.40, 0.05) {policy gradient};
