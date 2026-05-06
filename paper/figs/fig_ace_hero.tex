@@ -37,7 +37,7 @@
 \definecolor{aceMuted}{RGB}{100,116,139}
 
 \begin{tikzpicture}[
-    scale=0.82, transform shape,
+    scale=0.755, transform shape,
     every node/.style={font=\scriptsize},
     state/.style={rectangle, draw=aceSlateDk, rounded corners=2pt,
                   fill=aceSlate, line width=0.6pt, align=center,
@@ -162,13 +162,14 @@
       minimum width=1.50cm, minimum height=0.65cm]
       (worst) at (4.85, 0.85) {\textbf{worst} $c^{-}$};
 
-% Sloped labels: argmax R sits above the upward arrow, argmin R below the
-% downward arrow. Both labels follow their arrows' angle and stay clear of
-% the arrow lines via a 4pt perpendicular offset.
+% Short sloped labels follow their diagonal arrows with a generous 6pt
+% perpendicular offset. We drop the "R" because R is already defined in the
+% Lookahead block; this halves the label width and gives both labels room to
+% breathe between the look-east edge and the best/worst west edges.
 \draw[arrh] (look.east) --
-      node[lbl, sloped, above=4pt]{argmax $R$} (best.west);
+      node[lbl, sloped, above=6pt]{argmax} (best.west);
 \draw[arrh] (look.east) --
-      node[lbl, sloped, below=4pt]{argmin $R$} (worst.west);
+      node[lbl, sloped, below=6pt]{argmin} (worst.west);
 
 % --- (6) Environment + Learner (right of Best/Worst) -----------------
 \node[block=aceSkyDk, fill=aceSky, line width=1.4pt,
@@ -216,15 +217,16 @@
 \node[font=\scriptsize, color=aceVioDk, rotate=90, anchor=center]
       at (6.27, -1.10) {$(c^{*},\, c^{-})$ pair};
 
-% --- (9) DPO -> Policy feedback (left along floor, up, right into policy)
-\draw[fb] (dpo.west) -- (-6.05, -2.55)
-          -- (-6.05, 0.20)
+% --- (9) DPO -> Policy feedback (clean L: UP from DPO's NW corner, LEFT
+% directly to Policy's x, UP into Policy's south. Three orthogonal segments
+% with no doubling-back; horizontal travel is monotonically toward Policy.)
+\draw[fb] (dpo.north west) -- ($(dpo.north west)+(0,2.10)$)
           -- (pol.south |- {0,0.20})
           -- (pol.south);
-% Label sits to the right of the long upward vertical segment, rotated to
-% read along it. Vertical text avoids overlap with State and Policy blocks.
-\node[font=\scriptsize, color=aceVioDk, rotate=90, anchor=center]
-      at (-5.85, -1.10) {policy gradient};
+% Horizontal label sits in the clear gap below the upper horizontal segment
+% (between Policy's bottom and DPO's top). No overlap with any block.
+\node[font=\scriptsize, color=aceVioDk, anchor=north]
+      at (-3.40, 0.05) {policy gradient};
 
 % --- (10) Learner -> State (long dashed feedback along container floor)
 \draw[feed]
