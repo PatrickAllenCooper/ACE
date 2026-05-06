@@ -165,7 +165,18 @@ axL.set_title("(a) Convergence on 30-node SCM", loc="left", pad=6)
 axL.set_xlim(0, 150)
 axL.set_ylim(0, 8)
 axL.grid(True, linestyle=":", linewidth=0.4, alpha=0.5)
-axL.legend(loc="upper right", frameon=False, handlelength=1.8, fontsize=8)
+axL.legend(
+    loc="upper left",
+    bbox_to_anchor=(0.02, 0.98),
+    frameon=True,
+    facecolor="white",
+    framealpha=0.95,
+    edgecolor="#bbbbbb",
+    handlelength=1.8,
+    fontsize=8,
+    borderpad=0.4,
+    labelspacing=0.4,
+)
 
 # === Panel B: bar chart with per-seed scatter, cleaner bracket ===
 labels = ["ACE\n(ours)", "Random", "Round-\nRobin", "Max-\nVariance"]
