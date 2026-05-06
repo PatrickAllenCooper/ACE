@@ -65,15 +65,21 @@ modern simulators expose hundreds of interacting variables.
 \column{0.45\textwidth}
 \centering
 \begin{tikzpicture}[
-    rung/.style={draw, thick, minimum width=4.0cm, minimum height=0.85cm, font=\small, rounded corners=3pt},
+    rung/.style={draw, thick, minimum width=3.6cm, minimum height=0.85cm, font=\small, rounded corners=3pt, align=center},
     arrow/.style={-{Stealth[length=2mm]}, thick, gray}
 ]
-\node[rung, fill=blue!8] (r1) at (0,0)   {\textbf{1} Association \quad $P(Y\mid X)$};
-\node[rung, fill=red!12]  (r2) at (0,1.1) {\textbf{2} Intervention \quad $P(Y\mid \text{do}(X))$};
-\node[rung, fill=gray!10] (r3) at (0,2.2) {\textbf{3} Counterfactual};
+\node[rung, fill=blue!8]  (r1) at (0,0)   {\textbf{1} Association \quad {\scriptsize $P(Y{\mid}X)$}};
+\node[rung, fill=red!12, draw=ACEred, very thick]
+                          (r2) at (0,1.2) {\textbf{2} Intervention \quad {\scriptsize $P(Y{\mid}\text{do}(X))$}};
+\node[rung, fill=gray!10] (r3) at (0,2.4) {\textbf{3} Counterfactual};
 \draw[arrow] (r1) -- (r2);
 \draw[arrow] (r2) -- (r3);
-\node[font=\scriptsize, ACEred, anchor=west] at (2.1,1.1) {ACE operates here};
+% ACE callout: roomy badge above-right with a clear curved connector arrow.
+\node[font=\scriptsize\bfseries, ACEred, anchor=west,
+      rounded corners=2pt, draw=ACEred, fill=red!5,
+      inner sep=3pt, align=center] (ace) at (2.4, 1.8) {ACE\\operates here};
+\draw[-{Stealth[length=1.8mm]}, ACEred, thick]
+      (ace.south west) to[bend left=18] (r2.north east);
 \end{tikzpicture}
 \column{0.55\textwidth}
 \small
@@ -342,17 +348,15 @@ early and late training, while candidate-rank Spearman $\rho$ stays $>0.85$ thro
 \smallskip
 
 \textbf{Five baselines.} Random; Round-Robin (Fisher 1935); Max-Variance
-(Cohn et al.\ 1996); Bayesian OED (Monte Carlo EIG, adapted from Toth et al.\ 2022,
-Tigas et al.\ 2022); PPO (Schulman et al.\ 2017).
+(Cohn et al.\ 1996); Bayesian OED (Toth et al.\ 2022, Tigas et al.\ 2022); PPO (Schulman et al.\ 2017).
 \smallskip
 
 \textbf{Seed counts.}
-\begin{itemize}\itemsep=0.02em
+\begin{itemize}\itemsep=0em
 \item 5-node: ACE N=5; baselines + PPO N=5; Bayesian OED N=3.
-\item 30-node: ACE N=3; baselines N=5.
-\item Duffing, Phillips: N=5.
+\item 30-node: ACE N=3; baselines N=5. \quad Duffing, Phillips: N=5.
 \end{itemize}
-\textit{All methods share the same MLP student learner for fair comparison.}
+\textit{All methods share the same MLP student learner.}
 \end{frame}
 
 % --------------- 14. 5-NODE BENCHMARK ---------------------------------------
