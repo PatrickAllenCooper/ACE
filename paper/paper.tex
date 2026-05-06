@@ -22,6 +22,9 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,decorations.pathmorphing,decorations.pathreplacing}
+
+% Shared color palette used across all figures (hero, 5-node SCM, 30-node SCM).
+\input{figs/ace_palette}
 \usepackage[capitalize,noabbrev]{cleveref}
 
 % Operators
@@ -201,10 +204,10 @@ The 5-node benchmark (Figure~\ref{fig:synthetic-scm}) is a diagnostic testbed, n
 \begin{tikzpicture}[
     scale=0.9,
     node distance=2.0cm,
-    root/.style={circle, draw, fill=blue!20, minimum size=0.8cm, font=\small, thick},
-    regular/.style={circle, draw, fill=gray!15, minimum size=0.8cm, font=\small, thick},
-    collider/.style={circle, draw, fill=red!25, minimum size=0.8cm, font=\small, thick},
-    arrow/.style={-{Stealth[length=2.5mm]}, thick}
+    root/.style={circle, draw=aceSkyDk, fill=aceSky, minimum size=0.8cm, font=\small, thick, line width=0.9pt},
+    regular/.style={circle, draw=aceSlateDk, fill=aceSlate, minimum size=0.8cm, font=\small, thick, line width=0.9pt},
+    collider/.style={circle, draw=aceRubyDk, fill=aceRuby, minimum size=0.8cm, font=\small, thick, line width=1.1pt},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick, color=aceSlateDk}
 ]
 \node[root] (X1) at (0,0) {$X_1$};
 \node[root] (X4) at (3.5,0) {$X_4$};
@@ -257,10 +260,10 @@ To test scalability we evaluate on a hierarchical 30-node SCM with 5 roots, 10 i
 \centering
 \begin{tikzpicture}[
     scale=0.82, transform shape,
-    root/.style={circle, draw, fill=blue!20, minimum size=0.62cm, font=\scriptsize, thick},
-    regular/.style={circle, draw, fill=gray!15, minimum size=0.62cm, font=\scriptsize, thick},
-    collider/.style={circle, draw, fill=red!25, minimum size=0.62cm, font=\scriptsize, thick},
-    arrow/.style={-{Stealth[length=1.8mm]}, thick}
+    root/.style={circle, draw=aceSkyDk, fill=aceSky, minimum size=0.62cm, font=\scriptsize, thick, line width=0.7pt},
+    regular/.style={circle, draw=aceSlateDk, fill=aceSlate, minimum size=0.62cm, font=\scriptsize, thick, line width=0.7pt},
+    collider/.style={circle, draw=aceRubyDk, fill=aceRuby, minimum size=0.62cm, font=\scriptsize, thick, line width=0.9pt},
+    arrow/.style={-{Stealth[length=1.8mm]}, thick, color=aceSlateDk}
 ]
 % Layer 0: 5 roots
 \node[root] (r1) at (0,0)   {$R_1$};

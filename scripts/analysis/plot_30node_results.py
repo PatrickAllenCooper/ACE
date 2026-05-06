@@ -38,12 +38,15 @@ mpl.rcParams.update({
 OUT_DIR = "paper/figs"
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# Colors: ACE distinctive (dark red/crimson), baselines in greys
+# Colors taken from the shared palette in paper/figs/ace_palette.tex so the
+# matplotlib figure visually harmonises with the TikZ figures (hero, 5-node
+# SCM, 30-node SCM). ACE uses the ruby-dark accent (vivid distinctive red);
+# the three static baselines use the dark variants of sky / teal / violet.
 COLORS = {
-    "ACE":          "#b30000",
-    "Random":       "#4a6fa5",
-    "Round-Robin":  "#5c8a5c",
-    "Max-Variance": "#8a6fa5",
+    "ACE":          "#be123c",  # aceRubyDk
+    "Random":       "#1e40af",  # aceSkyDk
+    "Round-Robin":  "#0f766e",  # aceTealDk
+    "Max-Variance": "#6b21a8",  # aceVioDk
 }
 
 # ── Load ACE per-episode data ────────────────────────────────────────────
@@ -143,9 +146,9 @@ axL.annotate(
     "Baselines collapse\nto common plateau",
     xy=(110, 5.86),
     xytext=(60, 4.2),
-    fontsize=8.5, color="#333333",
+    fontsize=8.5, color="#475569",  # aceSlateDk
     ha="center", va="center",
-    arrowprops=dict(arrowstyle="->", color="#555555", lw=0.7,
+    arrowprops=dict(arrowstyle="->", color="#64748b", lw=0.7,  # aceMuted
                     connectionstyle="arc3,rad=0.18"),
 )
 # ACE annotation
@@ -171,7 +174,7 @@ axL.legend(
     frameon=True,
     facecolor="white",
     framealpha=0.95,
-    edgecolor="#bbbbbb",
+    edgecolor="#94a3b8",  # slate-medium
     handlelength=1.8,
     fontsize=8,
     borderpad=0.4,
@@ -212,7 +215,7 @@ for xi, vals in zip(x, per_seed_data):
 y_ace = ace_final_mean
 y_base = final_stats["Random"][0]
 # Horizontal reference line at baseline plateau
-axR.axhline(y=y_base, color="#888888", linestyle="--", lw=0.6, alpha=0.7,
+axR.axhline(y=y_base, color="#94a3b8", linestyle="--", lw=0.6, alpha=0.7,  # slate-medium
             zorder=1)
 # Bracket with two end ticks and a label between ACE bar (x=0) and Random bar (x=1)
 y_top = y_base + 0.95
@@ -233,7 +236,7 @@ labels_classed = [
     "Max-Variance\nstatic",
 ]
 axR.set_xticklabels(labels_classed, fontsize=7.5)
-tick_label_colors = [COLORS["ACE"], "#555555", "#555555", "#555555"]
+tick_label_colors = [COLORS["ACE"], "#475569", "#475569", "#475569"]  # aceSlateDk
 for tick_label, c in zip(axR.get_xticklabels(), tick_label_colors):
     tick_label.set_color(c)
     tick_label.set_fontweight("bold" if c == COLORS["ACE"] else "normal")
