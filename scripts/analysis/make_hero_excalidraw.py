@@ -2,17 +2,19 @@
 """
 Generate an Excalidraw hero figure for the ACE paper.
 
-Output: paper/figs/ace_hero.excalidraw  (importable at excalidraw.com)
+Layout (modeled on the LatentMAS-style two-tier reference):
 
-The figure tells the ACE story end-to-end in one sketch:
-    Pearl Rung-2 framing  ->  State  ->  LM policy  ->  K=4 candidates
-                          ->  lookahead on cloned learner  ->  best/worst pair
-                          ->  execute best on environment  ->  update learner
-                          (and DPO update closes the policy loop)
+  Top tier (no container):
+    Tiny "ACE" label in top-left, then a horizontal outer-loop strip
+    showing how each step flows into the next:
+       state_t -> step -> state_{t+1} -> step -> state_{t+2} -> ...
 
-Usage:
-    python scripts/analysis/make_hero_excalidraw.py
-    # then drag the output file onto excalidraw.com
+  Bottom tier (dashed-bordered container):
+    "One ACE step" label in top-left of the container, then the inner
+    mechanism of a single step. All blocks are placed on a clean grid;
+    arrows are routed to avoid crossing any node.
+
+Output: paper/figs/ace_hero.excalidraw
 """
 
 import json
@@ -21,16 +23,32 @@ import random
 import time
 from pathlib import Path
 
-# --- color palette (matches paper figures) ----------------------------------
-COL_ENV       = ("#a5d8ff", "#1864ab")   # blue
-COL_LEARNER   = ("#ffec99", "#e67700")   # amber
-COL_POLICY    = ("#b2f2bb", "#2b8a3e")   # green
-COL_CAND      = ("#ffc9c9", "#c92a2a")   # red
-COL_LOOKAHEAD = ("#fcc2d7", "#a61e4d")   # pink
-COL_DPO       = ("#d0bfff", "#5f3dc4")   # violet
-COL_RUNG      = ("#dee2e6", "#495057")   # gray
+# ---------------------------------------------------------------------------
+# Style: solid fills, slight hand-drawn roughness; lifted from the LatentMAS
+# reference rather than the default Excalidraw "hachure".
+# ---------------------------------------------------------------------------
+ROUGHNESS = 1
+FILL_STYLE = "solid"
 
-# --- helpers ---------------------------------------------------------------
+# Soft pastel palette (LatentMAS-style):
+COL_STATE     = ("#e2e8f0", "#475569")   # slate gray
+COL_POLICY    = ("#c6f6d5", "#22863a")   # leaf green
+COL_CAND      = ("#ffd6e0", "#c01048")   # rose
+COL_LOOK      = ("#fed7aa", "#c2410c")   # amber
+COL_BEST      = ("#fef3bd", "#a16207")   # gold
+COL_WORST     = ("#fecdd3", "#be123c")   # ruby
+COL_ENV       = ("#bee3f8", "#1e40af")   # sky blue
+COL_LEARNER   = ("#fde68a", "#a16207")   # honey
+COL_DPO       = ("#e9d8fd", "#6b21a8")   # violet
+COL_RUNG_HI   = ("#ffd6e0", "#c01048")
+COL_RUNG_LO   = ("#e2e8f0", "#64748b")
+COL_DARK      = "#1f2937"
+COL_MUTED     = "#64748b"
+
+
+# ---------------------------------------------------------------------------
+# Element factories
+# ---------------------------------------------------------------------------
 def _rand():
     return random.randint(1, 2_000_000_000)
 
@@ -40,345 +58,356 @@ def _now_ms():
 def _id():
     return f"el-{_rand():010d}"
 
-def _base(elem_type, x, y, w, h, stroke="#1e1e1e", fill="transparent",
-          stroke_width=2, fill_style="hachure", roughness=1):
+def _base(elem_type, x, y, w, h, stroke=COL_DARK, fill="transparent",
+          stroke_width=2, fill_style=FILL_STYLE, roughness=ROUGHNESS,
+          stroke_style="solid"):
     return {
         "id": _id(),
         "type": elem_type,
-        "x": x, "y": y,
-        "width": w, "height": h,
-        "angle": 0,
-        "strokeColor": stroke,
-        "backgroundColor": fill,
-        "fillStyle": fill_style,
-        "strokeWidth": stroke_width,
-        "strokeStyle": "solid",
-        "roughness": roughness,
-        "opacity": 100,
-        "groupIds": [],
-        "frameId": None,
+        "x": x, "y": y, "width": w, "height": h, "angle": 0,
+        "strokeColor": stroke, "backgroundColor": fill,
+        "fillStyle": fill_style, "strokeWidth": stroke_width,
+        "strokeStyle": stroke_style, "roughness": roughness, "opacity": 100,
+        "groupIds": [], "frameId": None,
         "roundness": {"type": 3} if elem_type == "rectangle" else None,
-        "seed": _rand(),
-        "version": 1,
-        "versionNonce": _rand(),
-        "isDeleted": False,
-        "boundElements": [],
-        "updated": _now_ms(),
-        "link": None,
-        "locked": False,
+        "seed": _rand(), "version": 1, "versionNonce": _rand(),
+        "isDeleted": False, "boundElements": [],
+        "updated": _now_ms(), "link": None, "locked": False,
     }
 
-def box(x, y, w, h, fill_stroke, stroke_width=2):
+def box(x, y, w, h, fill_stroke, stroke_width=2, stroke_style="solid",
+        rounded=True):
     fill, stroke = fill_stroke
-    return _base("rectangle", x, y, w, h, stroke=stroke, fill=fill,
-                 stroke_width=stroke_width)
-
-def diamond(x, y, w, h, fill_stroke):
-    fill, stroke = fill_stroke
-    e = _base("diamond", x, y, w, h, stroke=stroke, fill=fill)
-    e["roundness"] = None
+    e = _base("rectangle", x, y, w, h, stroke=stroke, fill=fill,
+              stroke_width=stroke_width, stroke_style=stroke_style)
+    if not rounded:
+        e["roundness"] = None
     return e
 
-def text(x, y, w, h, content, size=20, color="#1e1e1e", bold=False, align="center"):
-    e = _base("text", x, y, w, h, stroke=color, fill="transparent")
+def container(x, y, w, h, stroke="#94a3b8", stroke_width=1.5):
+    """Dashed bordered container with no fill (like the reference's outer box)."""
+    e = _base("rectangle", x, y, w, h, stroke=stroke, fill="transparent",
+              stroke_width=stroke_width, stroke_style="dashed")
+    e["roundness"] = {"type": 3}
+    return e
+
+def text(x, y, w, h, content, size=18, color=COL_DARK, bold=False,
+         align="center"):
+    e = _base("text", x, y, w, h, stroke=color, fill="transparent",
+              stroke_width=1)
     e["roundness"] = None
     e["text"] = content
     e["fontSize"] = size
-    # 1=Virgil (hand-drawn), 2=Helvetica, 3=Cascadia (mono)
-    e["fontFamily"] = 1
+    e["fontFamily"] = 2  # 2 = Helvetica (clean) like the reference
     e["textAlign"] = align
     e["verticalAlign"] = "middle"
     e["containerId"] = None
     e["originalText"] = content
     e["lineHeight"] = 1.25
     e["baseline"] = int(size * 0.85)
-    e["strokeWidth"] = 1
-    if bold:
-        e["fontFamily"] = 1  # Virgil already has weight via roughness
-        e["fontSize"] = int(size * 1.05)
     return e
 
-def arrow(x1, y1, x2, y2, color="#1e1e1e", stroke_width=2, dashed=False, label=None):
-    elements = []
-    a = _base("arrow", min(x1, x2), min(y1, y2), abs(x2 - x1), abs(y2 - y1),
-              stroke=color, fill="transparent", stroke_width=stroke_width)
-    a["roundness"] = {"type": 2}  # for arrows: 2 = round/curved
+def line(x1, y1, x2, y2, color=COL_DARK, stroke_width=2, dashed=False,
+         arrow_end=True, arrow_start=False):
+    """Single-segment arrow / line."""
+    a = _base("arrow", min(x1, x2), min(y1, y2),
+              max(abs(x2 - x1), 1), max(abs(y2 - y1), 1),
+              stroke=color, fill="transparent", stroke_width=stroke_width,
+              stroke_style="dashed" if dashed else "solid")
+    a["roundness"] = {"type": 2}
     a["points"] = [[0, 0], [x2 - x1, y2 - y1]]
     a["lastCommittedPoint"] = None
     a["startBinding"] = None
     a["endBinding"] = None
-    a["startArrowhead"] = None
-    a["endArrowhead"] = "arrow"
-    if dashed:
-        a["strokeStyle"] = "dashed"
+    a["startArrowhead"] = "arrow" if arrow_start else None
+    a["endArrowhead"] = "arrow" if arrow_end else None
     a["x"] = x1
     a["y"] = y1
     a["width"] = x2 - x1
     a["height"] = y2 - y1
-    elements.append(a)
+    return a
 
-    if label:
-        # midpoint, slightly offset upward
-        mx = (x1 + x2) / 2
-        my = (y1 + y2) / 2 - 14
-        elements.append(text(mx - 80, my, 160, 20, label, size=14,
-                             color="#495057"))
-    return elements
-
-def curved_arrow(points, color="#1e1e1e", stroke_width=2, dashed=False, label=None):
-    """Multi-point curved arrow."""
-    elements = []
+def polyline(points, color=COL_DARK, stroke_width=2, dashed=False,
+             arrow_end=True):
+    """Multi-segment orthogonal-friendly arrow."""
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
     x0, y0 = xs[0], ys[0]
     a = _base("arrow", x0, y0, max(xs) - min(xs), max(ys) - min(ys),
-              stroke=color, fill="transparent", stroke_width=stroke_width)
+              stroke=color, fill="transparent", stroke_width=stroke_width,
+              stroke_style="dashed" if dashed else "solid")
     a["roundness"] = {"type": 2}
     a["points"] = [[x - x0, y - y0] for x, y in points]
     a["lastCommittedPoint"] = None
     a["startBinding"] = None
     a["endBinding"] = None
     a["startArrowhead"] = None
-    a["endArrowhead"] = "arrow"
-    if dashed:
-        a["strokeStyle"] = "dashed"
-    elements.append(a)
+    a["endArrowhead"] = "arrow" if arrow_end else None
+    return a
 
-    if label:
-        mid = points[len(points) // 2]
-        elements.append(text(mid[0] - 80, mid[1] - 14, 160, 20, label, size=14,
-                             color="#495057"))
-    return elements
+def label_at(x, y, content, size=12, color=COL_MUTED, w=200, align="center"):
+    return text(x - w / 2, y - 9, w, 18, content, size=size, color=color,
+                align=align)
 
 
-# --- build the figure -------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Build the figure
+# ---------------------------------------------------------------------------
 def build():
     elements = []
 
-    # =========================================================================
-    # Title and tagline
-    # =========================================================================
-    elements.append(text(620, 30, 760, 36,
-                         "ACE: Active Causal Experimentalist",
-                         size=28, bold=True))
-    elements.append(text(620, 70, 760, 22,
-                         "Each step: propose K=4, lookahead, execute the best, "
-                         "DPO on (best, worst).",
-                         size=14, color="#495057"))
+    # ============ TOP TIER: outer loop summary ==============================
+    elements.append(text(40, 24, 160, 24, "ACE", size=18, bold=True,
+                         color=COL_DARK, align="left"))
 
-    # =========================================================================
-    # (1) Pearl rung sidebar (top-left): brief context box
-    # =========================================================================
-    rung_x, rung_y = 60, 130
-    elements.append(text(rung_x, rung_y - 24, 200, 18, "Pearl's hierarchy",
-                         size=12, color="#495057"))
-    # three rungs stacked
-    elements.append(box(rung_x, rung_y, 200, 36, COL_RUNG))
-    elements.append(text(rung_x, rung_y, 200, 36, "3  Counterfactual",
-                         size=14))
-    elements.append(box(rung_x, rung_y + 44, 200, 36, COL_LOOKAHEAD,
-                        stroke_width=3))
-    elements.append(text(rung_x, rung_y + 44, 200, 36, "2  Intervention  <<",
-                         size=14, bold=True))
-    elements.append(box(rung_x, rung_y + 88, 200, 36, COL_RUNG))
-    elements.append(text(rung_x, rung_y + 88, 200, 36, "1  Association",
-                         size=14))
-    elements.append(text(rung_x, rung_y + 134, 200, 18,
-                         "ACE operates here", size=11,
-                         color=COL_LOOKAHEAD[1]))
+    # 5 small boxes in a row showing the loop: s_t -> step -> s_{t+1} -> step -> s_{t+2}
+    top_y = 90
+    top_h = 56
+    state_w = 90
+    step_w = 130
+    gap = 36
+    flow = []  # (label_text, color, x, w)
+    cursor = 200
+    items = [
+        ("$s_t$",       state_w,  COL_STATE),
+        ("ACE step",    step_w,   COL_POLICY),
+        ("$s_{t+1}$",   state_w,  COL_STATE),
+        ("ACE step",    step_w,   COL_POLICY),
+        ("$s_{t+2}$",   state_w,  COL_STATE),
+    ]
+    for label, w, c in items:
+        elements.append(box(cursor, top_y, w, top_h, c, stroke_width=1.8))
+        elements.append(text(cursor, top_y, w, top_h, label, size=15))
+        flow.append((cursor, w))
+        cursor += w + gap
 
-    # =========================================================================
-    # (2) State box (center-left)
-    # =========================================================================
-    state_x, state_y, state_w, state_h = 320, 160, 280, 130
-    elements.append(box(state_x, state_y, state_w, state_h, COL_RUNG,
-                        stroke_width=2))
-    elements.append(text(state_x, state_y + 6, state_w, 22,
-                         "State  s_t", size=18, bold=True))
-    elements.append(text(state_x + 12, state_y + 36, state_w - 24, 22,
-                         "* graph G", size=14, align="left"))
-    elements.append(text(state_x + 12, state_y + 60, state_w - 24, 22,
-                         "* per-node losses {L_i}", size=14, align="left"))
-    elements.append(text(state_x + 12, state_y + 84, state_w - 24, 22,
-                         "* recent intervention history", size=14, align="left"))
+    # arrows between
+    for (x_a, w_a), (x_b, _) in zip(flow[:-1], flow[1:]):
+        elements.append(line(x_a + w_a + 2, top_y + top_h / 2,
+                             x_b - 4, top_y + top_h / 2,
+                             stroke_width=1.6, color=COL_MUTED))
 
-    # =========================================================================
-    # (3) Policy LM box (center-right of state)
-    # =========================================================================
-    pol_x, pol_y, pol_w, pol_h = 660, 160, 280, 130
-    elements.append(box(pol_x, pol_y, pol_w, pol_h, COL_POLICY,
-                        stroke_width=3))
-    elements.append(text(pol_x, pol_y + 8, pol_w, 24,
-                         "LM Policy  π_φ", size=18, bold=True))
-    elements.append(text(pol_x + 10, pol_y + 38, pol_w - 20, 22,
-                         "Qwen2.5-1.5B", size=14, align="center"))
-    elements.append(text(pol_x + 10, pol_y + 62, pol_w - 20, 22,
-                         "(pretrained world prior)", size=12,
-                         color="#495057", align="center"))
-    elements.append(text(pol_x + 10, pol_y + 90, pol_w - 20, 22,
-                         "+ DPO fine-tuning", size=14, align="center",
-                         color=COL_DPO[1]))
+    # ellipsis
+    elements.append(text(cursor + 10, top_y, 80, top_h, "…", size=22,
+                         color=COL_MUTED))
 
-    # State -> Policy arrow
-    elements += arrow(state_x + state_w, state_y + state_h / 2,
-                      pol_x, pol_y + pol_h / 2,
-                      label="prompt")
+    elements.append(text(200, top_y + top_h + 12, 660, 18,
+                         "outer loop: state evolves as the policy executes interventions",
+                         size=12, color=COL_MUTED, align="left"))
 
-    # =========================================================================
-    # (4) K=4 candidate boxes (below policy)
-    # =========================================================================
-    cand_y = 360
-    cand_box_w, cand_box_h = 130, 60
-    cand_xs = [330, 480, 630, 780]
-    for i, cx in enumerate(cand_xs):
-        elements.append(box(cx, cand_y, cand_box_w, cand_box_h, COL_CAND))
-        elements.append(text(cx, cand_y + 8, cand_box_w, 22,
-                             f"c_{i+1}", size=16, bold=True))
-        elements.append(text(cx, cand_y + 30, cand_box_w, 22,
-                             "DO X_i = v", size=11,
-                             color="#495057"))
+    # ============ BOTTOM TIER: inside one ACE step ==========================
+    # Outer dashed container
+    cont_x, cont_y, cont_w, cont_h = 40, 220, 1500, 720
+    elements.append(container(cont_x, cont_y, cont_w, cont_h))
+    elements.append(text(cont_x + 16, cont_y + 14, 220, 22,
+                         "Inside one ACE step", size=15, bold=True,
+                         color=COL_DARK, align="left"))
 
-    # Policy -> candidates (4 fan-out arrows)
-    pol_bottom_x = pol_x + pol_w / 2
-    pol_bottom_y = pol_y + pol_h
-    for cx in cand_xs:
-        elements += arrow(pol_bottom_x, pol_bottom_y,
-                          cx + cand_box_w / 2, cand_y,
-                          color="#888888", stroke_width=1.5)
-    elements.append(text(800, 320, 200, 20,
-                         "K=4 candidates", size=13, color="#495057"))
+    # ----------- (1) STATE block (top-left of container) -------------------
+    s_x, s_y, s_w, s_h = 80, 290, 240, 150
+    elements.append(box(s_x, s_y, s_w, s_h, COL_STATE, stroke_width=1.8))
+    elements.append(text(s_x, s_y + 8, s_w, 24, "State  $s_t$",
+                         size=16, bold=True))
+    elements.append(text(s_x + 16, s_y + 38, s_w - 32, 22,
+                         "• graph  G", size=13, align="left"))
+    elements.append(text(s_x + 16, s_y + 64, s_w - 32, 22,
+                         "• per-node losses  $\\{L_i\\}$",
+                         size=13, align="left"))
+    elements.append(text(s_x + 16, s_y + 90, s_w - 32, 22,
+                         "• recent intervention history",
+                         size=13, align="left"))
+    elements.append(text(s_x + 16, s_y + 116, s_w - 32, 22,
+                         "(formatted as a text prompt)",
+                         size=11, align="left", color=COL_MUTED))
 
-    # =========================================================================
-    # (5) Lookahead evaluation block (below candidates)
-    # =========================================================================
-    look_x, look_y, look_w, look_h = 280, 480, 730, 100
-    elements.append(box(look_x, look_y, look_w, look_h, COL_LOOKAHEAD))
-    elements.append(text(look_x, look_y + 8, look_w, 24,
-                         "Lookahead: simulate each c_k on a CLONED learner",
-                         size=18, bold=True))
-    elements.append(text(look_x, look_y + 38, look_w, 22,
-                         "ΔL(c_k) = L_before  -  L_after",
-                         size=16, align="center"))
-    elements.append(text(look_x, look_y + 64, look_w, 22,
-                         "(reward = ΔL + α · node-importance + γ · diversity)",
-                         size=12, color="#495057", align="center"))
+    # ----------- (2) POLICY block (right of state) -------------------------
+    p_x, p_y, p_w, p_h = 380, 290, 280, 150
+    elements.append(box(p_x, p_y, p_w, p_h, COL_POLICY, stroke_width=2.2))
+    elements.append(text(p_x, p_y + 8, p_w, 24, "Policy  $\\pi_\\phi$",
+                         size=16, bold=True))
+    elements.append(text(p_x, p_y + 38, p_w, 22,
+                         "Qwen2.5-1.5B (LM)", size=14))
+    elements.append(text(p_x, p_y + 62, p_w, 22,
+                         "+ DPO fine-tuning",
+                         size=14, color=COL_DPO[1]))
+    elements.append(text(p_x, p_y + 92, p_w, 22,
+                         "generates $K=4$ candidates",
+                         size=12, color=COL_MUTED))
+    elements.append(text(p_x, p_y + 114, p_w, 22,
+                         "as text:  DO  $V_i = \\nu$",
+                         size=12, color=COL_MUTED))
 
-    # candidates -> lookahead (group arrow)
-    for cx in cand_xs:
-        elements += arrow(cx + cand_box_w / 2, cand_y + cand_box_h,
-                          cx + cand_box_w / 2 + 0, look_y,
-                          color="#aaaaaa", stroke_width=1)
+    # State -> Policy
+    elements.append(line(s_x + s_w + 2, s_y + s_h / 2,
+                         p_x - 4, p_y + p_h / 2,
+                         stroke_width=2))
+    elements.append(text(s_x + s_w, s_y + s_h / 2 - 22,
+                         p_x - (s_x + s_w), 18,
+                         "prompt", size=12, color=COL_MUTED))
 
-    # =========================================================================
-    # (6) Best / Worst split below lookahead
-    # =========================================================================
-    best_x, best_y = 360, 640
-    worst_x, worst_y = 720, 640
-    elements.append(box(best_x, best_y, 200, 70, COL_POLICY, stroke_width=3))
-    elements.append(text(best_x, best_y + 8, 200, 22,
-                         "BEST  c*", size=18, bold=True,
-                         color=COL_POLICY[1]))
-    elements.append(text(best_x, best_y + 36, 200, 22,
-                         "execute on environment", size=12,
-                         color="#495057"))
+    # ----------- (3) K=4 CANDIDATES (right of policy) ----------------------
+    cand_y = 300
+    cand_box_h = 28
+    cand_w = 110
+    cand_xs = []
+    base_cx = 730
+    for i in range(4):
+        cy = cand_y + i * (cand_box_h + 8)
+        elements.append(box(base_cx, cy, cand_w, cand_box_h, COL_CAND,
+                            stroke_width=1.5))
+        elements.append(text(base_cx, cy, cand_w, cand_box_h,
+                             f"$c_{{{i+1}}}$:  DO X={i}", size=12))
+        cand_xs.append((base_cx, cy))
+    # Policy -> candidates (single arrow, label "K=4")
+    elements.append(line(p_x + p_w + 2, p_y + p_h / 2,
+                         base_cx - 4, cand_y + (cand_box_h * 4 + 24) / 2,
+                         stroke_width=2))
+    elements.append(text(p_x + p_w + 4, p_y + p_h / 2 - 22, 80, 18,
+                         "K=4", size=12, color=COL_MUTED))
 
-    elements.append(box(worst_x, worst_y, 200, 70, COL_CAND, stroke_width=2))
-    elements.append(text(worst_x, worst_y + 8, 200, 22,
-                         "WORST  c-", size=18, bold=True,
-                         color=COL_CAND[1]))
-    elements.append(text(worst_x, worst_y + 36, 200, 22,
-                         "preference loser", size=12,
-                         color="#495057")) 
+    # ----------- (4) LOOKAHEAD block (right of candidates) -----------------
+    l_x, l_y, l_w, l_h = 900, 290, 320, 150
+    elements.append(box(l_x, l_y, l_w, l_h, COL_LOOK, stroke_width=2.2))
+    elements.append(text(l_x, l_y + 8, l_w, 24,
+                         "Lookahead", size=16, bold=True))
+    elements.append(text(l_x, l_y + 36, l_w, 22,
+                         "for each $c_k$:  clone learner,  execute,",
+                         size=12))
+    elements.append(text(l_x, l_y + 56, l_w, 22,
+                         "compute  $\\Delta L(c_k) = L_{before} - L_{after}$",
+                         size=12))
+    elements.append(text(l_x, l_y + 86, l_w, 22,
+                         "reward  $R = \\Delta L + \\alpha\\, w + \\gamma\\, D$",
+                         size=13, color=COL_DARK))
+    elements.append(text(l_x, l_y + 110, l_w, 22,
+                         "(IG, node-importance, diversity)",
+                         size=11, color=COL_MUTED))
 
-    elements += arrow(look_x + look_w / 4, look_y + look_h,
-                      best_x + 100, best_y, label="argmax")
-    elements += arrow(look_x + 3 * look_w / 4, look_y + look_h,
-                      worst_x + 100, worst_y, label="argmin")
+    # candidates -> lookahead (single horizontal arrow, no overlap)
+    cand_right_x = base_cx + cand_w + 2
+    cand_mid_y = cand_y + (cand_box_h * 4 + 24) / 2
+    elements.append(line(cand_right_x, cand_mid_y, l_x - 4, l_y + l_h / 2,
+                         stroke_width=1.5, color=COL_MUTED))
 
-    # =========================================================================
-    # (7) Environment + Learner column (right side)
-    # =========================================================================
-    env_x, env_y, env_w, env_h = 1080, 220, 260, 110
-    elements.append(box(env_x, env_y, env_w, env_h, COL_ENV, stroke_width=3))
-    elements.append(text(env_x, env_y + 8, env_w, 26,
-                         "Environment  M*", size=18, bold=True))
-    elements.append(text(env_x, env_y + 38, env_w, 22,
-                         "(ground truth SCM)", size=12, color="#495057"))
-    elements.append(text(env_x, env_y + 62, env_w, 22,
-                         "do(V_i = ν)  →  samples", size=14))
+    # ----------- (5) BEST / WORST below lookahead --------------------------
+    bw_y = 480
+    best_x, best_w = 920, 130
+    worst_x, worst_w = 1080, 130
+    elements.append(box(best_x, bw_y, best_w, 56, COL_BEST, stroke_width=2.4))
+    elements.append(text(best_x, bw_y, best_w, 56, "BEST  $c^*$", size=16,
+                         bold=True))
+    elements.append(box(worst_x, bw_y, worst_w, 56, COL_WORST,
+                        stroke_width=1.8))
+    elements.append(text(worst_x, bw_y, worst_w, 56, "WORST  $c^-$",
+                         size=16, bold=True))
+    # lookahead -> best/worst
+    elements.append(line(best_x + best_w / 2, l_y + l_h + 2,
+                         best_x + best_w / 2, bw_y - 4,
+                         stroke_width=1.8))
+    elements.append(line(worst_x + worst_w / 2, l_y + l_h + 2,
+                         worst_x + worst_w / 2, bw_y - 4,
+                         stroke_width=1.8))
+    # arg labels
+    elements.append(text(best_x - 90, l_y + l_h + 14, 80, 18,
+                         "argmax R", size=11, color=COL_MUTED, align="right"))
+    elements.append(text(worst_x + worst_w + 8, l_y + l_h + 14, 90, 18,
+                         "argmin R", size=11, color=COL_MUTED, align="left"))
 
-    learn_x, learn_y, learn_w, learn_h = 1080, 380, 260, 110
+    # ----------- (6) ENVIRONMENT and LEARNER (right edge column) -----------
+    env_x, env_y, env_w, env_h = 1280, 290, 220, 100
+    elements.append(box(env_x, env_y, env_w, env_h, COL_ENV, stroke_width=2.4))
+    elements.append(text(env_x, env_y + 6, env_w, 22,
+                         "Environment $M^*$", size=15, bold=True))
+    elements.append(text(env_x, env_y + 32, env_w, 22,
+                         "(ground truth SCM)", size=11, color=COL_MUTED))
+    elements.append(text(env_x, env_y + 56, env_w, 22,
+                         "do$(V_i = \\nu)$  →  samples", size=12))
+
+    learn_x, learn_y, learn_w, learn_h = 1280, 470, 220, 100
     elements.append(box(learn_x, learn_y, learn_w, learn_h, COL_LEARNER,
-                        stroke_width=3))
-    elements.append(text(learn_x, learn_y + 8, learn_w, 26,
-                         "Learner  M_θ", size=18, bold=True))
-    elements.append(text(learn_x, learn_y + 38, learn_w, 22,
-                         "(student SCM, MLP/node)", size=12,
-                         color="#495057"))
-    elements.append(text(learn_x, learn_y + 62, learn_w, 22,
-                         "trained on intervention data", size=12,
-                         color="#495057"))
+                        stroke_width=2.4))
+    elements.append(text(learn_x, learn_y + 6, learn_w, 22,
+                         "Learner $M_\\theta$", size=15, bold=True))
+    elements.append(text(learn_x, learn_y + 32, learn_w, 22,
+                         "(student SCM)", size=11, color=COL_MUTED))
+    elements.append(text(learn_x, learn_y + 56, learn_w, 22,
+                         "trains on D", size=12))
 
-    # Best -> Environment
-    elements += arrow(best_x + 200, best_y + 35,
-                      env_x, env_y + env_h / 2,
-                      color=COL_POLICY[1], stroke_width=2.5,
-                      label="execute c*")
-    # Environment -> Learner
-    elements += arrow(env_x + env_w / 2, env_y + env_h,
-                      learn_x + learn_w / 2, learn_y,
-                      label="data D")
+    # BEST -> Environment (right-angle to avoid candidate boxes)
+    elements.append(polyline(
+        [(best_x + best_w / 2, bw_y + 56),
+         (best_x + best_w / 2, env_y + env_h / 2),
+         (env_x - 4, env_y + env_h / 2)],
+        color=COL_BEST[1], stroke_width=2.4))
+    elements.append(text(best_x + best_w / 2 + 6, bw_y + 70, 130, 18,
+                         "execute c*", size=11, color=COL_BEST[1], align="left"))
 
-    # Learner -> State (closing the loop, dashed)
-    elements += curved_arrow(
-        [(learn_x + learn_w / 2, learn_y + learn_h),
-         (learn_x + learn_w / 2, 720),
-         (state_x + state_w / 2, 720),
-         (state_x + state_w / 2, state_y + state_h)],
-        color="#888888", dashed=True, label="next step (updated state)"
-    )
+    # Environment -> Learner (down)
+    elements.append(line(env_x + env_w / 2, env_y + env_h + 2,
+                         learn_x + learn_w / 2, learn_y - 4,
+                         stroke_width=2))
+    elements.append(text(env_x + env_w + 6, env_y + env_h + 22, 80, 18,
+                         "data D", size=11, color=COL_MUTED, align="left"))
 
-    # =========================================================================
-    # (8) DPO update (right of worst, then arrow back to policy)
-    # =========================================================================
-    dpo_x, dpo_y, dpo_w, dpo_h = 1080, 580, 260, 100
-    elements.append(box(dpo_x, dpo_y, dpo_w, dpo_h, COL_DPO, stroke_width=3))
-    elements.append(text(dpo_x, dpo_y + 8, dpo_w, 24,
-                         "DPO Update", size=18, bold=True,
-                         color=COL_DPO[1]))
-    elements.append(text(dpo_x + 8, dpo_y + 36, dpo_w - 16, 22,
-                         "preference: (c*, c-)", size=14, align="center"))
-    elements.append(text(dpo_x + 8, dpo_y + 62, dpo_w - 16, 22,
-                         "loss = -log σ(β · log π/π_ref)", size=11,
-                         color="#495057", align="center"))
+    # ----------- (7) DPO update block (bottom row) -------------------------
+    d_x, d_y, d_w, d_h = 380, 620, 380, 130
+    elements.append(box(d_x, d_y, d_w, d_h, COL_DPO, stroke_width=2.4))
+    elements.append(text(d_x, d_y + 8, d_w, 24, "DPO Update", size=16,
+                         bold=True, color=COL_DPO[1]))
+    elements.append(text(d_x, d_y + 38, d_w, 22,
+                         "preference pair: $(c^*, c^-)$",
+                         size=13))
+    elements.append(text(d_x, d_y + 64, d_w, 22,
+                         "loss = $-\\log\\sigma(\\beta\\,[\\log\\pi_\\phi/\\pi_{ref}])$",
+                         size=12))
+    elements.append(text(d_x, d_y + 92, d_w, 22,
+                         "$\\nabla_\\phi$ updates the policy",
+                         size=12, color=COL_MUTED))
 
-    # best & worst -> DPO
-    elements += arrow(best_x + 200, best_y + 35,
-                      dpo_x, dpo_y + 30,
-                      color=COL_DPO[1], stroke_width=1.5, dashed=True)
-    elements += arrow(worst_x + 200, worst_y + 35,
-                      dpo_x, dpo_y + 70,
-                      color=COL_DPO[1], stroke_width=1.5, dashed=True)
+    # BEST -> DPO (curved down-left)
+    elements.append(polyline(
+        [(best_x + 20, bw_y + 56),
+         (best_x + 20, d_y - 12),
+         (d_x + 100, d_y - 12),
+         (d_x + 100, d_y - 4)],
+        color=COL_DPO[1], stroke_width=1.6))
+    # WORST -> DPO
+    elements.append(polyline(
+        [(worst_x + worst_w - 20, bw_y + 56),
+         (worst_x + worst_w - 20, d_y - 24),
+         (d_x + 280, d_y - 24),
+         (d_x + 280, d_y - 4)],
+        color=COL_DPO[1], stroke_width=1.6))
 
-    # DPO -> Policy (gradient update, dashed curved arrow)
-    elements += curved_arrow(
-        [(dpo_x, dpo_y + dpo_h / 2),
-         (1000, dpo_y + dpo_h / 2),
-         (1000, pol_y + pol_h + 30),
-         (pol_x + pol_w / 2, pol_y + pol_h + 30),
-         (pol_x + pol_w / 2, pol_y + pol_h)],
-        color=COL_DPO[1], dashed=True, stroke_width=2,
-        label="∇φ  policy update"
-    )
+    # DPO -> Policy (curved feedback to the left, dashed)
+    elements.append(polyline(
+        [(d_x + d_w / 2, d_y + d_h + 2),
+         (d_x + d_w / 2, d_y + d_h + 26),
+         (220, d_y + d_h + 26),
+         (220, p_y + p_h + 32),
+         (p_x + p_w / 2, p_y + p_h + 32),
+         (p_x + p_w / 2, p_y + p_h + 4)],
+        color=COL_DPO[1], stroke_width=2, dashed=True))
+    elements.append(text(225, d_y + d_h + 8, 220, 18,
+                         "policy gradient (dashed)",
+                         size=11, color=COL_DPO[1], align="left"))
 
-    # =========================================================================
-    # (9) Bottom note: key insight
-    # =========================================================================
-    elements.append(text(60, 770, 1300, 22,
-                         "Key insight: as training proceeds, ΔL collapses ~500x "
-                         "but the relative ranking of candidates stays stable. "
-                         "DPO learns from ranking only, so it inherits stability.",
-                         size=14, color="#495057"))
+    # Learner -> State (close the data loop, curved up the left side)
+    elements.append(polyline(
+        [(learn_x + learn_w / 2, learn_y + learn_h + 2),
+         (learn_x + learn_w / 2, learn_y + learn_h + 36),
+         (cont_x + cont_w - 30, learn_y + learn_h + 36),
+         (cont_x + cont_w - 30, s_y + s_h / 2),
+         (s_x + s_w + 4, s_y + s_h / 2)],
+        color=COL_MUTED, stroke_width=1.6, dashed=True))
+    elements.append(text(cont_x + cont_w - 290, learn_y + learn_h + 18, 250, 18,
+                         "next step (state advances)", size=11,
+                         color=COL_MUTED, align="left"))
+
+    # ============ Bottom note (outside container) ===========================
+    elements.append(text(40, 960, 1500, 22,
+                         "Key insight: $\\mathbb{E}[\\Delta L]$ collapses ~500x over training while candidate-rank Spearman $\\rho$ stays > 0.85; DPO depends only on rank.",
+                         size=13, color=COL_MUTED, align="left"))
 
     return elements
 
@@ -406,15 +435,10 @@ def main():
     print(f"Wrote: {out_path}")
     print(f"Elements: {len(payload['elements'])}")
     print()
-    print("To view / edit:")
-    print(f"  1. Open https://excalidraw.com")
-    print(f"  2. Drag {out_path} onto the canvas")
-    print()
-    print("To export as PNG / SVG for the paper:")
-    print(f"  - Open in Excalidraw, then File -> Export image")
-    print(f"  - Save into paper/figs/ace_hero.png (or .svg) and \\includegraphics in paper.tex")
+    print("Open at https://excalidraw.com and drag the file onto the canvas.")
+    print("File -> Export image -> PNG/SVG into paper/figs/ for use in paper.tex.")
 
 
 if __name__ == "__main__":
-    random.seed(42)  # deterministic IDs across runs
+    random.seed(42)
     main()
