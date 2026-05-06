@@ -223,7 +223,20 @@ axR.text(0.5, y_top + 0.18, r"$\mathbf{3.0\times}$",
          ha="center", va="bottom", fontsize=11, fontweight="bold")
 
 axR.set_xticks(x)
-axR.set_xticklabels(labels, fontsize=8)
+# X-tick labels with method-class tag baked in, color-coded so the novelty
+# of the LM-based policy class (vs the three static heuristics) is visible
+# at a glance.
+labels_classed = [
+    "ACE (ours)\nLM + DPO",
+    "Random\nstatic",
+    "Round-Robin\nstatic",
+    "Max-Variance\nstatic",
+]
+axR.set_xticklabels(labels_classed, fontsize=7.5)
+tick_label_colors = [COLORS["ACE"], "#555555", "#555555", "#555555"]
+for tick_label, c in zip(axR.get_xticklabels(), tick_label_colors):
+    tick_label.set_color(c)
+    tick_label.set_fontweight("bold" if c == COLORS["ACE"] else "normal")
 axR.set_ylabel("Total MSE at final eval")
 axR.set_ylim(0, y_top + 1.6)
 axR.set_title("(b) Final performance", loc="left", pad=6)
