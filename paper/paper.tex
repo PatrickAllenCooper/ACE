@@ -389,7 +389,7 @@ To test scalability we evaluate on a hierarchical 30-node SCM with 5 roots, 10 i
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/fig_30node_results.pdf}
-\caption{30-node hierarchical SCM results. \textbf{(a)}~Best total-MSE achieved by episode $t$, averaged across seeds (shaded: $\pm 1$ std). ACE (red; N=3) descends quickly to its best-loss plateau near $1.95$, while Random, Round-Robin, and Max-Variance (all N=5) are indistinguishable from each other and plateau at $5.86$. \textbf{(b)}~Final performance with per-seed points overlaid. ACE achieves a $3.0\times$ improvement over the common baseline plateau. All four methods use the identical per-node MLP student learner, so the gap reflects policy quality alone.}
+\caption{30-node hierarchical SCM results. \textbf{(a)}~Best total-MSE achieved by episode $t$, averaged across seeds. The shaded band around each curve shows $\pm 1$ standard deviation across seeds; ACE's band (light red) is wide because of training variability across N=3 seeds, while baseline bands are essentially invisible because their seed-to-seed standard deviations are below 0.08. ACE (red; N=3) descends quickly to its best-loss plateau near $1.95$, while Random, Round-Robin, and Max-Variance (all N=5) are indistinguishable from each other and plateau at $5.86$. \textbf{(b)}~Final performance with per-seed points overlaid (black dots). ACE achieves a $3.0\times$ improvement over the common baseline plateau. All four methods use the identical per-node MLP student learner, so the gap reflects policy quality alone.}
 \label{fig:30node-results}
 \end{figure}
 
