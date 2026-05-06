@@ -196,11 +196,11 @@ where the approximation uses the local-quadratic (Laplace) relationship between 
 \subsection{5-Node Benchmark: Per-Seed Results}
 \label{app:5node-detail}
 
-Table~\ref{tab:5node-perseed} reports per-seed total losses for heuristic baselines and PPO (N=5 CURC seeds: 141, 271, 314, 577, 618) and Bayesian OED (N=3 seeds: 42, 123, 456). ACE per-seed data comes from the original production runs (seeds 42, 123, 456, 789, 1011). All runs use 171 episodes.
+Table~\ref{tab:5node-perseed} reports per-seed total losses for heuristic baselines and PPO (N=5 seeds: 141, 271, 314, 577, 618) and Bayesian OED (N=3 seeds: 42, 123, 456). ACE per-seed data comes from the original production runs (seeds 42, 123, 456, 789, 1011). All runs use 171 episodes.
 
 \begin{table}[h]
 \centering
-\caption{Per-seed total loss on the 5-node benchmark (171 episodes). Heuristic baseline and PPO columns use seeds 141/271/314/577/618 (CURC). Bayesian OED uses seeds 42/123/456. ACE uses seeds 42/123/456/789/1011 (original Lambda Cloud runs; a rerun on CURC was initiated but OOM'd on L40 GPUs due to $3$GB policy checkpoints).}
+\caption{Per-seed total loss on the 5-node benchmark (171 episodes). Heuristic baseline and PPO columns use seeds 141, 271, 314, 577, 618. Bayesian OED uses seeds 42, 123, 456. ACE uses seeds 42, 123, 456, 789, 1011 from the original production runs; a rerun was initiated on a 46GB-class GPU but OOM'd due to 3GB policy checkpoints.}
 \label{tab:5node-perseed}
 \small
 \begin{tabular}{@{}l ccc cc@{}}
@@ -231,7 +231,7 @@ Table~\ref{tab:30node-perseed} reports all per-seed results for the 30-node benc
 
 \begin{table}[h]
 \centering
-\caption{Per-seed results on the 30-node hierarchical SCM. All methods use the same per-node MLP student learner for a matched comparison. ACE reports best-loss across training (non-monotone loss makes best-loss more informative than final-episode loss). Baselines (N=5) ran 150 episodes on CURC \texttt{amilan} (CPU only, avg.\ 1h 15min per job).}
+\caption{Per-seed results on the 30-node hierarchical SCM. All methods use the same per-node MLP student learner for a matched comparison. ACE reports best-loss across training (non-monotone loss makes best-loss more informative than final-episode loss). Baselines (N=5) ran 150 episodes on a CPU partition (average 1h 15min per job).}
 \label{tab:30node-perseed}
 \small
 \begin{tabular}{@{}l cccc@{}}
@@ -251,7 +251,7 @@ Mean $\pm$ Std & $1.95\pm0.77$ (N=3) & $5.85\pm0.04$ (N=5) & $5.86\pm0.07$ (N=5)
 
 Seed 42 ACE exhibited training instability (loss oscillating $2.7$--$3.5$ throughout the 40 completed episodes); seeds 123 and 456 converged cleanly to $1.80$ and $1.27$. The stable-seed mean is $1.54$; we report the conservative N=3 mean of $1.95$ in the main text.
 
-\textbf{Baseline convergence plateau.} The three passive baselines (Random, Round-Robin, Max-Variance) converge to nearly identical total MSE near $5.86$ with standard deviations below $0.08$. This tight clustering reveals that \emph{at 30 nodes, differences among static sampling heuristics are negligible}: when interventional budget is fixed and spread across many variables, the specific non-adaptive ordering barely matters. Adaptive strategy learning (ACE) is the meaningful axis of improvement at scale. An earlier CPU proxy run using a weaker running-mean predictor gave larger baseline numbers (Random: $11.29\pm1.02$) and was not comparable to ACE because the learner itself differed; those numbers are superseded by the matched-learner CURC results above.
+\textbf{Baseline convergence plateau.} The three passive baselines (Random, Round-Robin, Max-Variance) converge to nearly identical total MSE near $5.86$ with standard deviations below $0.08$. This tight clustering reveals that \emph{at 30 nodes, differences among static sampling heuristics are negligible}: when interventional budget is fixed and spread across many variables, the specific non-adaptive ordering barely matters. Adaptive strategy learning (ACE) is the meaningful axis of improvement at scale. An earlier CPU proxy run using a weaker running-mean predictor gave larger baseline numbers (Random: $11.29\pm1.02$) and was not comparable to ACE because the learner itself differed; those numbers are superseded by the matched-learner results above.
 
 \subsection{Component Ablation Detail}
 \label{app:ablation-detail}
@@ -370,7 +370,7 @@ Since ACE assumes a known causal graph, the practical cost of graph errors parti
 
 \textbf{Missing edge} $V_i \to V_j$ (absent). The student's mechanism $\hat{f}_j$ lacks the true parent $V_i$ as input. A lower bound on $L_j$ is set by the partial variance $\text{Var}(V_j - \hat{f}_j(\text{Pa}_j \setminus \{V_i\}))$. This is non-zero and non-recoverable; the student cannot decrease $L_j$ below this bound regardless of intervention strategy.
 
-\textbf{Reversed edge} $V_i \to V_j$ (direction error). The student treats $V_j$ as a parent of $V_i$, so $\hat{f}_i$ depends on $V_j$. Under interventions on $V_i$, the true $V_j$ varies (since $V_j$ depends on $V_i$), but the student's conditioning set treats it as a predictor of $V_i$. This creates a circular dependency in the learner's prediction that no intervention strategy can resolve; it is the most damaging error type. A full empirical quantification across all four misspecification types was initiated on CURC but did not complete within our compute budget (L40 GPU OOM from $3$GB policy checkpoints). This remains our highest-priority follow-up experiment.
+\textbf{Reversed edge} $V_i \to V_j$ (direction error). The student treats $V_j$ as a parent of $V_i$, so $\hat{f}_i$ depends on $V_j$. Under interventions on $V_i$, the true $V_j$ varies (since $V_j$ depends on $V_i$), but the student's conditioning set treats it as a predictor of $V_i$. This creates a circular dependency in the learner's prediction that no intervention strategy can resolve; it is the most damaging error type. A full empirical quantification across all four misspecification types was initiated but did not complete within our compute budget (46GB-class GPU OOM from 3GB policy checkpoints). This remains our highest-priority follow-up experiment.
 
 \subsection{Computational Cost}
 \label{app:compute}
@@ -384,7 +384,7 @@ Each ACE training step requires:
 \end{itemize}
 Total: $\sim$22 min per step on a single A100. A full run (171 episodes $\times$ 25 steps/episode with early stopping) takes $\sim$6--8 h per seed. Mitigation strategies for future work: smaller policy LMs (e.g., Qwen2.5-0.5B), learned value-of-lookahead to reduce $K$ adaptively, batch evaluation across candidates.
 
-A note on checkpoint memory: the 1.5B-parameter LM in FP32 with optimizer state requires $\sim$17 GB per checkpoint, which caused OOM on CURC's L40 GPUs (46 GB VRAM) when combined with the KV cache and cloned learner. We implemented FP16 checkpointing (reducing to $\sim$3 GB) and eliminated optimizer state from checkpoints; these changes are in the repository.
+A note on checkpoint memory: the 1.5B-parameter LM in FP32 with optimizer state requires $\sim$17 GB per checkpoint, which caused OOM on 46GB-class GPUs when combined with the KV cache and cloned learner. We implemented FP16 checkpointing (reducing to $\sim$3 GB) and eliminated optimizer state from checkpoints; these changes are in the repository.
 
 % =======================================================================
 \section{Reproducibility}
@@ -399,16 +399,16 @@ All code is released at \url{https://github.com/[anonymized]/ACE}. The repositor
 \item Baselines (\texttt{baselines.py}): Random, Round-Robin, Max-Variance, PPO, Bayesian OED.
 \item Experiments: 5-node and 30-node SCMs, Duffing oscillators, Phillips curve.
 \item CPU baseline runner for 30-node (\texttt{scripts/runners/run\_30node\_cpu\_baselines.py}).
-\item SLURM job scripts for CURC (\texttt{jobs/curc\_*.sh}).
+\item SLURM job scripts for HPC execution (\texttt{jobs/}).
 \end{itemize}
 
 \subsection{Random Seeds and Seed Assignment}
 
 \begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
-\item 5-node ACE: seeds 42, 123, 456, 789, 1011 (original Lambda Cloud runs).
-\item 5-node baselines (heuristic + PPO): seeds 141, 271, 314, 577, 618 (CURC runs).
-\item 5-node Bayesian OED: seeds 42, 123, 456 (CURC runs, higher per-seed cost).
-\item 30-node ACE: seeds 42, 123, 456 (CURC \texttt{aa100} partition).
+\item 5-node ACE: seeds 42, 123, 456, 789, 1011.
+\item 5-node baselines (heuristic + PPO): seeds 141, 271, 314, 577, 618.
+\item 5-node Bayesian OED: seeds 42, 123, 456 (higher per-seed compute cost).
+\item 30-node ACE: seeds 42, 123, 456 on an A100 80GB partition.
 \item 30-node baselines: seeds 42, 123, 456, 789, 1011 (local CPU runs).
 \item Duffing oscillators: seeds 42, 123, 456, 789, 1011 (N=5 all methods).
 \item Phillips Curve: seeds 42, 123, 456, 789, 1011 (N=5 all methods).
@@ -416,7 +416,7 @@ All code is released at \url{https://github.com/[anonymized]/ACE}. The repositor
 
 \subsection{Compute Resources}
 
-Main experiments ran on: CU Boulder CURC \texttt{aa100} partition (NVIDIA A100 80GB) for ACE GPU runs; CURC \texttt{al40} partition (NVIDIA L40 46GB) for baselines; Lambda Cloud A10 (24GB) for exploratory runs. Total: approximately 480 GPU-hours (ACE) and 120 CPU-hours (baselines). The Phillips Curve experiment required no GPU.
+Main experiments ran on a university HPC cluster: an A100 80GB partition for ACE GPU runs and an L40 46GB partition for baselines, with an A10 24GB cloud GPU used for exploratory runs. Total: approximately 480 GPU-hours (ACE) and 120 CPU-hours (baselines). The Phillips Curve experiment required no GPU.
 
 \subsection{Hyperparameters Summary}
 \label{app:hyper-summary}
