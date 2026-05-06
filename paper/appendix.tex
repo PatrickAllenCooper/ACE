@@ -258,7 +258,7 @@ Seed 42 ACE exhibited training instability (loss oscillating $2.7$--$3.5$ throug
 
 The component ablation (Table~\ref{tab:ablations}) was run as a 3-seed pilot (seeds 42, 123, 456) due to GPU compute constraints; the No-diversity ablation was run on N=5 seeds during an earlier reward-shaping investigation. Below we give qualitative failure-mode analysis for each configuration.
 
-\textbf{No DPO} replaces the LM policy with random proposal generation while keeping the lookahead and select-best mechanism. The result ($2.10\pm0.11$) matches Round-Robin, confirming that the ability to \emph{evaluate} candidates (via lookahead) provides no benefit without \emph{learned} proposal generation. Random candidates---even when curated by lookahead---do not consistently include strategically important ones (e.g., concentrating on collider parents).
+\textbf{No DPO} replaces the LM policy with random proposal generation while keeping the lookahead and select-best mechanism. The result ($2.10\pm0.11$) matches Round-Robin, confirming that the ability to \emph{evaluate} candidates (via lookahead) provides no benefit without \emph{learned} proposal generation. Random candidates, even when curated by lookahead, do not consistently include strategically important ones (e.g., concentrating on collider parents).
 
 \textbf{No per-node convergence} forces termination at a fixed 100 episodes. The collider mechanism $X_3$ is typically not learned at episode 100; $L_{X_3}$ remains elevated and dominates total loss.
 
@@ -337,12 +337,12 @@ Sequential (chronological) & 0.44          & 0.10 & By date order \\
 \end{tabular}
 \end{table}
 
-ACE consistently prioritizes high-volatility regimes (1970s stagflation, Volcker disinflation, Great Recession) that expose nonlinear inflation dynamics absent from low-volatility eras---a $40\%$ reduction in out-of-sample MSE versus random regime selection. This demonstrates that preference-based experimental design generalizes to retrospective data-selection settings beyond controlled interventions, though we note this application departs from strict Rung-2 causal intervention.
+ACE consistently prioritizes high-volatility regimes (1970s stagflation, Volcker disinflation, Great Recession) that expose nonlinear inflation dynamics absent from low-volatility eras, yielding a $40\%$ reduction in out-of-sample MSE versus random regime selection. This demonstrates that preference-based experimental design generalizes to retrospective data-selection settings beyond controlled interventions, though we note this application departs from strict Rung-2 causal intervention.
 
 \subsection{Lookahead vs.\ DPO Ablation}
 \label{app:lookahead}
 
-The No-DPO ablation (Section~\ref{app:ablation-detail}) isolates the contribution of learned proposal generation from the lookahead mechanism. Result: $2.10\pm0.11$, matching Round-Robin and confirming that lookahead alone provides no benefit. Concretely: if $K=4$ random candidates are generated, the probability that \emph{any} of them targets the collider parents ($X_1$ or $X_2$) with a well-chosen value is $\approx (2/5)^{4} \approx 10\%$---too low for the select-best procedure to reliably discover the collider strategy. The DPO-trained LM shifts the generation distribution so that strategic candidates appear in $>90\%$ of steps.
+The No-DPO ablation (Section~\ref{app:ablation-detail}) isolates the contribution of learned proposal generation from the lookahead mechanism. Result: $2.10\pm0.11$, matching Round-Robin and confirming that lookahead alone provides no benefit. Concretely: if $K=4$ random candidates are generated, the probability that \emph{any} of them targets the collider parents ($X_1$ or $X_2$) with a well-chosen value is $\approx (2/5)^{4} \approx 10\%$, too low for the select-best procedure to reliably discover the collider strategy. The DPO-trained LM shifts the generation distribution so that strategic candidates appear in $>90\%$ of steps.
 
 \subsection{Strategic Behavior: Intervention Distribution}
 \label{app:strategic}
