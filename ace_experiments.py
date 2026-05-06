@@ -1957,6 +1957,7 @@ def main():
     parser.add_argument("--no_per_node_convergence", action="store_true", help="Ablation: Disable per-node convergence (use global stopping only)")
     parser.add_argument("--no_dedicated_root_learner", action="store_true", help="Ablation: Disable dedicated root learner")
     parser.add_argument("--no_diversity_reward", action="store_true", help="Ablation: Set diversity_reward_weight to 0 (test IG-only)")
+    parser.add_argument("--no_dpo", action="store_true", help="Ablation: Skip DPO updates entirely (zero-shot LM policy + lookahead-select)")
 
     # Graph misspecification ablation
     parser.add_argument("--graph_misspec", type=str, default=None,
@@ -2896,7 +2897,7 @@ def main():
             loser_cmd, loser_reward, loser_cov_bonus, loser_score, _ = sorted_cands[loser_idx]
 
             # Update
-            if winner_score > loser_score:
+            if winner_score > loser_score and not args.no_dpo:
                 optimizer_agent.zero_grad()
                 if use_pretrained:
                     loss = dpo_loss_llm(

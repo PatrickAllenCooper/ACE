@@ -19,6 +19,7 @@ Usage (CURC worker script calls this):
 
 import sys
 import os
+import copy
 import random
 import argparse
 import logging
@@ -33,8 +34,10 @@ import pandas as pd
 from experiments.large_scale_scm import LargeScaleSCM
 from baselines import (
     StudentSCM, SCMLearner, ScientificCritic,
-    RandomPolicy, RoundRobinPolicy, MaxVariancePolicy,
+    RandomPolicy, RoundRobinPolicy, MaxVariancePolicy, PPOPolicy,
 )
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from scripts.runners.run_reviewer_experiments import BayesianOEDBaseline
 
 
 # ---------------------------------------------------------------------------
@@ -48,6 +51,54 @@ class RoundRobinPolicy30(RoundRobinPolicy):
         self.value_max = value_max
         self.step = 0
         self.name = "Round-Robin"
+
+
+# ---------------------------------------------------------------------------
+# Wrapper for BayesianOED with reduced search to make 30-node tractable.
+# Full grid (30 nodes x 10 values x 20 MC) per step is infeasible; we sample
+# a random subset of (node, value) pairs each step.
+# ---------------------------------------------------------------------------
+class BayesianOEDFast:
+    def __init__(self, scm, n_candidates=10, n_mc_samples=3, value_min=-5.0, value_max=5.0):
+        self.scm = scm
+        self.nodes = scm.nodes
+        self.n_candidates = n_candidates
+        self.n_mc_samples = n_mc_samples
+        self.value_min = value_min
+        self.value_max = value_max
+        self.name = "Bayesian-OED"
+
+    def select_intervention(self, student, oracle=None, node_losses=None):
+        # Convert SCMLearner.evaluate() output (dict of node->loss) to losses dict
+        # for EIG estimation.
+        if hasattr(student, "_critic") and student._critic is not None:
+            _, current_losses = student._critic.evaluate(student.student if hasattr(student, "student") else student)
+        else:
+            critic = ScientificCritic(self.scm)
+            _, current_losses = critic.evaluate(student.student if hasattr(student, "student") else student)
+
+        best_node, best_value, best_eig = None, None, -float("inf")
+        for _ in range(self.n_candidates):
+            node = random.choice(self.nodes)
+            value = random.uniform(self.value_min, self.value_max)
+            eig = self._estimate_eig(student, node, value, current_losses)
+            if eig > best_eig:
+                best_eig = eig
+                best_node = node
+                best_value = value
+        return best_node, best_value
+
+    def _estimate_eig(self, learner_obj, node, value, current_losses):
+        learner = learner_obj if hasattr(learner_obj, "train_step") else learner_obj
+        gains = []
+        for _ in range(self.n_mc_samples):
+            cloned_student = copy.deepcopy(learner.student)
+            cloned_learner = SCMLearner(cloned_student, oracle=self.scm)
+            data = self.scm.generate(50, interventions={node: value})
+            cloned_learner.train_step(data, intervened=node, n_epochs=20)
+            new_losses = cloned_learner.evaluate()
+            gains.append(sum(current_losses.values()) - sum(new_losses.values()))
+        return float(np.mean(gains))
 
 
 # ---------------------------------------------------------------------------
@@ -111,7 +162,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="30-node SCM MLP-learner baseline for one seed")
     parser.add_argument("--method", required=True,
-                        choices=["random", "round_robin", "max_variance"])
+                        choices=["random", "round_robin", "max_variance",
+                                 "ppo", "bayesian_oed"])
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--episodes", type=int, default=150)
     parser.add_argument("--steps", type=int, default=25)
@@ -155,6 +207,10 @@ def main():
         policy = RoundRobinPolicy30(nodes)
     elif args.method == "max_variance":
         policy = MaxVariancePolicy(nodes)
+    elif args.method == "ppo":
+        policy = PPOPolicy(nodes)
+    elif args.method == "bayesian_oed":
+        policy = BayesianOEDFast(scm, n_candidates=10, n_mc_samples=3)
 
     df = run_episode_loop(
         policy, scm,
