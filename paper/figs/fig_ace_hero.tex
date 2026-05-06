@@ -124,7 +124,7 @@
   \scriptsize candidates};
 
 \draw[arrh] (state.east) -- (pol.west);
-\node[lbl, anchor=south] at ($(state.east)!0.5!(pol.west)+(0,0.05)$) {prompt};
+\node[lbl, anchor=south] at ($(state.east)!0.5!(pol.west)+(0,0.12)$) {prompt};
 
 % --- (3) K=4 Candidates ----------------------------------------------
 \node[cand] (c1) at (-1.45,  2.30) {$c_1$:\, $\mathrm{do}(X{=}0)$};
@@ -196,11 +196,11 @@
 % best -> env (clean horizontal arrow)
 \draw[arrh, color=aceGoldDk] (best.east) -- (env.west);
 \node[lblc=aceGoldDk, anchor=south]
-      at ($(best.east)!0.5!(env.west)+(0,0.05)$) {execute $c^{*}$};
+      at ($(best.east)!0.5!(env.west)+(0,0.12)$) {execute $c^{*}$};
 % env -> learn (vertical, "data D" label to the right of arrow)
 \draw[arrh] (env.south) -- (learn.north);
 \node[lbl, anchor=west]
-      at ($(env.south)!0.5!(learn.north)+(0.10,0)$) {data $\mathcal{D}$};
+      at ($(env.south)!0.5!(learn.north)+(0.15,0)$) {data $\mathcal{D}$};
 
 % --- (7) DPO Update (bottom-center) ----------------------------------
 \node[block=aceVioDk, fill=aceVio, line width=1.4pt,
@@ -220,17 +220,27 @@
 % Drawing each path as ONE \draw call (rather than separate stubs)
 % guarantees the dash pattern flows continuously through every corner.
 
-\draw[fb]  (best.south east) -- (6.50, 1.725) -- (6.50, -2.55) -- (dpo.east);
-\draw[fbn] (worst.south east) -- (6.50, 0.525);
+% Channel sits at x=6.75 in the gap between best/worst (right edge x=6.05)
+% and env/learn (left edge x=7.075). Worst stub is now 0.70 units long --
+% more than 5 dashes at the active dash pattern -- so the connection is
+% unambiguously visible. Whole best path drawn as ONE continuous \draw so
+% the dash pattern flows through every corner without phase resets.
+\draw[fb]  (best.south east) -- (6.75, 1.725) -- (6.75, -2.55) -- (dpo.east);
+\draw[fbn] (worst.south east) -- (6.75, 0.525);
 
-\node[font=\scriptsize, color=aceVioDk, rotate=90, anchor=center]
-      at (6.67, -1.10) {$(c^{*},\, c^{-})$ pair};
+% '(c*, c-) pair' label is now horizontal, sitting above the bottom
+% horizontal segment of the feedback channel where there is plenty of
+% empty space. Math symbols (parens, superscripts) read normally rather
+% than rotated.
+\node[font=\scriptsize, color=aceVioDk, anchor=south]
+      at (4.55, -2.45) {$(c^{*},\, c^{-})$ pair};
 
-% --- (9) DPO -> Policy feedback (clean L: UP from DPO's NW corner, LEFT
-% directly to Policy's x, UP into Policy's south. Single \draw call with
-% absolute coordinates so the dash pattern flows through corners without
-% any visible breaks.)
-\draw[fb] (-2.40, -1.90) -- (-2.40, 0.20)
+% --- (9) DPO -> Policy feedback (clean L: UP from DPO's top edge (NOT
+% the bounding-box corner -- DPO has rounded corners so the corner
+% itself sits inside the visible boundary), LEFT to Policy's x, UP into
+% Policy's south. Single \draw call so the dash pattern flows through
+% corners without phase resets.
+\draw[fb] (-2.20, -1.90) -- (-2.20, 0.20)
           -- (-4.40, 0.20)
           -- (-4.40, 0.475);
 % Horizontal label below the upper horizontal segment, in the clear gap
@@ -239,8 +249,11 @@
       at (-3.40, 0.05) {policy gradient};
 
 % --- (10) Learner -> State (long dashed feedback along container floor)
+% First segment must be VERTICAL (matching learn.south.x = 8.10), then
+% horizontal LEFT, then VERTICAL up into state. All three segments are
+% strictly orthogonal.
 \draw[feed]
-      (learn.south) -- (7.95, -3.95)
+      (learn.south) -- (8.10, -3.95)
       -- (-7.85, -3.95)
       -- (state.south);
 \node[font=\scriptsize, color=aceMuted, align=center]
