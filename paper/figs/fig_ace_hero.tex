@@ -63,9 +63,9 @@
                  dashed, color=aceMuted, line cap=round,
                  dash pattern=on 4pt off 3pt},
     lbl/.style={font=\scriptsize, color=aceSlateDk, align=center,
-                fill=white, inner sep=1.5pt},
+                inner sep=1pt},
     lblc/.style={font=\scriptsize, color=#1, align=center,
-                 fill=white, inner sep=1.5pt},
+                 inner sep=1pt},
 ]
 
 % =====================================================================
@@ -121,7 +121,8 @@
   \scriptsize generates $K{=}4$\\
   \scriptsize candidates};
 
-\draw[arrh] (state.east) -- node[lbl, pos=0.5]{prompt} (pol.west);
+\draw[arrh] (state.east) -- (pol.west);
+\node[lbl, anchor=south] at ($(state.east)!0.5!(pol.west)+(0,0.05)$) {prompt};
 
 % --- (3) K=4 Candidates ----------------------------------------------
 \node[cand] (c1) at (-1.45,  2.30) {$c_1$:\, $\mathrm{do}(X{=}0)$};
@@ -130,7 +131,9 @@
 \node[cand] (c4) at (-1.45,  0.65) {$c_4$:\, $\mathrm{do}(X{=}3)$};
 
 % Single labelled feeder from policy to top candidate; gray feeders to others.
-\draw[arrh] (pol.east) -- node[lbl, pos=0.55]{$K{=}4$} (c1.west);
+% K=4 multiplicity is already stated inside the Policy block ('generates K=4
+% candidates'), so no extra arrow label is needed.
+\draw[arrh] (pol.east) -- (c1.west);
 \draw[line width=0.55pt, color=aceMuted] (pol.east) -- (c2.west);
 \draw[line width=0.55pt, color=aceMuted] (pol.east) -- (c3.west);
 \draw[line width=0.55pt, color=aceMuted] (pol.east) -- (c4.west);
@@ -159,8 +162,13 @@
       minimum width=1.50cm, minimum height=0.65cm]
       (worst) at (4.85, 0.85) {\textbf{worst} $c^{-}$};
 
-\draw[arrh] (look.east) -- node[lbl, pos=0.55]{argmax $R$} (best.west);
-\draw[arrh] (look.east) -- node[lbl, pos=0.55]{argmin $R$} (worst.west);
+% Sloped labels: argmax R sits above the upward arrow, argmin R below the
+% downward arrow. Both labels follow their arrows' angle and stay clear of
+% the arrow lines via a 4pt perpendicular offset.
+\draw[arrh] (look.east) --
+      node[lbl, sloped, above=4pt]{argmax $R$} (best.west);
+\draw[arrh] (look.east) --
+      node[lbl, sloped, below=4pt]{argmin $R$} (worst.west);
 
 % --- (6) Environment + Learner (right of Best/Worst) -----------------
 \node[block=aceSkyDk, fill=aceSky, line width=1.4pt,
@@ -177,10 +185,13 @@
   \scriptsize student SCM};
 
 % best -> env (clean horizontal arrow)
-\draw[arrh, color=aceGoldDk]
-      (best.east) -- node[lblc=aceGoldDk]{execute $c^{*}$} (env.west);
-% env -> learn (vertical, "data D" label to the right)
-\draw[arrh] (env.south) -- node[lbl, right=2pt]{data $\mathcal{D}$} (learn.north);
+\draw[arrh, color=aceGoldDk] (best.east) -- (env.west);
+\node[lblc=aceGoldDk, anchor=south]
+      at ($(best.east)!0.5!(env.west)+(0,0.05)$) {execute $c^{*}$};
+% env -> learn (vertical, "data D" label to the right of arrow)
+\draw[arrh] (env.south) -- (learn.north);
+\node[lbl, anchor=west]
+      at ($(env.south)!0.5!(learn.north)+(0.10,0)$) {data $\mathcal{D}$};
 
 % --- (7) DPO Update (bottom-center) ----------------------------------
 \node[block=aceVioDk, fill=aceVio, line width=1.4pt,
@@ -210,7 +221,10 @@
           -- (-6.05, 0.20)
           -- (pol.south |- {0,0.20})
           -- (pol.south);
-\node[lblc=aceVioDk, anchor=south] at (-5.20, 0.22) {policy gradient};
+% Label sits to the right of the long upward vertical segment, rotated to
+% read along it. Vertical text avoids overlap with State and Policy blocks.
+\node[font=\scriptsize, color=aceVioDk, rotate=90, anchor=center]
+      at (-5.85, -1.10) {policy gradient};
 
 % --- (10) Learner -> State (long dashed feedback along container floor)
 \draw[feed]
