@@ -218,18 +218,17 @@
 \node[font=\scriptsize, color=aceVioDk, anchor=south]
       at (4.55, -2.45) {$(c^{*},\, c^{-})$ pair};
 
-% --- (9) DPO -> Policy feedback. Orthogonal L (UP, LEFT, UP) with
-% rounded corners so the two 90 deg bends read as smooth quarter-arcs
-% rather than sharp angles. Single \draw call so the dash pattern flows
-% continuously through both rounded corners.
+% --- (9) DPO -> Policy feedback. LEFT then UP: exit DPO's west edge
+% horizontally, traverse left to Policy's x, then a single vertical
+% segment up into Policy's south. Two segments with one rounded corner
+% reads more naturally than UP-LEFT-UP (which makes the eye double
+% back at the bend).
 \draw[fb, rounded corners=5pt]
-      (-2.20, -1.90) -- (-2.20, 0.20)
-                     -- (-4.40, 0.20)
-                     -- (-4.40, 0.475);
-% Label sits in the clear empty area below the upper horizontal segment,
-% between Policy's bottom (y=0.475) and DPO's top (y=-1.90).
-\node[font=\scriptsize, color=aceVioDk, anchor=north]
-      at (-3.40, 0.05) {policy gradient};
+      (dpo.west) -- (-4.40, -2.55) -- (pol.south);
+% Label sits above the horizontal segment in the empty area immediately
+% to the left of DPO.
+\node[font=\scriptsize, color=aceVioDk, anchor=south]
+      at (-3.40, -2.42) {policy gradient};
 
 % --- (10) Learner -> State (long dashed feedback along container floor)
 % First segment must be VERTICAL (matching learn.south.x = 8.10), then
