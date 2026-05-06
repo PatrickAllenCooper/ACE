@@ -176,10 +176,11 @@
   \textbf{Learner} $M_\theta$\\[1pt]
   \scriptsize student SCM};
 
-% best -> env (clean horizontal arrow)
-\draw[arrh, color=aceGoldDk] (best.east) -- (env.west);
-\node[lblc=aceGoldDk, anchor=south]
-      at ($(best.east)!0.5!(env.west)+(0,0.12)$) {execute $c^{*}$};
+% best -> env (gold horizontal arrow). Shifted up to y=2.20 so the
+% purple feedback below can exit best at .east (y=2.05) without
+% overlapping the gold path.
+\draw[arrh, color=aceGoldDk] (6.05, 2.20) -- (7.075, 2.20);
+\node[lblc=aceGoldDk, anchor=south] at (6.5625, 2.40) {execute $c^{*}$};
 % env -> learn (vertical, "data D" label to the right of arrow)
 \draw[arrh] (env.south) -- (learn.north);
 \node[lbl, anchor=west]
@@ -203,13 +204,15 @@
 % Drawing each path as ONE \draw call (rather than separate stubs)
 % guarantees the dash pattern flows continuously through every corner.
 
-% Channel sits at x=6.75 in the gap between best/worst (right edge x=6.05)
-% and env/learn (left edge x=7.075). Worst stub is now 0.70 units long --
-% more than 5 dashes at the active dash pattern -- so the connection is
-% unambiguously visible. Whole best path drawn as ONE continuous \draw so
-% the dash pattern flows through every corner without phase resets.
-\draw[fb]  (best.south east) -- (6.75, 1.725) -- (6.75, -2.55) -- (dpo.east);
-\draw[fbn] (worst.south east) -- (6.75, 0.525);
+% Best/Worst -> DPO feedback channel. Both blocks connect at their
+% right-edge MIDPOINTS (.east anchor) rather than at the bottom-right
+% corners -- this reads as a deliberate "side exit" rather than a line
+% hanging off a corner. The gold execute-c* arrow has been shifted up
+% to y=2.20 so the purple feedback can exit best at .east (y=2.05).
+% Best path is drawn as ONE continuous \draw so the dash pattern flows
+% through every corner without phase resets.
+\draw[fb]  (best.east) -- (6.75, 2.05) -- (6.75, -2.55) -- (dpo.east);
+\draw[fbn] (worst.east) -- (6.75, 0.85);
 
 % '(c*, c-) pair' label is now horizontal, sitting above the bottom
 % horizontal segment of the feedback channel where there is plenty of
