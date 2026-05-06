@@ -15,6 +15,9 @@ mkdir -p "$HF_HOME" "$MPLCONFIGDIR"
 # Memory-fragmentation mitigation (recommended by torch OOM error message).
 # Critical when SLURM places us on a 40GB A100 instead of 80GB; the active +
 # reference Qwen2.5-1.5B + cloned learners + KV cache + grads come close to 40GB.
+# Newer PyTorch deprecated PYTORCH_CUDA_ALLOC_CONF in favor of PYTORCH_ALLOC_CONF;
+# we set both for forward/backward compatibility across PyTorch versions.
+export PYTORCH_ALLOC_CONF=expandable_segments:True
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 cd /projects/paco0228/ACE
