@@ -55,6 +55,8 @@
                  line cap=round},
     arrl/.style={-{Stealth[length=2.0mm,width=1.6mm]}, line width=0.7pt,
                  line cap=round, color=aceSlateDk},
+    arrt/.style={-{Stealth[length=1.7mm,width=1.4mm]}, line width=0.55pt,
+                 line cap=round, color=aceSlateDk},
     fb/.style={-{Stealth[length=2.4mm,width=1.8mm]}, line width=1.0pt,
                dashed, color=aceVioDk, line cap=round, dash pattern=on 4pt off 3pt},
     fbn/.style={-, line width=1.0pt, dashed, color=aceVioDk, line cap=round,
@@ -130,13 +132,14 @@
 \node[cand] (c3) at (-1.45,  1.20) {$c_3$:\, $\mathrm{do}(X{=}2)$};
 \node[cand] (c4) at (-1.45,  0.65) {$c_4$:\, $\mathrm{do}(X{=}3)$};
 
-% Single labelled feeder from policy to top candidate; gray feeders to others.
-% K=4 multiplicity is already stated inside the Policy block ('generates K=4
-% candidates'), so no extra arrow label is needed.
-\draw[arrh] (pol.east) -- (c1.west);
-\draw[line width=0.55pt, color=aceMuted] (pol.east) -- (c2.west);
-\draw[line width=0.55pt, color=aceMuted] (pol.east) -- (c3.west);
-\draw[line width=0.55pt, color=aceMuted] (pol.east) -- (c4.west);
+% Four uniform thin arrows fanning out from Policy to each candidate. All
+% four candidates are equivalent at this stage (Policy generates them as a
+% set of K=4), so they all share the same arrow style. K=4 multiplicity is
+% stated inside the Policy block.
+\draw[arrt] (pol.east) -- (c1.west);
+\draw[arrt] (pol.east) -- (c2.west);
+\draw[arrt] (pol.east) -- (c3.west);
+\draw[arrt] (pol.east) -- (c4.west);
 
 % --- (4) Lookahead block ---------------------------------------------
 \node[block=aceAmberDk, fill=aceAmber, line width=1.4pt, anchor=center,
@@ -149,10 +152,10 @@
   $\Delta\mathcal{L}(c_k){=}L_{\mathrm{bef}}{-}L_{\mathrm{aft}}$\\[2pt]
   \scriptsize $R{=}\Delta\mathcal{L}{+}\alpha w{+}\gamma D$};
 
-\draw[arrh] (c1.east) -- (look.west);
-\draw[line width=0.55pt, color=aceMuted] (c2.east) -- (look.west);
-\draw[line width=0.55pt, color=aceMuted] (c3.east) -- (look.west);
-\draw[line width=0.55pt, color=aceMuted] (c4.east) -- (look.west);
+\draw[arrt] (c1.east) -- (look.west);
+\draw[arrt] (c2.east) -- (look.west);
+\draw[arrt] (c3.east) -- (look.west);
+\draw[arrt] (c4.east) -- (look.west);
 
 % --- (5) Best / Worst (right of Lookahead) ---------------------------
 % Pulled rightward to x=5.30 so the look->best/worst arrows can be straight
