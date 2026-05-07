@@ -226,16 +226,17 @@ axR.text(0.5, y_top + 0.18, r"$\mathbf{3.0\times}$",
          ha="center", va="bottom", fontsize=11, fontweight="bold")
 
 axR.set_xticks(x)
-# X-tick labels with method-class tag baked in, color-coded so the novelty
-# of the LM-based policy class (vs the three static heuristics) is visible
-# at a glance.
+# Compact 2-line labels. The method-class distinction (LM+DPO vs static
+# heuristics) is conveyed by bar color and the figure caption, so we drop
+# the redundant class-tag suffixes that previously caused the labels to
+# bunch and overlap with each bar getting only ~0.7 in of horizontal space.
 labels_classed = [
-    "ACE (ours)\nLM + DPO",
-    "Random\nstatic",
-    "Round-Robin\nstatic",
-    "Max-Variance\nstatic",
+    "ACE\n(ours)",
+    "Random",
+    "Round-\nRobin",
+    "Max-\nVariance",
 ]
-axR.set_xticklabels(labels_classed, fontsize=7.5)
+axR.set_xticklabels(labels_classed, fontsize=8)
 tick_label_colors = [COLORS["ACE"], "#475569", "#475569", "#475569"]  # aceSlateDk
 for tick_label, c in zip(axR.get_xticklabels(), tick_label_colors):
     tick_label.set_color(c)
