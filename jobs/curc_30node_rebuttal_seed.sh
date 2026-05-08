@@ -55,10 +55,15 @@ case "$METHOD" in
         ;;
 
     zero_shot_lm)
-        # ACE LM policy with --no_dpo (no DPO updates; tests pretrained-prior contribution).
+        # ACE LM policy with --no_dpo (tests the pretrained LM prior alone,
+        # no DPO updates so policy is FIXED). At 30 nodes the LM forward pass
+        # is ~10 min/episode, so we cap episodes at 50 to fit safely in the
+        # 8h wall time. Since the policy never updates, asymptotic performance
+        # is reached in well under 50 episodes; longer runs only re-sample
+        # the same fixed strategy.
         python -u ace_experiments.py \
             --large_scale 30 \
-            --episodes 150 \
+            --episodes 50 \
             --seed "$SEED" \
             --no_dpo \
             --use_dedicated_root_learner \

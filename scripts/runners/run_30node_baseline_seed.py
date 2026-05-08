@@ -89,10 +89,16 @@ class BayesianOEDFast:
         return best_node, best_value
 
     def _estimate_eig(self, learner_obj, node, value, current_losses):
-        learner = learner_obj if hasattr(learner_obj, "train_step") else learner_obj
+        # The episode loop calls select_intervention with a StudentSCM directly,
+        # not an SCMLearner wrapper. Handle both cases (matches the same pattern
+        # used at lines 75-78 for current_losses).
+        if hasattr(learner_obj, "student"):
+            student = learner_obj.student
+        else:
+            student = learner_obj
         gains = []
         for _ in range(self.n_mc_samples):
-            cloned_student = copy.deepcopy(learner.student)
+            cloned_student = copy.deepcopy(student)
             cloned_learner = SCMLearner(cloned_student, oracle=self.scm)
             data = self.scm.generate(50, interventions={node: value})
             cloned_learner.train_step(data, intervened=node, n_epochs=20)
