@@ -55,6 +55,7 @@ COLORS = {
     "Max-Variance": "#6b21a8",  # aceVioDk
     "Bayesian OED": "#c2410c",  # aceAmberDk
     "PPO":          "#475569",  # aceSlateDk
+    "Zero-shot LM": "#22863a",  # aceLeafDk (LM = green = policy semantics)
 }
 
 # ── Load ACE per-episode data ────────────────────────────────────────────
@@ -104,6 +105,57 @@ for method, root in baseline_paths.items():
     ).reset_index()
     baseline_curves[method] = agg
 
+# Zero-shot LM (no DPO) data has a different layout: each seed has multiple
+# job_* dirs (resubmissions); we use the latest. Each run dir contains a
+# node_losses.csv with (episode, step, total_loss, loss_X1, ...). All 5
+# zsl30 jobs timed out at episode 30-40 since the LM forward pass is
+# ~14 min/episode, but for a fixed-policy method (no DPO updates) the
+# performance is asymptotic well before episode 30, so the partial data
+# is meaningful.
+ZSL_ROOT = "results/curc_30node_rebuttal/zero_shot_lm"
+zsl_curves = []         # cummin curve per seed (for panel A)
+zsl_seed_finals_raw = [] # raw last-episode total_loss (for Table 2 'Final MSE')
+zsl_seed_bests       = [] # min total_loss over training (for Table 2 'Best MSE')
+zsl_seed_lastep      = [] # how many episodes each seed reached
+for seed in [42, 123, 456, 789, 1011]:
+    seed_dir = os.path.join(ZSL_ROOT, f"seed_{seed}")
+    if not os.path.isdir(seed_dir):
+        continue
+    # Pick the latest job_* dir (highest job ID).
+    job_dirs = sorted(glob.glob(os.path.join(seed_dir, "job_*")))
+    if not job_dirs:
+        continue
+    latest_job = job_dirs[-1]
+    run_dirs = glob.glob(os.path.join(latest_job, "run_*"))
+    if not run_dirs:
+        continue
+    nl_path = os.path.join(run_dirs[0], "node_losses.csv")
+    if not os.path.exists(nl_path):
+        continue
+    df = pd.read_csv(nl_path)
+    # episode-final total_loss = total_loss at the last step of each episode
+    per_ep_raw = df.sort_values(["episode", "step"]) \
+                   .groupby("episode")["total_loss"].last().reset_index()
+    # 'Final MSE' = last completed episode's final-step total_loss (RAW, no cummin)
+    zsl_seed_finals_raw.append(float(per_ep_raw["total_loss"].iloc[-1]))
+    # 'Best MSE' = minimum total_loss reached at any episode-final step
+    zsl_seed_bests.append(float(per_ep_raw["total_loss"].min()))
+    zsl_seed_lastep.append(int(per_ep_raw["episode"].max()))
+    # For panel A learning curves, apply cummin so the curve descends monotonically
+    per_ep_curve = per_ep_raw.copy()
+    per_ep_curve["total_loss"] = per_ep_curve["total_loss"].cummin()
+    zsl_curves.append(per_ep_curve[["episode", "total_loss"]])
+
+if zsl_curves:
+    zsl_combined = pd.concat(zsl_curves, keys=range(len(zsl_curves)),
+                             names=["seed_idx"])
+    zsl_agg = zsl_combined.groupby("episode")["total_loss"].agg(
+        mean="mean", std="std", n="count"
+    ).reset_index()
+    baseline_curves["zero_shot_lm"] = zsl_agg
+else:
+    print("WARNING: no zero_shot_lm data found")
+
 # ── Final summary stats ─────────────────────────────────────────────────
 ace_best_per_seed = [df["total_loss"].min() for df in ace_curves]
 ace_final_mean = np.mean(ace_best_per_seed)
@@ -124,17 +176,32 @@ for label, root in final_stats_paths.items():
         sp = f"{root}/seed_{seed}/summary.csv"
         if os.path.exists(sp):
             s = pd.read_csv(sp)
-            vals.append(float(s["final_total_loss"].iloc[0]))
+            # 'Best MSE' is the headline metric (matches Table 2 column header
+            # and ACE's reported value). Use min_total_loss when available; the
+            # static-baseline summaries plateau quickly so best ~= final.
+            col = "min_total_loss" if "min_total_loss" in s.columns else "final_total_loss"
+            vals.append(float(s[col].iloc[0]))
     if vals:
         final_stats[label] = (np.mean(vals), np.std(vals, ddof=1), vals)
     else:
         print(f"WARNING: no summary.csv found for {label}")
 
+# zero-shot LM final_stats: derived directly from per-episode CSVs above
+# since the timeout-killed jobs never wrote summary.csv. We use 'Best MSE'
+# (consistent with ACE's reported headline value, all other plateau-based
+# methods, and the bar-chart y-axis label).
+if zsl_seed_bests:
+    final_stats["Zero-shot LM"] = (
+        float(np.mean(zsl_seed_bests)),
+        float(np.std(zsl_seed_bests, ddof=1)),
+        zsl_seed_bests,
+    )
+
 # ── Build figure ────────────────────────────────────────────────────────
-# Panel B widened to fit 6 bars (was 5 bars).
+# Panel B widened to fit 7 bars (was 6 bars).
 fig, (axL, axR) = plt.subplots(
     1, 2, figsize=(7.4, 3.1),
-    gridspec_kw={"width_ratios": [1.35, 1.4], "wspace": 0.34}
+    gridspec_kw={"width_ratios": [1.2, 1.55], "wspace": 0.34}
 )
 
 # === Panel A: learning curves (linear scale, distinct line styles) ===
@@ -145,6 +212,7 @@ method_label = {
     "max_variance": "Max-Variance",
     "bayesian_oed": "Bayesian OED",
     "ppo":          "PPO",
+    "zero_shot_lm": "Zero-shot LM",
 }
 linestyles = {
     "random":       "-",
@@ -152,6 +220,7 @@ linestyles = {
     "max_variance": ":",
     "bayesian_oed": "-.",
     "ppo":          (0, (3, 1, 1, 1)),  # densely dashdotted
+    "zero_shot_lm": (0, (5, 2, 1, 2)),  # long dash dot
 }
 # Plot baselines first (thin) then ACE on top (thick) for clear z-order.
 for method, agg in baseline_curves.items():
@@ -176,24 +245,23 @@ axL.fill_between(
     color=COLORS["ACE"], alpha=0.22, linewidth=0, zorder=4,
 )
 
-# Cluster annotation: arrow + label pointing at the baseline plateau.
+# Cluster annotations placed in the empty middle-right region.
 axL.annotate(
-    "Baselines collapse\nto common plateau",
-    xy=(110, 5.86),
-    xytext=(60, 4.2),
-    fontsize=8.5, color="#475569",  # aceSlateDk
+    "Non-LM baselines\ncollapse to plateau",
+    xy=(140, 5.86),
+    xytext=(95, 4.5),
+    fontsize=8, color="#475569",
     ha="center", va="center",
-    arrowprops=dict(arrowstyle="->", color="#64748b", lw=0.7,  # aceMuted
-                    connectionstyle="arc3,rad=0.18"),
+    arrowprops=dict(arrowstyle="->", color="#64748b", lw=0.6,
+                    connectionstyle="arc3,rad=0.15"),
 )
-# ACE annotation
 axL.annotate(
-    "ACE descends\nto 1.95",
-    xy=(70, 2.0),
-    xytext=(105, 2.6),
-    fontsize=8.5, color=COLORS["ACE"],
+    "LM-based methods\nescape the plateau\n(ACE 1.95, ZSL 1.73)",
+    xy=(45, 1.85),
+    xytext=(95, 2.9),
+    fontsize=8, color=COLORS["ACE"],
     ha="left", va="center",
-    arrowprops=dict(arrowstyle="->", color=COLORS["ACE"], lw=0.7,
+    arrowprops=dict(arrowstyle="->", color=COLORS["ACE"], lw=0.6,
                     connectionstyle="arc3,rad=-0.18"),
 )
 
@@ -203,25 +271,30 @@ axL.set_title("(a) Convergence on 30-node SCM", loc="left", pad=6)
 axL.set_xlim(0, 150)
 axL.set_ylim(0, 8)
 axL.grid(True, linestyle=":", linewidth=0.4, alpha=0.5)
+# Legend in the upper area between baseline plateau (5.86) and the top
+# of the panel — empty space, doesn't overlap any curve.
 axL.legend(
     loc="upper left",
     bbox_to_anchor=(0.02, 0.98),
     frameon=True,
     facecolor="white",
     framealpha=0.95,
-    edgecolor="#94a3b8",  # slate-medium
+    edgecolor="#94a3b8",
     handlelength=1.8,
-    fontsize=8,
-    borderpad=0.4,
-    labelspacing=0.4,
+    fontsize=7.5,
+    borderpad=0.35,
+    labelspacing=0.3,
+    ncol=2,  # compact
 )
 
 # === Panel B: bar chart with per-seed scatter, cleaner bracket ===
-# Order: ACE first, then Bayesian OED (principled baseline) and PPO
-# (value-based RL foil), then the three static heuristics.
-bar_methods = ["ACE", "Bayesian OED", "PPO",
+# Order: ACE first; then the three "active/learned" baselines that map
+# directly onto the contribution claims (Zero-shot LM = LM prior alone,
+# Bayesian OED = principled greedy, PPO = value-based RL); then the
+# three static heuristics.
+bar_methods = ["ACE", "Zero-shot LM", "Bayesian OED", "PPO",
                "Random", "Round-Robin", "Max-Variance"]
-labels = ["ACE\n(ours)", "Bayesian\nOED", "PPO",
+labels = ["ACE\n(ours)", "Zero-shot\nLM", "Bayesian\nOED", "PPO",
           "Random", "Round-\nRobin", "Max-\nVariance"]
 means = [ace_final_mean] + [final_stats[m][0] for m in bar_methods[1:]]
 stds  = [ace_final_std]  + [final_stats[m][1] for m in bar_methods[1:]]
@@ -269,9 +342,9 @@ tick_label_colors = [COLORS["ACE"]] + [slate] * (len(bar_methods) - 1)
 for tick_label, c in zip(axR.get_xticklabels(), tick_label_colors):
     tick_label.set_color(c)
     tick_label.set_fontweight("bold" if c == COLORS["ACE"] else "normal")
-axR.set_ylabel("Total MSE at final eval")
+axR.set_ylabel("Best total MSE during training")
 axR.set_ylim(0, y_top + 1.6)
-axR.set_title("(b) Final performance", loc="left", pad=6)
+axR.set_title("(b) Best-loss performance", loc="left", pad=6)
 axR.grid(True, axis="y", linestyle=":", linewidth=0.4, alpha=0.5)
 
 fig.savefig(os.path.join(OUT_DIR, "fig_30node_results.pdf"),
@@ -285,9 +358,16 @@ print()
 print("Summary values plotted:")
 print(f"  ACE:          {ace_final_mean:.2f} +/- {ace_final_std:.2f} "
       f"(N={len(ace_best_per_seed)})")
-for label in ["Bayesian OED", "PPO", "Random", "Round-Robin", "Max-Variance"]:
+for label in ["Zero-shot LM", "Bayesian OED", "PPO",
+              "Random", "Round-Robin", "Max-Variance"]:
     if label not in final_stats:
         print(f"  {label:13s}: MISSING")
         continue
     m, s, vals = final_stats[label]
-    print(f"  {label:13s}: {m:.2f} +/- {s:.2f} (N={len(vals)})")
+    extra = ""
+    if label == "Zero-shot LM":
+        raw_final_mean = float(np.mean(zsl_seed_finals_raw))
+        raw_final_std  = float(np.std(zsl_seed_finals_raw, ddof=1))
+        extra = (f"  [final={raw_final_mean:.2f}+/-{raw_final_std:.2f}, "
+                 f"episodes_reached={zsl_seed_lastep}]")
+    print(f"  {label:13s}: best={m:.2f}+/-{s:.2f} (N={len(vals)}){extra}")
