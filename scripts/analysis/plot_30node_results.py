@@ -44,16 +44,17 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 # Colors taken from the shared palette in paper/figs/ace_palette.tex so the
 # matplotlib figure visually harmonises with the TikZ figures (hero, 5-node
-# SCM, 30-node SCM). ACE uses the ruby-dark accent (vivid distinctive red);
-# the three static baselines use the dark variants of sky / teal / violet;
-# Bayesian OED uses amber-dark since amber semantically maps to active
-# lookahead/reasoning in the hero figure.
+# SCM, 30-node SCM). ACE uses the ruby-dark accent; the three static
+# baselines use sky / teal / violet; Bayesian OED uses amber (lookahead);
+# PPO uses slate (neutral baseline color, since PPO is the value-based RL
+# foil to ACE's preference-based approach).
 COLORS = {
     "ACE":          "#be123c",  # aceRubyDk
     "Random":       "#1e40af",  # aceSkyDk
     "Round-Robin":  "#0f766e",  # aceTealDk
     "Max-Variance": "#6b21a8",  # aceVioDk
     "Bayesian OED": "#c2410c",  # aceAmberDk
+    "PPO":          "#475569",  # aceSlateDk
 }
 
 # ── Load ACE per-episode data ────────────────────────────────────────────
@@ -82,6 +83,7 @@ baseline_paths = {
     "max_variance": "results/curc_30node_baselines/max_variance",
     "bayesian_oed": ("results/curc_30node_rebuttal/bayesian_oed/"
                      "bayesian_oed/bayesian_oed"),
+    "ppo":          "results/curc_30node_rebuttal/ppo/ppo",
 }
 baseline_curves = {}
 for method, root in baseline_paths.items():
@@ -114,6 +116,7 @@ final_stats_paths = {
     "Max-Variance": "results/curc_30node_baselines/max_variance",
     "Bayesian OED": ("results/curc_30node_rebuttal/bayesian_oed/"
                      "bayesian_oed/bayesian_oed"),
+    "PPO":          "results/curc_30node_rebuttal/ppo/ppo",
 }
 for label, root in final_stats_paths.items():
     vals = []
@@ -128,10 +131,10 @@ for label, root in final_stats_paths.items():
         print(f"WARNING: no summary.csv found for {label}")
 
 # ── Build figure ────────────────────────────────────────────────────────
-# Panel B widened slightly (was 1.0) since we now have 5 bars instead of 4.
+# Panel B widened to fit 6 bars (was 5 bars).
 fig, (axL, axR) = plt.subplots(
     1, 2, figsize=(7.4, 3.1),
-    gridspec_kw={"width_ratios": [1.55, 1.2], "wspace": 0.34}
+    gridspec_kw={"width_ratios": [1.35, 1.4], "wspace": 0.34}
 )
 
 # === Panel A: learning curves (linear scale, distinct line styles) ===
@@ -141,12 +144,14 @@ method_label = {
     "round_robin":  "Round-Robin",
     "max_variance": "Max-Variance",
     "bayesian_oed": "Bayesian OED",
+    "ppo":          "PPO",
 }
 linestyles = {
     "random":       "-",
     "round_robin":  "--",
     "max_variance": ":",
     "bayesian_oed": "-.",
+    "ppo":          (0, (3, 1, 1, 1)),  # densely dashdotted
 }
 # Plot baselines first (thin) then ACE on top (thick) for clear z-order.
 for method, agg in baseline_curves.items():
@@ -212,10 +217,12 @@ axL.legend(
 )
 
 # === Panel B: bar chart with per-seed scatter, cleaner bracket ===
-# Bayesian OED placed adjacent to ACE so the principled-baseline-vs-ACE
-# comparison is visually paired; the three static heuristics follow.
-bar_methods = ["ACE", "Bayesian OED", "Random", "Round-Robin", "Max-Variance"]
-labels = ["ACE\n(ours)", "Bayesian\nOED", "Random", "Round-\nRobin", "Max-\nVariance"]
+# Order: ACE first, then Bayesian OED (principled baseline) and PPO
+# (value-based RL foil), then the three static heuristics.
+bar_methods = ["ACE", "Bayesian OED", "PPO",
+               "Random", "Round-Robin", "Max-Variance"]
+labels = ["ACE\n(ours)", "Bayesian\nOED", "PPO",
+          "Random", "Round-\nRobin", "Max-\nVariance"]
 means = [ace_final_mean] + [final_stats[m][0] for m in bar_methods[1:]]
 stds  = [ace_final_std]  + [final_stats[m][1] for m in bar_methods[1:]]
 colors_bar = [COLORS[m] for m in bar_methods]
@@ -253,12 +260,12 @@ axR.text(0.5, y_top + 0.18, rf"$\mathbf{{{ratio:.1f}\times}}$",
          ha="center", va="bottom", fontsize=11, fontweight="bold")
 
 axR.set_xticks(x)
-# Compact 2-line labels for all 5 bars. With the panel narrower per-bar
-# than the original 4-bar layout, fontsize drops slightly to fit cleanly.
-axR.set_xticklabels(labels, fontsize=7.5)
+# Compact 2-line labels for all 6 bars. With one more bar, fontsize drops
+# slightly to fit cleanly.
+axR.set_xticklabels(labels, fontsize=7)
 # Highlight ACE in ruby + bold; baselines in slate.
 slate = "#475569"
-tick_label_colors = [COLORS["ACE"], slate, slate, slate, slate]
+tick_label_colors = [COLORS["ACE"]] + [slate] * (len(bar_methods) - 1)
 for tick_label, c in zip(axR.get_xticklabels(), tick_label_colors):
     tick_label.set_color(c)
     tick_label.set_fontweight("bold" if c == COLORS["ACE"] else "normal")
@@ -278,7 +285,7 @@ print()
 print("Summary values plotted:")
 print(f"  ACE:          {ace_final_mean:.2f} +/- {ace_final_std:.2f} "
       f"(N={len(ace_best_per_seed)})")
-for label in ["Bayesian OED", "Random", "Round-Robin", "Max-Variance"]:
+for label in ["Bayesian OED", "PPO", "Random", "Round-Robin", "Max-Variance"]:
     if label not in final_stats:
         print(f"  {label:13s}: MISSING")
         continue
