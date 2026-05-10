@@ -35,18 +35,25 @@ mpl.rcParams.update({
     'lines.linewidth': 1.4,
 })
 
-OUT_DIR = "paper/figs"
+# Default output goes to the active NeurIPS paper directory; falls back to
+# the legacy paper/figs path if the new dir does not exist yet.
+OUT_DIR = ("paper/neurips_ace_2026/figs"
+           if os.path.isdir("paper/neurips_ace_2026/figs")
+           else "paper/figs")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # Colors taken from the shared palette in paper/figs/ace_palette.tex so the
 # matplotlib figure visually harmonises with the TikZ figures (hero, 5-node
 # SCM, 30-node SCM). ACE uses the ruby-dark accent (vivid distinctive red);
-# the three static baselines use the dark variants of sky / teal / violet.
+# the three static baselines use the dark variants of sky / teal / violet;
+# Bayesian OED uses amber-dark since amber semantically maps to active
+# lookahead/reasoning in the hero figure.
 COLORS = {
     "ACE":          "#be123c",  # aceRubyDk
     "Random":       "#1e40af",  # aceSkyDk
     "Round-Robin":  "#0f766e",  # aceTealDk
     "Max-Variance": "#6b21a8",  # aceVioDk
+    "Bayesian OED": "#c2410c",  # aceAmberDk
 }
 
 # ── Load ACE per-episode data ────────────────────────────────────────────
@@ -66,17 +73,29 @@ ace_agg = ace_df.groupby("episode")["total_loss"].agg(
 ).reset_index()
 
 # ── Load baseline per-episode data ───────────────────────────────────────
+# The first three live under results/curc_30node_baselines/{method}/seed_X/.
+# Bayesian OED was added in the rebuttal and lives at a triply-nested path
+# under results/curc_30node_rebuttal/bayesian_oed/bayesian_oed/bayesian_oed/.
+baseline_paths = {
+    "random":       "results/curc_30node_baselines/random",
+    "round_robin":  "results/curc_30node_baselines/round_robin",
+    "max_variance": "results/curc_30node_baselines/max_variance",
+    "bayesian_oed": ("results/curc_30node_rebuttal/bayesian_oed/"
+                     "bayesian_oed/bayesian_oed"),
+}
 baseline_curves = {}
-for method in ["random", "round_robin", "max_variance"]:
+for method, root in baseline_paths.items():
     all_seeds = []
     for seed in [42, 123, 456, 789, 1011]:
-        path = (f"results/curc_30node_baselines/{method}/"
-                f"seed_{seed}/per_episode.csv")
+        path = f"{root}/seed_{seed}/per_episode.csv"
         if os.path.exists(path):
             df = pd.read_csv(path)
             df = df.rename(columns={"episode_final_loss": "total_loss"})
             df["total_loss"] = df["total_loss"].cummin()
             all_seeds.append(df[["episode", "total_loss"]])
+    if not all_seeds:
+        print(f"WARNING: no per_episode.csv found for {method}")
+        continue
     combined = pd.concat(all_seeds)
     agg = combined.groupby("episode")["total_loss"].agg(
         mean="mean", std="std"
@@ -89,21 +108,30 @@ ace_final_mean = np.mean(ace_best_per_seed)
 ace_final_std = np.std(ace_best_per_seed, ddof=1)
 
 final_stats = {}
-for method, label in [("random", "Random"),
-                      ("round_robin", "Round-Robin"),
-                      ("max_variance", "Max-Variance")]:
+final_stats_paths = {
+    "Random":       "results/curc_30node_baselines/random",
+    "Round-Robin":  "results/curc_30node_baselines/round_robin",
+    "Max-Variance": "results/curc_30node_baselines/max_variance",
+    "Bayesian OED": ("results/curc_30node_rebuttal/bayesian_oed/"
+                     "bayesian_oed/bayesian_oed"),
+}
+for label, root in final_stats_paths.items():
     vals = []
     for seed in [42, 123, 456, 789, 1011]:
-        s = pd.read_csv(
-            f"results/curc_30node_baselines/{method}/seed_{seed}/summary.csv"
-        )
-        vals.append(float(s["final_total_loss"].iloc[0]))
-    final_stats[label] = (np.mean(vals), np.std(vals, ddof=1), vals)
+        sp = f"{root}/seed_{seed}/summary.csv"
+        if os.path.exists(sp):
+            s = pd.read_csv(sp)
+            vals.append(float(s["final_total_loss"].iloc[0]))
+    if vals:
+        final_stats[label] = (np.mean(vals), np.std(vals, ddof=1), vals)
+    else:
+        print(f"WARNING: no summary.csv found for {label}")
 
 # ── Build figure ────────────────────────────────────────────────────────
+# Panel B widened slightly (was 1.0) since we now have 5 bars instead of 4.
 fig, (axL, axR) = plt.subplots(
     1, 2, figsize=(7.4, 3.1),
-    gridspec_kw={"width_ratios": [1.7, 1.0], "wspace": 0.34}
+    gridspec_kw={"width_ratios": [1.55, 1.2], "wspace": 0.34}
 )
 
 # === Panel A: learning curves (linear scale, distinct line styles) ===
@@ -112,11 +140,13 @@ method_label = {
     "random":       "Random",
     "round_robin":  "Round-Robin",
     "max_variance": "Max-Variance",
+    "bayesian_oed": "Bayesian OED",
 }
 linestyles = {
     "random":       "-",
     "round_robin":  "--",
     "max_variance": ":",
+    "bayesian_oed": "-.",
 }
 # Plot baselines first (thin) then ACE on top (thick) for clear z-order.
 for method, agg in baseline_curves.items():
@@ -182,17 +212,13 @@ axL.legend(
 )
 
 # === Panel B: bar chart with per-seed scatter, cleaner bracket ===
-labels = ["ACE\n(ours)", "Random", "Round-\nRobin", "Max-\nVariance"]
-means = [ace_final_mean,
-         final_stats["Random"][0],
-         final_stats["Round-Robin"][0],
-         final_stats["Max-Variance"][0]]
-stds = [ace_final_std,
-        final_stats["Random"][1],
-        final_stats["Round-Robin"][1],
-        final_stats["Max-Variance"][1]]
-colors_bar = [COLORS["ACE"], COLORS["Random"], COLORS["Round-Robin"],
-              COLORS["Max-Variance"]]
+# Bayesian OED placed adjacent to ACE so the principled-baseline-vs-ACE
+# comparison is visually paired; the three static heuristics follow.
+bar_methods = ["ACE", "Bayesian OED", "Random", "Round-Robin", "Max-Variance"]
+labels = ["ACE\n(ours)", "Bayesian\nOED", "Random", "Round-\nRobin", "Max-\nVariance"]
+means = [ace_final_mean] + [final_stats[m][0] for m in bar_methods[1:]]
+stds  = [ace_final_std]  + [final_stats[m][1] for m in bar_methods[1:]]
+colors_bar = [COLORS[m] for m in bar_methods]
 
 x = np.arange(len(labels))
 axR.bar(x, means, yerr=stds, color=colors_bar, alpha=0.78,
@@ -200,44 +226,39 @@ axR.bar(x, means, yerr=stds, color=colors_bar, alpha=0.78,
         error_kw={"linewidth": 0.9, "capsize": 3.5})
 
 # Per-seed scatter overlays
-per_seed_data = [ace_best_per_seed,
-                 final_stats["Random"][2],
-                 final_stats["Round-Robin"][2],
-                 final_stats["Max-Variance"][2]]
+per_seed_data = [ace_best_per_seed] + [final_stats[m][2] for m in bar_methods[1:]]
 rng = np.random.RandomState(0)
 for xi, vals in zip(x, per_seed_data):
     jitter = rng.uniform(-0.13, 0.13, size=len(vals))
     axR.scatter(xi + jitter, vals, s=16, color="black",
                 edgecolors="white", linewidths=0.6, zorder=5, alpha=0.85)
 
-# Cleaner improvement bracket: vertical dotted lines + horizontal dashed
-# line at baseline plateau, with a centered "3.0 x" callout.
+# Improvement bracket: spans ACE (x=0) -> Bayesian OED (x=1, the strongest
+# principled baseline). Horizontal dashed reference line at the common
+# baseline plateau makes it visually clear that all 4 baselines collapse.
 y_ace = ace_final_mean
-y_base = final_stats["Random"][0]
-# Horizontal reference line at baseline plateau
-axR.axhline(y=y_base, color="#94a3b8", linestyle="--", lw=0.6, alpha=0.7,  # slate-medium
+y_boed = final_stats["Bayesian OED"][0]
+y_base = np.mean([final_stats[m][0] for m in
+                  ["Bayesian OED", "Random", "Round-Robin", "Max-Variance"]])
+# Horizontal reference line at the common baseline plateau
+axR.axhline(y=y_base, color="#94a3b8", linestyle="--", lw=0.6, alpha=0.7,
             zorder=1)
-# Bracket with two end ticks and a label between ACE bar (x=0) and Random bar (x=1)
+# Bracket between ACE (x=0) and Bayesian OED (x=1)
 y_top = y_base + 0.95
 axR.plot([0, 0], [y_ace + 0.35, y_top], color="black", lw=0.7)
-axR.plot([1, 1], [y_base + 0.35, y_top], color="black", lw=0.7)
+axR.plot([1, 1], [y_boed + 0.35, y_top], color="black", lw=0.7)
 axR.plot([0, 1], [y_top, y_top], color="black", lw=0.7)
-axR.text(0.5, y_top + 0.18, r"$\mathbf{3.0\times}$",
+ratio = y_boed / y_ace
+axR.text(0.5, y_top + 0.18, rf"$\mathbf{{{ratio:.1f}\times}}$",
          ha="center", va="bottom", fontsize=11, fontweight="bold")
 
 axR.set_xticks(x)
-# Compact 2-line labels. The method-class distinction (LM+DPO vs static
-# heuristics) is conveyed by bar color and the figure caption, so we drop
-# the redundant class-tag suffixes that previously caused the labels to
-# bunch and overlap with each bar getting only ~0.7 in of horizontal space.
-labels_classed = [
-    "ACE\n(ours)",
-    "Random",
-    "Round-\nRobin",
-    "Max-\nVariance",
-]
-axR.set_xticklabels(labels_classed, fontsize=8)
-tick_label_colors = [COLORS["ACE"], "#475569", "#475569", "#475569"]  # aceSlateDk
+# Compact 2-line labels for all 5 bars. With the panel narrower per-bar
+# than the original 4-bar layout, fontsize drops slightly to fit cleanly.
+axR.set_xticklabels(labels, fontsize=7.5)
+# Highlight ACE in ruby + bold; baselines in slate.
+slate = "#475569"
+tick_label_colors = [COLORS["ACE"], slate, slate, slate, slate]
 for tick_label, c in zip(axR.get_xticklabels(), tick_label_colors):
     tick_label.set_color(c)
     tick_label.set_fontweight("bold" if c == COLORS["ACE"] else "normal")
@@ -257,6 +278,9 @@ print()
 print("Summary values plotted:")
 print(f"  ACE:          {ace_final_mean:.2f} +/- {ace_final_std:.2f} "
       f"(N={len(ace_best_per_seed)})")
-for label in ["Random", "Round-Robin", "Max-Variance"]:
-    m, s, _ = final_stats[label]
-    print(f"  {label:13s}: {m:.2f} +/- {s:.2f} (N=5)")
+for label in ["Bayesian OED", "Random", "Round-Robin", "Max-Variance"]:
+    if label not in final_stats:
+        print(f"  {label:13s}: MISSING")
+        continue
+    m, s, vals = final_stats[label]
+    print(f"  {label:13s}: {m:.2f} +/- {s:.2f} (N={len(vals)})")
