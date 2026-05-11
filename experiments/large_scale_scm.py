@@ -23,61 +23,126 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 class LargeScaleSCM:
     """
-    30-node hierarchical SCM for scalability testing.
-    
-    Structure:
-    - 5 roots
-    - 10 intermediate nodes (Layer 1-2)
-    - 10 complex nodes with colliders (Layer 3-4)
-    - 5 leaf nodes
-    
-    Tests whether ACE's strategic approach scales to realistic system sizes.
+    Hierarchical SCM for scalability testing. Defaults to 30 nodes; supports
+    50 (and other sizes) by parametric layer scaling. Optionally anonymises
+    node names to abstract hex IDs (n_xxxx) for the LM-prior-mismatch
+    ablation: with semantically meaningful names like X1, X2, ... the
+    pretrained LM's prior may be informative; with anonymised tokens the
+    LM has no semantic handle to exploit.
+
+    Structure (5-layer, proportions ~1/6, 1/6, 1/3, 1/6, 1/6 of n_nodes):
+    - Layer 0: roots (no parents)
+    - Layer 1: each node has 1-2 root parents
+    - Layer 2: mix of single-parent and colliders (every third has 2 parents)
+    - Layer 3: complex colliders with 2-3 parents from Layer 2
+    - Layer 4: leaves with 1 Layer-3 parent
     """
-    
-    def __init__(self, n_nodes=30):
+
+    def __init__(self, n_nodes=30, anonymize=False, anonymize_seed=None):
         self.n_nodes = n_nodes
-        self.nodes = [f'X{i}' for i in range(1, n_nodes + 1)]
-        
-        # Build hierarchical structure
-        self.graph = self._build_hierarchical_graph()
+        # 5 layers, sized roughly proportional to n_nodes. For n=30 this
+        # reproduces the canonical 5/5/10/5/5 split exactly.
+        if n_nodes == 30:
+            self.layer_sizes = [5, 5, 10, 5, 5]
+        else:
+            r = max(2, n_nodes // 6)
+            l1 = max(2, n_nodes // 6)
+            l3 = max(2, n_nodes // 6)
+            leaves = max(2, n_nodes // 6)
+            l2 = n_nodes - r - l1 - l3 - leaves
+            assert l2 >= 2, f"n_nodes={n_nodes} too small after fixed-size layers"
+            self.layer_sizes = [r, l1, l2, l3, leaves]
+
+        # Layer index ranges (start, end) in 1-indexed node IDs.
+        self.layer_ranges = []
+        cursor = 1
+        for sz in self.layer_sizes:
+            self.layer_ranges.append((cursor, cursor + sz))
+            cursor += sz
+
+        # Canonical X-names for internal graph construction. Anonymisation
+        # is applied only AT THE END to self.nodes / self.graph keys, so the
+        # build logic remains unchanged.
+        canonical = [f"X{i}" for i in range(1, n_nodes + 1)]
+        self.graph = self._build_hierarchical_graph(canonical)
         self.noise_std = 0.15
-    
-    def _build_hierarchical_graph(self):
-        """Build hierarchical causal graph."""
+
+        if anonymize:
+            rng = np.random.RandomState(
+                anonymize_seed if anonymize_seed is not None else 0
+            )
+            seen = set()
+            alias = {}
+            for c in canonical:
+                while True:
+                    tok = f"n_{rng.randint(0, 2**16):04x}"
+                    if tok not in seen:
+                        break
+                seen.add(tok)
+                alias[c] = tok
+            # Rebuild graph with anonymised keys/values.
+            self.graph = {alias[k]: [alias[p] for p in v]
+                          for k, v in self.graph.items()}
+            self.nodes = [alias[c] for c in canonical]
+            self.alias = alias  # canonical -> anonymised
+        else:
+            self.nodes = canonical
+            self.alias = {c: c for c in canonical}
+
+        # 1-indexed node-id lookup, stable across canonical/anonymised
+        # (so generate()'s "every 5th node gets nonlinearity" rule keeps
+        # working when names like X1 are renamed to n_dc66).
+        self.node_idx = {name: i + 1 for i, name in enumerate(self.nodes)}
+
+    def _build_hierarchical_graph(self, names):
+        """Build hierarchical causal graph using canonical X-names. Layer
+        sizes follow self.layer_sizes; structure mirrors the original
+        30-node design (mix of single-parent and 2-parent colliders)."""
         graph = {}
-        
-        # Roots (X1-X5): No parents
-        for i in range(1, 6):
-            graph[f'X{i}'] = []
-        
-        # Layer 1 (X6-X10): Depend on roots
-        for i in range(6, 11):
-            # Each depends on 1-2 roots
+        (r0, r1) = self.layer_ranges[0]
+        (l1_0, l1_1) = self.layer_ranges[1]
+        (l2_0, l2_1) = self.layer_ranges[2]
+        (l3_0, l3_1) = self.layer_ranges[3]
+        (lf_0, lf_1) = self.layer_ranges[4]
+
+        # Layer 0: roots.
+        for i in range(r0, r1):
+            graph[f"X{i}"] = []
+
+        # Layer 1: each node has 1-2 root parents.
+        for i in range(l1_0, l1_1):
             num_parents = np.random.choice([1, 2])
-            parents = np.random.choice(range(1, 6), size=num_parents, replace=False)
-            graph[f'X{i}'] = [f'X{p}' for p in parents]
-        
-        # Layer 2 (X11-X20): Depend on Layer 1
-        for i in range(11, 21):
-            # Mix of single parents and colliders
-            if i % 3 == 0:  # Collider: 2 parents
-                parents = np.random.choice(range(6, 11), size=2, replace=False)
-            else:  # Single parent
-                parents = [np.random.choice(range(6, 11))]
-            graph[f'X{i}'] = [f'X{p}' for p in parents]
-        
-        # Layer 3 (X21-X25): Complex colliders
-        for i in range(21, 26):
-            # 2-3 parents from previous layers
+            num_parents = min(num_parents, r1 - r0)
+            parents = np.random.choice(range(r0, r1),
+                                       size=num_parents, replace=False)
+            graph[f"X{i}"] = [f"X{p}" for p in parents]
+
+        # Layer 2: every third is a 2-parent collider, rest single-parent.
+        l1_size = l1_1 - l1_0
+        for i in range(l2_0, l2_1):
+            if i % 3 == 0 and l1_size >= 2:
+                parents = np.random.choice(range(l1_0, l1_1),
+                                           size=2, replace=False)
+            else:
+                parents = [np.random.choice(range(l1_0, l1_1))]
+            graph[f"X{i}"] = [f"X{p}" for p in parents]
+
+        # Layer 3: complex colliders, 2-3 parents from Layer 2.
+        l2_size = l2_1 - l2_0
+        for i in range(l3_0, l3_1):
             num_parents = np.random.choice([2, 3])
-            parents = np.random.choice(range(11, 21), size=num_parents, replace=False)
-            graph[f'X{i}'] = [f'X{p}' for p in parents]
-        
-        # Layer 4 (X26-X30): Final nodes
-        for i in range(26, 31):
-            parents = np.random.choice(range(21, 26), size=1, replace=False)
-            graph[f'X{i}'] = [f'X{p}' for p in parents]
-        
+            num_parents = min(num_parents, l2_size)
+            parents = np.random.choice(range(l2_0, l2_1),
+                                       size=num_parents, replace=False)
+            graph[f"X{i}"] = [f"X{p}" for p in parents]
+
+        # Layer 4: leaves with 1 Layer-3 parent.
+        l3_size = l3_1 - l3_0
+        for i in range(lf_0, lf_1):
+            parents = np.random.choice(range(l3_0, l3_1),
+                                       size=min(1, l3_size), replace=False)
+            graph[f"X{i}"] = [f"X{p}" for p in parents]
+
         return graph
     
     def get_parents(self, node: str) -> List[str]:
@@ -107,8 +172,10 @@ class LargeScaleSCM:
                         coef = np.random.uniform(0.3, 0.7)
                         value += coef * data[parent]
                     
-                    # Add nonlinearity for some nodes
-                    node_num = int(node[1:])
+                    # Add nonlinearity for some nodes (every 5th node).
+                    # Use the stable node-id lookup so this works for both
+                    # canonical (X1..XN) and anonymised (n_xxxx) names.
+                    node_num = self.node_idx.get(node, 0)
                     if node_num % 5 == 0:
                         value = value + 0.2 * torch.sin(value)
                     

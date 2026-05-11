@@ -112,3 +112,51 @@ lookahead's evaluate-then-select mechanism?"
 - Document new results in a separate "Rebuttal Addendum" PDF if the page
   budget for the rebuttal text is tight.
 - Expected aggregate cost: ~80-120 GPU-hours across all rebuttal experiments.
+
+## Concern 6: LM-prior-vs-DPO contribution (RAISED BY zero-shot-LM RESULT)
+
+Status: **RUN AS FOLLOW-UP**. The zero-shot-LM N=5 result on canonical
+30-node came back at best=1.73 ± 0.22, statistically tied with ACE
+(1.95 ± 0.77). This validates Section 3.3's "LM as forward-model prior"
+thesis but raises a follow-up: how much does DPO contribute when the LM
+prior is *mismatched*?
+
+**Two follow-up experiments**, both implemented and ready to submit
+via `bash jobs/curc_submit_30node_followup.sh`:
+
+1. **anon30** -- 30-node SCM, anonymised node names (`n_xxxx` instead of
+   `X1..X30`). Removes the LM's semantic prior; the LM has only graph
+   structure and per-node losses to reason from. *Hypothesis*: ACE >
+   Zero-shot LM by a wider margin than canonical 30-node, because DPO
+   must compensate for the missing semantic prior.
+2. **nodes50** -- 50-node hierarchical SCM (canonical names). Stresses
+   the prompt context length; LM prior may dilute. *Hypothesis*: both
+   methods degrade, but ACE less so. (8 roots, 8 layer-1, 18 layer-2
+   with colliders, 8 layer-3 colliders, 8 leaves.)
+
+**Compute budget:** 5 ACE x 8h GPU + 5 ZSL x 8h GPU per condition x
+2 conditions = ~160 GPU-hours total. Submitted as 20 jobs on aa100;
+ACE jobs cap at 120 episodes, ZSL jobs at 40 (fixed-policy asymptote).
+
+**If results confirm the hypotheses**, the abstract and Section 5.2
+prose can be tightened from "DPO's marginal contribution at this scale
+is within seed-variance bounds" to "DPO's contribution emerges
+when the LM prior is mismatched, validated by Anonymised-30 (gap
+widens) and 50-node (gap widens) follow-up experiments".
+
+**If results don't confirm**, the LM-prior thesis is even stronger
+than the paper currently claims (Section 3.3 needs a small expansion);
+DPO's contribution becomes harder to defend at this scale and the
+paper's contribution emphasis should shift to the LM-prior + lookahead
+combination, with DPO framed as a refinement step.
+
+Output structure (after pulling locally):
+```
+results/curc_30node_followup/
+  anon30/{ace,zero_shot_lm}/seed_{seed}/job_{jobid}/
+  nodes50/{ace,zero_shot_lm}/seed_{seed}/job_{jobid}/
+```
+
+Plot/aggregate: extend `scripts/analysis/plot_30node_results.py` with
+two more conditions (or build a separate plot for the 4-cell
+ACE-vs-ZSL grid).

@@ -484,14 +484,38 @@ class HuggingFacePolicy(nn.Module):
         
         # Construct the NEW prompt - problem-first, action-oriented
         valid_nodes = ", ".join(scm.nodes)
-        
-        # FEW-SHOT EXAMPLES that demonstrate reasoning
-        examples = """
+
+        # FEW-SHOT EXAMPLES. The hard-coded X1/X2/X3 names match the canonical
+        # 5-node setup; on a graph where node names don't include "X1..X3"
+        # (e.g., the --anonymize_nodes 30-node setting), these examples
+        # would teach the LM to emit invalid node names. Detect that case
+        # and use a generic placeholder example instead.
+        valid_set = set(scm.nodes)
+        if {"X1", "X2", "X3"}.issubset(valid_set):
+            examples = """
 Examples of good reasoning:
 - If X3 has high loss and parents are X1,X2: "X3 is failing. To learn X3's mechanism, I should intervene on X2 (breaking X1-X2 correlation)." -> DO X2 = 1.5
 - If X2 has high loss and parent is X1: "X2 is failing. To learn X2's mechanism, I should intervene on X1." -> DO X1 = -2.0
 - If X5 has high loss and parent is X4: "X5 is failing. To learn X5's mechanism, I should intervene on X4." -> DO X4 = 3.0
 """
+        else:
+            # Generic example using <node_name> placeholders that the LM
+            # should NOT emit literally. Pick three actual nodes from the
+            # current SCM to illustrate the output format concretely.
+            sample_nodes = list(scm.nodes)[:3] + (3 - min(3, len(scm.nodes))) * [None]
+            n_a, n_b, n_c = (sample_nodes + [None, None, None])[:3]
+            n_a = n_a or "<node>"
+            n_b = n_b or n_a
+            n_c = n_c or n_a
+            examples = (
+                "\nExamples of the output format (substitute actual node "
+                "names from 'Valid targets'):\n"
+                f"- If {n_a} has high loss and parent is {n_b}: "
+                f"intervene on {n_b}. -> DO {n_b} = 1.5\n"
+                f"- If {n_c} has high loss and parents are {n_a},{n_b}: "
+                f"intervene on the parent that decorrelates them. "
+                f"-> DO {n_a} = -2.0\n"
+            )
 
         prompt = (
             f"{loss_ranking}"
@@ -1967,6 +1991,12 @@ def main():
     # Large-scale SCM
     parser.add_argument("--large_scale", type=int, default=None,
                         help="Use a large-scale hierarchical SCM with N nodes instead of the 5-node default")
+    parser.add_argument("--anonymize_nodes", action="store_true",
+                        help="(Use with --large_scale) Replace canonical node names "
+                             "X1..XN with abstract hex tokens (n_xxxx). Tests whether "
+                             "the LM's natural-language prior is exploiting node-name "
+                             "semantics; under anonymisation the LM has only structure "
+                             "and losses to reason from, isolating DPO's contribution.")
 
     args = parser.parse_args()
     
@@ -2097,7 +2127,13 @@ def main():
     print("[STARTUP] Creating ground truth SCM...", flush=True)
     if args.large_scale:
         from experiments.large_scale_scm import LargeScaleSCM as _LSCM
-        _lscm = _LSCM(args.large_scale)
+        # Build SCM. With --anonymize_nodes, node names are mapped to abstract
+        # hex tokens (n_xxxx) so the LM has no semantic prior to lean on; this
+        # isolates the contribution of DPO fine-tuning beyond the LM's natural-
+        # language prior. Anonymisation seed is deterministic from --seed.
+        _lscm = _LSCM(args.large_scale,
+                      anonymize=getattr(args, "anonymize_nodes", False),
+                      anonymize_seed=args.seed if args.seed else 42)
         _edges = []
         for node, parents in _lscm.graph.items():
             for p in parents:
