@@ -22,6 +22,10 @@
 #   git pull   # ensure latest --anonymize_nodes flag and 50-node SCM support
 #   bash jobs/curc_submit_30node_followup.sh
 #
+# If Phase 1 (anon30) already submitted successfully and only Phase 2 failed,
+# git pull this fix then run the same script with Phase 1 loops commented out,
+# or paste the Phase 2 sbatch block from the file after line "Phase 2".
+#
 # Output structure:
 #   results/curc_30node_followup/
 #     anon30/{ace,zero_shot_lm}/seed_{seed}/job_{jobid}/
@@ -89,6 +93,9 @@ done
 # Phase 2: nodes50 (50-node SCM, canonical names)
 #   ACE: 12h GPU, 120 episodes (longer per-episode at 50 nodes)
 #   Zero-shot LM: 10h GPU, 40 episodes
+#
+# Memory: CURC aa100 rejects --mem=80G for 1 GPU (81920 MiB > 80640 MiB cap).
+# Use 78G (79872 MiB) to stay under the per-GPU RAM limit.
 # -----------------------------------------------------------------------------
 echo ""
 echo ">>> Phase 2: nodes50 (50-node SCM, canonical names) <<<"
@@ -97,7 +104,7 @@ for SEED in $SEEDS; do
         --job-name="ace_n50_s${SEED}" \
         --partition=aa100 --qos=normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
-        --cpus-per-task=8 --mem=80G \
+        --cpus-per-task=8 --mem=78G \
         --time=12:00:00 \
         --output="$OUT/logs/ace_nodes50_seed${SEED}_%j.out" \
         --error="$OUT/logs/ace_nodes50_seed${SEED}_%j.err" \
@@ -111,7 +118,7 @@ for SEED in $SEEDS; do
         --job-name="zsl_n50_s${SEED}" \
         --partition=aa100 --qos=normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
-        --cpus-per-task=8 --mem=80G \
+        --cpus-per-task=8 --mem=78G \
         --time=10:00:00 \
         --output="$OUT/logs/zsl_nodes50_seed${SEED}_%j.out" \
         --error="$OUT/logs/zsl_nodes50_seed${SEED}_%j.err" \
