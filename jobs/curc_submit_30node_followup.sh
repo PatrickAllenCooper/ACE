@@ -23,8 +23,8 @@
 #   bash jobs/curc_submit_30node_followup.sh
 #
 # If Phase 1 (anon30) already submitted successfully and only Phase 2 failed,
-# git pull this fix then run the same script with Phase 1 loops commented out,
-# or paste the Phase 2 sbatch block from the file after line "Phase 2".
+# git pull the mem fix then run:
+#   bash jobs/curc_submit_30node_followup_phase2_only.sh
 #
 # Output structure:
 #   results/curc_30node_followup/
