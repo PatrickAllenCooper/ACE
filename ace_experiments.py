@@ -409,15 +409,35 @@ class TransformerPolicy(nn.Module):
          return " ".join(clean)
 
 class HuggingFacePolicy(nn.Module):
-    def __init__(self, model_name, dsl, device, token=None):
+    def __init__(self, model_name, dsl, device, token=None,
+                 gradient_checkpointing=False, dtype=None):
         super().__init__()
         self.dsl = dsl
         self.device = device
         logging.info(f"Loading LLM: {model_name}...")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, token=token).to(device)
+        # dtype: None preserves the legacy float32 path used by the 5/15/30-node
+        # runs the paper is anchored to. For 50-node runs the activations from
+        # the longer prompt overflow a 40 GB A100; pass torch.bfloat16 to halve
+        # parameter+activation memory.
+        load_kwargs = {"token": token}
+        if dtype is not None:
+            load_kwargs["torch_dtype"] = dtype
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_name, **load_kwargs).to(device)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
+        # Gradient checkpointing trades ~30-50% extra forward cost for ~50%
+        # less peak memory; only enabled when explicitly requested (large_scale
+        # path) so it does not regress the 5/15/30-node baselines.
+        if gradient_checkpointing:
+            try:
+                self.model.gradient_checkpointing_enable()
+                if hasattr(self.model, "config"):
+                    self.model.config.use_cache = False
+                logging.info("Enabled gradient checkpointing on policy LM")
+            except Exception as e:
+                logging.warning(f"Could not enable gradient checkpointing: {e}")
         
         # Track generation statistics for diagnostics
         self.generation_stats = Counter()
@@ -2143,11 +2163,19 @@ def main():
         for node, parents in _lscm.graph.items():
             _ls_coeffs[node] = {p: float(np.random.uniform(0.3, 0.7)) for p in parents}
 
+        # Stable canonical-position index for every node, so the per-5th-node
+        # nonlinearity rule keeps working under --anonymize_nodes (where node
+        # names are 'n_xxxx' instead of 'X1'..'XN').
+        _ls_node_idx = dict(getattr(_lscm, "node_idx", {}))
+        if not _ls_node_idx:
+            _ls_node_idx = {name: i + 1 for i, name in enumerate(_lscm.nodes)}
+
         class _LargeGroundTruthSCM(CausalModel):
-            def __init__(self, edges, coeffs, noise_std=0.15):
+            def __init__(self, edges, coeffs, node_idx, noise_std=0.15):
                 super().__init__(edges)
                 self._coeffs = coeffs
                 self._noise_std = noise_std
+                self._node_idx = node_idx
             def mechanisms(self, data, node, n_samples=1):
                 n = next(iter(data.values())).shape[0] if data else n_samples
                 noise = torch.randn(n) * self._noise_std
@@ -2157,7 +2185,7 @@ def main():
                 value = torch.zeros(n)
                 for p in parents:
                     value = value + self._coeffs[node][p] * data[p]
-                node_num = int(node[1:])
+                node_num = self._node_idx.get(node, 0)
                 if node_num % 5 == 0:
                     value = value + 0.2 * torch.sin(value)
                 return value + noise
@@ -2172,7 +2200,7 @@ def main():
                         p_data = {p: data[p] for p in parents}
                         data[node] = self.mechanisms(p_data, node, n_samples=n_samples)
                 return data
-        M_star = _LargeGroundTruthSCM(_edges, _ls_coeffs)
+        M_star = _LargeGroundTruthSCM(_edges, _ls_coeffs, _ls_node_idx)
         print(f"[STARTUP] Large-scale SCM: {args.large_scale} nodes, {len(_edges)} edges", flush=True)
     else:
         M_star = GroundTruthSCM()
@@ -2216,8 +2244,24 @@ def main():
     if use_pretrained:
         print("[STARTUP] Loading HuggingFace model (this may take 2-5 minutes)...", flush=True)
         hf_token = args.token or os.getenv("HF_TOKEN")
+        # At 30+ nodes the DPO loss does 4 forward passes through Qwen with a
+        # long prompt; on a 40 GB GPU this OOMs. Enable gradient checkpointing
+        # whenever we're running large_scale, regardless of which GPU we land
+        # on (trades ~30-50% extra compute for ~50% less peak memory).
+        # Memory tuning at scale.
+        # gc_flag: gradient checkpointing during DPO (only if not --no_dpo).
+        # dtype:   bfloat16 only at >=50 nodes, where the prompt is long enough
+        #          to OOM a 40 GB A100 with full-precision activations. This
+        #          preserves the float32 numerics of the 5/15/30-node runs the
+        #          paper is anchored to.
+        gc_flag = bool(getattr(args, "large_scale", None)) and not getattr(args, "no_dpo", False)
+        ls = getattr(args, "large_scale", None) or 0
+        policy_dtype = torch.bfloat16 if ls >= 50 else None
         try:
-            policy_net = HuggingFacePolicy(args.model, dsl, device, token=hf_token)
+            policy_net = HuggingFacePolicy(args.model, dsl, device,
+                                           token=hf_token,
+                                           gradient_checkpointing=gc_flag,
+                                           dtype=policy_dtype)
             print("[STARTUP] HuggingFace model loaded successfully", flush=True)
         except Exception as e:
             print(f"[ERROR] Failed to load HuggingFace model: {e}", flush=True)
