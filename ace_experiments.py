@@ -420,9 +420,16 @@ class HuggingFacePolicy(nn.Module):
         # runs the paper is anchored to. For 50-node runs the activations from
         # the longer prompt overflow a 40 GB A100; pass torch.bfloat16 to halve
         # parameter+activation memory.
+        # `torch_dtype=` was deprecated in newer transformers in favour of
+        # `dtype=`; use whichever the installed version accepts.
         load_kwargs = {"token": token}
         if dtype is not None:
-            load_kwargs["torch_dtype"] = dtype
+            try:
+                import inspect as _inspect
+                _sig = _inspect.signature(AutoModelForCausalLM.from_pretrained)
+                load_kwargs["dtype" if "dtype" in _sig.parameters else "torch_dtype"] = dtype
+            except Exception:
+                load_kwargs["dtype"] = dtype
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name, **load_kwargs).to(device)
         if self.tokenizer.pad_token is None:
@@ -430,12 +437,23 @@ class HuggingFacePolicy(nn.Module):
         # Gradient checkpointing trades ~30-50% extra forward cost for ~50%
         # less peak memory; only enabled when explicitly requested (large_scale
         # path) so it does not regress the 5/15/30-node baselines.
+        #
+        # CRITICAL: with token-id integer inputs the activations leaving the
+        # checkpointed block can lose requires_grad, which silently zeroes
+        # the DPO gradient (the May 2026 a30r batch hit exactly this:
+        # "DPO loss near random chance (0.693)" plus
+        # "None of the inputs have requires_grad=True"). enable_input_require_grads
+        # registers a forward hook on the embedding so the activation between
+        # embedding and the first checkpointed decoder layer carries grad,
+        # restoring backprop through the checkpointed blocks.
         if gradient_checkpointing:
             try:
                 self.model.gradient_checkpointing_enable()
                 if hasattr(self.model, "config"):
                     self.model.config.use_cache = False
-                logging.info("Enabled gradient checkpointing on policy LM")
+                if hasattr(self.model, "enable_input_require_grads"):
+                    self.model.enable_input_require_grads()
+                logging.info("Enabled gradient checkpointing + input_require_grads on policy LM")
             except Exception as e:
                 logging.warning(f"Could not enable gradient checkpointing: {e}")
         
@@ -2248,14 +2266,17 @@ def main():
         # long prompt; on a 40 GB GPU this OOMs. Enable gradient checkpointing
         # whenever we're running large_scale, regardless of which GPU we land
         # on (trades ~30-50% extra compute for ~50% less peak memory).
-        # Memory tuning at scale.
-        # gc_flag: gradient checkpointing during DPO (only if not --no_dpo).
-        # dtype:   bfloat16 only at >=50 nodes, where the prompt is long enough
-        #          to OOM a 40 GB A100 with full-precision activations. This
-        #          preserves the float32 numerics of the 5/15/30-node runs the
-        #          paper is anchored to.
-        gc_flag = bool(getattr(args, "large_scale", None)) and not getattr(args, "no_dpo", False)
+        # Memory tuning at scale. Both knobs are ONLY for the 50+ node setting:
+        # gc_flag: gradient checkpointing during DPO updates (saves ~50% peak
+        #          memory at ~30-50% extra compute; needed to avoid 40 GB A100
+        #          OOM during the 4 forward passes of dpo_loss_llm at 50 nodes).
+        # dtype:   bfloat16 weights+activations (halves both).
+        # At 30 nodes neither is required and enabling them would regress the
+        # paper's anchor numbers; the May 2026 ace_a30r batch silently broke
+        # DPO learning because checkpointing was on at 30 nodes without
+        # enable_input_require_grads. Hard-gate on >= 50 nodes.
         ls = getattr(args, "large_scale", None) or 0
+        gc_flag = ls >= 50 and not getattr(args, "no_dpo", False)
         policy_dtype = torch.bfloat16 if ls >= 50 else None
         try:
             policy_net = HuggingFacePolicy(args.model, dsl, device,
