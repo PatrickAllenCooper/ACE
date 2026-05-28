@@ -55,12 +55,22 @@ case "$CONDITION" in
         ;;
 esac
 
-# zero_shot_lm caps at fewer episodes to fit the 8h wall time.
+# Episode budget: zero_shot_lm caps at 40 (fixed policy converges fast).
+# ACE caps at 120 by default, but at 50 nodes the working-DPO double-forward
+# costs ~57 min/episode (verified May 26 ace_n50c_s42), so 120 episodes is
+# infeasible inside CURC's 24h wall-time cap. Honour an override env var
+# EPISODES_ACE if present, else use a per-condition default.
 if [ "$METHOD" = "zero_shot_lm" ]; then
-    EPISODES=40
+    EPISODES=${EPISODES_ZSL:-40}
     NO_DPO_FLAG="--no_dpo"
 else
-    EPISODES=120
+    if [ -n "${EPISODES_ACE:-}" ]; then
+        EPISODES="$EPISODES_ACE"
+    elif [ "$CONDITION" = "nodes50" ]; then
+        EPISODES=30
+    else
+        EPISODES=120
+    fi
     NO_DPO_FLAG=""
 fi
 

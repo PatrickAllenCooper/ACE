@@ -2266,17 +2266,29 @@ def main():
         # long prompt; on a 40 GB GPU this OOMs. Enable gradient checkpointing
         # whenever we're running large_scale, regardless of which GPU we land
         # on (trades ~30-50% extra compute for ~50% less peak memory).
-        # Memory tuning at scale. Both knobs are ONLY for the 50+ node setting:
-        # gc_flag: gradient checkpointing during DPO updates (saves ~50% peak
-        #          memory at ~30-50% extra compute; needed to avoid 40 GB A100
-        #          OOM during the 4 forward passes of dpo_loss_llm at 50 nodes).
-        # dtype:   bfloat16 weights+activations (halves both).
-        # At 30 nodes neither is required and enabling them would regress the
-        # paper's anchor numbers; the May 2026 ace_a30r batch silently broke
-        # DPO learning because checkpointing was on at 30 nodes without
-        # enable_input_require_grads. Hard-gate on >= 50 nodes.
+        # Memory tuning at scale. Two orthogonal knobs:
+        # - gc_flag (gradient checkpointing): saves ~50% peak memory at ~30-50%
+        #   extra compute. Required whenever the DPO double-forward overflows
+        #   a 40 GB A100. Empirically this happens at:
+        #     * --large_scale >= 50 (long prompts from many node names)
+        #     * --large_scale >= 30 with --anonymize_nodes (each n_xxxx is 3x
+        #       longer than X1..XN, so 30-node anon prompts hit the same
+        #       OOM ceiling as canonical 50-node prompts).
+        #   Canonical 5/15/30-node ACE (no anonymisation) does NOT need
+        #   checkpointing and stays on the paper-anchor float32 path.
+        # - policy_dtype (bf16): halves params+activations, reserved for >= 50
+        #   nodes where even checkpointing alone is borderline.
+        #
+        # CRITICAL: HuggingFacePolicy enables enable_input_require_grads()
+        # whenever gc_flag is True. Without it autograd silently zeroes the
+        # gradient through checkpointed decoder layers, and the resulting
+        # "DPO loss near random chance (0.693)" trains only embedding+lm_head
+        # which corrupts the LM (this caused the May 23 partial-training
+        # disaster).
         ls = getattr(args, "large_scale", None) or 0
-        gc_flag = ls >= 50 and not getattr(args, "no_dpo", False)
+        anon = bool(getattr(args, "anonymize_nodes", False))
+        no_dpo = getattr(args, "no_dpo", False)
+        gc_flag = (ls >= 50 or (ls >= 30 and anon)) and not no_dpo
         policy_dtype = torch.bfloat16 if ls >= 50 else None
         try:
             policy_net = HuggingFacePolicy(args.model, dsl, device,

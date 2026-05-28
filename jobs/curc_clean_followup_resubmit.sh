@@ -11,12 +11,14 @@
 #
 # Total: 11 jobs.
 #
-# Wall times tuned to the May 23 evidence:
-#   - anon30 ACE 8h was insufficient (only 11 ep finished). With the fix
-#     (no checkpointing at 30-node), expect ~6-8h for 120 ep -> 14h cap.
-#   - nodes50 ACE: COMPLETED s42 ran 11:10 with broken-DPO checkpointing+fp32.
-#     With clean DPO (no extra cost) + bf16 (~30% faster) + checkpointing,
-#     expect ~10-12h for 120 ep -> 20h cap.
+# Wall times tuned to May 26 evidence:
+#   - anon30 ACE: longer (n_xxxx) prompts force gradient checkpointing on at
+#     30 nodes too (40 GB A100 OOMs without it). Checkpointing adds ~50%
+#     compute -> 14h was insufficient. Bumped to 22h.
+#   - nodes50 ACE: working DPO ran ~57 min/episode (vs broken DPO's 5.5
+#     min/ep that wasn't actually training). 120 episodes is infeasible at
+#     CURC's 24h cap. Reduced to 30 episodes (still gives a clear best/final
+#     read) at 20h.
 #   - anon30 ZSL s456: 8h was insufficient last time -> 10h cap.
 #
 # Usage (after `git pull` on CURC):
@@ -52,14 +54,14 @@ echo "================================================================"
 # canonical 30-node ACE configuration the paper is anchored to.
 # -----------------------------------------------------------------------------
 echo ""
-echo ">>> anon30 ACE (5 jobs, 14h) <<<"
+echo ">>> anon30 ACE (5 jobs, 22h) <<<"
 for SEED in $SEEDS_ALL; do
     JOB=$(sbatch --parsable \
         --job-name="ace_a30c_s${SEED}" \
         --partition=aa100 --qos=normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=64G \
-        --time=14:00:00 \
+        --time=22:00:00 \
         --output="$OUT/logs/ace_anon30_clean_seed${SEED}_%j.out" \
         --error="$OUT/logs/ace_anon30_clean_seed${SEED}_%j.err" \
         --export=ALL,CONDITION=anon30,METHOD=ace,SEED=$SEED,OUT=$OUT \
