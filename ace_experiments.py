@@ -440,20 +440,33 @@ class HuggingFacePolicy(nn.Module):
         #
         # CRITICAL: with token-id integer inputs the activations leaving the
         # checkpointed block can lose requires_grad, which silently zeroes
-        # the DPO gradient (the May 2026 a30r batch hit exactly this:
+        # the DPO gradient (the May 2026 a30r/a30d batches hit exactly this:
         # "DPO loss near random chance (0.693)" plus
-        # "None of the inputs have requires_grad=True"). enable_input_require_grads
-        # registers a forward hook on the embedding so the activation between
-        # embedding and the first checkpointed decoder layer carries grad,
-        # restoring backprop through the checkpointed blocks.
+        # "None of the inputs have requires_grad=True. Gradients will be None").
+        #
+        # The default REENTRANT checkpoint (use_reentrant=True) inspects the
+        # tensor args it directly receives; enable_input_require_grads() alone
+        # does NOT fix it (verified: the a30d batch still emitted the warning).
+        # The robust fix is NON-REENTRANT checkpointing (use_reentrant=False),
+        # which uses saved-tensor hooks and propagates gradients correctly even
+        # when the leaf inputs are integer token IDs. We also keep
+        # enable_input_require_grads() as a belt-and-braces measure.
         if gradient_checkpointing:
             try:
-                self.model.gradient_checkpointing_enable()
+                try:
+                    self.model.gradient_checkpointing_enable(
+                        gradient_checkpointing_kwargs={"use_reentrant": False})
+                    _gc_mode = "non-reentrant"
+                except TypeError:
+                    # Older transformers without gradient_checkpointing_kwargs.
+                    self.model.gradient_checkpointing_enable()
+                    _gc_mode = "reentrant (legacy API)"
                 if hasattr(self.model, "config"):
                     self.model.config.use_cache = False
                 if hasattr(self.model, "enable_input_require_grads"):
                     self.model.enable_input_require_grads()
-                logging.info("Enabled gradient checkpointing + input_require_grads on policy LM")
+                logging.info(f"Enabled gradient checkpointing ({_gc_mode}) "
+                             f"+ input_require_grads on policy LM")
             except Exception as e:
                 logging.warning(f"Could not enable gradient checkpointing: {e}")
         
