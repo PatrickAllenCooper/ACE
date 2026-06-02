@@ -410,10 +410,22 @@ class TransformerPolicy(nn.Module):
 
 class HuggingFacePolicy(nn.Module):
     def __init__(self, model_name, dsl, device, token=None,
-                 gradient_checkpointing=False, dtype=None):
+                 gradient_checkpointing=False, dtype=None,
+                 prompt_strategy="full", prompt_top_m=8):
         super().__init__()
         self.dsl = dsl
         self.device = device
+        # Prompt-encoding strategy. "full" dumps every node + every edge (the
+        # paper-anchor behaviour, O(N+E+H) prompt length). "compact" surfaces
+        # only the top-`prompt_top_m` highest-loss nodes and their parents,
+        # which keeps prompt length ~O(prompt_top_m) and is the enabler for
+        # scaling beyond ~50 nodes where the full encoding becomes the binding
+        # cost (Section "Scaling" in the paper).
+        self.prompt_strategy = prompt_strategy
+        self.prompt_top_m = int(prompt_top_m)
+        # Rolling record of tokenised prompt lengths for scaling diagnostics
+        # (mean/max written to metrics.csv at run end).
+        self.prompt_token_lengths = deque(maxlen=4000)
         logging.info(f"Loading LLM: {model_name}...")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
         # dtype: None preserves the legacy float32 path used by the 5/15/30-node
@@ -487,9 +499,6 @@ class HuggingFacePolicy(nn.Module):
         3. Provides reasoning examples
         4. Ends with the target node decision point, not "DO"
         """
-        edges = [f"{u}->{v}" for u, v in scm.graph.edges]
-        edge_str = ", ".join(edges)
-        
         # Identify the failing node (highest loss, excluding roots)
         failing_node = None
         max_loss = 0.0
@@ -503,14 +512,42 @@ class HuggingFacePolicy(nn.Module):
                         max_loss = loss
                         failing_node = node
                         parent_nodes = set(parents)
-        
+
+        # ---- Salience-ranked context selection -----------------------------
+        # In "compact" mode the prompt only surfaces the top-m highest-loss
+        # non-root nodes plus their parents (the nodes worth reasoning about
+        # right now), so prompt length stays ~O(prompt_top_m) instead of
+        # O(N+E). In "full" mode every node and edge is surfaced (paper anchor).
+        compact = (self.prompt_strategy == "compact" and bool(node_losses))
+        if compact:
+            ranked = sorted(
+                [(n, node_losses.get(n, 0.0)) for n in scm.nodes
+                 if list(scm.graph.predecessors(n))],
+                key=lambda x: x[1], reverse=True,
+            )
+            top_nodes = [n for n, _ in ranked[: self.prompt_top_m]]
+            salient = set(top_nodes)
+            for n in top_nodes:
+                salient.update(scm.graph.predecessors(n))
+            edges = [f"{u}->{v}" for u, v in scm.graph.edges if v in salient]
+            # Intervention candidates: parents of the surfaced failing nodes.
+            target_pool = sorted({p for n in top_nodes
+                                  for p in scm.graph.predecessors(n)})
+            hist_nodes = sorted(salient)
+            valid_nodes = ", ".join(target_pool) if target_pool else ", ".join(top_nodes)
+        else:
+            edges = [f"{u}->{v}" for u, v in scm.graph.edges]
+            hist_nodes = list(scm.nodes)
+            valid_nodes = ", ".join(scm.nodes)
+        edge_str = ", ".join(edges)
+
         # Build intervention history summary
         hist_str = ""
         if intervention_history:
             hist_counts = Counter(intervention_history[-100:])  # Last 100
             total = sum(hist_counts.values())
             if total > 0:
-                hist_parts = [f"{n}:{hist_counts.get(n,0)}/{total}" for n in scm.nodes]
+                hist_parts = [f"{n}:{hist_counts.get(n,0)}/{total}" for n in hist_nodes]
                 hist_str = f"Recent interventions: [{', '.join(hist_parts)}]. "
                 # Identify over-sampled node
                 most_common = hist_counts.most_common(1)
@@ -532,9 +569,6 @@ class HuggingFacePolicy(nn.Module):
                 loss_ranking = f"PROBLEM: Node losses (high=bad): {', '.join(loss_parts)}. "
                 if failing_node and parent_nodes:
                     loss_ranking += f"To fix {failing_node}, intervene on its parents: {', '.join(sorted(parent_nodes))}. "
-        
-        # Construct the NEW prompt - problem-first, action-oriented
-        valid_nodes = ", ".join(scm.nodes)
 
         # FEW-SHOT EXAMPLES. The hard-coded X1/X2/X3 names match the canonical
         # 5-node setup; on a graph where node names don't include "X1..X3"
@@ -593,6 +627,11 @@ Examples of good reasoning:
             scm_student, node_losses=node_losses, intervention_history=intervention_history
         )
         inputs = self.tokenizer(prompt_text, return_tensors="pt").to(self.device)
+        # Scaling diagnostic: record tokenised prompt length.
+        try:
+            self.prompt_token_lengths.append(int(inputs.input_ids.shape[1]))
+        except Exception:
+            pass
         
         with torch.no_grad():
             outputs = self.model.generate(
@@ -2049,6 +2088,19 @@ def main():
                              "semantics; under anonymisation the LM has only structure "
                              "and losses to reason from, isolating DPO's contribution.")
 
+    # Prompt-encoding strategy (scaling enabler). "full" surfaces every node +
+    # edge (paper anchor, prompt length ~O(N+E+H)); "compact" surfaces only the
+    # top --prompt_top_m highest-loss nodes and their parents (~O(prompt_top_m)),
+    # which is the binding-cost fix for scaling beyond ~50 nodes.
+    parser.add_argument("--prompt_strategy", type=str, default="full",
+                        choices=["full", "compact"],
+                        help="LM prompt encoding: 'full' lists all nodes/edges, "
+                             "'compact' lists only the top --prompt_top_m highest-loss "
+                             "nodes and their parents (scaling enabler).")
+    parser.add_argument("--prompt_top_m", type=int, default=8,
+                        help="(compact strategy) number of highest-loss nodes to "
+                             "surface in the prompt, plus their parents.")
+
     args = parser.parse_args()
     
     # ============================================================================
@@ -2307,7 +2359,9 @@ def main():
             policy_net = HuggingFacePolicy(args.model, dsl, device,
                                            token=hf_token,
                                            gradient_checkpointing=gc_flag,
-                                           dtype=policy_dtype)
+                                           dtype=policy_dtype,
+                                           prompt_strategy=getattr(args, "prompt_strategy", "full"),
+                                           prompt_top_m=getattr(args, "prompt_top_m", 8))
             print("[STARTUP] HuggingFace model loaded successfully", flush=True)
         except Exception as e:
             print(f"[ERROR] Failed to load HuggingFace model: {e}", flush=True)
@@ -3304,7 +3358,25 @@ def main():
         logging.info(f"Final eval parse success: {n_parsed}/{n_eval} ({(n_parsed / max(n_eval, 1)):.0%})")
     
     save_plots(run_dir, loss_history, reward_history, eval_targets, eval_values, dsl.nodes)
-    
+
+    # Scaling diagnostics: prompt token footprint, peak VRAM, node count.
+    # These let the scaling analysis quantify the binding cost (prompt length)
+    # and verify that compact encoding actually shrinks it.
+    _ptl = list(getattr(policy_net, "prompt_token_lengths", []) or [])
+    prompt_tokens_mean = (sum(_ptl) / len(_ptl)) if _ptl else 0.0
+    prompt_tokens_max = max(_ptl) if _ptl else 0
+    try:
+        peak_vram_gb = (torch.cuda.max_memory_allocated() / 1e9
+                        if torch.cuda.is_available() else 0.0)
+    except Exception:
+        peak_vram_gb = 0.0
+    n_nodes_run = len(getattr(dsl, "nodes", []) or [])
+    logging.info(
+        f"[SCALING] n_nodes={n_nodes_run} prompt_strategy={getattr(args, 'prompt_strategy', 'full')} "
+        f"prompt_tokens(mean/max)={prompt_tokens_mean:.0f}/{prompt_tokens_max} "
+        f"peak_vram={peak_vram_gb:.2f}GB"
+    )
+
     # Save Metrics
     df = pd.DataFrame({
         "dpo_loss": loss_history,
@@ -3325,6 +3397,11 @@ def main():
         "train_steps_with_any_valid_candidate": [train_steps_with_any_valid] * len(loss_history),
         "train_steps_teacher_fallback": [train_steps_teacher_fallback] * len(loss_history),
         "train_teacher_fallback_rate": [(train_steps_teacher_fallback / max(train_steps_total, 1))] * len(loss_history),
+        "n_nodes": [n_nodes_run] * len(loss_history),
+        "prompt_strategy": [getattr(args, "prompt_strategy", "full")] * len(loss_history),
+        "prompt_tokens_mean": [prompt_tokens_mean] * len(loss_history),
+        "prompt_tokens_max": [prompt_tokens_max] * len(loss_history),
+        "peak_vram_gb": [peak_vram_gb] * len(loss_history),
     })
     
     # NEW: Calculate and log collapse statistics

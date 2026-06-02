@@ -51,10 +51,19 @@ def latest_node_losses(seed_dir: str):
 
 
 def summarize(nl_path: str):
-    """Compute (best_mse, final_mse, n_episodes) from a node_losses.csv."""
+    """Compute summary stats from a node_losses.csv.
+
+    Returns a dict with best/final total MSE, the *per-node* equivalents
+    (scale-invariant for cross-N comparison), the node count, and the episode
+    at which best-MSE was first reached (convergence evidence for the prose
+    caveat).
+    """
     df = pd.read_csv(nl_path)
     if "episode" not in df.columns or "total_loss" not in df.columns:
         return None
+    # n_nodes inferred from the per-node loss columns (robust to canonical
+    # X1..XN names and anonymised n_xxxx tokens alike).
+    n_nodes = sum(1 for c in df.columns if c.startswith("loss_"))
     per_ep = (df.groupby("episode")["total_loss"].last()
                 .reset_index()
                 .sort_values("episode"))
@@ -63,7 +72,16 @@ def summarize(nl_path: str):
     best = float(per_ep["total_loss"].min())
     final = float(per_ep["total_loss"].iloc[-1])
     n_ep = int(per_ep["episode"].nunique())
-    return best, final, n_ep
+    # Episode at which the running best-MSE was first achieved (a fair, honest
+    # convergence indicator even when a run was wall-time truncated).
+    best_ep = int(per_ep.loc[per_ep["total_loss"].idxmin(), "episode"])
+    per_node = (best / n_nodes) if n_nodes else float("nan")
+    per_node_final = (final / n_nodes) if n_nodes else float("nan")
+    return {
+        "best": best, "final": final, "n_ep": n_ep,
+        "n_nodes": n_nodes, "best_episode": best_ep,
+        "per_node_best": per_node, "per_node_final": per_node_final,
+    }
 
 
 def main():
@@ -91,9 +109,9 @@ def main():
                     rows.append({
                         "condition": cond, "method": method, "seed": seed,
                         "node_losses_csv": "",
-                        "n_episodes": 0,
-                        "best_mse": "",
-                        "final_mse": "",
+                        "n_episodes": 0, "n_nodes": 0, "best_episode": "",
+                        "best_mse": "", "final_mse": "",
+                        "best_mse_per_node": "", "final_mse_per_node": "",
                         "status": "missing",
                     })
                     continue
@@ -102,24 +120,29 @@ def main():
                     rows.append({
                         "condition": cond, "method": method, "seed": seed,
                         "node_losses_csv": nl,
-                        "n_episodes": 0,
-                        "best_mse": "",
-                        "final_mse": "",
+                        "n_episodes": 0, "n_nodes": 0, "best_episode": "",
+                        "best_mse": "", "final_mse": "",
+                        "best_mse_per_node": "", "final_mse_per_node": "",
                         "status": "empty_or_malformed",
                     })
                     continue
-                best, final, n_ep = summ
                 rows.append({
                     "condition": cond, "method": method, "seed": seed,
                     "node_losses_csv": nl,
-                    "n_episodes": n_ep,
-                    "best_mse": f"{best:.6f}",
-                    "final_mse": f"{final:.6f}",
+                    "n_episodes": summ["n_ep"],
+                    "n_nodes": summ["n_nodes"],
+                    "best_episode": summ["best_episode"],
+                    "best_mse": f"{summ['best']:.6f}",
+                    "final_mse": f"{summ['final']:.6f}",
+                    "best_mse_per_node": f"{summ['per_node_best']:.6f}",
+                    "final_mse_per_node": f"{summ['per_node_final']:.6f}",
                     "status": "ok",
                 })
 
-    fieldnames = ["condition", "method", "seed", "n_episodes",
-                  "best_mse", "final_mse", "status", "node_losses_csv"]
+    fieldnames = ["condition", "method", "seed", "n_episodes", "n_nodes",
+                  "best_episode", "best_mse", "final_mse",
+                  "best_mse_per_node", "final_mse_per_node",
+                  "status", "node_losses_csv"]
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
@@ -129,20 +152,23 @@ def main():
 
     print(f"Wrote {out} ({len(rows)} rows)\n")
 
-    print(f"{'condition':<8} {'method':<14} {'seed':>5} {'n_ep':>5} "
-          f"{'best_mse':>10} {'final_mse':>10}  status")
-    print("-" * 80)
+    print(f"{'condition':<8} {'method':<14} {'seed':>5} {'n_ep':>5} {'nN':>4} "
+          f"{'bestEp':>6} {'best_mse':>10} {'final_mse':>10} {'best/node':>10}  status")
+    print("-" * 92)
     for row in rows:
         print(f"{row['condition']:<8} {row['method']:<14} "
-              f"{row['seed']:>5} {row['n_episodes']:>5} "
-              f"{row['best_mse']:>10} {row['final_mse']:>10}  {row['status']}")
+              f"{row['seed']:>5} {row['n_episodes']:>5} {row.get('n_nodes', 0):>4} "
+              f"{str(row.get('best_episode', '')):>6} "
+              f"{row['best_mse']:>10} {row['final_mse']:>10} "
+              f"{row.get('best_mse_per_node', ''):>10}  {row['status']}")
 
     print("\nPer-cell aggregate (mean ± std over seeds with status='ok'):")
     print(f"{'condition':<8} {'method':<14} {'N':>3} "
           f"{'best_mean':>10} {'best_std':>10} "
-          f"{'final_mean':>11} {'final_std':>10} "
-          f"{'n_ep_mean':>10}")
-    print("-" * 80)
+          f"{'pernode_mean':>13} "
+          f"{'n_ep_mean':>10} {'bestEp_mean':>11}")
+    print("-" * 92)
+    import statistics as st
     for cond in CONDITIONS:
         for method in METHODS:
             cell = [r for r in rows
@@ -153,16 +179,19 @@ def main():
                 print(f"{cond:<8} {method:<14} {0:>3}  (no usable data)")
                 continue
             bests = [float(r["best_mse"]) for r in cell]
-            finals = [float(r["final_mse"]) for r in cell]
+            per_nodes = [float(r["best_mse_per_node"]) for r in cell
+                         if r.get("best_mse_per_node") not in ("", None)]
             n_eps = [int(r["n_episodes"]) for r in cell]
-            import statistics as st
+            best_eps = [int(r["best_episode"]) for r in cell
+                        if str(r.get("best_episode", "")).strip() != ""]
             bm, bs = st.mean(bests), (st.stdev(bests) if n > 1 else 0.0)
-            fm, fs = st.mean(finals), (st.stdev(finals) if n > 1 else 0.0)
+            pnm = st.mean(per_nodes) if per_nodes else float("nan")
             em = st.mean(n_eps)
+            bem = st.mean(best_eps) if best_eps else float("nan")
             print(f"{cond:<8} {method:<14} {n:>3} "
                   f"{bm:>10.4f} {bs:>10.4f} "
-                  f"{fm:>11.4f} {fs:>10.4f} "
-                  f"{em:>10.1f}")
+                  f"{pnm:>13.4f} "
+                  f"{em:>10.1f} {bem:>11.1f}")
 
 
 if __name__ == "__main__":
