@@ -74,7 +74,15 @@ else
     NO_DPO_FLAG=""
 fi
 
-OUT_DIR="$OUT/${CONDITION}/${METHOD}/seed_${SEED}/job_${JOB_TAG}"
+# By default each job lands in its own job_<id> dir (fresh start). Set
+# STABLE_DIR=1 to drop the job-id suffix so ace_experiments.py resumes from the
+# prior run_* checkpoint on resubmission (used by the anon30 ACE convergence
+# rerun, which needs several wall-time windows to reach its best-MSE plateau).
+if [ "${STABLE_DIR:-0}" = "1" ]; then
+    OUT_DIR="$OUT/${CONDITION}/${METHOD}/seed_${SEED}"
+else
+    OUT_DIR="$OUT/${CONDITION}/${METHOD}/seed_${SEED}/job_${JOB_TAG}"
+fi
 mkdir -p "$OUT_DIR"
 
 python -u ace_experiments.py \

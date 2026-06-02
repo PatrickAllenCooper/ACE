@@ -171,6 +171,11 @@ def main():
                         choices=["random", "round_robin", "max_variance",
                                  "ppo", "bayesian_oed"])
     parser.add_argument("--seed", type=int, required=True)
+    parser.add_argument("--n_nodes", type=int, default=30,
+                        help="LargeScaleSCM size. Supports the consistent "
+                             "hierarchical family (>=10, e.g. 15/30/50) used "
+                             "for the scaling sweep; N=5 is the bespoke "
+                             "diagnostic SCM handled elsewhere.")
     parser.add_argument("--episodes", type=int, default=150)
     parser.add_argument("--steps", type=int, default=25)
     parser.add_argument("--obs_train_interval", type=int, default=3)
@@ -196,12 +201,12 @@ def main():
         ],
     )
 
-    logging.info(f"30-node baseline: method={args.method} seed={args.seed} "
-                 f"episodes={args.episodes}")
+    logging.info(f"{args.n_nodes}-node baseline: method={args.method} "
+                 f"seed={args.seed} episodes={args.episodes}")
     t0 = time.time()
 
     # Build SCM (graph wiring is seed-controlled by the np.random.seed above)
-    scm = LargeScaleSCM(30)
+    scm = LargeScaleSCM(args.n_nodes)
     nodes = scm.nodes
     logging.info(f"  SCM: {len(nodes)} nodes, "
                  f"{sum(len(v) for v in scm.graph.values())} edges, "
@@ -244,7 +249,7 @@ def main():
     summary = {
         "method": args.method,
         "seed": args.seed,
-        "n_nodes": 30,
+        "n_nodes": args.n_nodes,
         "episodes": args.episodes,
         "final_total_loss": final_loss,
         "min_total_loss": df["total_loss"].min(),
