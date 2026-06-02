@@ -253,6 +253,24 @@ Seed 42 ACE exhibited training instability (loss oscillating $2.7$--$3.5$ throug
 
 \textbf{Baseline convergence plateau.} The three passive baselines (Random, Round-Robin, Max-Variance) converge to nearly identical total MSE near $5.86$ with standard deviations below $0.08$. This tight clustering reveals that \emph{at 30 nodes, differences among static sampling heuristics are negligible}: when interventional budget is fixed and spread across many variables, the specific non-adaptive ordering barely matters. Adaptive strategy learning (ACE) is the meaningful axis of improvement at scale. An earlier CPU proxy run using a weaker running-mean predictor gave larger baseline numbers (Random: $11.29\pm1.02$) and was not comparable to ACE because the learner itself differed; those numbers are superseded by the matched-learner results above.
 
+\subsection{LM Prior vs.\ DPO and Scaling}
+\label{app:scaling}
+
+We isolate the pretrained LM's contribution from the DPO updates by comparing ACE against \emph{ACE without DPO}: the identical LM proposer and lookahead-select mechanism with only the DPO weight updates disabled. This differs from the ``No DPO'' row of Table~\ref{tab:ablations}, which additionally replaces the LM with random proposals. Under anonymisation, canonical node names $X_1\dots X_N$ are replaced by abstract hex tokens (\texttt{n\_xxxx}) drawn deterministically from the seed, removing any natural-language semantics the LM could exploit and leaving only graph structure and per-node losses to reason from.
+
+\begin{figure}[h]
+\centering
+\IfFileExists{figs/fig_followup.pdf}{%
+  \includegraphics[width=\linewidth]{figs/fig_followup.pdf}%
+}{%
+  \fbox{\parbox{0.9\linewidth}{\centering\vspace{1em}\emph{Figure pending: run \texttt{scripts/analysis/aggregate\_followup\_results.py} then \texttt{scripts/analysis/plot\_followup\_results.py} on the results host to generate \texttt{figs/fig\_followup.pdf}.}\vspace{1em}}}%
+}
+\caption{\textbf{LM prior vs.\ DPO under anonymisation (30 nodes) and scaling reference (50 nodes).} (a)~Best-MSE learning curves on the anonymised 30-node SCM: ACE and ACE-without-DPO (LM proposer + lookahead, no weight updates) are statistically indistinguishable; the dashed line marks the mean episode at which best-MSE was first reached. The anonymised ACE runs were truncated by the wall-time limit at $\sim$episode 19, but best-MSE had already plateaued by $\sim$episode 20 for both methods, so the best-MSE comparison is fair. (b)~\emph{Per-node} best MSE (total/$N$), which is scale-invariant: the 50-node cells are a larger, harder graph, not a worse method, so the per-node normalisation is what makes the comparison meaningful across $N$. ``ACE w/o DPO'' is an ablation of ACE, not naive zero-shot prompting.}
+\label{fig:followup}
+\end{figure}
+
+The two variants are tied on canonical 30-node SCMs (ACE $1.95\pm0.77$ vs.\ ACE-w/o-DPO $1.73\pm0.22$) and remain tied under anonymisation (ACE $1.49\pm0.16$ vs.\ ACE-w/o-DPO $1.49\pm0.18$, $\approx\!0.050$ per node). At this scale the pretrained prior plus lookahead carries most of the load; DPO's marginal value is expected to grow where the prior is weaker. The scaling pipeline of Section~\ref{sec:limitations} (compact salience-ranked prompt encoding, per-node metric, plateau-budgeted episodes with checkpoint--resume, and the $K$/capacity ablations at 50 nodes) targets exactly that regime; the $100+$ node configuration is specified as future work.
+
 \subsection{Component Ablation Detail}
 \label{app:ablation-detail}
 
