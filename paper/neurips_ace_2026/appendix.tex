@@ -112,14 +112,32 @@ Optimization: Adam~\citep{kingma2015adam}, learning rate $2 \times 10^{-3}$, bat
 \subsection{Policy Architecture and Prompt Design}
 \label{app:policy}
 
-The policy $\pi_\phi$ is Qwen2.5-1.5B \citep{qwen2_5}, accessed via the HuggingFace Transformers API. Sampling: temperature 0.7, max new tokens 64. The text prompt has the form:
+The policy $\pi_\phi$ is Qwen2.5-1.5B \citep{qwen2_5}, accessed via the HuggingFace Transformers API. Decoding for candidate proposals uses temperature $0.8$, top-$p$ $0.9$, repetition penalty $1.3$, and at most 64 new tokens. The prompt is \emph{problem-first}: it leads with the failing mechanisms (not the graph), states explicitly which parents to intervene on, warns against over-sampled nodes, and ends at a decision cue so the model completes with a node choice rather than defaulting to the first node. A representative instance (5-node SCM):
 \begin{quote}\small
-\texttt{Graph: X1->X2, X1->X3, X2->X3, X4->X5}\\
-\texttt{Per-node losses: X1=0.92, X2=0.01, X3=1.45, X4=0.98, X5=0.07}\\
-\texttt{Recent interventions (last 5): do(X2=1.3) (gain=0.5), ...}\\
-\texttt{Propose your next intervention as: do(Xi = v)}
+\texttt{PROBLEM: Node losses (high=bad): X3=1.45, X4=0.98, X1=0.92.}\\
+\texttt{To fix X3, intervene on its parents: X1, X2.}\\
+\texttt{Recent interventions: [X1:2/20, X2:14/20, ...]. WARNING: X2 is}\\
+\texttt{over-sampled (14/20). AVOID X2.}\\
+\texttt{Graph: [X1->X2, X1->X3, X2->X3, X4->X5].}\\
+\texttt{Valid targets: X1, X2, X3, X4, X5. Value range: [-5.0, 5.0].}\\
+\texttt{Examples of good reasoning: ...}\\
+\texttt{Based on the current losses, which node should we intervene on}\\
+\texttt{to learn the failing mechanism?}\\
+\texttt{Reasoning: The highest loss node is}
 \end{quote}
-We generate $K = 4$ candidates per step by re-sampling at temperature 0.7. The prompt deliberately uses the same node labels as the SCM, allowing the LM's pretrained world-model prior to activate when node names are semantically meaningful (e.g., economic or genetic variables).
+The five prompt blocks are: (i) a \emph{loss ranking} of the top-3 failing non-root nodes with an explicit parent-intervention hint; (ii) a \emph{history} summary with an over-sampling warning when any node exceeds $30\%$ of recent interventions; (iii) the \emph{graph} edge list; (iv) the \emph{valid targets} and value range; and (v) \emph{few-shot} reasoning exemplars followed by the decision cue. We generate $K=4$ candidates per step by re-sampling, decaying to $K=3$ after warm-up.
+
+\paragraph{Full vs.\ compact encoding.} The default (\texttt{--prompt\_strategy full}) lists every node and every edge, so prompt length grows as $O(N\!+\!E\!+\!H)$ in nodes, edges, and history; this is the binding cost at scale (Section~\ref{sec:limitations}). The compact encoding (\texttt{--prompt\_strategy compact}, with \texttt{--prompt\_top\_m}) instead surfaces only the top-$m$ highest-loss non-root nodes and their parents, restricts the graph to edges incident to that salient set, and limits the candidate pool to those parents. This holds prompt length at $\sim\!O(m)$ independent of $N$ (empirically $\sim\!41\%$ shorter at 50 nodes for $m{=}8$) while preserving the same five-block structure; it is validated for best-MSE parity at $N{=}30$ before being used at $N{=}50$ and is mandatory for the $100+$ regime.
+
+\paragraph{Node anonymisation.} To isolate the LM's pretrained semantic prior from its structural reasoning, node names $X_1\dots X_N$ can be replaced by abstract hex tokens \texttt{n\_xxxx} (deterministic in the seed). Under anonymisation the few-shot exemplars switch from the hard-coded $X_1/X_2/X_3$ form to generic placeholders drawn from the current node set (so the model is never taught to emit invalid names), and a stable position index preserves the per-mechanism nonlinearity rule despite the renaming.
+
+\paragraph{Treatment of the different modalities.} A central design choice is that \emph{every} domain is mapped onto the \emph{same} text interface above; only the node vocabulary and the physical meaning of an intervention change, which is precisely why ACE needs no architectural modification across domains.
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{Synthetic SCMs (5-node; hierarchical 30/50-node).} Nodes $X_1\dots X_N$; interventions $\mathrm{do}(X_i{=}\nu)$ over $[-5,5]$. The hierarchical family adds layered colliders; the anonymised variant strips semantics.
+\item \textbf{Physics --- coupled Duffing oscillators.} Nodes are the oscillator displacements in a chain $X_1\!\leftrightarrow\!X_2\!\leftrightarrow\!X_3$; an intervention is a \emph{clamp} $\mathrm{do}(X_\text{mid}{=}0)$ that physically pins the intermediate mass and breaks the synchronisation-induced spurious correlation. The mechanisms are ODE-derived but the prompt sees the same edge list and per-node losses.
+\item \textbf{Economics --- US Phillips curve (FRED).} Nodes are real macroeconomic series (\texttt{UNRATE}, \texttt{FEDFUNDS}, \texttt{MICH}, \texttt{CPILFESL}); ``intervention'' is active selection of a historical data subset rather than a physical $\mathrm{do}$ (stated as such in the main text). Here the semantically meaningful names let the LM's pretrained economic prior engage most strongly --- the opposite end of the spectrum from the anonymised SCM control.
+\end{itemize}
+The anonymised-vs-named contrast across these modalities is what the LM-prior-vs-DPO analysis (Appendix~\ref{app:scaling}) exploits: performance is preserved even when names carry no meaning, indicating the structural-plus-loss reasoning, not name semantics alone, drives intervention choice.
 
 \subsection{Reward Components in Full}
 \label{app:reward}
@@ -449,8 +467,9 @@ Main experiments ran on a university HPC cluster: an A100 80GB partition for ACE
 Component & Hyperparameter & Value \\
 \midrule
 Policy & Model & Qwen2.5-1.5B \\
-Policy & Sampling temperature & 0.7 \\
-Policy & Candidates per step ($K$) & 4 \\
+Policy & Sampling temperature & 0.8 (top-$p$ 0.9, rep.\ penalty 1.3) \\
+Policy & Candidates per step ($K$) & 4 (decays to 3 after warm-up) \\
+Policy & Prompt encoding & full (compact for $N\!\geq\!50$) \\
 Policy & Supervised pretrain steps & 100 \\
 Policy & Pretrain re-run every & 25 episodes \\
 Policy & Optimizer & Adam, lr $1 \times 10^{-5}$ \\
