@@ -39,13 +39,11 @@ for K in $KS; do
     mkdir -p "$OUT/logs"
     for SEED in $SEEDS; do
         name="k${K}_n50_s${SEED}"
-        # Higher K => more candidate generations per step => more wall time.
-        case "$K" in
-            4)  WALL=24:00:00 ;;
-            8)  WALL=30:00:00 ;;
-            16) WALL=40:00:00 ;;
-            *)  WALL=24:00:00 ;;
-        esac
+        # aa100 normal-QOS caps wall-time at 24h, so every K uses the 24h
+        # ceiling. Higher K is slower per episode, so larger-K cells simply
+        # need more resume windows (re-run this script; STABLE dirs continue
+        # from checkpoint) rather than a longer single window.
+        WALL=24:00:00
         JOB=$(sbatch --parsable \
             --job-name="$name" \
             --partition=aa100 --qos=normal \
