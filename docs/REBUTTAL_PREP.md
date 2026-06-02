@@ -191,3 +191,43 @@ results/curc_30node_followup/
   aggregate.csv          <- scripts/analysis/aggregate_followup_results.py
   fig_followup.png/pdf   <- scripts/analysis/plot_followup_results.py
 ```
+
+### Follow-ups applied (June 2 2026)
+
+- **Relabel** "zero-shot LM" -> "ACE w/o DPO (LM + lookahead)" everywhere
+  (figure + paper), since it is an ablation of ACE (LM proposer + lookahead,
+  DPO disabled), NOT naive zero-shot prompting. This removes the misread that
+  "no training is naturally better".
+- **Per-node figure**: `plot_followup_results.py` Panel (b) now plots per-node
+  best MSE (total/N) with a 30-vs-50 separator, so the 50-node cell reads as a
+  larger/harder graph rather than a worse method. The convergence-plateau
+  episode is annotated in Panel (a).
+- **Convergence caveat baked into prose**: appendix `app:scaling` + the
+  "How much is the LM prior versus DPO?" paragraph in Section
+  `sec:results-scale` state plainly that anon30 ACE truncated at ~ep 19 but
+  best-MSE plateaued by ~ep 20 for both methods.
+- **Convergence rerun** available: `jobs/curc_resubmit_anon30_ace_converge.sh`
+  resumes anon30 ACE (STABLE_DIR) to ~40 episodes to show the plateau outright.
+  `aggregate_followup_results.py` now records `best_episode` for this.
+
+## Concern 7: Scaling principles + pipeline (30 -> 50 -> 100+)
+
+Status: **PIPELINE BUILT; SWEEP READY TO RUN**. Frames the headline message
+"ACE scales to larger N without architectural change". Full principles and the
+100+ design spec live in `docs/development/guidance/guidance_doc.txt` (Scaling
+section). Concrete artifacts:
+
+- **Binding-cost fix (compact prompt)**: `ace_experiments.py --prompt_strategy
+  compact --prompt_top_m M` surfaces only the top-M highest-loss nodes + parents,
+  holding prompt length ~O(M) instead of O(N+E+H). Unit-tested in
+  `scripts/analysis/test_compact_prompt.py` (50-node prompt 41% shorter).
+- **Instrumentation**: prompt-token mean/max + peak VRAM + n_nodes now in
+  `metrics.csv`; per-node MSE + `best_episode` in the followup aggregate.
+- **Sweep**: `jobs/curc_submit_scaling.sh` runs N in {15,30,50} x
+  {ace, zero_shot_lm, random}; `jobs/curc_submit_k_ablation.sh` sweeps K at 50.
+  Worker `jobs/curc_scaling_seed.sh` uses STABLE dirs for checkpoint-resume.
+- **Main-text figure**: `scripts/analysis/plot_scaling.py` ->
+  `figs/fig_scaling.pdf`, per-node best MSE vs N (ACE, ACE-w/o-DPO, Random);
+  N=5 diagnostic shown as a separate-family anchor with `--show-n5`.
+- **Scope**: run N in {15,30,50} now; N=100+ specified as future work (compact
+  prompt mandatory, salience-targeted lookahead, plateau-budgeted episodes).

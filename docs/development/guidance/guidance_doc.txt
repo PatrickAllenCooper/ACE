@@ -10,6 +10,103 @@
 ---
 
 ## ===============================================================================
+SCALING PRINCIPLES & PIPELINE - JUNE 2, 2026
+===============================================================================
+
+GOAL: characterise how ACE behaves as the causal graph grows (30 -> 50 -> 100+)
+and demonstrate the headline claim "ACE scales to larger N without architectural
+change". The run-now scope is the consistent hierarchical LargeScaleSCM family at
+N in {15, 30, 50}; N=100+ is specified here as future work. N=5 is the paper's
+bespoke diagnostic SCM and is shown as a separately-sourced anchor, not part of
+the LargeScaleSCM sweep (the 5-layer builder needs >= ~10 nodes).
+
+SCALING PRINCIPLES (each maps to a concrete knob + a measurement):
+
+1. Prompt cost is the binding constraint, growing ~O(N + E + history).
+   HuggingFacePolicy.scm_to_prompt previously dumped EVERY node + EVERY edge.
+   FIX: --prompt_strategy compact surfaces only the top --prompt_top_m
+   highest-loss nodes and their parents, so prompt length is ~O(prompt_top_m).
+   This is the single highest-leverage change and the enabler for 100+.
+   Measure: prompt_tokens_mean / prompt_tokens_max columns in metrics.csv.
+
+2. Per-episode wallclock scales super-linearly (~ prompt_len x K x steps).
+   Anchors: 30-node ~22-25 min/episode; 50-node ~57 min/episode (full prompt).
+   Hold compute roughly constant by co-scaling K and episodes down as prompts
+   grow, OR by switching to the compact prompt. Measure: peak_vram_gb +
+   per-episode wallclock from the run log.
+
+3. Episode budget scales with #mechanisms (~N), but best-MSE converges early.
+   Best-MSE plateaus ~ep 20 at 30 nodes. Report best_mse against a measured
+   convergence-plateau budget (we cap ACE at ~40 episodes with checkpoint-resume),
+   not a fixed 120. The aggregator now records best_episode for exactly this.
+
+4. Lookahead breadth K vs action space (~N x value-grid). Fixed K=4 samples a
+   shrinking fraction as N grows. Test K in {4,8,16} at N=50 (Phase 4); expect K
+   to need to grow sublinearly with N and/or be salience-targeted to high-loss
+   nodes.
+
+5. Model capacity vs reasoning complexity. Qwen2.5-1.5B may bottleneck at large
+   N, or compact prompts may let a small model suffice. Capacity is tested only
+   AFTER compact prompts so we do not pay for capacity we do not need
+   (design-only this round: model in {0.5B, 1.5B, 3B} at N=50).
+
+6. Student-learner capacity scales with N (N per-node MLPs + observational
+   budget). The passive-baseline plateau must not be the bottleneck; verify at
+   each scale via the Random baseline.
+
+7. Use a scale-invariant metric. Total MSE grows mechanically with N (sum over
+   nodes). Report PER-NODE best MSE (best_mse_per_node in the aggregate) for any
+   cross-N comparison; this is what fixes "50 looks worse" in the figure.
+
+EXPERIMENTAL PIPELINE (phases):
+  Phase 0  Instrumentation: prompt-token + peak-VRAM logging in
+           ace_experiments.py; per-node MSE + best_episode + n_nodes in
+           scripts/analysis/aggregate_followup_results.py. [DONE]
+  Phase 1  Fix the record: rerun anon30 ACE to its plateau (resume) -
+           jobs/curc_resubmit_anon30_ace_converge.sh; obtain one clean 50-node
+           ACE cell - covered by the N=50 ACE compact cell of the sweep.
+  Phase 2  Compact prompt: --prompt_strategy {full,compact} + --prompt_top_m.
+           Validate 30-node parity (SUBMIT_PARITY=1) before trusting at 50. [CODE DONE]
+  Phase 3  Scaling sweep N in {15,30,50} x {ace, zero_shot_lm, random} -
+           jobs/curc_submit_scaling.sh -> results/scaling/.
+  Phase 4  K ablation at N=50 - jobs/curc_submit_k_ablation.sh.
+  Phase 5  100+ DESIGN (future work) - see spec below.
+
+100+ NODE DESIGN SPEC (future work, not run this round):
+  - Prompt: --prompt_strategy compact is MANDATORY; tune --prompt_top_m (start
+    8-12). Consider a multi-turn variant where the LM requests detail on a
+    subgraph instead of receiving a monolithic prompt.
+  - Lookahead: salience-targeted candidate generation (restrict K candidates to
+    parents of the top-loss nodes) rather than uniform over N; reduce K decay
+    floor. Optionally MCTS over LM-proposed moves for multi-step planning.
+  - Budget: cap episodes at the measured plateau (+margin); rely on
+    checkpoint-resume across multiple wall-time windows (worker uses STABLE dirs).
+  - Memory: bf16 + non-reentrant gradient checkpointing (already auto-enabled at
+    >= 50 nodes / anon-30); revisit at 100 nodes.
+  - Metric: per-node best MSE; also track prompt_tokens and peak_vram to confirm
+    the compact encoding holds prompt length roughly flat as N grows.
+  - Model: only escalate to a larger base LM if compact-prompt + 1.5B is shown to
+    bottleneck at 50/100.
+
+KEY FILES (this work):
+  ace_experiments.py                         --prompt_strategy/--prompt_top_m,
+                                             compact scm_to_prompt, scaling cols
+  scripts/analysis/aggregate_followup_results.py  per-node MSE + best_episode
+  scripts/analysis/plot_followup_results.py  per-node fig + ablation relabel
+  scripts/analysis/test_compact_prompt.py    compact-prompt unit test
+  jobs/curc_scaling_seed.sh                  parameterised worker (scale/method/K)
+  jobs/curc_submit_scaling.sh                {15,30,50} sweep + parity
+  jobs/curc_submit_k_ablation.sh             K in {4,8,16} at N=50
+  jobs/curc_resubmit_anon30_ace_converge.sh  anon30 ACE plateau rerun (resume)
+
+NAMING/FRAMING NOTE: the --no_dpo ablation is "ACE w/o DPO (LM + lookahead)",
+NOT naive zero-shot generation: the LM still proposes K candidates and lookahead
+selects the best; only the DPO weight updates are disabled. The paper and figures
+use that label to avoid implying "no training is naturally better".
+
+---
+
+## ===============================================================================
 STATUS - MARCH 24, 2026
 ===============================================================================
 
