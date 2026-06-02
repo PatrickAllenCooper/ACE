@@ -138,25 +138,56 @@ via `bash jobs/curc_submit_30node_followup.sh`:
 2 conditions = ~160 GPU-hours total. Submitted as 20 jobs on aa100;
 ACE jobs cap at 120 episodes, ZSL jobs at 40 (fixed-policy asymptote).
 
-**If results confirm the hypotheses**, the abstract and Section 5.2
-prose can be tightened from "DPO's marginal contribution at this scale
-is within seed-variance bounds" to "DPO's contribution emerges
-when the LM prior is mismatched, validated by Anonymised-30 (gap
-widens) and 50-node (gap widens) follow-up experiments".
+### RESOLVED (June 2026): hypotheses NOT confirmed -> LM-prior thesis is stronger
 
-**If results don't confirm**, the LM-prior thesis is even stronger
-than the paper currently claims (Section 3.3 needs a small expansion);
-DPO's contribution becomes harder to defend at this scale and the
-paper's contribution emphasis should shift to the LM-prior + lookahead
-combination, with DPO framed as a refinement step.
+After two contaminated batches (see "Lessons" below) the clean N=5 anon30
+numbers are:
+
+| cell                | best MSE (N=5) | n_ep (mean) |
+|---------------------|----------------|-------------|
+| anon30 ACE          | 1.49 +/- 0.16  | ~19 (timeout, converged early) |
+| anon30 zero-shot LM | 1.49 +/- 0.18  | ~17 |
+| nodes50 zero-shot LM| 4.55 +/- 1.10  | ~38 (clean) |
+| nodes50 ACE         | (contaminated) | dropped |
+
+**anon30 ACE and anon30 zero-shot LM are statistically identical (1.49 vs
+1.49).** Anonymising node names did NOT open the gap we hypothesised; the
+LM's structural+loss reasoning plus lookahead drives performance even with
+no semantic node names. This echoes the canonical-30 tie (ACE 1.95 vs ZSL
+1.73). DPO loss confirmed to move off 0.693 (variable 0.59-2.56), so the
+runs genuinely learned -- the result is real, not a no-DPO artifact.
+
+Decision (user, June 2 2026): **reframe around the LM-prior thesis**
+(Section 3.3) -- report anon30 as evidence the pretrained LM prior, not
+DPO, drives 30-node performance; DPO is a refinement that matters at
+smaller scale / harder horizons. nodes50 ACE decision **deferred** until
+the followup figure is reviewed.
+
+Caveat for honest reporting: anon30 ACE timed out at ~19 episodes (vs the
+120 the canonical-30 ACE used). Best-MSE had converged by ~ep 20 for both
+methods, so the best-MSE comparison is fair, but this must be stated.
+
+### Lessons (two wasted batches)
+
+1. `int(node[1:])` in BOTH LargeScaleSCM.generate AND the GroundTruthSCM
+   mechanism crashed on anonymised `n_xxxx` names. Fix: node_idx lookup.
+2. 50-node DPO OOMs a 40 GB A100 (4 forward passes, long prompt). Fix:
+   bf16 + gradient checkpointing.
+3. Anonymised 30-node ALSO OOMs (n_xxxx is 3x longer than X1..X30), so
+   checkpointing is needed at 30 nodes too when anonymised.
+4. The "None of the inputs have requires_grad=True" + "DPO loss 0.693"
+   warnings are BENIGN -- they fire from the reference-model forward under
+   torch.no_grad(). Proven by scripts/analysis/test_grad_checkpoint.py.
+   Do not panic-cancel on these warnings; verify learning via the DPO-loss
+   and mechanism-loss trajectory instead.
+5. Working-DPO 50-node ACE runs ~57 min/episode; 120 episodes is infeasible
+   inside CURC's 24h wall-time cap. Reduce episode budget or drop the cell.
 
 Output structure (after pulling locally):
 ```
 results/curc_30node_followup/
   anon30/{ace,zero_shot_lm}/seed_{seed}/job_{jobid}/
   nodes50/{ace,zero_shot_lm}/seed_{seed}/job_{jobid}/
+  aggregate.csv          <- scripts/analysis/aggregate_followup_results.py
+  fig_followup.png/pdf   <- scripts/analysis/plot_followup_results.py
 ```
-
-Plot/aggregate: extend `scripts/analysis/plot_30node_results.py` with
-two more conditions (or build a separate plot for the 4-cell
-ACE-vs-ZSL grid).
