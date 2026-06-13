@@ -283,11 +283,24 @@ We isolate the pretrained LM's contribution from the DPO updates by comparing AC
 }{%
   \fbox{\parbox{0.9\linewidth}{\centering\vspace{1em}\emph{Figure pending: run \texttt{scripts/analysis/aggregate\_followup\_results.py} then \texttt{scripts/analysis/plot\_followup\_results.py} on the results host to generate \texttt{figs/fig\_followup.pdf}.}\vspace{1em}}}%
 }
-\caption{\textbf{LM prior vs.\ DPO under anonymisation (30 nodes) and scaling reference (50 nodes).} (a)~Best-MSE learning curves on the anonymised 30-node SCM: ACE and ACE-without-DPO (LM proposer + lookahead, no weight updates) are statistically indistinguishable; the dashed line marks the mean episode at which best-MSE was first reached. The anonymised ACE runs were truncated by the wall-time limit at $\sim$episode 19, but best-MSE had already plateaued by $\sim$episode 20 for both methods, so the best-MSE comparison is fair. (b)~\emph{Per-node} best MSE (total/$N$), which is scale-invariant: the 50-node cells are a larger, harder graph, not a worse method, so the per-node normalisation is what makes the comparison meaningful across $N$. ``ACE w/o DPO'' is an ablation of ACE, not naive zero-shot prompting.}
+\caption{\textbf{LM prior vs.\ DPO under anonymisation (30 nodes) and scaling reference (50 nodes).} (a)~Best-MSE learning curves on the anonymised 30-node SCM: ACE and ACE-without-DPO (LM proposer + lookahead, no weight updates) are statistically indistinguishable; the dashed line marks the mean episode at which best-MSE was first reached. (b)~\emph{Per-node} best MSE (total/$N$), which is scale-invariant: the 50-node cells are a larger, harder graph, not a worse method. ``ACE w/o DPO'' is an ablation of ACE, not naive zero-shot prompting.}
 \label{fig:followup}
 \end{figure}
 
-The two variants are tied on canonical 30-node SCMs (ACE $1.95\pm0.77$ vs.\ ACE-w/o-DPO $1.73\pm0.22$) and remain tied under anonymisation (ACE $1.49\pm0.16$ vs.\ ACE-w/o-DPO $1.49\pm0.18$, $\approx\!0.050$ per node). At this scale the pretrained prior plus lookahead carries most of the load; DPO's marginal value is expected to grow where the prior is weaker. The scaling pipeline of Section~\ref{sec:limitations} (compact salience-ranked prompt encoding, per-node metric, plateau-budgeted episodes with checkpoint--resume, and the $K$/capacity ablations at 50 nodes) targets exactly that regime; the $100+$ node configuration is specified as future work.
+The two variants are tied on canonical 30-node SCMs (ACE $1.95\pm0.77$ vs.\ ACE-w/o-DPO $1.73\pm0.22$) and remain tied under anonymisation (ACE $1.51\pm0.16$ vs.\ ACE-w/o-DPO $1.49\pm0.18$, $\approx\!0.052$ per node, N=5 seeds). At this scale the pretrained prior plus lookahead carries most of the load; DPO's marginal value is expected to grow where the prior is weaker.
+
+\textbf{Cross-$N$ scaling sweep.} Figure~\ref{fig:scaling} (main text) reports the matched sweep on the consistent hierarchical family at $N\in\{15,30,50\}$ with a fixed $\sim$40-episode plateau budget per cell. Per-node best MSE for ACE ($0.062\pm0.005$, $0.114\pm0.033$, $0.123\pm0.031$) and ACE-w/o-DPO ($0.051\pm0.002$, $0.068\pm0.013$, $0.125\pm0.026$) stay well below Random ($0.153\pm0.005$, $0.192\pm0.002$, $0.184\pm0.003$) at $N{=}15,30,50$ respectively (N=5 seeds). The sweep's $N{=}30$ ACE per-node point uses the reduced budget and is not directly comparable to the full-budget headline in Table~\ref{tab:large-scale}.
+
+\textbf{Lookahead breadth ($K$) ablation at $N{=}50$.} As the action space grows with $N$, fixed $K{=}4$ samples a shrinking fraction of candidate interventions. Table~\ref{tab:k-ablation} sweeps $K\in\{4,8,16\}$ at $N{=}50$ with compact prompt encoding held fixed. Best per-node MSE is flat across $K$ ($0.143\pm0.050$, $0.147\pm0.043$, $0.145\pm0.052$; N=3 seeds), while episode cost rises with $K$ (mean episodes 24/37/14 reflect wall-time truncation rather than convergence). Prompt-token and VRAM instrumentation confirms cost scales with $K$; salience-targeted candidate generation is the more promising lever for $100+$ nodes than brute-force increases in $K$ alone.
+
+\IfFileExists{figs/tab_kablation.tex}{\input{figs/tab_kablation}}{%
+\begin{table}[h]
+\centering
+\caption{Lookahead breadth $K$ ablation (pending full aggregation).}
+\label{tab:k-ablation}
+\end{table}}
+
+The scaling pipeline of Section~\ref{sec:limitations} (compact salience-ranked prompt encoding, per-node metric, plateau-budgeted episodes with checkpoint--resume, and the $K$/capacity ablations at 50 nodes) targets exactly the large-$N$ regime; the $100+$ node configuration is specified as future work.
 
 \subsection{Component Ablation Detail}
 \label{app:ablation-detail}
