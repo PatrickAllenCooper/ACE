@@ -143,19 +143,18 @@ ACE jobs cap at 120 episodes, ZSL jobs at 40 (fixed-policy asymptote).
 After two contaminated batches (see "Lessons" below) the clean N=5 anon30
 numbers are:
 
-| cell                | best MSE (N=5) | n_ep (mean) |
-|---------------------|----------------|-------------|
-| anon30 ACE          | 1.49 +/- 0.16  | ~19 (timeout, converged early) |
-| anon30 zero-shot LM | 1.49 +/- 0.18  | ~17 |
-| nodes50 zero-shot LM| 4.55 +/- 1.10  | ~38 (clean) |
-| nodes50 ACE         | (contaminated) | dropped |
+| cell                | best MSE (N=5) | n_ep (mean) | bestEp (mean) |
+|---------------------|----------------|-------------|---------------|
+| anon30 ACE          | 1.51 +/- 0.16  | 11          | 2.8           |
+| anon30 zero-shot LM | 1.49 +/- 0.18  | 16.8        | 7.2           |
+| nodes50 zero-shot LM| 4.14 +/- 0.83  | 32.4        | 21.6          |
+| nodes50 ACE         | 7.13 +/- 2.66  | 53.0        | 34.6          |
 
-**anon30 ACE and anon30 zero-shot LM are statistically identical (1.49 vs
+**anon30 ACE and anon30 zero-shot LM remain statistically tied (1.51 vs
 1.49).** Anonymising node names did NOT open the gap we hypothesised; the
 LM's structural+loss reasoning plus lookahead drives performance even with
-no semantic node names. This echoes the canonical-30 tie (ACE 1.95 vs ZSL
-1.73). DPO loss confirmed to move off 0.693 (variable 0.59-2.56), so the
-runs genuinely learned -- the result is real, not a no-DPO artifact.
+no semantic node names. Best-MSE plateaued by ~ep 3--6 (mean bestEp ~2.8 for
+ACE, ~7.2 for w/o DPO); convergence rerun completed cleanly at 11 episodes.
 
 Decision (user, June 2 2026): **reframe around the LM-prior thesis**
 (Section 3.3) -- report anon30 as evidence the pretrained LM prior, not
@@ -212,22 +211,48 @@ results/curc_30node_followup/
 
 ## Concern 7: Scaling principles + pipeline (30 -> 50 -> 100+)
 
-Status: **PIPELINE BUILT; SWEEP READY TO RUN**. Frames the headline message
-"ACE scales to larger N without architectural change". Full principles and the
-100+ design spec live in `docs/development/guidance/guidance_doc.txt` (Scaling
-section). Concrete artifacts:
+Status: **SWEEP COMPLETE; REPORTED IN PAPER**. Frames the headline message
+"LM-driven intervention scales with N; passive sampling degrades". Full
+principles and the 100+ design spec live in
+`docs/development/guidance/guidance_doc.txt` (Scaling section).
 
-- **Binding-cost fix (compact prompt)**: `ace_experiments.py --prompt_strategy
-  compact --prompt_top_m M` surfaces only the top-M highest-loss nodes + parents,
-  holding prompt length ~O(M) instead of O(N+E+H). Unit-tested in
-  `scripts/analysis/test_compact_prompt.py` (50-node prompt 41% shorter).
-- **Instrumentation**: prompt-token mean/max + peak VRAM + n_nodes now in
-  `metrics.csv`; per-node MSE + `best_episode` in the followup aggregate.
-- **Sweep**: `jobs/curc_submit_scaling.sh` runs N in {15,30,50} x
-  {ace, zero_shot_lm, random}; `jobs/curc_submit_k_ablation.sh` sweeps K at 50.
-  Worker `jobs/curc_scaling_seed.sh` uses STABLE dirs for checkpoint-resume.
-- **Main-text figure**: `scripts/analysis/plot_scaling.py` ->
-  `figs/fig_scaling.pdf`, per-node best MSE vs N (ACE, ACE-w/o-DPO, Random);
-  N=5 diagnostic shown as a separate-family anchor with `--show-n5`.
-- **Scope**: run N in {15,30,50} now; N=100+ specified as future work (compact
-  prompt mandatory, salience-targeted lookahead, plateau-budgeted episodes).
+### Results landed (June 2026, N=5 seeds per scaling cell)
+
+Per-node best MSE from `results/scaling/aggregate.csv`:
+
+| N | ACE | ACE w/o DPO | Random |
+|---|-----|-------------|--------|
+| 15 | 0.062 +/- 0.005 | 0.051 +/- 0.002 | 0.153 +/- 0.005 |
+| 30 | 0.114 +/- 0.033 | 0.068 +/- 0.013 | 0.192 +/- 0.002 |
+| 50 | 0.123 +/- 0.031 | 0.125 +/- 0.026 | 0.184 +/- 0.003 |
+
+**Story:** LM variants (ACE and ACE w/o DPO) form a tight band well below Random
+at every N. DPO does not visibly separate the LM variants at scale -- reinforces
+the LM-prior thesis from Concern 6.
+
+**ACE@30 reconciliation:** Table 2 reports canonical ACE at 1.95 total MSE
+(full 120-ep budget, N=3 seeds). The scaling sweep uses a fixed ~40-ep plateau
+budget for cross-N comparability; its N=30 ACE point is 0.114 +/- 0.033 per
+node (~3.4 total). Both numbers are reported with explicit protocol notes in
+Figure `fig:scaling` caption and Appendix `app:scaling`.
+
+### K ablation at N=50 (N=3 seeds)
+
+From `results/scaling_kablation/aggregate.csv`:
+
+| K | Best per-node MSE | Mean episodes | Prompt tokens (seed 42 only) |
+|---|-------------------|---------------|------------------------------|
+| 4 | 0.143 +/- 0.050 | 24 | 745 |
+| 8 | 0.147 +/- 0.043 | 37 | 726 |
+| 16 | 0.145 +/- 0.052 | 14 | --- |
+
+MSE flat across K; cost rises with K. Salience-targeted candidates preferred
+over brute-force K increases for 100+.
+
+### Artifacts
+
+- **Aggregation:** `scripts/analysis/aggregate_scaling_results.py`,
+  `scripts/analysis/aggregate_kablation.py`
+- **Main-text figure:** `scripts/analysis/plot_scaling.py` -> `figs/fig_scaling.pdf`
+- **Appendix:** `figs/fig_followup.pdf`, `figs/tab_kablation.tex`
+- **Sweep jobs:** `jobs/curc_submit_scaling.sh`, `jobs/curc_submit_k_ablation.sh`

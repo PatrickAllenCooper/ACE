@@ -68,9 +68,18 @@ EXPERIMENTAL PIPELINE (phases):
   Phase 2  Compact prompt: --prompt_strategy {full,compact} + --prompt_top_m.
            Validate 30-node parity (SUBMIT_PARITY=1) before trusting at 50. [CODE DONE]
   Phase 3  Scaling sweep N in {15,30,50} x {ace, zero_shot_lm, random} -
-           jobs/curc_submit_scaling.sh -> results/scaling/.
-  Phase 4  K ablation at N=50 - jobs/curc_submit_k_ablation.sh.
+           jobs/curc_submit_scaling.sh -> results/scaling/. [DONE, N=5 seeds]
+  Phase 4  K ablation at N=50 - jobs/curc_submit_k_ablation.sh. [DONE, N=3 seeds]
   Phase 5  100+ DESIGN (future work) - see spec below.
+
+RESULTS SUMMARY (June 2026, pulled from CURC):
+  - LM band (ACE + ACE w/o DPO) stays well below Random at N=15/30/50.
+  - DPO does not visibly separate LM variants at scale (LM-prior thesis).
+  - K ablation at N=50: flat MSE across K in {4,8,16}; cost rises with K.
+  - Main figure: figs/fig_scaling.pdf (passive-vs-LM framing, no N=5 anchor).
+  - ACE@30: Table 2 full-budget (1.95 total) vs sweep reduced-budget (0.114/node)
+    reconciled via explicit protocol footnote in caption.
+  - Aggregators: aggregate_scaling_results.py, aggregate_kablation.py
 
 100+ NODE DESIGN SPEC (future work, not run this round):
   - Prompt: --prompt_strategy compact is MANDATORY; tune --prompt_top_m (start
