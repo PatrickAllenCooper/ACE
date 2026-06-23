@@ -1,0 +1,24 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+ERROR:root:Failed to save checkpoint: [Errno 2] No such file or directory: '/scratch/alpine/paco0228/ace_checkpoints/run_20260612_230026_seed123/checkpoint.pt.tmp' -> '/scratch/alpine/paco0228/ace_checkpoints/run_20260612_230026_seed123/checkpoint.pt'
+Failed to save checkpoint: [Errno 2] No such file or directory: '/scratch/alpine/paco0228/ace_checkpoints/run_20260612_230026_seed123/checkpoint.pt.tmp' -> '/scratch/alpine/paco0228/ace_checkpoints/run_20260612_230026_seed123/checkpoint.pt'
+Traceback (most recent call last):
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3469, in <module>
+    main()
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3121, in main
+    optimizer_agent.step()
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/optimizer.py", line 517, in wrapper
+    out = func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/optimizer.py", line 82, in _use_grad
+    ret = func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/adam.py", line 247, in step
+    adam(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/optimizer.py", line 150, in maybe_fallback
+    return func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/adam.py", line 953, in adam
+    func(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/adam.py", line 777, in _multi_tensor_adam
+    exp_avg_sq_sqrt = torch._foreach_sqrt(device_exp_avg_sqs)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 54.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 35.38 MiB is free. Including non-PyTorch memory, this process has 39.45 GiB memory in use. Of the allocated memory 38.90 GiB is allocated by PyTorch, and 58.39 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+ERROR:root:[ERROR] Failed to save metrics: All arrays must be of the same length
+[ERROR] Failed to save metrics: All arrays must be of the same length

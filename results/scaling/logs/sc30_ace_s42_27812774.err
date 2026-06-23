@@ -1,0 +1,14 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+Traceback (most recent call last):
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3469, in <module>
+    main()
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3101, in main
+    loss.backward()
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/_tensor.py", line 625, in backward
+    torch.autograd.backward(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/autograd/__init__.py", line 354, in backward
+    _engine_run_backward(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/autograd/graph.py", line 841, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 892.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 795.38 MiB is free. Including non-PyTorch memory, this process has 38.71 GiB memory in use. Of the allocated memory 36.56 GiB is allocated by PyTorch, and 1.65 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
