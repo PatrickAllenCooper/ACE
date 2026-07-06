@@ -10,6 +10,43 @@
 ---
 
 ## ===============================================================================
+PAPER WRITING REFINEMENT PASS - JULY 6, 2026
+===============================================================================
+
+The paper is being refined as a well-rounded standalone academic paper (no
+target conference for now; length is not a constraint). Changes in this pass:
+
+1. Abstract rewritten: removed the \ref into the body (abstracts must be
+   self-contained), added the 15-50 node scaling sweep and the LM-prior-vs-DPO
+   decomposition finding to the headline claims.
+2. Contribution list extended from three to four claims: the fourth is the
+   prior-vs-learning decomposition at scale plus the scaling protocol
+   (per-node error, plateau budgeting, salience-ranked compact prompts).
+3. Method section restructured: lookahead evaluation and preference-pair
+   construction paragraphs moved from Sec 3.3 (forward-model discussion) into
+   Sec 3.2 (interaction loop) so the loop reads generate -> lookahead ->
+   execute -> preference in one place; the long forward-model paragraph split
+   in two.
+4. Results narrative reordered: the LM-prior-vs-DPO paragraph now precedes the
+   cross-N scaling paragraph, and the scaling paragraph explicitly builds on
+   the anonymisation analysis and mentions the K-ablation result inline.
+5. Added a Conclusion section (Sec 7) summarizing the non-stationarity
+   argument, the empirical results, and the prior-vs-calibration reading.
+6. Citation hygiene: \citet for textual citations (Peters et al., Eberhardt
+   et al.), \citealp inside parentheses; fixed pearl2009causality to @book and
+   schulman2017proximal to @article (removes empty-booktitle bibtex warnings).
+7. Broader Impacts moved before the references (was stranded after them).
+
+Build state: compiles clean via pdflatex+bibtex (28 pages, zero citation/
+reference warnings, zero overfull hboxes).
+
+Git: raw CURC result trees (results/scaling, results/scaling_kablation,
+results/curc_30node_followup) are fully synced and pushed; the repository is a
+complete account of code, jobs, results, figures, and paper.
+
+---
+
+## ===============================================================================
 SCALING PRINCIPLES & PIPELINE - JUNE 2, 2026
 ===============================================================================
 
