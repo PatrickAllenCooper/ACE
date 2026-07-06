@@ -223,8 +223,8 @@ Per-node best MSE from `results/scaling/aggregate.csv`:
 | N | ACE | ACE w/o DPO | Random |
 |---|-----|-------------|--------|
 | 15 | 0.062 +/- 0.005 | 0.051 +/- 0.002 | 0.153 +/- 0.005 |
-| 30 | 0.114 +/- 0.033 | 0.068 +/- 0.013 | 0.192 +/- 0.002 |
-| 50 | 0.123 +/- 0.031 | 0.125 +/- 0.026 | 0.184 +/- 0.003 |
+| 30 | 0.114 +/- 0.030 | 0.067 +/- 0.015 | 0.192 +/- 0.002 |
+| 50 | 0.118 +/- 0.026 | 0.136 +/- 0.007 | 0.184 +/- 0.003 |
 
 **Story:** LM variants (ACE and ACE w/o DPO) form a tight band well below Random
 at every N. DPO does not visibly separate the LM variants at scale -- reinforces
@@ -232,7 +232,7 @@ the LM-prior thesis from Concern 6.
 
 **ACE@30 reconciliation:** Table 2 reports canonical ACE at 1.95 total MSE
 (full 120-ep budget, N=3 seeds). The scaling sweep uses a fixed ~40-ep plateau
-budget for cross-N comparability; its N=30 ACE point is 0.114 +/- 0.033 per
+budget for cross-N comparability; its N=30 ACE point is 0.114 +/- 0.030 per
 node (~3.4 total). Both numbers are reported with explicit protocol notes in
 Figure `fig:scaling` caption and Appendix `app:scaling`.
 
@@ -242,9 +242,9 @@ From `results/scaling_kablation/aggregate.csv`:
 
 | K | Best per-node MSE | Mean episodes | Prompt tokens (seed 42 only) |
 |---|-------------------|---------------|------------------------------|
-| 4 | 0.143 +/- 0.050 | 24 | 745 |
-| 8 | 0.147 +/- 0.043 | 37 | 726 |
-| 16 | 0.145 +/- 0.052 | 14 | --- |
+| 4 | 0.126 +/- 0.050 | 31 | 745 |
+| 8 | 0.147 +/- 0.043 | 40 | 726 |
+| 16 | 0.125 +/- 0.052 | 31 | --- |
 
 MSE flat across K; cost rises with K. Salience-targeted candidates preferred
 over brute-force K increases for 100+.
