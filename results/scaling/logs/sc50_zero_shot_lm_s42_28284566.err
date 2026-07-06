@@ -1,0 +1,23 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+ERROR:root:Failed to save checkpoint: [Errno 2] No such file or directory: '/scratch/alpine/paco0228/ace_checkpoints/run_20260605_090725_seed42/checkpoint.pt.tmp' -> '/scratch/alpine/paco0228/ace_checkpoints/run_20260605_090725_seed42/checkpoint.pt'
+Failed to save checkpoint: [Errno 2] No such file or directory: '/scratch/alpine/paco0228/ace_checkpoints/run_20260605_090725_seed42/checkpoint.pt.tmp' -> '/scratch/alpine/paco0228/ace_checkpoints/run_20260605_090725_seed42/checkpoint.pt'
+ERROR:root:Failed to save checkpoint: [Errno 2] No such file or directory: '/scratch/alpine/paco0228/ace_checkpoints/run_20260605_090725_seed42/checkpoint.pt.tmp' -> '/scratch/alpine/paco0228/ace_checkpoints/run_20260605_090725_seed42/checkpoint.pt'
+Failed to save checkpoint: [Errno 2] No such file or directory: '/scratch/alpine/paco0228/ace_checkpoints/run_20260605_090725_seed42/checkpoint.pt.tmp' -> '/scratch/alpine/paco0228/ace_checkpoints/run_20260605_090725_seed42/checkpoint.pt'
+Traceback (most recent call last):
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3469, in <module>
+    main()
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3381, in main
+    df = pd.DataFrame({
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/pandas/core/frame.py", line 782, in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/pandas/core/internals/construction.py", line 503, in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/pandas/core/internals/construction.py", line 114, in arrays_to_mgr
+    index = _extract_index(arrays)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/pandas/core/internals/construction.py", line 677, in _extract_index
+    raise ValueError("All arrays must be of the same length")
+ValueError: All arrays must be of the same length
+ERROR:root:[ERROR] Failed to save metrics: All arrays must be of the same length
+[ERROR] Failed to save metrics: All arrays must be of the same length
