@@ -129,15 +129,15 @@ The five prompt blocks are: (i) a \emph{loss ranking} of the top-3 failing non-r
 
 \paragraph{Full vs.\ compact encoding.} The default (\texttt{--prompt\_strategy full}) lists every node and every edge, so prompt length grows as $O(N\!+\!E\!+\!H)$ in nodes, edges, and history; this is the binding cost at scale (Section~\ref{sec:limitations}). The compact encoding (\texttt{--prompt\_strategy compact}, with \texttt{--prompt\_top\_m}) instead surfaces only the top-$m$ highest-loss non-root nodes and their parents, restricts the graph to edges incident to that salient set, and limits the candidate pool to those parents. This holds prompt length at $\sim\!O(m)$ independent of $N$ (empirically $\sim\!41\%$ shorter at 50 nodes for $m{=}8$) while preserving the same five-block structure; it is validated for best-MSE parity at $N{=}30$ before being used at $N{=}50$ and is mandatory for the $100+$ regime.
 
-\paragraph{Node anonymisation.} To isolate the LM's pretrained semantic prior from its structural reasoning, node names $X_1\dots X_N$ can be replaced by abstract hex tokens \texttt{n\_xxxx} (deterministic in the seed). Under anonymisation the few-shot exemplars switch from the hard-coded $X_1/X_2/X_3$ form to generic placeholders drawn from the current node set (so the model is never taught to emit invalid names), and a stable position index preserves the per-mechanism nonlinearity rule despite the renaming.
+\paragraph{Node anonymization.} To isolate the LM's pretrained semantic prior from its structural reasoning, node names $X_1\dots X_N$ can be replaced by abstract hex tokens \texttt{n\_xxxx} (deterministic in the seed). Under anonymization the few-shot exemplars switch from the hard-coded $X_1/X_2/X_3$ form to generic placeholders drawn from the current node set (so the model is never taught to emit invalid names), and a stable position index preserves the per-mechanism nonlinearity rule despite the renaming.
 
 \paragraph{Treatment of the different modalities.} A central design choice is that \emph{every} domain is mapped onto the \emph{same} text interface above; only the node vocabulary and the physical meaning of an intervention change, which is precisely why ACE needs no architectural modification across domains.
 \begin{itemize}[leftmargin=1.5em]
-\item \textbf{Synthetic SCMs (5-node; hierarchical 30/50-node).} Nodes $X_1\dots X_N$; interventions $\mathrm{do}(X_i{=}\nu)$ over $[-5,5]$. The hierarchical family adds layered colliders; the anonymised variant strips semantics.
-\item \textbf{Physics --- coupled Duffing oscillators.} Nodes are the oscillator displacements in a chain $X_1\!\leftrightarrow\!X_2\!\leftrightarrow\!X_3$; an intervention is a \emph{clamp} $\mathrm{do}(X_\text{mid}{=}0)$ that physically pins the intermediate mass and breaks the synchronisation-induced spurious correlation. The mechanisms are ODE-derived but the prompt sees the same edge list and per-node losses.
-\item \textbf{Economics --- US Phillips curve (FRED).} Nodes are real macroeconomic series (\texttt{UNRATE}, \texttt{FEDFUNDS}, \texttt{MICH}, \texttt{CPILFESL}); ``intervention'' is active selection of a historical data subset rather than a physical $\mathrm{do}$ (stated as such in the main text). Here the semantically meaningful names let the LM's pretrained economic prior engage most strongly --- the opposite end of the spectrum from the anonymised SCM control.
+\item \textbf{Synthetic SCMs (5-node; hierarchical 30/50-node).} Nodes $X_1\dots X_N$; interventions $\mathrm{do}(X_i{=}\nu)$ over $[-5,5]$. The hierarchical family adds layered colliders; the anonymized variant strips semantics.
+\item \textbf{Physics --- coupled Duffing oscillators.} Nodes are the oscillator displacements in a chain $X_1\!\leftrightarrow\!X_2\!\leftrightarrow\!X_3$; an intervention is a \emph{clamp} $\mathrm{do}(X_\text{mid}{=}0)$ that physically pins the intermediate mass and breaks the synchronization-induced spurious correlation. The mechanisms are ODE-derived but the prompt sees the same edge list and per-node losses.
+\item \textbf{Economics --- US Phillips curve (FRED).} Nodes are real macroeconomic series (\texttt{UNRATE}, \texttt{FEDFUNDS}, \texttt{MICH}, \texttt{CPILFESL}); ``intervention'' is active selection of a historical data subset rather than a physical $\mathrm{do}$ (stated as such in the main text). Here the semantically meaningful names let the LM's pretrained economic prior engage most strongly --- the opposite end of the spectrum from the anonymized SCM control.
 \end{itemize}
-The anonymised-vs-named contrast across these modalities is what the LM-prior-vs-DPO analysis (Appendix~\ref{app:scaling}) exploits: performance is preserved even when names carry no meaning, indicating the structural-plus-loss reasoning, not name semantics alone, drives intervention choice.
+The anonymized-vs-named contrast across these modalities is what the LM-prior-vs-DPO analysis (Appendix~\ref{app:scaling}) exploits: performance is preserved even when names carry no meaning, indicating the structural-plus-loss reasoning, not name semantics alone, drives intervention choice.
 
 \subsection{Reward Components in Full}
 \label{app:reward}
@@ -274,7 +274,7 @@ Seed 42 ACE exhibited training instability (loss oscillating $2.7$--$3.5$ throug
 \subsection{LM Prior vs.\ DPO and Scaling}
 \label{app:scaling}
 
-We isolate the pretrained LM's contribution from the DPO updates by comparing ACE against \emph{ACE without DPO}: the identical LM proposer and lookahead-select mechanism with only the DPO weight updates disabled. This differs from the ``No DPO'' row of Table~\ref{tab:ablations}, which additionally replaces the LM with random proposals. Under anonymisation, canonical node names $X_1\dots X_N$ are replaced by abstract hex tokens (\texttt{n\_xxxx}) drawn deterministically from the seed, removing any natural-language semantics the LM could exploit and leaving only graph structure and per-node losses to reason from.
+We isolate the pretrained LM's contribution from the DPO updates by comparing ACE against \emph{ACE without DPO}: the identical LM proposer and lookahead-select mechanism with only the DPO weight updates disabled. This differs from the ``No DPO'' row of Table~\ref{tab:ablations}, which additionally replaces the LM with random proposals. Under anonymization, canonical node names $X_1\dots X_N$ are replaced by abstract hex tokens (\texttt{n\_xxxx}) drawn deterministically from the seed, removing any natural-language semantics the LM could exploit and leaving only graph structure and per-node losses to reason from.
 
 \begin{figure}[h]
 \centering
@@ -283,11 +283,11 @@ We isolate the pretrained LM's contribution from the DPO updates by comparing AC
 }{%
   \fbox{\parbox{0.9\linewidth}{\centering\vspace{1em}\emph{Figure pending: run \texttt{scripts/analysis/aggregate\_followup\_results.py} then \texttt{scripts/analysis/plot\_followup\_results.py} on the results host to generate \texttt{figs/fig\_followup.pdf}.}\vspace{1em}}}%
 }
-\caption{\textbf{LM prior vs.\ DPO under anonymisation (30 nodes) and scaling reference (50 nodes).} (a)~Best-MSE learning curves on the anonymised 30-node SCM: ACE and ACE-without-DPO (LM proposer + lookahead, no weight updates) are statistically indistinguishable; the dashed line marks the mean episode at which best-MSE was first reached. (b)~\emph{Per-node} best MSE (total/$N$), which is scale-invariant: the 50-node cells are a larger, harder graph, not a worse method. ``ACE w/o DPO'' is an ablation of ACE, not naive zero-shot prompting.}
+\caption{\textbf{LM prior vs.\ DPO under anonymization (30 nodes) and scaling reference (50 nodes).} (a)~Best-MSE learning curves on the anonymized 30-node SCM: ACE and ACE-without-DPO (LM proposer + lookahead, no weight updates) are statistically indistinguishable; the dashed line marks the mean episode at which best-MSE was first reached. (b)~\emph{Per-node} best MSE (total/$N$), which is scale-invariant: the 50-node cells are a larger, harder graph, not a worse method. ``ACE w/o DPO'' is an ablation of ACE, not naive zero-shot prompting.}
 \label{fig:followup}
 \end{figure}
 
-The two variants are tied on canonical 30-node SCMs (ACE $1.95\pm0.77$ vs.\ ACE-w/o-DPO $1.73\pm0.22$) and remain tied under anonymisation (ACE $1.51\pm0.16$ vs.\ ACE-w/o-DPO $1.49\pm0.18$, $\approx\!0.052$ per node, N=5 seeds). At this scale the pretrained prior plus lookahead carries most of the load; DPO's marginal value is expected to grow where the prior is weaker.
+The two variants are tied on canonical 30-node SCMs (ACE $1.95\pm0.77$ vs.\ ACE-w/o-DPO $1.73\pm0.22$) and remain tied under anonymization (ACE $1.51\pm0.16$ vs.\ ACE-w/o-DPO $1.49\pm0.18$, $\approx\!0.052$ per node, N=5 seeds). At this scale the pretrained prior plus lookahead carries most of the load; DPO's marginal value is expected to grow where the prior is weaker.
 
 \textbf{Cross-$N$ scaling sweep.} Figure~\ref{fig:scaling} (main text) reports the matched sweep on the consistent hierarchical family at $N\in\{15,30,50\}$ with a fixed $\sim$40-episode plateau budget per cell. Per-node best MSE for ACE ($0.062\pm0.005$, $0.114\pm0.030$, $0.118\pm0.026$) and ACE-w/o-DPO ($0.051\pm0.002$, $0.067\pm0.015$, $0.136\pm0.007$) stay well below Random ($0.153\pm0.005$, $0.192\pm0.002$, $0.184\pm0.003$) at $N{=}15,30,50$ respectively (N=5 seeds). The sweep's $N{=}30$ ACE per-node point uses the reduced budget and is not directly comparable to the full-budget headline in Table~\ref{tab:large-scale}.
 
@@ -442,7 +442,7 @@ A note on checkpoint memory: the 1.5B-parameter LM in FP32 with optimizer state 
 
 \subsection{Code and Data}
 
-All code is released at \url{https://github.com/[anonymized]/ACE}. The repository includes:
+All code is released at \url{https://github.com/PatrickAllenCooper/ACE}. The repository includes:
 \begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
 \item Full ACE implementation (\texttt{ace\_experiments.py}) with FP16 checkpoint-resume logic.
 \item Baselines (\texttt{baselines.py}): Random, Round-Robin, Max-Variance, PPO, Bayesian OED.
