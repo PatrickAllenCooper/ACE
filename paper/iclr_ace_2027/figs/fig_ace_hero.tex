@@ -1,0 +1,247 @@
+% =============================================================================
+% Hero figure for ACE paper. Two-tier layout (LatentMAS-style):
+%   Top:    "Outer loop" dashed container  (state -> ACE step -> state' -> ...)
+%   Bottom: "Inside one ACE step" dashed container with full mechanism.
+%
+% Required preamble in main document:
+%   \usepackage{tikz}
+%   \usetikzlibrary{arrows.meta, positioning, calc, fit, shapes.geometric,
+%                   backgrounds, decorations.pathreplacing}
+%
+% Layout (left to right, inside the bottom container):
+%   State -> Policy -> Candidates -> Lookahead -> {Best, Worst}
+%                                                  -> {Environment, Learner}
+%   DPO Update sits below, fed by a single merged (best, worst) signal that
+%   enters from the right, and feeds back to Policy through a left-side path.
+%   Learner -> State long dashed feedback runs along the container floor.
+% =============================================================================
+
+% Color palette is defined in paper/figs/ace_palette.tex and \input from
+% the document preamble so all figures share the same definitions.
+
+\begin{tikzpicture}[
+    scale=0.755, transform shape,
+    every node/.style={font=\scriptsize},
+    state/.style={rectangle, draw=aceSlateDk, rounded corners=2pt,
+                  fill=aceSlate, line width=0.6pt, align=center,
+                  minimum width=1.30cm, minimum height=0.62cm},
+    stepbox/.style={rectangle, draw=aceLeafDk, rounded corners=2pt,
+                    fill=aceLeaf, line width=0.7pt, align=center,
+                    minimum width=1.65cm, minimum height=0.62cm},
+    block/.style={rectangle, draw=#1, rounded corners=3pt, line width=1.0pt,
+                  align=center, font=\scriptsize, inner sep=4pt},
+    cand/.style={rectangle, draw=aceRoseDk, rounded corners=2pt,
+                 fill=aceRose, line width=0.5pt, align=center,
+                 minimum width=1.55cm, minimum height=0.45cm,
+                 font=\scriptsize},
+    arrh/.style={-{Stealth[length=2.4mm,width=1.8mm]}, line width=0.9pt,
+                 line cap=round},
+    arrl/.style={-{Stealth[length=2.0mm,width=1.6mm]}, line width=0.7pt,
+                 line cap=round, color=aceSlateDk},
+    arrt/.style={-{Stealth[length=1.7mm,width=1.4mm]}, line width=0.55pt,
+                 line cap=round, color=aceSlateDk},
+    fb/.style={-{Stealth[length=2.4mm,width=1.8mm]}, line width=1.0pt,
+               dashed, color=aceVioDk, line cap=round, dash pattern=on 4pt off 3pt},
+    fbn/.style={-, line width=1.0pt, dashed, color=aceVioDk, line cap=round,
+                dash pattern=on 4pt off 3pt},
+    feed/.style={-{Stealth[length=2.0mm,width=1.6mm]}, line width=0.8pt,
+                 dashed, color=aceMuted, line cap=round,
+                 dash pattern=on 4pt off 3pt},
+    lbl/.style={font=\scriptsize, color=aceSlateDk, align=center,
+                inner sep=1pt},
+    lblc/.style={font=\scriptsize, color=#1, align=center,
+                 inner sep=1pt},
+]
+
+% =====================================================================
+% TIER 1 -- Outer loop (top dashed container)
+% =====================================================================
+
+% Container.
+\draw[dashed, color=aceMuted, line width=0.5pt, rounded corners=4pt,
+      dash pattern=on 3pt off 2pt]
+      (-9.20, 5.55) rectangle (9.30, 3.55);
+\node[anchor=north west, font=\bfseries\small]
+      at (-9.05, 5.45)
+      {Outer loop\;\;\textcolor{aceMuted}{\normalfont\scriptsize state evolves as the policy executes interventions}};
+
+\node[state]   (s0)  at (-4.30, 4.30) {$s_t$};
+\node[stepbox] (st0) at (-2.30, 4.30) {ACE step};
+\node[state]   (s1)  at (-0.30, 4.30) {$s_{t+1}$};
+\node[stepbox] (st1) at ( 1.70, 4.30) {ACE step};
+\node[state]   (s2)  at ( 3.70, 4.30) {$s_{t+2}$};
+\node[font=\large, color=aceMuted] at (5.00, 4.30) {$\cdots$};
+\draw[arrl] (s0)  -- (st0);
+\draw[arrl] (st0) -- (s1);
+\draw[arrl] (s1)  -- (st1);
+\draw[arrl] (st1) -- (s2);
+
+% =====================================================================
+% TIER 2 -- Inside one ACE step (bottom dashed container)
+% =====================================================================
+
+\draw[dashed, color=aceMuted, line width=0.5pt, rounded corners=4pt,
+      dash pattern=on 3pt off 2pt]
+      (-9.20, 3.30) rectangle (9.30, -4.30);
+\node[anchor=north west, font=\bfseries\small]
+      at (-9.05, 3.18) {Inside one ACE step};
+
+% --- (1) State block --------------------------------------------------
+\node[block=aceSlateDk, fill=aceSlate, anchor=center,
+      minimum width=2.30cm, minimum height=1.95cm,
+      align=left, font=\scriptsize, inner sep=5pt]
+      (state) at (-7.85, 1.45) {%
+  \textbf{State} $s_t$\\[2pt]
+  \scriptsize $\bullet$ graph $\mathcal{G}$\\
+  \scriptsize $\bullet$ losses $\{L_i\}$\\
+  \scriptsize $\bullet$ history};
+
+% --- (2) Policy block -------------------------------------------------
+\node[block=aceLeafDk, fill=aceLeaf, line width=1.4pt, anchor=center,
+      minimum width=2.65cm, minimum height=1.95cm]
+      (pol) at (-4.40, 1.45) {%
+  \textbf{Policy} $\pi_\phi$\\[2pt]
+  Qwen2.5-1.5B (LM)\\
+  + DPO fine-tuning\\[2pt]
+  \scriptsize generates $K{=}4$\\
+  \scriptsize candidates};
+
+\draw[arrh] (state.east) -- (pol.west);
+\node[lbl, anchor=south] at ($(state.east)!0.5!(pol.west)+(0,0.12)$) {prompt};
+
+% --- (3) K=4 Candidates ----------------------------------------------
+\node[cand] (c1) at (-1.45,  2.30) {$c_1$:\, $\mathrm{do}(X{=}0)$};
+\node[cand] (c2) at (-1.45,  1.75) {$c_2$:\, $\mathrm{do}(X{=}1)$};
+\node[cand] (c3) at (-1.45,  1.20) {$c_3$:\, $\mathrm{do}(X{=}2)$};
+\node[cand] (c4) at (-1.45,  0.65) {$c_4$:\, $\mathrm{do}(X{=}3)$};
+
+% Four uniform thin arrows fanning out from Policy to each candidate. All
+% four candidates are equivalent at this stage (Policy generates them as a
+% set of K=4), so they all share the same arrow style. K=4 multiplicity is
+% stated inside the Policy block.
+\draw[arrt] (pol.east) -- (c1.west);
+\draw[arrt] (pol.east) -- (c2.west);
+\draw[arrt] (pol.east) -- (c3.west);
+\draw[arrt] (pol.east) -- (c4.west);
+
+% --- (4) Lookahead block ---------------------------------------------
+\node[block=aceAmberDk, fill=aceAmber, line width=1.4pt, anchor=center,
+      minimum width=3.00cm, minimum height=1.95cm,
+      align=center, font=\scriptsize]
+      (look) at (1.85, 1.45) {%
+  \textbf{Lookahead}\\[2pt]
+  \scriptsize for each $c_k$: clone\\
+  \scriptsize learner, simulate,\\[1pt]
+  $\Delta\mathcal{L}(c_k){=}L_{\mathrm{bef}}{-}L_{\mathrm{aft}}$\\[2pt]
+  \scriptsize $R{=}\Delta\mathcal{L}{+}\alpha w{+}\gamma D$};
+
+\draw[arrt] (c1.east) -- (look.west);
+\draw[arrt] (c2.east) -- (look.west);
+\draw[arrt] (c3.east) -- (look.west);
+\draw[arrt] (c4.east) -- (look.west);
+
+% --- (5) Best / Worst (right of Lookahead) ---------------------------
+% Pulled rightward to x=5.30 so the look->best/worst arrows can be straight
+% horizontal (not diagonal) and have enough length for clear labels above/
+% below them.
+\node[block=aceGoldDk, fill=aceGold, line width=1.4pt,
+      minimum width=1.50cm, minimum height=0.65cm]
+      (best) at (5.30, 2.05) {\textbf{best} $c^{*}$};
+\node[block=aceRubyDk, fill=aceRuby, line width=1.0pt,
+      minimum width=1.50cm, minimum height=0.65cm]
+      (worst) at (5.30, 0.85) {\textbf{worst} $c^{-}$};
+
+% Straight horizontal arrows: emerge from Lookahead's right edge at the
+% same y as best/worst (not from the centered look.east), so the arrows
+% are parallel to the page baseline and labels can sit cleanly above/below.
+\draw[arrh] (3.35, 2.05) -- (best.west);
+\draw[arrh] (3.35, 0.85) -- (worst.west);
+% Horizontal labels above/below their arrows. Anchored at south_east /
+% north_east so the label's RIGHT edge sits 0.05 left of best.west /
+% worst.west, with no pixel of overlap into either block.
+\node[lbl, anchor=south east] at ($(best.west)+(-0.05, 0.13)$) {argmax $R$};
+\node[lbl, anchor=north east] at ($(worst.west)+(-0.05,-0.13)$) {argmin $R$};
+
+% --- (6) Environment + Learner (right of Best/Worst) -----------------
+\node[block=aceSkyDk, fill=aceSky, line width=1.4pt,
+      minimum width=2.05cm, minimum height=1.00cm,
+      align=center]
+      (env) at (8.10, 2.05) {%
+  \textbf{Environment} $M^{*}$\\[1pt]
+  \scriptsize ground-truth SCM};
+\node[block=aceTealDk, fill=aceTeal, line width=1.4pt,
+      minimum width=2.05cm, minimum height=1.00cm,
+      align=center]
+      (learn) at (8.10, 0.45) {%
+  \textbf{Learner} $M_\theta$\\[1pt]
+  \scriptsize student SCM};
+
+% best -> env (gold horizontal arrow). Shifted up to y=2.20 so the
+% purple feedback below can exit best at .east (y=2.05) without
+% overlapping the gold path.
+\draw[arrh, color=aceGoldDk] (6.05, 2.20) -- (7.075, 2.20);
+\node[lblc=aceGoldDk, anchor=south] at (6.5625, 2.40) {execute $c^{*}$};
+% env -> learn (vertical, "data D" label to the right of arrow)
+\draw[arrh] (env.south) -- (learn.north);
+\node[lbl, anchor=west]
+      at ($(env.south)!0.5!(learn.north)+(0.15,0)$) {data $\mathcal{D}$};
+
+% --- (7) DPO Update (bottom-center) ----------------------------------
+\node[block=aceVioDk, fill=aceVio, line width=1.4pt,
+      minimum width=4.80cm, minimum height=1.30cm,
+      align=center, font=\scriptsize]
+      (dpo) at (0.00, -2.55) {%
+  \textbf{DPO Update}\\[2pt]
+  preference pair $(c^{*},\, c^{-})$\\[1pt]
+  $\mathcal{L}_{\mathrm{DPO}}=-\log\sigma\!\big(\beta\,\log\tfrac{\pi_\phi}{\pi_{\mathrm{ref}}}\big)$};
+
+% --- (8) Best/Worst -> DPO via a single merged T-junction channel ------
+% The "best path" is one continuous arrow: best.south_east -> right to
+% the channel x -> long way down -> left into DPO's east edge.
+% The "worst path" is a short connector that joins the channel at a
+% T-junction at y=worst.south (0.525). Both paths are dashed in the
+% same color so visually they read as a single feedback signal merging.
+% Drawing each path as ONE \draw call (rather than separate stubs)
+% guarantees the dash pattern flows continuously through every corner.
+
+% Best/Worst -> DPO feedback channel. Both blocks connect at their
+% right-edge MIDPOINTS (.east anchor) rather than at the bottom-right
+% corners -- this reads as a deliberate "side exit" rather than a line
+% hanging off a corner. The gold execute-c* arrow has been shifted up
+% to y=2.20 so the purple feedback can exit best at .east (y=2.05).
+% Best path is drawn as ONE continuous \draw so the dash pattern flows
+% through every corner without phase resets.
+\draw[fb]  (best.east) -- (6.75, 2.05) -- (6.75, -2.55) -- (dpo.east);
+\draw[fbn] (worst.east) -- (6.75, 0.85);
+
+% '(c*, c-) pair' label is now horizontal, sitting above the bottom
+% horizontal segment of the feedback channel where there is plenty of
+% empty space. Math symbols (parens, superscripts) read normally rather
+% than rotated.
+\node[font=\scriptsize, color=aceVioDk, anchor=south]
+      at (4.55, -2.45) {$(c^{*},\, c^{-})$ pair};
+
+% --- (9) DPO -> Policy feedback. LEFT then UP: exit DPO's west edge
+% horizontally, traverse left to Policy's x, then a single vertical
+% segment up into Policy's south. Two segments with one rounded corner
+% reads more naturally than UP-LEFT-UP (which makes the eye double
+% back at the bend).
+\draw[fb, rounded corners=5pt]
+      (dpo.west) -- (-4.40, -2.55) -- (pol.south);
+% Label sits above the horizontal segment in the empty area immediately
+% to the left of DPO.
+\node[font=\scriptsize, color=aceVioDk, anchor=south]
+      at (-3.40, -2.42) {policy gradient};
+
+% --- (10) Learner -> State (long dashed feedback along container floor)
+% First segment must be VERTICAL (matching learn.south.x = 8.10), then
+% horizontal LEFT, then VERTICAL up into state. All three segments are
+% strictly orthogonal.
+\draw[feed]
+      (learn.south) -- (8.10, -3.95)
+      -- (-7.85, -3.95)
+      -- (state.south);
+\node[font=\scriptsize, color=aceMuted, align=center]
+      at (0.00, -3.65) {next step (state advances)};
+
+\end{tikzpicture}
