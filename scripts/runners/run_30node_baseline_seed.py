@@ -20,6 +20,7 @@ Usage (CURC worker script calls this):
 import sys
 import os
 import copy
+import json
 import random
 import argparse
 import logging
@@ -33,7 +34,7 @@ import pandas as pd
 
 from experiments.large_scale_scm import LargeScaleSCM
 from baselines import (
-    StudentSCM, SCMLearner, ScientificCritic,
+    StudentSCM, SCMLearner, ScientificCritic, InstrumentedOracle,
     RandomPolicy, RoundRobinPolicy, MaxVariancePolicy, PPOPolicy,
 )
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -100,7 +101,15 @@ class BayesianOEDFast:
         for _ in range(self.n_mc_samples):
             cloned_student = copy.deepcopy(student)
             cloned_learner = SCMLearner(cloned_student, oracle=self.scm)
-            data = self.scm.generate(50, interventions={node: value})
+            # Bayesian OED's own EIG estimation queries the oracle
+            # n_candidates x n_mc_samples times per step to score candidates,
+            # exactly the same lookahead/execution asymmetry raised against
+            # ACE (F4Cb); tag it so total-query-matched comparisons account
+            # for it too.
+            generate_kwargs = {"interventions": {node: value}}
+            if isinstance(self.scm, InstrumentedOracle):
+                generate_kwargs["tag"] = "candidate_probe"
+            data = self.scm.generate(50, **generate_kwargs)
             cloned_learner.train_step(data, intervened=node, n_epochs=20)
             new_losses = cloned_learner.evaluate()
             gains.append(sum(current_losses.values()) - sum(new_losses.values()))
@@ -118,12 +127,35 @@ def run_episode_loop(
     obs_train_interval: int = 3,
     obs_train_samples: int = 200,
     n_train_epochs: int = 50,
+    query_budget: int = None,
 ) -> pd.DataFrame:
-    """Run policy against LargeScaleSCM and return per-step DataFrame."""
+    """
+    Run policy against LargeScaleSCM and return per-step DataFrame.
+
+    If ``query_budget`` is set, ``oracle`` must be an ``InstrumentedOracle``
+    and episodes run (up to a ``50 * n_episodes`` safety cap) until its
+    cumulative sample count across all tags reaches the budget, instead of
+    stopping at a fixed ``n_episodes``.
+    """
     critic = ScientificCritic(oracle)
     all_records = []
 
-    for episode in range(n_episodes):
+    if query_budget is not None and not isinstance(oracle, InstrumentedOracle):
+        raise ValueError("query_budget requires an InstrumentedOracle to measure cumulative queries")
+
+    max_episodes = n_episodes if query_budget is None else n_episodes * 50
+    episode = 0
+    while episode < max_episodes:
+        if query_budget is not None:
+            if oracle.total_samples() >= query_budget:
+                logging.info(
+                    f"[Query Budget] Reached {oracle.total_samples()}/{query_budget} "
+                    f"environment samples at episode {episode}; stopping."
+                )
+                break
+        elif episode >= n_episodes:
+            break
+
         student = StudentSCM(oracle)
         learner = SCMLearner(student, oracle=oracle)
 
@@ -135,7 +167,10 @@ def run_episode_loop(
         for step in range(steps_per_episode):
             target, value = policy.select_intervention(student, oracle=oracle)
 
-            data = oracle.generate(n_samples=50, interventions={target: value})
+            generate_kwargs = {"interventions": {target: value}}
+            if isinstance(oracle, InstrumentedOracle):
+                generate_kwargs["tag"] = "executed"
+            data = oracle.generate(n_samples=50, **generate_kwargs)
             learner.train_step(data, intervened=target, n_epochs=n_train_epochs)
 
             if obs_train_interval > 0 and step > 0 and step % obs_train_interval == 0:
@@ -161,7 +196,15 @@ def run_episode_loop(
             logging.info(f"  Episode {episode}/{n_episodes}, "
                          f"loss={total_loss:.4f}")
 
-    return pd.DataFrame(all_records)
+        episode += 1
+
+    df = pd.DataFrame(all_records)
+    if isinstance(oracle, InstrumentedOracle) and len(df) > 0:
+        df["env_queries_executed"] = oracle.total_samples(tags=["executed"])
+        df["env_queries_candidate_probe"] = oracle.total_samples(tags=["candidate_probe"])
+        df["env_queries_observational"] = oracle.total_samples(tags=["observational"])
+        df["env_queries_total"] = oracle.total_samples()
+    return df
 
 
 def main():
@@ -180,6 +223,12 @@ def main():
     parser.add_argument("--steps", type=int, default=25)
     parser.add_argument("--obs_train_interval", type=int, default=3)
     parser.add_argument("--obs_train_samples", type=int, default=200)
+    parser.add_argument("--query_budget", type=int, default=None,
+                        help="If set, run episodes until cumulative environment "
+                             "sample count (executed + candidate-probe + "
+                             "observational) reaches this value instead of a "
+                             "fixed --episodes count. For total-query-matched "
+                             "comparisons against ACE's lookahead cost.")
     parser.add_argument("--output", type=str,
                         default="results/curc_30node_baselines")
     args = parser.parse_args()
@@ -212,6 +261,11 @@ def main():
                  f"{sum(len(v) for v in scm.graph.values())} edges, "
                  f"{sum(1 for n in nodes if len(scm.get_parents(n))>=2)} colliders")
 
+    # Wrap in InstrumentedOracle whenever budget accounting is requested, or
+    # unconditionally otherwise for a free per-run query_budget.json summary
+    # (mirrors ace_experiments.py's ExperimentExecutor accounting).
+    oracle = InstrumentedOracle(scm)
+
     if args.method == "random":
         policy = RandomPolicy(nodes)
     elif args.method == "round_robin":
@@ -221,14 +275,18 @@ def main():
     elif args.method == "ppo":
         policy = PPOPolicy(nodes)
     elif args.method == "bayesian_oed":
-        policy = BayesianOEDFast(scm, n_candidates=10, n_mc_samples=3)
+        # Pass the InstrumentedOracle through so BayesianOEDFast's own
+        # per-candidate EIG-estimation queries (n_candidates x n_mc_samples
+        # per step) are tagged "candidate_probe" and counted.
+        policy = BayesianOEDFast(oracle, n_candidates=10, n_mc_samples=3)
 
     df = run_episode_loop(
-        policy, scm,
+        policy, oracle,
         n_episodes=args.episodes,
         steps_per_episode=args.steps,
         obs_train_interval=args.obs_train_interval,
         obs_train_samples=args.obs_train_samples,
+        query_budget=args.query_budget,
     )
 
     # Final loss = last step of last episode
@@ -257,6 +315,10 @@ def main():
     }
     pd.DataFrame([summary]).to_csv(
         os.path.join(run_dir, "summary.csv"), index=False)
+
+    with open(os.path.join(run_dir, "query_budget.json"), "w") as f:
+        json.dump(oracle.query_summary(), f, indent=2)
+    logging.info(f"  [Query Budget] {args.method} breakdown: {oracle.query_summary()}")
 
     logging.info(f"  Results saved to {run_dir}")
 

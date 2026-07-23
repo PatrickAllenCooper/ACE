@@ -10,6 +10,8 @@ Ablations:
 2. no_convergence: Disable per-node convergence (run fixed 100 episodes)
 3. no_root_learner: Disable dedicated root learner
 4. no_diversity: Disable diversity reward
+5. no_node_importance: Zero the node-importance weight (cov_bonus=0), isolating
+   the information-gain-plus-diversity reward from the child-impact weighting term
 
 Usage:
     python scripts/runners/run_ablations_fast.py --all --seeds 42 123 456
@@ -43,6 +45,7 @@ def run_ablation(ablation: str, seed: int, output_dir: str, max_episodes: int = 
         'no_convergence': ['--no_per_node_convergence'],
         'no_root_learner': ['--no_dedicated_root_learner'],
         'no_diversity': ['--no_diversity_reward'],
+        'no_node_importance': ['--cov_bonus', '0.0'],
     }
     
     if ablation not in ablation_flags:
@@ -118,7 +121,8 @@ def run_ablation(ablation: str, seed: int, output_dir: str, max_episodes: int = 
 def main():
     parser = argparse.ArgumentParser(description="Run fast ablation studies")
     parser.add_argument('--all', action='store_true', help='Run all ablations')
-    parser.add_argument('--ablation', type=str, choices=['no_dpo', 'no_convergence', 'no_root_learner', 'no_diversity'],
+    parser.add_argument('--ablation', type=str,
+                        choices=['no_dpo', 'no_convergence', 'no_root_learner', 'no_diversity', 'no_node_importance'],
                         help='Run specific ablation')
     parser.add_argument('--seeds', nargs='+', type=int, default=[42, 123, 456],
                         help='Random seeds to use')

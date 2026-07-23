@@ -15,7 +15,10 @@ import numpy as np
 import pandas as pd
 
 RESULTS_ROOT = "results/curc_30node_baselines"
-METHODS = ["random", "round_robin", "max_variance"]
+# bayesian_oed added for the ICLR resubmission (jobs/curc_submit_30node_bayesian_oed.sh):
+# fixes the contradiction reviewer F4Cb caught between the submission's "does not
+# scale to 30 nodes" claim and its own appendix's per-step timing numbers.
+METHODS = ["random", "round_robin", "max_variance", "bayesian_oed"]
 SEEDS = [42, 123, 456, 789, 1011]
 
 
@@ -55,6 +58,7 @@ def main():
         "random":       "Random",
         "round_robin":  "Round-Robin",
         "max_variance": "Max-Variance",
+        "bayesian_oed": "Bayesian-OED",
     }
     for method in METHODS:
         grp = df[df["method"] == method]

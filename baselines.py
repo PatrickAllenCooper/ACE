@@ -34,6 +34,7 @@ Usage:
 """
 
 import argparse
+import json
 import os
 import logging
 import random
@@ -52,6 +53,48 @@ import matplotlib.pyplot as plt
 # ----------------------------------------------------------------
 # 1. SCM DEFINITIONS (Copied from ace_experiments.py for standalone use)
 # ----------------------------------------------------------------
+
+class InstrumentedOracle:
+    """
+    Wraps a ground-truth SCM oracle and counts every ``generate()`` call,
+    tagged by which part of the algorithm issued it.
+
+    Mirrors ``ExperimentExecutor`` in ace_experiments.py so that total
+    environment-query counts are directly comparable between ACE and the
+    baselines here (reviewer wZrW/F4Cb/d6tT/TnpG budget-accounting concern:
+    Max-Variance's own MC-dropout candidate scoring queries the oracle
+    ``n_candidates`` times per step, exactly the same double-counting issue
+    raised against ACE's lookahead, just previously uninstrumented).
+    """
+
+    def __init__(self, oracle):
+        self._oracle = oracle
+        self.query_log = {}
+
+    def __getattr__(self, name):
+        # Delegate everything except generate() to the wrapped oracle
+        # (nodes, graph, get_parents, noise_std, ...).
+        return getattr(self._oracle, name)
+
+    def _record_query(self, tag, n_samples):
+        bucket = self.query_log.setdefault(tag, {"calls": 0, "samples": 0})
+        bucket["calls"] += 1
+        bucket["samples"] += int(n_samples)
+
+    def total_samples(self, tags=None):
+        items = self.query_log.items() if tags is None else ((t, b) for t, b in self.query_log.items() if t in tags)
+        return sum(b["samples"] for _, b in items)
+
+    def query_summary(self):
+        summary = {tag: dict(bucket) for tag, bucket in self.query_log.items()}
+        summary["total"] = {"calls": sum(b["calls"] for b in self.query_log.values()),
+                             "samples": self.total_samples()}
+        return summary
+
+    def generate(self, n_samples, interventions=None, tag="executed"):
+        self._record_query(tag, n_samples)
+        return self._oracle.generate(n_samples, interventions=interventions)
+
 
 class GroundTruthSCM:
     """Ground truth SCM with known structural equations."""
@@ -224,8 +267,14 @@ class MaxVariancePolicy:
     def _compute_variance(self, student: StudentSCM, oracle: GroundTruthSCM,
                           target: str, value: float) -> float:
         """Compute predictive variance using MC Dropout."""
-        # Generate interventional data
-        data = oracle.generate(n_samples=50, interventions={target: value})
+        # Generate interventional data. Tagged "candidate_probe": Max-Variance
+        # queries the oracle once per candidate (n_candidates=64 by default)
+        # to score it, but only one candidate per step is ever executed --
+        # the same lookahead/execution asymmetry raised against ACE.
+        generate_kwargs = {"interventions": {target: value}}
+        if isinstance(oracle, InstrumentedOracle):
+            generate_kwargs["tag"] = "candidate_probe"
+        data = oracle.generate(n_samples=50, **generate_kwargs)
         
         # MC Dropout: run multiple forward passes
         predictions = {node: [] for node in student.nodes}
@@ -748,7 +797,10 @@ class SCMLearner:
     def observational_train(self, oracle: GroundTruthSCM, n_samples: int = 100,
                             n_epochs: int = 50):
         """Periodic observational training to preserve all mechanisms."""
-        obs_data = oracle.generate(n_samples=n_samples, interventions=None)
+        generate_kwargs = {"interventions": None}
+        if isinstance(oracle, InstrumentedOracle):
+            generate_kwargs["tag"] = "observational"
+        obs_data = oracle.generate(n_samples=n_samples, **generate_kwargs)
         return self.train_step(obs_data, intervened=None, n_epochs=n_epochs)
 
 
@@ -757,7 +809,14 @@ class ScientificCritic:
     
     def __init__(self, oracle: GroundTruthSCM):
         self.oracle = oracle
-        self.val_data = oracle.generate(n_samples=500)
+        # Fixed held-out validation set, drawn once. Bypasses the
+        # InstrumentedOracle's query counter (if wrapped): this mirrors
+        # ace_experiments.py's ScientificCritic, which also draws its
+        # validation set directly from the ground truth without routing
+        # through ExperimentExecutor. It's held-out evaluation data, not
+        # part of the sequential experimental campaign being budgeted.
+        raw_oracle = oracle._oracle if isinstance(oracle, InstrumentedOracle) else oracle
+        self.val_data = raw_oracle.generate(n_samples=500)
         
     def evaluate(self, student: StudentSCM) -> Tuple[float, Dict[str, float]]:
         """Compute MSE for each mechanism."""
@@ -832,14 +891,39 @@ def run_max_variance_policy(scm: GroundTruthSCM, learner, episodes: int):
 
 def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
                  steps_per_episode: int = 25, obs_train_interval: int = 5,
-                 obs_train_samples: int = 100) -> pd.DataFrame:
-    """Run a baseline policy and collect metrics."""
-    
+                 obs_train_samples: int = 100, query_budget: Optional[int] = None) -> pd.DataFrame:
+    """
+    Run a baseline policy and collect metrics.
+
+    If ``query_budget`` is set, ``oracle`` must be an ``InstrumentedOracle``:
+    episodes keep running (up to a ``50 * n_episodes`` safety cap) until the
+    oracle's cumulative sample count across ALL tags (executed, candidate
+    probes, observational) reaches the budget, instead of stopping at a fixed
+    ``n_episodes``. This allows a total-environment-query-matched comparison
+    against ACE's lookahead cost, rather than matching only executed steps.
+    """
+
     critic = ScientificCritic(oracle)
     all_records = []
     is_ppo = isinstance(policy, PPOPolicy)
-    
-    for episode in range(n_episodes):
+
+    if query_budget is not None and not isinstance(oracle, InstrumentedOracle):
+        raise ValueError("query_budget requires an InstrumentedOracle to measure cumulative queries")
+
+    max_episodes = n_episodes if query_budget is None else n_episodes * 50
+    episode = 0
+    while episode < max_episodes:
+        if query_budget is not None:
+            if oracle.total_samples() >= query_budget:
+                logging.info(
+                    f"[Query Budget] Reached {oracle.total_samples()}/{query_budget} "
+                    f"environment samples at episode {episode}; stopping. "
+                    f"Breakdown: {oracle.query_summary()}"
+                )
+                break
+        elif episode >= n_episodes:
+            break
+
         # Fresh student each episode
         student = StudentSCM(oracle)
         learner = SCMLearner(student, oracle=oracle)
@@ -863,7 +947,10 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
                 target, value = policy.select_intervention(student, oracle=oracle)
             
             # Execute intervention
-            data = oracle.generate(n_samples=50, interventions={target: value})
+            generate_kwargs = {"interventions": {target: value}}
+            if isinstance(oracle, InstrumentedOracle):
+                generate_kwargs["tag"] = "executed"
+            data = oracle.generate(n_samples=50, **generate_kwargs)
             learner.train_step(data, intervened=target)
             
             # Periodic observational training
@@ -902,8 +989,19 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
             
         if episode % 10 == 0:
             logging.info(f"  Episode {episode}/{n_episodes}, Final Loss: {total_loss:.4f}")
-            
-    return pd.DataFrame(all_records)
+
+        episode += 1
+
+    df = pd.DataFrame(all_records)
+    if isinstance(oracle, InstrumentedOracle) and len(df) > 0:
+        # Broadcast final query-count summary onto every row, mirroring
+        # ace_experiments.py's metrics.csv so ACE and baseline result files
+        # carry directly comparable budget-accounting columns.
+        df["env_queries_executed"] = oracle.total_samples(tags=["executed"])
+        df["env_queries_candidate_probe"] = oracle.total_samples(tags=["candidate_probe"])
+        df["env_queries_observational"] = oracle.total_samples(tags=["observational"])
+        df["env_queries_total"] = oracle.total_samples()
+    return df
 
 
 # ----------------------------------------------------------------
@@ -1023,13 +1121,28 @@ def main():
                         help="Observational training interval (0=disabled)")
     parser.add_argument("--obs_train_samples", type=int, default=200,
                         help="Observational samples per injection")
+    parser.add_argument("--query_budget", type=int, default=None,
+                        help="If set, run episodes until cumulative environment sample count "
+                             "(executed + candidate-probe + observational queries) reaches this "
+                             "value, instead of a fixed --episodes count. Use to match this "
+                             "baseline's total environment-query cost to ACE's lookahead cost "
+                             "(see --lookahead_on_student / --query_budget in ace_experiments.py).")
+    parser.add_argument("--seed", type=int, default=None,
+                        help="Random seed for reproducibility. Previously baselines.py had no "
+                             "seed control at all, so per-seed job directories (e.g. seed_42/) "
+                             "differed only in name, not in the underlying random stream.")
     parser.add_argument("--output", type=str, default="results", help="Output directory")
     # PPO-specific arguments
     parser.add_argument("--ppo_lr", type=float, default=3e-4, help="PPO learning rate")
     parser.add_argument("--ppo_epochs", type=int, default=4, help="PPO epochs per update")
     parser.add_argument("--ppo_clip", type=float, default=0.2, help="PPO clip epsilon")
     args = parser.parse_args()
-    
+
+    if args.seed is not None:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
+
     # Setup
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir = os.path.join(args.output, f"baselines_{timestamp}")
@@ -1045,8 +1158,8 @@ def main():
     )
     
     # Ground truth
-    oracle = GroundTruthSCM()
-    nodes = oracle.nodes
+    base_oracle = GroundTruthSCM()
+    nodes = base_oracle.nodes
     
     # Select baselines to run
     results = {}
@@ -1082,17 +1195,26 @@ def main():
                 ppo_epochs=args.ppo_epochs
             )
             logging.info(f"  PPO Config: lr={args.ppo_lr}, clip={args.ppo_clip}, epochs={args.ppo_epochs}")
-            
+
+        # Fresh counters per baseline: query counts must not accumulate
+        # across baselines sharing the same underlying oracle.
+        oracle = InstrumentedOracle(base_oracle)
+
         df = run_baseline(
             policy, oracle,
             n_episodes=args.episodes,
             steps_per_episode=args.steps,
             obs_train_interval=args.obs_train_interval,
-            obs_train_samples=args.obs_train_samples
+            obs_train_samples=args.obs_train_samples,
+            query_budget=args.query_budget,
         )
         
         results[policy.name] = df
         df.to_csv(os.path.join(run_dir, f"{baseline_name}_results.csv"), index=False)
+
+        with open(os.path.join(run_dir, f"{baseline_name}_query_budget.json"), "w") as f:
+            json.dump(oracle.query_summary(), f, indent=2)
+        logging.info(f"  [Query Budget] {baseline_name} breakdown: {oracle.query_summary()}")
         
         # Save PPO-specific training curves
         if baseline_name == "ppo" and hasattr(policy, 'loss_history') and policy.loss_history:

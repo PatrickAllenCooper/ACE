@@ -104,10 +104,41 @@ class StudentSCM(CausalModel, nn.Module):
 # 2. EXPERIMENTAL ENGINE
 # ----------------------------------------------------------------
 class ExperimentExecutor:
+    """
+    Wraps the ground-truth environment and counts every query made against it.
+
+    Budget accounting (reviewer wZrW, F4Cb, d6tT, TnpG at the NeurIPS 2026
+    review): ACE's lookahead evaluates K candidates per step by querying the
+    real environment for each one, but only the executed (winning) candidate
+    is charged against the reported intervention budget. ``query_log`` makes
+    every environment call explicit and taggable (``executed``, ``lookahead``,
+    ``observational``, ...) so total-query-matched comparisons can be built
+    on top of it (see ``--query_budget`` and ``--lookahead_on_student``).
+    """
     def __init__(self, ground_truth_scm):
         self.env = ground_truth_scm
-        
-    def run_experiment(self, intervention_plan):
+        self.query_log = {}
+
+    def _record_query(self, tag, n_samples):
+        bucket = self.query_log.setdefault(tag, {"calls": 0, "samples": 0})
+        bucket["calls"] += 1
+        bucket["samples"] += int(n_samples)
+
+    def total_calls(self, tags=None):
+        items = self.query_log.items() if tags is None else ((t, b) for t, b in self.query_log.items() if t in tags)
+        return sum(b["calls"] for _, b in items)
+
+    def total_samples(self, tags=None):
+        items = self.query_log.items() if tags is None else ((t, b) for t, b in self.query_log.items() if t in tags)
+        return sum(b["samples"] for _, b in items)
+
+    def query_summary(self):
+        """Full per-tag breakdown plus totals, for logging/serialization."""
+        summary = {tag: dict(bucket) for tag, bucket in self.query_log.items()}
+        summary["total"] = {"calls": self.total_calls(), "samples": self.total_samples()}
+        return summary
+
+    def run_experiment(self, intervention_plan, tag="executed"):
         """
         Runs an experiment and returns a batch dict:
           - data: dict[node] -> Tensor[n]
@@ -115,21 +146,62 @@ class ExperimentExecutor:
 
         IMPORTANT: The learner must NOT train a node's structural mechanism on samples
         where that node was directly intervened on (do-operator breaks the mechanism).
+
+        ``tag`` records which phase of the algorithm issued the query
+        (e.g. "executed", "lookahead", "observational") for budget accounting.
         """
         if intervention_plan is None:
-            return {"data": self.env.generate(n_samples=100), "intervened": None}
-        
+            n_samples = 100
+            data = self.env.generate(n_samples=n_samples)
+            self._record_query(tag, n_samples)
+            return {"data": data, "intervened": None}
+
         target = intervention_plan.get('target')
         value = intervention_plan.get('value')
         n_samples = intervention_plan.get('samples', 100)
-        
+
         if target:
-            return {
-                "data": self.env.generate(n_samples, interventions={target: value}),
-                "intervened": target,
-            }
+            data = self.env.generate(n_samples, interventions={target: value})
+            self._record_query(tag, n_samples)
+            return {"data": data, "intervened": target}
         else:
-            return {"data": self.env.generate(n_samples), "intervened": None}
+            data = self.env.generate(n_samples)
+            self._record_query(tag, n_samples)
+            return {"data": data, "intervened": None}
+
+def generate_student_lookahead_batch(current_student, intervention_plan):
+    """
+    Generate the lookahead-scoring batch from the student's OWN current beliefs
+    rather than from the ground-truth environment.
+
+    Standard ACE lookahead clones the learner and trains the clone on data
+    drawn from the real environment for each of the K candidates, so every
+    lookahead evaluation is an oracle query -- exactly the double-counting
+    reviewers flagged (only the winning candidate is charged against the
+    stated intervention budget, even though K were actually queried).
+
+    Under ``--lookahead_on_student``, candidates are instead scored by
+    simulating the intervention on a detached snapshot of the student's
+    current mechanism. This makes lookahead free of environment queries
+    (the executed-interventions budget is then honest on its own), at the
+    cost of scoring candidates against the learner's current, possibly
+    wrong, beliefs instead of ground truth.
+    """
+    target = intervention_plan.get('target') if intervention_plan else None
+    value = intervention_plan.get('value') if intervention_plan else None
+    n_samples = intervention_plan.get('samples', 100) if intervention_plan else 100
+
+    was_training = current_student.training
+    current_student.eval()
+    with torch.no_grad():
+        interventions = {target: value} if target else None
+        raw = current_student.forward(n_samples=n_samples, interventions=interventions)
+        data = {k: v.detach().clone() for k, v in raw.items()}
+    if was_training:
+        current_student.train()
+
+    return {"data": data, "intervened": target}
+
 
 class SCMLearner:
     def __init__(self, student_scm, lr=0.01, buffer_steps=50, initial_buffer=None):
@@ -984,6 +1056,51 @@ def dpo_loss_llm(policy_model, ref_model, scm_state, win_text, lose_text, node_l
     logger.report(every_n=100)
     
     return loss
+
+
+def sft_best_loss_llm(policy_model, scm_state, win_text, node_losses=None, intervention_history=None):
+    """
+    DPO alternative: supervised fine-tuning on the best candidate only.
+
+    Discards the loser and the reference policy entirely -- pure imitation of
+    the argmax lookahead candidate. This isolates whether pairwise preference
+    *comparison* (DPO) contributes anything beyond simply distilling the best
+    candidate found by lookahead (reviewer d6tT's "supervised learning on the
+    best candidate" alternative).
+    """
+    logits, input_ids = policy_model(scm_state, [win_text], node_losses=node_losses, intervention_history=intervention_history)
+    shift_logits = logits[..., :-1, :].contiguous()
+    shift_labels = input_ids[..., 1:].contiguous()
+    log_probs = F.log_softmax(shift_logits, dim=-1)
+    token_log_probs = torch.gather(log_probs, -1, shift_labels.unsqueeze(-1)).squeeze(-1)
+    return -token_log_probs.sum(dim=-1).mean()
+
+
+def ranking_loss_llm(policy_model, scm_state, win_text, lose_text, node_losses=None, intervention_history=None, beta=0.1):
+    """
+    DPO alternative: pairwise Bradley-Terry ranking loss on raw policy
+    log-probabilities, with no reference-policy term.
+
+    L = -log(sigmoid(beta * [logpi(win) - logpi(lose)]))
+
+    DPO's implicit reward is (log pi_policy - log pi_ref) for each candidate;
+    this ranking loss drops the "- log pi_ref" anchor entirely. Comparing the
+    two isolates whether DPO's reference-policy KL anchor is doing meaningful
+    work relative to a simpler ranking loss trained on the same automatically
+    generated preference pairs (reviewer d6tT's "pairwise ranking loss"
+    alternative).
+    """
+    def get_log_probs(text):
+        logits, input_ids = policy_model(scm_state, [text], node_losses=node_losses, intervention_history=intervention_history)
+        shift_logits = logits[..., :-1, :].contiguous()
+        shift_labels = input_ids[..., 1:].contiguous()
+        log_probs = F.log_softmax(shift_logits, dim=-1)
+        token_log_probs = torch.gather(log_probs, -1, shift_labels.unsqueeze(-1)).squeeze(-1)
+        return token_log_probs.sum(dim=-1)
+
+    win_lp = get_log_probs(win_text)
+    lose_lp = get_log_probs(lose_text)
+    return -F.logsigmoid(beta * (win_lp - lose_lp)).mean()
 
 
 def supervised_pretrain_llm(policy_model, scm, graph, nodes, node_losses, optimizer, n_steps=50, value_min=-5.0, value_max=5.0):
@@ -2072,6 +2189,22 @@ def main():
     parser.add_argument("--no_dedicated_root_learner", action="store_true", help="Ablation: Disable dedicated root learner")
     parser.add_argument("--no_diversity_reward", action="store_true", help="Ablation: Set diversity_reward_weight to 0 (test IG-only)")
     parser.add_argument("--no_dpo", action="store_true", help="Ablation: Skip DPO updates entirely (zero-shot LM policy + lookahead-select)")
+    parser.add_argument("--policy_update", type=str, default="dpo", choices=["dpo", "sft_best", "ranking"],
+                        help="Policy update rule applied to preference pairs when updates are enabled "
+                             "(--no_dpo overrides this and disables updates entirely): "
+                             "'dpo' (default), 'sft_best' (imitate the best candidate only), "
+                             "'ranking' (pairwise Bradley-Terry loss without the DPO reference-policy term)")
+    parser.add_argument("--lookahead_on_student", action="store_true",
+                         help="Score lookahead candidates using the student's own current beliefs "
+                              "(StudentSCM.forward) instead of querying the ground-truth environment. "
+                              "Makes lookahead free of oracle queries so the executed-interventions "
+                              "budget is honest on its own, at the cost of scoring candidates against "
+                              "the learner's current mechanism rather than ground truth.")
+    parser.add_argument("--query_budget", type=int, default=None,
+                         help="If set, stop training once the executor's cumulative environment sample "
+                              "count (across ALL tags: executed + lookahead + observational) reaches this "
+                              "value, instead of running a fixed number of episodes. Use to run baselines "
+                              "at a total-environment-query budget matched to ACE's lookahead cost.")
 
     # Graph misspecification ablation
     parser.add_argument("--graph_misspec", type=str, default=None,
@@ -2574,6 +2707,16 @@ def main():
     recent_value_bins_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
 
     for episode in range(start_episode, args.episodes):
+        # Total-query-budget stopping condition (for budget-matched comparisons):
+        # counts EVERY environment query across all tags, not just executed
+        # interventions, so it applies fairly regardless of lookahead cost.
+        if args.query_budget is not None and executor.total_samples() >= args.query_budget:
+            logging.info(
+                f"[Query Budget] Reached {executor.total_samples()}/{args.query_budget} "
+                f"environment samples at episode {episode}; stopping. "
+                f"Breakdown: {executor.query_summary()}"
+            )
+            break
         # CRITICAL: Heartbeat message to stdout every episode
         if episode % 5 == 0:
             print(f"[PROGRESS] Episode {episode}/{args.episodes} starting", flush=True)
@@ -2653,7 +2796,7 @@ def main():
         
         # NEW: Dedicated root learner training (more frequent, better isolation)
         if args.use_dedicated_root_learner and dedicated_root_learner and episode > 0 and episode % args.dedicated_root_interval == 0:
-            obs_data = M_star.generate(n_samples=1000, interventions=None)
+            obs_data = executor.run_experiment({"target": None, "samples": 1000}, tag="observational")["data"]
             losses = dedicated_root_learner.fit(obs_data, epochs=200)
             dedicated_root_learner.apply_to_student(current_student)
             logging.info(f"[Dedicated Root Learner] Trained and applied at episode {episode}: {losses}")
@@ -2782,7 +2925,15 @@ def main():
                         buffer_steps=args.buffer_steps,
                         initial_buffer=initial_buffer,
                     )
-                    batch_t = executor.run_experiment(plan)
+                    if args.lookahead_on_student:
+                        # Score against the student's own beliefs: zero oracle queries.
+                        batch_t = generate_student_lookahead_batch(current_student, plan)
+                    else:
+                        # Standard ACE lookahead: queries the ground-truth environment
+                        # for every candidate. Tagged "lookahead" so this is visible
+                        # in query_summary() even though only the executed winner is
+                        # charged against the reported intervention budget.
+                        batch_t = executor.run_experiment(plan, tag="lookahead")
                     clone_learner.train_step(batch_t, n_epochs=args.learner_epochs)
                     loss_end, node_losses_end = critic.evaluate_mechanisms_detailed(student_clone)
                     reward = critic.calculate_reward(loss_start, loss_end)
@@ -3080,14 +3231,34 @@ def main():
             if winner_score > loser_score and not args.no_dpo:
                 optimizer_agent.zero_grad()
                 if use_pretrained:
-                    loss = dpo_loss_llm(
-                        policy_net, ref_policy, current_student, 
-                        winner_cmd, loser_cmd, 
-                        node_losses=node_losses_start,
-                        intervention_history=intervention_history
-                    )
+                    # --policy_update selects the loss applied to the automatically
+                    # generated (winner, loser) preference pair. 'dpo' is the paper's
+                    # default; 'sft_best' and 'ranking' are DPO alternatives requested
+                    # by reviewers to isolate what preference-based learning adds
+                    # beyond imitation or a reference-free ranking loss.
+                    if args.policy_update == "sft_best":
+                        loss = sft_best_loss_llm(
+                            policy_net, current_student,
+                            winner_cmd,
+                            node_losses=node_losses_start,
+                            intervention_history=intervention_history
+                        )
+                    elif args.policy_update == "ranking":
+                        loss = ranking_loss_llm(
+                            policy_net, current_student,
+                            winner_cmd, loser_cmd,
+                            node_losses=node_losses_start,
+                            intervention_history=intervention_history
+                        )
+                    else:
+                        loss = dpo_loss_llm(
+                            policy_net, ref_policy, current_student, 
+                            winner_cmd, loser_cmd, 
+                            node_losses=node_losses_start,
+                            intervention_history=intervention_history
+                        )
                 else:
-                    # Tensor path for custom
+                    # Tensor path for custom (DPO only; sft_best/ranking target the LLM policy)
                     win_seq = dsl.encode(winner_cmd).unsqueeze(0).to(device)
                     lose_seq = dsl.encode(loser_cmd).unsqueeze(0).to(device)
                     max_len = max(win_seq.shape[1], lose_seq.shape[1])
@@ -3204,14 +3375,14 @@ def main():
                         f"Cov: {winner_cov_bonus:.2f}, Score: {winner_score:.2f}, "
                         f"RecentTop: {top_node}@{top_frac:.0%})"
                     )
-                real_data = executor.run_experiment(winner_plan)
+                real_data = executor.run_experiment(winner_plan, tag="executed")
                 learner.train_step(real_data, n_epochs=args.learner_epochs)
                 
                 # OBSERVATIONAL TRAINING: Preserve mechanisms by periodic observational data injection
                 # This prevents catastrophic forgetting of mechanisms (especially X2)
                 # when interventional training dominates
                 if args.obs_train_interval > 0 and step > 0 and step % args.obs_train_interval == 0:
-                    obs_data = M_star.generate(n_samples=args.obs_train_samples, interventions=None)
+                    obs_data = executor.run_experiment({"target": None, "samples": args.obs_train_samples}, tag="observational")["data"]
                     learner.train_step(obs_data, n_epochs=args.obs_train_epochs)
                     if episode % 10 == 0 and step % (args.obs_train_interval * 5) == 0:
                         logging.info(f"  [Obs Training] Step {step}: Injected {args.obs_train_samples} samples")
@@ -3402,8 +3573,23 @@ def main():
         "prompt_tokens_mean": [prompt_tokens_mean] * len(loss_history),
         "prompt_tokens_max": [prompt_tokens_max] * len(loss_history),
         "peak_vram_gb": [peak_vram_gb] * len(loss_history),
+        "env_queries_executed": [executor.total_samples(tags=["executed"])] * len(loss_history),
+        "env_queries_lookahead": [executor.total_samples(tags=["lookahead"])] * len(loss_history),
+        "env_queries_observational": [executor.total_samples(tags=["observational"])] * len(loss_history),
+        "env_queries_total": [executor.total_samples()] * len(loss_history),
+        "lookahead_on_student": [bool(args.lookahead_on_student)] * len(loss_history),
+        "policy_update": [args.policy_update] * len(loss_history),
     })
-    
+
+    # NEW: Budget accounting summary (per-tag breakdown of every environment
+    # query made during this run). Written unconditionally so total-query-
+    # matched comparisons across methods can be reconstructed post hoc even
+    # for older result directories that never used --query_budget.
+    import json as _json
+    with open(os.path.join(run_dir, "query_budget.json"), "w") as _f:
+        _json.dump(executor.query_summary(), _f, indent=2)
+    logging.info(f"[Query Budget] Final breakdown: {executor.query_summary()}")
+
     # NEW: Calculate and log collapse statistics
     if target_history:
         target_counts = Counter([t for t in target_history if t is not None])
