@@ -3,9 +3,49 @@
 ## Documentation Structure
 
 **This file:** Complete technical reference and current status
+**current_status.txt:** Quick reference for the immediate status and next actions
 **remaining_refinements.txt:** Paper strength assessment and improvement roadmap
 **README.md:** Documentation guide
 **status_archive/:** Historical documents (reference only)
+
+---
+
+## ===============================================================================
+ICLR 2027 RESUBMISSION - JULY 23, 2026
+===============================================================================
+
+The NeurIPS 2026 submission (paper/neurips_ace_2026/) received reviews with a
+recurring critical objection (4 of 5 reviewers): the "intervention budget" in
+Table 1 counted only executed interventions, not the lookahead probes ACE
+also sends to the oracle, so the episode-count comparison against baselines
+without lookahead was not apples-to-apples. One reviewer (d6tT) separately
+asked whether DPO specifically, versus a simpler preference-based update, was
+doing the work. Decision: resubmit to ICLR 2027 under paper/iclr_ace_2027/,
+reframing the central claim around the LM-prior + lookahead-selection
+mechanism (already the stronger, better-supported finding -- ACE tied with
+ACE-w/o-DPO at 30 nodes in the NeurIPS results) with DPO demoted from the
+title to one of three implemented calibration layers (dpo, sft_best,
+ranking).
+
+Full status, including what has and has not been executed, is in
+current_status.txt (this pass added query-counting instrumentation,
+`--lookahead_on_student`, `--query_budget`, `--policy_update` alternatives,
+a full audit of every baseline's hidden oracle-query multiplier, a
+node-importance ablation, and the new paper/appendix). Two items explicitly
+remain open and require the user, not this environment: (1) actually
+launching the CURC job scripts that were written (this sandbox has no
+cluster access, so "run the budget-fairness suite" is queued, not done --
+the paper text says so explicitly rather than reporting numbers that do not
+exist), and (2) a local LaTeX compile check (no pdflatex/bibtex/latexmk
+toolchain available here).
+
+Also corrected in this pass: the NeurIPS paper's stated reward-function
+constants (alpha=0.1, gamma=0.05) did not match the values every production
+run actually used (`cov_bonus`=60.0 as the node-importance term's sole scale
+constant, `diversity_reward_weight`=0.3). Fixed in the ICLR paper, appendix,
+and hyperparameter table; the NeurIPS version is left as-is (already
+submitted under those numbers; not going to retroactively edit a
+submitted record).
 
 ---
 

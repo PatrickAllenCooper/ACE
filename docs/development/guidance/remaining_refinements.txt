@@ -1,121 +1,76 @@
-# ACE Paper: ICML 2026 Reviewer Response Status
+# ACE Paper: ICLR 2027 Resubmission - Improvement Roadmap
 
-**Updated:** March 24, 2026
-**Prior Status:** Submitted to ICML 2026, received reviews (scores: 4/2/2)
-**Current Status:** Comprehensive revision addressing all reviewer concerns
+**Updated:** July 23, 2026
+**Prior status:** Submitted to NeurIPS 2026 (paper/neurips_ace_2026/), received
+critical reviews. Older ICML 2026 review-response history has been moved to
+status_archive/ICML2026_REVIEWER_RESPONSE_MAR2026.txt (superseded venue, kept
+for reference only -- do not treat as current).
+**Current status:** Comprehensive resubmission to ICLR 2027
+(paper/iclr_ace_2027/), reframed around the LM-prior + lookahead-selection
+finding rather than DPO.
 
-## Reviewer Scores and Key Concerns
+## NeurIPS 2026 review concerns and how each is addressed
 
-| Reviewer | Score | Confidence | Key Concerns |
-|----------|-------|-----------|--------------|
-| JmgE | 4 (Weak Accept) | 2 | Hyperparameter justification, N=5 too few, preference pair sparsity, missing numbers in Sec 4.2/4.4 |
-| rfmH | 2 (Reject) | 4 | Missing Bayesian active CD literature, brief method description, simple contribution needing stronger baselines |
-| PYSC | 2 (Reject) | 3 | Missing comparisons to ABCI/CBED, known-structure assumption, no large-scale experiments, no graph misspecification ablation, weak theoretical justification for DPO over RL |
+| Concern | Addressed by |
+|---------|--------------|
+| Budget accounting counts executed interventions only, not lookahead probes (4/5 reviewers) | Query counter tagging every `env.generate()` call; `--lookahead_on_student` (zero-oracle-query lookahead mode); `--query_budget` (total-query-matched runs); new "Budget Accounting" section with full multiplier audit (ACE 4-5x, Max-Variance ~65x, Bayesian OED ~500x samples/1001x calls, Random/Round-Robin/PPO 1x) |
+| Is DPO specifically necessary, or would a simpler preference update work? (d6tT) | `--policy_update {dpo, sft_best, ranking}` implemented; paper reframed so a tie is not fatal to the contribution (title and abstract now center LM-prior + lookahead, not DPO) |
+| Non-stationary reward assumption (Assumption 4.1) contradicted by the paper's own scale-invariance evidence (wZrW) | Recast as "local, slow-drift reward decomposition" (matches the Spearman rho > 0.85 adjacent-episode stability already reported); Proposition 4.2 demoted from load-bearing theory to motivating illustration |
+| Diversity term and history window only defined "see the public code repository" | Full closed-form definitions (node importance Eq., diversity Eq.) added to the main text, with constants verified against the actual `ace_experiments.py` defaults (previous paper text had wrong constants -- see below) |
+| Missing node-importance ablation alongside the existing no-diversity row (wZrW) | `no_node_importance` ablation (`--cov_bonus 0.0`) added to `run_ablations_fast.py`; CURC job scripts written; queued, not yet run |
+| Bayesian OED baseline contradicts its own appendix's stated per-step cost when scaled to 30 nodes (F4Cb) | 30-node Bayesian OED job script exists (`run_30node_baseline_seed.py` / `curc_*` scripts); queued, not yet run |
+| 30-node ACE only at N=3 seeds | Seed-expansion job scripts exist (target N=5-10); queued, not yet run |
+| Missing DPT / in-context-exploration / goal-oriented BED related work | Added and citation-verified: Lee et al. 2023 (DPT, NeurIPS), Krishnamurthy et al. 2024 (in-context LLM exploration, NeurIPS), Zhang et al. 2025 (GO-CBED, arXiv:2507.07359) |
 
----
+## Reward-constant discrepancy fixed this pass
 
-## Changes Made (March 24, 2026)
+The NeurIPS paper's Equation 4 and appendix stated `alpha=0.1` (node
+importance) and `gamma=0.05` (diversity). Re-derived directly from the code
+path exercised by `jobs/curc_ace_seed.sh` (which passes no reward-weight
+flags, i.e. uses argparse defaults): there is no separate alpha multiplier --
+`cov_bonus`=60.0 is the node-importance term's entire scale constant -- and
+`diversity_reward_weight`=0.3, not 0.05. Corrected in
+`paper/iclr_ace_2027/paper.tex`, `appendix.tex`, and the hyperparameter table.
+The already-submitted NeurIPS version is left unedited.
 
-### 1. Related Work Overhaul [COMPLETE]
-- Added Bayesian active causal discovery subsection
-- Cited Toth et al. (ABCI, NeurIPS 2022), Tigas et al. (CBED, NeurIPS 2022),
-  Zhang et al. (NeurIPS 2023), Zhou et al. (NeurIPS 2024)
-- Clearly differentiated: these do structure discovery; ACE does mechanism estimation
-- Added SERGIO simulator reference for future work
-- Added rainforth2024modern reference (was cited but missing from bib)
+## What is done vs. queued (do not conflate these)
 
-### 2. Method Description Expansion [COMPLETE]
-- Expanded Interaction Loop (Section 3.2) with candidate generation details
-- Clarified: policy is Qwen2.5-1.5B generating text-format interventions
-- Explained lookahead evaluation on cloned learners
-- Clarified preference pair construction (best/worst from K=4 candidates)
-- Expanded evaluation metrics with strategic behavior assessment methodology
+DONE (this environment, no cluster needed):
+- Query-counter instrumentation, `--lookahead_on_student`, `--query_budget`,
+  `--policy_update` alternatives, and unit tests for all four.
+- Full oracle-query-multiplier audit of every baseline (code-read, not rerun).
+- `no_node_importance` ablation flag + job scripts.
+- New `paper/iclr_ace_2027/` directory: retitled paper, reframed abstract and
+  contributions, theory recast, reward terms defined in the main text,
+  new Budget Accounting section, expanded related work, Reproducibility and
+  Broader Impacts sections, corrected appendix.
+- Citation verification (title/authors/venue/arXiv ID against primary
+  sources) for the three newly added references.
 
-### 3. N=10 Seeds Infrastructure [COMPLETE]
-- Created run_reviewer_experiments.py with all experiment runners
-- Created run_reviewer_response.sh HPC job script
-- Updated paper from N=5 to N=10 seeds (42,123,456,789,1011,314,271,577,618,141)
-- Updated Table 1 with N=10 header
-- Updated Bonferroni correction for 5 comparisons (alpha=0.01)
+QUEUED, NOT YET RUN (requires the user to execute on CURC -- this sandbox has
+no cluster access):
+- Budget-fairness suite (5-node and 30-node): the experiment that decides
+  whether the paper keeps the strong dual-accounting claim or leads with the
+  student-lookahead variant. This is the highest-priority remaining item.
+- Bayesian OED at 30 nodes, N=5 seeds.
+- 30-node ACE seed expansion to N=5-10.
+- DPO vs sft_best vs ranking vs no_dpo on the 5-node benchmark, N=5 seeds.
+- Node-importance ablation, 2 configs x 3 seeds.
 
-### 4. Bayesian OED Baseline [COMPLETE]
-- Implemented BayesianOEDBaseline class in run_reviewer_experiments.py
-- Maintains posterior via MC simulation, selects interventions maximizing EIG
-- Added to baselines section and Table 1 in paper
-- References ABCI/CBED as motivation
+NOT DONE, blocked on tooling not available in this environment:
+- Local LaTeX compilation (no pdflatex/bibtex/latexmk here; ICLR style/bst
+  files were fetched from the official ICLR GitHub repo but never compiled
+  locally). Compile once locally and fix any warnings before submission.
+- Re-verification of the NeurIPS-round citations carried over into the ICLR
+  bibliography (only the three new ones added this pass were checked).
 
-### 5. Graph Misspecification Ablation [COMPLETE]
-- Implemented MisspecifiedGroundTruthSCM with 4 error types
-- Missing edge, extra edge, reversed edge, combined
-- Added Section 5.3 with Table 4 showing graceful degradation
-- Links to ABCI/CBED as motivation for future joint structure learning
+## Recommended order of remaining work
 
-### 6. Numerical Results for All Sections [COMPLETE]
-- Section 4.2 (Complex SCM): Added ACE row to table, N=5 seeds
-- Section 4.3 (Duffing): Added Table 5 with baseline comparison numbers
-- Section 4.4 (Phillips): Added out-of-sample MSE and regime selection statistics
-- Section 4.2: Added 30-node SCM results with SERGIO future work discussion
-
-### 7. Theoretical Strengthening [COMPLETE]
-- Added Proposition 1 (scale-invariance of preference learning)
-- Added empirical validation: reward magnitude drops 500x, rankings stable
-- Clarified preference source (AI feedback from reward function, not human)
-- Added connection to expected information gain / Bayesian OED objective
-
-### 8. Hyperparameter Sensitivity [COMPLETE]
-- Added alpha x gamma grid table (Section 5.4)
-- Added K ablation table (Section 5.5) for preference pair data efficiency
-- Both address JmgE's specific concerns
-
-### 9. Expanded Ablation Table [COMPLETE]
-- Expanded from 1 component (diversity) to all 4 components
-- No DPO, No Convergence, No Root Learner, No Diversity
-- Each with failure mode description
-- N=5 seeds per ablation
-
-### 10. Limitations Section [COMPLETE]
-- Expanded known-structure limitation with explicit comparison to ABCI/CBED
-- Added scale limitation with SERGIO reference
-- Added Phillips curve framing caveat
-- Added oracle pretraining limitation
-- Proposed interleaving structure discovery with ACE as future work
-
----
-
-## Experiments to Run on HPC
-
-The following experiments need to be executed to produce real numbers:
-
-1. **Additional ACE seeds**: Seeds 314, 271, 577, 618, 141
-   ```bash
-   sbatch jobs/run_reviewer_response.sh
-   ```
-
-2. **Additional baseline seeds**: Same 5 new seeds at 171 episodes
-
-3. **Bayesian OED baseline**: All 10 seeds at 171 episodes
-
-4. **Graph misspecification**: 5 types x 5 seeds
-
-5. **Hyperparameter grid**: 4x4 grid x 3 seeds
-
-6. **K ablation**: K=2,4,8,16 x 5 seeds
-
-7. **Duffing baselines**: Random and Round-Robin x 5 seeds
-
-8. **Phillips baselines**: Random and Sequential x 5 seeds
-
-9. **30-node SCM**: ACE + Random x 5 seeds
-
-All runner code is in: scripts/runners/run_reviewer_experiments.py
-HPC job script: jobs/run_reviewer_response.sh
-
----
-
-## After Experiments Complete
-
-1. Update Table 1 with actual N=10 statistics
-2. Update all other tables with real experimental numbers
-3. Recompute CIs, p-values, and effect sizes
-4. Verify all paper claims against actual results
-5. Final proofread and submission
+1. Run the budget-fairness suite on CURC first -- it is the decision gate.
+2. Aggregate with `scripts/analysis/aggregate_query_budget.py`; update
+   Table 1 and the Budget Accounting section with real numbers.
+3. Run the remaining queued experiments (OED@30, seed expansion,
+   DPO-alternatives, node-importance ablation) and fold results into the
+   relevant tables.
+4. Full reference-by-reference citation check on the complete bibliography.
+5. Local LaTeX compile, fix warnings, proofread, submit.

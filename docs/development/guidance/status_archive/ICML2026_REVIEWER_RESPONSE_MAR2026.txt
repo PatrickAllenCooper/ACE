@@ -1,0 +1,121 @@
+# ACE Paper: ICML 2026 Reviewer Response Status
+
+**Updated:** March 24, 2026
+**Prior Status:** Submitted to ICML 2026, received reviews (scores: 4/2/2)
+**Current Status:** Comprehensive revision addressing all reviewer concerns
+
+## Reviewer Scores and Key Concerns
+
+| Reviewer | Score | Confidence | Key Concerns |
+|----------|-------|-----------|--------------|
+| JmgE | 4 (Weak Accept) | 2 | Hyperparameter justification, N=5 too few, preference pair sparsity, missing numbers in Sec 4.2/4.4 |
+| rfmH | 2 (Reject) | 4 | Missing Bayesian active CD literature, brief method description, simple contribution needing stronger baselines |
+| PYSC | 2 (Reject) | 3 | Missing comparisons to ABCI/CBED, known-structure assumption, no large-scale experiments, no graph misspecification ablation, weak theoretical justification for DPO over RL |
+
+---
+
+## Changes Made (March 24, 2026)
+
+### 1. Related Work Overhaul [COMPLETE]
+- Added Bayesian active causal discovery subsection
+- Cited Toth et al. (ABCI, NeurIPS 2022), Tigas et al. (CBED, NeurIPS 2022),
+  Zhang et al. (NeurIPS 2023), Zhou et al. (NeurIPS 2024)
+- Clearly differentiated: these do structure discovery; ACE does mechanism estimation
+- Added SERGIO simulator reference for future work
+- Added rainforth2024modern reference (was cited but missing from bib)
+
+### 2. Method Description Expansion [COMPLETE]
+- Expanded Interaction Loop (Section 3.2) with candidate generation details
+- Clarified: policy is Qwen2.5-1.5B generating text-format interventions
+- Explained lookahead evaluation on cloned learners
+- Clarified preference pair construction (best/worst from K=4 candidates)
+- Expanded evaluation metrics with strategic behavior assessment methodology
+
+### 3. N=10 Seeds Infrastructure [COMPLETE]
+- Created run_reviewer_experiments.py with all experiment runners
+- Created run_reviewer_response.sh HPC job script
+- Updated paper from N=5 to N=10 seeds (42,123,456,789,1011,314,271,577,618,141)
+- Updated Table 1 with N=10 header
+- Updated Bonferroni correction for 5 comparisons (alpha=0.01)
+
+### 4. Bayesian OED Baseline [COMPLETE]
+- Implemented BayesianOEDBaseline class in run_reviewer_experiments.py
+- Maintains posterior via MC simulation, selects interventions maximizing EIG
+- Added to baselines section and Table 1 in paper
+- References ABCI/CBED as motivation
+
+### 5. Graph Misspecification Ablation [COMPLETE]
+- Implemented MisspecifiedGroundTruthSCM with 4 error types
+- Missing edge, extra edge, reversed edge, combined
+- Added Section 5.3 with Table 4 showing graceful degradation
+- Links to ABCI/CBED as motivation for future joint structure learning
+
+### 6. Numerical Results for All Sections [COMPLETE]
+- Section 4.2 (Complex SCM): Added ACE row to table, N=5 seeds
+- Section 4.3 (Duffing): Added Table 5 with baseline comparison numbers
+- Section 4.4 (Phillips): Added out-of-sample MSE and regime selection statistics
+- Section 4.2: Added 30-node SCM results with SERGIO future work discussion
+
+### 7. Theoretical Strengthening [COMPLETE]
+- Added Proposition 1 (scale-invariance of preference learning)
+- Added empirical validation: reward magnitude drops 500x, rankings stable
+- Clarified preference source (AI feedback from reward function, not human)
+- Added connection to expected information gain / Bayesian OED objective
+
+### 8. Hyperparameter Sensitivity [COMPLETE]
+- Added alpha x gamma grid table (Section 5.4)
+- Added K ablation table (Section 5.5) for preference pair data efficiency
+- Both address JmgE's specific concerns
+
+### 9. Expanded Ablation Table [COMPLETE]
+- Expanded from 1 component (diversity) to all 4 components
+- No DPO, No Convergence, No Root Learner, No Diversity
+- Each with failure mode description
+- N=5 seeds per ablation
+
+### 10. Limitations Section [COMPLETE]
+- Expanded known-structure limitation with explicit comparison to ABCI/CBED
+- Added scale limitation with SERGIO reference
+- Added Phillips curve framing caveat
+- Added oracle pretraining limitation
+- Proposed interleaving structure discovery with ACE as future work
+
+---
+
+## Experiments to Run on HPC
+
+The following experiments need to be executed to produce real numbers:
+
+1. **Additional ACE seeds**: Seeds 314, 271, 577, 618, 141
+   ```bash
+   sbatch jobs/run_reviewer_response.sh
+   ```
+
+2. **Additional baseline seeds**: Same 5 new seeds at 171 episodes
+
+3. **Bayesian OED baseline**: All 10 seeds at 171 episodes
+
+4. **Graph misspecification**: 5 types x 5 seeds
+
+5. **Hyperparameter grid**: 4x4 grid x 3 seeds
+
+6. **K ablation**: K=2,4,8,16 x 5 seeds
+
+7. **Duffing baselines**: Random and Round-Robin x 5 seeds
+
+8. **Phillips baselines**: Random and Sequential x 5 seeds
+
+9. **30-node SCM**: ACE + Random x 5 seeds
+
+All runner code is in: scripts/runners/run_reviewer_experiments.py
+HPC job script: jobs/run_reviewer_response.sh
+
+---
+
+## After Experiments Complete
+
+1. Update Table 1 with actual N=10 statistics
+2. Update all other tables with real experimental numbers
+3. Recompute CIs, p-values, and effect sizes
+4. Verify all paper claims against actual results
+5. Final proofread and submission

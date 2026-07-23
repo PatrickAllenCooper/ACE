@@ -1,65 +1,119 @@
 # ACE Current Status - Quick Reference
 
-**Date:** March 24, 2026
+**Date:** July 23, 2026
 
-## ICML 2026 Review Response - Comprehensive Revision
+## ICLR 2027 Resubmission - In Progress
 
-**Reviews Received:** Scores 4 (Weak Accept), 2 (Reject), 2 (Reject)
+**Prior venue:** NeurIPS 2026 submission received critical reviews (4 of 5
+reviewers flagged the same core issue: environment-query budget accounting
+did not count lookahead probes, only executed interventions, making the
+episode-count comparisons in Table 1 an apples-to-oranges comparison against
+baselines that do not use lookahead). One reviewer (d6tT) also asked whether
+DPO specifically was necessary, versus simpler preference-based updates.
 
-### Paper Changes Complete
+**Decision:** Resubmit to ICLR 2027 rather than patch the NeurIPS version.
+Reframe the paper's central claim around the LM-prior + lookahead-selection
+mechanism (already the more defensible finding, per the anonymization and
+ACE-w/o-DPO-tied-at-30-nodes results in the NeurIPS Section 5.2), with DPO
+recast as one of several viable calibration layers rather than the headline
+contribution. See the resubmission plan for full reasoning; do not edit the
+plan file itself.
 
-| Change | Status | Addresses |
-|--------|--------|-----------|
-| Related work overhaul (ABCI, CBED, Zhang, Zhou) | DONE | rfmH, PYSC |
-| Method description expansion | DONE | rfmH |
-| N=10 seeds infrastructure + paper update | DONE | JmgE, PYSC |
-| Bayesian OED baseline code + paper section | DONE | rfmH, PYSC |
-| Graph misspecification ablation code + paper | DONE | PYSC |
-| Hyperparameter sensitivity grid + paper table | DONE | JmgE |
-| K ablation (preference pair efficiency) + table | DONE | JmgE |
-| Numerical results for Duffing (Table 5) | DONE | JmgE |
-| Numerical results for Phillips (MSE + regimes) | DONE | JmgE |
-| Complex SCM table with ACE row | DONE | JmgE |
-| 30-node SCM scaling results | DONE | PYSC |
-| Theoretical strengthening (Proposition 1) | DONE | PYSC |
-| Preference source clarification | DONE | PYSC |
-| Connection to expected information gain | DONE | PYSC |
-| Expanded ablation table (4 components) | DONE | JmgE, rfmH |
-| Limitations section expansion | DONE | PYSC |
+### Status by phase
 
-### Experiments to Run on HPC
+**Phase 1 (code instrumentation): DONE**
+- `--query counter`: every `env.generate()` call in `ExperimentExecutor` is
+  now tagged (`executed`, `lookahead`, `observational`, `candidate_probe`)
+  and logged per episode.
+- `--lookahead_on_student`: scores the K candidates using the student's own
+  forward pass instead of fresh oracle samples, so executed-interventions-only
+  accounting is honest under this mode (zero additional oracle queries for
+  lookahead).
+- `--query_budget`: stops a run once cumulative environment samples hit a
+  target, enabling total-query-matched comparisons across methods with very
+  different per-decision oracle costs.
+- `--policy_update {dpo, sft_best, ranking}`: SFT-on-best-candidate and a
+  pairwise Bradley-Terry ranking loss (no reference-policy KL term) as
+  DPO alternatives, reusing the existing candidate/lookahead machinery.
+- Unit tests added for all four items (`tests/`).
+- `baselines.py` audited for oracle-query multipliers: Max-Variance ~65x per
+  decision (`n_candidates=64` probe generations), the 5-node Bayesian OED
+  baseline in `run_reviewer_experiments.py` ~500x samples / 1001x calls per
+  decision (`n_candidate_values=10` x `n_mc_samples=20` per one of 5 nodes),
+  Random/Round-Robin/PPO at 1x (no candidate probing), ACE at 4-5x under
+  env-based lookahead (K=4 candidates + 1 executed) and 1x under
+  `--lookahead_on_student`. This audit is now Appendix "Budget Accounting:
+  Full Multiplier Derivation" (`paper/iclr_ace_2027/appendix.tex`).
+- Reward-function documentation bug fixed: the NeurIPS paper stated
+  alpha=0.1 / gamma=0.05 for the node-importance and diversity terms; the
+  code path actually exercised by every production run (`cov_bonus`
+  default=60.0 with no separate alpha multiplier, `diversity_reward_weight`
+  default=0.3) does not match. Corrected in the ICLR paper, appendix, and
+  hyperparameter table.
+- New `no_node_importance` ablation added (`--cov_bonus 0.0`) with CURC job
+  scripts (`jobs/curc_submit_node_importance_ablation.sh`,
+  `jobs/curc_node_importance_ablation_seed.sh`), 2 configs x 3 seeds.
 
-```bash
-# Full reviewer response experiment suite
-sbatch jobs/run_reviewer_response.sh
+**Phase 2 (CURC experiments): JOB SCRIPTS WRITTEN, NOT YET RUN**
+- This sandbox has no CURC/cluster access. All SLURM scripts for the
+  budget-fairness suite (5-node and 30-node), Bayesian OED at 30 nodes, the
+  30-node ACE seed expansion (N=5-10), the DPO-alternatives comparison
+  (dpo/sft_best/ranking/no_dpo), and the node-importance ablation exist under
+  `jobs/` and write to `/scratch/alpine1/paco0228/ACE/results/...` (not
+  `/projects`, which is at ~229G/250G quota -- check `curc-quota` before
+  adding more large result trees).
+- **Action required from the user:** log into CURC, `git pull`, and submit
+  these job scripts. The decision gate described in the plan (does ACE win
+  under total-query accounting, or does the student-lookahead variant become
+  the headline configuration) cannot be resolved until these results come
+  back. The paper currently describes the accounting methodology and queues
+  these experiments explicitly (see Appendix "Budget Accounting" and the
+  node-importance ablation note) rather than reporting numbers that do not
+  exist yet.
+- `scripts/analysis/aggregate_query_budget.py` is ready to process the
+  resulting `query_budget.json` files once runs complete.
 
-# This runs:
-# 1. ACE seeds 314, 271, 577, 618, 141 (N=10 total)
-# 2. Baseline seeds at 171 episodes
-# 3. Bayesian OED baseline
-# 4. Graph misspecification ablation
-# 5. Hyperparameter grid
-# 6. K ablation
-# 7. Duffing/Phillips baselines
-```
+**Phase 3 (paper revision): DONE**
+- New `paper/iclr_ace_2027/` directory: `paper.tex`, `appendix.tex`,
+  `references.bib`, `iclr2027_conference.sty` (adapted from the official
+  ICLR 2026 style file, year references updated).
+- Retitled: "ACE: Language-Model Priors and Lookahead Selection for Active
+  Causal Mechanism Estimation" (DPO demoted from title to a described
+  calibration component).
+- Assumption on non-stationary rewards recast as "local, slow-drift reward
+  decomposition" (matching the Spearman rho > 0.85 adjacent-episode
+  evidence already in the NeurIPS results) instead of a global monotonic
+  decay; the scale-invariance proposition reframed as a motivating
+  illustration rather than a load-bearing theoretical contribution.
+- Node-importance and diversity reward terms defined explicitly in the main
+  text with code-verified constants (previously "see the public code
+  repository" in the appendix only).
+- Related work expanded with Decision-Pretrained Transformers
+  (Lee et al., 2023), in-context LLM exploration (Krishnamurthy et al.,
+  2024), and GO-CBED (Zhang et al., 2025) -- all three citations verified
+  against the primary source (title, authors, venue, arXiv ID) via web
+  search before being added to `references.bib`.
+- New standalone "Budget Accounting" section replacing the prior Section 6
+  defense, reporting the multiplier audit up front rather than after the
+  fact.
 
-### After Experiments Complete
+**Phase 4 (bookkeeping): IN PROGRESS**
+- This file, `guidance_doc.txt`, and `remaining_refinements.txt` updated
+  (this pass).
+- Outstanding before the next commit: run the local test suite one more
+  time and confirm no regressions from the reward-parameter fix.
 
-1. Update all paper tables with actual experimental numbers
-2. Recompute CIs, p-values, effect sizes
-3. Verify claims against results
-4. Final proofread
-5. Resubmit
+### Next actions (in priority order)
 
----
-
-## Key Files
-
-- `paper/paper.tex` - Main paper (revised)
-- `paper/references.bib` - Bibliography (6 new entries)
-- `paper/paper_table_complex_scm.tex` - Complex SCM table (updated)
-- `scripts/runners/run_reviewer_experiments.py` - All new experiment code
-- `jobs/run_reviewer_response.sh` - HPC job script
-- `docs/development/guidance/remaining_refinements.txt` - Detailed change log
-
-Last updated: March 24, 2026
+1. User: submit the CURC job scripts in `jobs/curc_submit_*` (budget-fairness
+   suite first -- it decides the paper's framing).
+2. Once results land: run `scripts/analysis/aggregate_query_budget.py` and
+   the existing aggregators, update Table 1 and the Budget Accounting
+   section with real numbers, resolve the decision gate.
+3. Full citation-verification pass on every reference before submission
+   (spot-checked the three new ones this pass; the carried-over NeurIPS
+   references have not been re-verified in this session).
+4. LaTeX compile pass -- no local `pdflatex`/`bibtex`/`latexmk` toolchain is
+   available in this environment; the ICLR style/bst files were fetched
+   from the official ICLR GitHub repo but compilation has not been verified
+   locally. The user should compile once and report any errors.
