@@ -32,7 +32,7 @@
 #     nodes50/{ace,zero_shot_lm}/seed_{seed}/job_{jobid}/
 #
 # Pull locally when complete:
-#   scp -r paco0228@login.rc.colorado.edu:/projects/paco0228/ACE/results/curc_30node_followup ./results/
+#   scp -r paco0228@login.rc.colorado.edu:/scratch/alpine1/paco0228/ACE/results/curc_30node_followup ./results/
 # =============================================================================
 
 set -euo pipefail
@@ -42,7 +42,7 @@ cd /projects/paco0228/ACE
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-OUT="/projects/paco0228/ACE/results/curc_30node_followup"
+OUT="/scratch/alpine1/paco0228/ACE/results/curc_30node_followup"
 mkdir -p "$OUT/logs"
 
 echo "================================================================"

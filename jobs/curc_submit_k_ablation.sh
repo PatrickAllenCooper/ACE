@@ -22,7 +22,7 @@ cd /projects/paco0228/ACE
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-BASE="/projects/paco0228/ACE/results/scaling_kablation"
+BASE="/scratch/alpine1/paco0228/ACE/results/scaling_kablation"
 mkdir -p "$BASE/logs"
 
 SEEDS="${SEEDS:-42 123 456}"

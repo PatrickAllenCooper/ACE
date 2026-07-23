@@ -33,7 +33,7 @@ cd /projects/paco0228/ACE
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-OUT="/projects/paco0228/ACE/results/scaling"
+OUT="/scratch/alpine1/paco0228/ACE/results/scaling"
 mkdir -p "$OUT/logs"
 
 SEEDS="${SEEDS:-42 123 456}"

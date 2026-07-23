@@ -21,7 +21,7 @@ source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
 # Reuse existing output directory (where baselines & Bayesian OED already landed)
-OUT="/projects/paco0228/ACE/results/curc_20260415_152624"
+OUT="/scratch/alpine1/paco0228/ACE/results/curc_20260415_152624"
 mkdir -p "$OUT/logs"
 
 echo "================================================================"

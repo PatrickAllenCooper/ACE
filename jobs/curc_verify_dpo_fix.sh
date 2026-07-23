@@ -28,7 +28,7 @@ cd /projects/paco0228/ACE
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-OUT="/projects/paco0228/ACE/results/curc_30node_followup"
+OUT="/scratch/alpine1/paco0228/ACE/results/curc_30node_followup"
 mkdir -p "$OUT/logs"
 
 # Override the seed worker's episode budget for a quick smoke run.

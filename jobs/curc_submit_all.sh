@@ -32,7 +32,7 @@ source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
 TS=$(date +%Y%m%d_%H%M%S)
-OUT="/projects/paco0228/ACE/results/curc_${TS}"
+OUT="/scratch/alpine1/paco0228/ACE/results/curc_${TS}"
 mkdir -p "$OUT/logs"
 
 echo "================================================================"
