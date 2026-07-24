@@ -1,6 +1,62 @@
 # ACE Current Status - Quick Reference
 
-**Date:** July 23, 2026
+**Date:** July 24, 2026
+
+## BLOCKING: the budget-fairness experiment has not been run
+
+**This is the single open item that determines whether the paper's headline
+claim is defensible. Everything else in this document is secondary until
+this runs.**
+
+What is missing, precisely: every number currently in
+`paper/iclr_ace_2027/paper.tex` Table 1 (and the 30-node table) uses
+episode-matched accounting -- ACE and the five baselines each run for N
+episodes, and the table reports final loss at that episode count. This is
+exactly the comparison 4 of 5 NeurIPS reviewers correctly objected to,
+because ACE's episodes are not equivalent in oracle cost to the baselines'
+episodes (Appendix `app:budget-extended`: ACE ~4-5x, Max-Variance ~65x,
+Bayesian OED ~500x samples, Random/Round-Robin/PPO 1x, oracle queries per
+decision). We have never run the corrected version of this table. The
+`--query_budget` flag and `--lookahead_on_student` mode exist, are
+unit-tested, and are described in the paper -- but the actual experiment
+that uses them to produce a fair Table 1 has not been executed anywhere,
+including on CURC.
+
+**What the missing experiment is, concretely:**
+1. Pick a shared total-oracle-query budget (aggregate it from a completed
+   run's `query_budget.json` via `scripts/analysis/aggregate_query_budget.py`,
+   or use a round number, e.g. matched to ACE's typical 171-episode x ~4.1x
+   multiplier total).
+2. Run ACE under `--lookahead_on_student` (1x multiplier, so its
+   episode-budget and query-budget are the same number) AND under normal
+   env-based lookahead with `--query_budget` set to the shared total.
+3. Run all five baselines with `--query_budget` set to the same shared
+   total, so each gets as many episodes as its own multiplier allows within
+   that budget (e.g. Random gets ~4-5x more episodes than ACE at the same
+   query cost; Bayesian OED gets ~1/500th as many).
+4. Compare final/best MSE across all methods at matched total queries. This
+   is Table 1's actual replacement.
+5. Job scripts already written for this: `jobs/curc_submit_5node_budget_fairness.sh`,
+   `jobs/curc_submit_5node_budget_fairness_baselines.sh` (5-node);
+   `jobs/curc_submit_30node_budget_fairness.sh`,
+   `jobs/curc_submit_30node_budget_fairness_baselines.sh` (30-node).
+
+**Why it matters / what depends on it:** the paper (Section "Budget
+Accounting" and the Limitations section) explicitly states this comparison
+is queued, not reported, and commits to treating either outcome as
+informative rather than picking one and hiding the other:
+  - If ACE wins under total-query-matched accounting: the paper keeps a dual
+    strong claim (wins on both episode-count and query-count accounting).
+  - If ACE does not win under total-query-matched accounting: the
+    `--lookahead_on_student` variant (1x multiplier, honest by construction)
+    becomes the headline configuration instead, and the env-lookahead
+    variant is reported as a higher-oracle-cost alternative rather than the
+    main result.
+Until this runs, the paper is making an accounting-transparency claim
+("here is the true cost of every method") without the accompanying
+fairness claim ("and ACE still wins once you correct for it") -- these are
+different claims, and only the first one currently has evidence behind it.
+**Do not let a future session or a paper draft conflate the two.**
 
 ## ICLR 2027 Resubmission - In Progress
 

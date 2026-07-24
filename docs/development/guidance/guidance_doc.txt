@@ -11,6 +11,21 @@
 ---
 
 ## ===============================================================================
+BLOCKING ITEM (READ FIRST): budget-fairness experiment not yet run
+===============================================================================
+
+Full characterization in current_status.txt (top section). One-line version:
+every number in paper/iclr_ace_2027/paper.tex Table 1 is episode-matched,
+not query-matched -- the exact comparison reviewers objected to. The tooling
+(--query_budget, --lookahead_on_student) and CURC job scripts
+(jobs/curc_submit_5node_budget_fairness*.sh, jobs/curc_submit_30node_budget_fairness*.sh)
+exist and are unit-tested but have never been executed. The paper's Section
+"Budget Accounting" is honest about this (it queues the comparison rather
+than reporting fabricated numbers), but the paper cannot go to submission
+without running it: we currently have an accounting-transparency claim, not
+a fairness claim. Do not treat this as done until the results exist.
+
+## ===============================================================================
 ICLR 2027 RESUBMISSION - JULY 23, 2026
 ===============================================================================
 
