@@ -63,7 +63,7 @@ chmod +x "$WRAPPER"
 
 JOB=$(sbatch --parsable \
     --job-name="ace_verify" \
-    --partition=aa100 --qos=normal \
+    --partition=aa100 --qos=gpu-normal \
     --nodes=1 --ntasks=1 --gres=gpu:1 \
     --cpus-per-task=8 --mem=64G \
     --time=00:45:00 \

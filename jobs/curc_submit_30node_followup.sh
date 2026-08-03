@@ -64,7 +64,7 @@ echo ">>> Phase 1: anon30 (30 nodes, anonymised names) <<<"
 for SEED in $SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="ace_a30_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=64G \
         --time=08:00:00 \
@@ -78,7 +78,7 @@ done
 for SEED in $SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="zsl_a30_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=64G \
         --time=08:00:00 \
@@ -102,7 +102,7 @@ echo ">>> Phase 2: nodes50 (50-node SCM, canonical names) <<<"
 for SEED in $SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="ace_n50_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=78G \
         --time=12:00:00 \
@@ -116,7 +116,7 @@ done
 for SEED in $SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="zsl_n50_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=78G \
         --time=10:00:00 \

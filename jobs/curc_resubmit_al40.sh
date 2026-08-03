@@ -50,7 +50,7 @@ submit_al40() {
     local name="$1"; local script="$2"; shift 2
     sbatch --parsable \
         --job-name="$name" \
-        --partition=al40 --qos=normal \
+        --partition=al40 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=32G \
         --time=08:00:00 \
@@ -111,7 +111,7 @@ echo ">>> Phase I: 30-node ACE on al40 (12h wall) <<<"
 for SEED in 42 123 456; do
     JOB=$(sbatch --parsable \
         --job-name="ls30_s${SEED}" \
-        --partition=al40 --qos=normal \
+        --partition=al40 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=32G \
         --time=12:00:00 \

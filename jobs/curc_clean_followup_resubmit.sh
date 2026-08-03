@@ -58,7 +58,7 @@ echo ">>> anon30 ACE (5 jobs, 22h) <<<"
 for SEED in $SEEDS_ALL; do
     JOB=$(sbatch --parsable \
         --job-name="ace_a30c_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=64G \
         --time=22:00:00 \
@@ -77,7 +77,7 @@ echo ">>> anon30 ZSL s456 (1 job, 10h) <<<"
 for SEED in 456; do
     JOB=$(sbatch --parsable \
         --job-name="zsl_a30c_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=64G \
         --time=10:00:00 \
@@ -98,7 +98,7 @@ echo ">>> nodes50 ACE (5 jobs, 20h) <<<"
 for SEED in $SEEDS_ALL; do
     JOB=$(sbatch --parsable \
         --job-name="ace_n50c_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=78G \
         --time=20:00:00 \

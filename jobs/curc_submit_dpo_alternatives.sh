@@ -51,7 +51,7 @@ for MODE in $MODES; do
     for SEED in $SEEDS; do
         JOB=$(sbatch --parsable \
             --job-name="dpoalt_${MODE:0:4}_s${SEED}" \
-            --partition=aa100 --qos=normal \
+            --partition=aa100 --qos=gpu-normal \
             --nodes=1 --ntasks=1 --gres=gpu:1 \
             --cpus-per-task=8 --mem=32G \
             --time=08:00:00 \

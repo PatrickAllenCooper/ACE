@@ -51,7 +51,7 @@ submit() {
     local JOB
     JOB=$(sbatch --parsable \
         --job-name="$name" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem="$mem" \
         --time="$wall" \
@@ -89,7 +89,7 @@ if [ "${SUBMIT_PARITY:-0}" = "1" ]; then
         # 30-node ACE cell above.
         JOB=$(sbatch --parsable \
             --job-name="sc30_ace_compact_s${SEED}" \
-            --partition=aa100 --qos=normal \
+            --partition=aa100 --qos=gpu-normal \
             --nodes=1 --ntasks=1 --gres=gpu:1 \
             --cpus-per-task=8 --mem=64G \
             --time=22:00:00 \

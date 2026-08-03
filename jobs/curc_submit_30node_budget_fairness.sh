@@ -49,7 +49,7 @@ for MODE in $MODES; do
     for SEED in $SEEDS; do
         JOB=$(sbatch --parsable \
             --job-name="bf30_${MODE:0:3}_s${SEED}" \
-            --partition=aa100 --qos=normal \
+            --partition=aa100 --qos=gpu-normal \
             --nodes=1 --ntasks=1 --gres=gpu:1 \
             --cpus-per-task=8 --mem=64G \
             --time=24:00:00 \

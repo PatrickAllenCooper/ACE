@@ -54,7 +54,7 @@ echo ">>> Phase 1: PPO on 30-node <<<"
 for SEED in $SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="ppo30_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=32G \
         --time=08:00:00 \
@@ -73,7 +73,7 @@ echo ">>> Phase 2: Zero-shot LM (no DPO) on 30-node <<<"
 for SEED in $SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="zsl30_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=64G \
         --time=08:00:00 \
@@ -93,7 +93,7 @@ echo ">>> Phase 3: Bayesian OED on 30-node <<<"
 for SEED in $SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="boed30_s${SEED}" \
-        --partition=amilan --qos=normal \
+        --partition=acpu --qos=cpu-normal \
         --nodes=1 --ntasks=1 \
         --cpus-per-task=8 --mem=16G \
         --time=16:00:00 \

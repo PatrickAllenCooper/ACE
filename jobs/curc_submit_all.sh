@@ -50,7 +50,7 @@ submit_gpu() {
     local name="$1"; local time="$2"; local script="$3"
     sbatch --parsable \
         --job-name="$name" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=32G \
         --time="$time" \
@@ -64,7 +64,7 @@ submit_cpu() {
     local name="$1"; local time="$2"; local script="$3"
     sbatch --parsable \
         --job-name="$name" \
-        --partition=amilan --qos=normal \
+        --partition=acpu --qos=cpu-normal \
         --nodes=1 --ntasks=1 \
         --cpus-per-task=8 --mem=16G \
         --time="$time" \
@@ -80,7 +80,7 @@ echo ">>> Phase A: ACE additional seeds <<<"
 for SEED in 314 271 577 618 141; do
     JOB=$(sbatch --parsable \
         --job-name="ace_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=32G \
         --time=24:00:00 \
@@ -99,7 +99,7 @@ echo ">>> Phase B: Baselines 171 episodes <<<"
 for SEED in 314 271 577 618 141; do
     JOB=$(sbatch --parsable \
         --job-name="base_s${SEED}" \
-        --partition=amilan --qos=normal \
+        --partition=acpu --qos=cpu-normal \
         --nodes=1 --ntasks=1 \
         --cpus-per-task=8 --mem=16G \
         --time=04:00:00 \
@@ -118,7 +118,7 @@ echo ""
 echo ">>> Phase C-F: CPU experiments (Bayesian OED, graph misspec, hyperparam, K, Duffing, Phillips) <<<"
 JOB=$(sbatch --parsable \
     --job-name="cpu_suite" \
-    --partition=amilan --qos=normal \
+    --partition=acpu --qos=cpu-normal \
     --nodes=1 --ntasks=1 \
     --cpus-per-task=16 --mem=32G \
     --time=24:00:00 \
@@ -137,7 +137,7 @@ for MISSPEC in none missing_edge extra_edge reversed_edge missing_and_extra; do
     for SEED in 42 123 456; do
         JOB=$(sbatch --parsable \
             --job-name="mis_${MISSPEC:0:3}_s${SEED}" \
-            --partition=aa100 --qos=normal \
+            --partition=aa100 --qos=gpu-normal \
             --nodes=1 --ntasks=1 --gres=gpu:1 \
             --cpus-per-task=8 --mem=32G \
             --time=24:00:00 \
@@ -167,7 +167,7 @@ for ALPHA_KEY in 0.01 0.05 0.1 0.2; do
             LABEL="a${ALPHA_KEY}_g${GAMMA}_s${SEED}"
             JOB=$(sbatch --parsable \
                 --job-name="hp_${LABEL}" \
-                --partition=aa100 --qos=normal \
+                --partition=aa100 --qos=gpu-normal \
                 --nodes=1 --ntasks=1 --gres=gpu:1 \
                 --cpus-per-task=8 --mem=32G \
                 --time=24:00:00 \
@@ -188,7 +188,7 @@ echo ">>> Phase I: 30-node large-scale ACE <<<"
 for SEED in 42 123 456; do
     JOB=$(sbatch --parsable \
         --job-name="ls30_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=32G \
         --time=24:00:00 \

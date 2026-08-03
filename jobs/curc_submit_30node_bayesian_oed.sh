@@ -53,8 +53,8 @@ SEEDS="42 123 456 789 1011"
 for SEED in $SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="oed30_s${SEED}" \
-        --partition=amilan \
-        --qos=normal \
+        --partition=acpu \
+        --qos=cpu-normal \
         --nodes=1 --ntasks=1 \
         --cpus-per-task=4 \
         --mem=8G \

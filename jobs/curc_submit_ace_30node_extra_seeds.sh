@@ -59,7 +59,7 @@ for SEED in 789 1011; do
         JOB=$(sbatch --parsable \
             --job-name="ace30_s${SEED}a${ATTEMPT}" \
             --partition=aa100 \
-            --qos=normal \
+            --qos=gpu-normal \
             --nodes=1 --ntasks=1 --gres=gpu:1 \
             --cpus-per-task=8 \
             --mem=64G \

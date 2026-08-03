@@ -87,7 +87,7 @@ for SEED in "${SEEDS[@]}"; do
         # Test mode: still submit to SLURM (needs GPU) but with shorter time limit
         echo "  Submitting test job (shorter time limit)..."
         JOB=$(sbatch --parsable \
-            --nodes=1 --partition=aa100 --qos=normal \
+            --nodes=1 --partition=aa100 --qos=gpu-normal \
             --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=2:00:00 \
             --job-name=ace_test_s${SEED} \
             --output=results/logs/ace_test_seed${SEED}_${TIMESTAMP}_%j.out \
@@ -108,7 +108,7 @@ for SEED in "${SEEDS[@]}"; do
     else
         # Production mode: submit to HPC
         JOB=$(sbatch --parsable \
-            --nodes=1 --partition=aa100 --qos=normal \
+            --nodes=1 --partition=aa100 --qos=gpu-normal \
             --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=10:00:00 \
             --job-name=ace_s${SEED} \
             --output=results/logs/ace_seed${SEED}_${TIMESTAMP}_%j.out \

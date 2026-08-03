@@ -46,7 +46,7 @@ for METHOD in $METHODS; do
     for SEED in $SEEDS; do
         JOB=$(sbatch --parsable \
             --job-name="bf30bl_${METHOD:0:3}_s${SEED}" \
-            --partition=amilan --qos=normal \
+            --partition=acpu --qos=cpu-normal \
             --nodes=1 --ntasks=1 \
             --cpus-per-task=4 --mem=8G \
             --time=10:00:00 \

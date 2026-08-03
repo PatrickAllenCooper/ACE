@@ -52,7 +52,7 @@ echo ">>> Phase 1a: anon30 ACE (5 jobs) <<<"
 for SEED in $SEEDS_ALL; do
     JOB=$(sbatch --parsable \
         --job-name="ace_a30r_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=64G \
         --time=08:00:00 \
@@ -71,7 +71,7 @@ echo ">>> Phase 1b: anon30 Zero-shot LM (5 jobs) <<<"
 for SEED in $SEEDS_ALL; do
     JOB=$(sbatch --parsable \
         --job-name="zsl_a30r_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=64G \
         --time=08:00:00 \
@@ -91,7 +91,7 @@ echo ">>> Phase 2a: nodes50 ACE (5 jobs, 14h) <<<"
 for SEED in $SEEDS_ALL; do
     JOB=$(sbatch --parsable \
         --job-name="ace_n50r_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=78G \
         --time=14:00:00 \
@@ -110,7 +110,7 @@ echo ">>> Phase 2b: nodes50 Zero-shot LM resub (2 jobs, 12h) <<<"
 for SEED in $SEEDS_ZSL_N50; do
     JOB=$(sbatch --parsable \
         --job-name="zsl_n50r_s${SEED}" \
-        --partition=aa100 --qos=normal \
+        --partition=aa100 --qos=gpu-normal \
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 --mem=78G \
         --time=12:00:00 \
