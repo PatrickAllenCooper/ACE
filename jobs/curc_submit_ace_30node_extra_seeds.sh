@@ -60,7 +60,7 @@ for SEED in 789 1011; do
             --job-name="ace30_s${SEED}a${ATTEMPT}" \
             --partition=aa100 \
             --qos=gpu-normal \
-            --nodes=1 --ntasks=1 --gres=gpu:1 \
+            --nodes=1 --ntasks=1 --gres=gpu:a100_80gb:1 \
             --cpus-per-task=8 \
             --mem=64G \
             --time=08:00:00 \

@@ -50,7 +50,7 @@ for MODE in $MODES; do
         JOB=$(sbatch --parsable \
             --job-name="bf30_${MODE:0:3}_s${SEED}" \
             --partition=aa100 --qos=gpu-normal \
-            --nodes=1 --ntasks=1 --gres=gpu:1 \
+            --nodes=1 --ntasks=1 --gres=gpu:a100_80gb:1 \
             --cpus-per-task=8 --mem=64G \
             --time=24:00:00 \
             --output="$OUT/logs/ace_${MODE}_seed${SEED}_%j.out" \

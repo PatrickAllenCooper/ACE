@@ -48,7 +48,7 @@ for CONFIG in $CONFIGS; do
         JOB=$(sbatch --parsable \
             --job-name="nodeimp_${CONFIG:0:6}_s${SEED}" \
             --partition=aa100 --qos=gpu-normal \
-            --nodes=1 --ntasks=1 --gres=gpu:1 \
+            --nodes=1 --ntasks=1 --gres=gpu:a100-40gb:1 \
             --cpus-per-task=8 --mem=32G \
             --time=08:00:00 \
             --output="$OUT/logs/${CONFIG}_seed${SEED}_%j.out" \
