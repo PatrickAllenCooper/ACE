@@ -14,9 +14,9 @@
 #   git pull
 #   bash jobs/curc_submit_node_importance_ablation.sh
 #
-# Output: written to /scratch/alpine1/paco0228 (NOT /projects, which is at
+# Output: written to /scratch/alpine/paco0228 (NOT /projects, which is at
 # 229G/250G quota) -- see curc-quota before adding further large result trees.
-#   /scratch/alpine1/paco0228/ACE/results/curc_node_importance_ablation/{config}/seed_{seed}/
+#   /scratch/alpine/paco0228/ACE/results/curc_node_importance_ablation/{config}/seed_{seed}/
 #
 # SLURM resources per job:
 #   partition : aa100 (A100 GPU)
@@ -30,7 +30,7 @@ cd /projects/paco0228/ACE
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-OUT="/scratch/alpine1/paco0228/ACE/results/curc_node_importance_ablation"
+OUT="/scratch/alpine/paco0228/ACE/results/curc_node_importance_ablation"
 mkdir -p "$OUT/logs"
 
 echo "================================================================"

@@ -41,7 +41,7 @@ cd /projects/paco0228/ACE
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-OUT="/scratch/alpine1/paco0228/ACE/results/curc_30node_baselines"
+OUT="/scratch/alpine/paco0228/ACE/results/curc_30node_baselines"
 mkdir -p "$OUT/logs"
 
 echo "================================================================"
