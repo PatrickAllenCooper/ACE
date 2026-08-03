@@ -28,9 +28,13 @@ fi
 JOB_TAG="${SLURM_JOB_ID:-local}"
 OUTPUT_DIR="$OUT/ace_${LOOKAHEAD_MODE}/seed_${SEED}/job_${JOB_TAG}"
 
+# 40 episodes = the measured best-MSE plateau budget at 30 nodes (same
+# protocol as the scaling sweep, fig_scaling). At ~22 min/episode this
+# completes in ~15h, inside the 24h wall-time, so every seed finishes at the
+# SAME episode count -- no wall-time truncation at inconsistent budgets.
 python -u ace_experiments.py \
     --large_scale 30 \
-    --episodes 300 \
+    --episodes 40 \
     --seed "$SEED" \
     --use_dedicated_root_learner \
     --obs_train_interval 3 \

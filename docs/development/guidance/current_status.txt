@@ -1,6 +1,39 @@
 # ACE Current Status - Quick Reference
 
-**Date:** July 24, 2026
+**Date:** August 3, 2026 (pre-submission hardening pass; see below)
+
+## AUGUST 3, 2026: PRE-SUBMISSION HARDENING OF THE CURC SUITE
+
+Three fixes applied before submitting the queued experiments, all verified
+by the unit suite (28/28 passing locally):
+
+1. `ace_experiments.py` emergency-save handler (SIGTERM/atexit) now also
+   writes `query_budget.json`. Previously it saved metrics/plots only, so a
+   wall-time-killed run would lose the per-tag oracle-query breakdown that
+   Phase 2 of the budget-fairness suite derives its shared budget from.
+2. 30-node budget-fairness ACE worker (`curc_30node_budget_ace_seed.sh`):
+   episodes 300 -> 40 (the measured plateau budget, same protocol as the
+   scaling sweep) and submit script wall-time 8h -> 24h. At ~22 min/episode,
+   40 episodes ~ 15h: every seed now COMPLETES at the same episode count
+   instead of being wall-time-truncated at inconsistent budgets.
+3. 30-node seed-expansion submit script: wall-time 8h -> 24h, matching the
+   protocol the existing headline seeds (42/123/456) were produced under.
+
+Execution order for CURC (decision-gate first):
+  1. bash jobs/curc_submit_5node_budget_fairness.sh   (10 GPU jobs, 8h each)
+     bash jobs/curc_submit_30node_budget_fairness.sh  (10 GPU jobs, 24h each)
+  2. After Phase 1: compute mean total queries from ace_env query_budget.json
+     (one-liner in the 5-node submit header), then
+     bash jobs/curc_submit_5node_budget_fairness_baselines.sh <BUDGET>
+     bash jobs/curc_submit_30node_budget_fairness_baselines.sh <BUDGET>
+  3. In parallel with 1 (CPU partition, no contention):
+     bash jobs/curc_submit_30node_bayesian_oed.sh     (5 CPU jobs, 10h each)
+  4. After the budget-fairness GPU jobs clear the queue:
+     bash jobs/curc_submit_ace_30node_seed_expansion.sh  (5 GPU jobs, 24h)
+     bash jobs/curc_submit_dpo_alternatives.sh           (15 GPU jobs, 8h)
+     bash jobs/curc_submit_node_importance_ablation.sh   (6 GPU jobs, 8h)
+Check `curc-quota` before and after: results write to /scratch/alpine1
+(9.5T quota), NOT /projects (at 229G/250G).
 
 ## BLOCKING: the budget-fairness experiment has not been run
 

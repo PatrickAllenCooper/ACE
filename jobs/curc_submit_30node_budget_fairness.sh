@@ -20,7 +20,9 @@
 #
 # Output: results/curc_30node_budget_fairness/ace_{env,student}/seed_{seed}/job_{jobid}/
 #
-# SLURM resources per job: same as curc_large_scale_seed.sh (aa100, 8h, 64G).
+# SLURM resources per job: aa100, 24h, 64G. The worker caps at 40 episodes
+# (the measured 30-node plateau budget), ~15h at 22 min/episode, so runs
+# complete inside wall-time with a uniform episode count across seeds.
 # =============================================================================
 
 set -euo pipefail
@@ -50,7 +52,7 @@ for MODE in $MODES; do
             --partition=aa100 --qos=normal \
             --nodes=1 --ntasks=1 --gres=gpu:1 \
             --cpus-per-task=8 --mem=64G \
-            --time=08:00:00 \
+            --time=24:00:00 \
             --output="$OUT/logs/ace_${MODE}_seed${SEED}_%j.out" \
             --error="$OUT/logs/ace_${MODE}_seed${SEED}_%j.err" \
             --export=ALL,LOOKAHEAD_MODE=$MODE,SEED=$SEED,OUT=$OUT \

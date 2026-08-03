@@ -1697,6 +1697,19 @@ def create_emergency_save_handler(run_dir, oracle, history_data):
                     logging.info(f"[OK] Saved {len(df)} records to metrics_interrupted.csv")
             except Exception as e:
                 logging.error(f"[ERROR] Failed to save metrics: {e}")
+
+            # Save query-budget accounting. Without this, wall-time-killed runs
+            # lose the per-tag oracle-query breakdown that the budget-fairness
+            # suite (Phase 2 budget derivation) depends on.
+            try:
+                executor = history_data.get("executor")
+                if executor is not None:
+                    import json as _json
+                    with open(os.path.join(run_dir, "query_budget.json"), "w") as _f:
+                        _json.dump(executor.query_summary(), _f, indent=2)
+                    logging.info("[OK] Saved query_budget.json")
+            except Exception as e:
+                logging.error(f"[ERROR] Failed to save query_budget.json: {e}")
             
             # Save training curves
             try:
@@ -2626,7 +2639,8 @@ def main():
         "score_history": score_history,
         "nodes": dsl.nodes,
         "metrics": None,  # Will build from history lists in handler
-        "student_ref": student_ref  # Mutable reference
+        "student_ref": student_ref,  # Mutable reference
+        "executor": executor  # For query_budget.json on interrupted runs
     }
     
     save_handler = create_emergency_save_handler(run_dir, M_star, history_data)

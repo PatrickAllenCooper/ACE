@@ -28,8 +28,10 @@
 #   - best MSE (min over training) <- secondary, as in the submission
 #
 # SLURM resources per job:
-#   partition : aa100 (A100 GPU; 30-node ACE needs ~22 min/step per the
-#               submission's own Appendix -- budget the full 8h window)
+#   partition : aa100 (A100 GPU; 30-node ACE needs ~22 min/episode per the
+#               submission's own Appendix). 24h wall-time matches the protocol
+#               the existing headline seeds (42/123/456) were produced under;
+#               resubmit for any seed that has not plateaued at wall-time.
 # =============================================================================
 
 set -euo pipefail
@@ -59,7 +61,7 @@ for SEED in $NEW_SEEDS; do
         --nodes=1 --ntasks=1 --gres=gpu:1 \
         --cpus-per-task=8 \
         --mem=64G \
-        --time=08:00:00 \
+        --time=24:00:00 \
         --output="$OUT/logs/ace_seed${SEED}_%j.out" \
         --error="$OUT/logs/ace_seed${SEED}_%j.err" \
         --export=ALL,SEED=$SEED,OUT="$OUT/ace" \
