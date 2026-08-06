@@ -32,8 +32,15 @@ Execution order for CURC (decision-gate first):
      bash jobs/curc_submit_ace_30node_seed_expansion.sh  (5 GPU jobs, 24h)
      bash jobs/curc_submit_dpo_alternatives.sh           (15 GPU jobs, 8h)
      bash jobs/curc_submit_node_importance_ablation.sh   (6 GPU jobs, 8h)
-Check `curc-quota` before and after: results write to /scratch/alpine1
-(9.5T quota), NOT /projects (at 229G/250G).
+Check `curc-quota` before and after: results write to /scratch/alpine
+(9.5T quota filesystem, labeled alpine1 in curc-quota), NOT /projects.
+
+AUGUST 6, 2026: Alpine expansion (32x RTX Pro 6000, 32x H200, new acpu CPU
+nodes) went live. The wave-2 GPU submit scripts (seed expansion, extra seeds,
+DPO alternatives, node-importance ablation) now accept GPU_PARTITION /
+GPU_QOS / GPU_GRES environment overrides (defaults unchanged: aa100 /
+gpu-normal / pinned A100 GRES) so jobs can target the new H200 partition once
+its partition/QoS/GRES names are confirmed via sinfo.
 
 ## BLOCKING: the budget-fairness experiment has not been run
 

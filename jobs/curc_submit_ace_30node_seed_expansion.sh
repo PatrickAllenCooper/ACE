@@ -36,6 +36,12 @@
 
 set -euo pipefail
 
+# GPU targeting -- override to use the Aug 2026 Alpine expansion nodes, e.g.:
+#   GPU_PARTITION=<new-partition> GPU_QOS=<its-qos> GPU_GRES=gpu:1 bash jobs/<this script>
+GPU_PARTITION="${GPU_PARTITION:-aa100}"
+GPU_QOS="${GPU_QOS:-gpu-normal}"
+GPU_GRES="${GPU_GRES:-gpu:a100_80gb:1}"
+
 cd /projects/paco0228/ACE
 
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
@@ -56,9 +62,9 @@ NEW_SEEDS="2022 2023 2024 2025 2026"
 for SEED in $NEW_SEEDS; do
     JOB=$(sbatch --parsable \
         --job-name="ace30_s${SEED}" \
-        --partition=aa100 \
-        --qos=gpu-normal \
-        --nodes=1 --ntasks=1 --gres=gpu:a100_80gb:1 \
+        --partition=$GPU_PARTITION \
+        --qos=$GPU_QOS \
+        --nodes=1 --ntasks=1 --gres=$GPU_GRES \
         --cpus-per-task=8 \
         --mem=64G \
         --time=24:00:00 \
