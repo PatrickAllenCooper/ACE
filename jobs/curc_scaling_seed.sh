@@ -18,6 +18,15 @@
 #   CANDIDATES      : lookahead breadth K (default: ace_experiments.py default 4)
 #   EPISODES        : episode budget (default: per-method below)
 #   ANON            : 1 to anonymise node names (default 0)
+#   MODEL           : HF model name override (default: ace_experiments.py's
+#                     Qwen/Qwen2.5-1.5B). Used by the model-scale sweep
+#                     (curc_submit_model_scale_sweep.sh) to run larger priors.
+#   GRAD_CKPT       : 1 to force --gradient_checkpointing regardless of SCALE/
+#                     ANON (needed for larger policy models doing DPO)
+#   POLICY_DTYPE    : float32 | bfloat16 | float16, forces the policy LM's
+#                     dtype regardless of SCALE (default: auto bf16 at >=50)
+#   LOOKAHEAD_STUDENT: 1 to add --lookahead_on_student (zero-oracle-query
+#                     lookahead; keeps the query budget honest at any scale)
 #
 # Output structure:
 #   $OUT/nodes${SCALE}/${METHOD}/seed_${SEED}/job_${JOB_TAG}/
@@ -55,6 +64,25 @@ if [ -n "${PROMPT_TOP_M:-}" ]; then PROMPT_FLAGS="$PROMPT_FLAGS --prompt_top_m $
 CAND_FLAG=""
 if [ -n "${CANDIDATES:-}" ]; then CAND_FLAG="--candidates $CANDIDATES"; fi
 
+MODEL_FLAG=""
+if [ -n "${MODEL:-}" ]; then MODEL_FLAG="--model $MODEL"; fi
+
+GRAD_CKPT_FLAG=""
+if [ "${GRAD_CKPT:-0}" = "1" ]; then GRAD_CKPT_FLAG="--gradient_checkpointing"; fi
+
+POLICY_DTYPE_FLAG=""
+if [ -n "${POLICY_DTYPE:-}" ]; then POLICY_DTYPE_FLAG="--policy_dtype $POLICY_DTYPE"; fi
+
+LOOKAHEAD_STUDENT_FLAG=""
+if [ "${LOOKAHEAD_STUDENT:-0}" = "1" ]; then LOOKAHEAD_STUDENT_FLAG="--lookahead_on_student"; fi
+
+# LargeScaleSCM (experiments/large_scale_scm.py) requires n_nodes >= 10 (its
+# fixed-size layers alone sum to 8). For SCALE=5, omit --large_scale entirely
+# so ace_experiments.py falls back to its bespoke 5-node GroundTruthSCM (the
+# paper's original diagnostic SCM) instead of erroring out.
+LARGE_SCALE_FLAG="--large_scale $SCALE"
+if [ "$SCALE" -lt 10 ]; then LARGE_SCALE_FLAG=""; fi
+
 case "$METHOD" in
     ace|zero_shot_lm)
         # LM policy methods go through ace_experiments.py.
@@ -69,11 +97,15 @@ case "$METHOD" in
             if [ "$SCALE" -ge 50 ]; then EP=${EPISODES:-40}; else EP=${EPISODES:-120}; fi
         fi
         python -u ace_experiments.py \
-            --large_scale "$SCALE" \
+            $LARGE_SCALE_FLAG \
             $ANON_FLAG \
             $NO_DPO_FLAG \
             $PROMPT_FLAGS \
             $CAND_FLAG \
+            $MODEL_FLAG \
+            $GRAD_CKPT_FLAG \
+            $POLICY_DTYPE_FLAG \
+            $LOOKAHEAD_STUDENT_FLAG \
             --episodes "$EP" \
             --seed "$SEED" \
             --use_dedicated_root_learner \

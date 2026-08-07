@@ -110,7 +110,20 @@ def main():
     ap.add_argument("--scales", type=int, nargs="+", default=[15, 30, 50])
     ap.add_argument("--seeds", type=int, nargs="*", default=None,
                     help="Restrict to these seeds (default: all seed_* dirs)")
+    ap.add_argument("--extra_root", default=None,
+                    help="Second results root for one additional scale, e.g. "
+                         "results/curc_100node_frontier (the E3 100-node "
+                         "frontier lives in its own tree, distinct from "
+                         "results/scaling/, since it was submitted separately "
+                         "on the Aug 2026 Alpine H200 expansion).")
+    ap.add_argument("--extra_scale", type=int, default=100,
+                    help="Scale value to read from --extra_root (default 100).")
     args = ap.parse_args()
+
+    scale_roots = {s: args.root for s in args.scales}
+    if args.extra_root:
+        args.scales = list(args.scales) + [args.extra_scale]
+        scale_roots[args.extra_scale] = args.extra_root
 
     fig, ax = plt.subplots(figsize=(6.4, 4.6))
 
@@ -122,7 +135,7 @@ def main():
     for method in METHODS:
         xs, ys, es, ns = [], [], [], []
         for scale in args.scales:
-            vals = cell_per_node(args.root, scale, method, args.seeds)
+            vals = cell_per_node(scale_roots[scale], scale, method, args.seeds)
             if not vals:
                 continue
             xs.append(scale)

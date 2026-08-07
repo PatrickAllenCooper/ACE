@@ -64,6 +64,13 @@ no cluster access):
 - 30-node ACE seed expansion to N=5-10.
 - DPO vs sft_best vs ranking vs no_dpo on the 5-node benchmark, N=5 seeds.
 - Node-importance ablation, 2 configs x 3 seeds.
+- Model-scale sweep (`jobs/curc_submit_model_scale_sweep.sh`, Aug 2026 Alpine
+  H200/RTX Pro 6000 expansion): zero-shot capability scaling across
+  Qwen2.5 0.5B-32B, and a DPO-vs-no-DPO comparison at 0.5B/1.5B/3B. Secondary
+  to the budget-fairness suite, not a decision gate.
+- 100-node scaling frontier (`jobs/curc_submit_100node_frontier.sh`) and the
+  free-lookahead K-scaling ablation (`jobs/curc_submit_k_scaling_student.sh`),
+  both enabled by the same hardware expansion. Also secondary.
 
 NOT DONE, blocked on tooling not available in this environment:
 - Local LaTeX compilation (no pdflatex/bibtex/latexmk here; ICLR style/bst
@@ -80,5 +87,8 @@ NOT DONE, blocked on tooling not available in this environment:
 3. Run the remaining queued experiments (OED@30, seed expansion,
    DPO-alternatives, node-importance ablation) and fold results into the
    relevant tables.
-4. Full reference-by-reference citation check on the complete bibliography.
-5. Local LaTeX compile, fix warnings, proofread, submit.
+4. Time/GPU-allocation permitting, run the secondary model-scale sweep,
+   100-node frontier, and free-lookahead K-scaling experiments; fold into a
+   new subsection rather than displacing the primary results.
+5. Full reference-by-reference citation check on the complete bibliography.
+6. Local LaTeX compile, fix warnings, proofread, submit.

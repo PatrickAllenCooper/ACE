@@ -49,6 +49,54 @@ e.g.:
       bash jobs/curc_submit_ace_30node_seed_expansion.sh
 Defaults remain aa100/gpu-normal/pinned-A100-GRES when unset.
 
+## AUGUST 6, 2026: model-scale sweep + 100-node frontier (secondary track)
+
+Enabled by the same Alpine H200/RTX Pro 6000 expansion above. These are
+**exploratory, not blocking** -- they strengthen the paper's scaling and
+LM-prior claims but do not resolve the budget-fairness decision gate below,
+which takes priority for GPU allocation on the new hardware if the two
+compete for the same per-user caps.
+
+- `jobs/curc_submit_model_scale_sweep.sh` (Phase A/B): zero-shot LM-prior
+  capability sweep across Qwen2.5 {0.5B,1.5B,3B,7B,14B,32B} at N in {5,30}
+  (`--lookahead_on_student` throughout so the query budget stays honest
+  regardless of model size), plus a DPO-vs-no-DPO comparison at N=30 for the
+  three sizes DPO is tractable at ({0.5B,1.5B,3B}; larger sizes are zero-shot
+  only). Tests whether "the LM prior does the heavy lifting, DPO calibrates"
+  holds as the prior itself scales, and whether the paper's 1.5B choice is
+  representative rather than cherry-picked.
+  - New flags this required: `--gradient_checkpointing` and `--policy_dtype`
+    (`ace_experiments.py`), which force-enable checkpointing/bf16
+    independently of `--large_scale`/`--anonymize_nodes` (needed for e.g. a
+    3B-parameter DPO run at N=30, which the existing >=50-node heuristic does
+    not cover). Unit-tested in `tests/test_gradient_checkpointing_flag.py`.
+  - Aggregation: `scripts/analysis/aggregate_model_scale_sweep.py` ->
+    `results/curc_model_scale_sweep/aggregate.csv`; figure:
+    `scripts/analysis/plot_model_scale_sweep.py` ->
+    `paper/iclr_ace_2027/figs/fig_model_scale.{pdf,png}`.
+- `jobs/curc_submit_100node_frontier.sh` (E3): extends the scaling figure to
+  N=100 (2x the previous 50-node ceiling) using `gpu-long`'s 7-day window on
+  H200, so the run reaches its plateau in one job instead of the wall-time-
+  truncation + checkpoint-resume cycle the 50-node cell needed on
+  aa100/gpu-normal (24h cap). Retires that cell's honesty caveat once it
+  lands. Plug into the existing scaling figure via
+  `plot_scaling.py --extra_root results/curc_100node_frontier --extra_scale 100`.
+- `jobs/curc_submit_k_scaling_student.sh` (E4): candidate-breadth K in
+  {4,8,16,32} at N=30 under `--lookahead_on_student`, where every extra
+  candidate is genuinely free in query-budget terms (unlike the existing
+  N=50 K-ablation under standard env-based lookahead, where K directly
+  inflates oracle-query cost). Isolates pure selection-quality-vs-K from the
+  query-budget-vs-K confound.
+- Worker (`jobs/curc_scaling_seed.sh`) extended with `MODEL`, `GRAD_CKPT`,
+  `POLICY_DTYPE`, `LOOKAHEAD_STUDENT` env vars, all opt-in / backward
+  compatible with every existing caller. Also fixed: `--large_scale` is now
+  only passed when `SCALE >= 10` (LargeScaleSCM's own minimum), so N=5 in the
+  model-scale sweep correctly falls back to the bespoke 5-node
+  `GroundTruthSCM` instead of hitting `LargeScaleSCM`'s size assertion.
+- **Not yet run.** As with the budget-fairness suite below, job scripts are
+  written and unit-tested, but no CURC execution or aggregation has happened
+  in this sandbox (no cluster access here).
+
 ## BLOCKING: the budget-fairness experiment has not been run
 
 **This is the single open item that determines whether the paper's headline

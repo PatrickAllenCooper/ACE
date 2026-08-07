@@ -2247,6 +2247,24 @@ def main():
                         help="(compact strategy) number of highest-loss nodes to "
                              "surface in the prompt, plus their parents.")
 
+    # Memory controls for the model-scale sweep (H200/RTX Pro 6000 expansion).
+    # These are additive to the automatic large_scale/anonymize-triggered
+    # defaults below: passing either flag forces it on regardless of scale,
+    # so e.g. a 3B-parameter DPO run at 30 nodes (which would not otherwise
+    # trigger the >=50-node heuristics) can still fit in memory.
+    parser.add_argument("--gradient_checkpointing", action="store_true",
+                        help="Force-enable gradient checkpointing on the policy LM "
+                             "(non-reentrant) regardless of --large_scale/--anonymize_nodes. "
+                             "Trades roughly 30 to 50 percent extra compute for roughly "
+                             "50 percent less peak memory; needed for larger policy models "
+                             "(e.g. Qwen2.5-3B+) doing DPO.")
+    parser.add_argument("--policy_dtype", type=str, default=None,
+                        choices=["float32", "bfloat16", "float16"],
+                        help="Force the policy LM's dtype regardless of --large_scale. "
+                             "Defaults to the automatic bfloat16-at->=50-nodes heuristic "
+                             "when unset. Use bfloat16 for larger models (7B+) even at "
+                             "small graph scale to fit in memory.")
+
     args = parser.parse_args()
     
     # ============================================================================
@@ -2499,8 +2517,14 @@ def main():
         ls = getattr(args, "large_scale", None) or 0
         anon = bool(getattr(args, "anonymize_nodes", False))
         no_dpo = getattr(args, "no_dpo", False)
-        gc_flag = (ls >= 50 or (ls >= 30 and anon)) and not no_dpo
-        policy_dtype = torch.bfloat16 if ls >= 50 else None
+        gc_flag = ((ls >= 50 or (ls >= 30 and anon)) and not no_dpo) or \
+            bool(getattr(args, "gradient_checkpointing", False))
+        _dtype_override = getattr(args, "policy_dtype", None)
+        if _dtype_override is not None:
+            policy_dtype = {"float32": None, "bfloat16": torch.bfloat16,
+                             "float16": torch.float16}[_dtype_override]
+        else:
+            policy_dtype = torch.bfloat16 if ls >= 50 else None
         try:
             policy_net = HuggingFacePolicy(args.model, dsl, device,
                                            token=hf_token,
