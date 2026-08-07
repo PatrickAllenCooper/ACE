@@ -43,6 +43,12 @@
 
 set -euo pipefail
 
+# GPU targeting -- override to use the Aug 2026 Alpine expansion nodes, e.g.:
+#   GPU_PARTITION=<new-partition> GPU_QOS=<its-qos> GPU_GRES=gpu:1 bash jobs/curc_submit_5node_budget_fairness.sh
+GPU_PARTITION="${GPU_PARTITION:-aa100}"
+GPU_QOS="${GPU_QOS:-gpu-normal}"
+GPU_GRES="${GPU_GRES:-gpu:a100-40gb:1}"
+
 cd /projects/paco0228/ACE
 
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
@@ -65,9 +71,9 @@ for MODE in $MODES; do
     for SEED in $SEEDS; do
         JOB=$(sbatch --parsable \
             --job-name="bf5_${MODE:0:3}_s${SEED}" \
-            --partition=aa100 --qos=gpu-normal \
-            --nodes=1 --ntasks=1 --gres=gpu:a100-40gb:1 \
-            --cpus-per-task=8 --mem=32G \
+            --partition=$GPU_PARTITION --qos=$GPU_QOS \
+            --nodes=1 --ntasks=1 --gres=$GPU_GRES \
+            --cpus-per-task=8 --mem=64G \
             --time=08:00:00 \
             --output="$OUT/logs/ace_${MODE}_seed${SEED}_%j.out" \
             --error="$OUT/logs/ace_${MODE}_seed${SEED}_%j.err" \
