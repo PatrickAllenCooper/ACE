@@ -36,11 +36,18 @@ Check `curc-quota` before and after: results write to /scratch/alpine
 (9.5T quota filesystem, labeled alpine1 in curc-quota), NOT /projects.
 
 AUGUST 6, 2026: Alpine expansion (32x RTX Pro 6000, 32x H200, new acpu CPU
-nodes) went live. The wave-2 GPU submit scripts (seed expansion, extra seeds,
-DPO alternatives, node-importance ablation) now accept GPU_PARTITION /
-GPU_QOS / GPU_GRES environment overrides (defaults unchanged: aa100 /
-gpu-normal / pinned A100 GRES) so jobs can target the new H200 partition once
-its partition/QoS/GRES names are confirmed via sinfo.
+nodes) went live. Confirmed via curc.readthedocs.io/alpine-hardware:
+  H200          : --partition=ah200        --gres=gpu:h200:1          (141GB)
+  RTX Pro 6000  : --partition=artxpro6000  --gres=gpu:rtx_pro_6000:1  (96GB)
+  QoS unchanged : gpu-normal / gpu-long (same names as aa100/al40)
+Both new partitions have 8 nodes x 4 GPUs and are brand new (should be far
+less contested than aa100). All GPU submit scripts (5-node and 30-node
+budget-fairness, seed expansion, extra seeds, DPO alternatives, node-
+importance ablation) accept GPU_PARTITION / GPU_QOS / GPU_GRES overrides,
+e.g.:
+  GPU_PARTITION=ah200 GPU_QOS=gpu-normal GPU_GRES=gpu:h200:1 \
+      bash jobs/curc_submit_ace_30node_seed_expansion.sh
+Defaults remain aa100/gpu-normal/pinned-A100-GRES when unset.
 
 ## BLOCKING: the budget-fairness experiment has not been run
 
