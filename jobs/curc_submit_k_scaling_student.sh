@@ -57,12 +57,17 @@ for K in $KS; do
     OUT="$BASE/K${K}"
     mkdir -p "$OUT/logs"
     # Per-step cost scales roughly linearly with K (one LM forward pass per
-    # candidate); budget wall-time accordingly.
+    # candidate); budget wall-time accordingly, capped at gpu-normal's 24h
+    # QoS ceiling. K=32 does not fit a linear extrapolation (~30h) in one
+    # window; it relies on ace_experiments.py's checkpoint-resume (stable
+    # per-seed OUT_DIR, no job-id suffix) -- rerun this script to continue
+    # any K=32 seed that does not finish within 24h, same pattern as the
+    # N=50 K-ablation's largest-K cells (jobs/curc_submit_k_ablation.sh).
     case "$K" in
         4)  WALL=10:00:00 ;;
         8)  WALL=14:00:00 ;;
         16) WALL=20:00:00 ;;
-        32) WALL=30:00:00 ;;
+        32) WALL=24:00:00 ;;
         *)  WALL=24:00:00 ;;
     esac
     for SEED in $SEEDS; do
