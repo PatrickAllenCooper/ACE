@@ -93,9 +93,17 @@ compete for the same per-user caps.
   only passed when `SCALE >= 10` (LargeScaleSCM's own minimum), so N=5 in the
   model-scale sweep correctly falls back to the bespoke 5-node
   `GroundTruthSCM` instead of hitting `LargeScaleSCM`'s size assertion.
-- **Not yet run.** As with the budget-fairness suite below, job scripts are
-  written and unit-tested, but no CURC execution or aggregation has happened
-  in this sandbox (no cluster access here).
+- AUGUST 9, 2026 status (first execution wave): ace30 seed-expansion 5/5
+  COMPLETED; Phase A 0.5B/1.5B @ N=30 COMPLETED; fr100 CPU baselines
+  COMPLETED; most other cells FAILED (~11s) or OUT_OF_MEMORY (N=5 host
+  mem too low at 24/32G). Fixes: omit empty POLICY_DTYPE= from Slurm
+  --export (empty values can glue the next key into the value); bump host
+  mem to 64G+; route 14B + fr100 GPU jobs to artxpro6000 to avoid H200
+  contention; SKIP_COMPLETED=1 for gap-only resubmits. Resubmit with:
+    scancel 30953361 30953362 30953365 30953366 30953369 30953370
+    SKIP_COMPLETED=1 bash jobs/curc_submit_model_scale_sweep.sh
+    SKIP_COMPLETED=1 GPU_ONLY=1 bash jobs/curc_submit_100node_frontier.sh
+    SKIP_COMPLETED=1 bash jobs/curc_submit_k_scaling_student.sh
 
 ## BLOCKING: the budget-fairness experiment has not been run
 

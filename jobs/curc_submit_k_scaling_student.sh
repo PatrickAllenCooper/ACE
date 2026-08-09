@@ -47,6 +47,14 @@ WORKER="jobs/curc_scaling_seed.sh"
 
 SEEDS="${SEEDS:-42 123 456}"
 KS="${KS:-4 8 16 32}"
+SKIP_COMPLETED="${SKIP_COMPLETED:-0}"
+
+cell_done() {
+    local out=$1 seed=$2
+    local seed_dir="$out/nodes30/ace/seed_${seed}"
+    [[ -d "$seed_dir" ]] || return 1
+    find "$seed_dir" -name node_losses.csv 2>/dev/null | grep -q .
+}
 
 echo "================================================================"
 echo " Free-lookahead K scaling at N=30 (student-mode) -- Ks=$KS Seeds=$SEEDS"
@@ -72,11 +80,15 @@ for K in $KS; do
     esac
     for SEED in $SEEDS; do
         name="ksK${K}_n30_s${SEED}"
+        if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$OUT" "$SEED"; then
+            echo "  SKIP (done): $name"
+            continue
+        fi
         JOB=$(sbatch --parsable \
             --job-name="$name" \
             --partition="$GPU_PARTITION" --qos="$GPU_QOS" \
             --nodes=1 --ntasks=1 --gres="$GPU_GRES" \
-            --cpus-per-task=8 --mem=48G \
+            --cpus-per-task=8 --mem=64G \
             --time="$WALL" \
             --output="$BASE/logs/${name}_%j.out" \
             --error="$BASE/logs/${name}_%j.err" \

@@ -43,9 +43,12 @@
 
 set -euo pipefail
 
-GPU_PARTITION="${GPU_PARTITION:-ah200}"
+# Default to RTX Pro 6000 (gpu-long): the 100-node ACE/ZSL runs use the
+# default 1.5B policy + compact prompt + auto bf16/checkpointing at N>=50,
+# which fits in 96GB. Routing here avoids the contested H200 pool.
+GPU_PARTITION="${GPU_PARTITION:-artxpro6000}"
 GPU_QOS="${GPU_QOS:-gpu-long}"
-GPU_GRES="${GPU_GRES:-gpu:h200:1}"
+GPU_GRES="${GPU_GRES:-gpu:rtx_pro_6000:1}"
 
 cd /projects/paco0228/ACE
 
@@ -57,41 +60,53 @@ mkdir -p "$OUT/logs"
 WORKER="jobs/curc_scaling_seed.sh"
 
 SEEDS="${SEEDS:-42 123 456}"
+SKIP_COMPLETED="${SKIP_COMPLETED:-0}"
+# GPU_ONLY=1 skips CPU baselines (already completed on 2026-08-07).
+GPU_ONLY="${GPU_ONLY:-0}"
+METHODS_GPU="${METHODS_GPU:-ace zero_shot_lm}"
+METHODS_CPU="${METHODS_CPU:-random round_robin}"
+if [ "$GPU_ONLY" = "1" ]; then METHODS_CPU=""; fi
+
+cell_done() {
+    local method=$1 seed=$2
+    local seed_dir="$OUT/nodes100/${method}/seed_${seed}"
+    [[ -d "$seed_dir" ]] || return 1
+    find "$seed_dir" \( -name node_losses.csv -o -name summary.csv \) 2>/dev/null | grep -q .
+}
 
 echo "================================================================"
 echo " 100-node scaling frontier -- CURC SLURM"
-echo " Output : $OUT   Seeds: $SEEDS   Started: $(date)"
+echo " Output : $OUT   Seeds: $SEEDS   Partition: $GPU_PARTITION/$GPU_GRES"
+echo " Started: $(date)"
 echo "================================================================"
 
 for SEED in $SEEDS; do
-    # ---- ACE (full method, honest student-mode lookahead budget) ----------
-    JOB=$(sbatch --parsable \
-        --job-name="fr100_ace_s${SEED}" \
-        --partition="$GPU_PARTITION" --qos="$GPU_QOS" \
-        --nodes=1 --ntasks=1 --gres="$GPU_GRES" \
-        --cpus-per-task=8 --mem=96G \
-        --time=7-00:00:00 \
-        --output="$OUT/logs/ace_seed${SEED}_%j.out" \
-        --error="$OUT/logs/ace_seed${SEED}_%j.err" \
-        --export=ALL,SCALE=100,METHOD=ace,SEED=$SEED,OUT=$OUT,PROMPT_STRATEGY=compact,PROMPT_TOP_M=8,LOOKAHEAD_STUDENT=1,EPISODES=100 \
-        "$WORKER")
-    echo "  Submitted: fr100_ace seed=$SEED -> Job $JOB"
+    for METHOD in $METHODS_GPU; do
+        if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$METHOD" "$SEED"; then
+            echo "  SKIP (done): fr100_${METHOD} seed=$SEED"
+            continue
+        fi
+        local_name="fr100_${METHOD:0:3}_s${SEED}"
+        wall="7-00:00:00"
+        [ "$METHOD" = "zero_shot_lm" ] && wall="2-00:00:00"
+        JOB=$(sbatch --parsable \
+            --job-name="$local_name" \
+            --partition="$GPU_PARTITION" --qos="$GPU_QOS" \
+            --nodes=1 --ntasks=1 --gres="$GPU_GRES" \
+            --cpus-per-task=8 --mem=96G \
+            --time="$wall" \
+            --output="$OUT/logs/${METHOD}_seed${SEED}_%j.out" \
+            --error="$OUT/logs/${METHOD}_seed${SEED}_%j.err" \
+            --export=ALL,SCALE=100,METHOD=$METHOD,SEED=$SEED,OUT=$OUT,PROMPT_STRATEGY=compact,PROMPT_TOP_M=8,LOOKAHEAD_STUDENT=1,EPISODES=100 \
+            "$WORKER")
+        echo "  Submitted: $local_name -> Job $JOB ($GPU_PARTITION)"
+    done
 
-    # ---- Zero-shot LM prior (--no_dpo), same lookahead/budget settings ----
-    JOB=$(sbatch --parsable \
-        --job-name="fr100_zsl_s${SEED}" \
-        --partition="$GPU_PARTITION" --qos="$GPU_QOS" \
-        --nodes=1 --ntasks=1 --gres="$GPU_GRES" \
-        --cpus-per-task=8 --mem=96G \
-        --time=2-00:00:00 \
-        --output="$OUT/logs/zsl_seed${SEED}_%j.out" \
-        --error="$OUT/logs/zsl_seed${SEED}_%j.err" \
-        --export=ALL,SCALE=100,METHOD=zero_shot_lm,SEED=$SEED,OUT=$OUT,PROMPT_STRATEGY=compact,PROMPT_TOP_M=8,LOOKAHEAD_STUDENT=1,EPISODES=100 \
-        "$WORKER")
-    echo "  Submitted: fr100_zsl seed=$SEED -> Job $JOB"
-
-    # ---- Passive CPU baselines --------------------------------------------
-    for METHOD in random round_robin; do
+    for METHOD in $METHODS_CPU; do
+        if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$METHOD" "$SEED"; then
+            echo "  SKIP (done): fr100_${METHOD} seed=$SEED"
+            continue
+        fi
         JOB=$(sbatch --parsable \
             --job-name="fr100_${METHOD:0:3}_s${SEED}" \
             --partition=acpu --qos=cpu-normal \
@@ -107,8 +122,7 @@ for SEED in $SEEDS; do
 done
 
 echo ""
-echo "12 jobs submitted (3 seeds x {ace, zero_shot_lm, random, round_robin})."
-echo "Monitor: squeue -u \$USER"
+echo "Monitor: squeue -u \$USER | grep fr100"
 echo "Logs in: $OUT/logs/"
 echo ""
 echo "ACE/zero_shot_lm use gpu-long's single 7-day/2-day window -- no"
