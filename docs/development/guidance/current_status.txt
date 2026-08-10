@@ -247,6 +247,38 @@ outcome as informative rather than picking one and hiding the other:
 **Do not let a future session or a paper draft conflate "resolved at 30
 nodes" with "resolved at every scale in Table 1."**
 
+## AUGUST 10, 2026: full test-suite health check -- 132/752 pre-existing failures
+
+Ran the full local suite (`pytest tests/ -q`, Windows/MiKTeX environment):
+615 passed, 132 failed, 5 skipped. Fixed 4 of the failures directly (both
+`tests/experiments/test_large_scale_scm.py` and
+`tests/test_improvement_scripts.py` had tests hardcoded to the pre-ICLR-
+restructure path `paper/paper.tex`, which no longer exists; also updated
+two assertions in the latter file that checked for an obsolete TODO/
+`textcolor{red}` placeholder convention and a retired "When Does ACE
+Struggle" section title, neither of which the current paper uses).
+
+The remaining ~128 failures are **pre-existing legacy debt, unrelated to
+the budget-fairness work above**, concentrated in a handful of causes:
+  - `ModuleNotFoundError` for `visualize` and `regime_analyzer` -- modules
+    that appear to have been removed or renamed in a past refactor without
+    updating their tests.
+  - `FileNotFoundError` for `ace.sh` and `SCRIPT_CONSOLIDATION.md` across
+    `tests/test_unified_cli.py` (~25 failures alone) -- a unified CLI
+    wrapper script that either was never committed or was removed.
+  - `tests/test_regime_analyzer*.py`, `tests/test_visualize*.py`,
+    `tests/test_push_to_80_percent.py` and similar "push to N% coverage"
+    files reference the same missing modules.
+  - A handful of Windows-specific issues: a `charmap` codec
+    `UnicodeDecodeError` reading a file that contains non-ASCII bytes
+    without an explicit encoding, and `subprocess.TimeoutExpired` calling
+    `ace_experiments.py --help` (likely slow import on this machine, not a
+    real hang).
+**Not yet triaged further.** This needs a dedicated pass to decide, per
+test, whether the missing module/script should be restored, or the test
+is stale and should be deleted -- do not attempt this inline with
+experiment-tracking work; it deserves its own session.
+
 ## ICLR 2027 Resubmission - In Progress
 
 **Prior venue:** NeurIPS 2026 submission received critical reviews (4 of 5
