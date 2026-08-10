@@ -1,6 +1,47 @@
 # ACE Current Status - Quick Reference
 
-**Date:** August 3, 2026 (pre-submission hardening pass; see below)
+**Date:** August 10, 2026 (30-node budget-fairness decision gate resolved; see below)
+
+## AUGUST 10, 2026: DECISION GATE RESOLVED AT 30 NODES -- ACE WINS
+
+`scripts/analysis/aggregate_budget_fairness.py` (new, unit-tested in
+`tests/test_aggregate_budget_fairness.py`) run against the completed
+30-node budget-fairness suite (5 seeds x 6 methods, `--query_budget`
+matched to ACE env-lookahead's own total):
+
+| method       | mean per-node best MSE | mean queries |
+|--------------|------------------------|--------------|
+| ace_env      | 0.1095 +/- 0.0453      | 483,460      |
+| ace_student  | 0.0961 +/- 0.0182      | 130,140      |
+| random       | 0.1923 +/- 0.0016      | 484,500      |
+| round_robin  | 0.1928 +/- 0.0019      | 484,500      |
+| max_variance | 0.1935 +/- 0.0012      | 497,100      |
+| bayesian_oed | 0.1936 +/- 0.0021      | 484,200      |
+
+Both ACE variants beat every baseline at matched total query cost:
+`ace_env` by 43.1%, `ace_student` by 50.0% (while using 3.7x *fewer*
+queries than the baselines it beats). Every individual ace_env seed
+beats the pooled baseline mean, so this is not an averaging artifact.
+Verified two data-quality questions before trusting this result:
+  - `n_nodes` for ACE varies 28-30 across seeds (baselines are fixed at
+    30) because some seeds' randomly-wired graph makes 1-2 nodes pure
+    roots (no parents => no loss column in `node_losses.csv`), not a bug;
+    per-node normalization over scored nodes is the same convention
+    `scaling_common.py` already uses elsewhere in this paper.
+  - ACE's best-episode MSE (0.110) and final-episode MSE (0.276) diverge
+    substantially at this 40-episode budget (baselines' best/final match
+    to ~1-2%). This is the known early-plateau-then-drift pattern, not
+    new; reporting best-episode MSE is this paper's existing convention,
+    but it is now flagged explicitly as a checkpoint-selection caveat in
+    the paper's Budget Accounting section rather than left implicit.
+
+`paper/iclr_ace_2027/paper.tex` and `appendix.tex` updated with this
+result (abstract bullet, Section "Budget Accounting", Limitations
+section, Appendix "Budget Accounting: Full Multiplier Derivation").
+Compiled clean locally (`pdflatex` + `bibtex` x2, MiKTeX): 33 pages, no
+undefined references or citations. **The 5-node rerun is still queued**
+(jobs submitted, retrying after the OOM fix below) -- do not present the
+30-node margin as generalizing to 5 nodes until that result lands.
 
 ## AUGUST 3, 2026: PRE-SUBMISSION HARDENING OF THE CURC SUITE
 
@@ -150,61 +191,61 @@ compete for the same per-user caps.
   at either scale -- no baseline result directories exist yet anywhere in
   either results tree.
 
-## BLOCKING: the budget-fairness experiment has not been run
+## BLOCKING (PARTIALLY RESOLVED): budget-fairness at 5 nodes still pending
 
-**This is the single open item that determines whether the paper's headline
-claim is defensible. Everything else in this document is secondary until
-this runs.**
+**Resolved at 30 nodes (see August 10 entry above): ACE wins under
+total-query-matched accounting, by a wide and consistent margin. The
+remaining open item is the 5-node rerun, which determines whether this
+holds at the smaller scale too, not whether it holds at all.**
 
-What is missing, precisely: every number currently in
-`paper/iclr_ace_2027/paper.tex` Table 1 (and the 30-node table) uses
-episode-matched accounting -- ACE and the five baselines each run for N
-episodes, and the table reports final loss at that episode count. This is
-exactly the comparison 4 of 5 NeurIPS reviewers correctly objected to,
-because ACE's episodes are not equivalent in oracle cost to the baselines'
-episodes (Appendix `app:budget-extended`: ACE ~4-5x, Max-Variance ~65x,
-Bayesian OED ~500x samples, Random/Round-Robin/PPO 1x, oracle queries per
-decision). We have never run the corrected version of this table. The
-`--query_budget` flag and `--lookahead_on_student` mode exist, are
-unit-tested, and are described in the paper -- but the actual experiment
-that uses them to produce a fair Table 1 has not been executed anywhere,
-including on CURC.
+What was missing, precisely: Table 1 (and the 30-node table) in
+`paper/iclr_ace_2027/paper.tex` use episode-matched accounting -- ACE and
+the five baselines each run for N episodes, and the table reports final
+loss at that episode count. This is exactly the comparison 4 of 5 NeurIPS
+reviewers correctly objected to, because ACE's episodes are not
+equivalent in oracle cost to the baselines' episodes (Appendix
+`app:budget-extended`: ACE ~4-5x, Max-Variance ~65x, Bayesian OED ~500x
+samples, Random/Round-Robin/PPO 1x, oracle queries per decision). Table 1
+itself is unchanged (it remains the original executed-only protocol, as
+stated in its own caption); the corrected, total-query-matched comparison
+is reported separately in the Budget Accounting section instead of
+replacing Table 1. **At 30 nodes, this has now been run and ACE wins**
+(see the August 10 entry above). At 5 nodes it has not yet completed.
 
-**What the missing experiment is, concretely:**
+**What the remaining (5-node) experiment is, concretely** (30-node steps
+1-4 below are DONE, see August 10 entry):
 1. Pick a shared total-oracle-query budget (aggregate it from a completed
-   run's `query_budget.json` via `scripts/analysis/aggregate_query_budget.py`,
-   or use a round number, e.g. matched to ACE's typical 171-episode x ~4.1x
-   multiplier total).
+   run's `query_budget.json` via `scripts/analysis/aggregate_query_budget.py`;
+   30-node used ACE env-lookahead's own mean total, 483,460).
 2. Run ACE under `--lookahead_on_student` (1x multiplier, so its
    episode-budget and query-budget are the same number) AND under normal
    env-based lookahead with `--query_budget` set to the shared total.
-3. Run all five baselines with `--query_budget` set to the same shared
-   total, so each gets as many episodes as its own multiplier allows within
-   that budget (e.g. Random gets ~4-5x more episodes than ACE at the same
-   query cost; Bayesian OED gets ~1/500th as many).
-4. Compare final/best MSE across all methods at matched total queries. This
-   is Table 1's actual replacement.
-5. Job scripts already written for this: `jobs/curc_submit_5node_budget_fairness.sh`,
-   `jobs/curc_submit_5node_budget_fairness_baselines.sh` (5-node);
+3. Run the four adaptive/passive baselines (random, round_robin,
+   max_variance, bayesian_oed; PPO excluded, already query-matched by
+   construction since it never probes the oracle) with `--query_budget`
+   set to the same shared total.
+4. Compare best/final MSE across all methods at matched total queries via
+   `scripts/analysis/aggregate_budget_fairness.py`. This is reported in
+   the Budget Accounting section, alongside (not replacing) Table 1.
+5. Job scripts: `jobs/curc_submit_5node_budget_fairness.sh`,
+   `jobs/curc_submit_5node_budget_fairness_baselines.sh` (5-node, PENDING
+   -- retrying after the OOM/memory-partition fix below);
    `jobs/curc_submit_30node_budget_fairness.sh`,
-   `jobs/curc_submit_30node_budget_fairness_baselines.sh` (30-node).
+   `jobs/curc_submit_30node_budget_fairness_baselines.sh` (30-node, DONE).
 
 **Why it matters / what depends on it:** the paper (Section "Budget
-Accounting" and the Limitations section) explicitly states this comparison
-is queued, not reported, and commits to treating either outcome as
-informative rather than picking one and hiding the other:
-  - If ACE wins under total-query-matched accounting: the paper keeps a dual
-    strong claim (wins on both episode-count and query-count accounting).
-  - If ACE does not win under total-query-matched accounting: the
-    `--lookahead_on_student` variant (1x multiplier, honest by construction)
-    becomes the headline configuration instead, and the env-lookahead
-    variant is reported as a higher-oracle-cost alternative rather than the
-    main result.
-Until this runs, the paper is making an accounting-transparency claim
-("here is the true cost of every method") without the accompanying
-fairness claim ("and ACE still wins once you correct for it") -- these are
-different claims, and only the first one currently has evidence behind it.
-**Do not let a future session or a paper draft conflate the two.**
+Accounting" and the Limitations section) commits to treating either
+outcome as informative rather than picking one and hiding the other:
+  - At 30 nodes, ACE wins under total-query-matched accounting under both
+    lookahead modes -- the paper reports this as a resolved result, not a
+    queued one, and keeps a dual strong claim at that scale (wins on both
+    episode-count and query-count accounting).
+  - The 5-node outcome is still open. If ACE does not win there under
+    total-query-matched accounting, the paper should say so explicitly
+    rather than letting the 30-node margin stand in for it -- the two
+    scales are reported as separate results, not pooled into one number.
+**Do not let a future session or a paper draft conflate "resolved at 30
+nodes" with "resolved at every scale in Table 1."**
 
 ## ICLR 2027 Resubmission - In Progress
 
@@ -258,24 +299,26 @@ plan file itself.
   scripts (`jobs/curc_submit_node_importance_ablation.sh`,
   `jobs/curc_node_importance_ablation_seed.sh`), 2 configs x 3 seeds.
 
-**Phase 2 (CURC experiments): JOB SCRIPTS WRITTEN, NOT YET RUN**
-- This sandbox has no CURC/cluster access. All SLURM scripts for the
-  budget-fairness suite (5-node and 30-node), Bayesian OED at 30 nodes, the
-  30-node ACE seed expansion (N=5-10), the DPO-alternatives comparison
-  (dpo/sft_best/ranking/no_dpo), and the node-importance ablation exist under
-  `jobs/` and write to `/scratch/alpine/paco0228/ACE/results/...` (not
-  `/projects`, which is at ~229G/250G quota -- check `curc-quota` before
-  adding more large result trees).
-- **Action required from the user:** log into CURC, `git pull`, and submit
-  these job scripts. The decision gate described in the plan (does ACE win
-  under total-query accounting, or does the student-lookahead variant become
-  the headline configuration) cannot be resolved until these results come
-  back. The paper currently describes the accounting methodology and queues
-  these experiments explicitly (see Appendix "Budget Accounting" and the
-  node-importance ablation note) rather than reporting numbers that do not
-  exist yet.
-- `scripts/analysis/aggregate_query_budget.py` is ready to process the
-  resulting `query_budget.json` files once runs complete.
+**Phase 2 (CURC experiments): 30-NODE BUDGET-FAIRNESS DONE, REST IN PROGRESS**
+- This sandbox has no CURC/cluster access; all execution happens on the
+  user's CURC account. Status by cell:
+  - 30-node budget-fairness (ace_env, ace_student, 4 baselines, 5 seeds
+    each): DONE. Decision gate resolved in ACE's favor (August 10 entry).
+  - 5-node budget-fairness: PENDING (OOM-killed twice, now routed to
+    `artxpro6000` at 128G; resubmitted).
+  - Bayesian OED at 30 nodes (executed-only accounting, separate from the
+    budget-fairness rerun), 30-node ACE seed expansion, model-scale sweep,
+    100-node frontier, K-scaling: mixed COMPLETED/PENDING/OOM, see the
+    August 9 status-check entries above.
+  - DPO-alternatives comparison and node-importance ablation: not yet
+    submitted.
+- `/scratch/alpine/paco0228/ACE/results/...` is the write target for all of
+  the above (not `/projects`, which is at ~229G/250G quota -- check
+  `curc-quota` before adding more large result trees).
+- `scripts/analysis/aggregate_query_budget.py` computes the shared budget
+  from `query_budget.json` files; `scripts/analysis/aggregate_budget_fairness.py`
+  produces the decision-gate table itself once both phases of a scale are
+  complete.
 
 **Phase 3 (paper revision): DONE**
 - New `paper/iclr_ace_2027/` directory: `paper.tex`, `appendix.tex`,
@@ -309,15 +352,18 @@ plan file itself.
 
 ### Next actions (in priority order)
 
-1. User: submit the CURC job scripts in `jobs/curc_submit_*` (budget-fairness
-   suite first -- it decides the paper's framing).
-2. Once results land: run `scripts/analysis/aggregate_query_budget.py` and
-   the existing aggregators, update Table 1 and the Budget Accounting
-   section with real numbers, resolve the decision gate.
+1. User: get the 5-node budget-fairness suite to complete on CURC (Phase 1
+   ACE jobs resubmitted at 128G on `artxpro6000`; Phase 2 baselines still
+   need submitting once Phase 1's shared query budget is known).
+2. Once 5-node results land: run `scripts/analysis/aggregate_budget_fairness.py`
+   against the 5-node results tree, and update the Budget Accounting section
+   with that scale's outcome alongside the already-reported 30-node result.
 3. Full citation-verification pass on every reference before submission
    (spot-checked the three new ones this pass; the carried-over NeurIPS
    references have not been re-verified in this session).
-4. LaTeX compile pass -- no local `pdflatex`/`bibtex`/`latexmk` toolchain is
-   available in this environment; the ICLR style/bst files were fetched
-   from the official ICLR GitHub repo but compilation has not been verified
-   locally. The user should compile once and report any errors.
+4. DPO-alternatives comparison and node-importance ablation: not yet
+   submitted on CURC; queued behind the 5-node budget-fairness rerun.
+
+LaTeX compile: verified locally with `pdflatex` + `bibtex` (MiKTeX on
+Windows) as of August 10, 2026 -- 33 pages, no undefined references or
+citations. Re-verify after each subsequent edit to `paper.tex`/`appendix.tex`.
