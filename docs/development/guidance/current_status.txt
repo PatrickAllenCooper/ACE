@@ -99,11 +99,39 @@ compete for the same per-user caps.
   mem too low at 24/32G). Fixes: omit empty POLICY_DTYPE= from Slurm
   --export (empty values can glue the next key into the value); bump host
   mem to 64G+; route 14B + fr100 GPU jobs to artxpro6000 to avoid H200
-  contention; SKIP_COMPLETED=1 for gap-only resubmits. Resubmit with:
-    scancel 30953361 30953362 30953365 30953366 30953369 30953370
+  contention; SKIP_COMPLETED=1 for gap-only resubmits.
+- AUGUST 9-10, 2026: root cause of the repeated 429 failures identified.
+  `AutoTokenizer.from_pretrained` calls the Hub `model_info()` API on every
+  load (a Mistral-regex compatibility check added upstream), even when the
+  weights are already fully cached locally. ~60 concurrently-starting jobs
+  therefore rate-limit CURC's shared campus IP regardless of caching.
+  Fix (`ace_experiments.py`): `resolve_local_hf_snapshot()` resolves a Hub id
+  (e.g. `Qwen/Qwen2.5-3B`) to its local `$HF_HOME/hub/models--.../snapshots/
+  <sha>` directory when one exists, and `HuggingFacePolicy` loads from that
+  path with `local_files_only=True`, which skips the Hub API call entirely.
+  Unit-tested in `tests/test_resolve_local_hf_snapshot.py` (5/5 passing).
+  New prefetch tooling populates the cache ahead of a job flood:
+  `scripts/runners/prefetch_qwen_models.py` (downloads all six Qwen2.5 sizes
+  with an authenticated `HF_TOKEN`, which has a much higher Hub rate limit
+  than the anonymous campus IP) and `jobs/curc_prefetch_hf_models.sh` (submits
+  it as a small CPU job).
+  **Caveat:** this fix was written but not committed/pushed to GitHub until
+  now, so the first resubmission wave (job IDs 30998208-30998276) ran the OLD
+  code and remains exposed to the same 429s for any model size not already
+  cached from an earlier successful run. Recovery sequence on CURC:
+    git pull                                  # pulls the actual 429 fix
+    export HF_TOKEN=hf_...                    # https://huggingface.co/settings/tokens
+    bash jobs/curc_prefetch_hf_models.sh       # one CPU job, ~06:00:00 cap
+    # wait for it to reach COMPLETED (squeue -j <id>; tail -f the .out)
     SKIP_COMPLETED=1 bash jobs/curc_submit_model_scale_sweep.sh
     SKIP_COMPLETED=1 GPU_ONLY=1 bash jobs/curc_submit_100node_frontier.sh
     SKIP_COMPLETED=1 bash jobs/curc_submit_k_scaling_student.sh
+  Jobs already RUNNING do not need to be cancelled (they hold GPU allocation
+  independent of the code fix and most small-model cells will simply
+  succeed); jobs still PENDING will pick up the new code automatically once
+  `git pull` lands, since they read `ace_experiments.py` from disk at job
+  start, not at submission time -- resubmission is only needed for cells
+  that already FAILED.
 
 ## BLOCKING: the budget-fairness experiment has not been run
 
