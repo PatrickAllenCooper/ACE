@@ -185,12 +185,25 @@ def test_large_scale_scm_demonstrates_scale():
 # Theoretical Justification Tests
 # =============================================================================
 
+def _current_paper_content() -> str:
+    """Concatenate the current ICLR submission's main text and appendix.
+
+    The paper moved from a single `paper/paper.tex` to a two-file
+    `paper/iclr_ace_2027/{paper,appendix}.tex` split; theoretical content
+    (e.g. the scale-invariance proof) now lives in the appendix, so tests
+    must check both files rather than either alone.
+    """
+    root = Path("paper/iclr_ace_2027")
+    return (root / "paper.tex").read_text(encoding="utf-8") + (
+        root / "appendix.tex"
+    ).read_text(encoding="utf-8")
+
+
 @pytest.mark.unit
 def test_paper_has_theoretical_justification():
     """Test that paper includes theoretical justification."""
-    paper = Path("paper/paper.tex")
-    content = paper.read_text()
-    
+    content = _current_paper_content()
+
     # Should mention Bradley-Terry
     assert 'Bradley-Terry' in content or 'bradley' in content.lower()
 
@@ -198,9 +211,8 @@ def test_paper_has_theoretical_justification():
 @pytest.mark.unit
 def test_paper_explains_scale_invariance():
     """Test that paper explains scale-invariance property."""
-    paper = Path("paper/paper.tex")
-    content = paper.read_text()
-    
+    content = _current_paper_content()
+
     # Should discuss scale invariance or preference stability
     assert 'scale' in content.lower() or 'invariance' in content.lower()
 
@@ -208,9 +220,8 @@ def test_paper_explains_scale_invariance():
 @pytest.mark.unit
 def test_paper_connects_to_non_stationarity():
     """Test that paper connects theory to non-stationarity."""
-    paper = Path("paper/paper.tex")
-    content = paper.read_text()
-    
+    content = _current_paper_content()
+
     # Should discuss non-stationary rewards
     assert 'non-stationary' in content or 'non-stationarity' in content
 
@@ -245,8 +256,7 @@ def test_all_recent_additions_present():
     assert Path("experiments/large_scale_scm.py").exists()
     
     # Paper enhancements
-    paper = Path("paper/paper.tex")
-    content = paper.read_text()
+    content = _current_paper_content()
     assert 'Reproducibility' in content
     assert 'Ablation' in content
     

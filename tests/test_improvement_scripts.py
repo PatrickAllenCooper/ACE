@@ -237,41 +237,60 @@ def test_environment_yml_structure():
 # Paper Enhancement Tests
 # =============================================================================
 
+def _current_paper_content() -> str:
+    """Concatenate the current ICLR submission's main text and appendix.
+
+    The paper moved from a single `paper/paper.tex` to a two-file
+    `paper/iclr_ace_2027/{paper,appendix}.tex` split.
+    """
+    root = Path("paper/iclr_ace_2027")
+    return (root / "paper.tex").read_text(encoding="utf-8") + (
+        root / "appendix.tex"
+    ).read_text(encoding="utf-8")
+
+
 @pytest.mark.unit
 def test_paper_has_reproducibility_statement():
     """Test that paper has reproducibility statement."""
-    paper = Path("paper/paper.tex")
-    content = paper.read_text()
-    
+    content = _current_paper_content()
+
     assert 'Reproducibility' in content or 'reproducibility' in content.lower()
 
 
 @pytest.mark.unit
 def test_paper_has_ablation_section():
     """Test that paper has ablation framework."""
-    paper = Path("paper/paper.tex")
-    content = paper.read_text()
-    
+    content = _current_paper_content()
+
     assert 'Ablation' in content
 
 
 @pytest.mark.unit
 def test_paper_has_failure_analysis_section():
-    """Test that paper has failure analysis framework."""
-    paper = Path("paper/paper.tex")
-    content = paper.read_text()
-    
-    assert 'When Does ACE' in content or 'Struggle' in content
+    """Test that paper discusses failure modes / limitations.
+
+    The standalone "When Does ACE Struggle" section from an earlier draft
+    was folded into "Limitations and Future Work" plus an explicit
+    "Failure mode" column in the component-ablation table.
+    """
+    content = _current_paper_content()
+
+    assert 'Limitations' in content or 'Failure mode' in content
 
 
 @pytest.mark.unit
-def test_paper_has_todo_markers_for_results():
-    """Test that paper has clear TODO markers."""
-    paper = Path("paper/paper.tex")
-    content = paper.read_text()
-    
-    # Should have TODO markers for pending results
-    assert 'TODO' in content or 'textcolor{red}' in content
+def test_paper_reports_pending_experiments_transparently():
+    """Test that the paper transparently flags experiments not yet run.
+
+    An earlier draft used inline TODO/`\\textcolor{red}` placeholders for
+    unfinished results; the current submission instead states in prose
+    which comparisons are queued rather than reported (e.g. the 5-node
+    budget-fairness rerun), which is a stronger honesty signal than a
+    placeholder marker because it survives the final compile.
+    """
+    content = _current_paper_content()
+
+    assert 'queued' in content.lower()
 
 
 # =============================================================================
