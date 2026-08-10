@@ -51,11 +51,17 @@
 
 set -euo pipefail
 
-# GPU targeting -- override to use the Aug 2026 Alpine expansion nodes, e.g.:
-#   GPU_PARTITION=<new-partition> GPU_QOS=<its-qos> GPU_GRES=gpu:1 bash jobs/curc_submit_5node_budget_fairness.sh
-GPU_PARTITION="${GPU_PARTITION:-aa100}"
+# GPU targeting. Default to RTX Pro 6000 (Aug 2026 Alpine expansion): aa100's
+# a100-40gb GRES hard-caps a single-GPU request at 80640 MiB (~78.75GB) host
+# RAM regardless of --mem, which the 200-episode 5-node run already exceeds
+# at 64G -- there is no room to raise it further on that GRES type. RTX Pro
+# 6000 nodes proved they can grant 90-140G per single-GPU job cleanly in the
+# model-scale sweep, so route there instead. Override if needed, e.g. to go
+# back to aa100 (only viable up to ~78G) or to H200:
+#   GPU_PARTITION=<partition> GPU_QOS=<qos> GPU_GRES=<gres> bash jobs/curc_submit_5node_budget_fairness.sh
+GPU_PARTITION="${GPU_PARTITION:-artxpro6000}"
 GPU_QOS="${GPU_QOS:-gpu-normal}"
-GPU_GRES="${GPU_GRES:-gpu:a100-40gb:1}"
+GPU_GRES="${GPU_GRES:-gpu:rtx_pro_6000:1}"
 
 cd /projects/paco0228/ACE
 
