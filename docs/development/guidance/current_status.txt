@@ -133,6 +133,23 @@ compete for the same per-user caps.
   start, not at submission time -- resubmission is only needed for cells
   that already FAILED.
 
+## AUGUST 9, 2026: budget-fairness suite status check
+
+- 30-node Phase 1 (`ace_env` + `ace_student`, 5 seeds each): CONFIRMED
+  COMPLETE. `query_budget.json` present for all 10 runs.
+- 5-node Phase 1: NOT complete. All 10 jobs (both the original Aug 3
+  submission at 32G and a retry at 64G) were OOM-killed at host-RAM limits
+  before finishing their 200-episode budget -- zero `query_budget.json`
+  files exist. Bumped to 128G in `curc_submit_5node_budget_fairness.sh`.
+  Open question worth profiling later: the 30-node Phase 1 ran the same
+  `ace_experiments.py` path at the same 64G and completed cleanly, but
+  capped at 40 episodes (its measured plateau) vs. the 5-node job's 200 --
+  suggests the OOM driver may be per-episode host-RAM growth rather than
+  graph size, which 128G works around without diagnosing.
+- Phase 2 (baselines at the matched query budget) has never been submitted
+  at either scale -- no baseline result directories exist yet anywhere in
+  either results tree.
+
 ## BLOCKING: the budget-fairness experiment has not been run
 
 **This is the single open item that determines whether the paper's headline

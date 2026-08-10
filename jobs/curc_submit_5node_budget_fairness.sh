@@ -38,7 +38,15 @@
 #
 # Output: results/curc_5node_budget_fairness/ace_{env,student}/seed_{seed}/
 #
-# SLURM resources per job: same as the main 5-node ACE runs (aa100, 8h).
+# SLURM resources per job: aa100, 8h, 128G host RAM. Bumped from 64G after
+# every one of the 10 jobs (both 32G and 64G attempts, Aug 3 and Aug 8) was
+# OOM-killed at 200 episodes. Notably the 30-node Phase 1 (same 64G, same
+# ace_experiments.py path) completed cleanly at its capped 40 episodes --
+# the 5-node run's 200-episode budget is the more likely driver than graph
+# size, which points at per-episode host-RAM growth (e.g. accumulating
+# diagnostics/candidate-probe buffers across episodes) rather than a fixed
+# per-run cost. Flagged as a follow-up profiling item; 128G is a practical
+# unblock, not a fix for the underlying growth if it exists.
 # =============================================================================
 
 set -euo pipefail
@@ -73,7 +81,7 @@ for MODE in $MODES; do
             --job-name="bf5_${MODE:0:3}_s${SEED}" \
             --partition=$GPU_PARTITION --qos=$GPU_QOS \
             --nodes=1 --ntasks=1 --gres=$GPU_GRES \
-            --cpus-per-task=8 --mem=64G \
+            --cpus-per-task=8 --mem=128G \
             --time=08:00:00 \
             --output="$OUT/logs/ace_${MODE}_seed${SEED}_%j.out" \
             --error="$OUT/logs/ace_${MODE}_seed${SEED}_%j.err" \
