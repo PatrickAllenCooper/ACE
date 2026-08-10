@@ -279,6 +279,57 @@ test, whether the missing module/script should be restored, or the test
 is stale and should be deleted -- do not attempt this inline with
 experiment-tracking work; it deserves its own session.
 
+## AUGUST 10, 2026: fixed a latent 5-node Phase 2 output-format bug
+
+Found while preparing to run the 5-node Phase 2 baselines once Phase 1
+completes: `curc_submit_5node_budget_fairness_baselines.sh` called
+`baselines.py --all_with_ppo` directly, which writes `{method}_results.csv`
+/ `{method}_query_budget.json` into ONE shared, timestamped directory per
+seed (`baselines/seed_42/baselines_<timestamp>/random_results.csv`, etc.).
+`scripts/analysis/aggregate_budget_fairness.py` (and `scaling_common.py`)
+expect `baselines/{method}/seed_{seed}/{node_losses.csv or summary.csv,
+query_budget.json}` -- the layout the working 30-node pipeline
+(`run_30node_baseline_seed.py`) already produces. Left as-is, this would
+have silently produced zero baseline rows at aggregation time, discovered
+only after burning the CPU compute for all 20 (method x seed) runs.
+
+Fix: new `scripts/runners/run_5node_baseline_seed.py`, the 5-node analog of
+`run_30node_baseline_seed.py` -- a thin, one-method-per-job wrapper around
+`baselines.py`'s already-tested `GroundTruthSCM` / `InstrumentedOracle` /
+`run_baseline` primitives, writing `node_losses.csv` (renamed from
+`run_baseline`'s per-step dataframe, which already has the exact
+`episode`/`total_loss`/`loss_*` schema the aggregator wants), `summary.csv`,
+and `query_budget.json` under `{method}/seed_{seed}/`. New worker
+`jobs/curc_5node_budget_baseline_seed.sh` and rewritten
+`jobs/curc_submit_5node_budget_fairness_baselines.sh` (now 20 one-method
+jobs, mirroring the 30-node submit script, instead of 5 all-methods-at-once
+jobs). Old `jobs/curc_baseline_budget_seed.sh` deleted (no longer
+referenced, produced the incompatible format). Verified end-to-end locally:
+ran the new script for 2 methods at tiny episode counts, fed the output
+straight into `aggregate_budget_fairness.py`, confirmed it parses correctly
+and produces real decision-gate rows. 9 new tests in
+`tests/test_run_5node_baseline_seed.py` (`pytest -m integration`, since they
+shell out to the real CLI) lock down the output contract the aggregator
+depends on.
+
+Also added `SKIP_COMPLETED=1` / `cell_done` guards (the pattern already
+used by the Aug 6-9 scripts) to `curc_submit_5node_budget_fairness.sh`
+(Phase 1 ACE), the new baselines submit script, and
+`curc_submit_30node_bayesian_oed.sh`, so a future resubmission after a
+partial failure does not requeue cells that already finished. **This is a
+completed-output check only** -- it does not detect a duplicate still
+PENDING/RUNNING in the queue (check `squeue -u $USER` before resubmitting;
+this was exactly the cause of the Aug 2026 quota-exhaustion incident).
+
+**Good CPU-only idle-time candidate while waiting on the 5-node GPU queue:**
+`bash jobs/curc_submit_30node_bayesian_oed.sh` (5 CPU jobs, `acpu`
+partition, no GPU quota contention) -- fills in the executed-only-accounting
+Bayesian-OED-at-30-nodes comparison that Table `tab:large-scale` currently
+omits (Appendix "Queued next experiments", item 1). Do not submit the
+GPU-competing DPO-alternatives or node-importance-ablation jobs until the
+5-node budget-fairness GPU queue clears, to avoid contending with the
+higher-priority decision-gate experiment for the same per-user GPU quota.
+
 ## ICLR 2027 Resubmission - In Progress
 
 **Prior venue:** NeurIPS 2026 submission received critical reviews (4 of 5

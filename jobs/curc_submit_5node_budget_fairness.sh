@@ -63,6 +63,16 @@ GPU_PARTITION="${GPU_PARTITION:-artxpro6000}"
 GPU_QOS="${GPU_QOS:-gpu-normal}"
 GPU_GRES="${GPU_GRES:-gpu:rtx_pro_6000:1}"
 
+# Set SKIP_COMPLETED=1 to skip any (mode, seed) cell that already has a
+# query_budget.json (i.e. finished a full run, not just a wall-time-killed
+# partial one), so a resubmission after an OOM fix does not requeue cells
+# that already succeeded. This is only a completed-output check -- it does
+# not detect a duplicate that is still PENDING/RUNNING in the queue; check
+# `squeue -u $USER` yourself before resubmitting (the Aug 2026 quota
+# exhaustion incident was exactly this: resubmitting while old copies were
+# still queued, not re-running already-completed cells).
+SKIP_COMPLETED="${SKIP_COMPLETED:-0}"
+
 cd /projects/paco0228/ACE
 
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
@@ -81,8 +91,19 @@ echo "================================================================"
 MODES="env student"
 SEEDS="42 123 456 789 1011"
 
+cell_done() {
+    local mode=$1 seed=$2
+    local seed_dir="$OUT/ace_${mode}/seed_${seed}"
+    [[ -d "$seed_dir" ]] || return 1
+    find "$seed_dir" -name query_budget.json 2>/dev/null | grep -q .
+}
+
 for MODE in $MODES; do
     for SEED in $SEEDS; do
+        if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$MODE" "$SEED"; then
+            echo "  SKIP (done): bf5_${MODE} seed=$SEED"
+            continue
+        fi
         JOB=$(sbatch --parsable \
             --job-name="bf5_${MODE:0:3}_s${SEED}" \
             --partition=$GPU_PARTITION --qos=$GPU_QOS \
@@ -98,7 +119,7 @@ for MODE in $MODES; do
 done
 
 echo ""
-echo "10 jobs submitted."
+echo "Jobs submitted (up to 10; fewer if SKIP_COMPLETED=1 skipped some)."
 echo "Monitor with:  squeue -u \$USER"
 echo "Logs in:       $OUT/logs/"
 echo ""

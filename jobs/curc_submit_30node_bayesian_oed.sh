@@ -33,6 +33,9 @@
 
 set -euo pipefail
 
+# Set SKIP_COMPLETED=1 to skip any seed that already has a summary.csv.
+SKIP_COMPLETED="${SKIP_COMPLETED:-0}"
+
 cd /projects/paco0228/ACE
 
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
@@ -50,7 +53,15 @@ echo "================================================================"
 
 SEEDS="42 123 456 789 1011"
 
+cell_done() {
+    [[ -f "$OUT/bayesian_oed/seed_$1/summary.csv" ]]
+}
+
 for SEED in $SEEDS; do
+    if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$SEED"; then
+        echo "  SKIP (done): oed30 seed=$SEED"
+        continue
+    fi
     JOB=$(sbatch --parsable \
         --job-name="oed30_s${SEED}" \
         --partition=acpu \
