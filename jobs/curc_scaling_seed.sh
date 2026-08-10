@@ -39,6 +39,15 @@ conda activate ace 2>/dev/null || true
 export HF_HOME="/projects/paco0228/cache/huggingface"
 export MPLCONFIGDIR="/projects/paco0228/cache/matplotlib"
 mkdir -p "$HF_HOME" "$MPLCONFIGDIR"
+# HF_TOKEN (if set in the submitting shell / --export) raises Hub rate limits
+# and is required for first-time downloads. After
+# scripts/runners/prefetch_qwen_models.py has populated HF_HOME, ACE loads
+# from local snapshots and does not need the Hub at all.
+if [ -n "${HF_TOKEN:-}${HUGGING_FACE_HUB_TOKEN:-}" ]; then
+    echo "HF_TOKEN is set (authenticated Hub access)"
+else
+    echo "HF_TOKEN unset -- relying on local HF_HOME snapshots only"
+fi
 export PYTORCH_ALLOC_CONF=expandable_segments:True
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 

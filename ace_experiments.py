@@ -480,6 +480,59 @@ class TransformerPolicy(nn.Module):
          clean = [t for t in tokens if t not in ["<PAD>", "<SOS>", "<EOS>"]]
          return " ".join(clean)
 
+def resolve_local_hf_snapshot(model_name, hf_home=None):
+    """
+    If ``model_name`` is a Hub id (e.g. ``Qwen/Qwen2.5-1.5B``) and a complete
+    snapshot already exists under HF_HOME, return that local directory.
+    Otherwise return ``model_name`` unchanged.
+
+    Why this exists: recent transformers versions call Hub ``model_info()``
+    from AutoTokenizer.from_pretrained for *every* Hub id (the Mistral regex
+    patch check), even when the weights are fully cached. Flooding CURC with
+    ~60 concurrent ACE jobs therefore triggers HuggingFace 429 rate limits
+    from the shared campus IP. Loading from a local snapshot path makes
+    transformers treat the model as local and skips that API call entirely.
+    """
+    if not model_name or os.path.isdir(model_name):
+        return model_name
+    if os.sep in model_name and not ("/" in model_name and len(model_name.split("/")) == 2):
+        # Looks like a filesystem path that is not a Hub id.
+        if os.path.isdir(model_name):
+            return model_name
+    # Hub ids are "org/name". Anything else (bare path, custom name) passthrough.
+    if model_name.count("/") != 1:
+        return model_name
+
+    home = hf_home or os.environ.get("HF_HOME") or os.environ.get("HUGGINGFACE_HUB_CACHE")
+    if not home:
+        return model_name
+    # huggingface_hub layout: $HF_HOME/hub/models--org--name/snapshots/<sha>/
+    # Some installs put the hub/ nest one level down; check both.
+    org, name = model_name.split("/", 1)
+    repo_dir_name = f"models--{org}--{name}"
+    candidates = [
+        os.path.join(home, "hub", repo_dir_name, "snapshots"),
+        os.path.join(home, repo_dir_name, "snapshots"),
+    ]
+    for snap_root in candidates:
+        if not os.path.isdir(snap_root):
+            continue
+        # Prefer the most recently modified snapshot that has a config.json.
+        snaps = []
+        try:
+            for entry in os.listdir(snap_root):
+                snap_path = os.path.join(snap_root, entry)
+                if os.path.isdir(snap_path) and os.path.isfile(os.path.join(snap_path, "config.json")):
+                    snaps.append(snap_path)
+        except OSError:
+            continue
+        if not snaps:
+            continue
+        snaps.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+        return snaps[0]
+    return model_name
+
+
 class HuggingFacePolicy(nn.Module):
     def __init__(self, model_name, dsl, device, token=None,
                  gradient_checkpointing=False, dtype=None,
@@ -498,8 +551,18 @@ class HuggingFacePolicy(nn.Module):
         # Rolling record of tokenised prompt lengths for scaling diagnostics
         # (mean/max written to metrics.csv at run end).
         self.prompt_token_lengths = deque(maxlen=4000)
-        logging.info(f"Loading LLM: {model_name}...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, token=token)
+        # Prefer a local snapshot path so tokenizer/model load never hits the
+        # Hub API (avoids campus-IP 429s when many jobs start together).
+        load_name = resolve_local_hf_snapshot(model_name)
+        local_only = os.path.isdir(load_name)
+        if local_only and load_name != model_name:
+            logging.info(f"Loading LLM from local snapshot: {load_name} (Hub id was {model_name})")
+        else:
+            logging.info(f"Loading LLM: {model_name}...")
+        tok_kwargs = {"token": token}
+        if local_only:
+            tok_kwargs["local_files_only"] = True
+        self.tokenizer = AutoTokenizer.from_pretrained(load_name, **tok_kwargs)
         # dtype: None preserves the legacy float32 path used by the 5/15/30-node
         # runs the paper is anchored to. For 50-node runs the activations from
         # the longer prompt overflow a 40 GB A100; pass torch.bfloat16 to halve
@@ -507,6 +570,8 @@ class HuggingFacePolicy(nn.Module):
         # `torch_dtype=` was deprecated in newer transformers in favour of
         # `dtype=`; use whichever the installed version accepts.
         load_kwargs = {"token": token}
+        if local_only:
+            load_kwargs["local_files_only"] = True
         if dtype is not None:
             try:
                 import inspect as _inspect
@@ -515,7 +580,7 @@ class HuggingFacePolicy(nn.Module):
             except Exception:
                 load_kwargs["dtype"] = dtype
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_name, **load_kwargs).to(device)
+            load_name, **load_kwargs).to(device)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         # Gradient checkpointing trades ~30-50% extra forward cost for ~50%
