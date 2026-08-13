@@ -63,14 +63,10 @@ GPU_PARTITION="${GPU_PARTITION:-artxpro6000}"
 GPU_QOS="${GPU_QOS:-gpu-normal}"
 GPU_GRES="${GPU_GRES:-gpu:rtx_pro_6000:1}"
 
-# Set SKIP_COMPLETED=1 to skip any (mode, seed) cell that already has a
-# query_budget.json (i.e. finished a full run, not just a wall-time-killed
-# partial one), so a resubmission after an OOM fix does not requeue cells
-# that already succeeded. This is only a completed-output check -- it does
-# not detect a duplicate that is still PENDING/RUNNING in the queue; check
-# `squeue -u $USER` yourself before resubmitting (the Aug 2026 quota
-# exhaustion incident was exactly this: resubmitting while old copies were
-# still queued, not re-running already-completed cells).
+# Set SKIP_COMPLETED=1 to skip any (mode, seed) cell whose node_losses.csv
+# already reached episode 199 (the 200-episode cap). query_budget.json is
+# NOT sufficient: the emergency-save handler writes it on abort, and the
+# 2026-08-11 resumes all died at episode 10 after writing one.
 SKIP_COMPLETED="${SKIP_COMPLETED:-0}"
 
 cd /projects/paco0228/ACE
@@ -92,10 +88,18 @@ MODES="env student"
 SEEDS="42 123 456 789 1011"
 
 cell_done() {
+    # A query_budget.json is written on abort as well as on completion
+    # (emergency-save handler). Treat a cell as done only if node_losses.csv
+    # reached the 200-episode cap (episodes are 0-indexed, so max >= 199).
     local mode=$1 seed=$2
-    local seed_dir="$OUT/ace_${mode}/seed_${seed}"
-    [[ -d "$seed_dir" ]] || return 1
-    find "$seed_dir" -name query_budget.json 2>/dev/null | grep -q .
+    local nl
+    nl=$(find "$OUT/ace_${mode}/seed_${seed}" -name node_losses.csv 2>/dev/null | head -1)
+    [[ -n "$nl" ]] || return 1
+    python -c "
+import pandas as pd, sys
+df = pd.read_csv(sys.argv[1])
+sys.exit(0 if 'episode' in df.columns and int(df['episode'].max()) >= 199 else 1)
+" "$nl"
 }
 
 for MODE in $MODES; do

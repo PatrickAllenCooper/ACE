@@ -1,6 +1,36 @@
 # ACE Current Status - Quick Reference
 
-**Date:** August 10, 2026 (30-node budget-fairness decision gate resolved; see below)
+**Date:** August 12, 2026 (5-node Phase 1 aborted at episode 10; resume metrics-save bug)
+
+## AUGUST 12, 2026: 5-NODE PHASE 1 DID NOT FINISH -- RESUME CRASH AT EPISODE 10
+
+All 10 `bf5_*` jobs (31035179-31035188) report SLURM COMPLETED 0:0 after
+7-16 minutes. They resumed the Aug 4 OOM runs at episode 4-7, reached
+episode 10, then crashed:
+
+    ValueError: All arrays must be of the same length
+    ace_experiments.py incremental metrics.csv save (episode % 10 == 0)
+
+Cause: checkpoint restore reloads only `loss_history` / `reward_history`.
+`cov_bonus_history`, `episode_history`, `step_history`, etc. start empty
+and then grow from the resume point. `pd.DataFrame({...})` at the first
+incremental save is fatal. `query_budget.json` exists for all 10 seeds
+(emergency handler + partial save) with max_ep=10 -- do NOT use these
+as the Phase 2 matched budget.
+
+Fix in `ace_experiments.py`: `aligned_history_dataframe()` truncates to
+the shortest column; resume pads the unrestored series; incremental save
+is wrapped in try/except so a metrics bug cannot abort training.
+`SKIP_COMPLETED` for 5-node Phase 1 now requires `node_losses.csv` max
+episode >= 199, not merely a `query_budget.json`.
+
+CURC recovery (after git pull):
+  SKIP_COMPLETED=1 bash jobs/curc_submit_5node_budget_fairness.sh
+will now correctly requeue all 10 cells (max_ep=10 < 199). They will
+resume from the episode-10 checkpoint rather than starting over.
+
+30-node Bayesian OED (oed30_*, 5 seeds): actually COMPLETED (4.5-8h).
+Can be aggregated independently; not the 5-node decision gate.
 
 ## AUGUST 10, 2026: DECISION GATE RESOLVED AT 30 NODES -- ACE WINS
 

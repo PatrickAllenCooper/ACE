@@ -1659,6 +1659,32 @@ def _to_fp16_state_dict(state_dict):
     return out
 
 
+def aligned_history_dataframe(columns: dict) -> pd.DataFrame:
+    """Build a DataFrame from parallel history lists, truncating to the shortest.
+
+    After a checkpoint resume, only ``loss_history`` / ``reward_history`` are
+    restored; ``cov_bonus_history``, ``episode_history``, and the other
+    per-step series start empty and then grow from the resume point. A naive
+    ``pd.DataFrame({...})`` then raises ``ValueError: All arrays must be of
+    the same length`` at the first incremental save (episode 10), aborting
+    the run. Truncating to the common prefix keeps the save best-effort
+    rather than fatal.
+    """
+    if not columns:
+        return pd.DataFrame()
+    lengths = {k: (len(v) if v is not None else 0) for k, v in columns.items()}
+    n = min(lengths.values()) if lengths else 0
+    if len(set(lengths.values())) > 1:
+        logging.warning(
+            "History column lengths differ (%s); truncating to %d rows",
+            lengths, n,
+        )
+    return pd.DataFrame({
+        k: list(v)[:n] if v is not None else []
+        for k, v in columns.items()
+    })
+
+
 def save_checkpoint(run_dir, episode, policy_net, optimizer, loss_history,
                    reward_history, recent_actions, step=None, student=None,
                    node_loss_tracking=None, episode_action_counts=None,
@@ -1748,7 +1774,7 @@ def create_emergency_save_handler(run_dir, oracle, history_data):
             try:
                 # Build metrics from history lists
                 if history_data.get("loss_history"):
-                    df = pd.DataFrame({
+                    df = aligned_history_dataframe({
                         "dpo_loss": history_data["loss_history"],
                         "reward": history_data["reward_history"],
                         "cov_bonus": history_data.get("cov_bonus_history", []),
@@ -2696,6 +2722,21 @@ def main():
             optimizer_agent = optim.Adam(policy_net.parameters(), lr=args.lr)
             loss_history = list(ckpt.get('loss_history', []))
             reward_history = list(ckpt.get('reward_history', []))
+            # Checkpoint only persisted loss/reward. Pad the other per-step
+            # series so incremental metrics.csv saves after resume don't
+            # crash pandas with unequal-length columns (this aborted every
+            # 5-node budget-fairness resume at episode 10).
+            n_hist = max(len(loss_history), len(reward_history))
+            if len(loss_history) < n_hist:
+                loss_history.extend([None] * (n_hist - len(loss_history)))
+            if len(reward_history) < n_hist:
+                reward_history.extend([None] * (n_hist - len(reward_history)))
+            score_history = [None] * n_hist
+            cov_bonus_history = [None] * n_hist
+            target_history = [None] * n_hist
+            value_history = [None] * n_hist
+            episode_history = [None] * n_hist
+            step_history = [None] * n_hist
             ref_policy = copy.deepcopy(policy_net)
             ref_policy.eval()
 
@@ -3557,26 +3598,30 @@ def main():
                           loss_history, reward_history, recent_action_counts)
         
         # --- INCREMENTAL RESULTS SAVES (every 10 episodes) ---
-        # Save node_losses.csv incrementally to prevent data loss on timeout
+        # Save node_losses.csv incrementally to prevent data loss on timeout.
+        # Must never abort the run: after resume the per-step history lists
+        # can have unequal lengths (see aligned_history_dataframe).
         if episode > 0 and episode % 10 == 0 and node_loss_tracking:
-            node_loss_df_partial = pd.DataFrame(node_loss_tracking)
-            node_loss_df_partial.to_csv(os.path.join(run_dir, "node_losses.csv"), index=False)
-            
-            # Also save metrics.csv incrementally
-            df_partial = pd.DataFrame({
-                "dpo_loss": loss_history,
-                "reward": reward_history,
-                "cov_bonus": cov_bonus_history,
-                "score": score_history,
-                "target": target_history,
-                "value": value_history,
-                "episode": episode_history,
-                "step": step_history,
-            })
-            df_partial.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
-            
-            if episode % 50 == 0:
-                logging.info(f"  [INCREMENTAL SAVE] Saved results at episode {episode}")
+            try:
+                node_loss_df_partial = pd.DataFrame(node_loss_tracking)
+                node_loss_df_partial.to_csv(os.path.join(run_dir, "node_losses.csv"), index=False)
+
+                df_partial = aligned_history_dataframe({
+                    "dpo_loss": loss_history,
+                    "reward": reward_history,
+                    "cov_bonus": cov_bonus_history,
+                    "score": score_history,
+                    "target": target_history,
+                    "value": value_history,
+                    "episode": episode_history,
+                    "step": step_history,
+                })
+                df_partial.to_csv(os.path.join(run_dir, "metrics.csv"), index=False)
+
+                if episode % 50 == 0:
+                    logging.info(f"  [INCREMENTAL SAVE] Saved results at episode {episode}")
+            except Exception as e:
+                logging.error(f"[INCREMENTAL SAVE] Failed at episode {episode}: {e}")
         
         # Save intermediate visualizations every 100 episodes
         if episode > 0 and episode % 100 == 0:
@@ -3652,7 +3697,7 @@ def main():
     )
 
     # Save Metrics
-    df = pd.DataFrame({
+    df = aligned_history_dataframe({
         "dpo_loss": loss_history,
         "reward": reward_history,
         "cov_bonus": cov_bonus_history,
@@ -3661,28 +3706,29 @@ def main():
         "value": value_history,
         "episode": episode_history,
         "step": step_history,
-        "run_started_at": [run_started_at.isoformat(timespec="seconds")] * len(loss_history),
-        "run_dir": [run_dir] * len(loss_history),
-        "train_candidates_total": [train_candidates_total] * len(loss_history),
-        "train_candidates_parsed": [train_candidates_parsed] * len(loss_history),
-        "train_candidates_invalid": [train_candidates_invalid] * len(loss_history),
-        "train_candidate_parse_rate": [(train_candidates_parsed / max(train_candidates_total, 1))] * len(loss_history),
-        "train_steps_total": [train_steps_total] * len(loss_history),
-        "train_steps_with_any_valid_candidate": [train_steps_with_any_valid] * len(loss_history),
-        "train_steps_teacher_fallback": [train_steps_teacher_fallback] * len(loss_history),
-        "train_teacher_fallback_rate": [(train_steps_teacher_fallback / max(train_steps_total, 1))] * len(loss_history),
-        "n_nodes": [n_nodes_run] * len(loss_history),
-        "prompt_strategy": [getattr(args, "prompt_strategy", "full")] * len(loss_history),
-        "prompt_tokens_mean": [prompt_tokens_mean] * len(loss_history),
-        "prompt_tokens_max": [prompt_tokens_max] * len(loss_history),
-        "peak_vram_gb": [peak_vram_gb] * len(loss_history),
-        "env_queries_executed": [executor.total_samples(tags=["executed"])] * len(loss_history),
-        "env_queries_lookahead": [executor.total_samples(tags=["lookahead"])] * len(loss_history),
-        "env_queries_observational": [executor.total_samples(tags=["observational"])] * len(loss_history),
-        "env_queries_total": [executor.total_samples()] * len(loss_history),
-        "lookahead_on_student": [bool(args.lookahead_on_student)] * len(loss_history),
-        "policy_update": [args.policy_update] * len(loss_history),
     })
+    n_rows = len(df)
+    df["run_started_at"] = [run_started_at.isoformat(timespec="seconds")] * n_rows
+    df["run_dir"] = [run_dir] * n_rows
+    df["train_candidates_total"] = [train_candidates_total] * n_rows
+    df["train_candidates_parsed"] = [train_candidates_parsed] * n_rows
+    df["train_candidates_invalid"] = [train_candidates_invalid] * n_rows
+    df["train_candidate_parse_rate"] = [(train_candidates_parsed / max(train_candidates_total, 1))] * n_rows
+    df["train_steps_total"] = [train_steps_total] * n_rows
+    df["train_steps_with_any_valid_candidate"] = [train_steps_with_any_valid] * n_rows
+    df["train_steps_teacher_fallback"] = [train_steps_teacher_fallback] * n_rows
+    df["train_teacher_fallback_rate"] = [(train_steps_teacher_fallback / max(train_steps_total, 1))] * n_rows
+    df["n_nodes"] = [n_nodes_run] * n_rows
+    df["prompt_strategy"] = [getattr(args, "prompt_strategy", "full")] * n_rows
+    df["prompt_tokens_mean"] = [prompt_tokens_mean] * n_rows
+    df["prompt_tokens_max"] = [prompt_tokens_max] * n_rows
+    df["peak_vram_gb"] = [peak_vram_gb] * n_rows
+    df["env_queries_executed"] = [executor.total_samples(tags=["executed"])] * n_rows
+    df["env_queries_lookahead"] = [executor.total_samples(tags=["lookahead"])] * n_rows
+    df["env_queries_observational"] = [executor.total_samples(tags=["observational"])] * n_rows
+    df["env_queries_total"] = [executor.total_samples()] * n_rows
+    df["lookahead_on_student"] = [bool(args.lookahead_on_student)] * n_rows
+    df["policy_update"] = [args.policy_update] * n_rows
 
     # NEW: Budget accounting summary (per-tag breakdown of every environment
     # query made during this run). Written unconditionally so total-query-
