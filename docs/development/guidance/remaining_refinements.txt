@@ -1,14 +1,24 @@
-# ACE Paper: ICLR 2027 Resubmission - Improvement Roadmap
+# ACE Paper: AISTATS 2027 Submission - Improvement Roadmap
 
-**Updated:** July 24, 2026
+**Updated:** September 7, 2026
 
-**BLOCKING before submission:** the total-query-matched ("budget-fairness")
-rerun of the main benchmark has not been executed. This is not a nice-to-have
--- it is the experiment that resolves the reviewers' central objection.
-Everything currently in Table 1 is episode-matched accounting, which is the
-comparison that was criticized. See current_status.txt for the full
-characterization, exact commands, and decision criteria. Do not submit
-without this.
+**RESOLVED (was BLOCKING):** the total-query-matched ("budget-fairness")
+rerun has now been executed at BOTH scales and ACE wins both times -- 76% at
+5 nodes, 43-50% at 30 nodes. This was the experiment that resolved the
+reviewers' central objection, and it is now reported in the paper's Budget
+Accounting section, abstract, and Limitations. Table 1 remains episode-matched
+by design (stated in its caption); the query-matched comparison is reported
+alongside it rather than replacing it.
+
+**NEW BLOCKER:** the 30-node ACE seed expansion (seeds 2022-2026) does not
+replicate the headline 1.95 result -- the new seeds land at the passive-
+baseline plateau (5.685 +/- 0.687) with visibly pathological DPO training.
+Do NOT report N=8 for Table `tab:large-scale` until this is resolved. See
+current_status.txt for the full diagnosis and the four options.
+
+**VENUE:** retargeted to AISTATS 2027 (deadline Oct 6, 2026). The paper
+directory is still named `paper/iclr_ace_2027/` and still uses the ICLR
+style file; retemplating to AISTATS/PMLR format is outstanding.
 **Prior status:** Submitted to NeurIPS 2026 (paper/neurips_ace_2026/), received
 critical reviews. Older ICML 2026 review-response history has been moved to
 status_archive/ICML2026_REVIEWER_RESPONSE_MAR2026.txt (superseded venue, kept
@@ -55,15 +65,21 @@ DONE (this environment, no cluster needed):
 - Citation verification (title/authors/venue/arXiv ID against primary
   sources) for the three newly added references.
 
-QUEUED, NOT YET RUN (requires the user to execute on CURC -- this sandbox has
-no cluster access):
-- Budget-fairness suite (5-node and 30-node): the experiment that decides
-  whether the paper keeps the strong dual-accounting claim or leads with the
-  student-lookahead variant. This is the highest-priority remaining item.
-- Bayesian OED at 30 nodes, N=5 seeds.
-- 30-node ACE seed expansion to N=5-10.
-- DPO vs sft_best vs ranking vs no_dpo on the 5-node benchmark, N=5 seeds.
-- Node-importance ablation, 2 configs x 3 seeds.
+COMPLETED SINCE (all synced to git under results/, Sept 7):
+- Budget-fairness suite, 5-node AND 30-node: DONE. ACE wins at both scales.
+  This was the highest-priority item and it is closed.
+- Bayesian OED at 30 nodes, N=5 seeds: DONE (best 5.78 +/- 0.05), now a row
+  in Table `tab:large-scale`; retires the reviewer objection that we asserted
+  OED does not scale without demonstrating it.
+- 100-node frontier and free-lookahead K-scaling (K in {4,8,16,32} x 3
+  seeds): DONE, not yet folded into the paper's figures/tables.
+- 30-node ACE seed expansion: RAN, but does not replicate -- see NEW BLOCKER
+  above. Not folded into the paper.
+
+STILL RUNNING (resubmitted Sept 7 after root-causing a HF 429 + OOM failure):
+- DPO vs sft_best vs ranking on the 5-node benchmark, N=5 seeds
+  (jobs 32208655-669).
+- Node-importance ablation, 2 configs x 3 seeds (jobs 32208673-678).
 - Model-scale sweep (`jobs/curc_submit_model_scale_sweep.sh`, Aug 2026 Alpine
   H200/RTX Pro 6000 expansion): zero-shot capability scaling across
   Qwen2.5 0.5B-32B, and a DPO-vs-no-DPO comparison at 0.5B/1.5B/3B. Secondary

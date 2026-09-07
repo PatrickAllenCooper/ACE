@@ -1,6 +1,118 @@
 # ACE Current Status - Quick Reference
 
-**Date:** August 12, 2026 (5-node Phase 1 aborted at episode 10; resume metrics-save bug)
+**Date:** September 7, 2026 (decision gate CLOSED at both scales; seed-expansion
+non-replication discovered; venue retargeted to AISTATS 2027)
+
+## SEPTEMBER 7, 2026: DECISION GATE CLOSED AT BOTH SCALES
+
+The 5-node budget-fairness suite completed on CURC weeks ago and was never
+aggregated or noticed. Full timeline recovered from `sacct`:
+  - Phase 1 (ACE env/student): OOM x2 (Aug 4, Aug 6) -> cancelled Aug 10 ->
+    false-COMPLETED batch Aug 11 (jobs 31035179-88, the episode-10 resume
+    crash documented below) -> real completion Aug 12-13, with 2 student
+    seeds hitting TIMEOUT -> those 2 resumed and COMPLETED Aug 16.
+  - Phase 2 (baselines, 20 cells): COMPLETED Aug 20 (jobs 31502019-38).
+
+`scripts/analysis/aggregate_budget_fairness.py` on the 5-node tree:
+
+| method       | per-node best MSE | mean queries |
+|--------------|-------------------|--------------|
+| ace_env      | 0.0942 +/- 0.0036 | 3,204,460    |
+| ace_student  | 0.0956 +/- 0.0011 |   615,680    |
+| ppo          | 0.3961 +/- 0.0281 | 3,206,250    |
+| round_robin  | 0.4002 +/- 0.0117 | 3,206,250    |
+| random       | 0.4007 +/- 0.0119 | 3,206,250    |
+| max_variance | 0.4020 +/- 0.0113 | 3,231,150    |
+
+ACE wins by 76.2% (env) / 75.9% (student, at 5.2x fewer queries). Every
+individual ACE seed beats the pooled baseline mean. Combined with the Aug 10
+30-node result (43-50%), **the budget-accounting decision gate that the
+NeurIPS reviewers' central objection turned on is now resolved in ACE's
+favor at BOTH scales.** Paper updated accordingly (abstract, Budget
+Accounting section, Limitations, appendix).
+
+Honest caveat now stated in the paper: under the strictest final-vs-best
+reading, ACE still wins at 5 nodes (0.171 vs 0.396) but NOT at 30 nodes
+(0.276 vs 0.192). The 30-node margin depends on checkpoint selection; the
+5-node margin does not.
+
+## SEPTEMBER 7, 2026: **30-NODE SEED EXPANSION DOES NOT REPLICATE** (OPEN)
+
+The 5 new seeds (2022-2026) run to expand Table `tab:large-scale` from N=3
+to N=8 do NOT reproduce the headline number, and this is unresolved:
+
+| run set                          | best total MSE |
+|----------------------------------|----------------|
+| headline ACE (N=3: 42/123/456)   | 1.95 +/- 0.77  |
+| new expansion seeds (N=5)        | 5.685 +/- 0.687|
+| passive baselines                | 5.78 - 5.80    |
+
+The new seeds land AT the passive-baseline plateau -- i.e. no ACE advantage.
+Pooled N=8 would be ~4.3, which would collapse the paper's 3.0x claim at 30
+nodes. Diagnosis so far:
+  - Runs are clean: 1 job each (no resume cycles), full 0-299 episodes,
+    `metrics_interrupted.csv` is just a duplicate end-of-job snapshot.
+    So this is NOT the Aug-12 resume bug and NOT wall-time truncation.
+  - Config is the canonical one (`curc_large_scale_seed.sh`: --large_scale 30
+    --episodes 300, no --anonymize_nodes), and the submit script states it
+    was written to match the headline seeds' protocol.
+  - **DPO training is visibly pathological in all 5.** Job logs are full of
+    the code's own warnings: "DPO loss near random chance (0.693) - model may
+    not be learning!" and "Large KL divergence from reference". Seeds 2024
+    and 2026 sit near chance for 64%/56% of updates; seeds 2022/2023/2025
+    instead collapse to ~0 loss (0.073/0.028/0.000) with extreme KL, which
+    looks like over-optimization/collapse rather than healthy training.
+  - The budget-fairness runs (which carry the headline decision-gate result)
+    are NOT affected: their DPO loss declines to 0.03-0.08 with only 5-19%
+    of updates near chance. Those results stand.
+  - Separate suspected bug: `kl_from_ref` logs large NEGATIVE means (-437 to
+    -2375) in every run including healthy ones. True KL is non-negative, so
+    this is either a sign convention in the logging or a real bug. It does
+    not distinguish good runs from bad, but it should be investigated.
+
+DECISION REQUIRED (do not fold the expansion into the table until resolved).
+Options: (a) report N=8 honestly and lose the 3.0x claim; (b) investigate and
+fix DPO instability, then rerun; (c) report the expansion as a robustness
+finding -- ACE's 30-node advantage is contingent on stable DPO training,
+which failed in 5/5 new seeds; (d) lead with the budget-matched result (which
+is stable at both scales and is already the paper's reframed contribution)
+and demote the legacy episode-matched 1.95 number.
+Option (d) is the most defensible: the paper's central claim no longer
+depends on 1.95 at all.
+
+## SEPTEMBER 7, 2026: DPO-alternatives + node-importance root-caused, resubmitted
+
+Both suites had ZERO real output despite some cells showing SLURM COMPLETED.
+Root cause found in the job `.err` logs: every "completed in 12-17 seconds"
+cell died on the HF Hub 429 rate limit at `AutoTokenizer.from_pretrained`
+(the Mistral-regex `model_info()` check). Those jobs ran Aug 7, BEFORE the
+`resolve_local_hf_snapshot()` fix was committed (~Aug 9-10). The remaining
+cells OOM'd at the old 32G/aa100 allocation.
+Fix applied and pushed: both submit scripts now default to `artxpro6000` /
+`gpu:rtx_pro_6000:1` / 128G, matching the config already proven for bf5.
+Resubmitted Sept 7 (jobs 32208655-669 dpoalt, 32208673-678 nodeimp).
+**Lesson: SLURM `COMPLETED` is not evidence a run produced results.** Always
+check for `node_losses.csv` / episode counts, not job state.
+
+## SEPTEMBER 7, 2026: results synced to git; venue retargeted
+
+- All completed CURC result trees pulled from /scratch (90-day purge policy,
+  not backed up) and committed: 5-node and 30-node budget-fairness, OED@30,
+  ACE seed expansion, 100-node frontier, K-scaling-student, model-scale
+  sweep. ~452MB, 1232 files. `.gitignore` already excludes *.pt/checkpoints.
+- New `jobs/curc_status_report.sh`: read-only dashboard checking every
+  suite's own completion criterion plus squeue/sacct/quota.
+- **Venue: retargeted from ICLR 2027 to AISTATS 2027** (deadline Oct 6, 2026,
+  confirmed on virtual.aistats.org; Paris, Apr 26-28 2027). AAAI-27 already
+  closed (Jul 28). Fallbacks: UAI 2027 (~Feb), TMLR (rolling). The paper
+  directory is still `paper/iclr_ace_2027/` and needs retemplating to the
+  AISTATS/PMLR style (8pp + refs/checklist/appendix, double-blind).
+- Anonymization leak fixed: `appendix.tex` had the real GitHub URL
+  (github.com/PatrickAllenCooper/ACE), inherited when the ICLR directory was
+  forked from the already-de-anonymized NeurIPS tree. Now an anonymous.4open
+  placeholder. "CURC cluster" genericized. NOTE: ~8 `jobs/curc_*.sh`
+  filenames remain in the text -- weaker signal, left alone because renaming
+  them would break the live experiment workflow; revisit before submission.
 
 ## AUGUST 12, 2026: 5-NODE PHASE 1 DID NOT FINISH -- RESUME CRASH AT EPISODE 10
 
