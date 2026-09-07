@@ -1,0 +1,25 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files:  12%|█▎        | 1/8 [00:12<01:26, 12.29s/it]Fetching 8 files:  62%|██████▎   | 5/8 [00:12<00:05,  1.98s/it]Fetching 8 files: 100%|██████████| 8/8 [00:12<00:00,  1.62s/it]
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:00<00:03,  2.07it/s]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:04,  1.27it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:05,  1.03s/it]Loading checkpoint shards:  50%|█████     | 4/8 [00:04<00:04,  1.23s/it]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:05<00:03,  1.12s/it]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:06<00:02,  1.14s/it]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:07<00:01,  1.10s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:07<00:00,  1.22it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:07<00:00,  1.04it/s]
+Traceback (most recent call last):
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3693, in <module>
+    main()
+  File "/projects/paco0228/ACE/ace_experiments.py", line 2555, in main
+    supervised_pretrain_llm(
+  File "/projects/paco0228/ACE/ace_experiments.py", line 1179, in supervised_pretrain_llm
+    optimizer.step()
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/optimizer.py", line 517, in wrapper
+    out = func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/optimizer.py", line 82, in _use_grad
+    ret = func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/adam.py", line 247, in step
+    adam(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/optimizer.py", line 150, in maybe_fallback
+    return func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/adam.py", line 953, in adam
+    func(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/adam.py", line 777, in _multi_tensor_adam
+    exp_avg_sq_sqrt = torch._foreach_sqrt(device_exp_avg_sqs)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.45 GiB. GPU 0 has a total capacity of 139.80 GiB of which 1.09 GiB is free. Including non-PyTorch memory, this process has 138.71 GiB memory in use. Of the allocated memory 137.77 GiB is allocated by PyTorch, and 216.55 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

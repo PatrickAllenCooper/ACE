@@ -1,0 +1,7 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|█████     | 1/2 [00:02<00:02,  2.73s/it]Fetching 2 files: 100%|██████████| 2/2 [00:02<00:00,  1.36s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 63.72it/s]
+/var/spool/slurmd/job30953318/slurm_script: line 86: 639536 Killed                  python -u ace_experiments.py $LARGE_SCALE_FLAG $ANON_FLAG $NO_DPO_FLAG $PROMPT_FLAGS $CAND_FLAG $MODEL_FLAG $GRAD_CKPT_FLAG $POLICY_DTYPE_FLAG $LOOKAHEAD_STUDENT_FLAG --episodes "$EP" --seed "$SEED" --use_dedicated_root_learner --obs_train_interval 3 --obs_train_samples 200 --obs_train_epochs 100 --output "$OUT_DIR"
+slurmstepd: error: Detected 1 oom_kill event in StepId=30953318.batch. Some of the step tasks have been OOM Killed.

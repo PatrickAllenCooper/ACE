@@ -1,0 +1,20 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:00<00:00, 216.71it/s]
+Traceback (most recent call last):
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3758, in <module>
+    main()
+  File "/projects/paco0228/ACE/ace_experiments.py", line 2620, in main
+    supervised_pretrain_llm(
+  File "/projects/paco0228/ACE/ace_experiments.py", line 1244, in supervised_pretrain_llm
+    optimizer.step()
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/optimizer.py", line 517, in wrapper
+    out = func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/optimizer.py", line 82, in _use_grad
+    ret = func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/adam.py", line 237, in step
+    has_complex = self._init_group(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/optim/adam.py", line 177, in _init_group
+    state["exp_avg"] = torch.zeros_like(
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 136.00 MiB. GPU 0 has a total capacity of 94.97 GiB of which 38.12 MiB is free. Including non-PyTorch memory, this process has 94.93 GiB memory in use. Of the allocated memory 94.04 GiB is allocated by PyTorch, and 234.94 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

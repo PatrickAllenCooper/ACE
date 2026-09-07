@@ -1,0 +1,31 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+Could not set the permissions on the file '/projects/paco0228/.caches/hf/models--Qwen--Qwen2.5-14B/blobs/7c8139ab9a4e680ff0e9741c678e26c43788abf0.incomplete'. Error: [Errno 2] No such file or directory: '/projects/paco0228/.caches/hf/models--Qwen--Qwen2.5-14B/blobs/7c8139ab9a4e680ff0e9741c678e26c43788abf0.incomplete'.
+Continuing without setting permissions.
+WARNING:huggingface_hub.file_download:Could not set the permissions on the file '/projects/paco0228/.caches/hf/models--Qwen--Qwen2.5-14B/blobs/7c8139ab9a4e680ff0e9741c678e26c43788abf0.incomplete'. Error: [Errno 2] No such file or directory: '/projects/paco0228/.caches/hf/models--Qwen--Qwen2.5-14B/blobs/7c8139ab9a4e680ff0e9741c678e26c43788abf0.incomplete'.
+Continuing without setting permissions.
+Could not set the permissions on the file '/projects/paco0228/.caches/hf/models--Qwen--Qwen2.5-14B/blobs/7c8139ab9a4e680ff0e9741c678e26c43788abf0.incomplete'. Error: [Errno 2] No such file or directory: '/projects/paco0228/.caches/hf/models--Qwen--Qwen2.5-14B/blobs/7c8139ab9a4e680ff0e9741c678e26c43788abf0.incomplete'.
+Continuing without setting permissions.
+Traceback (most recent call last):
+  File "/projects/paco0228/ACE/ace_experiments.py", line 3693, in <module>
+    main()
+  File "/projects/paco0228/ACE/ace_experiments.py", line 2529, in main
+    policy_net = HuggingFacePolicy(args.model, dsl, device,
+  File "/projects/paco0228/ACE/ace_experiments.py", line 517, in __init__
+    self.model = AutoModelForCausalLM.from_pretrained(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/models/auto/auto_factory.py", line 604, in from_pretrained
+    return model_class.from_pretrained(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/modeling_utils.py", line 277, in _wrapper
+    return func(*args, **kwargs)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/modeling_utils.py", line 4900, in from_pretrained
+    checkpoint_files, sharded_metadata = _get_resolved_checkpoint_files(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/modeling_utils.py", line 1200, in _get_resolved_checkpoint_files
+    checkpoint_files, sharded_metadata = get_checkpoint_shard_files(
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py", line 1070, in get_checkpoint_shard_files
+    index = json.loads(f.read())
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/json/decoder.py", line 340, in decode
+    raise JSONDecodeError("Extra data", s, end)
+json.decoder.JSONDecodeError: Extra data: line 587 column 1 (char 47472)
