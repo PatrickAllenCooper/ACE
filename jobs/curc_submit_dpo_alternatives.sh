@@ -38,6 +38,18 @@ set -euo pipefail
 # "completed" in 12-17s: a 429 on tokenizer load, not a real run. Override
 # if needed:
 #   GPU_PARTITION=<partition> GPU_QOS=<qos> GPU_GRES=<gres> bash jobs/<this script>
+#
+# Wall time raised 8h -> 24h (Sept 8): at the 8h cap, all 5 `dpo` cells and 2
+# of 5 `sft_best` cells TIMEOUT'd (jobs 32208655-662). This worker runs 200
+# episodes on the 5-node benchmark, the same workload the bf5 budget-fairness
+# suite measured at 5h51m-7h50m per seed -- i.e. 8h was always marginal. 24h
+# is the gpu-normal QoS cap and is the same fix applied to the 30-node
+# budget-fairness worker in August for this exact reason. Runs that already
+# have a checkpoint will resume rather than restart.
+#
+# Host RAM stays at 128G deliberately: 13 of 15 cells ran clean at that level
+# and the RTX Pro 6000 nodes are only proven to grant ~90-140G per single-GPU
+# job, so raising it further risks a job that never schedules.
 GPU_PARTITION="${GPU_PARTITION:-artxpro6000}"
 GPU_QOS="${GPU_QOS:-gpu-normal}"
 GPU_GRES="${GPU_GRES:-gpu:rtx_pro_6000:1}"
@@ -67,7 +79,7 @@ for MODE in $MODES; do
             --partition=$GPU_PARTITION --qos=$GPU_QOS \
             --nodes=1 --ntasks=1 --gres=$GPU_GRES \
             --cpus-per-task=8 --mem=128G \
-            --time=08:00:00 \
+            --time=24:00:00 \
             --output="$OUT/logs/${MODE}_seed${SEED}_%j.out" \
             --error="$OUT/logs/${MODE}_seed${SEED}_%j.err" \
             --export=ALL,POLICY_UPDATE=$MODE,SEED=$SEED,OUT=$OUT \

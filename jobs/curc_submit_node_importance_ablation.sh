@@ -63,7 +63,7 @@ for CONFIG in $CONFIGS; do
             --partition=$GPU_PARTITION --qos=$GPU_QOS \
             --nodes=1 --ntasks=1 --gres=$GPU_GRES \
             --cpus-per-task=8 --mem=128G \
-            --time=08:00:00 \
+            --time=24:00:00 \
             --output="$OUT/logs/${CONFIG}_seed${SEED}_%j.out" \
             --error="$OUT/logs/${CONFIG}_seed${SEED}_%j.err" \
             --export=ALL,CONFIG=$CONFIG,SEED=$SEED,OUT=$OUT \
