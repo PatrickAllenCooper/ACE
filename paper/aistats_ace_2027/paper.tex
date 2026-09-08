@@ -35,7 +35,7 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{amsthm}
-\usepackage{bbm}
+\usepackage{dsfont}
 \usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,decorations.pathmorphing,decorations.pathreplacing}
@@ -162,7 +162,7 @@ where $\Delta\mathcal{L}$ is the loss reduction estimated by lookahead and $\gam
 \textbf{Node importance.} Let $\text{Ch}(V_i)$ be the children of $V_i$ in $\mathcal{G}$ and $n_i$ the number of times $V_i$ has already been targeted in the current episode. Node importance is
 \begin{equation}
 \label{eq:node-importance}
-w(V_i, \{L_j\}) \;=\; \beta_w \cdot \frac{\frac{1}{|\text{Ch}(V_i)|}\sum_{V_j \in \text{Ch}(V_i)} \mathbbm{1}[|\text{Pa}_j| \ge 2] \cdot 2 L_j + \mathbbm{1}[|\text{Pa}_j| < 2] \cdot L_j}{\sum_k L_k + \epsilon} \cdot \frac{1}{\sqrt{1 + n_i}},
+w(V_i, \{L_j\}) \;=\; \beta_w \cdot \frac{\frac{1}{|\text{Ch}(V_i)|}\sum_{V_j \in \text{Ch}(V_i)} \mathds{1}[|\text{Pa}_j| \ge 2] \cdot 2 L_j + \mathds{1}[|\text{Pa}_j| < 2] \cdot L_j}{\sum_k L_k + \epsilon} \cdot \frac{1}{\sqrt{1 + n_i}},
 \end{equation}
 with scale constant $\beta_w = 60.0$ and $\epsilon = 10^{-8}$; $w(V_i,\cdot)=0$ if $V_i$ has no children. This rewards intervening on parents of high-loss \emph{children}, doubling the weight of children that are themselves colliders (two or more parents, where identifying the mechanism requires varying more than one parent), normalized by total current loss, and discounted by an under-sampling correction $(1+n_i)^{-1/2}$ that softens repeated targeting of the same node within an episode.
 
@@ -1100,7 +1100,7 @@ Training & Checkpoint interval & 1 step (rolling) + 10 steps (milestone) \\
 
 \textbf{CBED (Tigas et al., 2022).} \citep{tigas2022interventions} jointly selects intervention targets and values at scale via Bayesian causal discovery, with demonstrations on the DREAM gene regulatory network (up to 20 variables). CBED addresses structure discovery; ACE addresses mechanism estimation. The two are complementary: CBED's structure-inference output can serve as ACE's input.
 
-\textbf{Causal reasoning with LLMs (Kıcıman et al., 2023).} \citet{kiciman2023causal} conduct a systematic evaluation of GPT-4 on causal discovery benchmarks, finding substantial capability on pairwise causal direction tasks and commonsense causal queries. Crucially, the LM's causal reasoning is driven by semantic associations in pretraining data, not explicit causal structure learning. ACE exploits this: the LM's semantic prior biases proposal generation toward causally plausible interventions even before DPO training, which then refines the policy toward the specific system.
+\textbf{Causal reasoning with LLMs (K\i{}c\i{}man et al., 2023).} \citet{kiciman2023causal} conduct a systematic evaluation of GPT-4 on causal discovery benchmarks, finding substantial capability on pairwise causal direction tasks and commonsense causal queries. Crucially, the LM's causal reasoning is driven by semantic associations in pretraining data, not explicit causal structure learning. ACE exploits this: the LM's semantic prior biases proposal generation toward causally plausible interventions even before DPO training, which then refines the policy toward the specific system.
 
 \textbf{Reasoning as World-Model Planning (Hao et al., 2023).} RAP \citep{hao2023reasoning} frames language model reasoning as planning in a world model, where the LM serves simultaneously as the reasoner and the forward model. This framing is directly relevant to ACE: the LM policy in ACE implicitly models the causal system (world model) while generating candidate interventions (planner), and DPO updates refine this combined representation toward the goal of efficient mechanism estimation.
 
