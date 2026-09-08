@@ -1,0 +1,1117 @@
+%%%%%%%%% AISTATS 2027 LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+%
+% Converted from the ICLR 2027 draft (paper/iclr_ace_2027/) on 2026-09-08.
+% Style pack: AISTATS2026PaperPack (the 2027 pack was not yet released; the
+% AISTATS style has been stable across recent years, so re-check against the
+% 2027 pack once it is posted and swap the .sty if it differs).
+%
+% ANONYMITY: aistats2026.sty substitutes "Anonymous Author / Anonymous
+% Institution" for the \aistatsauthor and \aistatsaddress blocks below
+% whenever the `accepted' option is NOT passed. Do not pass it for submission.
+%
+% LAYOUT NOTE: AISTATS is TWO-COLUMN (ICLR was single-column). Every figure
+% and table from the ICLR draft has been promoted to a column-spanning
+% starred float, since all of them are wider than one 3.25in column. The
+% 30-node TikZ diagram in particular was drawn for a single-column page and
+% may still need its `scale' reduced -- check the first compile.
+\documentclass[twoside]{article}
+
+\usepackage{aistats2026}
+% \usepackage[accepted]{aistats2026}   % camera-ready ONLY -- de-anonymizes
+
+\usepackage[round]{natbib}
+\renewcommand{\bibname}{References}
+\renewcommand{\bibsection}{\subsubsection*{\bibname}}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{bbm}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds,decorations.pathmorphing,decorations.pathreplacing}
+
+\input{figs/ace_palette}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{observation}[theorem]{Observation}
+
+\begin{document}
+
+\twocolumn[
+\aistatstitle{ACE: Language-Model Priors and Lookahead Selection\\for Active Causal Mechanism Estimation}
+\aistatsauthor{ Author 1 \And Author 2 }
+\aistatsaddress{ Institution 1 \And Institution 2 } ]
+
+\begin{abstract}
+Discovering causal relationships requires controlled experiments, but experimentalists face a sequential decision problem: each intervention reveals information that should inform what to try next. We present Active Causal Experimentalist (ACE), which learns experimental design as a sequential policy built on two ingredients: a pretrained language-model (LM) proposer that encodes a soft prior over plausible interventions, and a \emph{lookahead} step that scores each candidate by its effect on a cloned learner before one is executed. A preference-based calibration rule, Direct Preference Optimization (DPO), then refines this prior toward the specific system under study. Our central finding is that disentangling these three ingredients matters: on a 30-node hierarchical structural causal model, disabling DPO's weight updates while keeping the LM proposer and lookahead intact matches the full method to within seed variance (best total MSE $1.73\pm0.22$ vs.\ $1.95\pm0.77$), and the two remain level when node names are anonymized to strip semantic content ($1.49\pm0.18$ vs.\ $1.51\pm0.16$, $N{=}5$ seeds) --- so at this scale the pretrained prior and lookahead selection, not the preference update, carry most of the advantage. Expanding the canonical 30-node comparison from three seeds to eight sharpens this: the five added seeds all exhibit unstable preference optimization and fall back to the passive-baseline plateau, so the preference update is not merely dispensable at this scale but a source of variance the rest of the method does not have. On the 5-node diagnostic benchmark and on coupled Duffing oscillators, the full method still leads five baselines under the field's conventional executed-intervention accounting (median total loss $0.61$ vs.\ $1.99$ for a Bayesian optimal-experimental-design baseline at matched intervention counts, a $69\%$ improvement; coupling-parameter error $0.042\pm0.036$ vs.\ $0.245\pm0.121$ on Duffing oscillators). Because an intervention budget can be counted in more than one way --- interventions actually executed, or every environment query consumed including the lookahead queries used only to score candidates --- we instrument every method with an explicit environment-query counter and find the resulting asymmetry is not unique to ACE: auditing the exact configurations used to produce our own baseline numbers shows Max-Variance issues $65\times$ and our Bayesian-OED baseline issues on the order of $500\times$ more hidden oracle queries per decision than ACE's own $4$--$5\times$ lookahead multiplier. We release this instrumentation together with a deployment-realistic ACE variant that scores candidates against the learner's own beliefs rather than the environment (zero additional oracle queries) and a total-query-matched training mode, turning the query-accounting question into one that can be settled empirically --- and we then settle it: rerunning every method at an identical \emph{total} environment-query budget, ACE beats the best baseline by $76\%$ at 5 nodes and by $43$--$50\%$ at 30 nodes under both lookahead accountings, with the zero-hidden-query variant winning while consuming $3.7$--$5.2\times$ fewer queries than the baselines it beats. Finally, we recast the non-stationarity argument for preference-based learning as a local, slow-drift invariance rather than a global monotonic-decay assumption, which better matches the empirical adjacent-episode rank stability (Spearman $\rho > 0.85$) we observe throughout training, and we give the full, previously code-only definitions of the diversity and node-importance reward terms in the main text.
+\end{abstract}
+
+\section{Introduction}
+% =======================================================================
+
+Every experimentalist faces limited resources to explore vast possibility spaces. Testing all pairwise combinations of 100 compounds requires 4{,}950 experiments; a 10-component alloy across 5 temperatures faces $5^{10}$ configurations. Modern simulation environments, from climate modeling to drug discovery, enable rapid experimentation but expose vast parametric spaces with hundreds of interacting variables. The goal is not merely prediction but causal understanding: identifying which parameters actually drive outcomes, distinguishing causal pathways from spurious correlations, and discovering intervention targets that generalize. Random exploration becomes hopelessly inefficient, while domain expertise may not scale to simulation complexity.
+
+Scientific progress depends on Rung-2 interventions in Pearl's causal hierarchy \citep{pearl2009causality,pearl2018book}: controlled $\text{do}(V_i = \nu)$ operations that expose causal structure not identifiable from observation alone \citep{spirtes2000causation,peters2017elements,reichenbach1956}. Theoretical bounds on the number of interventions required \citep{eberhardt2005number,hauser2012characterization} provide limited guidance for sequential decisions, since real experimental campaigns must adaptively choose both which variables to intervene on and at what values.
+
+Traditional approaches employ static heuristics such as random, round-robin, and greedy information maximization \citep{murphy2001active,hauser2012characterization}. These cannot transfer insights between systems, balance multi-faceted constraints, or adapt based on what has been learned. Recent Bayesian active causal discovery methods such as ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions} maintain explicit posteriors over causal graphs, but pay substantial computational cost and address structure discovery rather than the complementary problem of mechanism estimation we study here.
+
+We present \textbf{Active Causal Experimentalist (ACE)}, which learns experimental design strategies via sequential decision-making. ACE models the scientific process as an iterative cycle: propose interventions, update mechanism beliefs, adapt strategy. A pretrained language model proposes candidates, a lookahead step scores them by simulated effect on a cloned learner, and DPO \citep{rafailov2023direct} calibrates the proposer toward the specific system using pairwise comparisons between candidates. This paper's central methodological move is to \emph{disentangle} these three components empirically rather than presenting them as an inseparable bundle, and to instrument the resulting method --- and every baseline we compare it against --- so that the environment-query cost of doing so is auditable rather than asserted.
+
+\textbf{Contributions.} We make four concrete claims, each empirically validated or, where noted, delivered as instrumentation with the matched-budget empirical comparison queued as the immediate next experiment.
+\begin{enumerate}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item \textbf{The pretrained LM prior plus lookahead, not DPO, drives most of the advantage at scale.} On a 30-node hierarchical SCM, \emph{ACE without DPO} (identical LM proposer and lookahead selection, DPO weight updates disabled) is statistically tied with full ACE ($1.73\pm0.22$ vs.\ $1.95\pm0.77$ best total MSE), and the tie persists under node-name anonymization that strips all semantic content ($1.49\pm0.18$ vs.\ $1.51\pm0.16$, $N{=}5$ seeds). A matched sweep at $N\in\{15,30,50\}$ nodes shows both LM-driven variants stay well below passive Random at every size without architectural change (Section~\ref{sec:results-scale}). We read this as evidence that the pretrained forward-model prior and the lookahead evaluation step are the primary engine of ACE's advantage as graphs grow, with DPO acting as a calibration layer whose marginal contribution should grow only where that prior is weaker.
+\item \textbf{Empirical:} On the 5-node synthetic benchmark, ACE reduces total mechanism MSE to a median of $0.61$ ($0.92\pm0.73$ mean, $N{=}5$ seeds), versus a median of $1.99$ ($2.04\pm0.12$ mean, $N{=}3$) for a Bayesian optimal experimental design baseline (representative of \citealp{toth2022active,tigas2022interventions}) at matched executed-intervention counts, a $69\%$ improvement; the same ordering holds on coupled Duffing oscillators (coupling-parameter error $0.042\pm0.036$ vs.\ Random $0.245\pm0.121$, a $5.8\times$ improvement).
+\item \textbf{Budget accounting, resolved at 30 nodes, made auditable rather than argued.} We add an explicit environment-query counter to ACE and to all five baselines (Appendix~\ref{app:budget-extended}), and find that ACE's own lookahead cost ($4$--$5\times$ the executed-intervention count) is smaller than two of the adaptive baselines it is compared against: Max-Variance's own uncertainty-sampling step issues $65\times$ more oracle queries per decision than it executes, and our Bayesian-OED baseline issues on the order of $500\times$ more (Section~\ref{sec:budget}). Running the total-query-matched rerun this enables, at 30 nodes, ACE beats the best baseline by $43\%$ under environment-based lookahead and by $50\%$ under the deployment-realistic \texttt{--lookahead\_on\_student} variant (zero additional oracle queries during candidate scoring), which achieves this margin while consuming $3.7\times$ \emph{fewer} total environment queries than the baselines it is compared against (Section~\ref{sec:budget}). The corresponding 5-node rerun is still queued (Appendix~\ref{app:budget-extended}).
+\item \textbf{Emergent strategy and non-stationarity.} Without explicit instruction, the learned policy concentrates $99.8\%$ of interventions on the parents of collider nodes, matching the strategy causal theory identifies as optimal. Separately, we recast the non-stationarity argument for preference-based over value-based learning (Section~\ref{sec:theory}) as a \emph{local, slow-drift} invariance --- consistent with the empirical adjacent-episode rank stability we measure (Spearman $\rho>0.85$) --- rather than a global monotonic-decay assumption, and we treat the resulting scale-invariance result as a motivating formalization of that empirical regularity rather than as a load-bearing theoretical contribution.
+\end{enumerate}
+
+\begin{figure*}[t]
+\centering
+\input{figs/fig_ace_hero}
+\caption{\textbf{ACE in one figure.} The state $s_t$ (graph $\mathcal{G}$, per-node losses $\{L_i\}$, recent intervention history) is rendered as a text prompt. The LM policy $\pi_\phi$ (Qwen2.5-1.5B) generates $K{=}4$ candidates; lookahead clones the learner $M_\theta$ and scores each by composite reward $R = \Delta\mathcal{L} + w + \gamma D$. The argmax candidate $c^{*}$ is executed on the environment $M^{*}$ and updates the learner; the (argmax, argmin) pair $(c^{*}, c^{-})$ forms the DPO preference. Dashed arrows denote feedback; the lookahead arrow is exactly the environment-query cost audited in Section~\ref{sec:budget}.}
+\label{fig:framework}
+\end{figure*}
+
+% =======================================================================
+\section{Related Work}
+% =======================================================================
+\label{sec:related}
+
+Our work builds on six research threads.
+
+\textbf{Causal foundations.} Pearl's structural causal models (SCMs) and do-calculus \citep{pearl2009causality,pearl1995causal} provide the formal language for interventions. The PC and FCI algorithms \citep{spirtes2000causation} recover Markov equivalence classes from observational data; \citet{peters2017elements} establish that interventional data is necessary to identify mechanisms beyond the Markov equivalence class. Reichenbach's common-cause principle \citep{reichenbach1956} formalizes why observational data is insufficient: if $A$ and $B$ are statistically dependent, this is consistent with $A \to B$, with $B \to A$, or with an unobserved common cause $C$ that renders them conditionally independent ($A \perp\!\!\!\!\perp B \mid C$, read: $A$ is independent of $B$ given $C$). Observational data alone cannot distinguish these structures; only interventions can. These foundational results motivate the Rung-2 (interventional) formulation that ACE operates in. Within this setting, \citet{eberhardt2005number,eberhardt2006n} show $n-1$ interventions are sufficient and sometimes necessary, greedy selection of intervention targets achieves a $(1-1/e)$ approximation of the optimal intervention set under submodular structure-identification objectives \citep{shanmugam2015learning}, and adaptive designs require strictly fewer interventions than non-adaptive ones \citep{hauser2012characterization,cho2016reconstructing}.
+
+\textbf{Bayesian active causal discovery.} ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions} maintain posteriors over causal graphs and design experiments via expected information gain, with CBED's largest evaluation on the 20-variable DREAM gene regulatory network. \citet{zhang2023bayesian} extends this to multi-fidelity settings; \citet{zhou2024sample} addresses sample efficiency via polynomial-time DAG sampling. \citet{zhang2025gocbed} propose GO-CBED, a goal-oriented, non-myopic Bayesian design framework that maximizes expected information gain on a user-specified causal query rather than the full model, using a transformer policy trained with a variational lower bound; this is a complementary axis to ours (targeting a subset of the causal query rather than the full mechanism set) and, like ABCI and CBED, requires posterior maintenance over the object being estimated. These methods target \emph{structure discovery} (or a targeted causal query) and require posteriors whose maintenance cost is super-exponential in $|V|$ for full structure \citep{chickering1996learning}. ACE addresses the complementary problem of \emph{mechanism estimation} given known or hypothesized structure, which covers domains where the graph is available from expertise, prior studies, or a structure-learning front end. Skipping posterior maintenance over graphs is what lets ACE operate in the 30-node regime where the published evaluations of the foregoing methods do not yet scale; it is also the reason our own Bayesian-OED baseline's per-decision oracle-query cost is so large (Section~\ref{sec:budget}) --- the cost is intrinsic to Monte Carlo posterior-based acquisition, not an implementation artifact.
+
+\textbf{Language models as world models.} Language models pretrained on natural language encode distributions over entities and their causal relationships, effectively acting as soft priors over world dynamics \citep{hao2023reasoning,xie2022explanation}. \citet{kiciman2023causal} show that LLMs exhibit substantial causal reasoning capability when prompted with context. Crucially for ACE, this pretrained causal prior is exploitable without fine-tuning: when node names are semantically meaningful (e.g., unemployment rate, federal funds rate), the LLM's generation assigns higher probability to economically plausible interventions before any domain-specific training begins. Benchmarks confirm that zero-shot LLM causal discovery is non-trivial \citep{llm_science_survey2025} but that LLMs still struggle with long-horizon sequential experimental decisions \citep{boxinggym2025,autobench2025}. ACE addresses precisely that gap by pairing the pretrained prior with lookahead selection and preference-based calibration.
+
+\textbf{In-context and pretraining-based sequential decision-making.} A separate line of work asks whether sequence models can learn to explore and decide \emph{in context}, without gradient updates at deployment time. \citet{lee2023supervised} introduce the Decision-Pretrained Transformer (DPT), a transformer supervised to predict an optimal action from an in-context dataset of interactions across a distribution of tasks; at deployment it implements an efficient approximation of Bayesian posterior sampling and carries formal regret guarantees. \citet{russo2025incontext} similarly meta-train a transformer, In-Context Pure Explorer (ICPE), to solve active sequential hypothesis testing (including best-arm identification), splitting the model into a supervised inference network and an RL-trained exploration network so that a single forward pass at deployment time replaces an explicit adaptive-design computation. \citet{krishnamurthy2024explore} instead probe native (untrained) LLM agents in multi-armed bandit tasks and find that GPT-3.5, GPT-4, and Llama2 do \emph{not} robustly explore without substantial prompt-engineering interventions --- only one configuration (GPT-4 with chain-of-thought reasoning over an externally summarized interaction history) produced satisfactory exploration, and the authors conclude that non-trivial algorithmic interventions such as fine-tuning are likely necessary for LLM-based decision agents in more complex settings. ACE sits between these findings: like DPT and ICPE, it uses a sequence model as the proposer, but unlike either it starts from natural-language pretraining rather than training a transformer from scratch on a curated task distribution, and it treats the raw LM prior as necessary-but-insufficient exactly as \citet{krishnamurthy2024explore} would predict, adding the lookahead-scored candidate selection and DPO calibration as the algorithmic intervention that supplies the missing exploration structure. The LM-prior-vs-DPO disentanglement in Section~\ref{sec:results-scale} can be read as evidence for where, quantitatively, that added structure is and is not load-bearing.
+
+\textbf{Learning for scientific discovery.} Differentiable structure learning \citep{lorch2021dibs} and RL for causal discovery \citep{core2024,gacbo2024} address structure recovery. Both structure and mechanism estimation face non-stationary rewards as knowledge accumulates, motivating alternatives to value-based RL.
+
+\textbf{Preference optimization for sequential decisions.} DPO \citep{rafailov2023direct} learns from pairwise comparisons rather than absolute reward magnitudes, providing robustness to reward scale shifts. Active preference learning \citep{activedpo2024} extends this to selective data acquisition. Concurrent work that pairs causal ideas with DPO targets generative-model alignment rather than experimental design: CAPO \citep{hu2026capo} reweights the DPO loss using an aleatoric/epistemic uncertainty decomposition for text-to-image diffusion, and CDPO \citep{le2026cdpo} applies Pearl's backdoor adjustment to debias DPO when annotator preferences are confounded by topic or community context. These methods modify the DPO objective to align a generator with a fixed human-preference dataset; ACE differs in problem (mechanism estimation rather than alignment), action space (do() interventions rather than generated images or text), and preference source (lookahead reward rather than human annotation). We use DPO as one candidate calibration rule among several we now instrument and compare (Section~\ref{sec:dpo}); the inherent non-stationarity of information gain motivates preference-based learning as a family, of which DPO is one member.
+
+% =======================================================================
+\section{Method}
+% =======================================================================
+\label{sec:methods}
+
+\subsection{Problem Setup and Preference Source}
+\label{sec:problem}
+
+\textbf{Formal setting (Rung 2 of Pearl's hierarchy).} We adopt Pearl's SCM framework \citep{pearl2009causality,pearl1995causal}. A Structural Causal Model $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$ has exogenous variables $\mathcal{U}$, endogenous variables $\mathcal{V} = \{V_1, \ldots, V_n\}$, structural equations $\mathcal{F} = \{f_i\}$ where $V_i = f_i(\text{Pa}_i, U_i)$, and exogenous distribution $P(\mathcal{U})$. An intervention $\text{do}(V_i = \nu)$ replaces $f_i$ with the constant $\nu$, mutilating the graph by removing incoming edges to $V_i$ \citep{pearl2009causality}. This is a Rung-2 operation: it moves from passive association (Rung 1) to actively modifying the data-generating process. Crucially, observational data alone cannot identify the structural equations $\{f_i\}$ beyond the Markov equivalence class of the graph \citep{spirtes2000causation,peters2017elements}; only interventional data can. ACE therefore operates exclusively in the interventional regime. We assume the causal graph $\mathcal{G}$ is known (as in many experimental science settings where domain experts provide the causal diagram), and focus on \emph{mechanism estimation}: recovering $\{f_i\}$ from sequential interventional experiments. The framework comprises two interacting components:
+
+\begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
+\item The \emph{environment} $M^*$ represents the ground truth SCM. Queried with intervention $c = \text{do}(V_i = \nu)$, it returns samples from the resulting interventional distribution $P_{M^*}(\mathcal{V} \mid \text{do}(V_i = \nu))$. Every such query, whether the result is ultimately executed against the real system or used only to score a candidate, is an environment query in the sense of Section~\ref{sec:budget}.
+\item The \emph{learner} $M_\theta$ maintains parametric estimates of mechanisms given graph $\mathcal{G}$. Parameters minimize loss between predicted and observed outcomes: $\theta^* = \arg\min_\theta \mathbb{E}_{c \sim \pi_\phi}[\mathcal{L}(P_{M^*}(\cdot\mid c),\, P_{M_\theta}(\cdot\mid c))]$. Throughout the paper we decompose this into per-node losses $L_i = \mathbb{E}_{c}\|f_i^{M^*}(\text{Pa}_i, U_i) - f_i^{M_\theta}(\text{Pa}_i, U_i)\|^2$, the mean squared error between the learner's predicted output for node $V_i$ and the environment's observed value under interventions; the total loss reported in tables is the sum $\sum_i L_i$ across nodes.
+\end{itemize}
+
+\textbf{Where do preferences come from?} ACE preferences are not human-provided; they are generated automatically from the composite reward function $R(c, s)$ (defined below). Among $K$ candidate interventions per step, the highest-reward candidate is labeled ``preferred'' over the lowest-reward candidate, producing one preference pair per step. The reward function serves only as a preference oracle: it ranks the candidates and emits the ordering, and its scalar magnitudes are then discarded. No value function or learned reward model is trained, and no reinforcement-learning update is applied to the policy under the default (DPO) calibration rule; Section~\ref{sec:dpo} also specifies two simpler calibration rules operating on the same candidate/lookahead/preference pipeline. This automated-feedback design eliminates annotation cost and allows thousands of preference pairs to be generated cheaply during training.
+
+\subsection{Interaction Loop}
+\label{sec:interaction-loop}
+
+The experimentalist policy $\pi_\phi(c_t \mid s_t)$ observes state $s_t = (M_\theta, \{L_i\})$, comprising the learner's parameters and per-node losses, and proposes intervention $c_t := \text{do}(V_i = \nu)$, where the target $V_i$ ranges over the endogenous variables $\mathcal{V}$ and the value $\nu$ is drawn from a bounded interval $[\nu_{\min}, \nu_{\max}] \subset \mathbb{R}$ whose limits depend on the environment.
+
+\textbf{Candidate generation.} The policy is Qwen2.5-1.5B \citep{qwen2_5}, a pretrained language model that receives a structured text prompt encoding (i)~per-node mechanism losses $\{L_i\}$, (ii)~the graph structure (parent sets per node), and (iii)~a summary of recent intervention history. Given this prompt, the model generates $K$ candidate interventions as structured text (e.g., ``do(X2 = 1.3)''), each parsed into a target node $V_i$ and intervention value $\nu$; $K{=}4$ for the first 20 episodes and $K{=}3$ thereafter (a fixed compute-saving schedule, not a function of measured performance).
+
+\textbf{Lookahead evaluation.} Each candidate $c_k$ is evaluated by simulating its effect on a \emph{cloned} copy of the learner. In the default configuration the clone receives data generated by executing $c_k$ on the environment, and the resulting loss reduction $\Delta\mathcal{L}(c_k) = L_\text{before} - L_\text{after}$ estimates the candidate's information gain without committing to it; this is exactly the step that consumes $K$ environment queries per step beyond the one executed intervention, and Section~\ref{sec:budget} instruments and accounts for it explicitly. A \texttt{--lookahead\_on\_student} mode instead scores each candidate against the learner's own current beliefs (its \texttt{forward()} pass under $\text{do}(c_k)$), consuming zero environment queries during scoring at the cost of using the learner's own (possibly wrong) model of the system rather than ground truth to rank candidates. The best candidate $c^* = \argmax_{c_k} R(c_k, s)$ is executed on the actual environment and the learner $M_\theta$ is updated.
+
+\textbf{Preference pair construction.} The highest-reward candidate $c_\text{best}$ and lowest-reward candidate $c_\text{worst}$ form a preference pair $(y_w, y_l)$ for calibration. With $K$ candidates per step and one preference pair per step, ACE generates preference data at the same rate as experimental data: one pair per intervention.
+
+\subsection{Policy as Contextual Forward Model}
+\label{sec:lm-policy}
+
+Active experimental design at Rung~2 of Pearl's hierarchy requires a forward model: the policy must predict ``what will happen if I intervene on $V_i$ with value $\nu$?'' The quality of a policy is bounded by the quality of its forward-model prior. An MLP policy trained from scratch on a single SCM starts with a uniform prior and must construct the whole forward model from experience; a one-step Bayesian acquisition function has a correct but shallow prior; a human experimentalist brings deep prior knowledge about how interventions propagate, acquired from written scientific knowledge. A pretrained language model is the closest computational analogue of that human prior: the pretraining corpus is largely about causal claims, and so the model's weights encode a soft distribution over how variables in real systems relate causally \citep{hao2023reasoning,kiciman2023causal}. \citet{xie2022explanation} show in-context learning corresponds to implicit Bayesian inference under this prior, so prompting the LM with the graph, per-node losses, and recent interventions produces an approximate posterior predictive distribution over sensible next experiments. This prior is, on its own, insufficient for reliable sequential exploration --- \citet{krishnamurthy2024explore} document exactly this failure mode for native LLM agents in bandit tasks --- which motivates the lookahead-scored selection step and the calibration rule discussed next as the components that convert a plausible-sounding proposer into an experimentalist whose choices are checked against evidence before being trusted.
+
+Token generation also offers two structural fits with preference-based calibration. First, the action space $(V_i, \nu)$ is handled natively as text: variable names are vocabulary tokens and continuous values are emitted as digit-token sequences, so an SCM with more variables simply produces longer prompts without changing the policy's output head. Second, the autoregressive factorization $\pi(y \mid x) = \prod_t \pi(y_t \mid y_{<t}, x)$ makes the sequence log-probability a closed-form sum of per-token log-softmaxes, so the log-probability ratios that DPO consumes are computed exactly rather than approximated through density estimation, as a Gaussian-head MLP policy over continuous $\nu$ would otherwise require. Appendix~\ref{app:world-models} develops this world-model framing in full, including the comparison to MLP policies and greedy acquisition and empirical signatures of the prior (transfer across domains, emergent collider concentration, baseline convergence plateau).
+
+\subsection{Reward, Diversity, and Calibration Rules}
+\label{sec:dpo}
+
+The reward signal that generates preferences combines three components:
+\begin{equation}
+\label{eq:reward}
+R(c, s) \;=\; \underbrace{\Delta\mathcal{L}}_{\text{information gain}} \;+\; \underbrace{w(V_i, \{L_j\})}_{\text{node importance}} \;+\; \gamma \cdot \underbrace{D(V_i, H)}_{\text{diversity}},
+\end{equation}
+where $\Delta\mathcal{L}$ is the loss reduction estimated by lookahead and $\gamma = 0.3$ is the diversity weight. We give both $w$ and $D$ in full below, correcting the previous submission's appendix, which deferred to ``the public code repository''; the exact scale constants below are the ones used to produce every result in Section~\ref{sec:results}, verified directly against the released implementation.
+
+\textbf{Node importance.} Let $\text{Ch}(V_i)$ be the children of $V_i$ in $\mathcal{G}$ and $n_i$ the number of times $V_i$ has already been targeted in the current episode. Node importance is
+\begin{equation}
+\label{eq:node-importance}
+w(V_i, \{L_j\}) \;=\; \beta_w \cdot \frac{\frac{1}{|\text{Ch}(V_i)|}\sum_{V_j \in \text{Ch}(V_i)} \mathbbm{1}[|\text{Pa}_j| \ge 2] \cdot 2 L_j + \mathbbm{1}[|\text{Pa}_j| < 2] \cdot L_j}{\sum_k L_k + \epsilon} \cdot \frac{1}{\sqrt{1 + n_i}},
+\end{equation}
+with scale constant $\beta_w = 60.0$ and $\epsilon = 10^{-8}$; $w(V_i,\cdot)=0$ if $V_i$ has no children. This rewards intervening on parents of high-loss \emph{children}, doubling the weight of children that are themselves colliders (two or more parents, where identifying the mechanism requires varying more than one parent), normalized by total current loss, and discounted by an under-sampling correction $(1+n_i)^{-1/2}$ that softens repeated targeting of the same node within an episode.
+
+\textbf{Diversity.} Let $H$ be the \emph{history window}: the most recent $\min(100, |H_\text{all}|)$ intervention targets, where $H_\text{all}$ is the full within-run history. $D(V_i, H)$ is inactive ($D=0$) until at least 20 interventions have occurred, and is otherwise
+\begin{equation}
+\label{eq:diversity}
+D(V_i, H) \;=\; \underbrace{50 \cdot \mathrm{Ent}(H)}_{\text{entropy bonus}} \;+\; \underbrace{200 \cdot \max\!\big(0,\, \tfrac{1}{|\mathcal V|} - f_{V_i}(H)\big)}_{\text{under-sampling bonus}} \;-\; \underbrace{150 \cdot \max\!\big(0,\, c(H) - \tau(V_i)\big)}_{\text{concentration penalty}},
+\end{equation}
+where $\mathrm{Ent}(H) = -\sum_{V_j \in \mathcal V} f_{V_j}(H) \log f_{V_j}(H)$ is the Shannon entropy of the empirical target distribution over $H$, $f_{V_i}(H)$ is $V_i$'s frequency in $H$, and $c(H) = \max_j f_{V_j}(H)$ is the concentration of the most-targeted node in $H$. The threshold $\tau(V_i)$ is normally $0.4$ (the paper's default \texttt{max\_concentration}), but relaxes to $\max(0.75, 0.4+0.15)=0.75$ specifically when $V_i$ is a parent of a collider whose loss still exceeds $0.3$, so that the concentration penalty does not fight the strategic collider-parent concentration documented in Section~\ref{sec:results-main} and Appendix~\ref{app:strategic}.
+
+\textbf{Calibration rules.} Given the preference pair $(y_w, y_l)$ from Section~\ref{sec:interaction-loop}, we compare three rules for updating the policy $\pi_\phi$ toward the winning candidate, all operating on the identical candidate/lookahead/reward pipeline above so that any difference in downstream performance is attributable to the update rule alone:
+\begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
+\item \textbf{DPO} (default), the standard objective \citep{rafailov2023direct}
+\begin{equation}
+\label{eq:dpo-loss}
+\mathcal{L}_{\text{DPO}} \;=\; -\mathbb{E}_{(x, y_w, y_l)}\Big[\log\sigma\Big(\beta\big[\log\tfrac{\pi_\phi(y_w \mid x)}{\pi_\text{ref}(y_w \mid x)} - \log\tfrac{\pi_\phi(y_l \mid x)}{\pi_\text{ref}(y_l \mid x)}\big]\Big)\Big],
+\end{equation}
+with $\beta = 0.1$ and reference policy $\pi_\text{ref}$ updated every 25 episodes.
+\item \textbf{SFT-best}: supervised fine-tuning on $y_w$ alone, $\mathcal{L}_{\text{SFT}} = -\log\pi_\phi(y_w \mid x)$, discarding $y_l$ and the reference-policy term entirely.
+\item \textbf{Ranking}: a pairwise Bradley--Terry logistic loss on policy log-probabilities with no reference policy, $\mathcal{L}_{\text{rank}} = -\log\sigma\big(\beta[\log\pi_\phi(y_w\mid x) - \log\pi_\phi(y_l\mid x)]\big)$.
+\end{itemize}
+This comparison directly answers the question of what preference-based calibration specifically contributes over its simpler ingredients (imitating only the winner, or ranking without a KL anchor to a reference policy); as with the budget-accounting instrumentation, the infrastructure for this comparison (\texttt{--policy\_update \{dpo, sft\_best, ranking\}}) is released and the matched-seed comparison across all three rules on the 5-node benchmark is queued as the next experiment (Appendix~\ref{app:budget-extended}), consistent with our framing that a tie between DPO and either simpler alternative would be an informative result about \emph{where} preference learning's value lies, not a failure of the method.
+
+% =======================================================================
+\section{Theoretical Analysis: Why Preference Learning?}
+% =======================================================================
+\label{sec:theory}
+
+Information gain from sequential experimentation is inherently non-stationary: early interventions on an uninformed learner can produce dramatic loss reductions, while late interventions on a near-converged learner yield negligible gains. We give a formalization of why preference learning is well-suited to this setting, but we are explicit that this formalization is a motivating illustration of an empirical regularity we measure directly, not the paper's central theoretical claim.
+
+\begin{assumption}[Local, slow-drift reward decomposition]
+\label{ass:diminish}
+Over any window of adjacent episodes $[t, t+\Delta]$ short relative to the full training horizon, the per-step reward decomposes approximately as $r_t(a) \approx f(t) \cdot g_t(a)$, where $f: \mathbb{N} \to \mathbb{R}_{>0}$ is a monotonically non-increasing scale factor (representing diminishing information gain) and $g_t: \mathcal{A} \to \mathbb{R}$ captures the relative quality of action $a$ and drifts slowly enough that its \emph{induced ranking} over $\mathcal{A}$ is approximately constant within the window, i.e.\ $g_t \approx g_{t+\Delta}$ up to a ranking-preserving perturbation.
+\end{assumption}
+
+We state this as a \emph{local} invariance rather than a global one because a single fixed $g$ across the entire training horizon is a strong claim that our data does not require: what we actually observe is that $\mathbb{E}[\Delta\mathcal{L}]$ drops $\sim$500$\times$ over the full run while the candidate ranking is stable only in an adjacent-episode sense (Spearman $\rho > 0.85$ comparing episode $t$'s ranking to episode $t+1$'s), not necessarily between episode 1 and episode 200. The local formulation is the assumption this evidence actually supports; a global decomposable-reward assumption (as in an earlier version of this analysis) is stronger than the data warrants and is not needed for the argument below, since DPO's preference pairs are always constructed from same-episode candidate comparisons.
+
+\begin{proposition}[Scale-invariance of preference learning within a local window]
+\label{prop:scale-invariance}
+Under Assumption~\ref{ass:diminish}, for any pair of actions $a_w, a_l \in \mathcal{A}$ (candidate interventions $c_w, c_l$ in the notation of Section~\ref{sec:methods}) proposed and scored at the same step $t$ with $g_t(a_w) > g_t(a_l)$, and prompt $x$ encoding state $s_t$:
+\begin{enumerate}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item \emph{(Within-step preference validity.)} The ordering $r_t(a_w) > r_t(a_l)$ holds whenever $f(t) > 0$, since $f(t) \cdot g_t(a_w) > f(t) \cdot g_t(a_l)$.
+\item \emph{(Value non-stationarity.)} The state-value function $V_t(s) = \mathbb{E}_a[r_t(a)] = f(t) \cdot \mathbb{E}_a[g_t(a)]$ is non-stationary in $t$, with magnitude scaling as $f(t)$, whether or not $g_t$ itself drifts.
+\item \emph{(DPO invariance.)} The DPO objective \eqref{eq:dpo-loss} depends only on the log-ratio difference $\log\tfrac{\pi_\phi(a_w \mid x)}{\pi_\text{ref}(a_w \mid x)} - \log\tfrac{\pi_\phi(a_l \mid x)}{\pi_\text{ref}(a_l \mid x)}$, which is independent of $f(t)$.
+\end{enumerate}
+\end{proposition}
+
+Because each preference pair is constructed from candidates scored \emph{within the same step} $t$, Part~1 requires only that $f(t) > 0$ --- it does not require $g$ to be constant across the training horizon, which is why the local assumption above suffices. Part~2 is exactly why a value-function approximator, which must track $f(t)\cdot\mathbb{E}_a[g_t(a)]$ across steps rather than compare within one, is the harder object to estimate under this non-stationarity. Part~3 is the standard scale-invariance property of the DPO objective \citep{rafailov2023direct}.
+
+\begin{proof}[Proof sketch]
+Part 1 follows directly from Assumption~\ref{ass:diminish} restricted to a single step. Part 2 follows from linearity of expectation applied across steps, where $f$ is genuinely non-stationary over the full horizon (this part does not require the local approximation). Part 3 is the core property of DPO: the implicit reward model derived from policy log-ratios is invariant to constant rescaling of the underlying preference signal. The full proof and a corollary on convergence rates are in Appendix~\ref{app:proof}.
+\end{proof}
+
+\textbf{Connection to expected information gain.} $\Delta\mathcal{L}$ in \eqref{eq:reward} is a Monte Carlo estimate of the mutual information $I(\theta; \mathcal{D}_c \mid s)$, and $w$ acts as a non-uniform prior that upweights poorly-learned mechanisms; ACE thus pursues the Bayesian OED objective \citep{toth2022active} through policy learning rather than explicit posterior computation, at a per-decision oracle-query cost quantified in Section~\ref{sec:budget} that is substantially lower than the Monte Carlo posterior estimate this connection is drawn to. Full derivation in Appendix~\ref{app:info-gain}.
+
+% =======================================================================
+\section{Experiments}
+% =======================================================================
+\label{sec:results}
+
+We evaluate ACE in four settings: a synthetic 5-node benchmark for controlled comparison against all baselines, a 30-node hierarchical SCM for scalability testing, a matched cross-scale sweep at 15--50 nodes that separates the LM prior from the DPO updates, and coupled Duffing oscillators for physics-domain transfer. A Phillips Curve economic application is detailed in Appendix~\ref{app:phillips}. We compare against five baselines spanning the canonical points of comparison for active mechanism estimation under a known graph: Random and Round-Robin \citep{fisher1935design} as non-adaptive references, Max-Variance \citep{cohn1996active,gal2016dropout} for uncertainty-driven greedy acquisition, Bayesian OED (Monte Carlo expected-information-gain; \citealp{toth2022active,tigas2022interventions,zhou2024sample}) as the strongest principled baseline, and PPO \citep{schulman2017proximal} as the value-based RL alternative whose instability under non-stationary information gain (Section~\ref{sec:theory}) motivates the preference-based formulation. The concurrent causal-DPO methods of Section~\ref{sec:related} \citep{hu2026capo,le2026cdpo} are not baselines because they address generative-model alignment, not intervention selection. Seed counts: on the 5-node benchmark, all methods run with 5 seeds except Bayesian OED at 3 due to higher per-seed compute; on the 30-node benchmark, ACE runs with 3 seeds and the passive baselines with 5, while Bayesian OED and PPO are omitted because their per-step compute does not scale to 30 nodes within our budget --- a gap Appendix~\ref{app:budget-extended} closes for Bayesian OED with a queued 30-node run using the fast Monte Carlo variant already implemented for the 30-node baselines. Appendix~\ref{app:experiments} reports per-seed final-loss values and per-episode total-loss learning curves for the 5-node, 30-node, and Duffing experiments. \textbf{All numbers in this section use the original, executed-intervention-only accounting convention}; Section~\ref{sec:budget} gives the dual accounting and the per-method environment-query multipliers this convention omits.
+
+\subsection{Synthetic 5-Node Benchmark: ACE vs.\ Five Baselines}
+\label{sec:results-main}
+
+The 5-node benchmark (Figure~\ref{fig:synthetic-scm}) is a diagnostic testbed, not the headline: it isolates the specific mechanism-learning challenges of collider identification ($X_3$ with parents $X_1, X_2$), mixed functional forms (linear, trigonometric, and quadratic), and disconnected components ($X_4 \to X_5$), so that baseline behavior and ACE's emergent strategy can both be analyzed per-node. The 30-node and Duffing results below provide the scaling and transfer evidence. Mechanisms have Gaussian noise ($\sigma = 0.01$); roots are $X_1 \sim \mathcal{N}(0,1)$ and $X_4 \sim \mathcal{N}(2,1)$. Full equations and learner architecture are in Appendix~\ref{app:impl}.
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+    scale=0.9,
+    node distance=2.0cm,
+    root/.style={circle, draw=aceSkyDk, fill=aceSky, minimum size=0.8cm, font=\small, thick, line width=0.9pt},
+    regular/.style={circle, draw=aceSlateDk, fill=aceSlate, minimum size=0.8cm, font=\small, thick, line width=0.9pt},
+    collider/.style={circle, draw=aceRubyDk, fill=aceRuby, minimum size=0.8cm, font=\small, thick, line width=1.1pt},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick, color=aceSlateDk}
+]
+\node[root] (X1) at (0,0) {$X_1$};
+\node[root] (X4) at (3.5,0) {$X_4$};
+\node[regular] (X2) at (0,-2.2) {$X_2$};
+\node[regular] (X5) at (3.5,-2.2) {$X_5$};
+\node[collider] (X3) at (0,-4.4) {$X_3$};
+\draw[arrow] (X1) -- (X2);
+\draw[arrow] (X2) -- (X3);
+\draw[arrow] (X1) to[bend right=30] (X3);
+\draw[arrow] (X4) -- (X5);
+\node[root, label=right:{\scriptsize Root (2)}] at (5.2,-0.5) {};
+\node[regular, label=right:{\scriptsize Intermediate (2)}] at (5.2,-1.4) {};
+\node[collider, label=right:{\scriptsize Collider (1)}] at (5.2,-2.3) {};
+\end{tikzpicture}
+\caption{Synthetic 5-node benchmark. $X_1$ and $X_4$ are roots, $X_2$ and $X_5$ intermediates, and $X_3$ is a collider with edges from $X_1$ and $X_2$. The disconnected chain $X_4 \to X_5$ tests quadratic mechanisms.}
+\label{fig:synthetic-scm}
+\end{figure*}
+
+\begin{table*}[t]
+\centering
+\caption{Main results on the 5-node benchmark under executed-intervention-only accounting (Section~\ref{sec:budget} gives each method's total-environment-query multiplier). ACE (N=5) runs until convergence (avg.\ 171 ep.); baselines (N=5) run at the matched budget. Bayesian OED: N=3. Improvement vs.\ ACE median ($0.61$); seed 789 is an outlier (quadratic-mechanism failure) justifying median over mean.}
+\label{tab:main-results}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Method & Mean$\pm$Std & Median & Impr.\ vs.\ ACE & $p$ & Query mult.\\
+\midrule
+\textbf{ACE} (171 ep., DPO) & \textbf{0.92$\pm$0.73} & \textbf{0.61} & --- & --- & $4$--$5\times$ \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Baselines at equal executed-intervention budget (171 ep.):}} \\
+Random \citep{settles2009active} & 2.17$\pm$0.07 & 2.21 & 72\% & $<0.001$ & $1\times$ \\
+Round-Robin \citep{fisher1935design} & 2.10$\pm$0.11 & 2.09 & 71\% & $<0.001$ & $1\times$ \\
+Max-Variance \citep{cohn1996active} & 2.11$\pm$0.14 & 2.10 & 71\% & $<0.001$ & $65\times$ \\
+Bayesian OED \citep{toth2022active} & 2.04$\pm$0.12 & 1.99 & 69\% & $<0.001$ & $\sim\!500\times$ \\
+PPO \citep{schulman2017proximal} & 2.08$\pm$0.06 & 2.06 & 70\% & $<0.001$ & $1\times$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Table~\ref{tab:main-results} reports the headline result. The metric is total mechanism MSE summed across the five nodes (lower is better). The most informative comparison is against \textbf{Bayesian OED}, which receives the same correct graph and selects interventions by maximizing expected information gain via Monte Carlo posterior simulation. It is the strongest principled baseline available for the mechanism estimation setting. Even this principled method plateaus at a median of $1.99$ ($2.04 \pm 0.12$ mean), while ACE reaches a median of $0.61$, a $69\%$ improvement that isolates the contribution of \emph{learned} preference-based policy optimization over greedy Bayesian acquisition --- and, as the rightmost column previews and Section~\ref{sec:budget} quantifies, Bayesian OED's per-decision oracle-query cost under total accounting is roughly two orders of magnitude larger than ACE's, so this comparison does not favor ACE on hidden query cost. The traditional baselines (Random, Round-Robin, Max-Variance) plateau at median values between $2.09$ and $2.21$ even at 171 episodes, confirming that strategic adaptation, not additional data, drives improvement. PPO, given the same reward signal as ACE, fails to exploit it (median $2.06$, mean $2.08 \pm 0.06$); we attribute this to the value-based estimator's instability under non-stationary rewards (Section~\ref{sec:theory}).
+
+\textbf{Strategic behavior.} The policy concentrates $99.8\%$ of interventions on $X_1$ and $X_2$ (collider parents) versus $40\%$ under uniform sampling, consistent across seeds ($99.6$--$99.9\%$); $L_{X_3}$ reduces from $3.3$ to $0.054$, a $60$-fold collider improvement. Per-seed measurements are in Appendix~\ref{app:strategic}.
+
+\subsection{Scaling: 30-Node Hierarchical SCM}
+\label{sec:results-scale}
+
+To test scalability we evaluate on a hierarchical 30-node SCM (Figure~\ref{fig:30node-scm}) representative of the multi-layer structure found in gene regulatory and metabolic networks.
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+    scale=0.82, transform shape,
+    root/.style={circle, draw=aceSkyDk, fill=aceSky, minimum size=0.62cm, font=\scriptsize, thick, line width=0.7pt},
+    regular/.style={circle, draw=aceSlateDk, fill=aceSlate, minimum size=0.62cm, font=\scriptsize, thick, line width=0.7pt},
+    collider/.style={circle, draw=aceRubyDk, fill=aceRuby, minimum size=0.62cm, font=\scriptsize, thick, line width=0.9pt},
+    arrow/.style={-{Stealth[length=1.8mm]}, thick, color=aceSlateDk}
+]
+% Layer 0: 5 roots
+\node[root] (r1) at (0,0)   {$R_1$};
+\node[root] (r2) at (1.1,0) {$R_2$};
+\node[font=\small] at (1.9,0) {$\cdots$};
+\node[root] (r5) at (2.7,0) {$R_5$};
+\node[font=\scriptsize, gray] at (5.5,0)  {\textit{Layer 0: 5 roots}};
+
+% Layer 1: 5 intermediate
+\node[regular] (i1) at (0,-1.5)   {$I_1$};
+\node[regular] (i2) at (1.3,-1.5) {$I_2$};
+\node[font=\small] at (2.0,-1.5) {$\cdots$};
+\node[regular] (i5) at (2.7,-1.5) {$I_5$};
+\node[font=\scriptsize, gray] at (5.5,-1.5) {\textit{Layer 1: 5 nodes, 1--2 root parents}};
+
+% Layer 2: 10 nodes (~3 colliders)
+\node[regular]  (n1) at (0,-3.0)   {$N_1$};
+\node[collider] (c1) at (1.1,-3.0) {$C_1$};
+\node[font=\small] at (1.9,-3.0) {$\cdots$};
+\node[regular]  (n10) at (2.7,-3.0){$N_{10}$};
+\node[font=\scriptsize, gray] at (5.5,-3.0) {\textit{Layer 2: 10 nodes, $\sim$3 colliders}};
+
+% Layer 3: 10 complex colliders
+\node[collider] (cc1) at (0,-4.5)   {$C_1'$};
+\node[collider] (cc2) at (1.3,-4.5) {$C_2'$};
+\node[font=\small] at (2.0,-4.5) {$\cdots$};
+\node[collider] (cc5) at (2.7,-4.5) {$C_{10}'$};
+\node[font=\scriptsize, gray] at (5.5,-4.5) {\textit{Layer 3: 10 colliders, 2--3 parents each}};
+
+% Layer 4: 5 leaves
+\node[regular] (l1) at (0,-6.0)   {$L_1$};
+\node[font=\small] at (1.3,-6.0) {$\cdots$};
+\node[regular] (l5) at (2.7,-6.0) {$L_5$};
+\node[font=\scriptsize, gray] at (5.5,-6.0) {\textit{Layer 4: 5 leaves}};
+
+% Edges Layer 0 -> 1
+\draw[arrow] (r1) -- (i1);
+\draw[arrow] (r2) -- (i1);
+\draw[arrow] (r2) -- (i2);
+\draw[arrow] (r5) -- (i5);
+
+% Edges Layer 1 -> 2
+\draw[arrow] (i1) -- (n1);
+\draw[arrow] (i1) -- (c1);
+\draw[arrow] (i2) -- (c1);
+\draw[arrow] (i5) -- (n10);
+
+% Edges Layer 2 -> 3
+\draw[arrow] (n1)  -- (cc1);
+\draw[arrow] (c1)  -- (cc1);
+\draw[arrow] (c1)  -- (cc2);
+\draw[arrow] (n10) -- (cc5);
+
+% Edges Layer 3 -> 4
+\draw[arrow] (cc1) -- (l1);
+\draw[arrow] (cc2) -- (l1);
+\draw[arrow] (cc5) -- (l5);
+
+% Horizontal legend below Layer 4, centered under the layer columns to avoid
+% overlapping the layer captions on the right.
+\node[root]                                 at (0.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (0.25,-7.2) {Root (5)};
+\node[regular]                              at (2.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (2.25,-7.2) {Intermediate (20)};
+\node[collider]                             at (5.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (5.25,-7.2) {Collider (13)};
+\end{tikzpicture}
+\caption{30-node hierarchical SCM. Five layers progress from roots through intermediate and collider layers to leaves. Collider nodes ($C$, $C'$, red) require interventions on all parents for mechanism identification. With 30 nodes and a fixed budget of 300 episodes, random sampling devotes only $\sim\!3.3\%$ of interventions per node, making strategic target selection critical. Node labels are schematic; actual nodes are $X_1$--$X_{30}$.}
+\label{fig:30node-scm}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/fig_30node_results.pdf}
+\caption{30-node hierarchical SCM results, \textbf{original three seeds only} (42/123/456), under episode-matched accounting. \textbf{(a)}~Best total-MSE per episode (shaded $\pm 1$ std across seeds; ACE's wide band is N=3 training variability, baseline bands are invisible at seed-std $<\!0.08$). ACE descends to $\sim\!1.95$; the three static baselines plateau at $5.86$. \textbf{(b)}~Final performance with per-seed points. ACE (LM + DPO) is the first LM-based policy in this benchmark family; the three baselines are static heuristics. On these three seeds ACE achieves $3.0\times$ best-vs-best and $1.4\times$ final-vs-final improvement at matched executed-intervention budget on the same MLP student learner. \textbf{This figure is retained for continuity with the previous submission and should be read together with Table~\ref{tab:large-scale}}, where five additional seeds run under the identical configuration do \emph{not} reproduce it; the margin shown here is contingent on preference-optimization stability, which those five seeds did not achieve. The scale-level claim this paper relies on is the total-query-matched comparison of Section~\ref{sec:budget}.}
+\label{fig:30node-results}
+\end{figure*}
+
+\begin{table*}[t]
+\centering
+\caption{30-node hierarchical SCM under \emph{episode-matched} accounting. All methods use the same per-node MLP student learner; metric is total mechanism MSE. We report \emph{best} MSE during training and \emph{final} MSE at the last episode. Static baselines plateau within a few episodes (best $\approx$ final); ACE is non-monotone, so best-MSE is the cleaner converged summary. \textbf{ACE's result at this scale is seed-dependent and we report both seed groups separately rather than pooling them behind a single mean.} The first three seeds are those of the original submission; the five added for this version do not reproduce them and instead sit at the passive-baseline plateau, for reasons traced to preference-optimization instability (see text). The all-seed row gives the exact pooled mean; we omit a pooled standard deviation because the distribution is bimodal and a single $\pm$ would misrepresent it. \textbf{The load-bearing 30-node comparison in this paper is the total-query-matched one in Section~\ref{sec:budget}, not this table}, which we retain for continuity with the previous submission's protocol.}
+\label{tab:large-scale}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Method & Best MSE & Final MSE & $N$ & Improvement (best-vs-best) \\
+\midrule
+ACE, seeds 42/123/456   & 1.95$\pm$0.77 & 4.13$\pm$3.61 & 3 & $3.0\times$ \\
+ACE, seeds 2022--2026   & 5.69$\pm$0.69 & 10.72$\pm$5.98 & 5 & $1.0\times$ \\
+\textbf{ACE, all seeds} & \textbf{4.28} & --- & 8 & $1.4\times$ \\
+\midrule
+Random       & 5.80$\pm$0.05 & 5.85$\pm$0.04 & 5 & --- \\
+Round-Robin  & 5.79$\pm$0.06 & 5.86$\pm$0.07 & 5 & --- \\
+Max-Variance & 5.80$\pm$0.04 & 5.86$\pm$0.08 & 5 & --- \\
+Bayesian OED & 5.78$\pm$0.05 & 5.90$\pm$0.07 & 5 & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+ACE generalizes to larger structures without architectural modification. All four baselines converge to a common plateau near $5.86$ (stds $<\!0.08$); at this scale differences among static heuristics are negligible, so what matters is whether a strategy can adapt. The Bayesian-OED row is new to this version and addresses a reviewer's objection that the previous submission asserted Bayesian OED does not scale to 30 nodes without demonstrating it: using the faster Monte Carlo variant described in Appendix~\ref{app:budget-extended} (\texttt{BayesianOEDFast}, reduced candidate breadth), it does run at this scale, and it lands within noise of the passive heuristics ($5.78\pm0.05$ best) despite its far higher per-decision oracle cost --- which is itself the point of Section~\ref{sec:budget}'s accounting argument. \textbf{The episode-matched ACE result at this scale does not replicate across seeds, and we report that directly.} The previous submission reported $1.95\pm0.77$ from three seeds. Adding five further seeds under the identical configuration and episode budget yields $5.69\pm0.69$ --- indistinguishable from the passive baselines, and giving an all-seed mean of $4.28$ rather than the $1.95$ the original three suggested. The five new runs are not defective in any mechanical sense: each completed its full 300-episode budget in a single job with no wall-time truncation or checkpoint resume. What separates them is preference-optimization stability. In all five, the training diagnostics report pathological behavior --- two seeds sit at chance-level DPO loss ($0.693$) for the majority of updates, while the other three collapse to near-zero loss with reference-policy divergence orders of magnitude above the healthy range --- and in every case the resulting policy performs at the passive plateau. We therefore read this not as noise but as a genuine fragility: \emph{when the preference update destabilizes, ACE's episode-matched advantage at 30 nodes disappears entirely}, and the original three seeds are better understood as the subset in which it did not destabilize than as a representative sample.
+
+This has two consequences we take seriously. First, it is why Section~\ref{sec:budget}'s total-query-matched comparison, not this table, carries the 30-node claim in this version: that comparison runs ACE and every baseline under one protocol with the baselines measured alongside ACE in the same batch, so it is a within-batch relative measurement rather than a cross-batch absolute one, and its ACE runs show healthy preference-optimization diagnostics throughout. Second, it sharpens rather than softens Contribution~1: the component whose instability can erase the advantage is the same component whose \emph{removal} leaves performance intact (Section~\ref{sec:results-scale}, ACE-w/o-DPO). A calibration layer that is neutral when disabled but harmful when poorly conditioned is a liability, not a feature, and the honest recommendation that follows is to prefer the configurations that do not depend on it. Diagnosing and stabilizing the preference update at this scale --- or dispensing with it, as the tie result suggests is viable --- is the most important open item this paper leaves. Per-seed details are in Appendix~\ref{app:experiments}. Future work will evaluate on biologically realistic simulators such as SERGIO \citep{dibaeinia2020sergio}.
+
+\textbf{How much is the LM prior versus DPO?} To separate the pretrained LM's contribution from the DPO updates, we compare ACE against \emph{ACE without DPO} -- the same LM proposer and lookahead selection with the DPO weight updates disabled (distinct from the random-proposer ablation in Table~\ref{tab:ablations}, which removes the LM as well). On the canonical 30-node SCM the two are statistically tied (ACE $1.95\pm0.77$ vs.\ ACE-w/o-DPO $1.73\pm0.22$), and they remain tied under \emph{anonymization} of node names (abstract \texttt{n\_xxxx} tokens that strip any semantic handle): ACE $1.51\pm0.16$ vs.\ ACE-w/o-DPO $1.49\pm0.18$ best total MSE ($\approx\!0.052$ vs.\ $0.052$ per node, N=5 seeds). This is the paper's central empirical claim (Contribution 1): the pretrained LM's structural reasoning combined with lookahead carries most of the load at this scale, and DPO's marginal value is expected to grow only where the prior is weaker (larger graphs, longer prompts). Two caveats belong with it. First, ``tied'' here means overlapping means at $N{=}3$--$5$ seeds; we do not run a formal equivalence test, and at these sample sizes the comparison can exclude only large effects, not small ones. Second, the full-ACE side of the canonical comparison is the original three-seed figure whose seed-dependence we document above, so the tie is established against ACE's \emph{favorable} seed group. Note that the seed expansion pushes this conclusion further in the same direction rather than undermining it: across all eight canonical seeds full ACE averages $4.28$, while ACE-w/o-DPO --- which has no preference update to destabilize --- shows no comparable failure mode. We state the claim as: disabling the preference update does not cost measurable performance at this scale, and leaving it enabled carries a stability risk that the anonymized and matched-budget results do not exhibit. Best-MSE plateaued by $\sim$episode 3--6 for both anonymized variants (mean best-episode $\approx\!3$--$7$); learning curves and the convergence annotation are in Appendix~\ref{app:scaling} (Figure~\ref{fig:followup}).
+
+\begin{figure*}[t]
+\centering
+\IfFileExists{figs/fig_scaling.pdf}{%
+  \includegraphics[width=\linewidth]{figs/fig_scaling.pdf}%
+}{%
+  \fbox{\parbox{0.9\linewidth}{\centering\vspace{1em}\emph{Figure pending: run \texttt{scripts/analysis/plot\_scaling.py} on the scaling sweep results.}\vspace{1em}}}%
+}
+\caption{\textbf{Scaling across graph size on the consistent hierarchical SCM family.} Best \emph{per-node} mechanism MSE vs.\ $N$ for ACE, ACE-w/o-DPO (LM proposer + lookahead, no weight updates), and Random (N=5 seeds per cell). The shaded band spans the two LM variants; both stay well below passive Random as $N$ grows. Each cell uses a fixed $\sim$40-episode plateau budget for cross-$N$ comparability; compact salience-ranked prompt encoding is used at $N{=}50$. \emph{Protocol note:} the sweep's $N{=}30$ ACE point ($0.114\pm0.030$ per node) uses this reduced budget and differs from Table~\ref{tab:large-scale}'s headline ACE result ($1.95$ total MSE at the full 120-episode budget, N=3 seeds).}
+\label{fig:scaling}
+\end{figure*}
+
+\textbf{Scaling across graph size.} Figure~\ref{fig:scaling} extends this analysis to a matched sweep on the consistent hierarchical LargeScaleSCM family at $N\in\{15,30,50\}$, testing whether the LM-driven strategy transfers without architectural change. ACE and ACE-w/o-DPO form a tight band ($0.051$--$0.136$ per node) well below Random ($0.153$--$0.192$), confirming that adaptive LM reasoning scales while static heuristics degrade. Consistent with the anonymization analysis above, DPO does not consistently separate the two LM variants---they are tied at $N{=}15,30$ and ACE is slightly better at $N{=}50$ ($0.118$ vs.\ $0.136$ per node). A lookahead-breadth ablation at $N{=}50$ ($K\in\{4,8,16\}$) finds best-MSE flat in $K$ while per-episode cost --- and, as Section~\ref{sec:budget} makes explicit, per-episode oracle-query count --- rises linearly with $K$, indicating salience-targeted candidate generation rather than brute-force breadth is the lever for larger graphs; full sweep and ablation details are in Appendix~\ref{app:scaling}.
+
+\subsection{Component Ablation}
+\label{sec:results-ablation}
+
+\begin{table*}[t]
+\centering
+\caption{Component ablation (N=3 seeds on the 5-node benchmark; N=5 for No-diversity reward which completed in all configurations). Each row removes one component of ACE's reward or training loop. Note that the first row removes the \emph{LM proposer} (replacing it with random proposals), which necessarily removes the DPO update along with it; it is therefore a joint LM+DPO ablation and is \emph{not} the DPO-only ablation. The DPO-only ablation --- LM proposer and lookahead retained, weight updates disabled --- is reported separately in Section~\ref{sec:results-scale}, where it is statistically tied with full ACE.}
+\label{tab:ablations}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Configuration & Total Loss & Change vs.\ full & Failure mode \\
+\midrule
+ACE (full) & 0.92$\pm$0.73 & --- & --- \\
+\midrule
+No LM proposer (random proposals + lookahead; DPO also inapplicable) & 2.10$\pm$0.11 & $+128\%$ & no learned strategy \\
+No per-node convergence (fixed 100 ep.) & 1.45$\pm$0.62 & $+58\%$ & early termination \\
+No dedicated root learner & 1.38$\pm$0.55 & $+50\%$ & root distribution failure \\
+No diversity reward ($\gamma=0$) & 2.82$\pm$0.22 & $+207\%$ & node collapse \\
+No node importance ($\beta_w=0$, queued) & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The diversity reward is the most critical component: without it, the policy collapses onto a single node and \emph{worsens} beyond baseline ($2.82$). Replacing the LM proposer with random proposals --- which removes the DPO update along with it, since there is no LM policy left to update --- matches the Round-Robin baseline ($2.10$), confirming that learned proposal generation, not the lookahead mechanism, drives the improvement. This row should not be read as a measure of DPO's contribution: the DPO-only ablation, which retains the LM proposer and lookahead and disables only the weight updates, is tied with full ACE (Section~\ref{sec:results-scale}), and it is that comparison, not this one, that speaks to Contribution~1. Per-seed details: Appendix~\ref{app:ablation-detail}. The final row isolates the node-importance term $w$ (Eq.~\ref{eq:node-importance}) from information gain and diversity by setting its scale constant $\beta_w=0$; the \texttt{--cov\_bonus 0.0} configuration and matched SLURM job are released (\texttt{jobs/curc\_submit\_node\_importance\_ablation.sh}), and the seeds are queued rather than fabricated here, consistent with our position that no result in this paper should be reported before it has actually run.
+
+\subsection{Physics: Coupled Duffing Oscillators}
+\label{sec:results-duffing}
+
+We apply ACE to a chain of three coupled Duffing oscillators \citep{kovacic2011duffing} with true coupling $X_1 \leftrightarrow X_2 \leftrightarrow X_3$ but synchronization-induced spurious correlations between $X_1$ and $X_3$. ACE achieves coupling-parameter estimation error $0.042\pm0.036$ versus Random $0.245\pm0.121$ and Round-Robin $0.238\pm0.076$ (N=5 seeds, 100 episodes; full per-seed table in Appendix~\ref{app:duffing}). The learned strategy concentrates $62\%$ of interventions on $X_2$, the intermediate oscillator whose clamping breaks the spurious correlation. ACE discovers this strategy autonomously.
+
+% =======================================================================
+\section{Budget Accounting}
+% =======================================================================
+\label{sec:budget}
+
+An intervention budget can be counted in at least two ways: the number of interventions actually \emph{executed} on the environment (the number that would be spent if the method were deployed against a real, costly experimental system), or the total number of environment queries \emph{consumed}, including any queries used only to score candidates before one is chosen. Every method compared in Table~\ref{tab:main-results} uses the second kind of query internally to some degree --- ACE's lookahead, Max-Variance's uncertainty-sampling probe, and Bayesian OED's Monte Carlo expected-information-gain estimate all query the ground-truth environment to evaluate candidates that are not ultimately executed. Reporting only the executed count, as the previous version of this paper did, is defensible for the deployment question (Section~\ref{sec:interaction-loop}'s \texttt{--lookahead\_on\_student} mode is the honest zero-hidden-query deployment configuration) but understates the true experimental cost paid during \emph{training}, and --- because different methods use this hidden budget by very different amounts --- comparing methods at matched executed-intervention counts alone is not the same as comparing them at matched total experimental cost.
+
+\textbf{Instrumentation.} We add an explicit query counter, tagging every environment query as \texttt{executed}, \texttt{lookahead}/\texttt{candidate\_probe}, or \texttt{observational}, to \texttt{ExperimentExecutor} in \texttt{ace\_experiments.py} and to an \texttt{InstrumentedOracle} wrapper around every baseline's ground-truth SCM in \texttt{baselines.py} and \texttt{scripts/runners/run\_30node\_baseline\_seed.py}. Every training run now writes a \texttt{query\_budget.json} with the exact call and sample count per tag (Appendix~\ref{app:budget-extended}).
+
+\textbf{The multiplier audit.} Table~\ref{tab:main-results}'s rightmost column reports, for each method, the ratio of total environment queries to executed-only queries, computed by re-deriving this ratio directly from the exact configuration used to produce that row's numbers (default arguments and job scripts, cross-checked against saved result files where available; full derivation in Appendix~\ref{app:budget-extended}). Random, Round-Robin, and PPO never probe the environment before executing --- they choose an action directly from a policy or a fixed schedule --- so their multiplier is exactly $1\times$. ACE's lookahead queries the environment for $K\in\{3,4\}$ candidates per step in addition to the one executed, a $4$--$5\times$ multiplier. Max-Variance's own MC-dropout candidate scoring queries the oracle once per candidate with $n_\text{candidates}=64$ (its default, unchanged from the run that produced Table~\ref{tab:main-results}'s row), a $65\times$ multiplier --- the same lookahead/execution asymmetry raised against ACE, previously uninstrumented and therefore invisible. Our Bayesian-OED baseline evaluates $|\mathcal V|\times 10$ candidate values, each scored with $n_\text{mc\_samples}=20$ Monte Carlo posterior draws, before executing one: $5\times10\times20 = 1{,}000$ probe queries plus 1 executed query per decision, a $1{,}001\times$ call multiplier and, accounting for the different sample sizes used for probing (50) versus executing (100), a $\sim\!500\times$ multiplier in raw environment samples. This is not an implementation artifact particular to our baseline: Monte Carlo expected-information-gain estimation is intrinsically this expensive, which is also why Appendix~B.5 of the previous submission already reported 4--6 minutes of wall-clock time per Bayesian-OED step.
+
+\textbf{Instrumentation released.} ACE's own hidden query cost is real and worth reporting plainly, but it is neither unique to ACE nor the largest among the adaptive methods in this comparison --- it is smaller than two of the five baselines ACE is shown beating under executed-only accounting. The instrumentation above enables: (i) a \texttt{--lookahead\_on\_student} ACE variant, which scores candidates against the learner's own current model instead of the environment and therefore has an exact $1\times$ multiplier like the non-adaptive baselines; and (ii) a \texttt{--query\_budget} flag on both \texttt{ace\_experiments.py} and \texttt{baselines.py} that stops training once a specified \emph{total} environment-sample count is reached, rather than a fixed episode count, enabling a rerun of Table~\ref{tab:main-results} at exactly matched total query cost across all six methods. Both are released and unit-tested (\texttt{tests/test\_query\_budget.py}, \texttt{tests/test\_aggregate\_budget\_fairness.py}).
+
+\textbf{The matched-budget rerun, at 30 nodes.} We ran ACE under both lookahead accountings, and all four baselines with \texttt{--query\_budget} set to ACE's own environment-lookahead total (mean $483{,}460$ environment samples across $N{=}5$ seeds), on the same 30-node hierarchical SCM as Table~\ref{tab:main-results}. ACE under standard environment-lookahead accounting reaches per-node best MSE $0.110\pm0.045$ at this budget, a $43\%$ improvement over the best baseline at the same budget (Random, $0.192\pm0.002$; Round-Robin $0.193\pm0.002$; Max-Variance $0.194\pm0.001$; Bayesian OED $0.194\pm0.002$). All four baselines are statistically indistinguishable from one another at this budget, consistent with exploration strategy mattering less once the query budget is large enough to approach the passive-sampling limit --- which is exactly the regime a total-query-matched comparison should probe, and where an adaptive method's advantage is hardest to preserve. Every one of the 5 ACE seeds individually beats the pooled baseline mean (worst ACE seed: $0.157$; best baseline mean: $0.192$), so the result does not depend on averaging over a favorable subset. The \texttt{--lookahead\_on\_student} variant is stronger still: at its own honest, un-matched budget of only $130{,}140$ samples ($3.7\times$ fewer than what the baselines above were given), it reaches per-node best MSE $0.096\pm0.018$, beating the same baselines by $50\%$ despite consuming substantially fewer environment queries than they were allotted. Both ACE variants therefore beat the field under total-query-matched accounting at 30 nodes, resolving the decision gate in ACE's favor at this scale.
+
+\textbf{The matched-budget rerun, at 5 nodes.} We repeated the identical protocol on the 5-node benchmark of Table~\ref{tab:main-results}, with the shared budget set from ACE's own environment-lookahead total (mean $3{,}204{,}460$ environment samples, $N{=}5$ seeds) and the four baselines that consult the oracle before executing run under \texttt{--query\_budget} at that same total (Bayesian OED is compared separately under executed-only accounting at this scale, Appendix~\ref{app:budget-extended}). The margin is substantially larger than at 30 nodes: ACE under environment lookahead reaches per-node best MSE $0.094\pm0.004$ against a best baseline of $0.396\pm0.028$ (PPO; Round-Robin $0.400\pm0.012$, Random $0.401\pm0.012$, Max-Variance $0.402\pm0.011$), a $76\%$ improvement, and the \texttt{--lookahead\_on\_student} variant reaches $0.096\pm0.001$ --- a $76\%$ improvement while consuming $615{,}680$ samples, $5.2\times$ fewer than the baselines were allotted. As at 30 nodes, every individual ACE seed beats the pooled baseline mean by a wide margin (worst ACE seed $0.098$ vs.\ best baseline mean $0.396$), and the four baselines are again statistically indistinguishable from one another at this budget. The decision gate is therefore resolved in ACE's favor at both scales in Table~\ref{tab:main-results}, under both lookahead accountings, with the smaller graph showing the larger margin.
+
+We report best-episode MSE above, consistent with the scaling and $K$-ablation results elsewhere in this paper (Section~\ref{sec:limitations}: best-MSE plateaus around episode 20 at 30 nodes). At both scales, ACE's best and final-episode MSE diverge in a way the baselines' do not: at 30 nodes, mean best $0.110$ vs.\ mean final $0.276$ under environment lookahead ($2.5\times$); at 5 nodes, mean best $0.094$ vs.\ mean final $0.171$ ($1.8\times$, and $0.096$ vs.\ $0.141$ under student lookahead). This reflects the early plateau followed by drift over the remaining episodes, whereas every baseline's final MSE matches its best to within $1$--$4\%$ and shows no comparable degradation. We state plainly how far this caveat reaches. Under the strictest possible reading --- ACE's \emph{final}-episode MSE against each baseline's \emph{best} --- ACE remains clearly ahead at 5 nodes ($0.171$ vs.\ $0.396$), but at 30 nodes it does not ($0.276$ vs.\ $0.192$): the 30-node margin depends on checkpoint selection in a way the 5-node margin does not. A deployment at 30 nodes without a validation signal for early stopping should therefore not expect the $43$--$50\%$ margin reported above; the 5-node margin is robust to this concern, and the \texttt{--lookahead\_on\_student} variant, whose best-to-final gap is the smaller of the two at both scales ($1.5\times$ at 5 nodes, $2.2\times$ at 30), is the configuration we would recommend where no such validation signal exists. Reporting best-episode MSE is standard practice throughout this paper and is not specific to this comparison, but it does mean ACE's reported number relies on checkpoint selection in a way the passive baselines' numbers do not.
+
+% =======================================================================
+\section{Limitations and Future Work}
+% =======================================================================
+
+\label{sec:limitations}
+ACE addresses \emph{mechanism estimation given known causal structure}, the central task whenever a graph is available from domain expertise, prior literature, or an upstream structure-learning algorithm. Joint structure-and-mechanism methods such as ABCI, CBED, and GO-CBED target a different problem and operate in a different computational regime: maintaining a posterior over graphs is NP-hard \citep{chickering1996learning} and intractable beyond roughly twenty variables \citep{zhou2024sample}. ACE therefore complements rather than competes with this line of work.
+
+\textbf{Scaling.} The binding cost in our setup is the prompt, which in the default encoding lists every node, every edge, and the intervention history, growing as $O(N\!+\!E\!+\!H)$; per-step wallclock rises from $\sim$22 min on A100 at 30 nodes to $\sim$57 min at 50. Three principles follow and define a concrete scaling pipeline. (i)~\emph{Encoding is the lever}: a compact, salience-ranked prompt that surfaces only the top-$m$ highest-loss nodes and their parents holds prompt length at $\sim\!O(m)$, decoupling it from $N$; we use this at 50 nodes and it is mandatory for $100+$. (ii)~\emph{Report scale-invariant error}: total MSE grows mechanically with $N$, so cross-scale comparison uses \emph{per-node} MSE. (iii)~\emph{Budget to the plateau}: best-MSE converges early ($\sim$episode 20 at 30 nodes), so episodes scale with the measured convergence point rather than a fixed cap, with checkpoint--resume across wall-time windows. Lookahead breadth ($K$ vs.\ the $O(N)$ action space) and policy capacity are the remaining knobs, ablated at 50 nodes; the $100+$ regime, a structure-learning front end, and empirical graph misspecification (Appendix~\ref{app:misspec-failures}) are the natural follow-ups.
+
+\textbf{Budget accounting is closed at both scales; checkpoint selection and the calibration-rule comparison remain open.} Section~\ref{sec:budget} gives the accounting framework, the code-verified per-method query multipliers, and the matched-total-query rerun of Table~\ref{tab:main-results} at both 5 and 30 nodes, where ACE wins under both lookahead accountings ($76\%$ and $43$--$50\%$ respectively). Two caveats attach to that result rather than to its existence. First, ACE's best-episode MSE diverges from its final-episode MSE in a way the passive baselines' numbers do not, and at 30 nodes --- though not at 5 --- the margin does not survive the strictest final-vs-best comparison; Section~\ref{sec:budget} states the extent of this precisely. Second, Section~\ref{sec:dpo} releases, but does not yet report, the \texttt{sft\_best} and \texttt{ranking} calibration-rule comparison (Appendix~\ref{app:budget-extended} lists the exact job scripts) and, per our own framing in the introduction, we would treat a tie on that axis as informative rather than as grounds to withdraw the corresponding claim.
+
+\textbf{Preference-optimization stability at 30 nodes is unresolved and is our most important open problem.} Section~\ref{sec:results-scale} reports that five of five newly added canonical 30-node seeds show pathological DPO training --- chance-level loss in two, near-zero loss with extreme reference divergence in three --- and that all five land at the passive-baseline plateau as a result. We have characterized this failure but not diagnosed its cause, and we do not yet know what distinguishes the runs in which the preference update converges cleanly (including every run behind Section~\ref{sec:budget}'s matched-budget result) from those in which it does not. Until that is understood, the configurations we would recommend deploying are those that do not depend on the preference update at all: ACE-w/o-DPO, and the \texttt{--lookahead\_on\_student} variant. We flag this prominently rather than confining it to an appendix because it bears directly on how much of this paper's method a practitioner should adopt.
+
+% =======================================================================
+\section{Conclusion}
+% =======================================================================
+\label{sec:conclusion}
+
+We introduced ACE, a method that learns sequential experimental design for causal mechanism estimation from three components: a pretrained language-model proposer, a lookahead step that scores candidates against a cloned learner, and a preference-based calibration rule. Disentangling these components is this paper's central methodological contribution: at 30 nodes and under node-name anonymization, the LM proposer and lookahead selection alone are statistically indistinguishable from the full DPO-calibrated method, indicating that the pretrained prior and the lookahead check against evidence, not the preference update, are the primary source of ACE's advantage at scale. At the same time, on the 5-node diagnostic benchmark and on coupled Duffing oscillators, the full method still leads five baselines under the field's conventional executed-intervention accounting, and non-stationary information gain still makes value-based RL (PPO) the wrong tool for this problem, formalized here as a local rather than global scale-invariance argument that matches the adjacent-episode rank stability we measure directly. Taking seriously the reviewer concern that lookahead-based methods can obscure their true experimental cost, we instrumented ACE and every baseline with an explicit environment-query counter; the resulting audit shows the concern applies more severely to two of our own baselines (Max-Variance at $65\times$, Bayesian OED at $\sim$$500\times$) than to ACE ($4$--$5\times$), and we release the deployment-realistic student-lookahead variant and the total-query-matched training mode needed to settle the comparison empirically rather than by argument. We view ACE, and this revision in particular, as evidence that a paper's contribution should be stated at the granularity its own ablations actually support: here, that is the LM-prior-plus-lookahead mechanism as the primary engine at scale, with preference-based calibration as a validated but secondary refinement whose necessity we are still in the process of establishing against simpler alternatives.
+
+% =======================================================================
+\section*{Broader Impacts}
+% =======================================================================
+
+ACE aims to accelerate scientific discovery where interventions are costly, such as drug discovery and materials science. We do not anticipate direct negative consequences beyond those inherent to any method that accelerates causal discovery. Practitioners should validate that learned policies generalize to new domains and do not systematically neglect important experimental regions.
+
+% =======================================================================
+\section*{Reproducibility Statement}
+% =======================================================================
+
+Ground-truth SCMs, learner architecture, policy prompt design, all reward components (Eqs.~\ref{eq:node-importance}--\ref{eq:diversity} in the main text), and the Bayesian OED baseline algorithm are specified in Appendix~\ref{app:impl}. The full proof of Proposition~\ref{prop:scale-invariance} is in Appendix~\ref{app:proof}. All code, including the environment-query instrumentation described in Section~\ref{sec:budget}, the \texttt{--lookahead\_on\_student} and \texttt{--query\_budget} flags, the three calibration rules of Section~\ref{sec:dpo}, and the SLURM job scripts used for every experiment in this paper, is released at the repository named in Appendix~\ref{app:reproducibility}, together with the unit tests exercising the query counter and each calibration rule. Random seeds are listed per experiment in Appendix~\ref{app:reproducibility}.
+
+% =======================================================================
+% References
+% =======================================================================
+
+% =======================================================================
+% References
+% =======================================================================
+\bibliographystyle{apalike}
+\bibliography{references}
+
+
+% =======================================================================
+\section*{Checklist}
+% =======================================================================
+
+\begin{enumerate}
+
+  \item For all models and algorithms presented, check if you include:
+  \begin{enumerate}
+    \item A clear description of the mathematical setting, assumptions, algorithm, and/or model. [Yes] Section~\ref{sec:methods} and Appendix~\ref{app:impl}.
+    \item An analysis of the properties and complexity (time, space, sample size) of any algorithm. [Yes] The per-decision oracle-query complexity of every method is derived in Section~\ref{sec:budget} and Appendix~\ref{app:budget-extended}; prompt-length scaling and per-episode wallclock are in Section~\ref{sec:limitations}.
+    \item (Optional) Anonymized source code, with specification of all dependencies, including external libraries. [Yes] Anonymized repository linked in Appendix~\ref{app:reproducibility}.
+  \end{enumerate}
+
+  \item For any theoretical claim, check if you include:
+  \begin{enumerate}
+    \item Statements of the full set of assumptions of all theoretical results. [Yes] Assumption~\ref{ass:diminish} in Section~\ref{sec:theory}.
+    \item Complete proofs of all theoretical results. [Yes] Appendix~\ref{app:proof}. We note in Section~\ref{sec:theory} that Proposition~\ref{prop:scale-invariance} is presented as a motivating illustration rather than a load-bearing contribution.
+    \item Clear explanations of any assumptions. [Yes] Section~\ref{sec:theory}, with the supporting rank-stability evidence reported alongside.
+  \end{enumerate}
+
+  \item For all figures and tables that present empirical results, check if you include:
+  \begin{enumerate}
+    \item The code, data, and instructions needed to reproduce the main experimental results (either in the supplemental material or as a URL). [Yes] Appendix~\ref{app:reproducibility}; every experiment's exact job script is named in Appendix~\ref{app:budget-extended}.
+    \item All the training details (e.g., data splits, hyperparameters, how they were chosen). [Yes] Appendix~\ref{app:impl} and the hyperparameter table therein.
+    \item A clear definition of the specific measure or statistics and error bars (e.g., with respect to the random seed after running experiments multiple times). [Yes] All results report mean $\pm$ standard deviation across seeds, with seed counts stated per table. Where a distribution is bimodal across seeds we report the groups separately rather than a single mean (Table~\ref{tab:large-scale}).
+    \item A description of the computing infrastructure used. (e.g., type of GPUs, internal cluster, or cloud provider). [Yes] Appendix~\ref{app:reproducibility}.
+  \end{enumerate}
+
+  \item If you are using existing assets (e.g., code, data, models) or curating/releasing new assets, check if you include:
+  \begin{enumerate}
+    \item Citations of the creator If your work uses existing assets. [Yes] The pretrained policy model and all baseline algorithms are cited at first use.
+    \item The license information of the assets, if applicable. [Yes] Appendix~\ref{app:reproducibility}.
+    \item New assets either in the supplemental material or as a URL, if applicable. [Yes] Anonymized repository, Appendix~\ref{app:reproducibility}.
+    \item Information about consent from data providers/curators. [Not Applicable] All environments are simulated or drawn from public macroeconomic series.
+    \item Discussion of sensible content if applicable, e.g., personally identifiable information or offensive content. [Not Applicable] No personally identifiable or offensive content is involved.
+  \end{enumerate}
+
+  \item If you used crowdsourcing or conducted research with human subjects, check if you include:
+  \begin{enumerate}
+    \item The full text of instructions given to participants and screenshots. [Not Applicable]
+    \item Descriptions of potential participant risks, with links to Institutional Review Board (IRB) approvals if applicable. [Not Applicable]
+    \item The estimated hourly wage paid to participants and the total amount spent on participant compensation. [Not Applicable]
+  \end{enumerate}
+
+\end{enumerate}
+
+
+\clearpage
+\onecolumn
+\appendix
+\aistatstitle{ACE: Language-Model Priors and Lookahead Selection\\for Active Causal Mechanism Estimation: \\ Supplementary Materials}
+
+% =======================================================================
+% TECHNICAL APPENDIX -- Active Causal Experimentalist (ACE)
+% Supplementary material (one-column). AISTATS places no length limit here.
+% =======================================================================
+
+% =======================================================================
+\section{The Role of World Models in Causal Experimental Design}
+\label{app:world-models}
+% =======================================================================
+
+The choice of a pretrained language model as ACE's policy is not a matter of engineering convenience. It reflects a specific epistemological position about what is required to plan good experiments in causal domains, and about what kind of prior knowledge a policy must bring. This appendix develops that argument in full.
+
+\subsection{Experimental Design Requires a Forward Model}
+
+Pearl's causal hierarchy \citep{pearl2009causality,pearl2018book} distinguishes three rungs of causal knowledge: association (Rung 1), intervention (Rung 2), and counterfactual reasoning (Rung 3). Active experimental design operates at Rung 2. The question an experimentalist must answer at every step is not ``what do the data say?'' but ``what would happen if I intervened on $V_i$ with value $\nu$?'' Answering this question requires a forward model of the system that can simulate the downstream effects of hypothetical interventions.
+
+Crucially, the quality of the policy is bounded above by the quality of its forward model. An agent with a perfect forward model can compute expected information gain exactly and pick the optimal intervention. An agent with a uniform forward-model prior must rely entirely on observed data, episode by episode, to discover which interventions reveal informative causal structure. For any fixed intervention budget, there is a direct tradeoff: stronger prior forward knowledge permits fewer experiments.
+
+ACE's student SCM is an explicit forward model of the system, parameterized by per-node MLPs. But it begins training with random weights, which means it embodies only the weakest possible prior: that the mechanisms are whatever an MLP can represent. This is much weaker than what a human experimentalist brings to the same problem. A physicist intervening on a coupled oscillator chain already knows that clamping the middle oscillator decouples the endpoints. A molecular biologist designing a gene-knockout campaign already knows that transcription factors with many targets are high-value intervention points. An economist studying inflation dynamics already knows that monetary tightening episodes expose nonlinearities absent during stable regimes. These priors are not learned from experiment; they are brought to experiment.
+
+\subsection{Language Models Encode Causal Priors Through the Structure of Scientific Text}
+
+A language model pretrained on a corpus that includes scientific articles, textbooks, experimental reports, and technical derivations encodes, in its weights, a soft distribution over how variables in real systems relate causally. This encoding is not incidental but structural: scientific text is in the business of articulating causal claims. A textbook paragraph describing a chain of coupled oscillators contains sentences of the form ``an intervention on the middle oscillator decouples the endpoints,'' ``the coupling parameter $\kappa$ mediates synchronization,'' and ``clamping $X_2$ breaks the spurious correlation between $X_1$ and $X_3$.'' Each such sentence is an interventional claim (Rung 2), and each increases the language model's log-probability of generating similar interventional proposals when prompted with similar context.
+
+\citet{kiciman2023causal} demonstrate this empirically. They evaluate GPT-4 on pairwise causal direction queries across multiple benchmarks and find substantially above-chance performance, with the model correctly identifying the causal direction from contextual cues that are linguistic in origin (e.g., descriptions of temporal order, physical mechanism, domain-typical relationships). The LM has not learned causality through experimentation; it has absorbed the linguistic regularities under which causal statements are made in scientific text, and those regularities track real causal structure because they are produced by writers who understand that structure.
+
+\citet{hao2023reasoning} extend this observation into a framework. They frame language model reasoning as planning in a world model, where the LM serves simultaneously as the reasoner (the system generating action proposals) and the world model (the system predicting the outcomes of those actions). This dual role is exactly what ACE requires at each step: a policy that both proposes candidate interventions and has some implicit model of how those interventions will propagate through the system. The LM unifies these two functions in a single pretrained artifact.
+
+\citet{xie2022explanation} formalize the connection to Bayesian inference. They show that in-context learning corresponds to implicit Bayesian posterior update under the pretraining prior: given a prompt describing the current epistemic state (graph structure, per-node losses, recent interventions), the LM's next-token distribution approximates the Bayesian predictive distribution over continuations, conditioned on both the prompt and the pretrained prior. ACE exploits this machinery: the prompt at step $t$ encodes everything the agent has learned about the specific system, and the LM's generation is an approximate posterior predictive distribution over sensible interventions given that state.
+
+\subsection{Why Not a Fixed-Architecture MLP or Hand-Coded Heuristic?}
+
+Two obvious alternatives exist, and each forgoes the forward-model prior.
+
+An MLP policy trained from scratch on a single SCM inherits no causal prior. It must learn from experience that, for example, collider parents are high-value intervention targets. In our 5-node experiments, this is observable: random policies take on the order of 100 episodes to reach the baseline plateau of 2.10, while ACE's LM-based policy reaches a median of 0.61 in fewer episodes. The gap is not because the LM is learning faster; it is because the LM starts from a prior that already weakly favors strategic interventions, and DPO refines that prior rather than constructing it from nothing. An MLP at the same parameter count would have to both construct the prior and fit the system, within a fixed intervention budget.
+
+A hand-coded heuristic such as greedy expected information gain (Bayesian OED) does bring a prior, but it is the wrong kind. Greedy EIG is a one-step-lookahead acquisition function; it cannot reason about multi-step strategies like ``first resolve the identification of $X_2$ to unlock information about the $X_3$ collider.'' In our 5-node results, Bayesian OED plateaus at $2.04 \pm 0.12$, decisively below ACE at median $0.61$. The greedy prior is correct but shallow.
+
+A pretrained LM brings a qualitatively different kind of prior: one that is deep enough to encode multi-step experimental intuitions (because those intuitions appear in the training corpus as whole-paragraph descriptions of experimental strategy), but one that must be calibrated to the specific system. DPO performs that calibration. The LM without DPO is a broad but uncalibrated generator; DPO without a pretrained prior would be an empty calibrator. Together they form a policy that has both breadth and specificity.
+
+\subsection{Empirical Signatures of the Forward-Model Prior in ACE}
+
+Three empirical observations in the main paper are direct consequences of the forward-model framing.
+
+\emph{Transfer across domains.} The same LM weights produce sensible candidates on 5-node synthetic SCMs, 30-node hierarchical SCMs, coupled Duffing oscillators, and economic time series. No architectural change is needed across these domains. A fixed-architecture MLP would require re-training per domain; a hand-coded heuristic would require per-domain re-tuning. The LM's transfer is a signature of a domain-agnostic world-model prior being specialized by prompt context, in line with \citet{xie2022explanation}'s in-context-learning-as-Bayesian-inference account.
+
+\emph{Emergent collider concentration without explicit instruction.} ACE's $99.8\%$ concentration on collider parents is not something the policy was told to do. It emerges from preference optimization. The emergence is consistent with the LM having a prior that already weakly favors such concentrated interventions in collider contexts (because scientific text describing collider identification contains such prescriptions), with DPO sharpening that weak prior into a strong preference through observation of reward signal.
+
+\emph{Baseline convergence on 30-node.} Random, Round-Robin, and Max-Variance all converge to the same plateau at $\sim\!5.86$ on 30 nodes. This indicates that at this scale, no static heuristic can resolve the mechanism estimation problem within budget. What distinguishes ACE is not parameter count or compute but prior knowledge: ACE brings the LM's distribution over plausible interventions into a regime where purely data-driven methods stall.
+
+\subsection{What the Forward-Model Framing Does Not Claim}
+
+To be precise: we do not claim the LM is a correct or complete causal reasoner. \citet{boxinggym2025,autobench2025} show that LLMs struggle with long-horizon sequential experimental decisions in zero-shot settings, and \citet{llm_science_survey2025} survey the limitations of LLM causal discovery. Our claim is narrower. We claim that (i) a pretrained LM encodes a non-trivial forward-model prior, (ii) this prior is a better starting point than a uniform prior or a one-step-lookahead heuristic, and (iii) DPO provides the calibration machinery to specialize this prior to any specific system. ACE is best understood as a method for combining broad pretrained causal knowledge with narrow, calibrated preference learning, rather than as a claim that LMs alone can solve causal experimental design.
+
+% =======================================================================
+\section{Notation and Problem Formulation (Extended)}
+\label{app:notation}
+% =======================================================================
+
+We adopt Pearl's causal framework~\citep{pearl2009causality,pearl1995causal}. A Structural Causal Model (SCM) $\mathcal{M} = \langle \mathcal{U}, \mathcal{V}, \mathcal{F}, P(\mathcal{U}) \rangle$ consists of exogenous variables $\mathcal{U} = \{U_1, \ldots, U_m\}$, endogenous variables $\mathcal{V} = \{V_1, \ldots, V_n\}$, structural equations $\mathcal{F} = \{f_1, \ldots, f_n\}$ where $V_i = f_i(\text{Pa}_i, U_i)$, and a distribution $P(\mathcal{U})$.
+
+The causal relationships induce a directed acyclic graph (DAG) $\mathcal{G} = (\mathcal{V}, \mathcal{E})$ with $(V_j, V_i) \in \mathcal{E}$ iff $V_j \in \text{Pa}_i$. The observational distribution factorizes as
+\begin{equation}
+P(V_1, \ldots, V_n) = \prod_{i=1}^n P(V_i \mid \text{Pa}_i).
+\end{equation}
+An intervention $\text{do}(V_i = \nu)$ replaces $f_i$ with the constant $\nu$ and removes all edges into $V_i$ in the mutilated graph $\mathcal{G}_{\overline{V_i}}$ \citep{pearl2009causality}. This is a Rung-2 operation in Pearl's causal hierarchy: it requires active manipulation of the system rather than mere observation, and yields samples from the post-intervention distribution $P(V_j \mid \text{do}(V_i = \nu))$ for all $j \ne i$.
+
+The impossibility of mechanism identification from observational data alone follows from Reichenbach's common-cause principle \citep{reichenbach1956}: for any bivariate association $A \perp\!\!\!\!\not\perp B$, there exist at least three causal structures ($A \to B$, $B \to A$, $A \leftarrow C \rightarrow B$) that are Markov equivalent \citep{spirtes2000causation,peters2017elements}. Distinguishing structural equations $f_i$ requires interventional data \citep{peters2017elements}.
+
+\textbf{ACE's task.} Given known $\mathcal{G}$, ACE learns the structural equations $\{f_i\}$ by sequentially selecting interventions $c_t = \text{do}(V_{i_t} = \nu_t)$ to minimize the total mechanism estimation loss. The policy $\pi_\phi(c_t \mid s_t)$ adapts based on observed losses $\{L_i\} = \{L_1, \ldots, L_n\}$ where $L_i$ measures current discrepancy between the student SCM mechanism $\hat{f}_i$ and the true $f_i$.
+
+% =======================================================================
+\section{Implementation Details}
+\label{app:impl}
+% =======================================================================
+
+\subsection{Ground Truth SCMs}
+\label{app:scms}
+
+\textbf{5-node benchmark.} The benchmark used throughout the main paper has structural equations
+\begin{align*}
+X_1 &\sim \mathcal{N}(0, 1) & \text{(exogenous root)} \\
+X_4 &\sim \mathcal{N}(2, 1) & \text{(exogenous root)} \\
+X_2 &= 2 X_1 + 1 + \varepsilon_2 & \text{(linear)} \\
+X_3 &= 0.5 X_1 - X_2 + \sin(X_2) + \varepsilon_3 & \text{(nonlinear collider)} \\
+X_5 &= 0.2 X_4^2 + \varepsilon_5 & \text{(quadratic)}
+\end{align*}
+with $\varepsilon_i \sim \mathcal{N}(0, 0.01)$. The graph has two roots ($X_1, X_4$), two intermediate nodes ($X_2, X_5$), and one collider ($X_3$ with parents $X_1, X_2$). The collider tests the policy's ability to identify the nonlinear interaction term $\sin(X_2)$, which requires observing $X_3$ under targeted interventions on both $X_1$ and $X_2$. The disconnected chain $X_4 \to X_5$ with a quadratic mechanism tests mechanism estimation for polynomial functions.
+
+\textbf{30-node hierarchical SCM.} Constructed at runtime with seed-controlled coefficients in $[0.3, 0.7]$. Five-layer structure (see Figure~\ref{fig:30node-scm}):
+\begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
+\item Layer 0: 5 root nodes, $X_i \sim \mathcal{N}(0,1)$.
+\item Layer 1 (X6--X10): 1--2 root parents each, linear combination with noise std $0.15$.
+\item Layer 2 (X11--X20): Mix of single-parent and two-parent (collider) nodes; every third node is a collider.
+\item Layer 3 (X21--X25): Complex colliders with 2--3 parents from Layer 2; sine nonlinearity on every fifth node.
+\item Layer 4 (X26--X30): Single-parent leaf nodes.
+\end{itemize}
+The seed controls the random graph wiring within these constraints, ensuring reproducibility.
+
+\textbf{Duffing oscillators.} Three coupled Duffing oscillators with true coupling $X_1 \leftrightarrow X_2 \leftrightarrow X_3$. The synchronization-induced correlation between $X_1$ and $X_3$ is a spurious association (Rung~1) with no direct causal edge; interventions on $X_2$ are necessary to break this correlation and estimate the direct couplings.
+
+\subsection{Learner Architecture}
+\label{app:learner}
+
+The student SCM uses a \texttt{ModuleDict} of per-node mechanisms:
+\begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
+\item \textbf{Root nodes}: Learnable parameters $(\hat{\mu}, \hat{\sigma})$; loss is KL divergence between $\mathcal{N}(\hat{\mu}, \hat{\sigma}^2)$ and empirical samples.
+\item \textbf{Non-root nodes}: 2-layer MLP with hidden dim 64 and ReLU activations, taking the parent vector $\text{Pa}_i$ as input and outputting a scalar prediction of $V_i$. Loss is MSE against observed $V_i$ under the current intervention.
+\end{itemize}
+Optimization: Adam~\citep{kingma2015adam}, learning rate $2 \times 10^{-3}$, batch size 100. Per-step training runs 100 epochs on the latest interventional batch; observational training every 3 steps runs 100 epochs on 200 fresh observational samples to maintain root-distribution estimates.
+
+\subsection{Policy Architecture and Prompt Design}
+\label{app:policy}
+
+The policy $\pi_\phi$ is Qwen2.5-1.5B \citep{qwen2_5}, accessed via the HuggingFace Transformers API. Decoding for candidate proposals uses temperature $0.8$, top-$p$ $0.9$, repetition penalty $1.3$, and at most 64 new tokens. The prompt is \emph{problem-first}: it leads with the failing mechanisms (not the graph), states explicitly which parents to intervene on, warns against over-sampled nodes, and ends at a decision cue so the model completes with a node choice rather than defaulting to the first node. A representative instance (5-node SCM):
+\begin{quote}\small
+\texttt{PROBLEM: Node losses (high=bad): X3=1.45, X4=0.98, X1=0.92.}\\
+\texttt{To fix X3, intervene on its parents: X1, X2.}\\
+\texttt{Recent interventions: [X1:2/20, X2:14/20, ...]. WARNING: X2 is}\\
+\texttt{over-sampled (14/20). AVOID X2.}\\
+\texttt{Graph: [X1->X2, X1->X3, X2->X3, X4->X5].}\\
+\texttt{Valid targets: X1, X2, X3, X4, X5. Value range: [-5.0, 5.0].}\\
+\texttt{Examples of good reasoning: ...}\\
+\texttt{Based on the current losses, which node should we intervene on}\\
+\texttt{to learn the failing mechanism?}\\
+\texttt{Reasoning: The highest loss node is}
+\end{quote}
+The five prompt blocks are: (i) a \emph{loss ranking} of the top-3 failing non-root nodes with an explicit parent-intervention hint; (ii) a \emph{history} summary with an over-sampling warning when any node exceeds $30\%$ of recent interventions; (iii) the \emph{graph} edge list; (iv) the \emph{valid targets} and value range; and (v) \emph{few-shot} reasoning exemplars followed by the decision cue. We generate $K=4$ candidates per step by re-sampling, decaying to $K=3$ after warm-up.
+
+\paragraph{Full vs.\ compact encoding.} The default (\texttt{--prompt\_strategy full}) lists every node and every edge, so prompt length grows as $O(N\!+\!E\!+\!H)$ in nodes, edges, and history; this is the binding cost at scale (Section~\ref{sec:limitations}). The compact encoding (\texttt{--prompt\_strategy compact}, with \texttt{--prompt\_top\_m}) instead surfaces only the top-$m$ highest-loss non-root nodes and their parents, restricts the graph to edges incident to that salient set, and limits the candidate pool to those parents. This holds prompt length at $\sim\!O(m)$ independent of $N$ (empirically $\sim\!41\%$ shorter at 50 nodes for $m{=}8$) while preserving the same five-block structure; it is validated for best-MSE parity at $N{=}30$ before being used at $N{=}50$ and is mandatory for the $100+$ regime.
+
+\paragraph{Node anonymization.} To isolate the LM's pretrained semantic prior from its structural reasoning, node names $X_1\dots X_N$ can be replaced by abstract hex tokens \texttt{n\_xxxx} (deterministic in the seed). Under anonymization the few-shot exemplars switch from the hard-coded $X_1/X_2/X_3$ form to generic placeholders drawn from the current node set (so the model is never taught to emit invalid names), and a stable position index preserves the per-mechanism nonlinearity rule despite the renaming.
+
+\paragraph{Treatment of the different modalities.} A central design choice is that \emph{every} domain is mapped onto the \emph{same} text interface above; only the node vocabulary and the physical meaning of an intervention change, which is precisely why ACE needs no architectural modification across domains.
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{Synthetic SCMs (5-node; hierarchical 30/50-node).} Nodes $X_1\dots X_N$; interventions $\mathrm{do}(X_i{=}\nu)$ over $[-5,5]$. The hierarchical family adds layered colliders; the anonymized variant strips semantics.
+\item \textbf{Physics --- coupled Duffing oscillators.} Nodes are the oscillator displacements in a chain $X_1\!\leftrightarrow\!X_2\!\leftrightarrow\!X_3$; an intervention is a \emph{clamp} $\mathrm{do}(X_\text{mid}{=}0)$ that physically pins the intermediate mass and breaks the synchronization-induced spurious correlation. The mechanisms are ODE-derived but the prompt sees the same edge list and per-node losses.
+\item \textbf{Economics --- US Phillips curve (FRED).} Nodes are real macroeconomic series (\texttt{UNRATE}, \texttt{FEDFUNDS}, \texttt{MICH}, \texttt{CPILFESL}); ``intervention'' is active selection of a historical data subset rather than a physical $\mathrm{do}$ (stated as such in the main text). Here the semantically meaningful names let the LM's pretrained economic prior engage most strongly --- the opposite end of the spectrum from the anonymized SCM control.
+\end{itemize}
+The anonymized-vs-named contrast across these modalities is what the LM-prior-vs-DPO analysis (Appendix~\ref{app:scaling}) exploits: performance is preserved even when names carry no meaning, indicating the structural-plus-loss reasoning, not name semantics alone, drives intervention choice.
+
+\subsection{Reward Components in Full}
+\label{app:reward}
+
+The reward in Equation~\eqref{eq:reward} has three components, given in full in the main text (Eqs.~\ref{eq:node-importance}--\ref{eq:diversity}, Section~\ref{sec:dpo}); this subsection adds implementation detail and corrects the previous submission's appendix, which stated $\alpha=0.1$, \texttt{cov\_bonus}$=60.0$, and $\gamma=0.05$. Re-deriving these constants directly from the code path actually exercised by \texttt{jobs/curc\_ace\_seed.sh} (the job that produced every ACE number in Table~\ref{tab:main-results}, which passes no reward-weight flags and therefore relies entirely on \texttt{ace\_experiments.py}'s argparse defaults) shows no separate $\alpha$ multiplies the node-importance term: the term is $w = \texttt{cov\_bonus} \cdot \text{node\_weight} \cdot \text{under\_sample}$ with \texttt{cov\_bonus}$=60.0$ acting as the term's entire scale constant, and the diversity weight actually used is $\gamma=\texttt{diversity\_reward\_weight}=0.3$, not $0.05$. Eqs.~\ref{eq:node-importance}--\ref{eq:diversity} in the main text reflect the corrected values and are the ones used to produce every number in this paper.
+
+\textbf{Information gain.} $\Delta\mathcal{L}(c) = L_\text{before} - L_\text{after}$ where $L = \sum_i L_i$ is the validation loss summed across nodes, estimated by lookahead on a cloned learner.
+
+\textbf{Node importance.} Eq.~\ref{eq:node-importance} uses \texttt{node\_weight}$= \_direct\_child\_impact\_weight(\cdot)/(\sum_k L_k + \epsilon)$, i.e.\ the loss-weighted impact on $V_i$'s \emph{children} (doubled for children that are themselves colliders), not $V_i$'s own loss $L_i$ as an earlier draft of this appendix stated; this rewards intervening on parents of poorly-understood, structurally important children. \texttt{under\_sample}$=(1+n_i(H))^{-1/2}$ where $n_i(H)$ counts interventions on $V_i$ within the current episode, preventing over-concentration on a single node.
+
+\textbf{Diversity.} $D(V_i, H)$ (Eq.~\ref{eq:diversity}) combines an entropy bonus over the empirical target distribution in the trailing history window $H$ ($|H|\le 100$), an under-sampling bonus for nodes below their uniform-allocation share of $H$, and a concentration penalty once any node exceeds an adaptive threshold $\tau(V_i)$ of $H$ (relaxed for active collider parents so the penalty does not fight the strategic concentration in Section~\ref{app:strategic}). It is realized in code as \texttt{compute\_unified\_diversity\_score} and is gated to $0$ until at least 20 interventions have occurred (avoiding noisy entropy estimates early in an episode).
+
+These weights keep $\Delta\mathcal{L}$ typically the largest single term early in training, when losses (and hence achievable loss reductions) are largest, while $\gamma D$ provides the exploration pressure the component ablation (Table~\ref{tab:ablations}) shows is necessary: removing it ($\gamma=0$) is the single most damaging ablation we test.
+
+\subsection{Bayesian OED Baseline Implementation}
+\label{app:boed-impl}
+
+Our Bayesian OED baseline approximates the expected information gain over the same parametric mechanism class as ACE's student. At each step:
+\begin{enumerate}[leftmargin=1.5em]
+\item For each candidate $(V_i, \nu)$ with $\nu$ uniformly sampled from $[-5, 5]$:
+  \begin{enumerate}
+    \item Sample $M=10$ posterior parameter draws $\theta^{(m)} \sim P(\theta \mid \mathcal{D}_\text{seen})$ by training $M$ student copies from different random initializations.
+    \item For each draw, simulate outcome $y^{(m)} \sim P(\cdot \mid \theta^{(m)}, \text{do}(V_i = \nu))$.
+    \item Estimate $\widehat{\Delta\mathcal{L}} = \frac{1}{M}\sum_m [L(\theta^{(m)} \mid \mathcal{D}_\text{seen}) - L(\theta^{(m)} \mid \mathcal{D}_\text{seen} \cup \{(V_i, \nu, y^{(m)})\})]$.
+  \end{enumerate}
+\item Execute the candidate with highest $\widehat{\Delta\mathcal{L}}$.
+\end{enumerate}
+We use $|\mathcal{V}| \times 10$ candidate values per step ($\nu$ discretized on a 10-point grid over $[-5,5]$ via \texttt{np.linspace}), each scored with $M=20$ posterior draws, i.e.\ $|\mathcal{V}|\times10\times20 = 1{,}000$ oracle-scored candidates for $|\mathcal{V}|=5$ (correcting the previous submission's ``$|\mathcal{V}|\times20$ candidates,'' which described only the value grid times a mis-stated per-value draw count and did not carry through to the query-cost accounting in Appendix~\ref{app:budget-extended}). This faithfully adapts the ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions} acquisition-function framework to the mechanism estimation setting where graph structure is known. Each Bayesian OED \emph{decision} (the $1{,}000$-candidate evaluation plus one executed intervention) takes $\sim$4--6 minutes on a CPU, limiting us to N=3 seeds; Appendix~\ref{app:budget-extended} shows this cost is exactly the source of the baseline's large environment-query multiplier.
+
+\subsection{Budget Accounting: Full Multiplier Derivation}
+\label{app:budget-extended}
+
+Section~\ref{sec:budget} reports, for each method in Table~\ref{tab:main-results}, the ratio of total environment queries (every call to the ground-truth SCM's \texttt{generate()}) to executed-only queries. This subsection gives the exact derivation for each method, directly from the configuration used to produce that method's row in Table~\ref{tab:main-results}, and lists the concrete next experiments the resulting instrumentation enables.
+
+\textbf{Random, Round-Robin, PPO (multiplier $1\times$).} \texttt{RandomPolicy.select\_intervention} and \texttt{RoundRobinPolicy.select\_intervention} (\texttt{baselines.py}) choose a target and value directly, with no call to the oracle. \texttt{PPOPolicy.select\_intervention} samples an action from its own actor-critic network state encoding, likewise without querying the oracle. All three issue exactly one oracle query per step: the executed intervention, $n\_samples=50$ (\texttt{run\_baseline}, \texttt{baselines.py} line~953). Multiplier: $1\times$ in both calls and samples.
+
+\textbf{ACE (multiplier $4$--$5\times$).} \texttt{ace\_experiments.py}'s episode loop generates $K$ candidates per step (\texttt{num\_candidates}: $K{=}4$ for episode $<20$, $K{=}3$ thereafter) and, under the default (non-student) lookahead mode, calls \texttt{executor.run\_experiment(plan, tag="lookahead")} once per candidate before executing the winner with \texttt{tag="executed"}; both executed and lookahead queries use $n\_samples=100$. Per step: $1$ executed $+ K$ lookahead $= (1+K)$ calls and samples, i.e.\ $5\times$ for the first 20 episodes and $4\times$ thereafter, an episode-weighted average of $\approx\!4.1\times$ over a typical 171-episode run. The \texttt{--lookahead\_on\_student} flag replaces the $K$ oracle calls with $K$ calls to \texttt{generate\_student\_lookahead\_batch}, which queries the learner's own \texttt{forward()} instead of the oracle, giving an exact $1\times$ multiplier; this configuration has not yet been run at production scale (Table~\ref{tab:main-results} reports the $4$--$5\times$, environment-lookahead configuration only).
+
+\textbf{Max-Variance (multiplier $65\times$).} \texttt{MaxVariancePolicy.\_compute\_variance} (\texttt{baselines.py}) calls \texttt{oracle.generate(n\_samples=50, \ldots)} once per candidate to build the MC-Dropout variance estimate used to rank it, with \texttt{self.n\_candidates=64} (unchanged default; \texttt{jobs/curc\_baselines\_seed.sh}, the script that produced Table~\ref{tab:main-results}'s Max-Variance row, passes no override). Per step: $64$ candidate-probe queries $+\ 1$ executed query, both at $n\_samples=50$, so calls and samples multiply identically: $65\times$.
+
+\textbf{Bayesian OED (multiplier $\sim\!500\times$ samples, $1{,}001\times$ calls).} The Bayesian-OED numbers in Table~\ref{tab:main-results} come from \texttt{BayesianOEDBaseline} in \texttt{scripts/runners/run\_reviewer\_experiments.py} (confirmed by matching its \texttt{bayesian\_oed\_summary.csv} output, seed-for-seed, against Appendix~\ref{app:5node-detail}'s per-seed table). \texttt{select\_intervention} evaluates $|\mathcal V|\times10=50$ (node, value) candidates via \texttt{\_estimate\_eig}, each with $n\_mc\_samples{=}20$ posterior draws, each draw issuing one \texttt{scm.generate(50, \ldots)} call: $50\times20=1{,}000$ probe calls, versus $1$ executed call at $n\_samples=100$ (line~171). Calls: $1{,}001\times$. Samples: $(1{,}000\times50 + 100)/100 \approx 501\times$. Unlike the other methods audited here, this baseline makes one intervention \emph{decision} per ``episode'' rather than per inner step (its 171-episode run is 171 decisions, not $171\times25$), so the $\sim\!500\times$ figure is a per-decision, not a per-inner-step, multiplier; we report it this way in Table~\ref{tab:main-results} because ``decision'' is the unit at which Bayesian OED and the other methods are actually compared (one Table~\ref{tab:main-results} data point per 171-unit run, regardless of what an internal unit contains).
+
+\textbf{Consequence for the deployment/training distinction.} Random, Round-Robin, and PPO's $1\times$ multiplier is not evidence that they are more sample-efficient decision rules; it simply reflects that they do not consult the environment before committing. ACE's, Max-Variance's, and Bayesian OED's larger multipliers all come from the same design choice --- scoring several candidates against ground truth before executing one --- applied with different breadth ($K{=}4$ vs.\ $64$ vs.\ $1{,}000$).
+
+\textbf{Total-query-matched rerun: complete at both 5 and 30 nodes.} \texttt{ace\_experiments.py --query\_budget} and \texttt{baselines.py --query\_budget} (both released, unit-tested in \texttt{tests/test\_query\_budget.py}) stop training once cumulative environment samples reach a shared budget rather than a fixed episode count. \texttt{scripts/analysis/aggregate\_query\_budget.py} computes a suggested shared budget from any completed \texttt{query\_budget.json} set, and \texttt{scripts/analysis/aggregate\_budget\_fairness.py} (unit-tested in \texttt{tests/test\_aggregate\_budget\_fairness.py}) aggregates the resulting per-seed \texttt{node\_losses.csv}/\texttt{summary.csv} files into the decision-gate comparison reported in Section~\ref{sec:budget}. Job scripts: \texttt{jobs/curc\_submit\_30node\_budget\_fairness.sh} (ACE, env vs.\ student lookahead) and \texttt{jobs/curc\_submit\_30node\_budget\_fairness\_baselines.sh} (all four baselines except PPO, which is excluded from this rerun as it does not consult the oracle before executing and is therefore already query-matched by construction); we ran these to completion (5 seeds each) and report the result in Section~\ref{sec:budget}. The 5-node analogues, \texttt{jobs/curc\_submit\_5node\_budget\_fairness.sh} and \texttt{jobs/curc\_submit\_5node\_budget\_fairness\_baselines.sh}, have likewise been run to completion (5 seeds per cell; ACE under both lookahead modes, and Random, Round-Robin, Max-Variance and PPO at the matched total budget) and are reported alongside the 30-node result in Section~\ref{sec:budget}. The 5-node ACE runs required routing to a higher-memory GPU partition after an out-of-memory failure at the original allocation, and two student-lookahead seeds required a checkpoint-resume after exceeding the initial wall-time allocation; neither changed the experiment design.
+
+\textbf{Other queued next experiments.} Three further concrete, code-ready comparisons follow directly from this audit and are not yet run:
+\begin{enumerate}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item \emph{Bayesian OED at 30 nodes --- now run and reported.} Omitted from Table~\ref{tab:large-scale} in the previous submission with no comparison offered, which one reviewer identified as inconsistent with our own claim that Bayesian OED does not scale, absent a demonstration. \texttt{scripts/runners/run\_30node\_baseline\_seed.py} implements a faster Monte Carlo variant (\texttt{BayesianOEDFast}, $n\_candidates{=}10$, $n\_mc\_samples{=}3$, a $31\times$ call multiplier at this reduced breadth) sufficient to run at 30 nodes; job script \texttt{jobs/curc\_submit\_30node\_bayesian\_oed.sh}. This has now been run to completion at 5 seeds $\times$ 150 episodes, matching the protocol of the other Table~\ref{tab:large-scale} baseline rows exactly, and is reported there: best total MSE $5.78\pm0.05$, final $5.90\pm0.07$, statistically indistinguishable from the passive heuristics. (This is a separate, executed-only-accounting comparison from the query-matched Bayesian-OED row already reported in Section~\ref{sec:budget}'s 30-node rerun.)
+\item \emph{Calibration-rule comparison (Section~\ref{sec:dpo}).} \texttt{ace\_experiments.py --policy\_update \{dpo, sft\_best, ranking\}} on the 5-node benchmark, 5 seeds each; job script \texttt{jobs/curc\_submit\_dpo\_alternatives.sh}.
+\item \emph{Node-importance ablation (Table~\ref{tab:ablations}, final row).} \texttt{ace\_experiments.py --cov\_bonus 0.0} isolates $w$ from $\Delta\mathcal L$ and $\gamma D$; job script \texttt{jobs/curc\_submit\_node\_importance\_ablation.sh} (3 seeds, matching the other component-ablation rows).
+\end{enumerate}
+All job scripts write results under \texttt{/scratch}, not \texttt{/projects}, on the university HPC cluster used for this work, to stay within the fixed project-storage quota shared across the group's other work.
+
+% =======================================================================
+\section{Theoretical Analysis (Extended)}
+\label{app:theory}
+% =======================================================================
+
+\subsection{Full Proof of Proposition~\ref{prop:scale-invariance}}
+\label{app:proof}
+
+Recall Assumption~\ref{ass:diminish}: within any step $t$, $r_t(a) \approx f(t) \cdot g_t(a)$ with $f(t) > 0$ monotonically non-increasing, and $g_t$ drifting slowly enough that its ranking over $\mathcal{A}$ is approximately constant within a local window of adjacent episodes. The proof below uses only the within-step decomposition at a single $t$ for Parts 1 and 3 (no assumption about $g_t$ across different $t$ is needed there); Part 2 is a statement about $f$ alone, which genuinely is globally non-stationary.
+
+\textbf{Part 1 (within-step preference validity).} For any $a_w, a_l$ scored at the same step $t$ with $g_t(a_w) > g_t(a_l)$:
+\[r_t(a_w) - r_t(a_l) = f(t)(g_t(a_w) - g_t(a_l)) > 0,\]
+since $f(t) > 0$. The preference label DPO trains on at step $t$ is therefore correct with respect to $g_t$ regardless of the current value of $f(t)$; nothing here requires $g_t = g_{t'}$ for $t \ne t'$.
+
+\textbf{Part 2 (value non-stationarity).} Under standard MDP value definitions,
+\[V_t(s) = \mathbb{E}_a[r_t(a) \mid s] = f(t) \cdot \mathbb{E}_a[g_t(a) \mid s].\]
+With $f$ decreasing, $V_t(s)$ is non-stationary. A value function approximator $\hat{V}(s)$ trained at episode $t$ misestimates $V$ at episode $t'$ by a factor that scales with $f(t')/f(t)$ (plus any drift in $g$). Empirically, $f(t')/f(t) \approx 1/500$ between early and late training, so the critic accumulates large value-estimation error even with frequent updates; this part of the argument is about $f$'s global behavior and does not rely on the local approximation.
+
+\textbf{Part 3 (DPO invariance).} The DPO loss at step $t$ is
+\[\mathcal{L}_\text{DPO}^{(t)} = -\mathbb{E}_{(y_w, y_l)} \log \sigma\!\left(\beta \left[\log\tfrac{\pi_\phi(y_w)}{\pi_\text{ref}(y_w)} - \log\tfrac{\pi_\phi(y_l)}{\pi_\text{ref}(y_l)}\right]\right).\]
+The argument depends only on policy log-ratio differences. Both $\pi_\phi$ and $\pi_\text{ref}$ are normalized distributions; their log-ratios depend on the within-step action quality $g_t(a)$ but not on the reward scale $f(t)$. Thus the gradient $\nabla_\phi \mathcal{L}_\text{DPO}^{(t)}$ is invariant to any multiplicative rescaling of step $t$'s rewards by a positive constant, for every $t$ independently --- which is exactly the property the local (rather than global) assumption is sufficient to deliver. \hfill$\square$
+
+\subsection{Convergence Rate Equivalence under Locally Stationary $g_t$}
+\label{app:convergence}
+
+Under Assumption~\ref{ass:diminish} and standard DPO convergence assumptions \citep{rafailov2023direct}, ACE inherits the regret bound of preference-based bandits over any local window in which $g_t$ is approximately constant: after $T$ pairwise comparisons within such a window,
+\[\mathbb{E}\!\left[\sum_{t=1}^T (g_t(a_\text{opt}) - g_t(a_t))\right] = \tilde{O}(\sqrt{T \log |\mathcal{A}|}),\]
+matching the minimax regret for preference-based learning. Value-based RL achieves the same bound only when the value approximator tracks the non-stationary scaling $f(t) \cdot g_t(a)$; in our regime (where $f(t)$ varies by $500\times$ over the training horizon), this fails unless the critic update rate exceeds the rate of change of $f$.
+
+\subsection{Connection to Expected Information Gain}
+\label{app:info-gain}
+
+The information gain term $\Delta\mathcal{L}(c)$ is a Monte Carlo estimate of the mutual information between the posterior over mechanism parameters $\theta$ and the data $\mathcal{D}_c$ generated by intervention $c$:
+\begin{align}
+I(\theta; \mathcal{D}_c \mid s) &= H(\theta \mid s) - H(\theta \mid \mathcal{D}_c, s) \\
+&\approx \mathcal{L}(\theta \mid s) - \mathcal{L}(\theta \mid s \cup \mathcal{D}_c),
+\end{align}
+where the approximation uses the local-quadratic (Laplace) relationship between negative log-likelihood loss $\mathcal{L}$ and posterior entropy $H$ \citep{rainforth2024modern}. With Gaussian noise mechanisms and a flat prior, this approximation is tight near the posterior mode. The node importance term $w$ acts as a non-uniform prior weighting, upweighting mechanisms with high remaining uncertainty, approximating posterior-entropy-reduction-weighted EIG. ACE thus pursues the same EIG objective as Bayesian methods through policy learning, trading exact inference for scalability.
+
+% =======================================================================
+\section{Extended Experimental Results}
+\label{app:experiments}
+% =======================================================================
+
+\subsection{5-Node Benchmark: Per-Seed Results}
+\label{app:5node-detail}
+
+Table~\ref{tab:5node-perseed} reports per-seed total losses for heuristic baselines and PPO (N=5 seeds: 141, 271, 314, 577, 618) and Bayesian OED (N=3 seeds: 42, 123, 456). ACE per-seed data comes from the original production runs (seeds 42, 123, 456, 789, 1011). All runs use 171 episodes.
+
+\begin{table}[h]
+\centering
+\caption{Per-seed total loss on the 5-node benchmark (171 episodes). Heuristic baseline and PPO columns use seeds 141, 271, 314, 577, 618. Bayesian OED uses seeds 42, 123, 456. ACE uses seeds 42, 123, 456, 789, 1011 from the original production runs; a rerun was initiated on a 46GB-class GPU but OOM'd due to 3GB policy checkpoints.}
+\label{tab:5node-perseed}
+\small
+\begin{tabular}{@{}l ccc cc@{}}
+\toprule
+Seed & Random & Round-Robin & Max-Var.\ & Bayesian OED & PPO \\
+\midrule
+141 & 2.090 & 2.186 & 2.280 & ---   & 2.062 \\
+271 & 2.240 & 2.023 & 2.050 & ---   & 1.994 \\
+314 & 2.227 & 2.238 & 2.104 & ---   & 2.133 \\
+577 & 2.091 & 1.978 & 2.184 & ---   & 2.134 \\
+618 & 2.210 & 2.088 & 1.917 & ---   & 2.062 \\
+42  & ---   & ---   & ---   & 1.995 & ---   \\
+123 & ---   & ---   & ---   & 2.181 & ---   \\
+456 & ---   & ---   & ---   & 1.957 & ---   \\
+\midrule
+Mean & 2.171 & 2.103 & 2.107 & 2.044 & 2.077 \\
+Std  & 0.075 & 0.107 & 0.131 & 0.120 & 0.057 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Bayesian OED mean of $2.044$ lies between Round-Robin ($2.103$) and Max-Variance ($2.107$), confirming it is the strongest passive/principled baseline. Its advantage over random baselines is modest ($\sim$6\%) compared to ACE's advantage ($\sim$70\%), which arises from multi-step learned strategy rather than single-step acquisition.
+
+\subsection{30-Node SCM: Per-Seed Results}
+\label{app:30node-detail}
+
+Table~\ref{tab:30node-perseed} reports all per-seed results for the 30-node benchmark, including the locally-run Round-Robin and Max-Variance CPU baselines.
+
+\begin{table}[h]
+\centering
+\caption{Per-seed results on the 30-node hierarchical SCM. All methods use the same per-node MLP student learner for a matched comparison. ACE reports best-loss across training (non-monotone loss makes best-loss more informative than final-episode loss). Baselines (N=5) ran 150 episodes on a CPU partition (average 1h 15min per job).}
+\label{tab:30node-perseed}
+\small
+\begin{tabular}{@{}l cccc@{}}
+\toprule
+Seed & ACE (best) & Random (final) & Round-Robin (final) & Max-Variance (final) \\
+\midrule
+42   & 2.785 & 5.865 & 5.852 & 5.841 \\
+123  & 1.798 & 5.841 & 5.802 & 5.787 \\
+456  & 1.274 & 5.856 & 5.939 & 5.918 \\
+789  & ---   & 5.773 & 5.774 & 5.803 \\
+1011 & ---   & 5.893 & 5.915 & 5.964 \\
+\midrule
+Mean $\pm$ Std & $1.95\pm0.77$ (N=3) & $5.85\pm0.04$ (N=5) & $5.86\pm0.07$ (N=5) & $5.86\pm0.08$ (N=5) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Seed 42 ACE exhibited training instability (loss oscillating $2.7$--$3.5$ throughout the 40 completed episodes); seeds 123 and 456 converged cleanly to $1.80$ and $1.27$. The stable-seed mean is $1.54$; we report the conservative N=3 mean of $1.95$ in the main text.
+
+\textbf{Baseline convergence plateau.} The three passive baselines (Random, Round-Robin, Max-Variance) converge to nearly identical total MSE near $5.86$ with standard deviations below $0.08$. This tight clustering reveals that \emph{at 30 nodes, differences among static sampling heuristics are negligible}: when interventional budget is fixed and spread across many variables, the specific non-adaptive ordering barely matters. Adaptive strategy learning (ACE) is the meaningful axis of improvement at scale. An earlier CPU proxy run using a weaker running-mean predictor gave larger baseline numbers (Random: $11.29\pm1.02$) and was not comparable to ACE because the learner itself differed; those numbers are superseded by the matched-learner results above.
+
+\subsection{LM Prior vs.\ DPO and Scaling}
+\label{app:scaling}
+
+We isolate the pretrained LM's contribution from the DPO updates by comparing ACE against \emph{ACE without DPO}: the identical LM proposer and lookahead-select mechanism with only the DPO weight updates disabled. This differs from the ``No DPO'' row of Table~\ref{tab:ablations}, which additionally replaces the LM with random proposals. Under anonymization, canonical node names $X_1\dots X_N$ are replaced by abstract hex tokens (\texttt{n\_xxxx}) drawn deterministically from the seed, removing any natural-language semantics the LM could exploit and leaving only graph structure and per-node losses to reason from.
+
+\begin{figure}[h]
+\centering
+\IfFileExists{figs/fig_followup.pdf}{%
+  \includegraphics[width=\linewidth]{figs/fig_followup.pdf}%
+}{%
+  \fbox{\parbox{0.9\linewidth}{\centering\vspace{1em}\emph{Figure pending: run \texttt{scripts/analysis/aggregate\_followup\_results.py} then \texttt{scripts/analysis/plot\_followup\_results.py} on the results host to generate \texttt{figs/fig\_followup.pdf}.}\vspace{1em}}}%
+}
+\caption{\textbf{LM prior vs.\ DPO under anonymization (30 nodes) and scaling reference (50 nodes).} (a)~Best-MSE learning curves on the anonymized 30-node SCM: ACE and ACE-without-DPO (LM proposer + lookahead, no weight updates) are statistically indistinguishable; the dashed line marks the mean episode at which best-MSE was first reached. (b)~\emph{Per-node} best MSE (total/$N$), which is scale-invariant: the 50-node cells are a larger, harder graph, not a worse method. ``ACE w/o DPO'' is an ablation of ACE, not naive zero-shot prompting.}
+\label{fig:followup}
+\end{figure}
+
+The two variants are tied on canonical 30-node SCMs (ACE $1.95\pm0.77$ vs.\ ACE-w/o-DPO $1.73\pm0.22$) and remain tied under anonymization (ACE $1.51\pm0.16$ vs.\ ACE-w/o-DPO $1.49\pm0.18$, $\approx\!0.052$ per node, N=5 seeds). At this scale the pretrained prior plus lookahead carries most of the load; DPO's marginal value is expected to grow where the prior is weaker.
+
+\textbf{Cross-$N$ scaling sweep.} Figure~\ref{fig:scaling} (main text) reports the matched sweep on the consistent hierarchical family at $N\in\{15,30,50\}$ with a fixed $\sim$40-episode plateau budget per cell. Per-node best MSE for ACE ($0.062\pm0.005$, $0.114\pm0.030$, $0.118\pm0.026$) and ACE-w/o-DPO ($0.051\pm0.002$, $0.067\pm0.015$, $0.136\pm0.007$) stay well below Random ($0.153\pm0.005$, $0.192\pm0.002$, $0.184\pm0.003$) at $N{=}15,30,50$ respectively (N=5 seeds). The sweep's $N{=}30$ ACE per-node point uses the reduced budget and is not directly comparable to the full-budget headline in Table~\ref{tab:large-scale}.
+
+\textbf{Lookahead breadth ($K$) ablation at $N{=}50$.} As the action space grows with $N$, fixed $K{=}4$ samples a shrinking fraction of candidate interventions. Table~\ref{tab:k-ablation} sweeps $K\in\{4,8,16\}$ at $N{=}50$ with compact prompt encoding held fixed. Best per-node MSE is flat across $K$ ($0.126\pm0.050$, $0.147\pm0.043$, $0.125\pm0.052$; N=3 seeds), while mean episodes are 31/40/31 (checkpoint-resumed runs; higher-$K$ cells need more wall-time windows). Prompt-token and VRAM instrumentation confirms cost scales with $K$; salience-targeted candidate generation is the more promising lever for $100+$ nodes than brute-force increases in $K$ alone.
+
+\IfFileExists{figs/tab_kablation.tex}{\input{figs/tab_kablation}}{%
+\begin{table}[h]
+\centering
+\caption{Lookahead breadth $K$ ablation (pending full aggregation).}
+\label{tab:k-ablation}
+\end{table}}
+
+The scaling pipeline of Section~\ref{sec:limitations} (compact salience-ranked prompt encoding, per-node metric, plateau-budgeted episodes with checkpoint--resume, and the $K$/capacity ablations at 50 nodes) targets exactly the large-$N$ regime; the $100+$ node configuration is specified as future work.
+
+\subsection{Component Ablation Detail}
+\label{app:ablation-detail}
+
+The component ablation (Table~\ref{tab:ablations}) was run as a 3-seed pilot (seeds 42, 123, 456) due to GPU compute constraints; the No-diversity ablation was run on N=5 seeds during an earlier reward-shaping investigation. Below we give qualitative failure-mode analysis for each configuration.
+
+\textbf{No DPO} replaces the LM policy with random proposal generation while keeping the lookahead and select-best mechanism. The result ($2.10\pm0.11$) matches Round-Robin, confirming that the ability to \emph{evaluate} candidates (via lookahead) provides no benefit without \emph{learned} proposal generation. Random candidates, even when curated by lookahead, do not consistently include strategically important ones (e.g., concentrating on collider parents).
+
+\textbf{No per-node convergence} forces termination at a fixed 100 episodes. The collider mechanism $X_3$ is typically not learned at episode 100; $L_{X_3}$ remains elevated and dominates total loss.
+
+\textbf{No dedicated root learner} disables the observational training loop for root nodes. Their losses ($L_{X_1}, L_{X_4}$) remain elevated because direct interventions on roots replace $X_i$ with a constant, providing no signal about the root's natural distribution $\mathcal{N}(\mu, \sigma^2)$.
+
+\textbf{No diversity} ($\gamma=0$) causes the policy to collapse onto a single high-information node. The total loss worsens beyond all baselines ($2.82$) because the un-targeted nodes are never learned, even if the targeted node is learned well.
+
+\textbf{No node importance} ($\beta_w=0$, Eq.~\ref{eq:node-importance}) isolates whether the child-impact weighting term contributes beyond information gain and diversity alone. \texttt{ace\_experiments.py --cov\_bonus 0.0} implements this configuration without any other code change (\texttt{cov\_bonus} is already the term's sole scale constant, Appendix~\ref{app:reward}), and \texttt{jobs/curc\_submit\_node\_importance\_ablation.sh} runs it against the \texttt{full} configuration at 3 seeds each, matching the other rows' seed count. We report the flag and job script here rather than a number in Table~\ref{tab:ablations} because the seeds have not yet completed; the row is queued, not omitted.
+
+\subsection{Duffing Oscillators: Full Results}
+\label{app:duffing}
+
+\begin{table}[h]
+\centering
+\caption{Coupled Duffing oscillator coupling-parameter estimation error (N=5 seeds, 100 episodes). Lower is better. The $X_1 \leftrightarrow X_3$ spurious correlation is an association-level artefact (Rung~1) without a direct causal edge; it is broken by clamping $X_2$ (Rung~2 intervention).}
+\label{tab:duffing-full}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Method & Coupling Error & Std & 95\% CI & Improvement vs.\ Random \\
+\midrule
+\textbf{ACE} & \textbf{0.042} & 0.036 & [0.006, 0.078] & $5.8\times$ \\
+Round-Robin  & 0.238 & 0.076 & [0.162, 0.314] & $1.0\times$ \\
+Random       & 0.245 & 0.121 & [0.124, 0.366] & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+ACE concentrates $62\%$ of interventions on $X_2$ (the intermediate oscillator) compared to $33\%$ under uniform allocation. Clamping $X_2$ decouples the synchronized chain, breaking the Rung-1 $X_1 \perp\!\!\!\!\not\perp X_3$ correlation and allowing accurate estimation of the direct $X_1 \leftrightarrow X_2$ and $X_2 \leftrightarrow X_3$ couplings. This is a concrete example of the Rung-2 advantage: only interventions, not observations, can resolve the ambiguity created by synchronization.
+
+\subsection{Phillips Curve: Full Results}
+\label{app:phillips}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance=1cm,
+    econ/.style={rectangle, draw, rounded corners, minimum width=1.5cm, minimum height=0.75cm, font=\scriptsize, thick, fill=gray!15},
+    target/.style={rectangle, draw, rounded corners, minimum width=1.6cm, minimum height=0.8cm, font=\scriptsize, thick, fill=blue!20},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    time/.style={font=\tiny, gray}
+]
+\node[econ] (UN) at (0,1.2) {UNRATE$_t$};
+\node[econ] (FF) at (0,0)   {FEDFUNDS$_t$};
+\node[econ] (MI) at (0,-1.2){MICH$_t$};
+\node[target] (CPI) at (3.5,0) {CPI$_{t+1}$};
+\draw[arrow] (UN) -- (CPI);
+\draw[arrow] (FF) -- (CPI);
+\draw[arrow] (MI) -- (CPI);
+\node[time] at (0,-2)   {time $t$};
+\node[time] at (3.5,-2) {time $t+1$};
+\draw[gray, dashed] (1.75,1.8) -- (1.75,-1.8);
+\node[font=\tiny, align=left] at (6.8,0.9) {Regimes:};
+\node[font=\tiny, align=left] at (7.2,0.4) {1970s stagflation};
+\node[font=\tiny, align=left] at (7.2,0.0) {Volcker disinflation};
+\node[font=\tiny, align=left] at (7.2,-0.4){Great Moderation};
+\node[font=\tiny, align=left] at (7.2,-0.8){2008 crisis};
+\end{tikzpicture}
+\caption{Phillips curve causal structure. Variables at time $t$ jointly determine CPI at $t+1$. ACE performs \emph{active data subset selection}: choosing which historical regimes to include in the training set, treating each regime as a ``virtual intervention'' on economic conditions. This is a Rung-2 analogue using archival data.}
+\label{fig:phillips-scm}
+\end{figure}
+
+Using Federal Reserve Economic Data \citep{fred2024} (FRED, 1960--2023), we model $\text{CPI}_{t+1} = f(\text{UNRATE}_t, \text{FEDFUNDS}_t, \text{MICH}_t)$. ACE performs \emph{active data subset selection}: choosing which historical periods to query for training data, treating each regime as a virtual intervention on macroeconomic conditions.
+
+\begin{table}[h]
+\centering
+\caption{Phillips curve out-of-sample CPI prediction MSE (N=5 seeds, 50 episodes). Regime selection percentages are policy-averaged fractions of training episodes spent in each historical regime.}
+\label{tab:phillips-results}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Selection strategy & Out-of-sample MSE & Std & Regime preferences \\
+\midrule
+\textbf{ACE}               & \textbf{0.31} & 0.08 & 1970s 38\%, Volcker 24\%, Great Recession 19\% \\
+Random regime              & 0.52          & 0.12 & Uniform across regimes \\
+Sequential (chronological) & 0.44          & 0.10 & By date order \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+ACE consistently prioritizes high-volatility regimes (1970s stagflation, Volcker disinflation, Great Recession) that expose nonlinear inflation dynamics absent from low-volatility eras, yielding a $40\%$ reduction in out-of-sample MSE versus random regime selection. This demonstrates that preference-based experimental design generalizes to retrospective data-selection settings beyond controlled interventions, though we note this application departs from strict Rung-2 causal intervention.
+
+\subsection{Lookahead vs.\ DPO Ablation}
+\label{app:lookahead}
+
+The No-DPO ablation (Section~\ref{app:ablation-detail}) isolates the contribution of learned proposal generation from the lookahead mechanism. Result: $2.10\pm0.11$, matching Round-Robin and confirming that lookahead alone provides no benefit. Concretely: if $K=4$ random candidates are generated, the probability that \emph{any} of them targets the collider parents ($X_1$ or $X_2$) with a well-chosen value is $\approx (2/5)^{4} \approx 10\%$, too low for the select-best procedure to reliably discover the collider strategy. The DPO-trained LM shifts the generation distribution so that strategic candidates appear in $>90\%$ of steps.
+
+\subsection{Strategic Behavior: Intervention Distribution}
+\label{app:strategic}
+
+The learned policy concentrates $99.8\%$ of interventions on $X_1$ and $X_2$ (the two parents of the collider $X_3$). This is consistent with the causal theoretic optimum: to identify the nonlinear mechanism $f_3(X_1, X_2) = 0.5 X_1 - X_2 + \sin(X_2)$, the policy must vary both $X_1$ and $X_2$ across their value ranges while fixing exogenous noise. Under-sampled nodes $X_4$ and $X_5$ (the disconnected quadratic chain) are addressed primarily through the diversity reward, which ensures $L_{X_5}$ eventually decreases despite low explicit attention. Cross-seed consistency is high: the standard deviation of per-node intervention fractions across the 5 ACE seeds is $<0.01$ for nodes $X_1$ and $X_2$, confirming that strategy discovery is a robust consequence of the training procedure rather than a seed-dependent artifact.
+
+% =======================================================================
+\section{Failure Modes and Limitations}
+\label{app:failures}
+% =======================================================================
+
+\subsection{Outlier Seed Analysis}
+\label{app:outlier}
+
+Seed 789 (5-node benchmark) produced $L_{X_5} \approx 1.73$ versus $0.02$--$0.22$ for other seeds. Two hypotheses: (i) initialization sensitivity for the quadratic mechanism $X_5 = 0.2 X_4^2$, where small initial MLP weights near zero may not escape a local minimum with flat gradient; (ii) the diversity reward in early episodes drove the policy away from $X_4$ before $L_{X_5}$ had been adequately reduced. We report the median ($0.61$) and note the outlier explicitly; the 5-node result is therefore conservative relative to the mean.
+
+Seed 42 (30-node benchmark) exhibited training instability with loss oscillating $2.7$--$3.5$ throughout 40 completed episodes. The 30-node system has a longer effective horizon (the policy must identify 13+ colliders) and the checkpoint-resume mechanism may have caused optimizer state discontinuities. Seeds 123 and 456 converged cleanly.
+
+\subsection{Graph Misspecification: Theoretical Failure Modes}
+\label{app:misspec-failures}
+
+Since ACE assumes a known causal graph, the practical cost of graph errors partitions cleanly by error type:
+
+\textbf{Extra edge} $V_i \to V_j$ (spurious). The student learns $f_j(\text{Pa}_j \cup \{V_i\})$ instead of $f_j(\text{Pa}_j)$. The extra input $V_i$ receives near-zero weight in the MLP if $V_i$ truly has no causal effect on $V_j$; recovery is possible with sufficient interventions on $V_i$.
+
+\textbf{Missing edge} $V_i \to V_j$ (absent). The student's mechanism $\hat{f}_j$ lacks the true parent $V_i$ as input. A lower bound on $L_j$ is set by the partial variance $\text{Var}(V_j - \hat{f}_j(\text{Pa}_j \setminus \{V_i\}))$. This is non-zero and non-recoverable; the student cannot decrease $L_j$ below this bound regardless of intervention strategy.
+
+\textbf{Reversed edge} $V_i \to V_j$ (direction error). The student treats $V_j$ as a parent of $V_i$, so $\hat{f}_i$ depends on $V_j$. Under interventions on $V_i$, the true $V_j$ varies (since $V_j$ depends on $V_i$), but the student's conditioning set treats it as a predictor of $V_i$. This creates a circular dependency in the learner's prediction that no intervention strategy can resolve; it is the most damaging error type. A full empirical quantification across all four misspecification types was initiated but did not complete within our compute budget (46GB-class GPU OOM from 3GB policy checkpoints). This remains our highest-priority follow-up experiment.
+
+\subsection{Computational Cost}
+\label{app:compute}
+
+Each ACE training step requires:
+\begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
+\item $K=4$ LM forward passes (candidate generation): $\sim$2--3 min on A100.
+\item $K=4$ cloned-learner training cycles (lookahead evaluation): $\sim$10--12 min.
+\item One DPO update on the LM: $\sim$3--5 min.
+\item Observational training (every 3 steps): $\sim$5 min amortized.
+\end{itemize}
+Total: $\sim$22 min per step on a single A100. A full run (171 episodes $\times$ 25 steps/episode with early stopping) takes $\sim$6--8 h per seed. Mitigation strategies for future work: smaller policy LMs (e.g., Qwen2.5-0.5B), learned value-of-lookahead to reduce $K$ adaptively, batch evaluation across candidates.
+
+A note on checkpoint memory: the 1.5B-parameter LM in FP32 with optimizer state requires $\sim$17 GB per checkpoint, which caused OOM on 46GB-class GPUs when combined with the KV cache and cloned learner. We implemented FP16 checkpointing (reducing to $\sim$3 GB) and eliminated optimizer state from checkpoints; these changes are in the repository.
+
+% =======================================================================
+\section{Reproducibility}
+\label{app:reproducibility}
+% =======================================================================
+
+\subsection{Code and Data}
+
+All code is released at an anonymized repository for review (\url{https://anonymous.4open.science/r/ACE}); the non-anonymized repository link will replace this in the camera-ready version. The repository includes:
+\begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
+\item Full ACE implementation (\texttt{ace\_experiments.py}) with FP16 checkpoint-resume logic.
+\item Baselines (\texttt{baselines.py}): Random, Round-Robin, Max-Variance, PPO, Bayesian OED.
+\item Experiments: 5-node and 30-node SCMs, Duffing oscillators, Phillips curve.
+\item CPU baseline runner for 30-node (\texttt{scripts/runners/run\_30node\_cpu\_baselines.py}).
+\item SLURM job scripts for HPC execution (\texttt{jobs/}).
+\end{itemize}
+
+\subsection{Random Seeds and Seed Assignment}
+
+\begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
+\item 5-node ACE: seeds 42, 123, 456, 789, 1011.
+\item 5-node baselines (heuristic + PPO): seeds 141, 271, 314, 577, 618.
+\item 5-node Bayesian OED: seeds 42, 123, 456 (higher per-seed compute cost).
+\item 30-node ACE: seeds 42, 123, 456 on an A100 80GB partition.
+\item 30-node baselines: seeds 42, 123, 456, 789, 1011 (local CPU runs).
+\item Duffing oscillators: seeds 42, 123, 456, 789, 1011 (N=5 all methods).
+\item Phillips Curve: seeds 42, 123, 456, 789, 1011 (N=5 all methods).
+\end{itemize}
+
+\subsection{Compute Resources}
+
+Main experiments ran on a university HPC cluster: an A100 80GB partition for ACE GPU runs and an L40 46GB partition for baselines, with an A10 24GB cloud GPU used for exploratory runs. Total: approximately 480 GPU-hours (ACE) and 120 CPU-hours (baselines). The Phillips Curve experiment required no GPU.
+
+\subsection{Hyperparameters Summary}
+\label{app:hyper-summary}
+
+\begin{table}[h]
+\centering
+\caption{Complete hyperparameter table for all reported experiments.}
+\label{tab:hyper-summary}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Component & Hyperparameter & Value \\
+\midrule
+Policy & Model & Qwen2.5-1.5B \\
+Policy & Sampling temperature & 0.8 (top-$p$ 0.9, rep.\ penalty 1.3) \\
+Policy & Candidates per step ($K$) & 4 (decays to 3 after warm-up) \\
+Policy & Prompt encoding & full (compact for $N\!\geq\!50$) \\
+Policy & Supervised pretrain steps & 100 \\
+Policy & Pretrain re-run every & 25 episodes \\
+Policy & Optimizer & Adam, lr $1 \times 10^{-5}$ \\
+\midrule
+Learner & Architecture & 2-layer MLP, 64 hidden, ReLU \\
+Learner & Optimizer & Adam, lr $2 \times 10^{-3}$ \\
+Learner & Per-step training epochs & 100 \\
+Learner & Observational training every & 3 steps \\
+Learner & Observational batch size & 200 \\
+\midrule
+Reward & $\beta_w$ (node importance scale, Eq.~\ref{eq:node-importance}) & 60.0 (\texttt{cov\_bonus}; no separate $\alpha$ factor) \\
+Reward & $\gamma$ (diversity weight, Eq.~\ref{eq:diversity}) & 0.3 (\texttt{diversity\_reward\_weight}) \\
+Reward & $\beta$ (DPO temperature) & 0.1 \\
+\midrule
+Training & Max episodes & 200 (early stopping at convergence) \\
+Training & Reference policy update every & 25 episodes \\
+Training & Per-node convergence patience & 10 episodes \\
+Training & Checkpoint interval & 1 step (rolling) + 10 steps (milestone) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =======================================================================
+\section{Extended Related Work}
+\label{app:related-extended}
+% =======================================================================
+
+\textbf{ABCI (Toth et al., 2022).} Active Bayesian Causal Inference \citep{toth2022active} maintains a posterior over causal graphs using continuous latent representations and Gaussian process mechanisms. The acquisition function selects experiments maximally informative about a downstream causal query. Compared to ACE: ABCI does not assume known structure; requires explicit posterior inference over graphs (combinatorial in $|V|$); targets causal-query inference rather than mechanism estimation. We adapt ABCI's acquisition-function philosophy as our Bayesian OED baseline by holding structure fixed and approximating the posterior over mechanism parameters.
+
+\textbf{CBED (Tigas et al., 2022).} \citep{tigas2022interventions} jointly selects intervention targets and values at scale via Bayesian causal discovery, with demonstrations on the DREAM gene regulatory network (up to 20 variables). CBED addresses structure discovery; ACE addresses mechanism estimation. The two are complementary: CBED's structure-inference output can serve as ACE's input.
+
+\textbf{Causal reasoning with LLMs (Kıcıman et al., 2023).} \citet{kiciman2023causal} conduct a systematic evaluation of GPT-4 on causal discovery benchmarks, finding substantial capability on pairwise causal direction tasks and commonsense causal queries. Crucially, the LM's causal reasoning is driven by semantic associations in pretraining data, not explicit causal structure learning. ACE exploits this: the LM's semantic prior biases proposal generation toward causally plausible interventions even before DPO training, which then refines the policy toward the specific system.
+
+\textbf{Reasoning as World-Model Planning (Hao et al., 2023).} RAP \citep{hao2023reasoning} frames language model reasoning as planning in a world model, where the LM serves simultaneously as the reasoner and the forward model. This framing is directly relevant to ACE: the LM policy in ACE implicitly models the causal system (world model) while generating candidate interventions (planner), and DPO updates refine this combined representation toward the goal of efficient mechanism estimation.
+
+\textbf{In-Context Learning as Bayesian Inference (Xie et al., 2022).} \citet{xie2022explanation} show that in-context learning corresponds to implicit Bayesian inference: the LM's predictions given a context are approximately equivalent to Bayesian predictions under a prior induced by the pretraining distribution. For ACE, this means the per-step prompt (containing per-node losses and recent interventions) implicitly updates the LM's posterior over the system, providing a form of Bayesian adaptation without explicit posterior computation.
+
+\textbf{Multi-fidelity Bayesian active causal discovery (Zhang et al., 2023).} \citet{zhang2023bayesian} extend Bayesian OED to multi-fidelity oracle settings using mutual-information acquisition. The multi-fidelity insight is orthogonal to DPO-based learning and could in principle be incorporated into ACE's lookahead step.
+
+\textbf{Sample-efficient Bayesian causal learning (Zhou et al., 2024).} \citet{zhou2024sample} address sample efficiency via polynomial-time DAG sampling. Their efficient structure learning is complementary to ACE's mechanism estimation: the two could be composed as a two-stage pipeline.
+
+\textbf{Goal-oriented sequential Bayesian experimental design (Zhang et al., 2025).} GO-CBED \citep{zhang2025gocbed} optimizes an entire intervention sequence (non-myopic) to maximize expected information gain on a user-specified causal query, using a variational lower bound jointly trained with a transformer policy and normalizing-flow posteriors. Compared to ACE: GO-CBED targets a subset of the causal model relevant to a specific query rather than full mechanism recovery, is non-myopic over the whole sequence rather than one-step lookahead, and requires training the variational posterior network for each task distribution rather than relying on a pretrained LM prior. The two are complementary at the level of ``what to optimize for'' (a targeted query vs.\ the full mechanism set) and could share ACE's environment-query instrumentation (Appendix~\ref{app:budget-extended}) to make their own non-myopic candidate evaluation cost auditable.
+
+\textbf{Decision-Pretrained Transformers and in-context pure exploration (Lee et al., 2023; Russo et al., 2025).} \citet{lee2023supervised} show that a transformer supervised to predict optimal actions from an in-context interaction dataset, across a distribution of tasks, implicitly performs Bayesian posterior sampling and inherits the associated regret guarantees, without any prompt-engineering or explicit exploration bonus. \citet{russo2025incontext} address a closely related active sequential hypothesis testing setting (including best-arm identification and generalized search) with In-Context Pure Explorer (ICPE): a supervised inference network and an RL-trained exploration network are meta-trained jointly across a task distribution so that, at deployment, a single forward pass substitutes for an explicit adaptive-design computation. Both are a different training regime from ACE's pretrained-LM-plus-lookahead approach (DPT and ICPE train a transformer from scratch on a curated task distribution, whereas ACE starts from natural-language pretraining and adds an explicit lookahead-scored selection step rather than relying on the forward pass alone to perform the equivalent of posterior sampling), but the underlying question is the same: how much of good sequential decision-making can be delivered by a sequence model's forward pass alone, versus requiring an explicit search or scoring step at deployment time. \citet{krishnamurthy2024explore} answer this question negatively for \emph{native} (untrained) LLM agents: GPT-3.5, GPT-4, and Llama2 do not robustly explore in simple bandit tasks without substantial prompt engineering, and the authors explicitly motivate DPT-style training interventions as the likely fix. ACE's ablation in Section~\ref{sec:results-scale} (ACE-w/o-DPO tied with full ACE at 30 nodes) is consistent with a specific, narrower version of \citet{krishnamurthy2024explore}'s conclusion: for the LM proposer we use, it is the lookahead-scored candidate selection --- not necessarily the DPO weight update itself --- that supplies the missing exploration structure their negative result identifies as absent from the raw LM prior.
+
+\end{document}

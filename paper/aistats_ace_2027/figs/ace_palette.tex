@@ -1,0 +1,50 @@
+% =============================================================================
+% Shared color palette for ACE paper figures.
+%
+% Conventions (semantic mapping used consistently across all figures):
+%   slate   — neutral / passive entities (State, intermediate SCM nodes)
+%   leaf    — agent / policy
+%   rose    — proposals / candidates
+%   amber   — active reasoning / lookahead
+%   gold    — winner / "best" selection
+%   ruby    — loser / "worst" selection / challenge nodes (colliders)
+%   sky     — environment / data source / SCM root nodes
+%   teal    — student model (learner)
+%   vio     — learning / DPO update
+%   muted   — subtle accents and dashed feedback annotations
+%
+% Each color has two variants: the light variant (XXX) for fills and the
+% dark variant (XXXDk) for borders, text, and accent strokes.
+%
+% Usage: \input{figs/ace_palette} in the document preamble; safe to load
+% multiple times (xcolor's \definecolor silently redefines).
+% =============================================================================
+
+\definecolor{aceSlate}{RGB}{226,232,240}
+\definecolor{aceSlateDk}{RGB}{71,85,105}
+
+\definecolor{aceLeaf}{RGB}{198,246,213}
+\definecolor{aceLeafDk}{RGB}{34,134,58}
+
+\definecolor{aceRose}{RGB}{255,214,224}
+\definecolor{aceRoseDk}{RGB}{192,16,72}
+
+\definecolor{aceAmber}{RGB}{254,215,170}
+\definecolor{aceAmberDk}{RGB}{194,65,12}
+
+\definecolor{aceGold}{RGB}{254,243,189}
+\definecolor{aceGoldDk}{RGB}{161,98,7}
+
+\definecolor{aceRuby}{RGB}{254,205,211}
+\definecolor{aceRubyDk}{RGB}{190,18,60}
+
+\definecolor{aceSky}{RGB}{190,227,248}
+\definecolor{aceSkyDk}{RGB}{30,64,175}
+
+\definecolor{aceVio}{RGB}{233,216,253}
+\definecolor{aceVioDk}{RGB}{107,33,168}
+
+\definecolor{aceTeal}{RGB}{207,232,231}
+\definecolor{aceTealDk}{RGB}{15,118,110}
+
+\definecolor{aceMuted}{RGB}{100,116,139}
