@@ -100,19 +100,13 @@ We present \textbf{Active Causal Experimentalist (ACE)}, which learns experiment
 % =======================================================================
 \label{sec:related}
 
-Our work builds on six research threads.
+\textbf{Causal foundations.} Structural causal models and do-calculus \citep{pearl2009causality,pearl1995causal} provide the formal language for interventions. Observational data identifies only a Markov equivalence class \citep{spirtes2000causation}, and Reichenbach's common-cause principle \citep{reichenbach1956} formalizes why: dependence between $A$ and $B$ is equally consistent with $A\!\to\!B$, $B\!\to\!A$, or a latent common cause. Interventional data is therefore necessary to identify mechanisms \citep{peters2017elements}, which is the Rung-2 setting ACE operates in. Within it, $n-1$ interventions suffice and are sometimes necessary \citep{eberhardt2005number,eberhardt2006n}, greedy target selection is $(1-1/e)$-optimal under submodular objectives \citep{shanmugam2015learning}, and adaptive designs need strictly fewer interventions than non-adaptive ones \citep{hauser2012characterization,cho2016reconstructing}.
 
-\textbf{Causal foundations.} Pearl's structural causal models (SCMs) and do-calculus \citep{pearl2009causality,pearl1995causal} provide the formal language for interventions. The PC and FCI algorithms \citep{spirtes2000causation} recover Markov equivalence classes from observational data; \citet{peters2017elements} establish that interventional data is necessary to identify mechanisms beyond the Markov equivalence class. Reichenbach's common-cause principle \citep{reichenbach1956} formalizes why observational data is insufficient: if $A$ and $B$ are statistically dependent, this is consistent with $A \to B$, with $B \to A$, or with an unobserved common cause $C$ that renders them conditionally independent ($A \perp\!\!\!\!\perp B \mid C$, read: $A$ is independent of $B$ given $C$). Observational data alone cannot distinguish these structures; only interventions can. These foundational results motivate the Rung-2 (interventional) formulation that ACE operates in. Within this setting, \citet{eberhardt2005number,eberhardt2006n} show $n-1$ interventions are sufficient and sometimes necessary, greedy selection of intervention targets achieves a $(1-1/e)$ approximation of the optimal intervention set under submodular structure-identification objectives \citep{shanmugam2015learning}, and adaptive designs require strictly fewer interventions than non-adaptive ones \citep{hauser2012characterization,cho2016reconstructing}.
+\textbf{Bayesian active causal discovery.} ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions} maintain posteriors over graphs and design experiments by expected information gain, with extensions to multi-fidelity \citep{zhang2023bayesian} and sample-efficient \citep{zhou2024sample} settings; GO-CBED \citep{zhang2025gocbed} targets a user-specified causal query rather than the full model. All target \emph{structure discovery} and require posterior maintenance whose cost is super-exponential in $|V|$ \citep{chickering1996learning}. ACE addresses the complementary problem of \emph{mechanism estimation} given known structure. Skipping graph-posterior maintenance is what lets it operate at 30 nodes, where these methods' published evaluations do not yet reach --- and it is also why our own Bayesian-OED baseline's per-decision oracle cost is so large (Section~\ref{sec:budget}): that cost is intrinsic to Monte Carlo posterior acquisition, not an implementation artifact.
 
-\textbf{Bayesian active causal discovery.} ABCI \citep{toth2022active} and CBED \citep{tigas2022interventions} maintain posteriors over causal graphs and design experiments via expected information gain, with CBED's largest evaluation on the 20-variable DREAM gene regulatory network. \citet{zhang2023bayesian} extends this to multi-fidelity settings; \citet{zhou2024sample} addresses sample efficiency via polynomial-time DAG sampling. \citet{zhang2025gocbed} propose GO-CBED, a goal-oriented, non-myopic Bayesian design framework that maximizes expected information gain on a user-specified causal query rather than the full model, using a transformer policy trained with a variational lower bound; this is a complementary axis to ours (targeting a subset of the causal query rather than the full mechanism set) and, like ABCI and CBED, requires posterior maintenance over the object being estimated. These methods target \emph{structure discovery} (or a targeted causal query) and require posteriors whose maintenance cost is super-exponential in $|V|$ for full structure \citep{chickering1996learning}. ACE addresses the complementary problem of \emph{mechanism estimation} given known or hypothesized structure, which covers domains where the graph is available from expertise, prior studies, or a structure-learning front end. Skipping posterior maintenance over graphs is what lets ACE operate in the 30-node regime where the published evaluations of the foregoing methods do not yet scale; it is also the reason our own Bayesian-OED baseline's per-decision oracle-query cost is so large (Section~\ref{sec:budget}) --- the cost is intrinsic to Monte Carlo posterior-based acquisition, not an implementation artifact.
+\textbf{Language models as priors and as decision-makers.} Pretrained LMs encode distributions over entities and their relationships, acting as soft priors over world dynamics \citep{hao2023reasoning,xie2022explanation}, and exhibit non-trivial causal reasoning when prompted \citep{kiciman2023causal} --- though benchmarks find they still struggle with long-horizon sequential experimental decisions \citep{llm_science_survey2025,boxinggym2025,autobench2025}. A parallel line trains sequence models to decide \emph{in context}: DPT \citep{lee2023supervised} supervises a transformer to predict optimal actions from in-context interaction histories, approximating posterior sampling with regret guarantees, and ICPE \citep{russo2025incontext} meta-trains a transformer for active sequential hypothesis testing. Conversely, \citet{krishnamurthy2024explore} find that untrained LLM agents do \emph{not} robustly explore in bandit tasks without substantial intervention, concluding that algorithmic additions such as fine-tuning are likely necessary. ACE sits between these results: it uses a sequence model as proposer, but starts from natural-language pretraining rather than a curated task distribution, and treats the raw prior as necessary-but-insufficient --- supplying lookahead-scored selection as the missing exploration structure. Section~\ref{sec:results-scale} quantifies where that added structure is and is not load-bearing.
 
-\textbf{Language models as world models.} Language models pretrained on natural language encode distributions over entities and their causal relationships, effectively acting as soft priors over world dynamics \citep{hao2023reasoning,xie2022explanation}. \citet{kiciman2023causal} show that LLMs exhibit substantial causal reasoning capability when prompted with context. Crucially for ACE, this pretrained causal prior is exploitable without fine-tuning: when node names are semantically meaningful (e.g., unemployment rate, federal funds rate), the LLM's generation assigns higher probability to economically plausible interventions before any domain-specific training begins. Benchmarks confirm that zero-shot LLM causal discovery is non-trivial \citep{llm_science_survey2025} but that LLMs still struggle with long-horizon sequential experimental decisions \citep{boxinggym2025,autobench2025}. ACE addresses precisely that gap by pairing the pretrained prior with lookahead selection and preference-based calibration.
-
-\textbf{In-context and pretraining-based sequential decision-making.} A separate line of work asks whether sequence models can learn to explore and decide \emph{in context}, without gradient updates at deployment time. \citet{lee2023supervised} introduce the Decision-Pretrained Transformer (DPT), a transformer supervised to predict an optimal action from an in-context dataset of interactions across a distribution of tasks; at deployment it implements an efficient approximation of Bayesian posterior sampling and carries formal regret guarantees. \citet{russo2025incontext} similarly meta-train a transformer, In-Context Pure Explorer (ICPE), to solve active sequential hypothesis testing (including best-arm identification), splitting the model into a supervised inference network and an RL-trained exploration network so that a single forward pass at deployment time replaces an explicit adaptive-design computation. \citet{krishnamurthy2024explore} instead probe native (untrained) LLM agents in multi-armed bandit tasks and find that GPT-3.5, GPT-4, and Llama2 do \emph{not} robustly explore without substantial prompt-engineering interventions --- only one configuration (GPT-4 with chain-of-thought reasoning over an externally summarized interaction history) produced satisfactory exploration, and the authors conclude that non-trivial algorithmic interventions such as fine-tuning are likely necessary for LLM-based decision agents in more complex settings. ACE sits between these findings: like DPT and ICPE, it uses a sequence model as the proposer, but unlike either it starts from natural-language pretraining rather than training a transformer from scratch on a curated task distribution, and it treats the raw LM prior as necessary-but-insufficient exactly as \citet{krishnamurthy2024explore} would predict, adding the lookahead-scored candidate selection and DPO calibration as the algorithmic intervention that supplies the missing exploration structure. The LM-prior-vs-DPO disentanglement in Section~\ref{sec:results-scale} can be read as evidence for where, quantitatively, that added structure is and is not load-bearing.
-
-\textbf{Learning for scientific discovery.} Differentiable structure learning \citep{lorch2021dibs} and RL for causal discovery \citep{core2024,gacbo2024} address structure recovery. Both structure and mechanism estimation face non-stationary rewards as knowledge accumulates, motivating alternatives to value-based RL.
-
-\textbf{Preference optimization for sequential decisions.} DPO \citep{rafailov2023direct} learns from pairwise comparisons rather than absolute reward magnitudes, providing robustness to reward scale shifts. Active preference learning \citep{activedpo2024} extends this to selective data acquisition. Concurrent work that pairs causal ideas with DPO targets generative-model alignment rather than experimental design: CAPO \citep{hu2026capo} reweights the DPO loss using an aleatoric/epistemic uncertainty decomposition for text-to-image diffusion, and CDPO \citep{le2026cdpo} applies Pearl's backdoor adjustment to debias DPO when annotator preferences are confounded by topic or community context. These methods modify the DPO objective to align a generator with a fixed human-preference dataset; ACE differs in problem (mechanism estimation rather than alignment), action space (do() interventions rather than generated images or text), and preference source (lookahead reward rather than human annotation). We use DPO as one candidate calibration rule among several we now instrument and compare (Section~\ref{sec:dpo}); the inherent non-stationarity of information gain motivates preference-based learning as a family, of which DPO is one member.
+\textbf{Preference optimization and learned discovery.} DPO \citep{rafailov2023direct} learns from pairwise comparisons rather than reward magnitudes, giving robustness to reward-scale shifts; active preference learning \citep{activedpo2024} extends it to selective acquisition. Concurrent causal-DPO work targets generative alignment rather than experimental design: CAPO \citep{hu2026capo} reweights the DPO loss by an uncertainty decomposition, and CDPO \citep{le2026cdpo} applies backdoor adjustment to debias confounded annotator preferences. ACE differs in problem, action space, and preference source (lookahead reward, not human annotation), and treats DPO as one calibration rule among several it instruments and compares (Section~\ref{sec:dpo}). Related learned-discovery work targets structure recovery via differentiable \citep{lorch2021dibs} or RL-based \citep{core2024,gacbo2024} methods; both face the same non-stationary rewards that motivate preference-based alternatives to value-based RL.
 
 % =======================================================================
 \section{Method}
@@ -187,36 +181,13 @@ with $\beta = 0.1$ and reference policy $\pi_\text{ref}$ updated every 25 episod
 This comparison directly answers the question of what preference-based calibration specifically contributes over its simpler ingredients (imitating only the winner, or ranking without a KL anchor to a reference policy); as with the budget-accounting instrumentation, the infrastructure for this comparison (\texttt{--policy\_update \{dpo, sft\_best, ranking\}}) is released and the matched-seed comparison across all three rules on the 5-node benchmark is queued as the next experiment (Appendix~\ref{app:budget-extended}), consistent with our framing that a tie between DPO and either simpler alternative would be an informative result about \emph{where} preference learning's value lies, not a failure of the method.
 
 % =======================================================================
-\section{Theoretical Analysis: Why Preference Learning?}
+\section{Why Preference Learning?}
 % =======================================================================
 \label{sec:theory}
 
-Information gain from sequential experimentation is inherently non-stationary: early interventions on an uninformed learner can produce dramatic loss reductions, while late interventions on a near-converged learner yield negligible gains. We give a formalization of why preference learning is well-suited to this setting, but we are explicit that this formalization is a motivating illustration of an empirical regularity we measure directly, not the paper's central theoretical claim.
+Information gain from sequential experimentation is non-stationary: early interventions on an uninformed learner produce large loss reductions, late interventions on a near-converged learner produce almost none. Empirically we measure $\mathbb{E}[\Delta\mathcal{L}]$ dropping $\sim$500$\times$ over a run while the \emph{candidate ranking} within adjacent episodes stays stable (Spearman $\rho > 0.85$ between episode $t$ and $t+1$). This pairing --- a collapsing reward scale over a comparatively stable within-step ordering --- is what makes a preference-based rule a natural fit: DPO's objective depends only on a log-ratio difference between two candidates scored at the same step, so it is invariant to the scale factor that a value-based estimator must track. We formalize this as a \emph{local}, slow-drift decomposition (Assumption~\ref{ass:diminish}) with the accompanying scale-invariance statement (Proposition~\ref{prop:scale-invariance}) and full proof in Appendix~\ref{app:theory-extended}. We present it there, and as a motivating illustration rather than a central claim, for two reasons: the empirical regularity it formalizes is one we measure directly and do not need the formalism to establish, and the component it motivates (the preference update) is the one this paper's ablations find dispensable (Section~\ref{sec:results-scale}).
 
-\begin{assumption}[Local, slow-drift reward decomposition]
-\label{ass:diminish}
-Over any window of adjacent episodes $[t, t+\Delta]$ short relative to the full training horizon, the per-step reward decomposes approximately as $r_t(a) \approx f(t) \cdot g_t(a)$, where $f: \mathbb{N} \to \mathbb{R}_{>0}$ is a monotonically non-increasing scale factor (representing diminishing information gain) and $g_t: \mathcal{A} \to \mathbb{R}$ captures the relative quality of action $a$ and drifts slowly enough that its \emph{induced ranking} over $\mathcal{A}$ is approximately constant within the window, i.e.\ $g_t \approx g_{t+\Delta}$ up to a ranking-preserving perturbation.
-\end{assumption}
-
-We state this as a \emph{local} invariance rather than a global one because a single fixed $g$ across the entire training horizon is a strong claim that our data does not require: what we actually observe is that $\mathbb{E}[\Delta\mathcal{L}]$ drops $\sim$500$\times$ over the full run while the candidate ranking is stable only in an adjacent-episode sense (Spearman $\rho > 0.85$ comparing episode $t$'s ranking to episode $t+1$'s), not necessarily between episode 1 and episode 200. The local formulation is the assumption this evidence actually supports; a global decomposable-reward assumption (as in an earlier version of this analysis) is stronger than the data warrants and is not needed for the argument below, since DPO's preference pairs are always constructed from same-episode candidate comparisons.
-
-\begin{proposition}[Scale-invariance of preference learning within a local window]
-\label{prop:scale-invariance}
-Under Assumption~\ref{ass:diminish}, for any pair of actions $a_w, a_l \in \mathcal{A}$ (candidate interventions $c_w, c_l$ in the notation of Section~\ref{sec:methods}) proposed and scored at the same step $t$ with $g_t(a_w) > g_t(a_l)$, and prompt $x$ encoding state $s_t$:
-\begin{enumerate}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
-\item \emph{(Within-step preference validity.)} The ordering $r_t(a_w) > r_t(a_l)$ holds whenever $f(t) > 0$, since $f(t) \cdot g_t(a_w) > f(t) \cdot g_t(a_l)$.
-\item \emph{(Value non-stationarity.)} The state-value function $V_t(s) = \mathbb{E}_a[r_t(a)] = f(t) \cdot \mathbb{E}_a[g_t(a)]$ is non-stationary in $t$, with magnitude scaling as $f(t)$, whether or not $g_t$ itself drifts.
-\item \emph{(DPO invariance.)} The DPO objective \eqref{eq:dpo-loss} depends only on the log-ratio difference $\log\tfrac{\pi_\phi(a_w \mid x)}{\pi_\text{ref}(a_w \mid x)} - \log\tfrac{\pi_\phi(a_l \mid x)}{\pi_\text{ref}(a_l \mid x)}$, which is independent of $f(t)$.
-\end{enumerate}
-\end{proposition}
-
-Because each preference pair is constructed from candidates scored \emph{within the same step} $t$, Part~1 requires only that $f(t) > 0$ --- it does not require $g$ to be constant across the training horizon, which is why the local assumption above suffices. Part~2 is exactly why a value-function approximator, which must track $f(t)\cdot\mathbb{E}_a[g_t(a)]$ across steps rather than compare within one, is the harder object to estimate under this non-stationarity. Part~3 is the standard scale-invariance property of the DPO objective \citep{rafailov2023direct}.
-
-\begin{proof}[Proof sketch]
-Part 1 follows directly from Assumption~\ref{ass:diminish} restricted to a single step. Part 2 follows from linearity of expectation applied across steps, where $f$ is genuinely non-stationary over the full horizon (this part does not require the local approximation). Part 3 is the core property of DPO: the implicit reward model derived from policy log-ratios is invariant to constant rescaling of the underlying preference signal. The full proof and a corollary on convergence rates are in Appendix~\ref{app:proof}.
-\end{proof}
-
-\textbf{Connection to expected information gain.} $\Delta\mathcal{L}$ in \eqref{eq:reward} is a Monte Carlo estimate of the mutual information $I(\theta; \mathcal{D}_c \mid s)$, and $w$ acts as a non-uniform prior that upweights poorly-learned mechanisms; ACE thus pursues the Bayesian OED objective \citep{toth2022active} through policy learning rather than explicit posterior computation, at a per-decision oracle-query cost quantified in Section~\ref{sec:budget} that is substantially lower than the Monte Carlo posterior estimate this connection is drawn to. Full derivation in Appendix~\ref{app:info-gain}.
+\textbf{Connection to expected information gain.} $\Delta\mathcal{L}$ in \eqref{eq:reward} is a Monte Carlo estimate of the mutual information $I(\theta; \mathcal{D}_c \mid s)$, and $w$ acts as a non-uniform prior upweighting poorly-learned mechanisms; ACE thus pursues the Bayesian OED objective \citep{toth2022active} through policy learning rather than explicit posterior computation, at a per-decision oracle-query cost (Section~\ref{sec:budget}) far below the Monte Carlo posterior estimate. Full derivation in Appendix~\ref{app:info-gain}.
 
 % =======================================================================
 \section{Experiments}
@@ -230,32 +201,7 @@ We evaluate ACE in four settings: a synthetic 5-node benchmark for controlled co
 
 The 5-node benchmark (Figure~\ref{fig:synthetic-scm}) is a diagnostic testbed, not the headline: it isolates the specific mechanism-learning challenges of collider identification ($X_3$ with parents $X_1, X_2$), mixed functional forms (linear, trigonometric, and quadratic), and disconnected components ($X_4 \to X_5$), so that baseline behavior and ACE's emergent strategy can both be analyzed per-node. The 30-node and Duffing results below provide the scaling and transfer evidence. Mechanisms have Gaussian noise ($\sigma = 0.01$); roots are $X_1 \sim \mathcal{N}(0,1)$ and $X_4 \sim \mathcal{N}(2,1)$. Full equations and learner architecture are in Appendix~\ref{app:impl}.
 
-\begin{figure*}[t]
-\centering
-\begin{tikzpicture}[
-    scale=0.9,
-    node distance=2.0cm,
-    root/.style={circle, draw=aceSkyDk, fill=aceSky, minimum size=0.8cm, font=\small, thick, line width=0.9pt},
-    regular/.style={circle, draw=aceSlateDk, fill=aceSlate, minimum size=0.8cm, font=\small, thick, line width=0.9pt},
-    collider/.style={circle, draw=aceRubyDk, fill=aceRuby, minimum size=0.8cm, font=\small, thick, line width=1.1pt},
-    arrow/.style={-{Stealth[length=2.5mm]}, thick, color=aceSlateDk}
-]
-\node[root] (X1) at (0,0) {$X_1$};
-\node[root] (X4) at (3.5,0) {$X_4$};
-\node[regular] (X2) at (0,-2.2) {$X_2$};
-\node[regular] (X5) at (3.5,-2.2) {$X_5$};
-\node[collider] (X3) at (0,-4.4) {$X_3$};
-\draw[arrow] (X1) -- (X2);
-\draw[arrow] (X2) -- (X3);
-\draw[arrow] (X1) to[bend right=30] (X3);
-\draw[arrow] (X4) -- (X5);
-\node[root, label=right:{\scriptsize Root (2)}] at (5.2,-0.5) {};
-\node[regular, label=right:{\scriptsize Intermediate (2)}] at (5.2,-1.4) {};
-\node[collider, label=right:{\scriptsize Collider (1)}] at (5.2,-2.3) {};
-\end{tikzpicture}
-\caption{Synthetic 5-node benchmark. $X_1$ and $X_4$ are roots, $X_2$ and $X_5$ intermediates, and $X_3$ is a collider with edges from $X_1$ and $X_2$. The disconnected chain $X_4 \to X_5$ tests quadratic mechanisms.}
-\label{fig:synthetic-scm}
-\end{figure*}
+
 
 \begin{table*}[t]
 \centering
@@ -287,91 +233,9 @@ Table~\ref{tab:main-results} reports the headline result. The metric is total me
 
 To test scalability we evaluate on a hierarchical 30-node SCM (Figure~\ref{fig:30node-scm}) representative of the multi-layer structure found in gene regulatory and metabolic networks.
 
-\begin{figure*}[t]
-\centering
-\begin{tikzpicture}[
-    scale=0.82, transform shape,
-    root/.style={circle, draw=aceSkyDk, fill=aceSky, minimum size=0.62cm, font=\scriptsize, thick, line width=0.7pt},
-    regular/.style={circle, draw=aceSlateDk, fill=aceSlate, minimum size=0.62cm, font=\scriptsize, thick, line width=0.7pt},
-    collider/.style={circle, draw=aceRubyDk, fill=aceRuby, minimum size=0.62cm, font=\scriptsize, thick, line width=0.9pt},
-    arrow/.style={-{Stealth[length=1.8mm]}, thick, color=aceSlateDk}
-]
-% Layer 0: 5 roots
-\node[root] (r1) at (0,0)   {$R_1$};
-\node[root] (r2) at (1.1,0) {$R_2$};
-\node[font=\small] at (1.9,0) {$\cdots$};
-\node[root] (r5) at (2.7,0) {$R_5$};
-\node[font=\scriptsize, gray] at (5.5,0)  {\textit{Layer 0: 5 roots}};
 
-% Layer 1: 5 intermediate
-\node[regular] (i1) at (0,-1.5)   {$I_1$};
-\node[regular] (i2) at (1.3,-1.5) {$I_2$};
-\node[font=\small] at (2.0,-1.5) {$\cdots$};
-\node[regular] (i5) at (2.7,-1.5) {$I_5$};
-\node[font=\scriptsize, gray] at (5.5,-1.5) {\textit{Layer 1: 5 nodes, 1--2 root parents}};
 
-% Layer 2: 10 nodes (~3 colliders)
-\node[regular]  (n1) at (0,-3.0)   {$N_1$};
-\node[collider] (c1) at (1.1,-3.0) {$C_1$};
-\node[font=\small] at (1.9,-3.0) {$\cdots$};
-\node[regular]  (n10) at (2.7,-3.0){$N_{10}$};
-\node[font=\scriptsize, gray] at (5.5,-3.0) {\textit{Layer 2: 10 nodes, $\sim$3 colliders}};
 
-% Layer 3: 10 complex colliders
-\node[collider] (cc1) at (0,-4.5)   {$C_1'$};
-\node[collider] (cc2) at (1.3,-4.5) {$C_2'$};
-\node[font=\small] at (2.0,-4.5) {$\cdots$};
-\node[collider] (cc5) at (2.7,-4.5) {$C_{10}'$};
-\node[font=\scriptsize, gray] at (5.5,-4.5) {\textit{Layer 3: 10 colliders, 2--3 parents each}};
-
-% Layer 4: 5 leaves
-\node[regular] (l1) at (0,-6.0)   {$L_1$};
-\node[font=\small] at (1.3,-6.0) {$\cdots$};
-\node[regular] (l5) at (2.7,-6.0) {$L_5$};
-\node[font=\scriptsize, gray] at (5.5,-6.0) {\textit{Layer 4: 5 leaves}};
-
-% Edges Layer 0 -> 1
-\draw[arrow] (r1) -- (i1);
-\draw[arrow] (r2) -- (i1);
-\draw[arrow] (r2) -- (i2);
-\draw[arrow] (r5) -- (i5);
-
-% Edges Layer 1 -> 2
-\draw[arrow] (i1) -- (n1);
-\draw[arrow] (i1) -- (c1);
-\draw[arrow] (i2) -- (c1);
-\draw[arrow] (i5) -- (n10);
-
-% Edges Layer 2 -> 3
-\draw[arrow] (n1)  -- (cc1);
-\draw[arrow] (c1)  -- (cc1);
-\draw[arrow] (c1)  -- (cc2);
-\draw[arrow] (n10) -- (cc5);
-
-% Edges Layer 3 -> 4
-\draw[arrow] (cc1) -- (l1);
-\draw[arrow] (cc2) -- (l1);
-\draw[arrow] (cc5) -- (l5);
-
-% Horizontal legend below Layer 4, centered under the layer columns to avoid
-% overlapping the layer captions on the right.
-\node[root]                                 at (0.0,-7.2) {};
-\node[anchor=west, font=\scriptsize] at (0.25,-7.2) {Root (5)};
-\node[regular]                              at (2.0,-7.2) {};
-\node[anchor=west, font=\scriptsize] at (2.25,-7.2) {Intermediate (20)};
-\node[collider]                             at (5.0,-7.2) {};
-\node[anchor=west, font=\scriptsize] at (5.25,-7.2) {Collider (13)};
-\end{tikzpicture}
-\caption{30-node hierarchical SCM. Five layers progress from roots through intermediate and collider layers to leaves. Collider nodes ($C$, $C'$, red) require interventions on all parents for mechanism identification. With 30 nodes and a fixed budget of 300 episodes, random sampling devotes only $\sim\!3.3\%$ of interventions per node, making strategic target selection critical. Node labels are schematic; actual nodes are $X_1$--$X_{30}$.}
-\label{fig:30node-scm}
-\end{figure*}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\linewidth]{figs/fig_30node_results.pdf}
-\caption{30-node hierarchical SCM results, \textbf{original three seeds only} (42/123/456), under episode-matched accounting. \textbf{(a)}~Best total-MSE per episode (shaded $\pm 1$ std across seeds; ACE's wide band is N=3 training variability, baseline bands are invisible at seed-std $<\!0.08$). ACE descends to $\sim\!1.95$; the three static baselines plateau at $5.86$. \textbf{(b)}~Final performance with per-seed points. ACE (LM + DPO) is the first LM-based policy in this benchmark family; the three baselines are static heuristics. On these three seeds ACE achieves $3.0\times$ best-vs-best and $1.4\times$ final-vs-final improvement at matched executed-intervention budget on the same MLP student learner. \textbf{This figure is retained for continuity with the previous submission and should be read together with Table~\ref{tab:large-scale}}, where five additional seeds run under the identical configuration do \emph{not} reproduce it; the margin shown here is contingent on preference-optimization stability, which those five seeds did not achieve. The scale-level claim this paper relies on is the total-query-matched comparison of Section~\ref{sec:budget}.}
-\label{fig:30node-results}
-\end{figure*}
 
 \begin{table*}[t]
 \centering
@@ -520,7 +384,7 @@ Ground-truth SCMs, learner architecture, policy prompt design, all reward compon
 
   \item For any theoretical claim, check if you include:
   \begin{enumerate}
-    \item Statements of the full set of assumptions of all theoretical results. [Yes] Assumption~\ref{ass:diminish} in Section~\ref{sec:theory}.
+    \item Statements of the full set of assumptions of all theoretical results. [Yes] Assumption~\ref{ass:diminish}, stated in Appendix~\ref{app:theory-extended} and summarized in Section~\ref{sec:theory}.
     \item Complete proofs of all theoretical results. [Yes] Appendix~\ref{app:proof}. We note in Section~\ref{sec:theory} that Proposition~\ref{prop:scale-invariance} is presented as a motivating illustration rather than a load-bearing contribution.
     \item Clear explanations of any assumptions. [Yes] Section~\ref{sec:theory}, with the supporting rank-stability evidence reported alongside.
   \end{enumerate}
@@ -752,7 +616,150 @@ Section~\ref{sec:budget} reports, for each method in Table~\ref{tab:main-results
 All job scripts write results under \texttt{/scratch}, not \texttt{/projects}, on the university HPC cluster used for this work, to stay within the fixed project-storage quota shared across the group's other work.
 
 % =======================================================================
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    scale=0.82, transform shape,
+    root/.style={circle, draw=aceSkyDk, fill=aceSky, minimum size=0.62cm, font=\scriptsize, thick, line width=0.7pt},
+    regular/.style={circle, draw=aceSlateDk, fill=aceSlate, minimum size=0.62cm, font=\scriptsize, thick, line width=0.7pt},
+    collider/.style={circle, draw=aceRubyDk, fill=aceRuby, minimum size=0.62cm, font=\scriptsize, thick, line width=0.9pt},
+    arrow/.style={-{Stealth[length=1.8mm]}, thick, color=aceSlateDk}
+]
+% Layer 0: 5 roots
+\node[root] (r1) at (0,0)   {$R_1$};
+\node[root] (r2) at (1.1,0) {$R_2$};
+\node[font=\small] at (1.9,0) {$\cdots$};
+\node[root] (r5) at (2.7,0) {$R_5$};
+\node[font=\scriptsize, gray] at (5.5,0)  {\textit{Layer 0: 5 roots}};
+
+% Layer 1: 5 intermediate
+\node[regular] (i1) at (0,-1.5)   {$I_1$};
+\node[regular] (i2) at (1.3,-1.5) {$I_2$};
+\node[font=\small] at (2.0,-1.5) {$\cdots$};
+\node[regular] (i5) at (2.7,-1.5) {$I_5$};
+\node[font=\scriptsize, gray] at (5.5,-1.5) {\textit{Layer 1: 5 nodes, 1--2 root parents}};
+
+% Layer 2: 10 nodes (~3 colliders)
+\node[regular]  (n1) at (0,-3.0)   {$N_1$};
+\node[collider] (c1) at (1.1,-3.0) {$C_1$};
+\node[font=\small] at (1.9,-3.0) {$\cdots$};
+\node[regular]  (n10) at (2.7,-3.0){$N_{10}$};
+\node[font=\scriptsize, gray] at (5.5,-3.0) {\textit{Layer 2: 10 nodes, $\sim$3 colliders}};
+
+% Layer 3: 10 complex colliders
+\node[collider] (cc1) at (0,-4.5)   {$C_1'$};
+\node[collider] (cc2) at (1.3,-4.5) {$C_2'$};
+\node[font=\small] at (2.0,-4.5) {$\cdots$};
+\node[collider] (cc5) at (2.7,-4.5) {$C_{10}'$};
+\node[font=\scriptsize, gray] at (5.5,-4.5) {\textit{Layer 3: 10 colliders, 2--3 parents each}};
+
+% Layer 4: 5 leaves
+\node[regular] (l1) at (0,-6.0)   {$L_1$};
+\node[font=\small] at (1.3,-6.0) {$\cdots$};
+\node[regular] (l5) at (2.7,-6.0) {$L_5$};
+\node[font=\scriptsize, gray] at (5.5,-6.0) {\textit{Layer 4: 5 leaves}};
+
+% Edges Layer 0 -> 1
+\draw[arrow] (r1) -- (i1);
+\draw[arrow] (r2) -- (i1);
+\draw[arrow] (r2) -- (i2);
+\draw[arrow] (r5) -- (i5);
+
+% Edges Layer 1 -> 2
+\draw[arrow] (i1) -- (n1);
+\draw[arrow] (i1) -- (c1);
+\draw[arrow] (i2) -- (c1);
+\draw[arrow] (i5) -- (n10);
+
+% Edges Layer 2 -> 3
+\draw[arrow] (n1)  -- (cc1);
+\draw[arrow] (c1)  -- (cc1);
+\draw[arrow] (c1)  -- (cc2);
+\draw[arrow] (n10) -- (cc5);
+
+% Edges Layer 3 -> 4
+\draw[arrow] (cc1) -- (l1);
+\draw[arrow] (cc2) -- (l1);
+\draw[arrow] (cc5) -- (l5);
+
+% Horizontal legend below Layer 4, centered under the layer columns to avoid
+% overlapping the layer captions on the right.
+\node[root]                                 at (0.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (0.25,-7.2) {Root (5)};
+\node[regular]                              at (2.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (2.25,-7.2) {Intermediate (20)};
+\node[collider]                             at (5.0,-7.2) {};
+\node[anchor=west, font=\scriptsize] at (5.25,-7.2) {Collider (13)};
+\end{tikzpicture}
+\caption{30-node hierarchical SCM. Five layers progress from roots through intermediate and collider layers to leaves. Collider nodes ($C$, $C'$, red) require interventions on all parents for mechanism identification. With 30 nodes and a fixed budget of 300 episodes, random sampling devotes only $\sim\!3.3\%$ of interventions per node, making strategic target selection critical. Node labels are schematic; actual nodes are $X_1$--$X_{30}$.}
+\label{fig:30node-scm}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figs/fig_30node_results.pdf}
+\caption{30-node hierarchical SCM results, \textbf{original three seeds only} (42/123/456), under episode-matched accounting. \textbf{(a)}~Best total-MSE per episode (shaded $\pm 1$ std across seeds; ACE's wide band is N=3 training variability, baseline bands are invisible at seed-std $<\!0.08$). ACE descends to $\sim\!1.95$; the three static baselines plateau at $5.86$. \textbf{(b)}~Final performance with per-seed points. ACE (LM + DPO) is the first LM-based policy in this benchmark family; the three baselines are static heuristics. On these three seeds ACE achieves $3.0\times$ best-vs-best and $1.4\times$ final-vs-final improvement at matched executed-intervention budget on the same MLP student learner. \textbf{This figure is retained for continuity with the previous submission and should be read together with Table~\ref{tab:large-scale}}, where five additional seeds run under the identical configuration do \emph{not} reproduce it; the margin shown here is contingent on preference-optimization stability, which those five seeds did not achieve. The scale-level claim this paper relies on is the total-query-matched comparison of Section~\ref{sec:budget}.}
+\label{fig:30node-results}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    scale=0.9,
+    node distance=2.0cm,
+    root/.style={circle, draw=aceSkyDk, fill=aceSky, minimum size=0.8cm, font=\small, thick, line width=0.9pt},
+    regular/.style={circle, draw=aceSlateDk, fill=aceSlate, minimum size=0.8cm, font=\small, thick, line width=0.9pt},
+    collider/.style={circle, draw=aceRubyDk, fill=aceRuby, minimum size=0.8cm, font=\small, thick, line width=1.1pt},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick, color=aceSlateDk}
+]
+\node[root] (X1) at (0,0) {$X_1$};
+\node[root] (X4) at (3.5,0) {$X_4$};
+\node[regular] (X2) at (0,-2.2) {$X_2$};
+\node[regular] (X5) at (3.5,-2.2) {$X_5$};
+\node[collider] (X3) at (0,-4.4) {$X_3$};
+\draw[arrow] (X1) -- (X2);
+\draw[arrow] (X2) -- (X3);
+\draw[arrow] (X1) to[bend right=30] (X3);
+\draw[arrow] (X4) -- (X5);
+\node[root, label=right:{\scriptsize Root (2)}] at (5.2,-0.5) {};
+\node[regular, label=right:{\scriptsize Intermediate (2)}] at (5.2,-1.4) {};
+\node[collider, label=right:{\scriptsize Collider (1)}] at (5.2,-2.3) {};
+\end{tikzpicture}
+\caption{Synthetic 5-node benchmark. $X_1$ and $X_4$ are roots, $X_2$ and $X_5$ intermediates, and $X_3$ is a collider with edges from $X_1$ and $X_2$. The disconnected chain $X_4 \to X_5$ tests quadratic mechanisms.}
+\label{fig:synthetic-scm}
+\end{figure}
+
 \section{Theoretical Analysis (Extended)}
+\label{app:theory-extended}
+
+Information gain from sequential experimentation is inherently non-stationary: early interventions on an uninformed learner can produce dramatic loss reductions, while late interventions on a near-converged learner yield negligible gains. We give a formalization of why preference learning is well-suited to this setting, but we are explicit that this formalization is a motivating illustration of an empirical regularity we measure directly, not the paper's central theoretical claim.
+
+\begin{assumption}[Local, slow-drift reward decomposition]
+\label{ass:diminish}
+Over any window of adjacent episodes $[t, t+\Delta]$ short relative to the full training horizon, the per-step reward decomposes approximately as $r_t(a) \approx f(t) \cdot g_t(a)$, where $f: \mathbb{N} \to \mathbb{R}_{>0}$ is a monotonically non-increasing scale factor (representing diminishing information gain) and $g_t: \mathcal{A} \to \mathbb{R}$ captures the relative quality of action $a$ and drifts slowly enough that its \emph{induced ranking} over $\mathcal{A}$ is approximately constant within the window, i.e.\ $g_t \approx g_{t+\Delta}$ up to a ranking-preserving perturbation.
+\end{assumption}
+
+We state this as a \emph{local} invariance rather than a global one because a single fixed $g$ across the entire training horizon is a strong claim that our data does not require: what we actually observe is that $\mathbb{E}[\Delta\mathcal{L}]$ drops $\sim$500$\times$ over the full run while the candidate ranking is stable only in an adjacent-episode sense (Spearman $\rho > 0.85$ comparing episode $t$'s ranking to episode $t+1$'s), not necessarily between episode 1 and episode 200. The local formulation is the assumption this evidence actually supports; a global decomposable-reward assumption (as in an earlier version of this analysis) is stronger than the data warrants and is not needed for the argument below, since DPO's preference pairs are always constructed from same-episode candidate comparisons.
+
+\begin{proposition}[Scale-invariance of preference learning within a local window]
+\label{prop:scale-invariance}
+Under Assumption~\ref{ass:diminish}, for any pair of actions $a_w, a_l \in \mathcal{A}$ (candidate interventions $c_w, c_l$ in the notation of Section~\ref{sec:methods}) proposed and scored at the same step $t$ with $g_t(a_w) > g_t(a_l)$, and prompt $x$ encoding state $s_t$:
+\begin{enumerate}[leftmargin=1.5em,topsep=0.2em,itemsep=0.1em]
+\item \emph{(Within-step preference validity.)} The ordering $r_t(a_w) > r_t(a_l)$ holds whenever $f(t) > 0$, since $f(t) \cdot g_t(a_w) > f(t) \cdot g_t(a_l)$.
+\item \emph{(Value non-stationarity.)} The state-value function $V_t(s) = \mathbb{E}_a[r_t(a)] = f(t) \cdot \mathbb{E}_a[g_t(a)]$ is non-stationary in $t$, with magnitude scaling as $f(t)$, whether or not $g_t$ itself drifts.
+\item \emph{(DPO invariance.)} The DPO objective \eqref{eq:dpo-loss} depends only on the log-ratio difference $\log\tfrac{\pi_\phi(a_w \mid x)}{\pi_\text{ref}(a_w \mid x)} - \log\tfrac{\pi_\phi(a_l \mid x)}{\pi_\text{ref}(a_l \mid x)}$, which is independent of $f(t)$.
+\end{enumerate}
+\end{proposition}
+
+Because each preference pair is constructed from candidates scored \emph{within the same step} $t$, Part~1 requires only that $f(t) > 0$ --- it does not require $g$ to be constant across the training horizon, which is why the local assumption above suffices. Part~2 is exactly why a value-function approximator, which must track $f(t)\cdot\mathbb{E}_a[g_t(a)]$ across steps rather than compare within one, is the harder object to estimate under this non-stationarity. Part~3 is the standard scale-invariance property of the DPO objective \citep{rafailov2023direct}.
+
+\begin{proof}[Proof sketch]
+Part 1 follows directly from Assumption~\ref{ass:diminish} restricted to a single step. Part 2 follows from linearity of expectation applied across steps, where $f$ is genuinely non-stationary over the full horizon (this part does not require the local approximation). Part 3 is the core property of DPO: the implicit reward model derived from policy log-ratios is invariant to constant rescaling of the underlying preference signal. The full proof and a corollary on convergence rates are in Appendix~\ref{app:proof}.
+\end{proof}
+
+\textbf{Connection to expected information gain.} $\Delta\mathcal{L}$ in \eqref{eq:reward} is a Monte Carlo estimate of the mutual information $I(\theta; \mathcal{D}_c \mid s)$, and $w$ acts as a non-uniform prior that upweights poorly-learned mechanisms; ACE thus pursues the Bayesian OED objective \citep{toth2022active} through policy learning rather than explicit posterior computation, at a per-decision oracle-query cost quantified in Section~\ref{sec:budget} that is substantially lower than the Monte Carlo posterior estimate this connection is drawn to. Full derivation in Appendix~\ref{app:info-gain}.
+
+
 \label{app:theory}
 % =======================================================================
 
