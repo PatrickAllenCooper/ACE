@@ -72,8 +72,37 @@ echo "================================================================"
 MODES="dpo sft_best ranking"
 SEEDS="42 123 456 789 1011"
 
+# Set SKIP_COMPLETED=1 to skip any (mode, seed) cell whose node_losses.csv
+# already reached episode 199 (the 200-episode cap). Presence of the file is
+# NOT sufficient: a wall-time TIMEOUT leaves a partial node_losses.csv behind
+# (this is exactly what jobs 32208655-662 produced), and treating those as
+# done would silently drop cells from the aggregate. Same convention as
+# jobs/curc_submit_5node_budget_fairness.sh.
+#
+# NOTE: this is a completed-output check only -- it does NOT detect a
+# duplicate still PENDING/RUNNING in the queue. Always check
+# `squeue -u $USER` before resubmitting, or two jobs will write the same
+# output directory concurrently.
+SKIP_COMPLETED="${SKIP_COMPLETED:-0}"
+
+cell_done() {
+    local mode=$1 seed=$2
+    local nl
+    nl=$(find "$OUT/${mode}/seed_${seed}" -name node_losses.csv 2>/dev/null | head -1)
+    [[ -n "$nl" ]] || return 1
+    python -c "
+import pandas as pd, sys
+df = pd.read_csv(sys.argv[1])
+sys.exit(0 if 'episode' in df.columns and int(df['episode'].max()) >= 199 else 1)
+" "$nl" 2>/dev/null
+}
+
 for MODE in $MODES; do
     for SEED in $SEEDS; do
+        if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$MODE" "$SEED"; then
+            echo "  SKIP (done): dpoalt_${MODE} seed=$SEED"
+            continue
+        fi
         JOB=$(sbatch --parsable \
             --job-name="dpoalt_${MODE:0:4}_s${SEED}" \
             --partition=$GPU_PARTITION --qos=$GPU_QOS \

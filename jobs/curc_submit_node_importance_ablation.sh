@@ -56,8 +56,33 @@ echo "================================================================"
 CONFIGS="full no_node_importance"
 SEEDS="42 123 456"
 
+# Set SKIP_COMPLETED=1 to skip any (config, seed) cell whose node_losses.csv
+# already reached episode 199 (the 200-episode cap). Presence of the file is
+# NOT sufficient -- a wall-time TIMEOUT leaves a partial one behind. Same
+# convention as jobs/curc_submit_5node_budget_fairness.sh.
+#
+# NOTE: completed-output check only; it does NOT detect a duplicate still
+# PENDING/RUNNING. Check `squeue -u $USER` before resubmitting.
+SKIP_COMPLETED="${SKIP_COMPLETED:-0}"
+
+cell_done() {
+    local config=$1 seed=$2
+    local nl
+    nl=$(find "$OUT/${config}/seed_${seed}" -name node_losses.csv 2>/dev/null | head -1)
+    [[ -n "$nl" ]] || return 1
+    python -c "
+import pandas as pd, sys
+df = pd.read_csv(sys.argv[1])
+sys.exit(0 if 'episode' in df.columns and int(df['episode'].max()) >= 199 else 1)
+" "$nl" 2>/dev/null
+}
+
 for CONFIG in $CONFIGS; do
     for SEED in $SEEDS; do
+        if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$CONFIG" "$SEED"; then
+            echo "  SKIP (done): nodeimp_${CONFIG} seed=$SEED"
+            continue
+        fi
         JOB=$(sbatch --parsable \
             --job-name="nodeimp_${CONFIG:0:6}_s${SEED}" \
             --partition=$GPU_PARTITION --qos=$GPU_QOS \
