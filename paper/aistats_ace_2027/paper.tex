@@ -136,31 +136,36 @@ Rung-2 design requires a forward model --- the policy must anticipate what an in
 The reward signal that generates preferences combines three components:
 \begin{equation}
 \label{eq:reward}
-R(c, s) \;=\; \underbrace{\Delta\mathcal{L}}_{\text{information gain}} \;+\; \underbrace{w(V_i, \{L_j\})}_{\text{node importance}} \;+\; \gamma \cdot \underbrace{D(V_i, H)}_{\text{diversity}},
+R(c, s) \;=\; \underbrace{\Delta\mathcal{L}}_{\text{info.\ gain}} + \underbrace{w(V_i, \{L_j\})}_{\text{importance}} + \gamma \underbrace{D(V_i, H)}_{\text{diversity}},
 \end{equation}
 where $\Delta\mathcal{L}$ is the loss reduction estimated by lookahead and $\gamma = 0.3$ is the diversity weight. We give both $w$ and $D$ in full below, correcting the previous submission's appendix, which deferred to ``the public code repository''; the exact scale constants below are the ones used to produce every result in Section~\ref{sec:results}, verified directly against the released implementation.
 
 \textbf{Node importance.} Let $\text{Ch}(V_i)$ be the children of $V_i$ in $\mathcal{G}$ and $n_i$ the number of times $V_i$ has already been targeted in the current episode. Node importance is
-\begin{equation}
+\begin{align}
 \label{eq:node-importance}
-w(V_i, \{L_j\}) \;=\; \beta_w \cdot \frac{\frac{1}{|\text{Ch}(V_i)|}\sum_{V_j \in \text{Ch}(V_i)} \mathds{1}[|\text{Pa}_j| \ge 2] \cdot 2 L_j + \mathds{1}[|\text{Pa}_j| < 2] \cdot L_j}{\sum_k L_k + \epsilon} \cdot \frac{1}{\sqrt{1 + n_i}},
-\end{equation}
-with scale constant $\beta_w = 60.0$ and $\epsilon = 10^{-8}$; $w(V_i,\cdot)=0$ if $V_i$ has no children. This rewards intervening on parents of high-loss \emph{children}, doubling the weight of children that are themselves colliders (two or more parents, where identifying the mechanism requires varying more than one parent), normalized by total current loss, and discounted by an under-sampling correction $(1+n_i)^{-1/2}$ that softens repeated targeting of the same node within an episode.
+w(V_i, \{L_j\}) &\;=\; \beta_w \cdot \frac{\widetilde{L}_i}{\sum_k L_k + \epsilon} \cdot \frac{1}{\sqrt{1 + n_i}}, \\
+\widetilde{L}_i &\;=\; \frac{1}{|\text{Ch}(V_i)|}\sum_{V_j \in \text{Ch}(V_i)} \omega_j L_j, \nonumber
+\end{align}
+where $\omega_j = 2$ if $|\text{Pa}_j| \ge 2$ (i.e.\ $V_j$ is itself a collider) and $\omega_j = 1$ otherwise,
+and with scale constant $\beta_w = 60.0$ and $\epsilon = 10^{-8}$; $w(V_i,\cdot)=0$ if $V_i$ has no children. This rewards intervening on parents of high-loss \emph{children}, doubling the weight of children that are themselves colliders (two or more parents, where identifying the mechanism requires varying more than one parent), normalized by total current loss, and discounted by an under-sampling correction $(1+n_i)^{-1/2}$ that softens repeated targeting of the same node within an episode.
 
 \textbf{Diversity.} Let $H$ be the \emph{history window}: the most recent $\min(100, |H_\text{all}|)$ intervention targets, where $H_\text{all}$ is the full within-run history. $D(V_i, H)$ is inactive ($D=0$) until at least 20 interventions have occurred, and is otherwise
-\begin{equation}
+\begin{align}
 \label{eq:diversity}
-D(V_i, H) \;=\; \underbrace{50 \cdot \mathrm{Ent}(H)}_{\text{entropy bonus}} \;+\; \underbrace{200 \cdot \max\!\big(0,\, \tfrac{1}{|\mathcal V|} - f_{V_i}(H)\big)}_{\text{under-sampling bonus}} \;-\; \underbrace{150 \cdot \max\!\big(0,\, c(H) - \tau(V_i)\big)}_{\text{concentration penalty}},
-\end{equation}
-where $\mathrm{Ent}(H) = -\sum_{V_j \in \mathcal V} f_{V_j}(H) \log f_{V_j}(H)$ is the Shannon entropy of the empirical target distribution over $H$, $f_{V_i}(H)$ is $V_i$'s frequency in $H$, and $c(H) = \max_j f_{V_j}(H)$ is the concentration of the most-targeted node in $H$. The threshold $\tau(V_i)$ is normally $0.4$ (the paper's default \texttt{max\_concentration}), but relaxes to $\max(0.75, 0.4+0.15)=0.75$ specifically when $V_i$ is a parent of a collider whose loss still exceeds $0.3$, so that the concentration penalty does not fight the strategic collider-parent concentration documented in Section~\ref{sec:results-main} and Appendix~\ref{app:strategic}.
+D(V_i, H) \;=\;& 50 \cdot \mathrm{Ent}(H) \nonumber \\
+&+\, 200 \cdot \max\!\big(0,\, \tfrac{1}{|\mathcal V|} - f_{V_i}(H)\big) \nonumber \\
+&-\, 150 \cdot \max\!\big(0,\, c(H) - \tau(V_i)\big)
+\end{align}
+whose three terms are an entropy bonus, an under-sampling bonus, and a concentration penalty respectively. Here $\mathrm{Ent}(H) = -\sum_{V_j \in \mathcal V} f_{V_j}(H) \log f_{V_j}(H)$ is the Shannon entropy of the empirical target distribution over $H$, $f_{V_i}(H)$ is $V_i$'s frequency in $H$, and $c(H) = \max_j f_{V_j}(H)$ is the concentration of the most-targeted node in $H$. The threshold $\tau(V_i)$ is normally $0.4$ (the paper's default \texttt{max\_concentration}), but relaxes to $0.75$ specifically when $V_i$ is a parent of a collider whose loss still exceeds $0.3$, so that the concentration penalty does not fight the strategic collider-parent concentration documented in Section~\ref{sec:results-main} and Appendix~\ref{app:strategic}.
 
 \textbf{Calibration rules.} Given the preference pair $(y_w, y_l)$ from Section~\ref{sec:interaction-loop}, we compare three rules for updating the policy $\pi_\phi$ toward the winning candidate, all operating on the identical candidate/lookahead/reward pipeline above so that any difference in downstream performance is attributable to the update rule alone:
 \begin{itemize}[leftmargin=1.2em,topsep=0.2em,itemsep=0.1em]
 \item \textbf{DPO} (default), the standard objective \citep{rafailov2023direct}
-\begin{equation}
+\begin{align}
 \label{eq:dpo-loss}
-\mathcal{L}_{\text{DPO}} \;=\; -\mathbb{E}_{(x, y_w, y_l)}\Big[\log\sigma\Big(\beta\big[\log\tfrac{\pi_\phi(y_w \mid x)}{\pi_\text{ref}(y_w \mid x)} - \log\tfrac{\pi_\phi(y_l \mid x)}{\pi_\text{ref}(y_l \mid x)}\big]\Big)\Big],
-\end{equation}
+\mathcal{L}_{\text{DPO}} &\;=\; -\mathbb{E}_{(x, y_w, y_l)}\big[\log\sigma(\beta\,\Delta_\phi)\big], \\
+\Delta_\phi &\;=\; \log\tfrac{\pi_\phi(y_w \mid x)}{\pi_\text{ref}(y_w \mid x)} - \log\tfrac{\pi_\phi(y_l \mid x)}{\pi_\text{ref}(y_l \mid x)}, \nonumber
+\end{align}
 with $\beta = 0.1$ and reference policy $\pi_\text{ref}$ updated every 25 episodes.
 \item \textbf{SFT-best}: supervised fine-tuning on $y_w$ alone, $\mathcal{L}_{\text{SFT}} = -\log\pi_\phi(y_w \mid x)$, discarding $y_l$ and the reference-policy term entirely.
 \item \textbf{Ranking}: a pairwise Bradley--Terry logistic loss on policy log-probabilities with no reference policy, $\mathcal{L}_{\text{rank}} = -\log\sigma\big(\beta[\log\pi_\phi(y_w\mid x) - \log\pi_\phi(y_l\mid x)]\big)$.
@@ -707,7 +712,7 @@ Configuration & Total Loss & Change vs.\ full & Failure mode \\
 \midrule
 ACE (full) & 0.92$\pm$0.73 & --- & --- \\
 \midrule
-No LM proposer (random proposals + lookahead; DPO also inapplicable) & 2.10$\pm$0.11 & $+128\%$ & no learned strategy \\
+No LM proposer (random proposals) & 2.10$\pm$0.11 & $+128\%$ & no learned strategy \\
 No per-node convergence (fixed 100 ep.) & 1.45$\pm$0.62 & $+58\%$ & early termination \\
 No dedicated root learner & 1.38$\pm$0.55 & $+50\%$ & root distribution failure \\
 No diversity reward ($\gamma=0$) & 2.82$\pm$0.22 & $+207\%$ & node collapse \\
