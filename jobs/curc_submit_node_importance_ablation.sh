@@ -89,6 +89,7 @@ sys.exit(0 if 'episode' in df.columns and int(df['episode'].max()) >= 199 else 1
 " "$nl" 2>/dev/null
 }
 
+N_SUBMITTED=0
 for CONFIG in $CONFIGS; do
     for SEED in $SEEDS; do
         if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$CONFIG" "$SEED"; then
@@ -105,12 +106,13 @@ for CONFIG in $CONFIGS; do
             --error="$OUT/logs/${CONFIG}_seed${SEED}_%j.err" \
             --export=ALL,CONFIG=$CONFIG,SEED=$SEED,OUT=$OUT \
             jobs/curc_node_importance_ablation_seed.sh)
+        N_SUBMITTED=$((N_SUBMITTED+1))
         echo "  Submitted: config=$CONFIG seed=$SEED -> Job $JOB"
     done
 done
 
 echo ""
-echo "6 jobs submitted."
+echo "$N_SUBMITTED job(s) submitted (of 6 cells; the rest were filtered or already done)."
 echo "Monitor with:  squeue -u \$USER"
 echo "Logs in:       $OUT/logs/"
 echo ""

@@ -112,6 +112,7 @@ sys.exit(0 if 'episode' in df.columns and int(df['episode'].max()) >= 199 else 1
 " "$nl" 2>/dev/null
 }
 
+N_SUBMITTED=0
 for MODE in $MODES; do
     for SEED in $SEEDS; do
         if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$MODE" "$SEED"; then
@@ -128,12 +129,13 @@ for MODE in $MODES; do
             --error="$OUT/logs/${MODE}_seed${SEED}_%j.err" \
             --export=ALL,POLICY_UPDATE=$MODE,SEED=$SEED,OUT=$OUT \
             jobs/curc_dpo_alternative_seed.sh)
+        N_SUBMITTED=$((N_SUBMITTED+1))
         echo "  Submitted: policy_update=$MODE seed=$SEED -> Job $JOB"
     done
 done
 
 echo ""
-echo "15 jobs submitted."
+echo "$N_SUBMITTED job(s) submitted (of 15 cells; the rest were filtered or already done)."
 echo "Monitor with:  squeue -u \$USER"
 echo "Logs in:       $OUT/logs/"
 echo ""
