@@ -71,10 +71,28 @@ ranking 5 cells + node-importance 6 cells queued on ah200 under gpu-long,
 WALL_TIME=48h (from-scratch cells need 27-33h at the observed ~8-10
 min/episode). If sft_best s1011 times out, requeue with MODES=sft_best.
 
-**Still your call before submission:** ~11 `jobs/curc_*.sh` filenames remain
-in the text (weak de-anonymization signal; renaming breaks the live workflow).
-No CU-specific partition names remain (grep-verified). Compute-resources
-section rewritten (A100/RTX Pro 6000/H200; ~950 GPU-h, ~200 CPU-h estimated).
+**Anonymity, verified on the RENDERED PDF (not the .tex):** author names,
+affiliation, email absent; byline renders "Anonymous Author / Anonymous
+Institution"; the [accepted] camera-ready option is commented out. "CURC"
+had rendered 10x via jobs/curc_*.sh filenames -> replaced in the paper text
+with a generic hpc_ prefix (live scripts untouched; one-to-one mapping
+disclosed in the reproducibility appendix). Re-swept: 0. No CU partition
+names. Compute-resources section rewritten (A100/RTX Pro 6000/H200;
+~950 GPU-h, ~200 CPU-h estimated).
+
+**Every "statistically tied/indistinguishable" replaced** in both copies by
+the test actually run, or by "within noise" where only baseline clustering
+is claimed. The ICLR copy's "we do not run a formal equivalence test" was
+removed (false since Sept 10).
+
+**MUST DO before upload:** the style file is the AISTATS **2026** pack (the
+2027 pack was not released when this was set up). A TEMPORARY preamble
+override (`\renewcommand{\@conferenceyear}{2027}`, clearly commented) makes
+the running header read "AISTATS 2027" so the current build is uploadable
+as-is; the .sty is unmodified. Swap in the official aistats2027.sty as soon
+as it is posted, DELETE the override, recompile, re-check the header and the
+8-page fit. Also: create the actual anonymous repository mirror and put
+its real URL in place of the anonymous.4open.science placeholder.
 
 ## SEPTEMBER 7, 2026: DECISION GATE CLOSED AT BOTH SCALES
 

@@ -19,6 +19,15 @@
 \usepackage{aistats2026}
 % \usepackage[accepted]{aistats2026}   % camera-ready ONLY -- de-anonymizes
 
+% TEMPORARY -- REMOVE WHEN THE OFFICIAL 2027 PACK IS SWAPPED IN.
+% The 2026 style file hardcodes \@conferenceyear{2026}, so every page's running
+% header would read "Manuscript under review by AISTATS 2026". This overrides
+% only that macro from the document side (the .sty itself is unmodified, per
+% AISTATS's instructions). Delete these three lines once aistats2027.sty is in
+% use; if the 2027 pack renames the macro this line will fail loudly, which is
+% the intended reminder.
+\makeatletter\renewcommand{\@conferenceyear}{2027}\makeatother
+
 \usepackage[round]{natbib}
 \renewcommand{\bibname}{References}
 \renewcommand{\bibsection}{\subsubsection*{\bibname}}
