@@ -63,7 +63,9 @@ echo " Output : $OUT"
 echo " Started: $(date)"
 echo "================================================================"
 
-CONFIGS="full no_node_importance"
+# CONFIGS is overridable for the same reason MODES is in the DPO-alternatives
+# script -- submit a subset without duplicating still-RUNNING cells.
+CONFIGS="${CONFIGS:-full no_node_importance}"
 SEEDS="42 123 456"
 
 # Set SKIP_COMPLETED=1 to skip any (config, seed) cell whose node_losses.csv
