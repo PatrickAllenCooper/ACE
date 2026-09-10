@@ -28,7 +28,7 @@ cd /projects/paco0228/ACE
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-OUT="/scratch/alpine/paco0228/ACE/results/curc_30node_budget_fairness/baselines"
+OUT="${OUT:-/scratch/alpine/paco0228/ACE/results/curc_30node_budget_fairness/baselines}"
 mkdir -p "$OUT/logs"
 
 echo "================================================================"
@@ -39,8 +39,8 @@ echo " Output       : $OUT"
 echo " Started      : $(date)"
 echo "================================================================"
 
-METHODS="random round_robin max_variance bayesian_oed"
-SEEDS="42 123 456 789 1011"
+METHODS="${METHODS:-random round_robin max_variance bayesian_oed}"
+SEEDS="${SEEDS:-42 123 456 789 1011}"
 
 for METHOD in $METHODS; do
     for SEED in $SEEDS; do

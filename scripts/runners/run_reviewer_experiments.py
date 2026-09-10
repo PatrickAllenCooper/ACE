@@ -178,12 +178,17 @@ def run_bayesian_baseline(
 
         final_losses = learner.evaluate()
         total_loss = sum(final_losses.values())
+        # ACE's metric on the same student (broad-range, root-weighted) --
+        # Sept 2026 audit; 'total_loss' above is observational + unweighted.
+        ace_total, ace_losses = learner._critic.evaluate_broadrange(learner.student)
         results.append({
             'seed': seed,
             'method': 'bayesian_oed',
             'episodes': episodes,
             'total_loss': total_loss,
+            'ace_total_loss': ace_total,
             **{f'loss_{k}': v for k, v in final_losses.items()},
+            **{f'ace_loss_{k}': v for k, v in ace_losses.items()},
         })
 
         df = pd.DataFrame(results)

@@ -27,10 +27,14 @@ cd /projects/paco0228/ACE
 echo "DPO-alternative policy_update=$POLICY_UPDATE seed=$SEED started at $(date)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || true
 
+# POLICY_UPDATE=none runs the LM proposer + lookahead with NO weight updates
+# (--no_dpo): the 'none' row of the calibration-rule table, demanded by the
+# Sept 10 review panel so Contribution 1 is tested at 5 nodes, not only at 30.
+if [ "$POLICY_UPDATE" = "none" ]; then UPDATE_ARGS="--no_dpo"; else UPDATE_ARGS="--policy_update $POLICY_UPDATE"; fi
 python -u ace_experiments.py \
     --episodes 200 \
     --seed "$SEED" \
-    --policy_update "$POLICY_UPDATE" \
+    $UPDATE_ARGS \
     --use_dedicated_root_learner \
     --obs_train_interval 3 \
     --obs_train_samples 200 \

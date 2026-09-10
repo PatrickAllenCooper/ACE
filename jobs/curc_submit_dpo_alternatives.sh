@@ -84,7 +84,7 @@ echo "================================================================"
 # that are still RUNNING under an earlier submission (SKIP_COMPLETED only
 # skips *finished* cells, so a blanket resubmit would duplicate them):
 #   MODES=ranking bash jobs/<this script>
-MODES="${MODES:-dpo sft_best ranking}"
+MODES="${MODES:-dpo sft_best ranking none}"
 SEEDS="42 123 456 789 1011"
 
 # Set SKIP_COMPLETED=1 to skip any (mode, seed) cell whose node_losses.csv

@@ -2491,7 +2491,8 @@ def main():
         # language prior. Anonymisation seed is deterministic from --seed.
         _lscm = _LSCM(args.large_scale,
                       anonymize=getattr(args, "anonymize_nodes", False),
-                      anonymize_seed=args.seed if args.seed else 42)
+                      anonymize_seed=args.seed if args.seed else 42,
+                      coeff_seed=args.seed if args.seed else 42)
         _edges = []
         for node, parents in _lscm.graph.items():
             for p in parents:
@@ -2978,6 +2979,15 @@ def main():
             }
             for node, loss_val in node_losses_start.items():
                 node_loss_record[f"loss_{node}"] = loss_val
+            # Also log the baselines' convention (observational validation
+            # sample, unweighted sum; baselines.ScientificCritic.evaluate) so
+            # ACE and baseline runs can be compared on either metric without
+            # re-running -- Sept 2026 metric audit. 'total_loss' above weights
+            # roots x0.2 and scores non-roots on broad-range parent contexts.
+            obs_total, obs_node_losses = critic.evaluate_model_detailed(current_student)
+            node_loss_record["obs_total_loss"] = obs_total
+            for node, loss_val in obs_node_losses.items():
+                node_loss_record[f"obs_loss_{node}"] = loss_val
             node_loss_tracking.append(node_loss_record)
             
             if loss_start < best_mech_loss - args.min_delta:

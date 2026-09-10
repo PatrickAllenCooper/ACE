@@ -41,7 +41,7 @@ cd /projects/paco0228/ACE
 source /projects/paco0228/miniconda3/etc/profile.d/conda.sh
 conda activate ace
 
-OUT="/scratch/alpine/paco0228/ACE/results/curc_30node_baselines"
+OUT="${OUT:-/scratch/alpine/paco0228/ACE/results/curc_30node_baselines}"
 mkdir -p "$OUT/logs"
 
 echo "================================================================"
@@ -51,7 +51,7 @@ echo " Output : $OUT"
 echo " Started: $(date)"
 echo "================================================================"
 
-SEEDS="42 123 456 789 1011"
+SEEDS="${SEEDS:-42 123 456 789 1011}"
 
 cell_done() {
     [[ -f "$OUT/bayesian_oed/seed_$1/summary.csv" ]]

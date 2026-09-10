@@ -11,6 +11,7 @@ This addresses: "Limited scalability demonstration (5-15 nodes)"
 """
 
 import torch
+import logging
 import numpy as np
 from typing import List, Dict, Optional
 import argparse
@@ -38,7 +39,8 @@ class LargeScaleSCM:
     - Layer 4: leaves with 1 Layer-3 parent
     """
 
-    def __init__(self, n_nodes=30, anonymize=False, anonymize_seed=None):
+    def __init__(self, n_nodes=30, anonymize=False, anonymize_seed=None,
+                 coeff_seed=None):
         self.n_nodes = n_nodes
         # 5 layers, sized roughly proportional to n_nodes. For n=30 this
         # reproduces the canonical 5/5/10/5/5 split exactly.
@@ -93,6 +95,59 @@ class LargeScaleSCM:
         # (so generate()'s "every 5th node gets nonlinearity" rule keeps
         # working when names like X1 are renamed to n_dc66).
         self.node_idx = {name: i + 1 for i, name in enumerate(self.nodes)}
+
+        # Mechanism coefficients are drawn ONCE here and held fixed for the
+        # life of the object. Before Sept 2026 generate() redrew every
+        # coefficient on every call, so the baselines ran against a
+        # non-stationary system while ace_experiments.py's --large_scale
+        # adapter (_LargeGroundTruthSCM) drew them once from
+        # np.random.seed(args.seed). Passing coeff_seed=<run seed> reproduces
+        # that adapter's draw exactly (same seed, same iteration order), so a
+        # baseline and an ACE run at the same seed share graph AND mechanisms.
+        self.coeffs = None
+        self.freeze_coefficients(coeff_seed)
+
+    def freeze_coefficients(self, seed=None):
+        """Draw and pin one coefficient per edge, U(0.3, 0.7).
+
+        With ``seed`` this is bit-identical to ace_experiments.py's
+        ``_ls_coeffs`` draw (np.random.seed(seed), then one uniform per parent
+        iterating ``self.graph.items()``). Without it, coefficients are drawn
+        from the current NumPy RNG state -- stationary, but not matched to any
+        ACE run; a warning is logged so this is never silent.
+        """
+        if seed is not None:
+            np.random.seed(seed)
+        else:
+            logging.warning("LargeScaleSCM: coefficients frozen from the current "
+                            "RNG state, not from a seed -- they will NOT match an "
+                            "ACE run. Pass coeff_seed=<seed> for a matched system.")
+        self.coeffs = {node: {p: float(np.random.uniform(0.3, 0.7)) for p in parents}
+                       for node, parents in self.graph.items()}
+
+    def mechanisms(self, data, node, n_samples=1):
+        """Structural equation of ``node`` given parent values ``data``.
+
+        Same interface as ace_experiments.GroundTruthSCM.mechanisms, so
+        ACE's broad-range evaluator can score a student trained on this
+        oracle. generate() is a thin loop over this method.
+        """
+        # Draw order mirrors ace_experiments.py's _LargeGroundTruthSCM
+        # (noise first, then the root sample) so that, given the same parent
+        # data and torch seed, the two produce bit-identical samples.
+        n = next(iter(data.values())).shape[0] if data else n_samples
+        noise = torch.randn(n) * self.noise_std
+        parents = self.get_parents(node)
+        if not parents:
+            return torch.randn(n)
+        value = torch.zeros(n)
+        for p in parents:
+            value = value + self.coeffs[node][p] * data[p]
+        # Nonlinearity for every 5th node, via the stable node-id lookup so it
+        # holds under --anonymize_nodes as well.
+        if self.node_idx.get(node, 0) % 5 == 0:
+            value = value + 0.2 * torch.sin(value)
+        return value + noise
 
     def _build_hierarchical_graph(self, names):
         """Build hierarchical causal graph using canonical X-names. Layer
@@ -149,38 +204,15 @@ class LargeScaleSCM:
         return self.graph.get(node, [])
     
     def generate(self, n_samples: int, interventions: Optional[Dict[str, float]] = None):
-        """Generate samples from large-scale SCM."""
+        """Generate samples from the large-scale SCM (fixed coefficients)."""
         interventions = interventions or {}
         data = {}
-        
-        # Topological order
-        topo_order = self._topological_sort()
-        
-        for node in topo_order:
+        for node in self._topological_sort():
             if node in interventions:
                 data[node] = torch.full((n_samples,), float(interventions[node]))
             else:
-                parents = self.get_parents(node)
-                
-                if not parents:
-                    # Root
-                    data[node] = torch.randn(n_samples)
-                else:
-                    # Combine parents with random coefficients
-                    value = torch.zeros(n_samples)
-                    for parent in parents:
-                        coef = np.random.uniform(0.3, 0.7)
-                        value += coef * data[parent]
-                    
-                    # Add nonlinearity for some nodes (every 5th node).
-                    # Use the stable node-id lookup so this works for both
-                    # canonical (X1..XN) and anonymised (n_xxxx) names.
-                    node_num = self.node_idx.get(node, 0)
-                    if node_num % 5 == 0:
-                        value = value + 0.2 * torch.sin(value)
-                    
-                    data[node] = value + torch.randn(n_samples) * self.noise_std
-        
+                p_data = {p: data[p] for p in self.get_parents(node)}
+                data[node] = self.mechanisms(p_data, node, n_samples=n_samples)
         return data
     
     def _topological_sort(self):

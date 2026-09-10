@@ -178,6 +178,7 @@ def run_episode_loop(
                                             n_epochs=n_train_epochs)
 
             total_loss, node_losses = critic.evaluate(student)
+            ace_total, ace_node_losses = critic.evaluate_broadrange(student)
 
             record = {
                 "episode": episode,
@@ -186,6 +187,9 @@ def run_episode_loop(
                 "value": value,
                 "total_loss": total_loss,
                 **{f"loss_{n}": v for n, v in node_losses.items()},
+                # ACE's evaluator on the same student (baselines.evaluate_mechanisms_broadrange)
+                "ace_total_loss": ace_total,
+                **{f"ace_loss_{n}": v for n, v in ace_node_losses.items()},
             }
             all_records.append(record)
 
@@ -255,7 +259,10 @@ def main():
     t0 = time.time()
 
     # Build SCM (graph wiring is seed-controlled by the np.random.seed above)
-    scm = LargeScaleSCM(args.n_nodes)
+    # coeff_seed pins the mechanism coefficients to the same draw ACE's
+    # --large_scale adapter makes at this seed (Sept 2026 audit: generate()
+    # used to redraw them every batch, so baselines ran on a moving target).
+    scm = LargeScaleSCM(args.n_nodes, coeff_seed=args.seed)
     nodes = scm.nodes
     logging.info(f"  SCM: {len(nodes)} nodes, "
                  f"{sum(len(v) for v in scm.graph.values())} edges, "
@@ -311,6 +318,8 @@ def main():
         "episodes": args.episodes,
         "final_total_loss": final_loss,
         "min_total_loss": df["total_loss"].min(),
+        "ace_final_total_loss": float(df.tail(1)["ace_total_loss"].item()),
+        "ace_min_total_loss": float(df["ace_total_loss"].min()),
         "elapsed_s": elapsed,
     }
     pd.DataFrame([summary]).to_csv(

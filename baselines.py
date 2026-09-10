@@ -44,6 +44,7 @@ import copy
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 import pandas as pd
@@ -113,6 +114,23 @@ class GroundTruthSCM:
     def get_parents(self, node: str) -> List[str]:
         return self.graph.get(node, [])
     
+    def mechanisms(self, data: Dict[str, torch.Tensor], node: str, n_samples: int = 1) -> torch.Tensor:
+        """Structural equation of ``node`` given parent values ``data``.
+
+        Identical equations to generate() and to
+        ace_experiments.GroundTruthSCM.mechanisms; exposed so ACE's broad-range
+        evaluator (evaluate_mechanisms_broadrange) can score students trained
+        against this oracle.
+        """
+        n = next(iter(data.values())).shape[0] if data else n_samples
+        noise = torch.randn(n) * self.noise_std
+        if node == "X1": return torch.randn(n)
+        if node == "X4": return torch.randn(n) + 2.0
+        if node == "X2": return 2 * data["X1"] + 1 + noise
+        if node == "X3": return 0.5 * data["X1"] - data["X2"] + torch.sin(data["X2"]) + noise
+        if node == "X5": return 0.2 * data["X4"] ** 2 + noise
+        return noise
+
     def generate(self, n_samples: int, interventions: Optional[Dict[str, float]] = None) -> Dict[str, torch.Tensor]:
         """Generate samples, optionally with interventions."""
         interventions = interventions or {}
@@ -804,6 +822,45 @@ class SCMLearner:
         return self.train_step(obs_data, intervened=None, n_epochs=n_epochs)
 
 
+def evaluate_mechanisms_broadrange(oracle, student, val_data, n: int = 500) -> Tuple[float, Dict[str, float]]:
+    """ACE's reported metric, ported line-for-line from
+    ace_experiments.ScientificCritic.evaluate_mechanisms_detailed.
+
+    Roots: student mean vs the observational validation sample. Non-roots:
+    parents drawn U(-4, 4) independently, truth from ``oracle.mechanisms``.
+    Returns (weighted_total, node_losses): the total weights roots x0.2 and
+    non-roots x1.0 (exactly what ACE's node_losses.csv 'total_loss' column
+    holds); the per-node dict is unweighted. ScientificCritic.evaluate() is
+    the OTHER convention (observational, unweighted); every runner logs both
+    since the Sept 2026 metric audit.
+    """
+    raw = oracle._oracle if isinstance(oracle, InstrumentedOracle) else oracle
+    student.eval()
+    node_losses: Dict[str, float] = {}
+    with torch.no_grad():
+        for node in student.nodes:
+            if student.get_parents(node):
+                continue
+            y_true = val_data[node]
+            y_pred = student.mechanisms[node]["mu"].expand_as(y_true)
+            node_losses[node] = F.mse_loss(y_pred, y_true).item()
+        for node in student.nodes:
+            student_parents = student.get_parents(node)
+            if not student_parents:
+                continue
+            oracle_parents = raw.get_parents(node)
+            all_parents = list(set(student_parents) | set(oracle_parents))
+            parent_ctx = {p: (torch.rand(n) * 8.0 - 4.0) for p in all_parents}
+            y_true = raw.mechanisms(parent_ctx, node, n_samples=n)
+            p_tensor = torch.stack([parent_ctx[p] for p in student_parents], dim=1)
+            y_pred = student.mechanisms[node](p_tensor).squeeze()
+            node_losses[node] = F.mse_loss(y_pred, y_true).item()
+    total = 0.0
+    for node, loss in node_losses.items():
+        total += (0.2 if not student.get_parents(node) else 1.0) * loss
+    return total, node_losses
+
+
 class ScientificCritic:
     """Evaluates mechanism quality."""
     
@@ -817,6 +874,10 @@ class ScientificCritic:
         # part of the sequential experimental campaign being budgeted.
         raw_oracle = oracle._oracle if isinstance(oracle, InstrumentedOracle) else oracle
         self.val_data = raw_oracle.generate(n_samples=500)
+
+    def evaluate_broadrange(self, student: "StudentSCM") -> Tuple[float, Dict[str, float]]:
+        """ACE's metric (broad-range, root-weighted); see evaluate_mechanisms_broadrange."""
+        return evaluate_mechanisms_broadrange(self.oracle, student, self.val_data)
         
     def evaluate(self, student: StudentSCM) -> Tuple[float, Dict[str, float]]:
         """Compute MSE for each mechanism."""
@@ -959,6 +1020,7 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
             
             # Evaluate
             total_loss, node_losses = critic.evaluate(student)
+            ace_total, ace_node_losses = critic.evaluate_broadrange(student)
             
             # For PPO: compute and store reward
             if is_ppo:
@@ -975,7 +1037,10 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
                 "target": target,
                 "value": value,
                 "total_loss": total_loss,
-                **{f"loss_{node}": loss for node, loss in node_losses.items()}
+                **{f"loss_{node}": loss for node, loss in node_losses.items()},
+                # ACE's evaluator on the same student (see evaluate_mechanisms_broadrange)
+                "ace_total_loss": ace_total,
+                **{f"ace_loss_{node}": loss for node, loss in ace_node_losses.items()},
             }
             all_records.append(record)
             

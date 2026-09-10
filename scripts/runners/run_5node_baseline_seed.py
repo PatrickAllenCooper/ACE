@@ -133,6 +133,8 @@ def main():
         "episodes": int(df["episode"].nunique()),
         "final_total_loss": final_loss,
         "min_total_loss": df["total_loss"].min(),
+        "ace_final_total_loss": float(df.tail(1)["ace_total_loss"].item()),
+        "ace_min_total_loss": float(df["ace_total_loss"].min()),
         "elapsed_s": elapsed,
     }
     pd.DataFrame([summary]).to_csv(os.path.join(run_dir, "summary.csv"), index=False)

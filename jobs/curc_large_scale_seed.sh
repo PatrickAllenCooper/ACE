@@ -31,10 +31,14 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || tr
 JOB_TAG="${SLURM_JOB_ID:-local}"
 OUTPUT_DIR="$OUT/large_scale/seed_${SEED}/job_${JOB_TAG}"
 
+# NO_DPO_FLAG="--no_dpo" (set by curc_submit_30node_expansion_controls.sh) runs
+# the LM proposer + lookahead with no weight updates on the same graph/budget;
+# EPISODES defaults to the 300 used for the seed-expansion runs.
 python -u ace_experiments.py \
     --large_scale 30 \
-    --episodes 300 \
+    --episodes "${EPISODES:-300}" \
     --seed "$SEED" \
+    ${NO_DPO_FLAG:-} \
     --use_dedicated_root_learner \
     --obs_train_interval 3 \
     --obs_train_samples 200 \
