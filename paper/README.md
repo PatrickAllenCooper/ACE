@@ -14,11 +14,14 @@ page limit.
 ## Why the older directories still matter
 
 AISTATS is **two-column with an 8-page main-body limit**; ICLR was single-column
-with roughly 10. Fitting the AISTATS limit required cutting the main body from 15
-pages down toward 8. Almost all of that was **relocation, not deletion** — the
-theory section, the 5-node and 30-node schematics, and the 30-node results figure
-were moved into the AISTATS supplement, which has no length limit, and are fully
-present there.
+with roughly 10. Fitting the AISTATS limit meant cutting the main body from 15
+pages to 8 (done, Sept 10 2026). Almost all of that was **relocation, not
+deletion** — the theory section, the 5-node and 30-node schematics, the 30-node
+results figure, the scaling figure, the component-ablation table, and the
+"scaling principles" paragraph were moved into the AISTATS supplement, which has
+no length limit, and are fully present there. Broader Impacts and the
+Reproducibility Statement were dropped outright: AISTATS does not mandate them
+and its checklist covers reproducibility.
 
 **The one exception is Related Work.** It was genuinely rewritten shorter for
 AISTATS (954 → 494 words). Every citation key was preserved and verified, and the
@@ -51,7 +54,17 @@ known errors:
   as a DPO ablation contradicting the paper's own Contribution 1;
 - the 5-node budget-fairness result and the Bayesian-OED-at-30-nodes row added;
 - the 30-node seed-expansion non-replication reported rather than the three-seed
-  number alone.
+  number alone;
+- (Sept 10) the canonical ACE-vs-ACE-w/o-DPO pair put on one statistic — the
+  printed 1.73 was an episode-level minimum while Table 2's 1.95 is step-level;
+  on the consistent step-level basis w/o-DPO is 1.67±0.19 — with the two
+  definitions now stated in Table 2's caption;
+- (Sept 10) the scaling-sweep sentence "tied at N=15,30" corrected: paired by
+  seed, ACE-w/o-DPO is significantly better at N=15 and N=30;
+- (Sept 10) "statistically tied" replaced by the actual tests (Welch p=0.59
+  canonical; paired t / Wilcoxon / TOST-equivalence for anon30);
+- (Sept 9) bibliography verified against primary sources; 5 entries corrected,
+  10 fabricated or duplicate unused entries removed. Both copies share the file.
 
 ## Building
 

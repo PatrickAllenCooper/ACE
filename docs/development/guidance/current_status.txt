@@ -1,7 +1,80 @@
 # ACE Current Status - Quick Reference
 
-**Date:** September 7, 2026 (decision gate CLOSED at both scales; seed-expansion
-non-replication discovered; venue retargeted to AISTATS 2027)
+**Date:** September 10, 2026 (AISTATS draft at the 8-page limit; citations
+verified; DPO-tie claim now backed by tests; two printed claims corrected)
+
+## SEPTEMBER 10, 2026: SUBMISSION-READINESS PASS (paper/aistats_ace_2027/)
+
+**Page limit reached.** Main body fits AISTATS's 8 pages (refs, checklist,
+supplement excluded). Path: 15 -> 11 -> 9 -> 8 via relocation into the
+unlimited supplement (theory section, all three schematics, results figure,
+ablation table, fig:scaling, the Limitations "scaling principles" paragraph),
+dropping Broader Impacts + Reproducibility Statement (not mandated by AISTATS;
+the checklist covers reproducibility), figure shrinks (hero \resizebox 0.80,
+fig:scaling 0.7 width in supplement), and prose compression. Body ~4,850 words,
+3 column-spanning floats (hero, Table 1, Table 2). Zero dangling refs, zero
+overfull boxes >10pt. See paper/README.md for what survives only in the ICLR
+long-form copy.
+
+**Significance tests run on the DPO-tie data (scripts inline in git log;
+data: results/curc_30node_followup/aggregate.csv, results/scaling/aggregate.csv,
+results/curc_20260415_152624/large_scale, results/curc_30node_rebuttal):**
+  - anon30, N=5 PAIRED by seed: mean diff +0.017; paired t p=0.37; Wilcoxon
+    p=0.81; TOST equivalence within +/-0.15 total MSE p=0.001 (and within
+    0.5 pooled SD p=0.010). Contribution 1's central evidence is now a formal
+    equivalence, not an eyeballed tie. Written into the paper.
+  - scaling sweep, N=5 paired per scale, per-node best: ACE-w/o-DPO is
+    SIGNIFICANTLY BETTER at N=15 (0.051 vs 0.062, p=0.022) and N=30 (0.067
+    vs 0.114, p=0.008); not distinguishable at N=50 (p=0.29). The paper had
+    said "tied at N=15,30 and ACE slightly better at 50" -- WRONG; corrected
+    in both AISTATS and ICLR copies. Same direction as the seed-expansion
+    instability finding.
+  - canonical 30-node, UNPAIRED N=3 vs 5: Welch p=0.59, Mann-Whitney p=1.0.
+
+**Definitional inconsistency found and disclosed.** Table 2's "best MSE" is
+the min over RAW STEPS of total_loss (reproduces 1.95+/-0.77 and the old
+"stable-seed 1.54" exactly). Section 6 / scaling / anon30 numbers go through
+scaling_common.summarize_seed_dir, which takes the min over PER-EPISODE
+MEANS -- smoother and uniformly higher (same three ACE seeds: 2.14 vs 1.95).
+Both are defensible; the paper used both without saying so, and the printed
+canonical pair MIXED them (ACE 1.95 step-level vs w/o-DPO 1.73 episode-level).
+Standardized the canonical pair on step-level: w/o-DPO is 1.67+/-0.19 (was
+1.73+/-0.22). Updated in abstract, Contribution 1, Sec 5.2, supplement, in
+both copies. Table 2 caption now states the two definitions. Direction of the
+correction favors w/o-DPO, i.e. runs against self-interest.
+
+**Citation pass complete (Sept 9).** 45 printing citations verified against
+primary sources: 2 MAJOR fixed (eberhardt2005number was cited as a 2005 arXiv
+preprint -- it is UAI 2005, the arXiv ID is from 2012; kiciman2023causal is
+TMLR 2024, not an arXiv preprint), 3 MINOR fixed. Both 2026 forward-dated
+citations (hu2026capo, le2026cdpo) are REAL. 10 unused .bib entries deleted:
+9 fabricated (wrong authors on real titles, or non-existent) + 1 duplicate.
+The .bib had been expanded at some point without verification -- re-run a
+pass if it grows again.
+
+**Ready for the pending results.** New
+scripts/analysis/aggregate_policy_update_suite.py aggregates both remaining
+suites (curc_dpo_alternatives -> Table tab:calibration-rules in the
+supplement; curc_node_importance_ablation -> last row of tab:ablations),
+flags any cell below episode 199 so a wall-time-truncated run cannot pass as
+complete, and matches aggregate_budget_fairness.py on shared data (0.0942
+check). Table tab:calibration-rules is in place with "---" cells; filling it
+is a copy of the aggregator's output, no other paper change. When results
+land on CURC:
+  rsync the two suites (see Sept 7 sync commands), then
+  python scripts/analysis/aggregate_policy_update_suite.py --root results/curc_dpo_alternatives
+  python scripts/analysis/aggregate_policy_update_suite.py --root results/curc_node_importance_ablation
+
+**CURC state at last check (Sept 10):** dpo 5/5 DONE (ep 199); sft_best
+s123,s456 DONE, s42/s789/s1011 running on ah200 (24h jobs from Sept 9);
+ranking 5 cells + node-importance 6 cells queued on ah200 under gpu-long,
+WALL_TIME=48h (from-scratch cells need 27-33h at the observed ~8-10
+min/episode). If sft_best s1011 times out, requeue with MODES=sft_best.
+
+**Still your call before submission:** ~11 `jobs/curc_*.sh` filenames remain
+in the text (weak de-anonymization signal; renaming breaks the live workflow).
+No CU-specific partition names remain (grep-verified). Compute-resources
+section rewritten (A100/RTX Pro 6000/H200; ~950 GPU-h, ~200 CPU-h estimated).
 
 ## SEPTEMBER 7, 2026: DECISION GATE CLOSED AT BOTH SCALES
 
