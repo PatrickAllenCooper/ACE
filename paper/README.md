@@ -75,3 +75,12 @@ font is not resolvable by tectonic and aborts PDF output.
 The style pack is `AISTATS2026PaperPack`; the 2027 pack was not yet released when
 this was set up. Re-check and swap `aistats2026.sty` once AISTATS 2027 posts its
 own.
+Until then a clearly commented, temporary preamble override
+(`\renewcommand{\@conferenceyear}{2027}`) makes the running header read
+"AISTATS 2027"; the `.sty` itself is unmodified. Delete the override at the swap.
+
+`iclr_ace_2027/` does **not** build under tectonic: it still loads `bbm`, whose
+`bbm10` Type1 font tectonic cannot resolve. That is a toolchain difference, not
+a defect — it compiles under pdflatex/MiKTeX, which is how it was always built.
+Leave it; it is the archival copy. (If you ever need a tectonic build of it,
+the one-line fix is the same `bbm`→`dsfont` swap the AISTATS copy uses.)
