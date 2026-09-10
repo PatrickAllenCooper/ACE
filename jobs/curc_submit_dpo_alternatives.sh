@@ -24,7 +24,8 @@
 #
 # SLURM resources per job:
 #   partition : aa100 (A100 GPU)
-#   time      : 08:00:00 (same config as the main 5-node ACE runs)
+#   time      : $WALL_TIME, default 24:00:00 (gpu-normal's cap); raise it
+#               together with GPU_QOS=gpu-long for from-scratch cells
 # =============================================================================
 
 set -euo pipefail
@@ -53,6 +54,16 @@ set -euo pipefail
 GPU_PARTITION="${GPU_PARTITION:-artxpro6000}"
 GPU_QOS="${GPU_QOS:-gpu-normal}"
 GPU_GRES="${GPU_GRES:-gpu:rtx_pro_6000:1}"
+
+# Wall time is overridable because 24h is not always enough. Measured pace on
+# ah200 (Sept 10) is ~8-10 min/episode, so a from-scratch 200-episode cell
+# needs 27-33h and will TIMEOUT under gpu-normal's 24h QoS cap; a cell
+# resuming from a checkpoint usually fits. gpu-normal will reject a request
+# above its cap, so raising this only helps in combination with a longer-QoS
+# override, e.g.:
+#   GPU_QOS=gpu-long WALL_TIME=48:00:00 GPU_PARTITION=ah200 \
+#       GPU_GRES=gpu:h200:1 bash jobs/<this script>
+WALL_TIME="${WALL_TIME:-24:00:00}"
 
 cd /projects/paco0228/ACE
 
@@ -108,7 +119,7 @@ for MODE in $MODES; do
             --partition=$GPU_PARTITION --qos=$GPU_QOS \
             --nodes=1 --ntasks=1 --gres=$GPU_GRES \
             --cpus-per-task=8 --mem=128G \
-            --time=24:00:00 \
+            --time=$WALL_TIME \
             --output="$OUT/logs/${MODE}_seed${SEED}_%j.out" \
             --error="$OUT/logs/${MODE}_seed${SEED}_%j.err" \
             --export=ALL,POLICY_UPDATE=$MODE,SEED=$SEED,OUT=$OUT \
