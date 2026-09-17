@@ -170,11 +170,19 @@ class GroundTruthSCM:
 class StudentSCM(nn.Module):
     """Learnable SCM that approximates the ground truth."""
     
-    def __init__(self, oracle: GroundTruthSCM, hidden_dim: int = 16):
+    # (16,) is the architecture every pre-Sept-2026 baseline used; ACE's
+    # student is (64, 64) -- see ace_experiments.StudentSCM. The Sept 2026
+    # audit found the two had never been matched, so the runners now default
+    # to --student_arch ace for every arm.
+    ARCHS = {"small": (16,), "ace": (64, 64)}
+
+    def __init__(self, oracle: GroundTruthSCM, hidden_dim: int = 16, hidden_dims=None):
         super().__init__()
         self.nodes = oracle.nodes
         self.graph = oracle.graph
         self.mechanisms = nn.ModuleDict()
+        dims = tuple(hidden_dims) if hidden_dims is not None else (hidden_dim,)
+        self.hidden_dims = dims
         
         for node in self.nodes:
             parents = self.get_parents(node)
@@ -184,13 +192,12 @@ class StudentSCM(nn.Module):
                     'mu': nn.Parameter(torch.zeros(1))
                 })
             else:
-                # Non-root: MLP
-                n_parents = len(parents)
-                self.mechanisms[node] = nn.Sequential(
-                    nn.Linear(n_parents, hidden_dim),
-                    nn.ReLU(),
-                    nn.Linear(hidden_dim, 1)
-                )
+                layers, d_in = [], len(parents)
+                for h in dims:
+                    layers += [nn.Linear(d_in, h), nn.ReLU()]
+                    d_in = h
+                layers.append(nn.Linear(d_in, 1))
+                self.mechanisms[node] = nn.Sequential(*layers)
                 
     def get_parents(self, node: str) -> List[str]:
         return self.graph.get(node, [])
@@ -1044,16 +1051,19 @@ class EnsembleStudentSCM(nn.Module):
     score it unchanged, plus member_predict() for epistemic variance and
     simulate() for student-side propagation of an intervention.
     """
-    def __init__(self, oracle: GroundTruthSCM, n_members: int = 5, hidden_dim: int = 16):
+    def __init__(self, oracle: GroundTruthSCM, n_members: int = 5, hidden_dim: int = 16, hidden_dims=None):
         super().__init__()
         self.nodes = list(oracle.nodes)
         self.graph = oracle.graph
-        self.members = nn.ModuleList([StudentSCM(oracle, hidden_dim) for _ in range(n_members)])
+        self.members = nn.ModuleList([StudentSCM(oracle, hidden_dim, hidden_dims=hidden_dims) for _ in range(n_members)])
         self.mechanisms = _EnsembleMechanisms(self)
         self.topo_order = _topological_order(self.nodes, self.graph)
         self.descendants = _descendants(self.nodes, self.graph)
         # empirical root spread, maintained by EnsembleLearner (unit prior)
         self.root_std: Dict[str, float] = {n: 1.0 for n in self.nodes if not self.get_parents(n)}
+        # residual variance of the ensemble mean per non-root, maintained by
+        # EnsembleLearner: the aleatoric floor in the variance-reduction score
+        self.noise_var: Dict[str, float] = {n: 0.05 for n in self.nodes if self.get_parents(n)}
 
     def get_parents(self, node: str) -> List[str]:
         return self.graph.get(node, [])
@@ -1142,7 +1152,20 @@ class EnsembleLearner:
             else:
                 sub = data
             losses.append(lr_.train_step(sub, intervened=intervened, n_epochs=n_epochs))
+        self._update_noise_var(data, intervened)
         return float(np.mean(losses))
+
+    @torch.no_grad()
+    def _update_noise_var(self, data: Dict[str, torch.Tensor], intervened: Optional[str]) -> None:
+        ens = self.student
+        ens.eval()
+        for node in ens.noise_var:
+            if node == intervened:
+                continue
+            p = torch.stack([data[q] for q in ens.get_parents(node)], dim=1)
+            resid = (ens.member_predict(node, p).mean(dim=0) - data[node]) ** 2
+            ens.noise_var[node] = 0.8 * ens.noise_var[node] + 0.2 * max(float(resid.mean()), 1e-4)
+        ens.train()
 
     def observational_train(self, oracle: GroundTruthSCM, n_samples: int = 100,
                             n_epochs: int = 50) -> float:
@@ -1154,23 +1177,36 @@ class EnsembleLearner:
 
 
 class PropagatedVariancePolicy:
-    """Propagated-epistemic-variance (PEV) acquisition.
+    """Propagated expected-variance-reduction acquisition (PEV).
 
-    score(j, v) = sum over descendants c of X_j of
-                  E_{pa_c ~ student-simulated p(. | do(X_j = v))} Var_k f_c^{(k)}(pa_c)
+    For a candidate do(X_j = v), simulate the parent contexts x it induces for
+    every descendant c (with the student itself), and score
 
-    i.e. how much ensemble disagreement the intervention's induced parent
-    contexts would visit. Candidates are every node with at least one
-    descendant x a value grid over [value_min, value_max] (jittered within
-    the bin). Zero oracle queries per step; cost O(C * S * N * K) small-MLP
-    forwards, batched. eps-greedy for exploration.
+      scoring="ivr" (default): sum_c mean_x [ mean_r C_c(x, r)^2 / (s_c^2(x) + sigma_c^2) ]
+
+    where r ranges over a fresh sample of c's evaluation domain
+    U(-eval_range, eval_range)^{|pa_c|}, C_c is the across-member covariance
+    of the ensemble's predictions and s_c^2 its variance -- the first-order
+    reduction in integrated epistemic variance over the evaluation domain that
+    one observation at x buys (Cohn 1996 / ALC, with the ensemble as the
+    posterior). Disagreement that does not co-vary with the domain (e.g. a
+    capacity-limited student's wiggles) is discounted, which is exactly what
+    the naive rule below chases forever.
+
+      scoring="var": sum_c mean_x s_c^2(x)   (naive uncertainty sampling; ablation)
+
+    Candidates are every node with at least one descendant x a value grid
+    over [value_min, value_max], jittered within the bin. Zero oracle queries
+    per step; all costs are batched small-MLP forwards. eps-greedy.
     """
     def __init__(self, nodes: List[str], value_min: float = -5.0, value_max: float = 5.0,
-                 n_values: int = 11, n_sim: int = 64, eps: float = 0.05):
+                 n_values: int = 11, n_sim: int = 32, eps: float = 0.05,
+                 scoring: str = "ivr", n_ref: int = 128, eval_range: float = 4.0):
         self.nodes = list(nodes)
         self.value_min, self.value_max = value_min, value_max
         self.n_values, self.n_sim, self.eps = n_values, n_sim, eps
-        self.name = "PEV"
+        self.scoring, self.n_ref, self.eval_range = scoring, n_ref, eval_range
+        self.name = "PEV" if scoring == "ivr" else "PEV-var"
         self.last_scores = None
 
     def select_intervention(self, student: EnsembleStudentSCM, **kwargs) -> Tuple[str, float]:
@@ -1193,10 +1229,22 @@ class PropagatedVariancePolicy:
                 parents = ens.get_parents(node)
                 if not parents:
                     continue
-                p = torch.stack([sim[q].reshape(-1) for q in parents], dim=1)
-                var = ens.member_predict(node, p).var(dim=0, unbiased=False).reshape(C, self.n_sim).mean(dim=1)
                 is_desc = torch.tensor([node in desc[targets[c // self.n_values]] for c in range(C)], dtype=torch.float32)
-                score += var * is_desc
+                if not is_desc.any():
+                    continue
+                p = torch.stack([sim[q].reshape(-1) for q in parents], dim=1)      # (C*S, d)
+                Fx = ens.member_predict(node, p)                                     # (K, C*S)
+                A = Fx - Fx.mean(dim=0, keepdim=True)
+                s2 = (A ** 2).mean(dim=0)                                            # (C*S,)
+                if self.scoring == "var":
+                    per_ctx = s2
+                else:
+                    ref = (torch.rand(self.n_ref, len(parents)) * 2 - 1) * self.eval_range
+                    Fr = ens.member_predict(node, ref)                               # (K, R)
+                    B = Fr - Fr.mean(dim=0, keepdim=True)
+                    cov = A.t() @ B / A.shape[0]                                     # (C*S, R)
+                    per_ctx = (cov ** 2).mean(dim=1) / (s2 + ens.noise_var.get(node, 0.05))
+                score += per_ctx.reshape(C, self.n_sim).mean(dim=1) * is_desc
         self.last_scores = score
         if random.random() < self.eps:
             c = random.randrange(C)
@@ -1208,7 +1256,7 @@ class PropagatedVariancePolicy:
 def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
                  steps_per_episode: int = 25, obs_train_interval: int = 5,
                  obs_train_samples: int = 100, query_budget: Optional[int] = None,
-                 student_factory=None, learner_factory=None) -> pd.DataFrame:
+                 student_factory=None, learner_factory=None, n_train_epochs: int = 50) -> pd.DataFrame:
     """
     Run a baseline policy and collect metrics.
 
@@ -1268,11 +1316,11 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
             if isinstance(oracle, InstrumentedOracle):
                 generate_kwargs["tag"] = "executed"
             data = oracle.generate(n_samples=50, **generate_kwargs)
-            learner.train_step(data, intervened=target)
+            learner.train_step(data, intervened=target, n_epochs=n_train_epochs)
             
             # Periodic observational training
             if obs_train_interval > 0 and step > 0 and step % obs_train_interval == 0:
-                learner.observational_train(oracle, n_samples=obs_train_samples)
+                learner.observational_train(oracle, n_samples=obs_train_samples, n_epochs=n_train_epochs)
             
             # Evaluate
             total_loss, node_losses = critic.evaluate(student)

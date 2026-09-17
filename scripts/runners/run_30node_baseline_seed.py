@@ -232,9 +232,14 @@ def main():
     parser.add_argument("--obs_train_samples", type=int, default=200)
     parser.add_argument("--family", choices=["large_scale", "hetero"], default="large_scale",
                         help="SCM family: the paper's LargeScaleSCM, or the heterogeneous-mechanism family")
+    parser.add_argument("--tag", type=str, default=None, help="output subdirectory name (default: the method name)")
+    parser.add_argument("--student_arch", choices=list(StudentSCM.ARCHS), default="ace",
+                        help="student MLP per mechanism: 'ace' = (64,64) as in ace_experiments.py (default); 'small' = (16,) as in every pre-audit baseline")
+    parser.add_argument("--train_epochs", type=int, default=100, help="learner epochs per step (ACE uses 100; pre-audit baselines used 50)")
     parser.add_argument("--ensemble_size", type=int, default=5, help="members for the *_ens / pev methods")
     parser.add_argument("--pev_values", type=int, default=11, help="PEV: value-grid size per target")
-    parser.add_argument("--pev_sim", type=int, default=64, help="PEV: simulated contexts per candidate")
+    parser.add_argument("--pev_scoring", choices=["ivr", "var"], default="ivr", help="PEV: expected variance reduction over the evaluation domain (ivr) or naive visited variance (var)")
+    parser.add_argument("--pev_sim", type=int, default=32, help="PEV: simulated contexts per candidate")
     parser.add_argument("--query_budget", type=int, default=None,
                         help="If set, run episodes until cumulative environment "
                              "sample count (executed + candidate-probe + "
@@ -250,7 +255,7 @@ def main():
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    run_dir = os.path.join(args.output, args.method, f"seed_{args.seed}")
+    run_dir = os.path.join(args.output, args.tag or args.method, f"seed_{args.seed}")
     os.makedirs(run_dir, exist_ok=True)
 
     logging.basicConfig(
@@ -295,7 +300,7 @@ def main():
     elif args.method == "ppo":
         policy = PPOPolicy(nodes)
     elif args.method == "pev":
-        policy = PropagatedVariancePolicy(nodes, n_values=args.pev_values, n_sim=args.pev_sim)
+        policy = PropagatedVariancePolicy(nodes, n_values=args.pev_values, n_sim=args.pev_sim, scoring=args.pev_scoring)
     elif args.method == "random_ens":
         policy = RandomPolicy(nodes)
     elif args.method == "round_robin_ens":
@@ -307,10 +312,12 @@ def main():
         policy = BayesianOEDFast(oracle, n_candidates=10, n_mc_samples=3)
 
     ensemble_methods = {"pev", "random_ens", "round_robin_ens"}
-    student_factory = learner_factory = None
+    dims = StudentSCM.ARCHS[args.student_arch]
+    student_factory = lambda o: StudentSCM(o, hidden_dims=dims)
+    learner_factory = lambda st, o: SCMLearner(st, oracle=o)
     if args.method in ensemble_methods:
         K = args.ensemble_size
-        student_factory = lambda o: EnsembleStudentSCM(o, n_members=K)
+        student_factory = lambda o: EnsembleStudentSCM(o, n_members=K, hidden_dims=dims)
         learner_factory = lambda st, o: EnsembleLearner(st, oracle=o)
 
     df = run_episode_loop(
@@ -322,6 +329,7 @@ def main():
         query_budget=args.query_budget,
         student_factory=student_factory,
         learner_factory=learner_factory,
+        n_train_epochs=args.train_epochs,
     )
 
     # Final loss = last step of last episode

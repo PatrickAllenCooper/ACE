@@ -136,3 +136,27 @@ passive arm at 30 nodes); (iii) DPO calibration hurts at every N ≥ 15.
 Controls still missing for the 5-node claim: ACE's learner with a uniform
 random policy (needs a `--random_proposer` mode in ace_experiments.py), the
 5-node ACE-w/o-DPO row (`MODES=none`), and a prompt without the parent hint.
+
+## Addendum (17 Sept 2026, later) — a fourth asymmetry: the students were never matched
+
+`ace_experiments.StudentSCM` gives every non-root mechanism a
+`Linear(d,64)-ReLU-Linear(64,64)-ReLU-Linear(64,1)` network trained 100
+epochs per step (`--learner_epochs 100`); `baselines.StudentSCM` — used by every
+baseline in every paper version and by the audit re-runs above — is
+`Linear(d,16)-ReLU-Linear(16,1)` trained 50 epochs. ~4,600 vs ~50 parameters
+per mechanism. A single 16-unit ReLU layer cannot fit 0.5X1 − X2 + sin(X2)
+over a broad input range; in the matched-metric comparison every
+baseline-framework arm sits at X3 ≈ 0.6 while ACE reaches 0.03. The 5-node
+"2.5×" in the Outcome table therefore has a learner confound on top of the
+prompt hint, the parent-balance scaffolding and the early stop, and the
+paper's "matched learner" statement was false.
+
+Fix: `baselines.StudentSCM(hidden_dims=...)`, `StudentSCM.ARCHS = {"small": (16,),
+"ace": (64, 64)}`; both runners now default to `--student_arch ace
+--train_epochs 100`. The post-audit ladder (`jobs/curc_submit_pev_ladder.sh`)
+re-runs Random and round-robin on the matched student in every suite, so ACE's
+own runs are compared against a passive baseline with the same learner for
+the first time. The audit re-runs above remain the correct restatement of the
+*pre-audit* baselines (same student they always had), and the ≥15-node
+conclusion only strengthens: ACE lost to a Random policy driving a far weaker
+student.

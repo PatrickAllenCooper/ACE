@@ -2293,6 +2293,9 @@ def main():
     parser.add_argument("--no_dedicated_root_learner", action="store_true", help="Ablation: Disable dedicated root learner")
     parser.add_argument("--no_diversity_reward", action="store_true", help="Ablation: Set diversity_reward_weight to 0 (test IG-only)")
     parser.add_argument("--no_dpo", action="store_true", help="Ablation: Skip DPO updates entirely (zero-shot LM policy + lookahead-select)")
+    parser.add_argument("--family", choices=["large_scale", "hetero"], default="large_scale",
+                        help="With --large_scale N: the paper's LargeScaleSCM (default) or the "
+                             "heterogeneous-mechanism family (experiments/heterogeneous_scm.py)")
     parser.add_argument("--proposer", choices=["lm", "random", "heuristic"], default="lm",
                         help="Candidate source: the LM (default), uniform random, or the loss-guided "
                              "direct-child-impact heuristic. Use with --no_dpo; isolates the LM's "
@@ -2493,6 +2496,8 @@ def main():
         # hex tokens (n_xxxx) so the LM has no semantic prior to lean on; this
         # isolates the contribution of DPO fine-tuning beyond the LM's natural-
         # language prior. Anonymisation seed is deterministic from --seed.
+        if getattr(args, "family", "large_scale") == "hetero":
+            from experiments.heterogeneous_scm import HeterogeneousSCM as _LSCM
         _lscm = _LSCM(args.large_scale,
                       anonymize=getattr(args, "anonymize_nodes", False),
                       anonymize_seed=args.seed if args.seed else 42,
@@ -2544,6 +2549,13 @@ def main():
                         data[node] = self.mechanisms(p_data, node, n_samples=n_samples)
                 return data
         M_star = _LargeGroundTruthSCM(_edges, _ls_coeffs, _ls_node_idx)
+        if getattr(args, "family", "large_scale") == "hetero":
+            # Delegate the structural equations to the family object so the LM
+            # arm runs on exactly the system the CPU runners use (forms and
+            # coefficients fixed from --seed). Isolated nodes are not in
+            # M_star and are never requested.
+            M_star.mechanisms = lambda data, node, n_samples=1, _f=_lscm: _f.mechanisms(data, node, n_samples)
+            print(f"[STARTUP] Heterogeneous family: forms={_lscm.form_counts()}", flush=True)
         print(f"[STARTUP] Large-scale SCM: {args.large_scale} nodes, {len(_edges)} edges", flush=True)
     else:
         M_star = GroundTruthSCM()
@@ -2680,6 +2692,7 @@ def main():
     
     # NEW: Per-node loss tracking for collider diagnostics
     node_loss_tracking = []
+    action_log = []  # every executed (target, value); see actions.csv
     
     # NEW: Intervention coverage tracking for multi-parent nodes
     intervention_coverage_tracking = []
@@ -3485,6 +3498,10 @@ def main():
             if winner_plan:
                 tgt = winner_plan.get("target")
                 val = float(winner_plan.get("value"))
+                # Ungated action log (metrics.csv only records DPO-update steps):
+                # needed for the --no_dpo / --proposer ladders' action distributions.
+                action_log.append({"episode": episode, "step": step, "target": tgt, "value": val,
+                                   "winner_score": float(winner_score) if winner_score is not None else float("nan")})
                 try:
                     recent_values_by_target[tgt].append(val)
                 except Exception:
@@ -3635,6 +3652,7 @@ def main():
             try:
                 node_loss_df_partial = pd.DataFrame(node_loss_tracking)
                 node_loss_df_partial.to_csv(os.path.join(run_dir, "node_losses.csv"), index=False)
+                pd.DataFrame(action_log).to_csv(os.path.join(run_dir, "actions.csv"), index=False)
 
                 df_partial = aligned_history_dataframe({
                     "dpo_loss": loss_history,
@@ -3797,6 +3815,7 @@ def main():
     if node_loss_tracking:
         node_loss_df = pd.DataFrame(node_loss_tracking)
         node_loss_df.to_csv(os.path.join(run_dir, "node_losses.csv"), index=False)
+        pd.DataFrame(action_log).to_csv(os.path.join(run_dir, "actions.csv"), index=False)
         logging.info(f"Saved per-node loss tracking: {len(node_loss_tracking)} records")
     
     # NEW: Save intervention coverage analysis for collider diagnostics

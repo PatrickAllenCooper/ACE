@@ -80,6 +80,33 @@ graph enters only through descendant sets and parent contexts, so cost is
 linear in N. No preference optimisation. The LM, if it returns, returns as a
 *prior over mechanism forms* (Section 5), not as a target proposer.
 
+## 2b. What the first local runs taught, and the scoring that replaced v1
+
+The first implementation scored a candidate by the epistemic variance its
+induced contexts *visit* (naive uncertainty sampling). On the 5-node SCM it
+spent 63% of its interventions on X2 — the collider's parent, the "right"
+target — and X3's error did not move (0.61 vs 0.62 for Random with the same
+student), while X5 was starved (0.23 vs 0.09) because X4 got 12% of the
+probes. The disagreement on X3's slices is not reducible by data for a
+16-unit student, and a rule that goes where variance is highest chases it
+forever. This is the textbook failure of uncertainty sampling under
+misspecification.
+
+The default scoring is now the expected *reduction* over the evaluation
+domain (Cohn 1996; the ALC / integrated-variance-reduction criterion), which
+the ensemble provides for free through its across-member covariance:
+
+    score(j, v) = Σ_c mean_x [ mean_r C_c(x, r)² / (s_c²(x) + σ_c²) ],
+
+x the induced contexts, r a fresh sample of c's evaluation domain, C_c the
+ensemble covariance of predictions, σ_c² the ensemble mean's running residual
+variance. Disagreement that does not co-vary with the domain scores low. The
+naive rule is kept as the `pev_var` ablation.
+
+The same runs exposed the learner confound recorded in the audit addendum:
+the baseline framework's student was a (16,) MLP at 50 epochs; ACE's is
+(64, 64) at 100. Every arm of the ladder now runs ACE's student.
+
 ## 3. The ladder — what "beating the new baseline" means
 
 The corrected baselines are the bar (`results/audit_reruns/`, end-of-campaign

@@ -1,25 +1,25 @@
 #!/bin/bash
 # =============================================================================
-# PEV ladder -- the post-audit experiment set (17 Sept 2026)
+# PEV ladder -- the post-audit experiment set (17 Sept 2026), MATCHED STUDENT
 #
-# Everything here is CPU and runs inside the corrected baseline framework
-# (frozen coefficients, both evaluators logged), so every arm is on exactly
-# the footing of results/audit_reruns/. Arms:
+# The audit's baseline re-runs used the pre-audit student, a (16,) ReLU MLP
+# trained 50 epochs/step; ACE's student is (64, 64) trained 100 epochs/step.
+# Every arm here runs the ACE student (runner default --student_arch ace,
+# --train_epochs 100) inside the corrected framework (frozen coefficients,
+# both evaluators logged), so all arms -- and ACE's own runs -- share one
+# learner for the first time. Arms:
 #
-#   pev              ensemble student (K=5, bootstrap) + propagated-epistemic-
-#                    variance acquisition (baselines.PropagatedVariancePolicy)
-#   random_ens       same ensemble student, uniform random policy  <- isolates
-#                    the acquisition from the student
-#   round_robin_ens  same ensemble student, round-robin
-#   random / round_robin (single-student) on the hetero family only -- the
-#                    audit already has them on LargeScaleSCM and at 5 nodes
+#   random, round_robin        single student (the passive bar, re-run on the matched student)
+#   random_ens, round_robin_ens ensemble student (K=5, bootstrap), passive policies
+#   pev                        ensemble student + expected-variance-reduction acquisition
+#   pev_var                    ensemble student + naive visited-variance acquisition (ablation)
 #
-# Suites (default ROOT/results/pev_ladder/<suite>/<method>/seed_<s>/):
-#   t1_5node    5-node, 171 ep, seeds 141..618 + 42..1011        (3 methods x 10)
-#   t2_30node   LargeScaleSCM 30, 150 ep, seeds 42..1011          (3 x 5)
-#   hetero30    HeterogeneousSCM 30, 150 ep, seeds 42..1011       (5 x 5)
-#   scaling     LargeScaleSCM N=15/50, 40 ep (pev, random_ens)   (2 x 2 x 5)
-#   hetero_sc   HeterogeneousSCM N=15/50, 40 ep (pev, random_ens, random) (3 x 2 x 5)
+# Suites  (ROOT/<suite>/<arm>/seed_<s>/):
+#   t1_5node    5-node, 171 ep, seeds 141..618 + 42..1011            6 arms x 10
+#   t2_30node   LargeScaleSCM-30, 150 ep, seeds 42..1011              6 arms x 5
+#   hetero30    HeterogeneousSCM-30, 150 ep, seeds 42..1011           6 arms x 5
+#   scaling     LargeScaleSCM N=15/50, 40 ep: random, random_ens, pev 3 x 2 x 5
+#   hetero_sc   HeterogeneousSCM N=15/50, 40 ep: same                 3 x 2 x 5
 #
 # Usage (from /projects/paco0228/ACE, after git pull):
 #   bash jobs/curc_submit_pev_ladder.sh
@@ -50,37 +50,34 @@ submit_cpu() {  # NAME HOURS MEM EXPORTS WORKER
         --export="ALL,$exports" "$worker")
     echo "  Submitted: $name -> Job $job"; N=$((N+1))
 }
+# arm -> (method, extra runner args)
+arm_method() { case $1 in pev_var) echo pev ;; *) echo "$1" ;; esac; }
+arm_extra()  { case $1 in pev_var) echo "--pev_scoring var --tag pev_var" ;; pev) echo "--pev_scoring ivr" ;; *) echo "" ;; esac; }
+# hours: single-student arms are ~5x cheaper than K=5 ensembles
+arm_hours()  { case $1 in random|round_robin) echo "$2" ;; *) echo "$3" ;; esac; }
 
 for suite in $SUITES; do
   echo "== suite: $suite =="
   case $suite in
     t1_5node)
-      for M in pev random_ens round_robin_ens; do for S in $T1_SEEDS; do
-        D="$ROOT/t1_5node/$M/seed_$S"; done_cell "$D" && { echo "  SKIP (done): $M s$S"; continue; }
-        submit_cpu "pev5_${M}_s${S}" 6 8G "METHOD=$M,SEED=$S,OUT=$ROOT/t1_5node,EPISODES=171,EXTRA_ARGS=--ensemble_size $K" jobs/curc_5node_baseline_seed.sh
+      for A in random round_robin random_ens round_robin_ens pev pev_var; do for S in $T1_SEEDS; do
+        D="$ROOT/t1_5node/$A/seed_$S"; done_cell "$D" && { echo "  SKIP (done): $A s$S"; continue; }
+        submit_cpu "pev5_${A}_s${S}" $(arm_hours $A 3 8) 8G "METHOD=$(arm_method $A),SEED=$S,OUT=$ROOT/t1_5node,EPISODES=171,EXTRA_ARGS=--ensemble_size $K $(arm_extra $A)" jobs/curc_5node_baseline_seed.sh
       done; done ;;
-    t2_30node)
-      for M in pev random_ens round_robin_ens; do for S in $T2_SEEDS; do
-        D="$ROOT/t2_30node/$M/seed_$S"; done_cell "$D" && { echo "  SKIP (done): $M s$S"; continue; }
-        submit_cpu "pev30_${M}_s${S}" 20 16G "METHOD=$M,SEED=$S,OUT=$ROOT/t2_30node,EPISODES=150,EXTRA_ARGS=--ensemble_size $K" jobs/curc_30node_baseline_seed.sh
+    t2_30node|hetero30)
+      FAM="large_scale"; [ "$suite" = hetero30 ] && FAM="hetero"
+      for A in random round_robin random_ens round_robin_ens pev pev_var; do for S in $T2_SEEDS; do
+        D="$ROOT/$suite/$A/seed_$S"; done_cell "$D" && { echo "  SKIP (done): $A s$S"; continue; }
+        submit_cpu "${suite}_${A}_s${S}" $(arm_hours $A 10 23) 16G "METHOD=$(arm_method $A),SEED=$S,OUT=$ROOT/$suite,EPISODES=150,EXTRA_ARGS=--family $FAM --ensemble_size $K $(arm_extra $A)" jobs/curc_30node_baseline_seed.sh
       done; done ;;
-    hetero30)
-      for M in random round_robin pev random_ens round_robin_ens; do for S in $T2_SEEDS; do
-        D="$ROOT/hetero30/$M/seed_$S"; done_cell "$D" && { echo "  SKIP (done): $M s$S"; continue; }
-        submit_cpu "het30_${M}_s${S}" 20 16G "METHOD=$M,SEED=$S,OUT=$ROOT/hetero30,EPISODES=150,EXTRA_ARGS=--family hetero --ensemble_size $K" jobs/curc_30node_baseline_seed.sh
-      done; done ;;
-    scaling)
-      for SC in 15 50; do for M in pev random_ens; do for S in $T2_SEEDS; do
-        D="$ROOT/scaling/nodes$SC/$M/seed_$S"; done_cell "$D" && { echo "  SKIP (done): N=$SC $M s$S"; continue; }
-        submit_cpu "pevsc${SC}_${M}_s${S}" 12 16G "METHOD=$M,SEED=$S,OUT=$ROOT/scaling/nodes$SC,EPISODES=40,N_NODES=$SC,EXTRA_ARGS=--ensemble_size $K" jobs/curc_30node_baseline_seed.sh
-      done; done; done ;;
-    hetero_sc)
-      for SC in 15 50; do for M in pev random_ens random; do for S in $T2_SEEDS; do
-        D="$ROOT/hetero_sc/nodes$SC/$M/seed_$S"; done_cell "$D" && { echo "  SKIP (done): N=$SC $M s$S"; continue; }
-        submit_cpu "hetsc${SC}_${M}_s${S}" 12 16G "METHOD=$M,SEED=$S,OUT=$ROOT/hetero_sc/nodes$SC,EPISODES=40,N_NODES=$SC,EXTRA_ARGS=--family hetero --ensemble_size $K" jobs/curc_30node_baseline_seed.sh
+    scaling|hetero_sc)
+      FAM="large_scale"; [ "$suite" = hetero_sc ] && FAM="hetero"
+      for SC in 15 50; do for A in random random_ens pev; do for S in $T2_SEEDS; do
+        D="$ROOT/$suite/nodes$SC/$A/seed_$S"; done_cell "$D" && { echo "  SKIP (done): N=$SC $A s$S"; continue; }
+        submit_cpu "${suite}${SC}_${A}_s${S}" $(arm_hours $A 6 16) 16G "METHOD=$(arm_method $A),SEED=$S,OUT=$ROOT/$suite/nodes$SC,EPISODES=40,N_NODES=$SC,EXTRA_ARGS=--family $FAM --ensemble_size $K $(arm_extra $A)" jobs/curc_30node_baseline_seed.sh
       done; done; done ;;
     *) echo "unknown suite: $suite"; exit 1 ;;
   esac
 done
 echo; echo "$N job(s) submitted. Aggregate with:"
-echo "  python scripts/analysis/aggregate_metric_audit.py --reruns $ROOT   # plus --arm for the audit baselines / ACE"
+echo "  python scripts/analysis/aggregate_metric_audit.py --reruns $ROOT   # plus --arm for ACE's own runs"
