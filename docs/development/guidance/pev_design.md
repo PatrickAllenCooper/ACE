@@ -107,6 +107,27 @@ The same runs exposed the learner confound recorded in the audit addendum:
 the baseline framework's student was a (16,) MLP at 50 epochs; ACE's is
 (64, 64) at 100. Every arm of the ladder now runs ACE's student.
 
+## 2c. First matched-student result (local, 17 Sept; 3 seeds x 40 episodes)
+
+Every arm on ACE's (64,64)/100-epoch student. End-of-campaign non-root
+broad-range MSE per node: ACE 0.165 (0.129 on the paired seeds), round-robin
+0.161, Random 0.223, Random + ensemble student 0.172, **PEV 0.045**, PEV
+naive-variance ablation 0.039. PEV vs Random with the same ensemble student
+p = 0.012; vs ACE p <= 0.001. Per node, PEV gets the collider (0.079 vs ACE
+0.155 vs round-robin 0.401) *and* the quadratic (0.046 vs ACE 0.329 vs
+round-robin 0.072); ACE had traded one for the other. Allocation: 44% of
+interventions on X1 (two descendants), 47% on X2, 10% on X4 -- and X5 is
+still the best of any arm, because the X4 values are chosen where the
+quadratic is uncertain over the evaluation domain rather than near the
+observational mean. Zero candidate-probe queries.
+
+The naive-variance ablation matches PEV here: with an adequate student the
+collider's disagreement is reducible, so uncertainty sampling works; its
+failure in 2b was under the 16-unit student. Whether the reduction-based
+score matters is a question for the heterogeneous family and N = 30.
+
+Data: results/local_matched_prelim_20260917/. Superseded by the CURC ladder.
+
 ## 3. The ladder — what "beating the new baseline" means
 
 The corrected baselines are the bar (`results/audit_reruns/`, end-of-campaign
