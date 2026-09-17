@@ -203,21 +203,21 @@ The 5-node benchmark (Figure~\ref{fig:synthetic-scm}; equations and learner in A
 
 \begin{table*}[t]
 \centering
-\caption{Main results on the 5-node benchmark under executed-intervention-only accounting (Section~\ref{sec:budget} gives each method's total-environment-query multiplier). ACE (N=5) runs until convergence (avg.\ 171 ep.); baselines (N=5) run at the matched budget. Bayesian OED: N=3. Improvement vs.\ ACE median ($0.61$); seed 789 is an outlier (quadratic-mechanism failure) justifying median over mean.}
+\caption{Main results on the 5-node benchmark under executed-intervention-only accounting (Section~\ref{sec:budget} gives each method's total-environment-query multiplier). ACE (N=5) runs until convergence (avg.\ 171 ep.); baselines (N=5) run at the matched budget. Bayesian OED: N=3. Improvement vs.\ ACE median ($0.61$); seed 789 is an outlier (quadratic-mechanism failure) justifying median over mean. $p$: Welch's $t$, ACE vs.\ each baseline, unpaired (different seed sets), uncorrected; at $N{=}5$ a rank test cannot reach conventional significance after Holm correction. A paired replication of ACE on the baselines' own seeds gives Holm-corrected paired-$t$ $p\le0.026$ against all four heuristics (Appendix~\ref{app:experiments}).}
 \label{tab:main-results}
 \small
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-Method & Mean$\pm$Std & Median & Impr.\ vs.\ ACE & $p$ & Query mult.\\
+Method & Mean$\pm$Std & Median & Impr.\ vs.\ ACE & Welch $p$ & Query mult.\\
 \midrule
 \textbf{ACE} (171 ep., DPO) & \textbf{0.92$\pm$0.73} & \textbf{0.61} & --- & --- & $4$--$5\times$ \\
 \midrule
 \multicolumn{6}{@{}l}{\textit{Baselines at equal executed-intervention budget (171 ep.):}} \\
-Random \citep{settles2009active} & 2.17$\pm$0.07 & 2.21 & 72\% & $<0.001$ & $1\times$ \\
-Round-Robin \citep{fisher1935design} & 2.10$\pm$0.11 & 2.09 & 71\% & $<0.001$ & $1\times$ \\
-Max-Variance \citep{cohn1996active} & 2.11$\pm$0.14 & 2.10 & 71\% & $<0.001$ & $65\times$ \\
-Bayesian OED \citep{toth2022active} & 2.04$\pm$0.12 & 1.99 & 69\% & $<0.001$ & $\sim\!500\times$ \\
-PPO \citep{schulman2017proximal} & 2.08$\pm$0.06 & 2.06 & 70\% & $<0.001$ & $1\times$ \\
+Random \citep{settles2009active} & 2.17$\pm$0.07 & 2.21 & 72\% & $0.018$ & $1\times$ \\
+Round-Robin \citep{fisher1935design} & 2.10$\pm$0.11 & 2.09 & 71\% & $0.021$ & $1\times$ \\
+Max-Variance \citep{cohn1996active} & 2.11$\pm$0.14 & 2.10 & 71\% & $0.020$ & $65\times$ \\
+Bayesian OED \citep{toth2022active} & 2.04$\pm$0.12 & 1.99 & 69\% & $0.024$ & $\sim\!500\times$ \\
+PPO \citep{schulman2017proximal} & 2.08$\pm$0.06 & 2.06 & 70\% & $0.023$ & $1\times$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -817,6 +817,9 @@ Std  & 0.075 & 0.107 & 0.131 & 0.120 & 0.057 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\paragraph{ACE per-seed values and the paired replication.} The ACE row of Table~\ref{tab:main-results} uses seeds 42/123/456/789/1011 (final total loss $0.472$, $0.614$, $0.711$, $2.209$, $0.592$; mean $0.919\pm0.726$, median $0.614$), so the Table~\ref{tab:main-results} comparison is unpaired against baselines run on seeds 141--618. Welch's $t$ gives $p=0.018$--$0.024$ per baseline; a two-sided Mann--Whitney test at $N{=}5$ vs.\ $5$ cannot go below $p=0.008$ and after Holm correction across the five comparisons is not significant ($p=0.16$--$0.38$), so we report Welch's $p$ and do not claim a corrected rank-test result. To remove the seed confound we also ran ACE on the baselines' own seeds 141/271/314/577/618 (final $0.618$, $1.814$, $0.613$, $0.496$, $0.493$; mean $0.807\pm0.566$, median $0.613$; these runs early-stopped at 40--64 episodes), which permits a paired comparison: paired-$t$ $p=0.0046$ (Random), $0.0090$ (Round-Robin), $0.0086$ (Max-Variance), $0.0098$ (PPO), all $\le0.026$ after Holm; the Wilcoxon signed-rank $p=0.0625$ in each case is the minimum attainable at $N{=}5$ and reflects that every one of the five paired differences favors ACE. Best-episode loss is $0.45$--$0.49$ on all ten ACE seeds; the variance in the final column is drift after the plateau (Appendix~\ref{app:outlier}).
+
 
 The Bayesian OED mean of $2.044$ lies between Round-Robin ($2.103$) and Max-Variance ($2.107$), confirming it is the strongest passive/principled baseline. Its advantage over random baselines is modest ($\sim$6\%) compared to ACE's advantage ($\sim$70\%), which arises from multi-step learned strategy rather than single-step acquisition.
 
