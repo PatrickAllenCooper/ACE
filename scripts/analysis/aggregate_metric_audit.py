@@ -138,6 +138,17 @@ def summarize_run(path: str) -> dict | None:
             rec[f"{name}_best"], rec[f"{name}_final"] = float(ser.min()), float(ser.iloc[-1])
         rec["broad_nr_pn_best"] = rec["broad_nr_best"] / max(len(non_roots), 1)
         rec["broad_nr_pn_final"] = rec["broad_nr_final"] / max(len(non_roots), 1)
+        # End-of-campaign: the student is re-initialised at the start of every
+        # episode and trained through a fixed number of steps, so the loss at an
+        # episode's last step is the outcome of one full campaign. Averaging it
+        # over episodes (and over the last 20) is a min-free summary that does
+        # not depend on picking the single best step of the whole run.
+        if "episode" in df.columns and "step" in df.columns:
+            last = df.loc[df.groupby("episode")["step"].idxmax()]
+            eoc = (broad_nr.loc[last.index] / max(len(non_roots), 1))
+            rec["eoc_nr_pn_mean"] = float(eoc.mean())
+            rec["eoc_nr_pn_last20"] = float(eoc.iloc[-20:].mean())
+            rec["eoc_nr_pn_median"] = float(eoc.median())
     if obs_cols:
         o = {node_of(c): df[c] for c in obs_cols}
         obs_u = sum(o.values())
@@ -165,8 +176,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--arm", action="append", default=[], help="LABEL=DIR (repeatable)")
     ap.add_argument("--reruns", help="root of the audit re-run tree; adds one arm per <suite>/<method>")
-    ap.add_argument("--primary", default="broad_nr_pn_best",
-                    help="metric for the pairwise tests (default: mean non-root broad-range MSE, best over steps)")
+    ap.add_argument("--primary", default="eoc_nr_pn_mean",
+                    help="metric for the pairwise tests (default: end-of-campaign non-root broad-range MSE per node, mean over episodes)")
+    ap.add_argument("--only", default=None, help="comma-separated subset of metric columns to print")
     ap.add_argument("--csv", help="write the per-run table here")
     ap.add_argument("--max-episode", type=int, help="truncate every run to episodes <= this before scoring (budget-matched comparisons)")
     args = ap.parse_args()
@@ -203,8 +215,12 @@ def main() -> int:
         df.to_csv(args.csv, index=False); print(f"per-run table -> {args.csv}")
 
     metrics = ["broad_w_best", "broad_w_final", "broad_nr_pn_best", "broad_nr_pn_final",
+               "eoc_nr_pn_mean", "eoc_nr_pn_last20", "eoc_nr_pn_median",
                "broad_u_best", "broad_u_final", "obs_u_best", "obs_u_final", "obs_nr_pn_best", "obs_nr_pn_final"]
     metrics = [m for m in metrics if m in df.columns]
+    if args.only:
+        keep = [m.strip() for m in args.only.split(",")]
+        metrics = [m for m in metrics if m in keep]
     pd.set_option("display.width", 220)
     print("\n== per-arm mean +/- sd (n runs) ==")
     g = df.groupby("arm")

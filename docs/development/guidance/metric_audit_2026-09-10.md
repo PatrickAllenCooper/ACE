@@ -104,3 +104,35 @@ are a constant for every method), with the observational score in the supplement
   as a "fix": it tests cross-definition numbers.
 - Do not run reviewer rounds on the current draft.
 - Do not describe the seed expansion as a non-replication.
+
+## Outcome (17 Sept 2026) — all 135 baseline cells re-run; one metric for every arm
+
+Metric: broad-range non-root mechanism MSE per node, **end-of-campaign** (the
+student is re-initialised every episode; the last step of each 25-step campaign
+is one campaign's outcome; mean over episodes). Best-over-steps gives the same
+ranking everywhere. Welch t, unpaired. `scripts/analysis/aggregate_metric_audit.py`.
+
+| Setting | ACE | ACE-w/o-DPO | Random | Round-robin | Max-var | BOED | Verdict |
+|---|---|---|---|---|---|---|---|
+| 5-node, ≤171 ep (Table 1) | **0.143** / 0.127 (paired seeds) | not run | 0.361 | 0.336 | 0.356 | — | ACE 2.5× better, p<0.001 vs all |
+| 5-node, total-query-matched | **0.155** (env) / 0.153 (student) | not run | 0.362 | 0.343 | 0.361 | — | ACE 2.3× better, p<0.001 vs all |
+| 30-node, ≤90 ep (Table 2) | 0.149 (n=3) / 0.249 (expansion, n=5) | 0.094 (n=12) | 0.092 | **0.078** | 0.090 | 0.129 | ACE+DPO worse (p≈0.01 for expansion); w/o-DPO ties Random (p=0.9) |
+| 30-node, query-matched | 0.245 / 0.249 | — | 0.086 | **0.071** | 0.064 | 0.122 | ACE 3× worse, p≤0.05 |
+| Scaling N=15, ≤40 ep | 0.163 | 0.076 | **0.059** | — | — | — | DPO hurts (p<0.001); w/o-DPO ~ Random (p=0.16) |
+| Scaling N=30 | 0.257 | 0.132 | **0.090** | — | — | — | DPO hurts (p=0.009); w/o-DPO ~ Random (p=0.20) |
+| Scaling N=50 | 0.271 | 0.238 | **0.118** | — | — | — | both LM arms 2× worse (p≤0.001) |
+
+Per-node at 5 nodes (best step): the ACE advantage is almost entirely the
+nonlinear collider X3 = 0.5X1 − X2 + sin(X2): ACE 0.029–0.036 vs baselines
+0.092–0.121 (3–4×). X2 (linear) 0.010 vs 0.015–0.019; X5 (quadratic) tie with
+Random. Note the prompt names X3's parents explicitly (reviewer finding).
+
+Also established: (i) passive baselines look converged under observational
+validation (per-node ~0.02) while their broad-range error is 4–8× higher and
+drifts — observational validation hides interventional generalisation failure;
+(ii) Bayesian OED does not beat Random on the LargeScaleSCM family (worst
+passive arm at 30 nodes); (iii) DPO calibration hurts at every N ≥ 15.
+
+Controls still missing for the 5-node claim: ACE's learner with a uniform
+random policy (needs a `--random_proposer` mode in ace_experiments.py), the
+5-node ACE-w/o-DPO row (`MODES=none`), and a prompt without the parent hint.

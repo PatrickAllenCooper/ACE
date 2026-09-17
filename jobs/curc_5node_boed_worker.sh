@@ -1,5 +1,6 @@
 #!/bin/bash
-# 5-node Bayesian-OED worker (Table 1 row) -- OUT via env
+# 5-node Bayesian-OED worker (Table 1 row) -- OUT (and optionally SEEDS) via env
+# One seed takes ~6h on acpu; submit one job per seed (see the master script).
 # Mirrors jobs/curc_cpu_suite.sh's --bayesian-baseline call; since the Sept 2026
 # audit run_reviewer_experiments.py records both evaluators in
 # bayesian_oed_summary.csv (total_loss = observational, ace_total_loss = ACE's).
@@ -10,7 +11,7 @@ cd /projects/paco0228/ACE
 echo "5-node Bayesian OED started at $(date)"
 python -u scripts/runners/run_reviewer_experiments.py \
     --bayesian-baseline \
-    --seeds 42 123 456 789 1011 314 271 577 618 141 \
+    --seeds ${SEEDS:-42 123 456 789 1011 314 271 577 618 141} \
     --episodes 171 \
     --output "$OUT/suite"
 echo "5-node Bayesian OED finished at $(date)"

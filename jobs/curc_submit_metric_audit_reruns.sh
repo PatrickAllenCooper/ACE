@@ -17,7 +17,7 @@
 #   $ROOT/scaling/nodes<N>/random/seed_<s>/  scaling-sweep Random arm
 #   $ROOT/bf5_baselines/<method>/seed_<s>/   5-node budget-fairness (query-matched)
 #   $ROOT/bf30_baselines/<method>/seed_<s>/  30-node budget-fairness (query-matched)
-#   $ROOT/boed5/suite_*/bayesian_baseline/    Table 1 Bayesian-OED row (final-only summary)
+#   $ROOT/boed5/seed_<s>/suite/bayesian_baseline/  Table 1 Bayesian-OED row, one job per seed
 #
 # Usage (from /projects/paco0228/ACE, after `git pull`):
 #   bash jobs/curc_submit_metric_audit_reruns.sh                 # all suites
@@ -88,13 +88,14 @@ for suite in $SUITES; do
         submit_cpu "audsc${SC}_random_s${S}" 4 16G "SCALE=$SC,METHOD=random,SEED=$S,OUT=$ROOT/scaling,EPISODES=$SCALING_EPISODES" jobs/curc_scaling_seed.sh
       done; done ;;
     boed5)
-      # Table 1's Bayesian-OED row: one intervention per episode, final-only
-      # scoring (now both evaluators), via run_reviewer_experiments.py
-      if [ "$SKIP_COMPLETED" = "1" ] && ls "$ROOT"/boed5/suite*/bayesian_baseline/bayesian_oed_summary.csv >/dev/null 2>&1; then
-        echo "  SKIP (done): boed5"
-      else
-        submit_cpu "aud5_boed" 12 8G "OUT=$ROOT/boed5" jobs/curc_5node_boed_worker.sh
-      fi ;;
+      # Table 1's Bayesian-OED row via run_reviewer_experiments.py. One seed is
+      # ~6h on acpu and the QoS caps jobs at 24h, so one job per seed, each
+      # writing its own $ROOT/boed5/seed_<s>/suite/bayesian_baseline/ summary.
+      for S in $T1_SEEDS; do
+        if [ "$SKIP_COMPLETED" = "1" ] && [ -f "$ROOT/boed5/seed_$S/suite/bayesian_baseline/bayesian_oed_summary.csv" ]; then
+          echo "  SKIP (done): boed5 s$S"; continue; fi
+        submit_cpu "aud5_boed_s${S}" 12 8G "OUT=$ROOT/boed5/seed_$S,SEEDS=$S" jobs/curc_5node_boed_worker.sh
+      done ;;
     bf5_baselines)
       OUT="$ROOT/bf5_baselines" SKIP_COMPLETED="$SKIP_COMPLETED" \
         bash jobs/curc_submit_5node_budget_fairness_baselines.sh "$BF5_BUDGET" ;;
