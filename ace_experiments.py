@@ -2293,6 +2293,10 @@ def main():
     parser.add_argument("--no_dedicated_root_learner", action="store_true", help="Ablation: Disable dedicated root learner")
     parser.add_argument("--no_diversity_reward", action="store_true", help="Ablation: Set diversity_reward_weight to 0 (test IG-only)")
     parser.add_argument("--no_dpo", action="store_true", help="Ablation: Skip DPO updates entirely (zero-shot LM policy + lookahead-select)")
+    parser.add_argument("--proposer", choices=["lm", "random", "heuristic"], default="lm",
+                        help="Candidate source: the LM (default), uniform random, or the loss-guided "
+                             "direct-child-impact heuristic. Use with --no_dpo; isolates the LM's "
+                             "contribution from the learner, lookahead and scaffolding.")
     parser.add_argument("--policy_update", type=str, default="dpo", choices=["dpo", "sft_best", "ranking"],
                         help="Policy update rule applied to preference pairs when updates are enabled "
                              "(--no_dpo overrides this and disables updates entirely): "
@@ -3052,11 +3056,27 @@ def main():
                 num_candidates = 3  # Minimal late in training
             
             for k in range(num_candidates):
-                cmd_str, plan = policy_net.generate_experiment(
-                    current_student, 
-                    node_losses=node_losses_start,
-                    intervention_history=intervention_history
-                )
+                if args.proposer == "lm":
+                    cmd_str, plan = policy_net.generate_experiment(
+                        current_student, 
+                        node_losses=node_losses_start,
+                        intervention_history=intervention_history
+                    )
+                else:
+                    # Non-LM proposers for the Sept 2026 ladder: same learner,
+                    # lookahead scoring, scaffolding and stopping as the LM
+                    # arm; only the candidate source differs. 'random' is
+                    # uniform over (node, value); 'heuristic' is the
+                    # loss-guided direct-child-impact sampler that already
+                    # serves as the teacher fallback.
+                    if args.proposer == "random":
+                        cmd_str = get_random_valid_command_range(
+                            dsl.nodes, value_min=args.value_min, value_max=args.value_max)
+                    else:
+                        cmd_str = get_teacher_command_impact(
+                            dsl.nodes, M_star.graph, node_losses_start,
+                            value_min=args.value_min, value_max=args.value_max)
+                    plan = dsl.parse_to_dict(cmd_str)
                 train_candidates_total += 1
                 if plan is None:
                     train_candidates_invalid += 1

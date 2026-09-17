@@ -950,9 +950,265 @@ def run_max_variance_policy(scm: GroundTruthSCM, learner, episodes: int):
     return learner.evaluate()
 
 
+
+# ----------------------------------------------------------------
+# 2b. ENSEMBLE STUDENT + PROPAGATED-EPISTEMIC-VARIANCE ACQUISITION
+#
+# Sept 2026 metric audit outcome: no policy in this repo beats Random at
+# N >= 15, including the "Bayesian OED" baseline, which is a one-step
+# *oracle* lookahead scored on the observational loss. The acquisition below
+# is the principled, query-free alternative: an ensemble student carries
+# epistemic variance; a candidate do(X_j = v) is scored by the variance the
+# student's *descendant* mechanisms have at the parent contexts that the
+# intervention induces -- contexts simulated with the student itself, so
+# scoring costs no environment samples. Greedy maximisation of that score is
+# the first-order approximation to expected integrated-variance reduction
+# over the broad-range evaluation domain (see docs/development/guidance/
+# pev_design.md for the derivation and its assumptions).
+# ----------------------------------------------------------------
+
+def _topological_order(nodes: List[str], graph: Dict[str, List[str]]) -> List[str]:
+    """Kahn's algorithm on a parent-list graph (node -> list of parents)."""
+    indeg = {n: len([p for p in graph.get(n, []) if p in nodes]) for n in nodes}
+    children: Dict[str, List[str]] = {n: [] for n in nodes}
+    for n in nodes:
+        for p in graph.get(n, []):
+            if p in children:
+                children[p].append(n)
+    order, ready = [], [n for n in nodes if indeg[n] == 0]
+    while ready:
+        n = ready.pop(0)
+        order.append(n)
+        for c in children[n]:
+            indeg[c] -= 1
+            if indeg[c] == 0:
+                ready.append(c)
+    if len(order) != len(nodes):
+        raise ValueError("graph is not a DAG")
+    return order
+
+
+def _descendants(nodes: List[str], graph: Dict[str, List[str]]) -> Dict[str, set]:
+    children: Dict[str, List[str]] = {n: [] for n in nodes}
+    for n in nodes:
+        for p in graph.get(n, []):
+            if p in children:
+                children[p].append(n)
+    out: Dict[str, set] = {}
+    for n in nodes:
+        seen, stack = set(), list(children[n])
+        while stack:
+            c = stack.pop()
+            if c not in seen:
+                seen.add(c)
+                stack.extend(children[c])
+        out[n] = seen
+    return out
+
+
+class _MeanMechanism:
+    """Callable view of one non-root mechanism: the ensemble mean."""
+    def __init__(self, ens: "EnsembleStudentSCM", node: str):
+        self.ens, self.node = ens, node
+
+    def __call__(self, p_tensor: torch.Tensor) -> torch.Tensor:
+        return self.ens.member_predict(self.node, p_tensor).mean(dim=0).unsqueeze(-1)
+
+
+class _RootView:
+    """Dict-like view of one root: {'mu': mean of the members' means}."""
+    def __init__(self, ens: "EnsembleStudentSCM", node: str):
+        self.ens, self.node = ens, node
+
+    def __getitem__(self, key: str) -> torch.Tensor:
+        if key != "mu":
+            raise KeyError(key)
+        return torch.stack([m.mechanisms[self.node]["mu"] for m in self.ens.members]).mean(dim=0)
+
+
+class _EnsembleMechanisms:
+    def __init__(self, ens: "EnsembleStudentSCM"):
+        self.ens = ens
+
+    def __getitem__(self, node: str):
+        if self.ens.get_parents(node):
+            return _MeanMechanism(self.ens, node)
+        return _RootView(self.ens, node)
+
+
+class EnsembleStudentSCM(nn.Module):
+    """K independently initialised StudentSCMs; predictions are the mean.
+
+    Exposes the same surface as StudentSCM (nodes, graph, get_parents,
+    mechanisms[node](...), mechanisms[root]['mu'], forward) so both critics
+    score it unchanged, plus member_predict() for epistemic variance and
+    simulate() for student-side propagation of an intervention.
+    """
+    def __init__(self, oracle: GroundTruthSCM, n_members: int = 5, hidden_dim: int = 16):
+        super().__init__()
+        self.nodes = list(oracle.nodes)
+        self.graph = oracle.graph
+        self.members = nn.ModuleList([StudentSCM(oracle, hidden_dim) for _ in range(n_members)])
+        self.mechanisms = _EnsembleMechanisms(self)
+        self.topo_order = _topological_order(self.nodes, self.graph)
+        self.descendants = _descendants(self.nodes, self.graph)
+        # empirical root spread, maintained by EnsembleLearner (unit prior)
+        self.root_std: Dict[str, float] = {n: 1.0 for n in self.nodes if not self.get_parents(n)}
+
+    def get_parents(self, node: str) -> List[str]:
+        return self.graph.get(node, [])
+
+    def member_predict(self, node: str, p_tensor: torch.Tensor) -> torch.Tensor:
+        """(K, n) predictions of one non-root mechanism."""
+        return torch.stack([m.mechanisms[node](p_tensor).squeeze(-1) for m in self.members])
+
+    def forward(self, data: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        outs = [m(data) for m in self.members]
+        return {n: torch.stack([o[n] for o in outs]).mean(dim=0) for n in self.nodes}
+
+    @torch.no_grad()
+    def simulate(self, target_idx: torch.Tensor, values: torch.Tensor, n_samples: int) -> Dict[str, torch.Tensor]:
+        """Propagate C candidate interventions through the ensemble mean.
+
+        target_idx: (C,) long, index into self.nodes of the intervened node;
+        values: (C,) the clamped values. Returns node -> (C, n_samples).
+        Roots are drawn from N(mu, root_std); every other node follows the
+        ensemble-mean mechanism, except the candidate's own target, which is
+        clamped -- i.e. the student's estimate of p(V | do(X_j = v)).
+        """
+        C = target_idx.shape[0]
+        data: Dict[str, torch.Tensor] = {}
+        for i, node in enumerate(self.topo_order):
+            parents = self.get_parents(node)
+            if not parents:
+                mu = self.mechanisms[node]["mu"]
+                x = mu + self.root_std[node] * torch.randn(C, n_samples)
+            else:
+                p = torch.stack([data[q].reshape(-1) for q in parents], dim=1)
+                x = self.member_predict(node, p).mean(dim=0).reshape(C, n_samples)
+            clamp = target_idx == self.nodes.index(node)
+            if clamp.any():
+                x = x.clone()
+                x[clamp] = values[clamp].unsqueeze(1)
+            data[node] = x
+        return data
+
+
+class EnsembleLearner:
+    """One SCMLearner per member, each on an independent bootstrap of every
+    batch. The oracle is queried ONCE per observational refresh (the batch is
+    shared), so environment-sample accounting is identical to SCMLearner."""
+    def __init__(self, student: EnsembleStudentSCM, lr: float = 2e-3, buffer_size: int = 50,
+                 oracle: GroundTruthSCM = None, bootstrap: float = 0.8):
+        self.student = student
+        self.oracle = oracle
+        self.bootstrap = bootstrap
+        self.learners = [SCMLearner(m, lr=lr, buffer_size=buffer_size, oracle=oracle) for m in student.members]
+        self._critic = None
+        self._root_obs: Dict[str, List[float]] = {n: [] for n in student.root_std}
+
+    @property
+    def buffer(self):
+        return self.learners[0].buffer
+
+    def evaluate(self) -> Dict[str, float]:
+        if self._critic is None and self.oracle is not None:
+            self._critic = ScientificCritic(self.oracle)
+        if self._critic is None or self._critic.val_data is None:
+            return {node: 0.0 for node in self.student.nodes}
+        _, node_losses = self._critic.evaluate(self.student)
+        return node_losses
+
+    def _update_root_std(self, data: Dict[str, torch.Tensor], intervened: Optional[str]) -> None:
+        for r in self.student.root_std:
+            if r == intervened or r not in data:
+                continue
+            self._root_obs[r].extend(data[r].detach().reshape(-1).tolist()[:200])
+            self._root_obs[r] = self._root_obs[r][-2000:]
+            if len(self._root_obs[r]) >= 20:
+                self.student.root_std[r] = float(np.std(self._root_obs[r])) or 1.0
+
+    def train_step(self, data: Dict[str, torch.Tensor], intervened: Optional[str] = None,
+                   n_epochs: int = 50) -> float:
+        self._update_root_std(data, intervened)
+        n = next(iter(data.values())).shape[0]
+        losses = []
+        for lr_ in self.learners:
+            if self.bootstrap < 1.0:
+                keep = torch.rand(n) < self.bootstrap
+                if keep.sum() < 2:
+                    keep[:2] = True
+                sub = {k: v[keep] for k, v in data.items()}
+            else:
+                sub = data
+            losses.append(lr_.train_step(sub, intervened=intervened, n_epochs=n_epochs))
+        return float(np.mean(losses))
+
+    def observational_train(self, oracle: GroundTruthSCM, n_samples: int = 100,
+                            n_epochs: int = 50) -> float:
+        generate_kwargs = {"interventions": None}
+        if isinstance(oracle, InstrumentedOracle):
+            generate_kwargs["tag"] = "observational"
+        obs_data = oracle.generate(n_samples=n_samples, **generate_kwargs)
+        return self.train_step(obs_data, intervened=None, n_epochs=n_epochs)
+
+
+class PropagatedVariancePolicy:
+    """Propagated-epistemic-variance (PEV) acquisition.
+
+    score(j, v) = sum over descendants c of X_j of
+                  E_{pa_c ~ student-simulated p(. | do(X_j = v))} Var_k f_c^{(k)}(pa_c)
+
+    i.e. how much ensemble disagreement the intervention's induced parent
+    contexts would visit. Candidates are every node with at least one
+    descendant x a value grid over [value_min, value_max] (jittered within
+    the bin). Zero oracle queries per step; cost O(C * S * N * K) small-MLP
+    forwards, batched. eps-greedy for exploration.
+    """
+    def __init__(self, nodes: List[str], value_min: float = -5.0, value_max: float = 5.0,
+                 n_values: int = 11, n_sim: int = 64, eps: float = 0.05):
+        self.nodes = list(nodes)
+        self.value_min, self.value_max = value_min, value_max
+        self.n_values, self.n_sim, self.eps = n_values, n_sim, eps
+        self.name = "PEV"
+        self.last_scores = None
+
+    def select_intervention(self, student: EnsembleStudentSCM, **kwargs) -> Tuple[str, float]:
+        ens = student
+        targets = [n for n in ens.nodes if ens.descendants[n]]
+        if not targets:  # degenerate graph
+            return random.choice(self.nodes), random.uniform(self.value_min, self.value_max)
+        grid = torch.linspace(self.value_min, self.value_max, self.n_values)
+        half_bin = float(grid[1] - grid[0]) / 2 if self.n_values > 1 else 0.0
+        tidx = torch.tensor([ens.nodes.index(t) for t in targets]).repeat_interleave(self.n_values)
+        vals = grid.repeat(len(targets)) + (torch.rand(len(targets) * self.n_values) * 2 - 1) * half_bin
+        vals = vals.clamp(self.value_min, self.value_max)
+        C = tidx.shape[0]
+        ens.eval()
+        with torch.no_grad():
+            sim = ens.simulate(tidx, vals, self.n_sim)
+            score = torch.zeros(C)
+            desc = ens.descendants
+            for node in ens.nodes:
+                parents = ens.get_parents(node)
+                if not parents:
+                    continue
+                p = torch.stack([sim[q].reshape(-1) for q in parents], dim=1)
+                var = ens.member_predict(node, p).var(dim=0, unbiased=False).reshape(C, self.n_sim).mean(dim=1)
+                is_desc = torch.tensor([node in desc[targets[c // self.n_values]] for c in range(C)], dtype=torch.float32)
+                score += var * is_desc
+        self.last_scores = score
+        if random.random() < self.eps:
+            c = random.randrange(C)
+        else:
+            c = int(torch.argmax(score).item())
+        return ens.nodes[int(tidx[c])], float(vals[c])
+
+
 def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
                  steps_per_episode: int = 25, obs_train_interval: int = 5,
-                 obs_train_samples: int = 100, query_budget: Optional[int] = None) -> pd.DataFrame:
+                 obs_train_samples: int = 100, query_budget: Optional[int] = None,
+                 student_factory=None, learner_factory=None) -> pd.DataFrame:
     """
     Run a baseline policy and collect metrics.
 
@@ -986,8 +1242,8 @@ def run_baseline(policy, oracle: GroundTruthSCM, n_episodes: int = 100,
             break
 
         # Fresh student each episode
-        student = StudentSCM(oracle)
-        learner = SCMLearner(student, oracle=oracle)
+        student = student_factory(oracle) if student_factory else StudentSCM(oracle)
+        learner = learner_factory(student, oracle) if learner_factory else SCMLearner(student, oracle=oracle)
         
         # Reset policy state if needed
         if hasattr(policy, 'reset'):

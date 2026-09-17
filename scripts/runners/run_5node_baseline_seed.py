@@ -48,6 +48,7 @@ from baselines import (
     RandomPolicy,
     RoundRobinPolicy,
     run_baseline,
+    EnsembleStudentSCM, EnsembleLearner, PropagatedVariancePolicy,
 )
 
 
@@ -55,7 +56,11 @@ def main():
     parser = argparse.ArgumentParser(
         description="5-node GroundTruthSCM baseline for one method/seed pair")
     parser.add_argument("--method", required=True,
-                         choices=["random", "round_robin", "max_variance", "ppo"])
+                         choices=["random", "round_robin", "max_variance", "ppo",
+                                  "pev", "random_ens", "round_robin_ens"])
+    parser.add_argument("--ensemble_size", type=int, default=5)
+    parser.add_argument("--pev_values", type=int, default=11)
+    parser.add_argument("--pev_sim", type=int, default=64)
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--steps", type=int, default=25)
@@ -101,6 +106,18 @@ def main():
         policy = MaxVariancePolicy(nodes)
     elif args.method == "ppo":
         policy = PPOPolicy(nodes)
+    elif args.method == "pev":
+        policy = PropagatedVariancePolicy(nodes, n_values=args.pev_values, n_sim=args.pev_sim)
+    elif args.method == "random_ens":
+        policy = RandomPolicy(nodes)
+    elif args.method == "round_robin_ens":
+        policy = RoundRobinPolicy(nodes)
+
+    student_factory = learner_factory = None
+    if args.method in {"pev", "random_ens", "round_robin_ens"}:
+        K = args.ensemble_size
+        student_factory = lambda o: EnsembleStudentSCM(o, n_members=K)
+        learner_factory = lambda st, o: EnsembleLearner(st, oracle=o)
 
     df = run_baseline(
         policy, oracle,
@@ -109,6 +126,8 @@ def main():
         obs_train_interval=args.obs_train_interval,
         obs_train_samples=args.obs_train_samples,
         query_budget=args.query_budget,
+        student_factory=student_factory,
+        learner_factory=learner_factory,
     )
 
     final_loss = df.tail(1)["total_loss"].item()

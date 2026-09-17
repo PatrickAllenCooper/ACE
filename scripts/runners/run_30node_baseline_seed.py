@@ -36,6 +36,7 @@ from experiments.large_scale_scm import LargeScaleSCM
 from baselines import (
     StudentSCM, SCMLearner, ScientificCritic, InstrumentedOracle,
     RandomPolicy, RoundRobinPolicy, MaxVariancePolicy, PPOPolicy,
+    EnsembleStudentSCM, EnsembleLearner, PropagatedVariancePolicy,
 )
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from scripts.runners.run_reviewer_experiments import BayesianOEDBaseline
@@ -128,6 +129,8 @@ def run_episode_loop(
     obs_train_samples: int = 200,
     n_train_epochs: int = 50,
     query_budget: int = None,
+    student_factory=None,
+    learner_factory=None,
 ) -> pd.DataFrame:
     """
     Run policy against LargeScaleSCM and return per-step DataFrame.
@@ -156,8 +159,8 @@ def run_episode_loop(
         elif episode >= n_episodes:
             break
 
-        student = StudentSCM(oracle)
-        learner = SCMLearner(student, oracle=oracle)
+        student = student_factory(oracle) if student_factory else StudentSCM(oracle)
+        learner = learner_factory(student, oracle) if learner_factory else SCMLearner(student, oracle=oracle)
 
         if hasattr(policy, 'reset'):
             policy.reset()
@@ -216,7 +219,7 @@ def main():
         description="30-node SCM MLP-learner baseline for one seed")
     parser.add_argument("--method", required=True,
                         choices=["random", "round_robin", "max_variance",
-                                 "ppo", "bayesian_oed"])
+                                 "ppo", "bayesian_oed", "pev", "random_ens", "round_robin_ens"])
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--n_nodes", type=int, default=30,
                         help="LargeScaleSCM size. Supports the consistent "
@@ -227,6 +230,11 @@ def main():
     parser.add_argument("--steps", type=int, default=25)
     parser.add_argument("--obs_train_interval", type=int, default=3)
     parser.add_argument("--obs_train_samples", type=int, default=200)
+    parser.add_argument("--family", choices=["large_scale", "hetero"], default="large_scale",
+                        help="SCM family: the paper's LargeScaleSCM, or the heterogeneous-mechanism family")
+    parser.add_argument("--ensemble_size", type=int, default=5, help="members for the *_ens / pev methods")
+    parser.add_argument("--pev_values", type=int, default=11, help="PEV: value-grid size per target")
+    parser.add_argument("--pev_sim", type=int, default=64, help="PEV: simulated contexts per candidate")
     parser.add_argument("--query_budget", type=int, default=None,
                         help="If set, run episodes until cumulative environment "
                              "sample count (executed + candidate-probe + "
@@ -262,7 +270,12 @@ def main():
     # coeff_seed pins the mechanism coefficients to the same draw ACE's
     # --large_scale adapter makes at this seed (Sept 2026 audit: generate()
     # used to redraw them every batch, so baselines ran on a moving target).
-    scm = LargeScaleSCM(args.n_nodes, coeff_seed=args.seed)
+    if args.family == "hetero":
+        from experiments.heterogeneous_scm import HeterogeneousSCM
+        scm = HeterogeneousSCM(args.n_nodes, coeff_seed=args.seed)
+        logging.info(f"  mechanism forms: {scm.form_counts()}")
+    else:
+        scm = LargeScaleSCM(args.n_nodes, coeff_seed=args.seed)
     nodes = scm.nodes
     logging.info(f"  SCM: {len(nodes)} nodes, "
                  f"{sum(len(v) for v in scm.graph.values())} edges, "
@@ -281,11 +294,24 @@ def main():
         policy = MaxVariancePolicy(nodes)
     elif args.method == "ppo":
         policy = PPOPolicy(nodes)
+    elif args.method == "pev":
+        policy = PropagatedVariancePolicy(nodes, n_values=args.pev_values, n_sim=args.pev_sim)
+    elif args.method == "random_ens":
+        policy = RandomPolicy(nodes)
+    elif args.method == "round_robin_ens":
+        policy = RoundRobinPolicy30(nodes)
     elif args.method == "bayesian_oed":
         # Pass the InstrumentedOracle through so BayesianOEDFast's own
         # per-candidate EIG-estimation queries (n_candidates x n_mc_samples
         # per step) are tagged "candidate_probe" and counted.
         policy = BayesianOEDFast(oracle, n_candidates=10, n_mc_samples=3)
+
+    ensemble_methods = {"pev", "random_ens", "round_robin_ens"}
+    student_factory = learner_factory = None
+    if args.method in ensemble_methods:
+        K = args.ensemble_size
+        student_factory = lambda o: EnsembleStudentSCM(o, n_members=K)
+        learner_factory = lambda st, o: EnsembleLearner(st, oracle=o)
 
     df = run_episode_loop(
         policy, oracle,
@@ -294,6 +320,8 @@ def main():
         obs_train_interval=args.obs_train_interval,
         obs_train_samples=args.obs_train_samples,
         query_budget=args.query_budget,
+        student_factory=student_factory,
+        learner_factory=learner_factory,
     )
 
     # Final loss = last step of last episode

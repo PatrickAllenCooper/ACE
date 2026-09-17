@@ -24,6 +24,7 @@ python -u scripts/runners/run_5node_baseline_seed.py \
     --steps    25 \
     --obs_train_interval 3 \
     --obs_train_samples  200 \
-    --output   "$OUT"
+    --output   "$OUT" \
+    ${EXTRA_ARGS:-}
 
 echo "5-node baseline method=$METHOD seed=$SEED finished at $(date)"

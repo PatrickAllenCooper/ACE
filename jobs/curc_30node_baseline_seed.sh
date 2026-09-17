@@ -24,10 +24,12 @@ echo "30-node baseline method=$METHOD seed=$SEED started at $(date)"
 python -u scripts/runners/run_30node_baseline_seed.py \
     --method   "$METHOD" \
     --seed     "$SEED"   \
+    --n_nodes  "${N_NODES:-30}" \
     --episodes "${EPISODES:-150}" \
     --steps    25        \
     --obs_train_interval 3 \
     --obs_train_samples  200 \
-    --output   "$OUT"
+    --output   "$OUT" \
+    ${EXTRA_ARGS:-}
 
 echo "30-node baseline method=$METHOD seed=$SEED finished at $(date)"

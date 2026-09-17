@@ -31,6 +31,10 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || tr
 # (--no_dpo): the 'none' row of the calibration-rule table, demanded by the
 # Sept 10 review panel so Contribution 1 is tested at 5 nodes, not only at 30.
 if [ "$POLICY_UPDATE" = "none" ]; then UPDATE_ARGS="--no_dpo"; else UPDATE_ARGS="--policy_update $POLICY_UPDATE"; fi
+# PROPOSER=random|heuristic (jobs/curc_submit_proposer_ladder.sh) swaps the LM
+# for a non-LM candidate source; output goes under $OUT/<proposer>/ instead.
+PROPOSER="${PROPOSER:-lm}"
+if [ "$PROPOSER" != "lm" ]; then UPDATE_ARGS="$UPDATE_ARGS --proposer $PROPOSER"; RUN_TAG="$PROPOSER"; else RUN_TAG="$POLICY_UPDATE"; fi
 python -u ace_experiments.py \
     --episodes 200 \
     --seed "$SEED" \
@@ -39,6 +43,6 @@ python -u ace_experiments.py \
     --obs_train_interval 3 \
     --obs_train_samples 200 \
     --obs_train_epochs 100 \
-    --output "$OUT/${POLICY_UPDATE}/seed_${SEED}"
+    --output "$OUT/${RUN_TAG}/seed_${SEED}"
 
 echo "DPO-alternative policy_update=$POLICY_UPDATE seed=$SEED finished at $(date)"
