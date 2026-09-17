@@ -16,6 +16,7 @@
 #
 # Suites  (ROOT/<suite>/<arm>/seed_<s>/):
 #   t1_5node    5-node, 171 ep, seeds 141..618 + 42..1011            6 arms x 10
+#   bf5_matched 5-node, total-query-matched to ACE (3.2M samples)     4 arms x 5
 #   t2_30node   LargeScaleSCM-30, 150 ep, seeds 42..1011              6 arms x 5
 #   hetero30    HeterogeneousSCM-30, 150 ep, seeds 42..1011           6 arms x 5
 #   scaling     LargeScaleSCM N=15/50, 40 ep: random, random_ens, pev 3 x 2 x 5
@@ -30,7 +31,7 @@ set -euo pipefail
 cd /projects/paco0228/ACE
 
 ROOT="${ROOT:-/scratch/alpine/paco0228/ACE/results/pev_ladder}"
-SUITES="${SUITES:-t1_5node t2_30node hetero30 scaling hetero_sc}"
+SUITES="${SUITES:-t1_5node bf5_matched t2_30node hetero30 scaling hetero_sc}"
 SKIP_COMPLETED="${SKIP_COMPLETED:-1}"
 CPU_PART="${CPU_PART:-acpu}"
 CPU_QOS="${CPU_QOS:-cpu-normal}"
@@ -63,6 +64,13 @@ for suite in $SUITES; do
       for A in random round_robin random_ens round_robin_ens pev pev_var; do for S in $T1_SEEDS; do
         D="$ROOT/t1_5node/$A/seed_$S"; done_cell "$D" && { echo "  SKIP (done): $A s$S"; continue; }
         submit_cpu "pev5_${A}_s${S}" $(arm_hours $A 3 8) 8G "METHOD=$(arm_method $A),SEED=$S,OUT=$ROOT/t1_5node,EPISODES=171,EXTRA_ARGS=--ensemble_size $K $(arm_extra $A)" jobs/curc_5node_baseline_seed.sh
+      done; done ;;
+    bf5_matched)
+      # total-query-matched at ACE's 5-node budget (mean ace_env total samples),
+      # matched student: the query-fair version of t1_5node
+      for A in random round_robin random_ens pev; do for S in $T2_SEEDS; do
+        D="$ROOT/bf5_matched/$A/seed_$S"; done_cell "$D" && { echo "  SKIP (done): $A s$S"; continue; }
+        submit_cpu "bf5m_${A}_s${S}" $(arm_hours $A 12 23) 8G "METHOD=$(arm_method $A),SEED=$S,OUT=$ROOT/bf5_matched,EPISODES=2000,EXTRA_ARGS=--query_budget 3204460 --ensemble_size $K $(arm_extra $A)" jobs/curc_5node_baseline_seed.sh
       done; done ;;
     t2_30node|hetero30)
       FAM="large_scale"; [ "$suite" = hetero30 ] && FAM="hetero"

@@ -160,3 +160,24 @@ the first time. The audit re-runs above remain the correct restatement of the
 *pre-audit* baselines (same student they always had), and the ≥15-node
 conclusion only strengthens: ACE lost to a Random policy driving a far weaker
 student.
+
+### Matched-student result, 5 nodes (local, 17 Sept; 3 seeds x 40 episodes, preliminary)
+
+End-of-campaign non-root broad-range MSE per node, ACE's (64,64)/100-epoch
+student for every arm, episodes capped at 40 for ACE too:
+
+| Arm | eoc mean | X2 | X3 (collider) | X5 (quadratic) |
+|---|---|---|---|---|
+| ACE (seeds 42..1011) | 0.165 ± 0.032 | 0.011 | 0.155 | 0.329 |
+| ACE (paired seeds) | 0.129 ± 0.011 | | | |
+| Round-robin, matched student | **0.161 ± 0.023** | 0.011 | 0.401 | 0.072 |
+| Random, matched student | 0.223 ± 0.050 | 0.011 | 0.560 | 0.098 |
+| Random, pre-audit (16,) student | 0.377 ± 0.072 | 0.018 | 1.012 | 0.100 |
+
+Round-robin with ACE's learner ties ACE (Welch p = 0.85); Random is within
+noise of ACE at n = 3 (p = 0.17). ACE is ~3x better on the collider and ~4x
+worse on the quadratic node: it reallocates interventions toward X3's
+parents (the prompt says to) and starves X4. At matched episodes the net is
+a tie; at matched total queries ACE spends 4-5x more. The CURC ladder
+(10 seeds x 171 episodes, plus a query-matched suite) is the version of this
+table that goes in the paper.
