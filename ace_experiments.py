@@ -9,6 +9,7 @@ import seaborn as sns
 import re
 import os
 import copy
+import gc
 import random
 import argparse
 import logging
@@ -2869,6 +2870,12 @@ def main():
     recent_value_bins_by_target = {n: deque(maxlen=200) for n in dsl.nodes}
 
     for episode in range(start_episode, args.episodes):
+        # Sweep any cyclic garbage (e.g. a module <-> optimizer reference
+        # cycle in a candidate clone) that refcounting alone wouldn't have
+        # freed yet, before it accumulates across hundreds of episodes -- see
+        # the OOM note beside the per-step torch.cuda.empty_cache() below.
+        if episode > start_episode and episode % 10 == 0:
+            gc.collect()
         # Total-query-budget stopping condition (for budget-matched comparisons):
         # counts EVERY environment query across all tags, not just executed
         # interventions, so it applies fairly regardless of lookahead cost.
@@ -3180,6 +3187,23 @@ def main():
                             f"reward={reward:.2f}, node_importance={cov_bonus:.2f}, "
                             f"diversity={unified_diversity:.2f}, score={score:.2f}"
                         )
+
+            # Sept 2026: candidate scoring deep-copies the student (+ optimizer
+            # + a fresh clone of the whole replay buffer) up to num_candidates
+            # times per step, with shapes that vary as the buffer fills across
+            # each episode. On CUDA, PyTorch's caching allocator does not
+            # return freed blocks to the driver; it keeps them for reuse, and
+            # the allocator's own host-side bookkeeping grows with the number
+            # of distinct block sizes it has ever seen. Over a multi-hour run
+            # (~5000 steps x several candidates) that bookkeeping growth is
+            # what OOM'd curc_dpo_alternative_seed.sh jobs at 128G host RAM
+            # (dpoalt_rank_s1011, dpoalt_none_* -- see
+            # docs/development/guidance/metric_audit_2026-09-10.md). Refcounting
+            # already frees the Python-side objects each iteration; forcing the
+            # allocator itself to release cached blocks back to the driver here
+            # is the standard mitigation. No effect on any computed value.
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
             if step_any_valid:
                 train_steps_with_any_valid += 1
