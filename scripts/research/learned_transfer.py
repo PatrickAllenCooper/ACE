@@ -43,10 +43,24 @@ def learn_source_library(seed: int = 9173, tasks_per_family: int = 10,
     return np.stack(learned), 4 * tasks_per_family * samples_per_task
 
 
+def log_model_evidence(x: np.ndarray, y: np.ndarray, center: np.ndarray,
+                       precision: float = 20.0, noise_sd: float = 0.15) -> float:
+    """Integrate a Gaussian linear mechanism around a proposed prior center."""
+    design = features(x)
+    covariance = noise_sd**2 * np.eye(len(y)) + design @ design.T / precision
+    chol = np.linalg.cholesky(covariance)
+    residual = np.linalg.solve(chol, y - design @ center)
+    return float(-0.5 * (residual @ residual +
+                         2 * np.log(np.diag(chol)).sum() + len(y) * np.log(2 * np.pi)))
+
+
 def experiment(seed: int, changed: int, change_type: str,
-               nodes: int = 30, guard_margin: float | None = None) -> tuple[list[dict], dict]:
+               nodes: int = 30, guard_margin: float | None = None,
+               bayes_mixture: bool = False) -> tuple[list[dict], dict]:
     if not 0 < changed < nodes or change_type not in ('family', 'coefficient'):
         raise ValueError('Invalid change setting')
+    if guard_margin is not None and bayes_mixture:
+        raise ValueError('Run guard and Bayesian mixture diagnostics separately')
     source, source_samples = learn_source_library()
     rng = np.random.default_rng(seed + 2719)
     centers = family_centers()
@@ -75,6 +89,8 @@ def experiment(seed: int, changed: int, change_type: str,
         methods = ['scratch', 'warm', 'source_retrieval', 'source_mixture']
         if guard_margin is not None:
             methods.append('source_guarded')
+        if bayes_mixture:
+            methods.append('source_bayes_mixture')
         for method in methods:
             estimates = np.zeros_like(truth)
             selected_old = 0
@@ -93,6 +109,16 @@ def experiment(seed: int, changed: int, change_type: str,
                         chosen = source_choice if sse[0] - sse[source_choice] > guard_margin else 0
                     selected_old += chosen == 0
                     estimates[i] = posterior(x[i, :counts[i]], y[i, :counts[i]], proposals[chosen], 20.0)[0]
+                elif method == 'source_bayes_mixture':
+                    logs = np.array([log_model_evidence(x[i, :counts[i]], y[i, :counts[i]], mu)
+                                     for mu in proposals])
+                    logs += np.log([0.5] + [0.125] * 4)
+                    weights = np.exp(logs - logs.max())
+                    weights /= weights.sum()
+                    fits = np.stack([posterior(x[i, :counts[i]], y[i, :counts[i]], mu, 20.0)[0]
+                                     for mu in proposals])
+                    estimates[i] = weights @ fits
+                    selected_old += weights[0]
                 else:
                     logweights = -sse / (2 * 0.15**2) + np.log([0.5] + [0.125] * 4)
                     weights = np.exp(logweights - logweights.max())
@@ -114,6 +140,7 @@ def experiment(seed: int, changed: int, change_type: str,
     spec = {'seed': seed, 'nodes': nodes, 'changed': changed, 'change_type': change_type,
             'source_seed': 9173, 'source_samples': source_samples,
             'guard_margin': guard_margin,
+            'bayes_mixture': bayes_mixture,
             'source_sha256': hashlib.sha256(source.tobytes()).hexdigest(),
             'changed_node_ids': changed_ids.tolist(),
             'source_revision': os.environ.get('ACE_SOURCE_REVISION', 'local')}
@@ -127,11 +154,14 @@ def main():
     p.add_argument('--change-type', choices=('family', 'coefficient'), required=True)
     p.add_argument('--guard-margin', type=float, default=None,
                    help='Include a source guarded by this passive SSE improvement threshold')
+    p.add_argument('--bayes-mixture', action='store_true',
+                   help='Include full-data Bayesian model averaging over old and learned sources')
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     if a.guard_margin is not None and a.guard_margin < 0:
         p.error('--guard-margin must be nonnegative')
-    rows, spec = experiment(a.seed, a.changed, a.change_type, guard_margin=a.guard_margin)
+    rows, spec = experiment(a.seed, a.changed, a.change_type,
+                            guard_margin=a.guard_margin, bayes_mixture=a.bayes_mixture)
     a.output.mkdir(parents=True, exist_ok=True)
     metrics = a.output / 'metrics.csv'
     with metrics.open('w', newline='') as stream:
@@ -139,7 +169,7 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
     (a.output / 'system.json').write_text(json.dumps(spec, indent=2, sort_keys=True) + '\n')
-    receipt = {'schema_version': 2 if a.guard_margin is not None else 1,
+    receipt = {'schema_version': 3 if a.bayes_mixture else (2 if a.guard_margin is not None else 1),
                'kind': 'learned_transfer', 'rows': len(rows),
                'metrics_sha256': hashlib.sha256(metrics.read_bytes()).hexdigest(),
                'system_sha256': hashlib.sha256((a.output / 'system.json').read_bytes()).hexdigest()}
