@@ -103,6 +103,10 @@ Development mean MSE at 16 acquired samples: correct proposal 0.01023, validatio
 
 Fresh numerical prior check submitted on CURC: 20 jobs 33004856–33004875 under account `ucb736_asc1`, source revision `2f4b17c787f2dbea51a94da8cf9e44fd69bc14aa`, output `/scratch/alpine/paco0228/ACE/results/research_prior_gate_v1`. All 20 completed with exit code 0; 20/20 receipts validated after checksum-preserving local sync to `results/research_prior_gate_v1/`. At 16 samples, correct-condition mean MSE is 0.01024 proposal versus 0.01045 gate; wrong-condition MSE is 0.02564 proposal versus 0.02128 gate versus 0.01750 broad. At 32 samples, wrong-condition values are 0.00877 proposal, 0.00670 gate, and 0.00651 broad. The gate **partially** recovers from wrong proposals but does not beat the broad baseline reliably at low budget. Continue developing reliability tests; do not promote this as a successful semantic prior method.
 
+## Matched-menu joint-intervention development screen (26 September)
+
+The [B2 development screen](design_b2_dev_2026-09-26.md) implements exact-cost single and pair menus, a coverage-pair control, and a posterior-risk pair policy. All 108 local cells validated with receipt hashes and cost equations. Joint actions solve the zero-background interaction obstruction, but within the pair menu a simple coverage rule is close to the risk policy. No additional CURC jobs were submitted on this toy; the next justified scale test must embed motifs in a larger SCM and vary motif count independently of graph size.
+
 ## Learned numerical module-library screen (26 September)
 
 The subsequent [development routing-gate diagnostic](transfer_guard_dev_2026-09-26.md) tested passive-assay SSE margins before any fresh CURC confirmation. It did not remove coefficient-change negative transfer, so the guarded source selector is retained as a reproducible failed diagnostic, not promoted to a new experimental arm. No additional CURC jobs were submitted for this gate.

@@ -10,6 +10,23 @@ from pathlib import Path
 
 def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
     try:
+        if kind == 'design_b2':
+            receipt = json.loads((directory / 'complete.json').read_text())
+            assert receipt['schema_version'] == 1 and receipt['kind'] == 'design_b2'
+            metrics = directory / 'metrics.csv'
+            assert hashlib.sha256(metrics.read_bytes()).hexdigest() == receipt['metrics_sha256']
+            with metrics.open() as stream:
+                rows = list(csv.DictReader(stream))
+            assert len(rows) == receipt['rows'] == 5
+            assert {row['method'] for row in rows} == {'random_single', 'ivr_single', 'random_pair', 'coverage_pair', 'ivr_pair'}
+            assert len({(row['seed'], row['background_sd'], row['penalty'], row['budget']) for row in rows}) == 1
+            for row in rows:
+                assert all(math.isfinite(float(row[k])) and float(row[k]) >= 0
+                           for k in ('mse', 'interaction_error', 'posterior_risk'))
+                samples, steps, spent, actuators = (int(row[k]) for k in ('samples', 'steps', 'cost_spent', 'actuator_uses'))
+                assert samples == 8 * steps and samples > 0
+                assert spent == samples + int(row['penalty']) * actuators <= int(row['budget'])
+            return True, '5 matched-menu numerical arms with exact costs'
         if kind == 'learned_transfer':
             receipt = json.loads((directory / 'complete.json').read_text())
             assert receipt['schema_version'] in (1, 2) and receipt['kind'] == 'learned_transfer'
@@ -98,7 +115,7 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--directory', required=True, type=Path)
-    parser.add_argument('--kind', choices=('agenda', 'pev', 'persistent', 'learned_transfer'), required=True)
+    parser.add_argument('--kind', choices=('agenda', 'pev', 'persistent', 'learned_transfer', 'design_b2'), required=True)
     parser.add_argument('--steps', type=int, default=8)
     args = parser.parse_args()
     ok, detail = valid(args.directory, args.kind, args.steps)
