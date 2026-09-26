@@ -1,7 +1,7 @@
 #!/bin/bash
 # Frozen 15-cell connected-motif development scale grid.
 set -euo pipefail
-cd /projects/paco0228/ACE
+cd "${ACE_CODE_ROOT:-/projects/paco0228/ACE}"
 rev=$(git rev-parse HEAD)
 test "$rev" = "${REQUIRED_REVISION:?Specify tested commit}"
 test -z "$(git status --porcelain --untracked-files=no)"
@@ -31,7 +31,7 @@ for CELL_SEED in 200 201 202; do
             --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:30:00 \
             --job-name="$name" --output="$root/logs/${name}_%j.out" \
             --error="$root/logs/${name}_%j.err" \
-            --export="ALL,ACE_SOURCE_REVISION=$rev,CELL_SEED=$CELL_SEED,NODES=$NODES,MOTIFS=$MOTIFS,CELL_OUTPUT=$CELL_OUTPUT" \
+            --export="ALL,ACE_CODE_ROOT=$PWD,ACE_SOURCE_REVISION=$rev,CELL_SEED=$CELL_SEED,NODES=$NODES,MOTIFS=$MOTIFS,CELL_OUTPUT=$CELL_OUTPUT" \
             jobs/curc_connected_acquisition_seed.sh)
         printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$job" "$name" "$rev" ucb736_asc1 "$CELL_OUTPUT" "$(date -Is)" >> "$manifest"
         echo "SUBMITTED $name -> $job"
