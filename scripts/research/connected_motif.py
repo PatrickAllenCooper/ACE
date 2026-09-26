@@ -60,11 +60,14 @@ def action_menu(system: System, pair: bool):
 
 
 def sample(system: System, rng: np.random.Generator, n: int, action=None,
-           coefficients: np.ndarray | None = None):
+           coefficients: np.ndarray | None = None,
+           padding_rng: np.random.Generator | None = None):
     """Return observed nodes, motif features, and natural-child observation mask."""
     if n < 1:
         raise ValueError('n must be positive')
     values = np.empty((n, system.nodes))
+    if padding_rng is None:
+        padding_rng = rng
     if coefficients is None:
         coefficients = system.coefficients
     if coefficients.shape != (system.motifs, 3):
@@ -92,7 +95,7 @@ def sample(system: System, rng: np.random.Generator, n: int, action=None,
             a, b, c = coefficients[j]
             values[:, node] = a*x1 + b*x2 + c*x1*x2 + rng.normal(0, system.child_sd, n)
         else:
-            values[:, node] = .5*values[:, node-1] + rng.normal(0, system.child_sd, n)
+            values[:, node] = .5*values[:, node-1] + padding_rng.normal(0, system.child_sd, n)
     features = np.stack([np.column_stack((values[:, a], values[:, b],
                                            values[:, a]*values[:, b]))
                          for a, b in system.parents], axis=1)

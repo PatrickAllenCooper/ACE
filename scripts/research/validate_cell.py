@@ -12,11 +12,13 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
     try:
         if kind == 'connected_acquisition':
             receipt = json.loads((directory / 'complete.json').read_text())
-            assert receipt['schema_version'] == 1 and receipt['kind'] == kind
+            assert receipt['schema_version'] in (1, 2) and receipt['kind'] == kind
             paths = {name: directory / name for name in ('metrics.csv', 'actions.csv', 'system.json')}
             for name, path in paths.items():
                 assert hashlib.sha256(path.read_bytes()).hexdigest() == receipt[name.split('.')[0] + '_sha256']
             spec = json.loads(paths['system.json'].read_text())
+            if receipt['schema_version'] == 2:
+                assert spec['rng_schema'] == 'separate_padding_v1'
             with paths['metrics.csv'].open() as stream:
                 rows = list(csv.DictReader(stream))
             with paths['actions.csv'].open() as stream:

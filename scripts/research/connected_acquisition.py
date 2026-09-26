@@ -22,10 +22,11 @@ Q = np.diag((4/3, 4/3, 16/9))
 class SealedEvaluator:
     def __init__(self, system, seed):
         rng = np.random.default_rng(seed + 77153)
+        padding_rng = np.random.default_rng(seed + 77154)
         # An independent, fixed, feasible panel; never passed to a policy.
         self.panel = []
         for action in action_menu(system, True):
-            _, phi, mask = sample(system, rng, 64, action)
+            _, phi, mask = sample(system, rng, 64, action, padding_rng=padding_rng)
             self.panel.append((phi, mask))
         self.truth = system.coefficients.copy()
 
@@ -40,7 +41,7 @@ class SealedEvaluator:
         return broad, float(np.mean(feasible))
 
 
-def choose(method, public_system, rng, mean, cov, step, batch):
+def choose(method, public_system, rng, padding_rng, mean, cov, step, batch):
     menu = action_menu(public_system, method.endswith('pair'))
     if method.startswith('random'):
         return menu[int(rng.integers(len(menu)))]
@@ -51,7 +52,8 @@ def choose(method, public_system, rng, mean, cov, step, batch):
     scores = []
     for action in menu:
         # Student-predictive contexts only: public_system contains zero truth.
-        _, phi, mask = sample(public_system, rng, 64, action, coefficients=mean)
+        _, phi, mask = sample(public_system, rng, 64, action, coefficients=mean,
+                              padding_rng=padding_rng)
         score = 0.
         for j in range(public_system.motifs):
             z = phi[mask[:, j], j]
@@ -73,13 +75,15 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8):
     rows, actions = [], []
     for mi, method in enumerate(METHODS):
         rng = np.random.default_rng(seed * 113 + mi + 31)
+        padding_rng = np.random.default_rng(seed * 113 + mi + 80031)
         mean = np.zeros((motifs, 3))
         cov = np.repeat(np.eye(3)[None, :, :], motifs, axis=0)
         spent = samples = actuators = masked = step = 0
         unit_cost = 1 + penalty * (2 if method.endswith('pair') else 1)
         while spent + batch * unit_cost <= budget:
-            action = choose(method, public, rng, mean, cov, step, batch)
-            values, phi, natural = sample(system, rng, batch, action)
+            action = choose(method, public, rng, padding_rng, mean, cov, step, batch)
+            values, phi, natural = sample(system, rng, batch, action,
+                                          padding_rng=padding_rng)
             for j, child in enumerate(system.children):
                 z = phi[natural[:, j], j]
                 y = values[natural[:, j], child]
@@ -108,6 +112,7 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8):
                      'posterior_risk': float(np.mean([np.trace(Q @ c) for c in cov]))})
     spec = {'seed': seed, 'nodes': nodes, 'motifs': motifs, 'root_sd': root_sd,
             'penalty': penalty, 'budget': budget, 'batch': batch,
+            'rng_schema': 'separate_padding_v1',
             'parents': system.parents, 'children': system.children,
             'edges': system.edges, 'coefficients': system.coefficients.tolist(),
             'source_revision': os.environ.get('ACE_SOURCE_REVISION', 'local')}
@@ -139,7 +144,7 @@ def main():
     write_csv(metric_file, rows)
     write_csv(action_file, actions)
     system_file.write_text(json.dumps(spec, indent=2, sort_keys=True) + '\n')
-    receipt = {'schema_version': 1, 'kind': 'connected_acquisition', 'rows': len(rows),
+    receipt = {'schema_version': 2, 'kind': 'connected_acquisition', 'rows': len(rows),
                'actions': len(actions), 'source_revision': spec['source_revision'],
                'metrics_sha256': hashlib.sha256(metric_file.read_bytes()).hexdigest(),
                'actions_sha256': hashlib.sha256(action_file.read_bytes()).hexdigest(),
