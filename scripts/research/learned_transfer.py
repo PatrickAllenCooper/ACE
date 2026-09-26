@@ -44,7 +44,7 @@ def learn_source_library(seed: int = 9173, tasks_per_family: int = 10,
 
 
 def experiment(seed: int, changed: int, change_type: str,
-               nodes: int = 30) -> tuple[list[dict], dict]:
+               nodes: int = 30, guard_margin: float | None = None) -> tuple[list[dict], dict]:
     if not 0 < changed < nodes or change_type not in ('family', 'coefficient'):
         raise ValueError('Invalid change setting')
     source, source_samples = learn_source_library()
@@ -72,7 +72,10 @@ def experiment(seed: int, changed: int, change_type: str,
         counts = np.array([4 + extra // nodes + (i < extra % nodes) for i in range(nodes)])
         if counts.max() > 14:
             raise ValueError('Insufficient fixed target examples')
-        for method in ('scratch', 'warm', 'source_retrieval', 'source_mixture'):
+        methods = ['scratch', 'warm', 'source_retrieval', 'source_mixture']
+        if guard_margin is not None:
+            methods.append('source_guarded')
+        for method in methods:
             estimates = np.zeros_like(truth)
             selected_old = 0
             for i in range(nodes):
@@ -83,8 +86,11 @@ def experiment(seed: int, changed: int, change_type: str,
                     estimates[i] = posterior(x[i, :counts[i]], y[i, :counts[i]], np.zeros(6), 0.25)[0]
                 elif method == 'warm':
                     estimates[i] = posterior(x[i, :counts[i]], y[i, :counts[i]], old[i], 20.0)[0]
-                elif method == 'source_retrieval':
+                elif method in ('source_retrieval', 'source_guarded'):
                     chosen = int(np.argmin(sse))
+                    if method == 'source_guarded':
+                        source_choice = int(np.argmin(sse[1:])) + 1
+                        chosen = source_choice if sse[0] - sse[source_choice] > guard_margin else 0
                     selected_old += chosen == 0
                     estimates[i] = posterior(x[i, :counts[i]], y[i, :counts[i]], proposals[chosen], 20.0)[0]
                 else:
@@ -107,6 +113,7 @@ def experiment(seed: int, changed: int, change_type: str,
                          'old_selection_mass': float(selected_old / nodes) if method.startswith('source_') else ''})
     spec = {'seed': seed, 'nodes': nodes, 'changed': changed, 'change_type': change_type,
             'source_seed': 9173, 'source_samples': source_samples,
+            'guard_margin': guard_margin,
             'source_sha256': hashlib.sha256(source.tobytes()).hexdigest(),
             'changed_node_ids': changed_ids.tolist(),
             'source_revision': os.environ.get('ACE_SOURCE_REVISION', 'local')}
@@ -118,9 +125,13 @@ def main():
     p.add_argument('--seed', type=int, required=True)
     p.add_argument('--changed', type=int, choices=(1, 3, 10), required=True)
     p.add_argument('--change-type', choices=('family', 'coefficient'), required=True)
+    p.add_argument('--guard-margin', type=float, default=None,
+                   help='Include a source guarded by this passive SSE improvement threshold')
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
-    rows, spec = experiment(a.seed, a.changed, a.change_type)
+    if a.guard_margin is not None and a.guard_margin < 0:
+        p.error('--guard-margin must be nonnegative')
+    rows, spec = experiment(a.seed, a.changed, a.change_type, guard_margin=a.guard_margin)
     a.output.mkdir(parents=True, exist_ok=True)
     metrics = a.output / 'metrics.csv'
     with metrics.open('w', newline='') as stream:
@@ -128,7 +139,8 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
     (a.output / 'system.json').write_text(json.dumps(spec, indent=2, sort_keys=True) + '\n')
-    receipt = {'schema_version': 1, 'kind': 'learned_transfer', 'rows': len(rows),
+    receipt = {'schema_version': 2 if a.guard_margin is not None else 1,
+               'kind': 'learned_transfer', 'rows': len(rows),
                'metrics_sha256': hashlib.sha256(metrics.read_bytes()).hexdigest(),
                'system_sha256': hashlib.sha256((a.output / 'system.json').read_bytes()).hexdigest()}
     (a.output / 'complete.json').write_text(json.dumps(receipt, indent=2) + '\n')

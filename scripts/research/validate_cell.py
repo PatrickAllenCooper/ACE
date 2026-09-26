@@ -12,7 +12,7 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
     try:
         if kind == 'learned_transfer':
             receipt = json.loads((directory / 'complete.json').read_text())
-            assert receipt['schema_version'] == 1 and receipt['kind'] == 'learned_transfer'
+            assert receipt['schema_version'] in (1, 2) and receipt['kind'] == 'learned_transfer'
             metrics = directory / 'metrics.csv'
             spec_file = directory / 'system.json'
             assert hashlib.sha256(metrics.read_bytes()).hexdigest() == receipt['metrics_sha256']
@@ -20,11 +20,15 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
             spec = json.loads(spec_file.read_text())
             with metrics.open() as stream:
                 rows = list(csv.DictReader(stream))
-            assert len(rows) == receipt['rows'] == 12
+            assert len(rows) == receipt['rows'] == (15 if receipt['schema_version'] == 2 else 12)
             assert len(spec['changed_node_ids']) == spec['changed']
             assert len(spec['source_sha256']) == 64
             assert {int(row['target_budget']) for row in rows} == {120, 200, 400}
-            assert {row['method'] for row in rows} == {'scratch', 'warm', 'source_retrieval', 'source_mixture'}
+            methods = {'scratch', 'warm', 'source_retrieval', 'source_mixture'}
+            if receipt['schema_version'] == 2:
+                assert spec['guard_margin'] is not None
+                methods.add('source_guarded')
+            assert {row['method'] for row in rows} == methods
             assert all(int(row['source_samples']) == spec['source_samples'] for row in rows)
             assert all(math.isfinite(float(row[k])) and float(row[k]) >= 0
                        for row in rows for k in ('mse', 'changed_mse', 'unchanged_mse'))
