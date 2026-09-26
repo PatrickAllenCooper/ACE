@@ -73,7 +73,7 @@ def report(cells, invalid, total):
     primary_p = {}
     for family in sorted({k[0] for k in grouped}):
         cohort = [(seed, arms) for (f, seed), arms in grouped.items() if f == family]
-        print(f'\n{family}: {len(cohort)} development seeds')
+        print(f'\n{family}: {len(cohort)} paired systems/seeds')
         for seed, arms in sorted(cohort):
             counts = {v['samples'] for v in arms.values()}
             revisions = {v['revision'] for v in arms.values()}
