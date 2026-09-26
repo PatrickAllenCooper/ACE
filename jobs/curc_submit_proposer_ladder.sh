@@ -26,7 +26,7 @@ cell_done() { local nl; nl=$(find "$1" -name node_losses.csv 2>/dev/null | head 
 for P in $PROPOSERS; do for S in $SEEDS; do
     if [ "$SKIP_COMPLETED" = "1" ] && cell_done "$OUT/$P/seed_$S"; then echo "  SKIP (done): $P s$S"; continue; fi
     JOB=$(sbatch --parsable --job-name="prop_${P}_s${S}" --partition=$GPU_PARTITION --qos=$GPU_QOS --gres=$GPU_GRES \
-        --nodes=1 --ntasks=1 --cpus-per-task=8 --mem=64G --time=$WALL_TIME \
+        --nodes=1 --ntasks=1 --cpus-per-task=8 --mem=128G --time=$WALL_TIME \
         --output="$OUT/logs/${P}_s${S}_%j.out" --error="$OUT/logs/${P}_s${S}_%j.err" \
         --export=ALL,SEED=$S,POLICY_UPDATE=none,PROPOSER=$P,OUT="$OUT" jobs/curc_dpo_alternative_seed.sh)
     echo "  Submitted: proposer=$P seed=$S -> Job $JOB"; N=$((N+1))
