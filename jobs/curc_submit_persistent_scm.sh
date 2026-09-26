@@ -27,7 +27,7 @@ for FAMILY in ${FAMILIES:-legacy5 hom30 hetero30}; do
             fi
             ID=$(sbatch --parsable --account=ucb736_asc1 --partition=acpu --qos=cpu-normal \
                 --job-name="$NAME" --nodes=1 --ntasks=1 --cpus-per-task=4 \
-                --mem=16G --time=02:00:00 \
+                --mem=16G --time="${WALL_TIME:-02:00:00}" \
                 --output="$ROOT/logs/%x_%j.out" --error="$ROOT/logs/%x_%j.err" \
                 --export="ALL,ACE_CODE_ROOT=$PWD,ACE_SOURCE_REVISION=$REV,FAMILY=$FAMILY,METHOD=$METHOD,SEED=$SEED,CELL_OUTPUT=$CELL_OUTPUT,BUDGET=${BUDGET:-2000},EPOCHS=${EPOCHS:-20},ENSEMBLE_SIZE=${ENSEMBLE_SIZE:-3}" \
                 jobs/curc_persistent_scm_cell.sh)
