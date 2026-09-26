@@ -107,6 +107,8 @@ Fresh numerical prior check submitted on CURC: 20 jobs 33004856–33004875 under
 
 The [B2 development screen](design_b2_dev_2026-09-26.md) implements exact-cost single and pair menus, a coverage-pair control, and a posterior-risk pair policy. All 108 local cells validated with receipt hashes and cost equations. Joint actions solve the zero-background interaction obstruction, but within the pair menu a simple coverage rule is close to the risk policy. No additional CURC jobs were submitted on this toy; the next justified scale test must embed motifs in a larger SCM and vary motif count independently of graph size.
 
+The subsequent [disjoint-motif development screen](motif_reachability_dev_2026-09-26.md) did this first as a numerical control: 48/48 receipt-validated cells on N=15/30/100 with k=1/3/10 hard motifs. Independent root padding leaves outcomes identical by construction, while increasing k at fixed budget makes joint actions much less decisive. At weak nonzero background variation and high paired-actuator cost, coverage singles can outperform pair policies. This does not satisfy the within-menu promotion criterion; connected sparse SCMs are the next required gate. No CURC jobs were spent on the disjoint prototype.
+
 ## Learned numerical module-library screen (26 September)
 
 The subsequent [development routing-gate diagnostic](transfer_guard_dev_2026-09-26.md) tested passive-assay SSE margins before any fresh CURC confirmation. It did not remove coefficient-change negative transfer, so the guarded source selector is retained as a reproducible failed diagnostic, not promoted to a new experimental arm. No additional CURC jobs were submitted for this gate.

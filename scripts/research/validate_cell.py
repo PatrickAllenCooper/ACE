@@ -10,6 +10,27 @@ from pathlib import Path
 
 def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
     try:
+        if kind == 'motif_reachability':
+            receipt = json.loads((directory / 'complete.json').read_text())
+            assert receipt['schema_version'] == 1 and receipt['kind'] == kind
+            metrics, spec_file = directory / 'metrics.csv', directory / 'system.json'
+            assert hashlib.sha256(metrics.read_bytes()).hexdigest() == receipt['metrics_sha256']
+            assert hashlib.sha256(spec_file.read_bytes()).hexdigest() == receipt['system_sha256']
+            spec = json.loads(spec_file.read_text())
+            with metrics.open() as stream:
+                rows = list(csv.DictReader(stream))
+            assert len(rows) == receipt['rows'] == 5
+            assert {r['method'] for r in rows} == {'random_single', 'coverage_single', 'random_pair', 'coverage_pair', 'risk_pair'}
+            assert len(spec['edges']) == 2 * spec['motifs'] and len(spec['coefficients']) == spec['motifs']
+            assert spec['nodes'] >= 3 * spec['motifs']
+            for row in rows:
+                assert (int(row['seed']), int(row['nodes']), int(row['motifs'])) == (spec['seed'], spec['nodes'], spec['motifs'])
+                assert all(math.isfinite(float(row[k])) and float(row[k]) >= 0
+                           for k in ('motif_mse', 'interaction_mse', 'posterior_risk'))
+                samples, steps, spent, actuators = (int(row[k]) for k in ('samples', 'steps', 'cost_spent', 'actuator_uses'))
+                assert samples == 8 * steps and samples > 0
+                assert spent == samples + int(row['penalty']) * actuators <= int(row['budget'])
+            return True, '5 SCM acquisition arms with exact costs'
         if kind == 'design_b2':
             receipt = json.loads((directory / 'complete.json').read_text())
             assert receipt['schema_version'] == 1 and receipt['kind'] == 'design_b2'
@@ -115,7 +136,7 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--directory', required=True, type=Path)
-    parser.add_argument('--kind', choices=('agenda', 'pev', 'persistent', 'learned_transfer', 'design_b2'), required=True)
+    parser.add_argument('--kind', choices=('agenda', 'pev', 'persistent', 'learned_transfer', 'design_b2', 'motif_reachability'), required=True)
     parser.add_argument('--steps', type=int, default=8)
     args = parser.parse_args()
     ok, detail = valid(args.directory, args.kind, args.steps)
