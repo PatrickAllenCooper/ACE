@@ -26,6 +26,7 @@ from baselines import (EnsembleLearner, EnsembleStudentSCM, GroundTruthSCM,
                        StudentSCM)
 from experiments.large_scale_scm import LargeScaleSCM
 from experiments.heterogeneous_scm import HeterogeneousSCM
+from experiments.shifted_mechanism_scm import ShiftedMechanismSCM
 
 
 class SealedEvaluator:
@@ -148,7 +149,7 @@ def campaign(scm, method: str, seed: int, budget: int, epochs: int,
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--family', choices=['legacy5', 'hom30', 'hetero30'], required=True)
+    p.add_argument('--family', choices=['legacy5', 'hom30', 'hetero30', 'shift30'], required=True)
     p.add_argument('--method', choices=['nonleaf_random_ens', 'nonleaf_coverage_ens',
                                          'pev', 'pev_var'], required=True)
     p.add_argument('--seed', type=int, required=True)
@@ -171,6 +172,8 @@ def main():
         scm = GroundTruthSCM()
     elif a.family == 'hom30':
         scm = LargeScaleSCM(30, coeff_seed=a.seed)
+    elif a.family == 'shift30':
+        scm = ShiftedMechanismSCM(30, coeff_seed=a.seed)
     else:
         scm = HeterogeneousSCM(30, coeff_seed=a.seed)
     specification = system_spec(scm, a.family, a.seed)

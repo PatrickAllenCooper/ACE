@@ -1,7 +1,7 @@
 #!/bin/bash
 # Submit the fixed-budget persistent-learner pilot on CURC. Safe to rerun.
 set -euo pipefail
-cd /projects/paco0228/ACE
+cd "${ACE_CODE_ROOT:-/projects/paco0228/ACE}"
 REV=$(git rev-parse HEAD)
 test "$REV" = "${REQUIRED_REVISION:?Specify tested commit}"
 test -z "$(git status --porcelain --untracked-files=no)"
@@ -29,7 +29,7 @@ for FAMILY in ${FAMILIES:-legacy5 hom30 hetero30}; do
                 --job-name="$NAME" --nodes=1 --ntasks=1 --cpus-per-task=4 \
                 --mem=16G --time=02:00:00 \
                 --output="$ROOT/logs/%x_%j.out" --error="$ROOT/logs/%x_%j.err" \
-                --export="ALL,ACE_SOURCE_REVISION=$REV,FAMILY=$FAMILY,METHOD=$METHOD,SEED=$SEED,CELL_OUTPUT=$CELL_OUTPUT,BUDGET=${BUDGET:-2000},EPOCHS=${EPOCHS:-20},ENSEMBLE_SIZE=${ENSEMBLE_SIZE:-3}" \
+                --export="ALL,ACE_CODE_ROOT=$PWD,ACE_SOURCE_REVISION=$REV,FAMILY=$FAMILY,METHOD=$METHOD,SEED=$SEED,CELL_OUTPUT=$CELL_OUTPUT,BUDGET=${BUDGET:-2000},EPOCHS=${EPOCHS:-20},ENSEMBLE_SIZE=${ENSEMBLE_SIZE:-3}" \
                 jobs/curc_persistent_scm_cell.sh)
             printf '%s\t%s\t%s\t%s\t%s\n' "$ID" "$NAME" "$REV" "$CELL_OUTPUT" "$(date -Is)" >> "$LEDGER"
             echo "Submitted: $NAME -> $ID"
