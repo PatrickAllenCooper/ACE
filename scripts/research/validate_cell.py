@@ -10,6 +10,34 @@ from pathlib import Path
 
 def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
     try:
+        if kind == 'connected_acquisition':
+            receipt = json.loads((directory / 'complete.json').read_text())
+            assert receipt['schema_version'] == 1 and receipt['kind'] == kind
+            paths = {name: directory / name for name in ('metrics.csv', 'actions.csv', 'system.json')}
+            for name, path in paths.items():
+                assert hashlib.sha256(path.read_bytes()).hexdigest() == receipt[name.split('.')[0] + '_sha256']
+            spec = json.loads(paths['system.json'].read_text())
+            with paths['metrics.csv'].open() as stream:
+                rows = list(csv.DictReader(stream))
+            with paths['actions.csv'].open() as stream:
+                actions = list(csv.DictReader(stream))
+            assert len(rows) == receipt['rows'] == 5 and len(actions) == receipt['actions']
+            assert {r['method'] for r in rows} == {'random_single', 'coverage_single', 'random_pair', 'coverage_pair', 'risk_pair'}
+            assert len(spec['children']) == spec['motifs'] and len(spec['edges']) == spec['nodes'] - 1
+            for row in rows:
+                assert (int(row['seed']), int(row['nodes']), int(row['motifs'])) == (spec['seed'], spec['nodes'], spec['motifs'])
+                assert all(math.isfinite(float(row[k])) and float(row[k]) >= 0
+                           for k in ('broad_motif_mse', 'feasible_motif_mse', 'posterior_risk'))
+                own = [a for a in actions if a['method'] == row['method']]
+                assert len(own) == int(row['steps'])
+                assert [int(a['step']) for a in own] == list(range(len(own)))
+                samples, spent, actuators, masked = (int(row[k]) for k in ('samples', 'cost_spent', 'actuator_uses', 'masked_child_labels'))
+                assert samples == spec['batch'] * len(own) and samples > 0
+                assert spent == samples + spec['penalty'] * actuators <= spec['budget']
+                assert masked == sum(int(a['masked_child_labels']) for a in own)
+                assert all(int(a['natural_child_labels']) + int(a['masked_child_labels']) == spec['batch'] * spec['motifs'] for a in own)
+                assert int(own[-1]['cumulative_cost']) == spent and int(own[-1]['cumulative_samples']) == samples
+            return True, '5 connected-SCM arms with validated actions and costs'
         if kind == 'motif_reachability':
             receipt = json.loads((directory / 'complete.json').read_text())
             assert receipt['schema_version'] == 1 and receipt['kind'] == kind
@@ -136,7 +164,7 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--directory', required=True, type=Path)
-    parser.add_argument('--kind', choices=('agenda', 'pev', 'persistent', 'learned_transfer', 'design_b2', 'motif_reachability'), required=True)
+    parser.add_argument('--kind', choices=('agenda', 'pev', 'persistent', 'learned_transfer', 'design_b2', 'motif_reachability', 'connected_acquisition'), required=True)
     parser.add_argument('--steps', type=int, default=8)
     args = parser.parse_args()
     ok, detail = valid(args.directory, args.kind, args.steps)

@@ -59,11 +59,16 @@ def action_menu(system: System, pair: bool):
     return menu
 
 
-def sample(system: System, rng: np.random.Generator, n: int, action=None):
+def sample(system: System, rng: np.random.Generator, n: int, action=None,
+           coefficients: np.ndarray | None = None):
     """Return observed nodes, motif features, and natural-child observation mask."""
     if n < 1:
         raise ValueError('n must be positive')
     values = np.empty((n, system.nodes))
+    if coefficients is None:
+        coefficients = system.coefficients
+    if coefficients.shape != (system.motifs, 3):
+        raise ValueError('Invalid mechanism coefficients')
     natural = np.ones((n, system.motifs), dtype=bool)
     interventions = {}
     if action is not None:
@@ -84,7 +89,7 @@ def sample(system: System, rng: np.random.Generator, n: int, action=None):
             j = child_to_motif[node]
             p1, p2 = system.parents[j]
             x1, x2 = values[:, p1], values[:, p2]
-            a, b, c = system.coefficients[j]
+            a, b, c = coefficients[j]
             values[:, node] = a*x1 + b*x2 + c*x1*x2 + rng.normal(0, system.child_sd, n)
         else:
             values[:, node] = .5*values[:, node-1] + rng.normal(0, system.child_sd, n)
