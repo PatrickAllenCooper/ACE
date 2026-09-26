@@ -24,7 +24,14 @@ def main():
     grouped = defaultdict(lambda: [0, 0, 0])  # total, valid, invalid/pending
     numerical = defaultdict(list)
     for output, rec in latest.items():
-        folder = Path(output)
+        source = Path(output)
+        # The ledger stores CURC paths. Rebase on the local synced copy when
+        # status is run on a laptop rather than on CURC.
+        if root.name in source.parts:
+            index = source.parts.index(root.name)
+            folder = root.joinpath(*source.parts[index + 1:])
+        else:
+            folder = source
         kind = 'pev' if '/pev_canary/' in output else 'agenda'
         parts = folder.relative_to(root).parts if folder.is_relative_to(root) else (kind,)
         depth = 4 if len(parts) > 1 and parts[1] == 'design' else (2 if len(parts) > 1 and parts[1] == 'prior' else 3)

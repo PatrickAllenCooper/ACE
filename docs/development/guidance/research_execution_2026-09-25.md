@@ -48,3 +48,17 @@ The numerical runner and both shell scripts were smoke-tested locally before rem
 - External validation on an independently selected task after a synthetic gate passes.
 
 The first wave's numerical prototypes are meant to find and repair conceptual or engineering flaws cheaply. Do not interpret their small toy effects as the outcome of the full research agendas.
+
+## First-wave outcome (25 September)
+
+All 36 jobs (32986987–32987022) completed successfully. The complete outputs, submission ledger, and receipts were copied to `results/research_portfolio_20260925/`; 36/36 cells pass local artifact validation. PEV canaries each executed eight interventions and two observational refreshes, exactly 480 environment samples. The 12 PEV cells each used one fixed graph and seed 42, so they cannot establish a population effect.
+
+The reachability prototype is informative but intentionally simple. With zero background variation in the uncontrolled parent, single-parent actions have end-budget interaction MSE about 1.44; paired actions are below 0.00025 across the tested costs. At background standard deviation 0.15, single actions also identify the interaction well. This means the next whole-SCM study must vary natural support, graph topology, actuator cost, and the allowed action set. A paired-action advantage is conditional on weak natural support, not a general result.
+
+The prior prototype does not yet solve misspecification: at 64 samples the broad/correct/wrong/fallback end-budget MSEs are approximately 0.00177/0.00162/0.00200/0.00200 (three seeds). The fallback mixture offers negligible recovery here. This track needs a genuinely fallible structural prior and a stronger evidence gate before larger runs.
+
+The local-repair prototype has small differences between module and ordinary warm-start residual sampling at one or three changed nodes. With ten changes, module residual is worse (0.02125 versus 0.01804). The current prescribed library is not evidence that learned modular transfer works. A learned source library and fresh independent target SCMs are needed.
+
+The one-seed PEV canary is mixed. On the heterogeneous 30-node graph, ACE-style end loss is 5.92 for PEV versus 10.07 for eligible-node random and 10.62 for eligible-node coverage; on homogeneous 30-node it is 1.82 versus 3.78 and 4.07; on legacy five-node it is 1.63 versus 2.18 and 2.70. The broader total-loss metric is much closer among arms and sometimes favors random. These are eight-step transient values under the old reset runner, which is why the persistent learner and metric parity work remain mandatory before any scientific conclusion.
+
+The immediate next gate is a single persistent learner per graph with strict pre-query budget accounting and sealed evaluation. Then test several independent graph seeds and longer trajectories, preserving all per-step outcomes in Git. Do not expand the toy A/C pilots into large job grids until their model assumptions are improved.
