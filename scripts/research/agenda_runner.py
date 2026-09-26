@@ -84,6 +84,53 @@ def prior_experiment(seed: int) -> list[dict]:
     return out
 
 
+def prior_gate_experiment(seed: int) -> list[dict]:
+    """Validation-gated numerical proposal; all arms acquire identical data.
+
+    Eight of the n acquired samples select the proposal or fallback. Both
+    candidate fits are then refit on all n. Evaluation uses an independent
+    fixed test set. This is model selection, not Bayesian posterior evidence.
+    """
+    truth, rng = truths(seed)
+    x = rng.uniform(-2, 2, (64, 2))
+    y = features(x) @ truth + rng.normal(0, 0.15, len(x))
+    test = features(np.random.default_rng(seed + 98731).uniform(-2, 2, (2048, 2)))
+    target = np.einsum('ij,j->i', test, truth, optimize=False)
+    correct = truth.copy()
+    correct[:2] = 0.6
+    correct[2:] = 0
+    correct[2 + seed % 4] = np.sign(truth[2 + seed % 4]) * 0.9
+    wrong = correct.copy()
+    wrong[2:] = 0
+    wrong[2 + (seed + 1) % 4] = 0.9
+    broad = np.zeros(6)
+    out = []
+    for condition, proposed in (('correct', correct), ('wrong', wrong)):
+        for n in (16, 32, 64):
+            train, validation = slice(0, n - 8), slice(n - 8, n)
+            base_pre, _ = posterior(x[train], y[train], broad, 0.25)
+            proposal_pre, _ = posterior(x[train], y[train], proposed, 20.0)
+            vphi = features(x[validation])
+            base_sse = float(np.sum((np.einsum('ij,j->i', vphi, base_pre, optimize=False) - y[validation])**2))
+            proposal_sse = float(np.sum((np.einsum('ij,j->i', vphi, proposal_pre, optimize=False) - y[validation])**2))
+            logits = np.array([-proposal_sse, -base_sse]) / (2 * 0.15**2)
+            weights = np.exp(logits - logits.max())
+            weights /= weights.sum()
+            fitted = {
+                'broad': posterior(x[:n], y[:n], broad, 0.25)[0],
+                'proposal': posterior(x[:n], y[:n], proposed, 20.0)[0],
+            }
+            fitted['validation_gate'] = weights[0] * fitted['proposal'] + weights[1] * fitted['broad']
+            for method, estimate in fitted.items():
+                out.append(dict(track='prior_gate', seed=seed, condition=condition,
+                                method=method, budget=n, validation_samples=8,
+                                mse=float(np.mean((np.einsum('ij,j->i', test, estimate, optimize=False) - target)**2)),
+                                fallback_weight=float(weights[1]) if method == 'validation_gate' else '',
+                                validation_base_sse=base_sse if method == 'validation_gate' else '',
+                                validation_proposal_sse=proposal_sse if method == 'validation_gate' else ''))
+    return out
+
+
 def design_candidates(kind: str) -> list[tuple[tuple[int, ...], tuple[float, ...]]]:
     single = [((i,), (v,)) for i in range(2) for v in (-2.0, 2.0)]
     pair = [((0, 1), (v1, v2)) for v1 in (-2.0, 2.0) for v2 in (-2.0, 2.0)]
@@ -251,7 +298,7 @@ def write_results(rows: list[dict], output: Path, config: dict) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument('--track', required=True, choices=('prior', 'design', 'transfer'))
+    p.add_argument('--track', required=True, choices=('prior', 'prior_gate', 'design', 'transfer'))
     p.add_argument('--seed', required=True, type=int)
     p.add_argument('--output', required=True, type=Path)
     p.add_argument('--budget', type=int, default=400)
@@ -263,6 +310,8 @@ def main() -> None:
     start = time.monotonic()
     if args.track == 'prior':
         rows = prior_experiment(args.seed)
+    elif args.track == 'prior_gate':
+        rows = prior_gate_experiment(args.seed)
     elif args.track == 'design':
         rows = design_experiment(args.seed, args.budget, background_sd=args.background_sd,
                                  actuator_penalty=args.actuator_penalty)

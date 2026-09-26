@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from baselines import GroundTruthSCM, NonLeafCoveragePolicy, NonLeafRandomPolicy
-from scripts.research.agenda_runner import design_experiment, prior_experiment, write_results
+from scripts.research.agenda_runner import design_experiment, prior_experiment, prior_gate_experiment, write_results
 from scripts.research.validate_cell import valid
 
 
@@ -39,6 +39,17 @@ class ResearchAgendaTests(unittest.TestCase):
             self.assertTrue(valid(d, 'agenda')[0])
             (d / 'metrics.csv').write_text('tampered\n')
             self.assertFalse(valid(d, 'agenda')[0])
+
+    def test_prior_gate_uses_same_acquired_budget_for_both_metadata_conditions(self):
+        rows = prior_gate_experiment(105)
+        self.assertEqual(len(rows), 18)
+        for budget in (16, 32, 64):
+            broad = {r['condition']: r['mse'] for r in rows
+                     if r['budget'] == budget and r['method'] == 'broad'}
+            self.assertEqual(broad['correct'], broad['wrong'])
+            gated = [r for r in rows if r['budget'] == budget and r['method'] == 'validation_gate']
+            self.assertTrue(all(r['validation_samples'] == 8 for r in gated))
+            self.assertTrue(all(0 <= r['fallback_weight'] <= 1 for r in gated))
 
 
 if __name__ == '__main__':

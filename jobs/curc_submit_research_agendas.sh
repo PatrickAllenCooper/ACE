@@ -77,4 +77,11 @@ if [ "${RUN_PEV:-1}" = 1 ]; then
         done
     done
 fi
+if [ "${RUN_PRIOR_GATE:-0}" = 1 ]; then
+    for CELL_SEED in ${PRIOR_GATE_SEEDS:-2000 2001 2002}; do
+        submit_cell "acer_prior_gate_s${CELL_SEED}" agenda \
+            "$root/numerical/prior_gate/seed_$CELL_SEED" \
+            00:30:00 2G 1 'AGENDA_TRACK=prior_gate' agenda
+    done
+fi
 echo "$count new jobs; revision $rev; manifest $manifest"

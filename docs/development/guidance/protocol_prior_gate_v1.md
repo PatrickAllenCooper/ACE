@@ -1,0 +1,9 @@
+# Numerical prior reliability screen v1
+
+Date frozen: 26 September 2026. This is a small **numerical** study of whether acquired data can reject a mistaken mechanism proposal. It does not involve a foundation model or semantic metadata.
+
+The fixed six-feature mechanism bank contains linear, interaction, quadratic, sine, and tanh terms. Each system is evaluated twice on the **same acquired data**: a correct proposed form and a plausible wrong form. The proposal has precision 20; the broad fallback has precision 0.25. At total budgets 16, 32, and 64 samples, the last eight acquired samples select predictive weights using held-out squared error under the known 0.15 observation noise. Both branches are refit on all samples before their mixture is evaluated on a separate fixed test set. The compared arms are broad, proposal, and validation-gated mixture. The gate weights are predictive selection weights, not Bayesian posterior model probabilities.
+
+Seeds 100–111 are development; seeds 2000–2019 are a fresh numerical check and will be run on CURC at one CPU per cell. Primary questions: at 16 and 32 samples, does the gate reduce error relative to a wrong proposal, and how much does it cost relative to a correct proposal? Report seed-level paired errors, mean/median ratios, and fallback weights. No method tuning on seeds 2000–2019. This is a capacity and reliability test of a typed proposal/fallback architecture, not evidence that language supplies useful priors.
+
+The gate consumes no extra environment samples: its eight validation examples are a slice of the stated total budget. Proposal selection and refitting are fixed before the fresh seeds run. A valid cell needs finite `metrics.csv`, matching SHA-256 receipt, source revision, and 18 rows (two conditions × three budgets × three arms). The first-wave negative result remains the comparator: direct marginal-evidence mixing assigned the broad fallback little weight even for wrong proposals.

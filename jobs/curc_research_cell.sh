@@ -13,7 +13,7 @@ if [ "$CELL_KIND" = agenda ]; then
     : "${AGENDA_TRACK:?}"
     args=(--track "$AGENDA_TRACK" --seed "$CELL_SEED" --output "$CELL_OUTPUT")
     case "$AGENDA_TRACK" in
-        prior) ;;
+        prior|prior_gate) ;;
         design) args+=(--budget 400 --background-sd "$BACKGROUND_SD" --actuator-penalty "$ACTUATOR_PENALTY") ;;
         transfer) args+=(--budget 400 --nodes 30 --changed "$CHANGED") ;;
         *) echo "Unknown agenda track" >&2; exit 2 ;;
