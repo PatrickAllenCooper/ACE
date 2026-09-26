@@ -10,6 +10,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import random
 import sys
 from pathlib import Path
@@ -41,6 +42,14 @@ class SealedEvaluator:
                     contexts = {p: torch.rand(n) * 8 - 4 for p in parents}
                     truth = scm.mechanisms(contexts, node, n_samples=n)
                     self.mechanisms[node] = (contexts, truth)
+            eligible = [x for x in scm.nodes
+                        if any(x in scm.get_parents(y) for y in scm.nodes)]
+            indices = np.linspace(0, len(eligible) - 1, min(4, len(eligible)), dtype=int)
+            self.feasible = []
+            for i in sorted(set(indices.tolist())):
+                target = eligible[i]
+                for value in (-2.0, 2.0):
+                    self.feasible.append((target, scm.generate(64, interventions={target: value})))
 
     def evaluate(self, student) -> dict[str, float]:
         student.eval()
@@ -49,6 +58,8 @@ class SealedEvaluator:
             observed = sum(float(((pred[n] - y) ** 2).mean())
                            for n, y in self.observations.items())
             broad = 0.0
+            nonroot_broad = 0.0
+            nonroot_observed = 0.0
             for node in student.nodes:
                 parents = student.get_parents(node)
                 if not parents:
@@ -58,9 +69,39 @@ class SealedEvaluator:
                 contexts, truth = self.mechanisms[node]
                 matrix = torch.stack([contexts[p] for p in parents], dim=1)
                 estimate = student.mechanisms[node](matrix).reshape(-1)
-                broad += float(((estimate - truth.reshape(-1)) ** 2).mean())
+                loss = float(((estimate - truth.reshape(-1)) ** 2).mean())
+                broad += loss
+                nonroot_broad += loss
+                nonroot_observed += float(((pred[node] - self.observations[node]) ** 2).mean())
+            feasible = 0.0
+            for node in student.nodes:
+                parents = student.get_parents(node)
+                if not parents:
+                    continue
+                node_errors = []
+                for target, data in self.feasible:
+                    if node == target:
+                        continue
+                    matrix = torch.stack([data[p] for p in parents], dim=1)
+                    estimate = student.mechanisms[node](matrix).reshape(-1)
+                    node_errors.append(float(((estimate - data[node].reshape(-1)) ** 2).mean()))
+                feasible += sum(node_errors) / len(node_errors)
         student.train()
-        return {'observed_total_loss': observed, 'broad_total_loss': broad}
+        return {'observed_total_loss': observed, 'broad_total_loss': broad,
+                'observed_nonroot_loss': nonroot_observed,
+                'broad_nonroot_loss': nonroot_broad,
+                'feasible_nonroot_loss': feasible}
+
+
+def system_spec(scm, family: str, seed: int) -> dict:
+    coeffs = getattr(scm, 'coeffs', None)
+    return {'family': family, 'seed': seed, 'nodes': list(scm.nodes),
+            'graph': {n: list(scm.get_parents(n)) for n in scm.nodes},
+            'noise_std': float(scm.noise_std),
+            'coeffs': ({n: {p: float(v) for p, v in by_parent.items()}
+                        for n, by_parent in coeffs.items()} if coeffs else None),
+            'forms': getattr(scm, 'forms', None),
+            'source_revision': os.environ.get('ACE_SOURCE_REVISION')}
 
 
 def campaign(scm, method: str, seed: int, budget: int, epochs: int,
@@ -132,21 +173,25 @@ def main():
         scm = LargeScaleSCM(30, coeff_seed=a.seed)
     else:
         scm = HeterogeneousSCM(30, coeff_seed=a.seed)
+    specification = system_spec(scm, a.family, a.seed)
     rows, queries = campaign(scm, a.method, a.seed, a.budget, a.epochs,
                              a.ensemble_size, a.batch, a.obs_batch,
                              a.obs_interval, a.pev_values, a.pev_sim)
     if not rows:
         raise ValueError('budget too small to execute one intervention')
     a.output.mkdir(parents=True, exist_ok=True)
+    spec_file = a.output / 'system.json'
+    spec_file.write_text(json.dumps(specification, indent=2, sort_keys=True) + '\n')
     metrics = a.output / 'trajectory.csv'
     with metrics.open('w', newline='') as stream:
         writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
     (a.output / 'query_budget.json').write_text(json.dumps(queries, indent=2) + '\n')
-    receipt = {'schema_version': 1, 'family': a.family, 'method': a.method,
+    receipt = {'schema_version': 2, 'family': a.family, 'method': a.method,
                'seed': a.seed, 'steps': len(rows), 'budget': a.budget,
                'query_samples': queries['total']['samples'],
+               'system_sha256': hashlib.sha256(spec_file.read_bytes()).hexdigest(),
                'metrics_sha256': hashlib.sha256(metrics.read_bytes()).hexdigest()}
     (a.output / 'complete.json').write_text(json.dumps(receipt, indent=2) + '\n')
     print(f"{a.family}/{a.method}/seed_{a.seed}: {len(rows)} steps, "
