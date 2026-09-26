@@ -51,6 +51,15 @@ class SealedEvaluator:
                 target = eligible[i]
                 for value in (-2.0, 2.0):
                     self.feasible.append((target, scm.generate(64, interventions={target: value})))
+            self.feasible_mean = {}
+            if hasattr(scm, 'mechanism_mean'):
+                for node in scm.nodes:
+                    parents = scm.get_parents(node)
+                    if not parents:
+                        continue
+                    for i, (target, data) in enumerate(self.feasible):
+                        if node != target:
+                            self.feasible_mean[node, i] = scm.mechanism_mean(data, node).detach()
 
     def evaluate(self, student) -> dict[str, float]:
         student.eval()
@@ -75,23 +84,32 @@ class SealedEvaluator:
                 nonroot_broad += loss
                 nonroot_observed += float(((pred[node] - self.observations[node]) ** 2).mean())
             feasible = 0.0
+            feasible_mean = 0.0
             for node in student.nodes:
                 parents = student.get_parents(node)
                 if not parents:
                     continue
                 node_errors = []
-                for target, data in self.feasible:
+                mean_errors = []
+                for i, (target, data) in enumerate(self.feasible):
                     if node == target:
                         continue
                     matrix = torch.stack([data[p] for p in parents], dim=1)
                     estimate = student.mechanisms[node](matrix).reshape(-1)
                     node_errors.append(float(((estimate - data[node].reshape(-1)) ** 2).mean()))
+                    if (node, i) in self.feasible_mean:
+                        mean_errors.append(float(((estimate - self.feasible_mean[node, i].reshape(-1)) ** 2).mean()))
                 feasible += sum(node_errors) / len(node_errors)
+                if mean_errors:
+                    feasible_mean += sum(mean_errors) / len(mean_errors)
         student.train()
-        return {'observed_total_loss': observed, 'broad_total_loss': broad,
+        metrics = {'observed_total_loss': observed, 'broad_total_loss': broad,
                 'observed_nonroot_loss': nonroot_observed,
                 'broad_nonroot_loss': nonroot_broad,
                 'feasible_nonroot_loss': feasible}
+        if self.feasible_mean:
+            metrics['feasible_mean_nonroot_loss'] = feasible_mean
+        return metrics
 
 
 def system_spec(scm, family: str, seed: int) -> dict:
@@ -191,7 +209,8 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
     (a.output / 'query_budget.json').write_text(json.dumps(queries, indent=2) + '\n')
-    receipt = {'schema_version': 2, 'family': a.family, 'method': a.method,
+    receipt = {'schema_version': 3 if a.family == 'shift30' else 2,
+               'family': a.family, 'method': a.method,
                'seed': a.seed, 'steps': len(rows), 'budget': a.budget,
                'query_samples': queries['total']['samples'],
                'system_sha256': hashlib.sha256(spec_file.read_bytes()).hexdigest(),

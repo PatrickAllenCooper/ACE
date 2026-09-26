@@ -60,6 +60,8 @@ def collect(root: Path):
             cells[key]['broad_nonroot'] = float(rows[-1]['broad_nonroot_loss'])
             cells[key]['feasible_nonroot'] = float(rows[-1]['feasible_nonroot_loss'])
             cells[key]['system_hash'] = receipt['system_sha256']
+        if receipt['schema_version'] >= 3:
+            cells[key]['feasible_mean_nonroot'] = float(rows[-1]['feasible_mean_nonroot_loss'])
     return cells, invalid, len(outputs)
 
 
@@ -87,7 +89,11 @@ def report(cells, invalid, total):
             if all('feasible_nonroot' in v for v in vals):
                 print(f'    final feasible nonroot={mean(v["feasible_nonroot"] for v in vals):.5g}, '
                       f'broad nonroot={mean(v["broad_nonroot"] for v in vals):.5g}')
-        metric = 'feasible_nonroot' if all(
+            if all('feasible_mean_nonroot' in v for v in vals):
+                print(f'    final feasible conditional-mean nonroot='
+                      f'{mean(v["feasible_mean_nonroot"] for v in vals):.5g}')
+        metric = 'feasible_mean_nonroot' if all(
+            'feasible_mean_nonroot' in v for _, arms in cohort for v in arms.values()) else 'feasible_nonroot' if all(
             'feasible_nonroot' in v for _, arms in cohort for v in arms.values()) else 'broad'
         for method, baseline in (('pev', 'nonleaf_coverage_ens'),
                                  ('pev', 'nonleaf_random_ens'),

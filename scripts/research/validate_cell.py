@@ -107,9 +107,9 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
         if kind == 'persistent':
             receipt = json.loads((directory / 'complete.json').read_text())
             metrics = directory / 'trajectory.csv'
-            assert receipt['schema_version'] in (1, 2)
+            assert receipt['schema_version'] in (1, 2, 3)
             assert hashlib.sha256(metrics.read_bytes()).hexdigest() == receipt['metrics_sha256']
-            if receipt['schema_version'] == 2:
+            if receipt['schema_version'] >= 2:
                 spec_file = directory / 'system.json'
                 assert hashlib.sha256(spec_file.read_bytes()).hexdigest() == receipt['system_sha256']
                 spec = json.loads(spec_file.read_text())
@@ -124,11 +124,15 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
             assert samples[-1] == receipt['query_samples'] <= receipt['budget']
             assert all(math.isfinite(float(row[k])) and float(row[k]) >= 0
                        for row in rows for k in ('broad_total_loss', 'observed_total_loss'))
-            if receipt['schema_version'] == 2:
+            if receipt['schema_version'] >= 2:
                 assert all(math.isfinite(float(row[k])) and float(row[k]) >= 0
                            for row in rows for k in ('broad_nonroot_loss',
                                                     'observed_nonroot_loss',
                                                     'feasible_nonroot_loss'))
+            if receipt['schema_version'] == 3:
+                assert receipt['family'] == 'shift30'
+                assert all(math.isfinite(float(row['feasible_mean_nonroot_loss']))
+                           and float(row['feasible_mean_nonroot_loss']) >= 0 for row in rows)
             queries = json.loads((directory / 'query_budget.json').read_text())
             assert queries['total']['samples'] == samples[-1]
             assert queries.get('candidate_probe', {}).get('samples', 0) == 0

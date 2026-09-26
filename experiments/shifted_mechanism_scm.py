@@ -28,6 +28,14 @@ class ShiftedMechanismSCM(LargeScaleSCM):
         parents = self.get_parents(node)
         if not parents:
             return torch.randn(n)
+        return self.mechanism_mean(data, node) + noise
+
+    def mechanism_mean(self, data, node):
+        """Conditional structural mean, used only by the sealed evaluator."""
+        parents = self.get_parents(node)
+        if not parents:
+            raise ValueError('Root has no nontrivial conditional mechanism mean')
+        n = next(iter(data.values())).shape[0]
         additive = sum((self.coeffs[node][p] * data[p] for p in parents), torch.zeros(n))
         form = self.forms[node]
         if form == 'saturating':
@@ -38,4 +46,4 @@ class ShiftedMechanismSCM(LargeScaleSCM):
                 value = value + 0.35 * torch.tanh(data[parents[0]]) * torch.tanh(data[parents[1]])
         else:
             value = additive + 0.35 * torch.sin(2.1 * additive)
-        return value + noise
+        return value
