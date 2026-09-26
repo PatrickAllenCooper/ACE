@@ -10,6 +10,25 @@ from pathlib import Path
 
 def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
     try:
+        if kind == 'learned_transfer':
+            receipt = json.loads((directory / 'complete.json').read_text())
+            assert receipt['schema_version'] == 1 and receipt['kind'] == 'learned_transfer'
+            metrics = directory / 'metrics.csv'
+            spec_file = directory / 'system.json'
+            assert hashlib.sha256(metrics.read_bytes()).hexdigest() == receipt['metrics_sha256']
+            assert hashlib.sha256(spec_file.read_bytes()).hexdigest() == receipt['system_sha256']
+            spec = json.loads(spec_file.read_text())
+            with metrics.open() as stream:
+                rows = list(csv.DictReader(stream))
+            assert len(rows) == receipt['rows'] == 12
+            assert len(spec['changed_node_ids']) == spec['changed']
+            assert len(spec['source_sha256']) == 64
+            assert {int(row['target_budget']) for row in rows} == {120, 200, 400}
+            assert {row['method'] for row in rows} == {'scratch', 'warm', 'source_retrieval', 'source_mixture'}
+            assert all(int(row['source_samples']) == spec['source_samples'] for row in rows)
+            assert all(math.isfinite(float(row[k])) and float(row[k]) >= 0
+                       for row in rows for k in ('mse', 'changed_mse', 'unchanged_mse'))
+            return True, f'{len(rows)} valid transfer comparisons'
         if kind == 'persistent':
             receipt = json.loads((directory / 'complete.json').read_text())
             metrics = directory / 'trajectory.csv'
@@ -75,7 +94,7 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--directory', required=True, type=Path)
-    parser.add_argument('--kind', choices=('agenda', 'pev', 'persistent'), required=True)
+    parser.add_argument('--kind', choices=('agenda', 'pev', 'persistent', 'learned_transfer'), required=True)
     parser.add_argument('--steps', type=int, default=8)
     args = parser.parse_args()
     ok, detail = valid(args.directory, args.kind, args.steps)
