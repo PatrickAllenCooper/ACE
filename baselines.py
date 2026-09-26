@@ -265,6 +265,43 @@ class RoundRobinPolicy:
         self.step = 0
 
 
+def _non_leaf_nodes(nodes: List[str], graph: Dict[str, List[str]]) -> List[str]:
+    """Nodes that occur as a parent of an observed mechanism."""
+    parents = {parent for node_parents in graph.values() for parent in node_parents}
+    eligible = [node for node in nodes if node in parents]
+    if not eligible:
+        raise ValueError("Non-leaf policy needs at least one edge")
+    return eligible
+
+
+class NonLeafRandomPolicy(RandomPolicy):
+    """Random values and targets, with the same graph-based target set as PEV."""
+
+    def __init__(self, nodes: List[str], graph: Dict[str, List[str]],
+                 value_min: float = -5.0, value_max: float = 5.0):
+        super().__init__(_non_leaf_nodes(nodes, graph), value_min, value_max)
+        self.name = "Random-nonleaf"
+
+
+class NonLeafCoveragePolicy(RoundRobinPolicy):
+    """Cycle over PEV-eligible targets and a balanced intervention-value grid."""
+
+    def __init__(self, nodes: List[str], graph: Dict[str, List[str]],
+                 value_min: float = -5.0, value_max: float = 5.0):
+        self.nodes = _non_leaf_nodes(nodes, graph)
+        self.value_min, self.value_max = value_min, value_max
+        self.step = 0
+        self.name = "Non-leaf-coverage"
+
+    def select_intervention(self, student: StudentSCM, **kwargs) -> Tuple[str, float]:
+        index = self.step % len(self.nodes)
+        visit = self.step // len(self.nodes)
+        target = self.nodes[index]
+        value = float(np.linspace(self.value_min, self.value_max, 11)[(visit * 3 + index) % 11])
+        self.step += 1
+        return target, value
+
+
 class MaxVariancePolicy:
     """
     Max-Variance (Uncertainty Sampling)

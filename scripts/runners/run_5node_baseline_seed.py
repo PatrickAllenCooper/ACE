@@ -50,6 +50,7 @@ from baselines import (
     run_baseline,
     EnsembleStudentSCM, EnsembleLearner, PropagatedVariancePolicy,
     StudentSCM, SCMLearner,
+    NonLeafRandomPolicy, NonLeafCoveragePolicy,
 )
 
 
@@ -58,7 +59,8 @@ def main():
         description="5-node GroundTruthSCM baseline for one method/seed pair")
     parser.add_argument("--method", required=True,
                          choices=["random", "round_robin", "max_variance", "ppo",
-                                  "pev", "random_ens", "round_robin_ens"])
+                                  "pev", "random_ens", "round_robin_ens",
+                                  "nonleaf_random_ens", "nonleaf_coverage_ens"])
     parser.add_argument("--tag", type=str, default=None, help="output subdirectory name (default: the method name)")
     parser.add_argument("--student_arch", choices=list(StudentSCM.ARCHS), default="ace",
                         help="student MLP per mechanism: 'ace' = (64,64) as in ace_experiments.py (default); 'small' = (16,) as in every pre-audit baseline")
@@ -118,11 +120,16 @@ def main():
         policy = RandomPolicy(nodes)
     elif args.method == "round_robin_ens":
         policy = RoundRobinPolicy(nodes)
+    elif args.method == "nonleaf_random_ens":
+        policy = NonLeafRandomPolicy(nodes, base_oracle.graph)
+    elif args.method == "nonleaf_coverage_ens":
+        policy = NonLeafCoveragePolicy(nodes, base_oracle.graph)
 
     dims = StudentSCM.ARCHS[args.student_arch]
     student_factory = lambda o: StudentSCM(o, hidden_dims=dims)
     learner_factory = lambda st, o: SCMLearner(st, oracle=o)
-    if args.method in {"pev", "random_ens", "round_robin_ens"}:
+    if args.method in {"pev", "random_ens", "round_robin_ens",
+                       "nonleaf_random_ens", "nonleaf_coverage_ens"}:
         K = args.ensemble_size
         student_factory = lambda o: EnsembleStudentSCM(o, n_members=K, hidden_dims=dims)
         learner_factory = lambda st, o: EnsembleLearner(st, oracle=o)

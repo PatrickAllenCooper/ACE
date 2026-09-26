@@ -37,6 +37,7 @@ from baselines import (
     StudentSCM, SCMLearner, ScientificCritic, InstrumentedOracle,
     RandomPolicy, RoundRobinPolicy, MaxVariancePolicy, PPOPolicy,
     EnsembleStudentSCM, EnsembleLearner, PropagatedVariancePolicy,
+    NonLeafRandomPolicy, NonLeafCoveragePolicy,
 )
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from scripts.runners.run_reviewer_experiments import BayesianOEDBaseline
@@ -219,7 +220,8 @@ def main():
         description="30-node SCM MLP-learner baseline for one seed")
     parser.add_argument("--method", required=True,
                         choices=["random", "round_robin", "max_variance",
-                                 "ppo", "bayesian_oed", "pev", "random_ens", "round_robin_ens"])
+                                 "ppo", "bayesian_oed", "pev", "random_ens", "round_robin_ens",
+                                 "nonleaf_random_ens", "nonleaf_coverage_ens"])
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--n_nodes", type=int, default=30,
                         help="LargeScaleSCM size. Supports the consistent "
@@ -305,13 +307,18 @@ def main():
         policy = RandomPolicy(nodes)
     elif args.method == "round_robin_ens":
         policy = RoundRobinPolicy30(nodes)
+    elif args.method == "nonleaf_random_ens":
+        policy = NonLeafRandomPolicy(nodes, scm.graph)
+    elif args.method == "nonleaf_coverage_ens":
+        policy = NonLeafCoveragePolicy(nodes, scm.graph)
     elif args.method == "bayesian_oed":
         # Pass the InstrumentedOracle through so BayesianOEDFast's own
         # per-candidate EIG-estimation queries (n_candidates x n_mc_samples
         # per step) are tagged "candidate_probe" and counted.
         policy = BayesianOEDFast(oracle, n_candidates=10, n_mc_samples=3)
 
-    ensemble_methods = {"pev", "random_ens", "round_robin_ens"}
+    ensemble_methods = {"pev", "random_ens", "round_robin_ens",
+                        "nonleaf_random_ens", "nonleaf_coverage_ens"}
     dims = StudentSCM.ARCHS[args.student_arch]
     student_factory = lambda o: StudentSCM(o, hidden_dims=dims)
     learner_factory = lambda st, o: SCMLearner(st, oracle=o)

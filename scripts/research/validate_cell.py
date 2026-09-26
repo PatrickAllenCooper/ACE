@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Validate one research cell's actual artifacts, independent of Slurm state."""
+import argparse
+import csv
+import hashlib
+import json
+import math
+from pathlib import Path
+
+
+def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
+    try:
+        if kind == 'agenda':
+            receipt = json.loads((directory / 'complete.json').read_text())
+            metrics = directory / 'metrics.csv'
+            assert receipt['schema_version'] == 1
+            assert receipt['all_finite'] and receipt['rows'] > 0
+            assert hashlib.sha256(metrics.read_bytes()).hexdigest() == receipt['metrics_sha256']
+            with metrics.open() as stream:
+                rows = list(csv.DictReader(stream))
+            assert len(rows) == receipt['rows']
+            assert all(math.isfinite(float(row['mse'])) and float(row['mse']) >= 0 for row in rows)
+            return True, f"{len(rows)} valid metrics"
+        receipt = json.loads((directory / 'complete.json').read_text())
+        assert receipt['kind'] == 'pev_canary' and receipt['steps'] == steps
+        file_name = 'node_losses.csv' if (directory / 'node_losses.csv').exists() else 'results.csv'
+        metrics = directory / file_name
+        assert hashlib.sha256(metrics.read_bytes()).hexdigest() == receipt['metrics_sha256']
+        with metrics.open() as stream:
+            rows = list(csv.DictReader(stream))
+        assert len(rows) == steps
+        assert all(int(row['episode']) == 0 and int(row['step']) == i for i, row in enumerate(rows))
+        assert all(math.isfinite(float(row['ace_total_loss'])) for row in rows)
+        queries = json.loads((directory / 'query_budget.json').read_text())
+        assert queries['executed']['samples'] == steps * 50
+        assert queries['total']['samples'] >= steps * 50
+        assert queries.get('candidate_probe', {}).get('samples', 0) == 0
+        with (directory / 'summary.csv').open() as stream:
+            summary = list(csv.DictReader(stream))
+        assert len(summary) == 1
+        return True, f"{len(rows)} steps, {queries['total']['samples']} samples"
+    except (OSError, ValueError, KeyError, AssertionError, csv.Error) as exc:
+        return False, str(exc) or 'artifact check failed'
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--directory', required=True, type=Path)
+    parser.add_argument('--kind', choices=('agenda', 'pev'), required=True)
+    parser.add_argument('--steps', type=int, default=8)
+    args = parser.parse_args()
+    ok, detail = valid(args.directory, args.kind, args.steps)
+    print(('VALID' if ok else 'INVALID') + ': ' + str(args.directory) + ': ' + detail)
+    raise SystemExit(0 if ok else 1)
+
+
+if __name__ == '__main__':
+    main()
