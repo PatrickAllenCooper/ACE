@@ -130,7 +130,7 @@ def valid(directory: Path, kind: str, steps: int = 8) -> tuple[bool, str]:
                                                     'observed_nonroot_loss',
                                                     'feasible_nonroot_loss'))
             if receipt['schema_version'] == 3:
-                assert receipt['family'] == 'shift30'
+                assert receipt['family'] in ('shift30', 'shift30_random_dag')
                 assert all(math.isfinite(float(row['feasible_mean_nonroot_loss']))
                            and float(row['feasible_mean_nonroot_loss']) >= 0 for row in rows)
             queries = json.loads((directory / 'query_budget.json').read_text())

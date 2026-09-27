@@ -28,6 +28,7 @@ from baselines import (EnsembleLearner, EnsembleStudentSCM, GroundTruthSCM,
 from experiments.large_scale_scm import LargeScaleSCM
 from experiments.heterogeneous_scm import HeterogeneousSCM
 from experiments.shifted_mechanism_scm import ShiftedMechanismSCM
+from experiments.random_order_shifted_scm import RandomOrderShiftedSCM
 
 
 class SealedEvaluator:
@@ -172,7 +173,8 @@ def campaign(scm, method: str, seed: int, budget: int, epochs: int,
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--family', choices=['legacy5', 'hom30', 'hetero30', 'shift30'], required=True)
+    p.add_argument('--family', choices=['legacy5', 'hom30', 'hetero30', 'shift30',
+                                        'shift30_random_dag'], required=True)
     p.add_argument('--method', choices=['nonleaf_random_ens', 'nonleaf_coverage_ens',
                                          'nonleaf_extreme_random_ens', 'nonleaf_extreme_coverage_ens',
                                          'pev', 'pev_var'], required=True)
@@ -198,6 +200,8 @@ def main():
         scm = LargeScaleSCM(30, coeff_seed=a.seed)
     elif a.family == 'shift30':
         scm = ShiftedMechanismSCM(30, coeff_seed=a.seed)
+    elif a.family == 'shift30_random_dag':
+        scm = RandomOrderShiftedSCM(30, coeff_seed=a.seed)
     else:
         scm = HeterogeneousSCM(30, coeff_seed=a.seed)
     specification = system_spec(scm, a.family, a.seed)
@@ -215,7 +219,7 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
     (a.output / 'query_budget.json').write_text(json.dumps(queries, indent=2) + '\n')
-    receipt = {'schema_version': 3 if a.family == 'shift30' else 2,
+    receipt = {'schema_version': 3 if a.family in ('shift30', 'shift30_random_dag') else 2,
                'family': a.family, 'method': a.method,
                'seed': a.seed, 'steps': len(rows), 'budget': a.budget,
                'query_samples': queries['total']['samples'],

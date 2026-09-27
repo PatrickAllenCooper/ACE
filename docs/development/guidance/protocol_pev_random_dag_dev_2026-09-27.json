@@ -1,0 +1,20 @@
+{
+  "protocol_id": "pev_random_dag_development_2026-09-27",
+  "status": "frozen_before_submission",
+  "family": "shift30_random_dag",
+  "graph_generator": "30 ordered nodes; X1-X5 roots; each X6-X30 draws one or two parents uniformly without replacement from all earlier nodes, allowing long-range edges",
+  "function_family": "the same saturating, interaction, and ripple conditional mechanisms as shift30",
+  "seeds": [42, 123, 456],
+  "methods": ["nonleaf_extreme_coverage_ens", "pev", "pev_var"],
+  "budget_samples": 2000,
+  "samples_per_intervention": 50,
+  "observational_refresh_samples": 40,
+  "observational_refresh_interval_steps": 3,
+  "ensemble_members": 3,
+  "training_epochs_per_batch": 20,
+  "primary_outcome": "final feasible_mean_nonroot_loss after the last update, lower is better",
+  "comparisons": ["pev minus nonleaf_extreme_coverage_ens", "pev_var minus nonleaf_extreme_coverage_ens"],
+  "analysis": "Report per-seed final values and action magnitudes; describe signs and failure cases. These three development systems are insufficient for a superiority claim. If one uncertainty policy is consistently lower than endpoint coverage without a severe failure and all cells validate, freeze a separate set of at least 20 fresh seeds before scoring them. If both fail, retain the graph shift as a documented negative result.",
+  "validation": "All nine schema-v3 cells must have 2000 exact samples, 32 steps, zero candidate probes, finite final metrics, equal system hashes within each seed, and endpoint coverage actions of absolute value 5. Copy all outputs locally and verify CURC/local checksums.",
+  "scope": "Graph-generator shift within synthetic known-DAG fully observed SCMs. The changed topology includes long-range edges while retaining five roots, a similar sparse edge count, coefficient law, noise law, node count, and mechanism family. No Azure or other closed-source model API."
+}
