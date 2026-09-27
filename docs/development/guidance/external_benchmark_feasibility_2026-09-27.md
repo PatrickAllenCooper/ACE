@@ -1,0 +1,22 @@
+# External benchmark feasibility for semantic mechanism priors
+
+Read-only audit, 27 September 2026. **No external-benchmark experiment or model inference has been run.** This note selects an initial integration target without treating it as evidence for ACE, PEV, or a semantic prior.
+
+## Candidate and provenance
+
+[BoxingGym](https://github.com/kanishkg/boxing-gym), pinned here to upstream commit `b43e38cb03d09c13efa9cf4d9bae740d51157bfd`, offers externally authored experimental environments and separate descriptive and abstract task messages. Its Lotka–Volterra environment is a useful **A-track** feasibility target: the public action is a time in a bounded interval, the observation is a pair of population counts, and the descriptive message identifies predator and prey roles without printing the simulator equations. The package is MIT licensed. This is a dynamical two-population problem, not ACE's 30-node, fully observed, stationary SCM task. A result here would test semantic proposal and mechanism fitting in a new scientific domain; it would not establish general SCM mechanism estimation at scale. The benchmark name and familiar predator–prey story may allow a pretrained model to recall the classic law, so that mechanism must be described as knowledge retrieval unless held-out compositions are added.
+
+Other considered targets: BoxingGym's location-finding task has a spatial source description but its module imports PyMC; [NeuronBench](https://github.com/murphyk/neuronbench) supplies intervention forecasting with an opaque prior and partial voltage observations, but it changes more assumptions and is a later milestone. Neither was scored or tuned in this audit.
+
+## Feasibility findings
+
+The upstream `LotkaVolterra` implementation uses `scipy.integrate.odeint`, provides `step(time)` and `run_experiment(input_string)`, and resamples hidden parameters on `reset()`. Its module also imports `box_loop_helper`, which imports ArviZ. A local import failed because ArviZ is absent; the CURC `ace` environment lacks PyMC, which blocks other BoxingGym modules. **Do not copy simulator equations into an ACE adapter to avoid dependencies.** Install only the needed open-source dependencies in an isolated scratch environment, import the pinned upstream package, then perform an oracle/evaluator separation smoke. The existing CURC Hugging Face cache contains a Qwen2.5-1.5B-Instruct snapshot, so a later local open-model proposal pilot need not call Azure or another closed-source API. Verify snapshot weights and license before scheduling any GPU job.
+
+## Staged test before model calls
+
+1. In a scratch checkout of the pinned upstream revision, create an isolated runtime with the minimal needed dependencies. Keep the benchmark's own simulator code unmodified. Validate `reset`, bounded time queries, and independent held-out times on one seeded world. Record exact query count, environment source hash, public-message variant, and parameter/state hash in a completion receipt.
+2. Compare **fixed-data** numerical fits under the same observations: an anonymous flexible time-series predictor, a hand-specified mechanistic ceiling, and a broad numerical grammar. The ceiling is explicitly privileged and cannot count as an LM result. Do not use a held-out label or simulator parameter to fit or select a model.
+3. Only after the adapter and baseline validate, ask the cached open Qwen model once per world to produce a typed candidate from the descriptive message, and once from the abstract message. Cache the raw proposal; parse it with a restricted grammar, reject invalid output, fit coefficients on acquired data, and score only on a sealed future-time panel. Include a plausible misleading description as a separately frozen negative control. No model call may see the upstream source file, benchmark name, hidden parameters, or held-out outcomes.
+4. Pilot a few development worlds before freezing fresh world seeds and a primary paired comparison. If the fixed-data mechanistic ceiling does not improve over the broad numerical baseline, or typed proposals cannot be validated, stop before GPU-scale inference. Any eventual performance claim must distinguish this famous two-variable law from unseen mechanism families.
+
+No CURC job was submitted by this audit; no non-ACE job was changed. The `/projects` filesystem remains full, so checkouts and any isolated dependency environment belong under ACE scratch storage.
