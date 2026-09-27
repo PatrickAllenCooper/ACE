@@ -37,8 +37,8 @@ def independent_predict(times, parameters):
 
 
 def fit_coupled(times, response):
-    starts = ([.1, .02, .4, .01, 40, 9], [.07, .015, .3, .008, 30, 5],
-              [.14, .03, .5, .012, 50, 15])
+    starts = ([.1, .02, .4, .01, 20, 5], [.07, .015, .3, .008, 50, 20],
+              [.14, .03, .5, .012, 80, 10])
     bounds = ([.005, .0005, .005, .0005, 1, 1],
               [.3, .08, 1, .04, 150, 100])
     fits = [least_squares(lambda p: ((coupled_predict(times, p) - response) / [40, 10]).ravel(),
