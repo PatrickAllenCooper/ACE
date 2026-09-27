@@ -41,13 +41,14 @@ class SealedEvaluator:
         return broad, float(np.mean(feasible))
 
 
-def choose(method, public_system, rng, padding_rng, mean, cov, step, batch):
+def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
+           coverage_offset=0):
     menu = action_menu(public_system, method.endswith('pair'))
     if method.startswith('random'):
         return menu[int(rng.integers(len(menu)))]
     if method.startswith('coverage'):
         per_motif = len(menu) // public_system.motifs
-        return menu[(step % public_system.motifs) * per_motif +
+        return menu[((step + coverage_offset) % public_system.motifs) * per_motif +
                     (step // public_system.motifs) % per_motif]
     scores = []
     for action in menu:
@@ -66,9 +67,12 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch):
     return menu[int(np.argmax(scores))]
 
 
-def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8):
+def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
+               coverage_offset=0):
     if penalty < 0 or budget < batch:
         raise ValueError('Invalid cost parameters')
+    if not 0 <= coverage_offset < motifs:
+        raise ValueError('Invalid coverage rotation')
     system = make_system(seed, nodes, motifs, root_sd)
     public = replace(system, coefficients=np.zeros_like(system.coefficients))
     evaluator = SealedEvaluator(system, seed)
@@ -81,7 +85,8 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8):
         spent = samples = actuators = masked = step = 0
         unit_cost = 1 + penalty * (2 if method.endswith('pair') else 1)
         while spent + batch * unit_cost <= budget:
-            action = choose(method, public, rng, padding_rng, mean, cov, step, batch)
+            action = choose(method, public, rng, padding_rng, mean, cov, step, batch,
+                            coverage_offset=coverage_offset)
             values, phi, natural = sample(system, rng, batch, action,
                                           padding_rng=padding_rng)
             for j, child in enumerate(system.children):
