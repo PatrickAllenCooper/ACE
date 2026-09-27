@@ -1,0 +1,12 @@
+{
+  "protocol_id": "boxing_lotka_open_proposal_dev_v1",
+  "status": "preinference_parser_and_prompt_only",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct local snapshot, exact revision 989aa7980e4cf806f80c7fef2b1adb7bc71aa306",
+  "model_license": "Apache-2.0 per official Qwen Hugging Face model card",
+  "worlds": [42, 123, 456],
+  "conditions": ["descriptive", "anonymous"],
+  "input": "Only public task message and eight public time-response pairs per world; no private holdout, upstream source, benchmark name, or hidden parameters",
+  "output": "One JSON object with exactly family and reason. family is coupled_bilinear_ode, independent_exponential, or unsure; no arbitrary generated code or coefficients. The prompt avoids the benchmark and textbook law names.",
+  "evaluation_boundary": "Parser validation first. Fit any valid selected form using only eight public observations, then score held-out responses separately. The coupled candidate is a familiar textbook law and cannot establish novel scientific discovery.",
+  "forbidden": "No Azure or other closed-source model API; no model access to private results or upstream simulator files"
+}
