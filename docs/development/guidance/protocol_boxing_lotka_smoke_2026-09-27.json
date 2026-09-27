@@ -1,0 +1,16 @@
+{
+  "protocol_id": "boxing_lotka_oracle_custody_smoke_2026-09-27",
+  "status": "frozen_before_CURC_submission",
+  "upstream_url": "https://github.com/kanishkg/boxing-gym",
+  "upstream_revision": "b43e38cb03d09c13efa9cf4d9bae740d51157bfd",
+  "upstream_simulator_sha256": "e86c35069c49988948737ca89f939cae8e0138682cc62abb99eb97857de9abba",
+  "environment": "LotkaVolterra",
+  "seeds": [42, 123, 456],
+  "training_queries_per_world": 8,
+  "heldout_queries_per_world": 16,
+  "query_domain": "uniform times over the upstream environment's public lower and upper limits",
+  "agent_visibility": "public descriptive and abstract messages plus the eight acquired responses; held-out responses and upstream simulator source withheld from any later proposer",
+  "purpose": "Confirm pinned upstream simulator import, deterministic reset, counted query API, separate held-out panel, receipts, and CURC/local custody. This is not a model-performance study.",
+  "validation": "All three jobs must exit zero, source-file hash match the frozen value, record eight training queries and sixteen held-out queries, produce finite two-component responses, have different public and private query times, and pass local versus CURC file checksums.",
+  "forbidden": "No Azure, other closed-source model API, or open-model inference in this smoke."
+}
