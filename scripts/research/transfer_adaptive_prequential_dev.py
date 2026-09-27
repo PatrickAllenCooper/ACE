@@ -23,9 +23,11 @@ ODDS = 4.0
 MAX_PER_NODE = 14
 
 
-def allocate(scores: np.ndarray) -> np.ndarray:
-    """Spend 120 assay samples, then prioritize nominees using no test labels."""
-    counts = np.full(NODES, ASSAY, dtype=int)
+def allocate(scores: np.ndarray, floor: int = ASSAY) -> np.ndarray:
+    """Reserve a counted per-node floor after the four-sample assay."""
+    if not ASSAY <= floor <= BUDGET // NODES:
+        raise ValueError('floor must be feasible and at least the assay size')
+    counts = np.full(NODES, floor, dtype=int)
     nominated = [int(i) for i in np.argsort(-scores) if scores[i] > 0]
     fallback = [int(i) for i in np.argsort(-scores) if scores[i] <= 0]
     for pool in (nominated, fallback):
@@ -44,6 +46,7 @@ def main() -> None:
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--uniform-reference', type=Path, default=Path(
         'results/local_transfer_prequential_dev_20260926/node_metrics.csv'))
+    parser.add_argument('--floor', type=int, default=ASSAY)
     args = parser.parse_args()
     source, source_samples = learn_source_library()
     assert source_samples == 2560
@@ -58,7 +61,7 @@ def main() -> None:
                 early_logs = [np.array([log_model_evidence(x[i, :ASSAY], y[i, :ASSAY], mu)
                                         for mu in proposals[i]]) for i in range(NODES)]
                 scores = np.array([source_log_bf(logs) for logs in early_logs])
-                counts = allocate(scores)
+                counts = allocate(scores, args.floor)
                 for i in range(NODES):
                     n = int(counts[i])
                     full = np.array([log_model_evidence(x[i, :n], y[i, :n], mu)
@@ -126,7 +129,8 @@ def main() -> None:
                 'seeds': list(SEEDS), 'change_types': ['family', 'coefficient'],
                 'changed_counts': [1, 3, 10], 'target_budget': BUDGET,
                 'source_samples': source_samples, 'source_sha256': hashlib.sha256(source.tobytes()).hexdigest(),
-                'assay_per_node': ASSAY, 'max_per_node': MAX_PER_NODE,
+                'assay_per_node': ASSAY, 'guaranteed_floor_per_node': args.floor,
+                'max_per_node': MAX_PER_NODE,
                 'acquisition': 'score all nodes using four acquired examples; round-robin allocate remaining samples to positive-BF nominees in descending BF order, then to other nodes in descending BF order',
                 'switch_odds': ODDS,
                 'gate': 'family changed ratio <=0.8; coefficient changed and all untouched ratios <=1.05 versus adaptive warm at the same 200 acquired samples',
