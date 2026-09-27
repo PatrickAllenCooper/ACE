@@ -1,6 +1,6 @@
 # Development gate: protect unchanged mechanisms before source transfer
 
-Date: 26 September 2026. Status: design for a **development-only** numerical screen; no v3 outcomes or CURC jobs yet. Read alongside the [portfolio](research_portfolio_2026-09-25.md), [v2 protocol](protocol_transfer_bayes_v2.md), and [v2 result](../../../results/research_transfer_bayes_v2/README.md).
+Date: 26 September 2026. Status: initial **development-only** odds-threshold screen completed locally; no v3 CURC jobs. Read alongside the [portfolio](research_portfolio_2026-09-25.md), [v2 protocol](protocol_transfer_bayes_v2.md), [v2 result](../../../results/research_transfer_bayes_v2/README.md), and [local switch diagnostic](../../../results/local_transfer_safe_switch_dev_20260926/README.md).
 
 ## Why change the rule
 
@@ -19,3 +19,5 @@ Use seeds 100–111, both change types, k∈{1,3,10}, and budgets 120/200/400. C
 Promotion to a *new frozen* 20-system confirmation requires at 120 and 200 examples: (1) untouched-node mean MSE no more than 5% above warm in every change type/k cell on development seeds; (2) family-change changed-node MSE at least 20% below warm at 200 in every k cell; (3) coefficient-change changed-node MSE no more than 5% above warm at 200; and (4) finite, receipt-validated per-node predictions and correct sample accounting. These development cutoffs are resource gates, not inferential claims. If no threshold passes, report the failure and keep warm start as the safe default. Do not add fresh seeds to the existing v2 grid to rescue its failed gate.
 
 If the switch passes locally, freeze code, threshold, metrics, a fresh seed range and a paired-system interval rule before CURC submission. Use a pinned sparse checkout, account `ucb736_asc1`, ACE-only job names, exact revision/job/output manifest, full result custody and checksum validation. No Azure or other closed-source model API is needed.
+
+The first odds-threshold diagnostic passes these development error gates, but uses the same acquired observations to select and fit the source model. Next implement a counted prequential confirmation segment and a misspecified-family negative control on development systems. Freeze a new independent-system protocol only if both preserve the gain and untouched-node protection. A passing in-sample gate alone is insufficient.
