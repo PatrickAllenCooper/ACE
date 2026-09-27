@@ -1,0 +1,13 @@
+{
+  "protocol_id": "boxing_lotka_fixed_data_dev_v1",
+  "status": "frozen_before_CURC_submission",
+  "source_data": "results/research_boxing_lotka_smoke/seed_{42,123,456}",
+  "seeds": [42, 123, 456],
+  "training_queries_per_world": 8,
+  "heldout_queries_per_world": 16,
+  "arms": ["rbf", "fourier", "privileged_lotka_volterra"],
+  "fit_rule": "RBF and Fourier ridge width and penalty selected by leave-one-out error on public training responses only; privileged Lotka-Volterra four rates fitted by bounded least squares from three fixed starts, with the upstream equation and initial state supplied as an explicit ceiling",
+  "score": "Mean absolute error and root mean squared error across 16 held-out times and both responses, with nonnegative predictions",
+  "interpretation": "Three development worlds only. Privileged equation is not inferred by an LM and cannot count as an ACE or foundation-model result. No model selection uses holdout outcomes.",
+  "forbidden": "No Azure or other closed-source API calls. Fitter reads only public observations; scorer separately reads private holdout."
+}
