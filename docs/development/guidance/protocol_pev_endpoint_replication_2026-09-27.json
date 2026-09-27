@@ -1,0 +1,21 @@
+{
+  "protocol_id": "pev_endpoint_replication_2026-09-27",
+  "status": "frozen_before_submission",
+  "family": "shift30",
+  "development_seeds_excluded": [42, 123, 456],
+  "previous_confirmation_seeds_excluded": [5000, 5001, 5002, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 5010, 5011, 5012, 5013, 5014, 5015, 5016, 5017, 5018, 5019],
+  "seeds": [6000, 6001, 6002, 6003, 6004, 6005, 6006, 6007, 6008, 6009, 6010, 6011, 6012, 6013, 6014, 6015, 6016, 6017, 6018, 6019],
+  "methods": ["nonleaf_extreme_coverage_ens", "pev", "pev_var"],
+  "budget_samples": 2000,
+  "samples_per_intervention": 50,
+  "observational_refresh_samples": 40,
+  "observational_refresh_interval_steps": 3,
+  "ensemble_members": 3,
+  "training_epochs_per_batch": 20,
+  "primary_outcome": "final feasible_mean_nonroot_loss after the final update, lower is better",
+  "primary_comparison": "nonleaf_extreme_coverage_ens minus pev, paired by seed",
+  "secondary_comparison": "nonleaf_extreme_coverage_ens minus pev_var, paired by seed",
+  "analysis": "Report all 20 paired differences, their mean, 95% two-sided t interval, and two-sided paired t p-value. The primary claim that endpoint coverage is better requires mean difference below zero with its 95% interval entirely below zero. Report the secondary comparison descriptively; do not replace a failed primary gate with the secondary. No best-checkpoint selection, seed dropping, or post hoc metric switching.",
+  "validation": "All 60 schema-v3 cells must have complete receipts, finite final metrics, exactly 2000 environment samples, 32 executed actions, zero candidate-probe samples, matching graph/forms/coefficients across three arms within each seed, and endpoint values exactly ±5 for coverage. Copy complete artifacts locally and verify CURC/local checksums before analysis.",
+  "scope": "Twenty fresh seeds and distinct DAGs drawn from the same five-layer hierarchical graph generator and shifted function-family generator as prior studies. This tests replication within that generator; it is not an independent external environment or a different graph generator. No closed-source model calls."
+}
