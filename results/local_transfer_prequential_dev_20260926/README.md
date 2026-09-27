@@ -1,0 +1,11 @@
+# Counted prequential transfer-switch development check
+
+This is a local diagnostic on the same 12 development systems used by the in-sample switch screen. No fresh systems, CURC jobs, or closed-source model calls were used. The runner reconstructs the fixed 2,560-example source library and target data, verifies warm-start MSE against all archived development settings, and records 19,440 node-level rows, a 54-row summary, configuration, and SHA-256 receipt. Local checks pass for hashes, finite outcomes, unique grid cells, and zero switches at the 120-sample budget, where no later confirmation examples exist.
+
+The first four acquired examples at each node nominate a source-family mixture only if its marginal evidence exceeds the old expert's. Later acquired examples, already included in the 120/200/400 target budget, provide a conditional predictive Bayes factor. Switching requires this later factor to exceed odds 4, 10, or 25; a node that fails either stage keeps its old-centered posterior. No changed-node labels or held-out test outcomes affect decisions. The final switched model fits all data acquired by that budget.
+
+**No tested threshold passes the written development gate.** At 200 total target examples, each node has only two or three later confirmation examples. With odds 4, changed-node candidate/warm MSE ratios for family changes are 0.972, 0.422, and 0.648 at k=1,3,10. The k=1 ratio fails the required ≤0.8; only 2/12 changed nodes switch. At odds 10, k=1 has no switches and ratio 1.000. Odds 25 is still more conservative. Coefficient-change and untouched-node ratios are 1.000 at 200 for all three thresholds, with no false switches. Full results at 120/200/400 are in `summary.csv`.
+
+This separates the earlier in-sample success from a rule that reserves later data to confirm a proposed source switch. The latter is safe on these favorable synthetic systems but too slow when changes are sparse and the target budget is low. Do not freeze a fresh confirmation or scale to a neural library on this rule. A future design would need stronger early evidence or a different data-allocation strategy, tested on development systems and misspecified forms before fresh-system confirmation.
+
+Reproduce with `python3 scripts/research/transfer_prequential_dev.py --output results/local_transfer_prequential_dev_20260926`.
