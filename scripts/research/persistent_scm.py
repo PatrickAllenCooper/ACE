@@ -22,6 +22,7 @@ import torch
 
 from baselines import (EnsembleLearner, EnsembleStudentSCM, GroundTruthSCM,
                        InstrumentedOracle, NonLeafCoveragePolicy,
+                       NonLeafExtremeCoveragePolicy, NonLeafExtremeRandomPolicy,
                        NonLeafRandomPolicy, PropagatedVariancePolicy,
                        StudentSCM)
 from experiments.large_scale_scm import LargeScaleSCM
@@ -138,6 +139,10 @@ def campaign(scm, method: str, seed: int, budget: int, epochs: int,
         policy = NonLeafRandomPolicy(scm.nodes, scm.graph)
     elif method == 'nonleaf_coverage_ens':
         policy = NonLeafCoveragePolicy(scm.nodes, scm.graph)
+    elif method == 'nonleaf_extreme_random_ens':
+        policy = NonLeafExtremeRandomPolicy(scm.nodes, scm.graph)
+    elif method == 'nonleaf_extreme_coverage_ens':
+        policy = NonLeafExtremeCoveragePolicy(scm.nodes, scm.graph)
     elif method in ('pev', 'pev_var'):
         policy = PropagatedVariancePolicy(scm.nodes, n_values=pev_values,
                                           n_sim=pev_sim,
@@ -169,6 +174,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--family', choices=['legacy5', 'hom30', 'hetero30', 'shift30'], required=True)
     p.add_argument('--method', choices=['nonleaf_random_ens', 'nonleaf_coverage_ens',
+                                         'nonleaf_extreme_random_ens', 'nonleaf_extreme_coverage_ens',
                                          'pev', 'pev_var'], required=True)
     p.add_argument('--seed', type=int, required=True)
     p.add_argument('--budget', type=int, default=2000)

@@ -302,6 +302,25 @@ class NonLeafCoveragePolicy(RoundRobinPolicy):
         return target, value
 
 
+class NonLeafExtremeRandomPolicy(NonLeafRandomPolicy):
+    """Graph-matched random target with an equally likely endpoint value."""
+
+    def select_intervention(self, student: StudentSCM, **kwargs) -> Tuple[str, float]:
+        return random.choice(self.nodes), random.choice((self.value_min, self.value_max))
+
+
+class NonLeafExtremeCoveragePolicy(NonLeafCoveragePolicy):
+    """Cycle eligible targets, alternating endpoint values on revisits."""
+
+    def select_intervention(self, student: StudentSCM, **kwargs) -> Tuple[str, float]:
+        index = self.step % len(self.nodes)
+        visit = self.step // len(self.nodes)
+        target = self.nodes[index]
+        value = self.value_min if (index + visit) % 2 == 0 else self.value_max
+        self.step += 1
+        return target, value
+
+
 class MaxVariancePolicy:
     """
     Max-Variance (Uncertainty Sampling)
