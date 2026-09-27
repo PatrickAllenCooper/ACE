@@ -1,0 +1,28 @@
+You are proposing a mathematical structure for a two-response time series. Use only the description and observations below. Return one JSON object with exactly two keys: family and reason. family must be one of coupled_bilinear_ode, independent_exponential, unsure. The coupled form allows each rate of change to depend on the product of both responses; the independent form gives each response its own exponential rate. Use unsure when evidence is insufficient. Do not supply parameter values, code, predictions, or additional keys. Keep reason under 160 characters.
+
+Task description:
+
+Predict both observed responses.
+You may observe the value of the function one input value at a time. Make observations by specifying a single value you want to observe with a float number.
+The environment will return two nonnegative floating numbers as response of the function at that input.
+The input values are between 0 and 50.
+
+
+Here is an example:
+<thought> your thought </thought>
+<observe>2</observe>
+When asked to answer a question about the environment, respond in the format specified in the question.
+Example:
+<thought> your thought </thought>
+<answer> your answer </answer>
+
+
+Observed time-response pairs:
+t=25.476135: (48, 6)
+t=5.400372: (29, 7)
+t=18.619106: (40, 3)
+t=46.708593: (36, 3)
+t=6.308807: (29, 7)
+t=19.644321: (41, 3)
+t=23.571805: (47, 5)
+t=3.164639: (33, 9)
