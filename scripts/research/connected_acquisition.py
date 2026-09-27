@@ -42,13 +42,16 @@ class SealedEvaluator:
 
 
 def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
-           coverage_offset=0):
+           coverage_offset=0, coverage_order=None):
     menu = action_menu(public_system, method.endswith('pair'))
     if method.startswith('random'):
         return menu[int(rng.integers(len(menu)))]
     if method.startswith('coverage'):
         per_motif = len(menu) // public_system.motifs
-        return menu[((step + coverage_offset) % public_system.motifs) * per_motif +
+        motif_position = (step + coverage_offset) % public_system.motifs
+        motif = (coverage_order[motif_position] if coverage_order is not None
+                 else motif_position)
+        return menu[motif * per_motif +
                     (step // public_system.motifs) % per_motif]
     scores = []
     for action in menu:
@@ -68,11 +71,13 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
 
 
 def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
-               coverage_offset=0):
+               coverage_offset=0, coverage_order=None):
     if penalty < 0 or budget < batch:
         raise ValueError('Invalid cost parameters')
     if not 0 <= coverage_offset < motifs:
         raise ValueError('Invalid coverage rotation')
+    if coverage_order is not None and sorted(coverage_order) != list(range(motifs)):
+        raise ValueError('Coverage order must be a motif permutation')
     system = make_system(seed, nodes, motifs, root_sd)
     public = replace(system, coefficients=np.zeros_like(system.coefficients))
     evaluator = SealedEvaluator(system, seed)
@@ -86,7 +91,8 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
         unit_cost = 1 + penalty * (2 if method.endswith('pair') else 1)
         while spent + batch * unit_cost <= budget:
             action = choose(method, public, rng, padding_rng, mean, cov, step, batch,
-                            coverage_offset=coverage_offset)
+                            coverage_offset=coverage_offset,
+                            coverage_order=coverage_order)
             values, phi, natural = sample(system, rng, batch, action,
                                           padding_rng=padding_rng)
             for j, child in enumerate(system.children):
