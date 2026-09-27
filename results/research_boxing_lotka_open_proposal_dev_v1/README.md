@@ -1,0 +1,7 @@
+# Open-model typed proposal canary
+
+Two GPU cells were submitted on 27 September 2026 for seed 42 only: descriptive and anonymous public messages. Both use the eight recorded public observations, the offline local Qwen2.5-1.5B-Instruct cache revision `989aa7980e4cf806f80c7fef2b1adb7bc71aa306`, and the restricted JSON parser in ACE revision `7757efcd5bfe7ed62971da0e658aff71dbab518a`. The prompt does not contain the benchmark name, hidden parameters, private holdout, or upstream source. The model is offered the same fixed list of three structural choices in both conditions. This is a **canary**, not a scored result.
+
+Jobs `33041111` and `33041112` were PENDING at the first post-submission check. Account `ucb736_asc1`; pinned code `/scratch/alpine/paco0228/ACE/code_boxing_open_7757efc`; output `/scratch/alpine/paco0228/ACE/results/research_boxing_lotka_open_proposal_dev_v1`. Each requests one A100 40GB GPU, four CPUs, 32GB host RAM, and one hour under `gpu-normal`; queue wait does not consume GPU time. No Azure or other closed-source API is called. No other project's job was changed.
+
+Next gate: verify both jobs' Slurm state, logs, complete receipt, exact prompt and raw-response hashes, one model call, zero private files read, and parsing outcome. Copy all raw artifacts locally with checksum parity. Only then decide whether to fit proposed forms and launch the remaining four cells. An invalid JSON response is a measured failure and must remain in the record.
