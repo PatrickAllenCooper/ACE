@@ -20,8 +20,9 @@ from transfer_safe_switch_dev import target
 def log_evidence(x: np.ndarray, y: np.ndarray, mean: np.ndarray,
                  covariance: np.ndarray, noise_sd: float) -> float:
     design = features(x)
-    residual = y - design @ mean
-    predictive = design @ covariance @ design.T + noise_sd**2 * np.eye(len(y))
+    residual = y - np.einsum('ij,j->i', design, mean, optimize=False)
+    predictive = np.einsum('ik,kl,jl->ij', design, covariance, design,
+                           optimize=False) + noise_sd**2 * np.eye(len(y))
     sign, logdet = np.linalg.slogdet(predictive)
     if sign != 1:
         raise ValueError('invalid predictive covariance')
