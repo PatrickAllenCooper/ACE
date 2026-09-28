@@ -75,8 +75,8 @@ def main() -> None:
                'mean_difference': mean, 'paired_t_ci95': list(map(float, ci)),
                'paired_t_p_two_sided': float(stats.ttest_1samp(differences, 0).pvalue),
                'wilcoxon_p_two_sided': float(stats.wilcoxon(differences).pvalue),
-               'pev_lower_mse_systems': sum(differences > 0),
-               'var_lower_mse_systems': sum(differences < 0),
+               'pev_lower_mse_systems': int(sum(differences > 0)),
+               'var_lower_mse_systems': int(sum(differences < 0)),
                'mean_same_target_steps_of_32': float(np.mean([r['same_target_steps'] for r in rows])),
                'mean_same_target_value_steps_of_32': float(np.mean([
                    r['same_target_value_steps'] for r in rows])),
@@ -91,7 +91,7 @@ def main() -> None:
                'mean_abs_action_value_var': float(np.mean([
                    r['var_mean_abs_value'] for r in rows])),
                'no_new_queries': True, 'closed_model_calls': 0}
-    args.output.mkdir(parents=True, exist_ok=False)
+    args.output.mkdir(parents=True, exist_ok=True)
     per_system = args.output / 'per_system.csv'
     with per_system.open('w', newline='') as stream:
         writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
