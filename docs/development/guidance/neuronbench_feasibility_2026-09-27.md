@@ -15,7 +15,7 @@ The pinned `pyproject.toml` specifies Python >=3.11 and NumPy/SciPy. CURC's curr
 The `World` object itself is **not safe to hand to an agent**. Its `discriminator()` returns the world-specific revealing protocol, and its internal truth and held-out evaluator are reachable from the same process. The upstream intervention API also reports cost but leaves enforcement to the runner. A future custody adapter must:
 
 1. Pin the upstream revision and source hashes, instantiate worlds only in an oracle process, and serialize only `problem()` public fields to the proposer.
-2. Accept only a legal protocol from the shared public pool, enforce the exact budget and distinctness/repeat rules, and write each observation and cost to a receipt. Never expose the Python `World`, `WORLDS`, `discriminator()`, `test_protocols` segments, or evaluator to a solver process.
+2. Accept only a legal protocol from the shared public pool, enforce the exact budget and distinctness/repeat rules, and write each observation and cost to a receipt. Never expose the Python `World`, `WORLDS`, `discriminator()`, or evaluator to a solver process. Publish the exact held-out **forecast protocol segments** as data, since a model-based forecaster needs them to simulate its own hypotheses.
 3. Keep test targets in a separate scorer process. Forecasts must be frozen before scoring. Forward simulation of a solver's *own* hypotheses may be allowed under the benchmark contract, but the hidden true mechanism must not leak through that interface.
 4. Start with deterministic one-world custody and budget accounting only. Add matched random and coverage baselines before any PEV-like design, and test stochastic mode only after noise/repeat accounting is validated. Do not infer independence from repeated trajectories of one fixed world.
 
@@ -24,3 +24,5 @@ The nine public labels and the author's code are inspectable by the researcher; 
 ## Decision
 
 Keep NeuronBench as an external B/PEV adaptation candidate. Do not submit a score-seeking run yet: the random-DAG PEV shift did not pass its development gate, and no leak-safe NeuronBench oracle/solver boundary exists. The next useful work is a small custody adapter and cost-only smoke, followed by a predeclared numerical-control comparison if its information boundary passes review. No non-ACE CURC job was touched by this audit.
+
+Subsequent custody work: [v1](../../../results/research_neuronbench_custody_smoke_v1/README.md) passed action and target separation but omitted held-out waveform segments from the public file. The [v2 correction](../../../results/research_neuronbench_custody_smoke_v2/README.md) publishes these segments without true responses and validates the same exact-cost two-action smoke on CURC. Both are engineering checks. An independent, truth-blind policy/hypothesis specification is still needed before a score-seeking run.
