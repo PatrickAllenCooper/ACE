@@ -1,0 +1,13 @@
+{
+  "protocol_id": "neuronbench_state_forecaster_public_gate_dev_v1",
+  "status": "frozen_before_full_public_leave_one_protocol_out_screen",
+  "worlds": ["z_rebound", "h_sag", "na_fatigue", "ca_rebound", "d_type", "textbook_M"],
+  "acquisition_arms": ["random", "coverage"],
+  "observations_per_arm": 4,
+  "new_oracle_actions": 0,
+  "model": "World-agnostic forced integrate-and-fire with adaptation and hyperpolarization recovery. Fit sign-constrained subthreshold voltage derivatives on three public traces; fixed tau_adapt=tau_recovery=100 ms, 2 ms refractory, ridge=0.1; choose threshold from -45/-40/-35/-30/-25 mV using those same three public counts only.",
+  "cross_validation": "For each of four public protocols, fit on the other three and predict its spike count. Compare mean, nearest generic-waveform, and fixed-penalty ridge predictors on the same folds and public features.",
+  "gate": "Continue to private forecast preparation only if the state model's pooled 48-fold public MAE is strictly lower than all three controls and its cell MAE is lower than the best control in at least eight of twelve cells. Otherwise stop this model variant without scoring private targets.",
+  "interpretation": "Development screen on six designed worlds already used in prior scoring; no independent confirmation or foundation-model result.",
+  "forbidden": "No upstream hidden world truth, world-specific discriminator mapping, private heldout response, Azure, or other closed-source model API"
+}
