@@ -77,14 +77,15 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
 
 
 def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
-               coverage_offset=0, coverage_order=None, include_balanced=False):
+               coverage_offset=0, coverage_order=None, include_balanced=False,
+               topology='chain'):
     if penalty < 0 or budget < batch:
         raise ValueError('Invalid cost parameters')
     if not 0 <= coverage_offset < motifs:
         raise ValueError('Invalid coverage rotation')
     if coverage_order is not None and sorted(coverage_order) != list(range(motifs)):
         raise ValueError('Coverage order must be a motif permutation')
-    system = make_system(seed, nodes, motifs, root_sd)
+    system = make_system(seed, nodes, motifs, root_sd, topology=topology)
     public = replace(system, coefficients=np.zeros_like(system.coefficients))
     evaluator = SealedEvaluator(system, seed)
     rows, actions = [], []
@@ -138,6 +139,8 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
             'parents': system.parents, 'children': system.children,
             'edges': system.edges, 'coefficients': system.coefficients.tolist(),
             'source_revision': os.environ.get('ACE_SOURCE_REVISION', 'local')}
+    if topology != 'chain':
+        spec['topology'] = topology
     return rows, actions, spec
 
 
@@ -158,9 +161,11 @@ def main():
     p.add_argument('--budget', type=int, default=400)
     p.add_argument('--output', required=True, type=Path)
     p.add_argument('--include-balanced', action='store_true')
+    p.add_argument('--topology', choices=('chain', 'fanout'), default='chain')
     a = p.parse_args()
     rows, actions, spec = experiment(a.seed, a.nodes, a.motifs, a.root_sd,
-                                     a.penalty, a.budget, include_balanced=a.include_balanced)
+                                     a.penalty, a.budget, include_balanced=a.include_balanced,
+                                     topology=a.topology)
     a.output.mkdir(parents=True, exist_ok=True)
     metric_file, action_file, system_file = (a.output / x for x in
                                               ('metrics.csv', 'actions.csv', 'system.json'))

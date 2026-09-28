@@ -25,9 +25,12 @@ class System:
     child_sd: float = .15
 
 
-def make_system(seed: int, nodes: int, motifs: int, root_sd: float) -> System:
+def make_system(seed: int, nodes: int, motifs: int, root_sd: float,
+                topology: str = 'chain') -> System:
     if motifs < 1 or nodes < 2 * motifs + 1 or root_sd < 0:
         raise ValueError('Invalid connected motif system')
+    if topology not in ('chain', 'fanout'):
+        raise ValueError('Invalid motif topology')
     rng = np.random.default_rng(seed + 81211)
     # Node 0 and node 1 are roots; motif-0 child is node 2.
     # Every later motif contributes one fresh root and one child.
@@ -37,7 +40,7 @@ def make_system(seed: int, nodes: int, motifs: int, root_sd: float) -> System:
     for j in range(1, motifs):
         root = 2*j + 1
         child = 2*j + 2
-        parents.append((children[-1], root))
+        parents.append((children[-1] if topology == 'chain' else children[0], root))
         children.append(child)
         edges.extend(((parents[-1][0], child), (root, child)))
     for node in range(2*motifs + 1, nodes):
