@@ -42,7 +42,7 @@ class SealedEvaluator:
 
 
 def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
-           coverage_offset=0, coverage_order=None):
+           coverage_offset=0, coverage_order=None, motif_visits=None):
     menu = action_menu(public_system, method.endswith('pair'))
     if method.startswith('random'):
         return menu[int(rng.integers(len(menu)))]
@@ -67,11 +67,17 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
             next_cov = np.linalg.inv(np.linalg.inv(cov[j]) + batch * moment / .15**2)
             score += float(np.trace(Q @ (cov[j] - next_cov)))
         scores.append(score)
+    if method == 'balanced_risk_pair':
+        if motif_visits is None or len(motif_visits) != public_system.motifs:
+            raise ValueError('Balanced selection requires motif visit counts')
+        minimum = min(motif_visits)
+        scores = [score if motif_visits[action[0]] == minimum else -np.inf
+                  for action, score in zip(menu, scores)]
     return menu[int(np.argmax(scores))]
 
 
 def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
-               coverage_offset=0, coverage_order=None):
+               coverage_offset=0, coverage_order=None, include_balanced=False):
     if penalty < 0 or budget < batch:
         raise ValueError('Invalid cost parameters')
     if not 0 <= coverage_offset < motifs:
@@ -82,17 +88,21 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
     public = replace(system, coefficients=np.zeros_like(system.coefficients))
     evaluator = SealedEvaluator(system, seed)
     rows, actions = [], []
-    for mi, method in enumerate(METHODS):
-        rng = np.random.default_rng(seed * 113 + mi + 31)
-        padding_rng = np.random.default_rng(seed * 113 + mi + 80031)
+    methods = METHODS + (('balanced_risk_pair',) if include_balanced else ())
+    for mi, method in enumerate(methods):
+        # Couple the two posterior-risk policies until their actions diverge.
+        rng_index = METHODS.index('risk_pair') if method == 'balanced_risk_pair' else mi
+        rng = np.random.default_rng(seed * 113 + rng_index + 31)
+        padding_rng = np.random.default_rng(seed * 113 + rng_index + 80031)
         mean = np.zeros((motifs, 3))
         cov = np.repeat(np.eye(3)[None, :, :], motifs, axis=0)
         spent = samples = actuators = masked = step = 0
+        motif_visits = [0] * motifs
         unit_cost = 1 + penalty * (2 if method.endswith('pair') else 1)
         while spent + batch * unit_cost <= budget:
             action = choose(method, public, rng, padding_rng, mean, cov, step, batch,
                             coverage_offset=coverage_offset,
-                            coverage_order=coverage_order)
+                            coverage_order=coverage_order, motif_visits=motif_visits)
             values, phi, natural = sample(system, rng, batch, action,
                                           padding_rng=padding_rng)
             for j, child in enumerate(system.children):
@@ -113,6 +123,7 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
                             'natural_child_labels': int(natural.sum()),
                             'masked_child_labels': int(np.size(natural) - natural.sum()),
                             'cumulative_cost': spent, 'cumulative_samples': samples})
+            motif_visits[action[0]] += 1
             step += 1
         broad, feasible = evaluator.evaluate(mean)
         rows.append({'seed': seed, 'nodes': nodes, 'motifs': motifs, 'method': method,
@@ -146,9 +157,10 @@ def main():
     p.add_argument('--penalty', required=True, type=int, choices=(0, 1, 4))
     p.add_argument('--budget', type=int, default=400)
     p.add_argument('--output', required=True, type=Path)
+    p.add_argument('--include-balanced', action='store_true')
     a = p.parse_args()
     rows, actions, spec = experiment(a.seed, a.nodes, a.motifs, a.root_sd,
-                                     a.penalty, a.budget)
+                                     a.penalty, a.budget, include_balanced=a.include_balanced)
     a.output.mkdir(parents=True, exist_ok=True)
     metric_file, action_file, system_file = (a.output / x for x in
                                               ('metrics.csv', 'actions.csv', 'system.json'))
