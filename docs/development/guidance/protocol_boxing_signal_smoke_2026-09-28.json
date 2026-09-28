@@ -1,0 +1,12 @@
+{
+  "protocol_id": "boxing_signal_location_custody_smoke_v1",
+  "status": "frozen_before_oracle_runs",
+  "upstream_revision": "b43e38cb03d09c13efa9cf4d9bae740d51157bfd",
+  "upstream_simulator_sha256": "bbefb583955dc9a3d7d15d242808883e1aa295214059489e65b697206cac6720",
+  "world_seeds": [42, 123, 456],
+  "world": "BoxingGym location_finding.Signal, three equal-strength sources in two dimensions",
+  "training": "16 public queries per world, independent seeded uniform coordinates in [-2,2]^2, using upstream run_experiment; response rounded by upstream API",
+  "evaluation": "32 private heldout coordinates per world from independent seeded N(0,1) draws, using upstream step; coordinates public as forecast questions, responses and source locations private",
+  "purpose": "Oracle/evaluator and descriptive-versus-anonymous message custody only. No solver, prior, model selection, or performance claim.",
+  "forbidden": "No Azure or other closed-source model API. Do not expose true source locations to a proposer."
+}
