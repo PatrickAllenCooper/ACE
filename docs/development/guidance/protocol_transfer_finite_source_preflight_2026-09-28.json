@@ -1,0 +1,17 @@
+{
+  "protocol_id": "transfer_finite_source_preflight_dev_v1",
+  "status": "frozen_before_source_observation_generation",
+  "development_seeds": [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111],
+  "nodes_per_source_system": 30,
+  "source_training_examples_per_node": [16, 64],
+  "source_holdout_examples_per_node": 128,
+  "source_training_stream_offset": 60261,
+  "source_holdout_stream_offset": 60262,
+  "source_input_distribution": "independent uniform [-2,2]^2 per node",
+  "source_noise_sd": 0.15,
+  "posterior": "Gaussian linear regression on the existing six-feature basis with zero prior mean, isotropic prior precision 0.25, and known Gaussian noise SD 0.15",
+  "diagnostics": "Clean source mechanism MSE of posterior mean; 90% posterior predictive interval coverage on independent noisy source holdout; full posterior and source-data hashes",
+  "readiness_gate": "All 24 cells have exact source counts, finite positive posterior covariances and nonzero estimation error on every source node. Pooled 90% predictive coverage for each source sample size must lie in [0.85,0.95]. The next target-policy development comparison remains separate and is not authorized by a coverage pass alone.",
+  "interpretation": "Source-estimation custody/calibration preflight on reused development seeds; no target policy result or fresh confirmation",
+  "forbidden": "No target outcome or changed-node label in source posterior fitting; no hidden source coefficient passed to a transfer policy; no Azure or other closed-source model API"
+}
