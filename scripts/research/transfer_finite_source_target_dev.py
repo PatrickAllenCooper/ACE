@@ -31,8 +31,11 @@ def fit(x: np.ndarray, y: np.ndarray, mean: np.ndarray,
 
 
 def score(prediction: np.ndarray, truth: np.ndarray, test_phi: np.ndarray) -> float:
-    residual = test_phi @ (prediction - truth)
-    return float(np.mean(residual**2))
+    residual = np.einsum('j,mj->m', prediction - truth, test_phi, optimize=False)
+    value = float(np.mean(residual**2))
+    if not np.isfinite(value):
+        raise ValueError('nonfinite target score')
+    return value
 
 
 def main() -> None:
