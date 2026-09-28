@@ -1,0 +1,16 @@
+{
+  "protocol_id": "boxing_signal_fixed_data_dev_v1",
+  "status": "frozen_before_fitting_and_scoring",
+  "source_data": "results/research_boxing_signal_smoke/seed_{42,123,456}",
+  "seeds": [42, 123, 456],
+  "training_queries_per_world": 16,
+  "heldout_queries_per_world": 32,
+  "arms": {
+    "rbf_kernel": "Isotropic Gaussian kernel ridge, widths 0.2/0.5/1/2 and penalties 0.01/0.1/1, selected by leave-one-out squared error on public observations only; centered outputs and nonnegative forecasts",
+    "gaussian_three_source": "Three positive Gaussian bumps centered at high-response observed coordinates selected with a 0.3 distance exclusion; widths 0.3/0.6/1.2 selected by leave-one-out squared error; nonnegative least-squares weights and background",
+    "privileged_inverse_quadratic": "Explicit upstream response form b+sum alpha/(m+distance²), with b=0.1, alpha=1, m=0.0001 and three sources supplied as a clearly privileged equation-specific ceiling; six unknown source coordinates fitted from public data using five fixed multistarts, no private locations"
+  },
+  "primary_metric": "Heldout mean absolute error across 32 responses; report RMSE and median absolute error separately",
+  "purpose": "Three reused development worlds only. Compare generic numerical fits with an explicitly privileged structural ceiling before evaluating any semantic proposer. No model-performance confirmation or active design claim.",
+  "forbidden": "No private response or true source location in fitter, no Azure or other closed-source model API"
+}
