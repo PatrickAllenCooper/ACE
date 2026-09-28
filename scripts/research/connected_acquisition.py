@@ -186,7 +186,7 @@ def main():
     p.add_argument('--output', required=True, type=Path)
     p.add_argument('--include-balanced', action='store_true')
     p.add_argument('--include-hub', action='store_true')
-    p.add_argument('--topology', choices=('chain', 'fanout'), default='chain')
+    p.add_argument('--topology', choices=('chain', 'fanout', 'binary_tree'), default='chain')
     a = p.parse_args()
     rows, actions, spec = experiment(a.seed, a.nodes, a.motifs, a.root_sd,
                                      a.penalty, a.budget, include_balanced=a.include_balanced,

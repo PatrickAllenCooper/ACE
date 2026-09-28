@@ -1,0 +1,17 @@
+{
+  "status": "frozen three-system development screen on a distinct bounded-degree DAG; not confirmation",
+  "topology": "binary_tree",
+  "graph_rule": "Motif 0 has two roots; motif j>0 uses child floor((j-1)/2) and one fresh root as parents. Each motif child is a direct parent of at most two later motifs. Remaining nodes form a descendant chain after the final motif child.",
+  "seeds": [400, 401, 402],
+  "nodes": 30,
+  "motifs": [10],
+  "root_sd": 0.15,
+  "actuator_penalty": 4,
+  "cost_budget": 400,
+  "batch": 8,
+  "arms": ["random_single", "coverage_single", "random_pair", "coverage_pair", "risk_pair", "balanced_risk_pair", "hub_coverage_pair", "hub_random_pair"],
+  "primary_metric": "final feasible_motif_mse",
+  "comparisons": ["risk_pair versus each pair control", "risk_pair versus coverage_single and random_single"],
+  "decision": "Report every seed, arm, action, cost, and mask. Three systems cannot promote a method. If risk lacks a clear development advantage over strong pair and single controls, stop this B selector line; if it holds, freeze a fresh confirmation protocol before more systems.",
+  "information_boundary": "The learner and selectors see the known graph and acquired batches; they never see true coefficients or the sealed evaluation panel."
+}
