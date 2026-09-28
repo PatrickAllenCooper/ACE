@@ -1,0 +1,22 @@
+{
+  "protocol_id": "connected_binary_tree_pair_confirmation_v1",
+  "status": "frozen_before_fresh_system_generation",
+  "question": "Does the joint-intervention action space help under equal total cost on the bounded-degree connected motif SCM?",
+  "topology": "binary_tree",
+  "fresh_seeds": [500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519],
+  "development_seeds_excluded": [400, 401, 402],
+  "nodes": 30,
+  "motifs": 10,
+  "root_sd": 0.15,
+  "actuator_penalty": 4,
+  "cost_budget": 400,
+  "batch": 8,
+  "arms": ["random_single", "coverage_single", "random_pair", "coverage_pair", "risk_pair", "balanced_risk_pair", "hub_coverage_pair", "hub_random_pair"],
+  "primary_endpoint": "final feasible_motif_mse, lower is better",
+  "primary_contrast": "paired coverage_pair minus coverage_single over the 20 fresh systems",
+  "primary_gate": "mean coverage_pair / mean coverage_single < 0.90 and upper endpoint of two-sided 95% paired t interval for the absolute difference < 0",
+  "within_pair_contrast": "paired coverage_pair minus random_pair over the same systems; claim coverage selection advantage only if the upper endpoint of its two-sided 95% paired t interval < 0",
+  "interpretation": "A primary pass supports joint-action capability for this particular synthetic graph family, not a foundation-model or posterior-risk advantage. A within-pair failure narrows the result to the action space. Report every cell and exact costs, including failures.",
+  "limits": "Same simulator family as development; no external-domain generalization. Both pair and single policies pay per sample plus per actuated node, so sample counts differ at matched total cost.",
+  "forbidden": "No change to action menu, graph rule, learner, masks, budget, or metric after seeing these seeds; no closed-source model API"
+}
