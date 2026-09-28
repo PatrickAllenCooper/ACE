@@ -1,0 +1,85 @@
+{
+  "method": "forced_integrate_and_fire_dev_v1",
+  "fixed_parameters": {
+    "dt_ms": 0.1,
+    "tau_adapt_ms": 100.0,
+    "tau_recovery_ms": 100.0,
+    "refractory_samples": 20,
+    "threshold_grid": [
+      -45.0,
+      -40.0,
+      -35.0,
+      -30.0,
+      -25.0
+    ],
+    "ridge": 0.1
+  },
+  "public_problem_sha256": "1e0a8110598f3c038fccd670ebc4dcb2f95ba23a2a9e5b9cfebb63695e5ed7d3",
+  "public_observations_sha256": "9730bc6f9f78a4e3f452c0c93e69be5a68acb9d8270b4ee29c1073c2c0543e5f",
+  "public_trace_sha256": {
+    "observation_0.npz": "23f51d342eb3fd9210338713d3728b5d50aa3286417737f176edef7864e5eeab",
+    "observation_1.npz": "98da81b6313b52a72a664536de06b321cd3c4a99c85cb385b07d428b73f61b16",
+    "observation_2.npz": "f396ffcee86db19f82683cc008eccc7a2e963b365d31d6aa5b86005f6bb397de",
+    "observation_3.npz": "b531f0d25c11c4f8bf11e2607edd6a8cb1afa842e52db7ee9f928a9187295c4c"
+  },
+  "public_observations": 4,
+  "new_oracle_actions": 0,
+  "private_files_read": 0,
+  "closed_model_calls": 0,
+  "folds": [
+    {
+      "heldout_label": "paired long pulses (12 uA/300 ms, 60 ms gap, 12 uA/300 ms)",
+      "actual_public_count": 16.0,
+      "predicted_count": 24,
+      "threshold": -45.0,
+      "mean_prediction": 11.0,
+      "nearest_prediction": 20.0,
+      "ridge_prediction": 28.407925667304617,
+      "training_count_sse": 9.0,
+      "subthreshold_derivative_rmse": 0.6589200198942182,
+      "subthreshold_samples": 5947
+    },
+    {
+      "heldout_label": "long step (10 uA, 300 ms)",
+      "actual_public_count": 20.0,
+      "predicted_count": 14,
+      "threshold": -45.0,
+      "mean_prediction": 9.666666666666666,
+      "nearest_prediction": 3.0,
+      "ridge_prediction": 6.400655627726567,
+      "training_count_sse": 2.0,
+      "subthreshold_derivative_rmse": 0.8094068027004656,
+      "subthreshold_samples": 8647
+    },
+    {
+      "heldout_label": "brief step (12 uA, 40 ms)",
+      "actual_public_count": 3.0,
+      "predicted_count": 2,
+      "threshold": -45.0,
+      "mean_prediction": 15.333333333333334,
+      "nearest_prediction": 20.0,
+      "ridge_prediction": 16.991528096963677,
+      "training_count_sse": 33.0,
+      "subthreshold_derivative_rmse": 0.7496714069633581,
+      "subthreshold_samples": 10397
+    },
+    {
+      "heldout_label": "strong step (18 uA, 120 ms)",
+      "actual_public_count": 10.0,
+      "predicted_count": 11,
+      "threshold": -45.0,
+      "mean_prediction": 13.0,
+      "nearest_prediction": 3.0,
+      "ridge_prediction": 0.0,
+      "training_count_sse": 33.0,
+      "subthreshold_derivative_rmse": 0.7133339985600361,
+      "subthreshold_samples": 9947
+    }
+  ],
+  "public_loo_mae": 4.0,
+  "baseline_public_loo_mae": {
+    "mean": 7.666666666666667,
+    "nearest": 11.25,
+    "ridge": 12.49969953413543
+  }
+}

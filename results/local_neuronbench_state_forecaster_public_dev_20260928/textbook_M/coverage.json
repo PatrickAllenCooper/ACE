@@ -1,0 +1,85 @@
+{
+  "method": "forced_integrate_and_fire_dev_v1",
+  "fixed_parameters": {
+    "dt_ms": 0.1,
+    "tau_adapt_ms": 100.0,
+    "tau_recovery_ms": 100.0,
+    "refractory_samples": 20,
+    "threshold_grid": [
+      -45.0,
+      -40.0,
+      -35.0,
+      -30.0,
+      -25.0
+    ],
+    "ridge": 0.1
+  },
+  "public_problem_sha256": "bfda0507d8d74ab5579672ed0c610b997a0df772762f66e1760006219d7730dd",
+  "public_observations_sha256": "36afa0ae535f8eb8760b211d1832f9f6486c3c7fb2d5aef348ff6f3e22be7a31",
+  "public_trace_sha256": {
+    "observation_0.npz": "2cd1932cd510712fc27fc050147c9f66f63f5ab74c779fe95f14fe244522a0d4",
+    "observation_1.npz": "b0be60c52cd23fda4c152909c56226ed230679a369a4ee05f66075bee1d8cf3b",
+    "observation_2.npz": "86210616507d125c581f7c7a1bacca295b9ca6865b04653a2f98fa4a60e2be50",
+    "observation_3.npz": "104559b9b389318d8a02bf37f6337f6e70083e8d4a996e6e5fe1065c2b70715d"
+  },
+  "public_observations": 4,
+  "new_oracle_actions": 0,
+  "private_files_read": 0,
+  "closed_model_calls": 0,
+  "folds": [
+    {
+      "heldout_label": "long step (10 uA, 300 ms)",
+      "actual_public_count": 1.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 2.6666666666666665,
+      "nearest_prediction": 1.0,
+      "ridge_prediction": 5.432986718248896,
+      "training_count_sse": 38.0,
+      "subthreshold_derivative_rmse": 0.8663031805100341,
+      "subthreshold_samples": 5397
+    },
+    {
+      "heldout_label": "brief step (12 uA, 40 ms)",
+      "actual_public_count": 1.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 2.6666666666666665,
+      "nearest_prediction": 6.0,
+      "ridge_prediction": 4.286394747254059,
+      "training_count_sse": 38.0,
+      "subthreshold_derivative_rmse": 0.6614080364554046,
+      "subthreshold_samples": 7997
+    },
+    {
+      "heldout_label": "strong step (18 uA, 120 ms)",
+      "actual_public_count": 6.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 1.0,
+      "nearest_prediction": 1.0,
+      "ridge_prediction": 0.9999999999999998,
+      "training_count_sse": 3.0,
+      "subthreshold_derivative_rmse": 0.5818922948130533,
+      "subthreshold_samples": 7447
+    },
+    {
+      "heldout_label": "weak step (5 uA, 120 ms)",
+      "actual_public_count": 1.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 2.6666666666666665,
+      "nearest_prediction": 1.0,
+      "ridge_prediction": 0.0,
+      "training_count_sse": 38.0,
+      "subthreshold_derivative_rmse": 0.7837879955234713,
+      "subthreshold_samples": 7197
+    }
+  ],
+  "public_loo_mae": 2.25,
+  "baseline_public_loo_mae": {
+    "mean": 2.4999999999999996,
+    "nearest": 2.5,
+    "ridge": 3.429845366375739
+  }
+}

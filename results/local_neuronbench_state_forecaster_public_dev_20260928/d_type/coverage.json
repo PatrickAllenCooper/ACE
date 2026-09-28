@@ -1,0 +1,85 @@
+{
+  "method": "forced_integrate_and_fire_dev_v1",
+  "fixed_parameters": {
+    "dt_ms": 0.1,
+    "tau_adapt_ms": 100.0,
+    "tau_recovery_ms": 100.0,
+    "refractory_samples": 20,
+    "threshold_grid": [
+      -45.0,
+      -40.0,
+      -35.0,
+      -30.0,
+      -25.0
+    ],
+    "ridge": 0.1
+  },
+  "public_problem_sha256": "8d8de6bbeced0473ad3d106f07c13738422ebb990375da1180594a442613cd11",
+  "public_observations_sha256": "3a42fd2b12ae04d76e44db9b4bf32aa4137de7ca6d1ffa76c971cf894d58c6e8",
+  "public_trace_sha256": {
+    "observation_0.npz": "99261b709f49c56e2098789021854134363f96e7358c20dc6713f657bbb74324",
+    "observation_1.npz": "1ce2d67579a7b6ecfdc350ed959e915b96524769987b7db959391fb9042726d5",
+    "observation_2.npz": "1f21975b2d19badc03b4bf53d3de7c33ac7af21e3aa0fc77349784a0b4192140",
+    "observation_3.npz": "e9033af50bc66337c0017d0e5e07c295524bc7dd5ddef2abda8c3f5f67840d53"
+  },
+  "public_observations": 4,
+  "new_oracle_actions": 0,
+  "private_files_read": 0,
+  "closed_model_calls": 0,
+  "folds": [
+    {
+      "heldout_label": "hyperpol conditioning + depol test (-30 uA/250 ms, then +12 uA)",
+      "actual_public_count": 1.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 4.0,
+      "nearest_prediction": 1.0,
+      "ridge_prediction": 3.6057801502591107,
+      "training_count_sse": 102.0,
+      "subthreshold_derivative_rmse": 0.9935225910058954,
+      "subthreshold_samples": 9047
+    },
+    {
+      "heldout_label": "weak step (5 uA, 120 ms)",
+      "actual_public_count": 1.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 4.0,
+      "nearest_prediction": 10.0,
+      "ridge_prediction": 7.600593758117787,
+      "training_count_sse": 102.0,
+      "subthreshold_derivative_rmse": 1.1999507791595367,
+      "subthreshold_samples": 11847
+    },
+    {
+      "heldout_label": "strong step (18 uA, 120 ms)",
+      "actual_public_count": 10.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 1.0,
+      "nearest_prediction": 1.0,
+      "ridge_prediction": 1.0,
+      "training_count_sse": 3.0,
+      "subthreshold_derivative_rmse": 1.0956332023375044,
+      "subthreshold_samples": 12297
+    },
+    {
+      "heldout_label": "hyperpol pre-pulse + weak test (-30 uA/250 ms, gap, +6 uA)",
+      "actual_public_count": 1.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 4.0,
+      "nearest_prediction": 1.0,
+      "ridge_prediction": 0.0,
+      "training_count_sse": 102.0,
+      "subthreshold_derivative_rmse": 1.1105709819295355,
+      "subthreshold_samples": 8797
+    }
+  ],
+  "public_loo_mae": 3.25,
+  "baseline_public_loo_mae": {
+    "mean": 4.5,
+    "nearest": 4.5,
+    "ridge": 4.801593477094224
+  }
+}

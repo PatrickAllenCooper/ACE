@@ -1,0 +1,85 @@
+{
+  "method": "forced_integrate_and_fire_dev_v1",
+  "fixed_parameters": {
+    "dt_ms": 0.1,
+    "tau_adapt_ms": 100.0,
+    "tau_recovery_ms": 100.0,
+    "refractory_samples": 20,
+    "threshold_grid": [
+      -45.0,
+      -40.0,
+      -35.0,
+      -30.0,
+      -25.0
+    ],
+    "ridge": 0.1
+  },
+  "public_problem_sha256": "6e62dcab9694aae7e0b67a87e3f555f76cabadadbb334aa356370f8ec543b8cb",
+  "public_observations_sha256": "51e7e396a15d68180b05b205ed517ec94ff9c675e8726cfb686a4f6a5c4cf03d",
+  "public_trace_sha256": {
+    "observation_0.npz": "e7413bb0892bd4674bdad1244b6e289cb47f542eb0b4b4f5c555c6bce91ea876",
+    "observation_1.npz": "4ad2a3c0eca3f344f51cc366f62ab275d3810682f03e601700411ea1bb2e41d2",
+    "observation_2.npz": "5fc6e6c369f59d8fa56f971cbb5735e2167a93755d7cd2e2bdad4800e42d8af6",
+    "observation_3.npz": "578d1368f6312572408961d8f0c605bfc016d0eefa2e791270f7502075dd5314"
+  },
+  "public_observations": 4,
+  "new_oracle_actions": 0,
+  "private_files_read": 0,
+  "closed_model_calls": 0,
+  "folds": [
+    {
+      "heldout_label": "hyperpol conditioning + depol test (-30 uA/250 ms, then +12 uA)",
+      "actual_public_count": 12.0,
+      "predicted_count": 19,
+      "threshold": -45.0,
+      "mean_prediction": 18.0,
+      "nearest_prediction": 12.0,
+      "ridge_prediction": 16.315826421449188,
+      "training_count_sse": 131.0,
+      "subthreshold_derivative_rmse": 1.0672588977628628,
+      "subthreshold_samples": 7397
+    },
+    {
+      "heldout_label": "brief hyperpol conditioning + test (-30 uA/40 ms, then +12 uA)",
+      "actual_public_count": 12.0,
+      "predicted_count": 6,
+      "threshold": -45.0,
+      "mean_prediction": 18.0,
+      "nearest_prediction": 12.0,
+      "ridge_prediction": 13.560963073337575,
+      "training_count_sse": 281.0,
+      "subthreshold_derivative_rmse": 1.0163303313069016,
+      "subthreshold_samples": 9497
+    },
+    {
+      "heldout_label": "strong step (18 uA, 120 ms)",
+      "actual_public_count": 11.0,
+      "predicted_count": 6,
+      "threshold": -45.0,
+      "mean_prediction": 18.333333333333332,
+      "nearest_prediction": 31.0,
+      "ridge_prediction": 23.794720861379233,
+      "training_count_sse": 557.0,
+      "subthreshold_derivative_rmse": 1.2691923014219146,
+      "subthreshold_samples": 10147
+    },
+    {
+      "heldout_label": "depolarising conditioning + test (+15 uA/250 ms, then +12 uA)",
+      "actual_public_count": 31.0,
+      "predicted_count": 0,
+      "threshold": -45.0,
+      "mean_prediction": 11.666666666666666,
+      "nearest_prediction": 12.0,
+      "ridge_prediction": 11.484330860184548,
+      "training_count_sse": 229.0,
+      "subthreshold_derivative_rmse": 1.3399188110576128,
+      "subthreshold_samples": 8347
+    }
+  ],
+  "public_loo_mae": 12.25,
+  "baseline_public_loo_mae": {
+    "mean": 9.666666666666668,
+    "nearest": 9.75,
+    "ridge": 9.546794873995362
+  }
+}
