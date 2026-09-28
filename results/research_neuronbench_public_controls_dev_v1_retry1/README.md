@@ -1,0 +1,9 @@
+# NeuronBench public-only control canary
+
+Frozen protocol: `docs/development/guidance/protocol_neuronbench_public_controls_dev_2026-09-28.json`. Pinned upstream NeuronBench `c354622458c460b419cab821d482c879f0578377`. ACE source revision `04fb33dfe360db9e7a76b8948dfa435500a8c801`; CURC checkout `/scratch/alpine/paco0228/ACE/code_neuronbench_controls_04fb33d`; isolated Python environment `/scratch/alpine/paco0228/ACE/envs/neuronbench_py311`.
+
+Deterministic `z_rebound`, seed 42, public frozen four-action plans, common fixed-ridge forecaster. CURC jobs `33083977` (random) and `33083978` (coverage), account `ucb736_asc1`, both COMPLETED 0:0, 19 and 14 seconds. Output `/scratch/alpine/paco0228/ACE/results/research_neuronbench_public_controls_dev_v1_retry1`. Every arm used four distinct public actions at exactly cost 4. Six forecast labels matched six private targets. The public-only forecaster read no private files; the separate scorer applied NeuronBench's floored spike forecast MSE. Scores: random **51.8401**, coverage **3.4100** (lower is better). Independent local score parity, receipt/file hashes, and CURC-to-local checksum dry run pass. This is one designed development world and a weak generic action/forecaster control, not evidence of statistical generalization or a mechanistic/foundation-model method.
+
+First attempt at revision `74264b1`, jobs `33083901` and `33083902`, failed before any action because JSON plan lists were compared to upstream tuples. The comparison was corrected without changing the frozen plans, in revision `04fb33d`. Failed outputs remain on CURC at `.../research_neuronbench_public_controls_dev_v1`; this local directory records the valid retry.
+
+The next staged step is to freeze the public questions and both plans for the remaining five worlds before submitting their outcome jobs. Do not use this one-world result to alter policy, forecaster, or metric settings.
