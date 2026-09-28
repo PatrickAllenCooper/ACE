@@ -1,0 +1,19 @@
+{
+  "protocol_id": "neuronbench_public_controls_dev_v1",
+  "status": "frozen_before_control_oracle_runs",
+  "upstream_revision": "c354622458c460b419cab821d482c879f0578377",
+  "input_contract": "Only public problem.json with nine acquisition protocol specifications and six disjoint forecast protocol specifications, plus acquired public observations; no World object or private targets in policy/forecaster process",
+  "worlds": ["z_rebound", "h_sag", "na_fatigue", "ca_rebound", "d_type", "textbook_M"],
+  "mode": "deterministic",
+  "world_seed": 42,
+  "policies": ["random", "coverage"],
+  "policy_seed": 20260928,
+  "budget_per_world_policy": 4,
+  "coverage_rule": "Greedy minimize mean nearest standardized generic waveform-feature distance from public held-out forecast protocols; deterministic index tie-break",
+  "random_rule": "Uniform sample of four distinct shared-pool protocols without replacement using fixed generator seed",
+  "forecast_rule": "Common public-only ridge regression on eight generic waveform features and acquired spike counts; fixed penalty 1.0, unpenalized intercept, nonnegative predictions",
+  "primary_metric": "Official floored held-out spike-forecast MSE, computed only after forecasts are frozen, reported per world with no inferential pooling across six designed worlds",
+  "purpose": "Weak but truth-blind action-selection control and engineering test of sealed forecast scoring; not a mechanistic hypothesis library or foundation-model result",
+  "gate": "One-world canary must pass exact action cost, public/private hash, prediction count, and scorer parity before remaining five worlds run",
+  "forbidden": "No world-specific discriminator mapping, upstream truth tables, test target values, Azure, or any closed-source model API in policy or forecaster"
+}
