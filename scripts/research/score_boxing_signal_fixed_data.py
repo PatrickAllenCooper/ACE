@@ -26,11 +26,15 @@ def main() -> None:
     p.add_argument('--public', type=Path, required=True)
     p.add_argument('--private', type=Path, required=True)
     p.add_argument('--fit', type=Path, required=True)
+    p.add_argument('--methods', nargs='+', default=[
+        'rbf_kernel', 'gaussian_three_source', 'privileged_inverse_quadratic'])
     a = p.parse_args()
     receipt = json.loads((a.fit / 'complete.json').read_text())
     pred_path = a.fit / 'predictions.csv'
+    forecast_count = receipt.get('forecast_questions', receipt.get('heldout_questions'))
     if receipt['private_files_read'] != 0 or receipt['training_queries'] != 16 or receipt[
-            'forecast_questions'] != 32 or sha(pred_path) != receipt['predictions_sha256']:
+            'closed_model_calls'] != 0 or forecast_count != 32 or sha(pred_path) != receipt[
+            'predictions_sha256']:
         raise ValueError('fit receipt mismatch')
     if sha(a.public / 'observations.csv') != receipt['observations_sha256'] or sha(
             a.public / 'forecast_questions.csv') != receipt['forecast_questions_sha256']:
@@ -40,7 +44,7 @@ def main() -> None:
     predictions = read(pred_path)
     if len(q) != len(h) or len(h) != len(predictions) or len(h) != 32:
         raise ValueError('forecast count mismatch')
-    methods = ('rbf_kernel', 'gaussian_three_source', 'privileged_inverse_quadratic')
+    methods = tuple(a.methods)
     y = np.array([float(row['response']) for row in h])
     if not np.isfinite(y).all():
         raise ValueError('nonfinite targets')

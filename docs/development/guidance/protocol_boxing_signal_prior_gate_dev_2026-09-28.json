@@ -1,0 +1,18 @@
+{
+  "protocol_id": "boxing_signal_source_count_gate_dev_v1",
+  "status": "frozen_before_fitting_and_scoring",
+  "source_data": "results/research_boxing_signal_smoke/seed_{42,123,456}",
+  "seeds": [42, 123, 456],
+  "acquired_queries": 16,
+  "train_for_selection": "First 8 public observations",
+  "validation_for_selection": "Last 8 public observations, used only to choose between structural proposal and flexible fallback; refit on all 16 after selection",
+  "heldout": "32 private responses per world for final scoring only",
+  "correct_proposal": "Three positive Gaussian radial sources, source count supplied by descriptive metadata; centers selected from high-response public observations and nonnegative weights fitted numerically",
+  "wrong_proposal": "One positive Gaussian radial source, a deliberately false source-count description",
+  "fallback": "Isotropic RBF kernel ridge with output centering",
+  "hyperparameters": "Proposal widths 0.3/0.6/1.2 and fallback widths 0.2/0.5/1/2 with ridge penalties 0.01/0.1/1, all selected by leave-one-out squared error on the first 8 public observations only",
+  "gate": "Use the proposal if its mean absolute error on the last 8 public observations is strictly below fallback mean absolute error; otherwise use fallback. Refit both candidates on all 16 with frozen hyperparameters before heldout forecasting.",
+  "primary_metric": "32-query heldout mean absolute error for correct proposal, wrong proposal, fallback, and both gated conditions",
+  "interpretation": "Numerical functional development test on three previously scored worlds. It cannot establish semantic LM value or general reliability; a pass only justifies a separately frozen fresh-world test.",
+  "forbidden": "No private heldout response or source location in fitter, no Azure or other closed-source model API"
+}
