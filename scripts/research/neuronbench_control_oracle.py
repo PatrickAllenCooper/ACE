@@ -45,7 +45,8 @@ def main() -> None:
     if len(indices) != budget or len(set(indices)) != budget or len(plan['actions']) != budget:
         raise ValueError('invalid plan length or repeated action')
     pool = problem['protocols']
-    if any(not isinstance(i, int) or i < 0 or i >= len(pool) or pool[i] != action
+    if any(not isinstance(i, int) or i < 0 or i >= len(pool) or
+           json.loads(json.dumps(pool[i])) != action
            for i, action in zip(indices, plan['actions'])):
         raise ValueError('frozen plan does not match public action pool')
     observations = []
