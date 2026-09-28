@@ -1,0 +1,19 @@
+{
+  "status": "frozen post hoc control on 12 previously scored fanout development cells; not confirmation",
+  "seeds": [300, 301, 302, 303, 304, 305],
+  "motifs": [3, 10],
+  "nodes": 30,
+  "topology": "fanout",
+  "root_sd": 0.15,
+  "actuator_penalty": 4,
+  "cost_budget": 400,
+  "batch": 8,
+  "new_arms": ["hub_coverage_pair", "hub_random_pair"],
+  "hub_actions": "Five pair batches: first three target shared motif 0 with level pairs (-2,-2), (-2,2), (2,2); last two target distinct downstream motifs with levels (2,2), (-2,-2).",
+  "hub_coverage_order": "Downstream motifs 1 and k-1.",
+  "hub_random_order": "First two indices of a permutation of motifs 1..k-1 from numpy.default_rng(system_seed + 991337). No acquired data or true coefficients are used.",
+  "rng_coupling": "All hub arms share the risk arm's initial acquisition and padding RNG seeds; the actual streams may diverge because risk scores candidate simulations and actions can differ.",
+  "primary_metric": "final feasible_motif_mse",
+  "analysis": "Report each seed and k, mean MSE, and paired win counts of risk_pair versus each hub control. Also report action motifs, levels, exact cost, and masked labels. Do not select the better hub control separately per system.",
+  "decision": "If either static hub control matches risk across systems, do not claim adaptive posterior design on fanout. Even if risk remains better, test a graph family without a single shared parent before confirmation."
+}

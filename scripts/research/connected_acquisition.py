@@ -42,7 +42,8 @@ class SealedEvaluator:
 
 
 def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
-           coverage_offset=0, coverage_order=None, motif_visits=None):
+           coverage_offset=0, coverage_order=None, motif_visits=None,
+           hub_order=None):
     menu = action_menu(public_system, method.endswith('pair'))
     if method.startswith('random'):
         return menu[int(rng.integers(len(menu)))]
@@ -53,6 +54,17 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
                  else motif_position)
         return menu[motif * per_motif +
                     (step // public_system.motifs) % per_motif]
+    if method.startswith('hub_'):
+        if public_system.motifs < 3 or hub_order is None:
+            raise ValueError('Hub controls require at least three motifs and a frozen order')
+        if step < 3:
+            motif = 0
+            levels = ((-2., -2.), (-2., 2.), (2., 2.))[step]
+        else:
+            motif = hub_order[step - 3]
+            levels = ((2., 2.), (-2., -2.))[step - 3]
+        return next(action for action in menu
+                    if action[0] == motif and action[2] == levels)
     scores = []
     for action in menu:
         # Student-predictive contexts only: public_system contains zero truth.
@@ -78,32 +90,44 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
 
 def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
                coverage_offset=0, coverage_order=None, include_balanced=False,
-               topology='chain'):
+               topology='chain', include_hub=False):
     if penalty < 0 or budget < batch:
         raise ValueError('Invalid cost parameters')
     if not 0 <= coverage_offset < motifs:
         raise ValueError('Invalid coverage rotation')
     if coverage_order is not None and sorted(coverage_order) != list(range(motifs)):
         raise ValueError('Coverage order must be a motif permutation')
+    if include_hub and motifs < 3:
+        raise ValueError('Hub controls require at least three motifs')
+    if include_hub and budget // (batch * (1 + 2 * penalty)) != 5:
+        raise ValueError('Frozen hub controls require exactly five pair actions')
     system = make_system(seed, nodes, motifs, root_sd, topology=topology)
     public = replace(system, coefficients=np.zeros_like(system.coefficients))
     evaluator = SealedEvaluator(system, seed)
     rows, actions = [], []
-    methods = METHODS + (('balanced_risk_pair',) if include_balanced else ())
+    methods = METHODS + (('balanced_risk_pair',) if include_balanced else ()) + (
+        ('hub_coverage_pair', 'hub_random_pair') if include_hub else ())
+    hub_random_order = tuple(int(j) for j in
+                             np.random.default_rng(seed + 991337).permutation(
+                                 np.arange(1, motifs))) if include_hub else ()
     for mi, method in enumerate(methods):
-        # Couple the two posterior-risk policies until their actions diverge.
-        rng_index = METHODS.index('risk_pair') if method == 'balanced_risk_pair' else mi
+        # Couple controls to the risk arm's initial stream; action paths can diverge.
+        rng_index = METHODS.index('risk_pair') if method in (
+            'balanced_risk_pair', 'hub_coverage_pair', 'hub_random_pair') else mi
         rng = np.random.default_rng(seed * 113 + rng_index + 31)
         padding_rng = np.random.default_rng(seed * 113 + rng_index + 80031)
         mean = np.zeros((motifs, 3))
         cov = np.repeat(np.eye(3)[None, :, :], motifs, axis=0)
         spent = samples = actuators = masked = step = 0
         motif_visits = [0] * motifs
+        hub_order = ((1, motifs - 1) if method == 'hub_coverage_pair'
+                     else hub_random_order[:2] if method == 'hub_random_pair' else None)
         unit_cost = 1 + penalty * (2 if method.endswith('pair') else 1)
         while spent + batch * unit_cost <= budget:
             action = choose(method, public, rng, padding_rng, mean, cov, step, batch,
                             coverage_offset=coverage_offset,
-                            coverage_order=coverage_order, motif_visits=motif_visits)
+                            coverage_order=coverage_order, motif_visits=motif_visits,
+                            hub_order=hub_order)
             values, phi, natural = sample(system, rng, batch, action,
                                           padding_rng=padding_rng)
             for j, child in enumerate(system.children):
@@ -161,11 +185,12 @@ def main():
     p.add_argument('--budget', type=int, default=400)
     p.add_argument('--output', required=True, type=Path)
     p.add_argument('--include-balanced', action='store_true')
+    p.add_argument('--include-hub', action='store_true')
     p.add_argument('--topology', choices=('chain', 'fanout'), default='chain')
     a = p.parse_args()
     rows, actions, spec = experiment(a.seed, a.nodes, a.motifs, a.root_sd,
                                      a.penalty, a.budget, include_balanced=a.include_balanced,
-                                     topology=a.topology)
+                                     topology=a.topology, include_hub=a.include_hub)
     a.output.mkdir(parents=True, exist_ok=True)
     metric_file, action_file, system_file = (a.output / x for x in
                                               ('metrics.csv', 'actions.csv', 'system.json'))
