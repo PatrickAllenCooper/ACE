@@ -1,0 +1,16 @@
+{
+  "protocol_id": "neuronbench_forecaster_diagnostic_dev_v1",
+  "status": "retrospective_development_only",
+  "inputs": ["research_neuronbench_public_controls_dev_v1_retry1/z_rebound", "research_neuronbench_public_controls_dev_v2/{h_sag,na_fatigue,ca_rebound,d_type,textbook_M}"],
+  "acquisition_arms": ["random", "coverage"],
+  "common_observations_per_arm": 4,
+  "new_oracle_actions": 0,
+  "forecasters": {
+    "mean": "Constant mean of the four acquired public spike counts, clipped at zero",
+    "nearest": "One nearest acquired public waveform by squared Euclidean distance on eight generic waveform features, scaled by pooled train-and-forecast public feature standard deviation with components below 0.05 set to 1; deterministic first-index tie break"
+  },
+  "reference_forecaster": "Archived fixed ridge penalty 1.0 predictions from the original controls",
+  "metric": "Official max(mean squared six-label spike forecast error minus 0.25, zero)",
+  "interpretation": "Same-data forecaster sensitivity on six already-scored designed development worlds. No new independent systems, no causal inference, no tuning or method promotion from this result.",
+  "forbidden": "No Azure or other closed-source model API, no upstream World object in predictor, no private target read before predictions are written"
+}
