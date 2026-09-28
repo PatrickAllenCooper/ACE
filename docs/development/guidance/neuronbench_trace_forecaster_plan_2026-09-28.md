@@ -18,7 +18,7 @@ Fit a common parameterization and regularization rule using only the four public
 
 ## Gates before outcome scoring
 
-1. Independently reconstruct each observed input waveform and match the archived trace length, recorded-index stride, public test-start offset, and spike count. Do not infer a physical time step from the index stride without checking the public upstream protocol specification.
+1. Independently reconstruct each observed input waveform and match the archived trace length, recorded-index stride, public test-start offset, and spike count. **Completed:** the pinned public protocol builder specifies 0.01 ms integration, tenfold voltage subsampling, 20 ms baseline, and 80 ms tail. The independent reconstruction matches all 48 archived actions. Its no-positive-run rule gives `test_start=0` for the four `ca_rebound` release-only forecasts; preserve that rule in the forecaster.
 2. On the observed protocols, compare leave-one-protocol-out spike-count error with the archived ridge and nearest controls using only public labels. Inspect subthreshold voltage fit separately; a count fit alone does not show a useful state model.
 3. Apply the **same frozen fitter and compute cap** to the random and coverage arms. Produce all six forecast-label predictions per cell from public files only; hash and commit predictions and model settings before loading any private target.
 4. Score separately with the existing private scorer. Report each designed world and predictor; do not pool six selected worlds into an inferential claim. A fresh benchmark/domain is required before promotion.

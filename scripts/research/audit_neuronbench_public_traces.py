@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+from neuronbench_public_timing import current_and_test_start
 
 
 def sha(path: Path) -> str:
@@ -28,6 +29,8 @@ def main() -> None:
             public = root / arm / 'public'
             observations = public / 'observations.json'
             rows = json.loads(observations.read_text())
+            problem = public / 'problem.json'
+            lookup = dict(json.loads(problem.read_text())['protocols'])
             if len(rows) != 4:
                 raise ValueError(f'expected four public observations: {public}')
             traces = []
@@ -42,6 +45,11 @@ def main() -> None:
                         np.diff(indices), np.full(len(indices) - 1, 10)):
                     raise ValueError(f'nonfinite or nonuniform trace: {path}')
                 start = int(row['test_start'])
+                if row['protocol_label'] not in lookup:
+                    raise ValueError(f'unknown public protocol: {path}')
+                current, expected_start = current_and_test_start(lookup[row['protocol_label']])
+                if len(current) != len(voltage) or expected_start != start:
+                    raise ValueError(f'public stimulus reconstruction mismatch: {path}')
                 if not 0 <= start < len(voltage) - 1:
                     raise ValueError(f'invalid test start: {path}')
                 crossing_count = int(np.sum((voltage[start:-1] < 0) &
@@ -51,8 +59,10 @@ def main() -> None:
                 traces.append({'protocol_label': row['protocol_label'],
                                'trace_file': path.name, 'trace_sha256': sha(path),
                                'trace_points': len(voltage), 'index_stride': 10,
-                               'test_start': start, 'zero_crossings_after_start': crossing_count})
+                               'test_start': start, 'zero_crossings_after_start': crossing_count,
+                               'stimulus_points': len(current)})
             cells.append({'world': root.name, 'arm': arm,
+                          'problem_sha256': sha(problem),
                           'observations_sha256': sha(observations), 'traces': traces})
     # Same acquired actions and counts can still carry distinct subthreshold
     # dynamics. This checks information availability, not forecast accuracy.
