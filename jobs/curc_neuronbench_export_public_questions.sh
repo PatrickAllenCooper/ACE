@@ -7,5 +7,5 @@ test "$(git rev-parse HEAD)" = "${ACE_SOURCE_REVISION:?}"
 python -u scripts/research/neuronbench_export_public_questions.py \
   --upstream "${UPSTREAM_ROOT:?}" \
   --source-hashes docs/development/guidance/protocol_neuronbench_custody_smoke_2026-09-27.json \
-  --protocol docs/development/guidance/protocol_neuronbench_public_controls_dev_2026-09-28.json \
+  --protocol "${NEURON_PROTOCOL:-docs/development/guidance/protocol_neuronbench_public_controls_dev_v2_2026-09-28.json}" \
   --output "${EXPORT_OUTPUT:?}" --source-revision "$ACE_SOURCE_REVISION"

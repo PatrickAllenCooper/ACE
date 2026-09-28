@@ -35,16 +35,20 @@ def matrix(protocols) -> np.ndarray:
     return np.stack([features(segments) for _, segments in protocols])
 
 
-def choose(public_problem: dict, method: str, budget: int, seed: int) -> list[int]:
+def choose(public_problem: dict, method: str, budget: int, seed: int,
+           exclude_forecast_actions: bool = False) -> list[int]:
     pool = public_problem['protocols']
     test = public_problem['forecast_protocols']
-    if not 0 < budget <= len(pool):
+    test_labels = {label for label, _ in test}
+    eligible = [i for i, (label, _) in enumerate(pool)
+                if not exclude_forecast_actions or label not in test_labels]
+    if not 0 < budget <= len(eligible):
         raise ValueError('invalid budget')
     if method == 'random':
-        return np.random.default_rng(seed).choice(len(pool), budget, replace=False).tolist()
+        return np.random.default_rng(seed).choice(eligible, budget, replace=False).tolist()
     if method != 'coverage':
         raise ValueError('unknown method')
-    candidates = matrix(pool)
+    candidates = matrix([pool[i] for i in eligible])
     target = matrix(test)
     scale = np.std(np.vstack([candidates, target]), axis=0)
     scale[scale < .05] = 1
@@ -52,23 +56,25 @@ def choose(public_problem: dict, method: str, budget: int, seed: int) -> list[in
                        axis=2)
     chosen = []
     for _ in range(budget):
-        best = min((j for j in range(len(pool)) if j not in chosen),
+        best = min((j for j in range(len(eligible)) if j not in chosen),
                    key=lambda j: (float(np.minimum(
                        distances[:, chosen].min(axis=1) if chosen else np.inf,
                        distances[:, j]).mean()), j))
         chosen.append(best)
-    return chosen
+    return [eligible[j] for j in chosen]
 
 
-def plan(problem_path: Path, method: str, budget: int, seed: int, output: Path):
+def plan(problem_path: Path, method: str, budget: int, seed: int, output: Path,
+         exclude_forecast_actions: bool = False):
     problem = json.loads(problem_path.read_text())
-    indices = choose(problem, method, budget, seed)
+    indices = choose(problem, method, budget, seed, exclude_forecast_actions)
     actions = [problem['protocols'][i] for i in indices]
     if len({label for label, _ in actions}) != budget:
         raise ValueError('duplicate action')
     report = {'method': method, 'selection_seed': seed, 'budget': budget,
               'problem_sha256': digest(problem_path), 'indices': indices,
-              'actions': actions, 'closed_model_calls': 0}
+              'actions': actions, 'closed_model_calls': 0,
+              'exclude_forecast_actions': exclude_forecast_actions}
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2) + '\n')
     print(method, [label for label, _ in actions])
@@ -121,13 +127,15 @@ def main():
     choose_p.add_argument('--budget', type=int, required=True)
     choose_p.add_argument('--seed', type=int, required=True)
     choose_p.add_argument('--output', type=Path, required=True)
+    choose_p.add_argument('--exclude-forecast-actions', action='store_true')
     forecast_p = sub.add_parser('forecast')
     forecast_p.add_argument('--public', type=Path, required=True)
     forecast_p.add_argument('--ridge', type=float, required=True)
     forecast_p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     if a.command == 'plan':
-        plan(a.problem, a.method, a.budget, a.seed, a.output)
+        plan(a.problem, a.method, a.budget, a.seed, a.output,
+             a.exclude_forecast_actions)
     else:
         forecast(a.public, a.output, a.ridge)
 

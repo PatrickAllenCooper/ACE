@@ -30,6 +30,9 @@ def main() -> None:
         if sha(public / name) != digest:
             raise ValueError(f'public file changed: {name}')
     problem = json.loads((public / 'problem.json').read_text())
+    observations = json.loads((public / 'observations.json').read_text())
+    if set(row['protocol_label'] for row in observations) & set(problem['test_protocol_labels']):
+        raise ValueError('acquired action overlaps forecast target')
     prediction_path = a.output / 'predictions.json'
     predictions = json.loads(prediction_path.read_text())
     labels = problem['test_protocol_labels']

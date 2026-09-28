@@ -43,14 +43,15 @@ def main() -> None:
             raise ValueError('forecast label mismatch')
         if len(problem['protocols']) != 9 or len(forecast) != 6:
             raise ValueError('unexpected action or forecast pool')
-        if set(lab for lab, _ in problem['protocols']) & set(problem['test_protocol_labels']):
-            raise ValueError('acquisition and forecast pools overlap')
+        overlap = sorted(set(lab for lab, _ in problem['protocols']) &
+                         set(problem['test_protocol_labels']))
         problem['forecast_protocols'] = forecast
         path = a.output / name / 'problem.json'
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(problem, indent=2) + '\n')
         manifest['worlds'][name] = {'problem_sha256': sha(path),
-                                    'acquisition_actions': 9, 'forecast_labels': 6}
+                                    'acquisition_actions': 9, 'forecast_labels': 6,
+                                    'overlap_labels': overlap}
     (a.output / 'export_complete.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print('public question sets', len(manifest['worlds']), 'oracle actions', 0)
 

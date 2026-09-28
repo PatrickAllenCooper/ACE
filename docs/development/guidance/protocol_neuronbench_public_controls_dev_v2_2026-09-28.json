@@ -1,0 +1,19 @@
+{
+  "protocol_id": "neuronbench_public_controls_dev_v2",
+  "status": "frozen_before_five_world_control_oracle_runs",
+  "upstream_revision": "c354622458c460b419cab821d482c879f0578377",
+  "worlds": ["h_sag", "na_fatigue", "ca_rebound", "d_type", "textbook_M"],
+  "mode": "deterministic",
+  "world_seed": 42,
+  "policies": ["random", "coverage"],
+  "policy_seed": 20260928,
+  "budget_per_world_policy": 4,
+  "eligibility_rule": "Exclude from the nine-action shared pool any protocol whose label appears among the six heldout forecast labels; this corrects overlap discovered after the z_rebound canary, where there was no overlap.",
+  "coverage_rule": "Greedy minimize mean nearest standardized generic waveform-feature distance from public forecast protocols over eligible actions; deterministic index tie-break",
+  "random_rule": "Uniform sample of four distinct eligible protocols without replacement using fixed generator seed",
+  "forecast_rule": "Common public-only ridge regression on eight generic waveform features and acquired spike counts; fixed penalty 1.0, unpenalized intercept, nonnegative predictions",
+  "primary_metric": "Official floored spike forecast MSE across all six forecast labels, computed after frozen predictions; report per designed world without inferential pooling",
+  "gate": "Freeze public questions and both action plans in Git before submitting outcome jobs; require exact four-action cost, no action/forecast overlap, complete six-label predictions, source/receipt hashes, and scorer parity",
+  "interpretation": "Weak public-only action and forecasting control; not a mechanistic hypothesis library or foundation-model result. z_rebound v1 remains a separately labeled development canary.",
+  "forbidden": "No world-specific discriminator mapping, upstream truth tables, test target values, Azure, or any closed-source model API in policy or forecaster"
+}
