@@ -1,0 +1,22 @@
+{
+  "protocol_id": "transfer_finite_source_target_dev_v1",
+  "status": "frozen_before_target_policy_evaluation",
+  "source_preflight_revision": "f895116475a37dfb0e9137d8f905c3879ddda1db",
+  "source_preflight_suite_sha256": "88b5393b2c876d7aab28cbf1905a2e813658a1cde3688b2b1f39eb154865f004",
+  "development_seeds": [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111],
+  "source_samples_per_node": [16, 64],
+  "change_types": ["family", "coefficient"],
+  "changed_node_counts": [1, 3, 10],
+  "target_budgets": [120, 200, 400],
+  "allocation": "uniform node-index order: four samples per node, then distribute remainder by quotient and node-index remainder; every arm sees identical target prefixes",
+  "target_noise_sd": 0.15,
+  "policies": {
+    "frozen_source": "predict from source posterior mean with no target update",
+    "scratch": "Gaussian linear posterior with zero mean and isotropic precision 0.25",
+    "warm_source": "Gaussian linear posterior with source mean and source covariance as prior"
+  },
+  "scoring": "MSE on the existing independent 1024-point target test design, grouped into all, changed, and unchanged nodes; no labels or latent coefficients passed to policy fitting",
+  "custody": "source posterior hashes must match preflight receipts; exact target-prefix counts and identical actions across arms; per-cell hashes and source revision in complete receipts",
+  "interpretation_gate": "At 200 target examples, report each family/coefficient and changed-count stratum separately. A useful warm-source prior must beat scratch on untouched nodes without raising changed-node error by more than 5% in every stratum at both source sample sizes. This is a development diagnostic only; no method is promoted to fresh confirmation solely on this gate.",
+  "forbidden": "No latent source/target coefficient, changed-node label, target test response, private result, or closed-model output enters a policy. No adaptive allocation or switch is selected after looking at these scores."
+}
