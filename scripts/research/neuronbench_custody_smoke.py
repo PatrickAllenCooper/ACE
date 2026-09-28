@@ -41,6 +41,13 @@ def main() -> None:
     if set(problem) != {'text_prior', 'reference_model', 'protocols',
                         'test_protocol_labels', 'budget_rule'}:
         raise ValueError('public problem contract changed')
+    if spec.get('publish_forecast_protocols', False):
+        # The upstream problem() lists only labels; a model-based forecaster
+        # needs the corresponding waveform segments to simulate test actions.
+        forecast = world.test_protocols
+        if [lab for lab, _ in forecast] != problem['test_protocol_labels']:
+            raise ValueError('forecast protocol labels differ from public labels')
+        problem['forecast_protocols'] = forecast
     pool = problem['protocols']
     if len(pool) != 9 or len({lab for lab, _ in pool}) != 9:
         raise ValueError('unexpected public action pool')

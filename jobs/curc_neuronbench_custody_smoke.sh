@@ -5,11 +5,12 @@ conda activate "${NEURON_ENV:?}"
 cd "${ACE_CODE_ROOT:?}"
 test "$(git rev-parse HEAD)" = "${ACE_SOURCE_REVISION:?}"
 : "${UPSTREAM_ROOT:?}" "${CELL_OUTPUT:?}"
+protocol="${NEURON_PROTOCOL:-docs/development/guidance/protocol_neuronbench_custody_smoke_2026-09-27.json}"
 python -u scripts/research/neuronbench_custody_smoke.py \
   --upstream "$UPSTREAM_ROOT" \
-  --protocol docs/development/guidance/protocol_neuronbench_custody_smoke_2026-09-27.json \
+  --protocol "$protocol" \
   --output "$CELL_OUTPUT" --source-revision "$ACE_SOURCE_REVISION"
 python -u scripts/research/neuronbench_custody_targets.py \
   --upstream "$UPSTREAM_ROOT" \
-  --protocol docs/development/guidance/protocol_neuronbench_custody_smoke_2026-09-27.json \
+  --protocol "$protocol" \
   --output "$CELL_OUTPUT"

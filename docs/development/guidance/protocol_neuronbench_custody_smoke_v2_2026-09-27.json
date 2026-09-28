@@ -1,0 +1,23 @@
+{
+  "protocol_id": "neuronbench_deterministic_custody_v2_forecast_specs",
+  "status": "frozen_before_v2_execution",
+  "upstream_url": "https://github.com/murphyk/neuronbench",
+  "upstream_revision": "c354622458c460b419cab821d482c879f0578377",
+  "upstream_source_sha256": {
+    "__init__.py": "0d11e0c6512b160641e80e4287cf017f7e4c49d334a3e9df75316411cdbec855",
+    "worlds.py": "d462834c969cb5e20b103a14971e3ecc9db49cc90696af478e90d4d2f5b95d64",
+    "protocols.py": "38a38610a7269236486abea159da706148cd62b52b52b175136a2a8aa29e9b04",
+    "evaluator.py": "7e559789b33c1e6412e443affb3b5de65fdedc124facd302a3372d4de7849ad7",
+    "features.py": "7d4f161e3dd4cec1e0dd56a44c11cc6f7687a892932d3fdb43f0fb6ced801aea",
+    "stochastic.py": "20f897c97521fe30e8157ec31a227428fc4af826d94b5bb0a595aa98d0879b96"
+  },
+  "world": "z_rebound",
+  "seed": 42,
+  "stochastic": false,
+  "budget": 2,
+  "action_rule": "first two shared public protocol-pool entries in fixed order; no world-specific discriminator lookup",
+  "output": "public problem plus exact held-out forecast waveform segments, two counted observation traces/costs; private held-out targets in separate process; source and artifact hashes in receipt",
+  "purpose": "Engineering correction: make model-based forecasting well-defined without giving a solver the World object or private targets; no solver performance comparison",
+  "forbidden": "No Azure or other closed-source model API; no proposer receives World object, upstream source, discriminator, or private targets",
+  "publish_forecast_protocols": true
+}

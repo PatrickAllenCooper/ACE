@@ -30,9 +30,13 @@ def main() -> None:
     import neuronbench as nb
     targets = nb.evaluator.held_out_targets(spec['world'], stochastic=False,
                                             seed=spec['seed'])
-    if set(targets) != set(json.loads((a.output / 'public/problem.json').read_text())[
-            'test_protocol_labels']):
+    public_problem = json.loads((a.output / 'public/problem.json').read_text())
+    if set(targets) != set(public_problem['test_protocol_labels']):
         raise ValueError('held-out label mismatch')
+    if spec.get('publish_forecast_protocols', False):
+        if [lab for lab, _ in public_problem['forecast_protocols']] != public_problem[
+                'test_protocol_labels']:
+            raise ValueError('public forecast protocol mismatch')
     private = a.output / 'private'
     private.mkdir(parents=True, exist_ok=True)
     target_path = private / 'targets.json'
