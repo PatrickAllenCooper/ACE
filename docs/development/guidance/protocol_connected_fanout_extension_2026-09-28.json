@@ -1,0 +1,18 @@
+{
+  "status": "independent development continuation of protocol_connected_fanout_dev_2026-09-28.json; not confirmation",
+  "topology": "fanout",
+  "graph_rule": "Motif 0 has two roots; each later motif shares motif-0 child as one parent and has its own fresh root. Remaining nodes form a descendant chain after the final child.",
+  "seeds": [303, 304, 305],
+  "nodes": 30,
+  "motifs": [3, 10],
+  "root_sd": 0.15,
+  "actuator_penalty": 4,
+  "cost_budget": 400,
+  "batch": 8,
+  "arms": ["random_single", "coverage_single", "random_pair", "coverage_pair", "risk_pair", "balanced_risk_pair"],
+  "primary_metric": "final feasible_motif_mse",
+  "comparisons": ["risk_pair vs coverage_pair and random_pair", "balanced_risk_pair vs coverage_pair and random_pair", "pair policies vs coverage_single"],
+  "decision": "Report all system-level values, exact costs, actions, natural-child masks, and hashes. Stop the numeric selector line before larger grids if the within-menu advantage does not persist. No promotion from this six-cell continuation.",
+  "information_boundary": "Selectors see the known graph and observed data only. The sealed evaluator and true coefficients are never passed to choose().",
+  "source_revision": "Record exact committed implementation revision in each cell receipt."
+}
