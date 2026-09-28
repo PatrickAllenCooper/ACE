@@ -1,0 +1,15 @@
+{
+  "protocol_id": "transfer_adaptive_floor_development_v1",
+  "status": "frozen_before_floor_5_6_runs",
+  "source_method": "scripts/research/transfer_adaptive_prequential_dev.py",
+  "source_data": "12 archived development seeds, family and coefficient changes, k=1,3,10, old 2560-example source library",
+  "floor_values": [5, 6],
+  "assay_examples_per_node": 4,
+  "nodes": 30,
+  "target_budget_per_setting": 200,
+  "reference": "Archived uniform-allocation warm-start errors at 200 target examples, exactly matched by seed, change type, changed count, and node",
+  "primary_question": "Can a guaranteed floor retain adaptive warm-start changed-node benefits while keeping untouched-node error no more than 1.05 times uniform warm error?",
+  "development_gate": "For a floor to merit new systems: family-change changed-node adaptive-warm/uniform-warm ratio <=0.8 at k=1,3,10; family and coefficient unchanged-node ratio <=1.05 at every k; coefficient-change changed-node ratio <=1.05 at every k. The protected source switch remains a separate unpromoted diagnostic.",
+  "interpretation": "These reused development systems cannot support a confirmatory claim. Passing the gate only justifies a fresh-system protocol; failing both floors ends this specific floor adjustment.",
+  "forbidden": "No Azure or other closed-source model API, no non-ACE job modification, no using changed-node labels in acquisition"
+}
