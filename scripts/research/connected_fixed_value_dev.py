@@ -41,7 +41,7 @@ def main() -> None:
         raise ValueError('ACE_SOURCE_REVISION must match HEAD')
     old_receipt = json.loads((a.archive / 'complete.json').read_text())
     for name in ('metrics.csv', 'actions.csv'):
-        assert digest(a.archive / name) == old_receipt[name + '_sha256']
+        assert digest(a.archive / name) == old_receipt[name.removesuffix('.csv') + '_sha256']
     old_metrics = list(csv.DictReader((a.archive / 'metrics.csv').open()))
     old_actions = list(csv.DictReader((a.archive / 'actions.csv').open()))
     metrics, actions = [], []
