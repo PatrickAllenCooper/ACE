@@ -1,0 +1,206 @@
+{
+  "cases": [
+    {
+      "proposal": {
+        "targets": [
+          "x",
+          "z"
+        ],
+        "values": [
+          1,
+          -1
+        ]
+      },
+      "reason": "valid",
+      "valid": true
+    },
+    {
+      "proposal": {
+        "targets": [
+          "proxy_p"
+        ],
+        "values": [
+          1
+        ]
+      },
+      "reason": "valid",
+      "valid": true
+    },
+    {
+      "proposal": {
+        "targets": [
+          "x",
+          "z",
+          "proxy_p"
+        ],
+        "values": [
+          1,
+          1,
+          1
+        ]
+      },
+      "reason": "joint_limit",
+      "valid": false
+    },
+    {
+      "proposal": {
+        "targets": [
+          "danger"
+        ],
+        "values": [
+          1
+        ]
+      },
+      "reason": "excluded_actuator",
+      "valid": false
+    },
+    {
+      "proposal": {
+        "targets": [
+          "x",
+          "proxy_p"
+        ],
+        "values": [
+          1,
+          1
+        ]
+      },
+      "reason": "cost_cap",
+      "valid": false
+    },
+    {
+      "proposal": {
+        "targets": [
+          "x"
+        ],
+        "values": [
+          0
+        ]
+      },
+      "reason": "invalid_value",
+      "valid": false
+    },
+    {
+      "proposal": {
+        "targets": [
+          "x",
+          "x"
+        ],
+        "values": [
+          1,
+          -1
+        ]
+      },
+      "reason": "empty_or_duplicate_targets",
+      "valid": false
+    },
+    {
+      "proposal": {
+        "targets": [
+          "unknown"
+        ],
+        "values": [
+          1
+        ]
+      },
+      "reason": "unknown_actuator",
+      "valid": false
+    },
+    {
+      "proposal": {
+        "targets": [
+          "x"
+        ],
+        "values": [
+          true
+        ]
+      },
+      "reason": "invalid_value",
+      "valid": false
+    },
+    {
+      "proposal": {
+        "targets": [
+          [
+            "x"
+          ]
+        ],
+        "values": [
+          1
+        ]
+      },
+      "reason": "malformed_action",
+      "valid": false
+    },
+    {
+      "proposal": {
+        "hidden": 1,
+        "targets": [
+          "x"
+        ],
+        "values": [
+          1
+        ]
+      },
+      "reason": "unknown_or_missing_field",
+      "valid": false
+    }
+  ],
+  "cases_passed": 11,
+  "closed_model_calls": 0,
+  "executed_invalid_actions": 0,
+  "schema": {
+    "actuators": {
+      "danger": {
+        "affects": [
+          "x"
+        ],
+        "cost": 1
+      },
+      "proxy_p": {
+        "affects": [
+          "x",
+          "z"
+        ],
+        "cost": 3
+      },
+      "x": {
+        "affects": [
+          "x"
+        ],
+        "cost": 2
+      },
+      "z": {
+        "affects": [
+          "z"
+        ],
+        "cost": 2
+      }
+    },
+    "allowed_values": {
+      "danger": [
+        -1,
+        1
+      ],
+      "proxy_p": [
+        -1,
+        1
+      ],
+      "x": [
+        -1,
+        1
+      ],
+      "z": [
+        -1,
+        1
+      ]
+    },
+    "cost_cap": 4,
+    "excluded_actuators": [
+      "danger"
+    ],
+    "max_joint_targets": 2
+  },
+  "simulator_queries": 0,
+  "source_revision": "377b72c5692fb4d1d7bed87955dc60b7e636b514"
+}
