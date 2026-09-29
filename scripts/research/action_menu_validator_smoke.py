@@ -16,7 +16,9 @@ def validate(schema: dict, proposal: dict) -> tuple[bool, str]:
     targets, values = proposal["targets"], proposal["values"]
     if not isinstance(targets, list) or not isinstance(values, list) or len(targets) != len(values):
         return False, "malformed_action"
-    if not targets or len(targets) != len(set(targets)):
+    if not targets or any(not isinstance(target, str) for target in targets):
+        return False, "malformed_action"
+    if len(targets) != len(set(targets)):
         return False, "empty_or_duplicate_targets"
     if any(not isinstance(target, str) or target not in schema["actuators"] for target in targets):
         return False, "unknown_actuator"
@@ -63,6 +65,7 @@ def main() -> None:
         ({"targets": ["x", "x"], "values": [1, -1]}, False, "empty_or_duplicate_targets"),
         ({"targets": ["unknown"], "values": [1]}, False, "unknown_actuator"),
         ({"targets": ["x"], "values": [True]}, False, "invalid_value"),
+        ({"targets": [["x"]], "values": [1]}, False, "malformed_action"),
         ({"targets": ["x"], "values": [1], "hidden": 1}, False, "unknown_or_missing_field"),
     ]
     rows = []
