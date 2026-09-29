@@ -67,7 +67,8 @@ def action_menu(system: System, pair: bool):
 
 def sample(system: System, rng: np.random.Generator, n: int, action=None,
            coefficients: np.ndarray | None = None,
-           padding_rng: np.random.Generator | None = None):
+           padding_rng: np.random.Generator | None = None,
+           heldout_terms: dict[int, float] | None = None):
     """Return observed nodes, motif features, and natural-child observation mask."""
     if n < 1:
         raise ValueError('n must be positive')
@@ -78,6 +79,11 @@ def sample(system: System, rng: np.random.Generator, n: int, action=None,
         coefficients = system.coefficients
     if coefficients.shape != (system.motifs, 3):
         raise ValueError('Invalid mechanism coefficients')
+    if heldout_terms is None:
+        heldout_terms = {}
+    if any(j < 0 or j >= system.motifs or not np.isfinite(amplitude)
+           for j, amplitude in heldout_terms.items()):
+        raise ValueError('Invalid held-out mechanism term')
     natural = np.ones((n, system.motifs), dtype=bool)
     interventions = {}
     if action is not None:
@@ -100,6 +106,8 @@ def sample(system: System, rng: np.random.Generator, n: int, action=None,
             x1, x2 = values[:, p1], values[:, p2]
             a, b, c = coefficients[j]
             values[:, node] = a*x1 + b*x2 + c*x1*x2 + rng.normal(0, system.child_sd, n)
+            if j in heldout_terms:
+                values[:, node] += heldout_terms[j] * np.tanh(1.7*x1 + .8*x2)
         else:
             values[:, node] = .5*values[:, node-1] + padding_rng.normal(0, system.child_sd, n)
     features = np.stack([np.column_stack((values[:, a], values[:, b],
