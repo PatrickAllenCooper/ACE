@@ -1,0 +1,7 @@
+# Connected shift invariance audit
+
+Source revision `a2939ca8c78a0bd18fdb6a6dce326e327fd37540`. Twelve previously unused 30-node, ten-motif fanout systems (seeds 1500–1511) were generated with `connected_motif`. Target systems change only motif 0's first coefficient by +1.0. Source and target draws use common exogenous noise. Motif 1's first parent is motif 0's child; motif 1's other parent is an unaffected root.
+
+At 1,024 matched parent contexts per system, motif 1's noise-free conditional mean is byte-identical before and after the upstream change. Its observed parent input nevertheless shifts: paired parent shift MSE mean 0.022248 (range 0.021372–0.023957). The unchanged descendant's output shifts (paired MSE mean 0.004459), while its independent root stays identical. This is the intended distinction between marginal drift and a local mechanism change.
+
+The audit generated 6,144 source and 6,144 target simulator response rows for diagnostics, acquired **zero** training responses, and made zero closed-model calls. The receipt pins the source revision and hashes `metrics.csv`; a second run was byte identical. It ran locally in under a second, with no CURC job. This validates only the simulator distinction. It does not test change detection, allocation, transfer prediction, or the proposed held-out-form task; those require integrating this connected graph with the transfer harness.
