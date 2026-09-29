@@ -93,12 +93,24 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
         minimum = min(motif_visits)
         scores = [score if motif_visits[action[0]] == minimum else -np.inf
                   for action, score in zip(menu, scores)]
+    if method == 'risk_motif_fixed_value_pair':
+        if motif_visits is None or len(motif_visits) != public_system.motifs:
+            raise ValueError('Fixed-value motif selection requires visit counts')
+        motif_score = [max(score for action, score in zip(menu, scores)
+                           if action[0] == motif)
+                       for motif in range(public_system.motifs)]
+        motif = int(np.argmax(motif_score))
+        levels = ((-2., -2.), (-2., 2.), (2., -2.), (2., 2.))[
+            motif_visits[motif] % 4]
+        return next(action for action in menu
+                    if action[0] == motif and action[2] == levels)
     return menu[int(np.argmax(scores))]
 
 
 def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
                coverage_offset=0, coverage_order=None, include_balanced=False,
-               topology='chain', include_hub=False, include_factorial=False):
+               topology='chain', include_hub=False, include_factorial=False,
+               include_fixed_value=False):
     if penalty < 0 or budget < batch:
         raise ValueError('Invalid cost parameters')
     if not 0 <= coverage_offset < motifs:
@@ -117,7 +129,8 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
     rows, actions = [], []
     methods = METHODS + (('balanced_risk_pair',) if include_balanced else ()) + (
         ('hub_coverage_pair', 'hub_random_pair') if include_hub else ()) + (
-        ('factorial_hub_pair',) if include_factorial else ())
+        ('factorial_hub_pair',) if include_factorial else ()) + (
+        ('risk_motif_fixed_value_pair',) if include_fixed_value else ())
     hub_random_order = tuple(int(j) for j in
                              np.random.default_rng(seed + 991337).permutation(
                                  np.arange(1, motifs))) if include_hub else ()
@@ -125,7 +138,7 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
         # Couple controls to the risk arm's initial stream; action paths can diverge.
         rng_index = METHODS.index('risk_pair') if method in (
             'balanced_risk_pair', 'hub_coverage_pair', 'hub_random_pair',
-            'factorial_hub_pair') else mi
+            'factorial_hub_pair', 'risk_motif_fixed_value_pair') else mi
         rng = np.random.default_rng(seed * 113 + rng_index + 31)
         padding_rng = np.random.default_rng(seed * 113 + rng_index + 80031)
         mean = np.zeros((motifs, 3))

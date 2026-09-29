@@ -1,0 +1,20 @@
+{
+  "protocol_id": "connected_fixed_value_dev_v1",
+  "status": "frozen_before_development_outcomes",
+  "question": "Does optimizing actuator values add to posterior-risk motif selection?",
+  "systems": "reused binary-tree development systems",
+  "seeds": [400, 401, 402],
+  "nodes": 30,
+  "motifs": 10,
+  "root_sd": 0.15,
+  "actuator_penalty": 4,
+  "cost_budget": 400,
+  "batch": 8,
+  "new_arm": "risk_motif_fixed_value_pair",
+  "rule": "Score every permitted pair action using the existing posterior-risk calculation. Select the motif whose best candidate has the largest score. At that motif ignore the maximizing value and use a deterministic visit-count cycle (-2,-2), (-2,+2), (+2,-2), (+2,+2). The cycle is separate for each motif.",
+  "comparators": ["risk_pair", "factorial_hub_pair", "balanced_risk_pair"],
+  "endpoint": "final feasible_motif_mse, lower is better",
+  "development_decision": "Report all three paired systems, exact actions and costs. This reused-system screen cannot promote value optimization. Consider a fresh frozen test only after replay and parity validation.",
+  "limits": "The two policies can visit different motifs because their posteriors diverge after the first selected action. This control isolates the policy rule but not an identical action-path counterfactual.",
+  "forbidden": "No tuning of the cycle after outcomes; no closed-source model API"
+}
