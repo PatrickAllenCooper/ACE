@@ -1,0 +1,61 @@
+{
+  "protocol_id": "transfer_heldout_form_fresh_v1",
+  "status": "frozen_before_system_generation",
+  "system_seeds": [
+    1200,
+    1201,
+    1202,
+    1203,
+    1204,
+    1205,
+    1206,
+    1207,
+    1208,
+    1209,
+    1210,
+    1211,
+    1212,
+    1213,
+    1214,
+    1215,
+    1216,
+    1217,
+    1218,
+    1219
+  ],
+  "nodes": 30,
+  "source_training_examples_per_node": [
+    16,
+    64
+  ],
+  "source_stream_offset": 60261,
+  "source_noise_sd": 0.15,
+  "target_noise_sd": 0.15,
+  "target_budget_per_policy": 200,
+  "settings": [
+    "heldout_tanh",
+    "matched_family"
+  ],
+  "heldout_term": "0.85*tanh(1.7*x1 + 0.8*x2) added at the single changed node",
+  "fitted_features": [
+    "x1",
+    "x2",
+    "x1*x2",
+    "x1^2",
+    "sin(1.4*x1)",
+    "tanh(1.3*x2)"
+  ],
+  "assay": "four responses per node (120 total), rank by scratch-minus-source Gaussian log evidence",
+  "adaptive_allocation": "ten additional responses on each top-eight ranked node (80 total)",
+  "uniform_allocation": "80 additional responses in quotient/remainder node-index order",
+  "predictors": [
+    "soft_mixture",
+    "source_warm",
+    "scratch"
+  ],
+  "soft_mixture": "full-acquired-data Gaussian source-warm/scratch mean mixture with fixed scratch prior mass 0.1",
+  "primary_score": "independent 1024-context noise-free conditional-mean MSE, including the held-out term",
+  "gate": "For each source size on heldout_tanh: adaptive soft_mixture changed-node mean MSE <=0.8x uniform soft_mixture and <=1.05x adaptive scratch; adaptive soft_mixture unchanged-node mean MSE <=1.05x uniform soft_mixture and <=1.05x adaptive source_warm. Both source-size strata must pass. Matched-family is descriptive positive control.",
+  "custody": "40 source cells, 80 target setting cells, 48000 counted source responses, 32000 target arm-response counts. Hash source data/posteriors, acquired target rows, system/evaluation specification and metrics. Report unique union prefixes and deterministic replay.",
+  "forbidden": "No changed label, latent coefficient, test design or private outcome enters allocation or fitting. No Azure or other closed-source model calls. Do not retune function, top-eight size, source prior, seed set or gate after outcomes."
+}
