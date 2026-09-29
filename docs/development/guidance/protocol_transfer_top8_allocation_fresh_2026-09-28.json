@@ -1,0 +1,22 @@
+{
+  "protocol_id": "transfer_top8_allocation_fresh_v1",
+  "status": "frozen_before_systems_800_to_819_generated",
+  "system_seeds": [800, 801, 802, 803, 804, 805, 806, 807, 808, 809, 810, 811, 812, 813, 814, 815, 816, 817, 818, 819],
+  "nodes": 30,
+  "source_training_examples_per_node": [16, 64],
+  "source_stream_offset": 60261,
+  "source_noise_sd": 0.15,
+  "source_prior": "Gaussian six-feature posterior after independent source observations, zero mean and isotropic precision 0.25",
+  "change_types": ["family", "coefficient"],
+  "changed_node_count": 1,
+  "target_budget_per_policy": 200,
+  "assay": "four target responses on each of 30 nodes, costing 120 per policy",
+  "allocation": "rank all nodes by scratch-minus-source Gaussian log marginal evidence from the four-response assay; ties break by node index; spend ten more responses on each of the top eight nodes, costing 80; maximum 14 responses at any node",
+  "uniform_control_allocation": "same four-response assay, then 80 responses in quotient/remainder node-index order, for six or seven responses per node",
+  "predictors": ["soft_mixture", "source_warm", "scratch"],
+  "soft_mixture": "full-acquired-data Bayesian model average of source-warm and scratch posterior means with fixed prior scratch/change probability 0.1",
+  "score": "independent existing 1024-point target test-design MSE by changed and unchanged node; labels and latent coefficients evaluator-only",
+  "primary_gate": "For each source-size and change-type stratum, adaptive soft-mixture changed-node mean MSE <=0.8 times uniform soft-mixture and <=1.05 times adaptive scratch. Adaptive soft-mixture unchanged-node mean MSE <=1.05 times uniform soft-mixture and <=1.05 times adaptive source-warm. Report exact allocations, nomination recall, per-seed means and paired uncertainty. Passing is a local matched-family capability result only and does not authorize a neural architecture or foundation-model claim.",
+  "custody": "Count source acquisitions separately. Every policy has exactly 200 target responses; report both arm-level and unique generated observations when controls share prefixes. Store source and action receipts, source revision, hashes, exact counts, deterministic replay, and zero closed-model calls.",
+  "forbidden": "No changed labels, latent coefficients, target test responses, private outcomes, Azure, or other closed-source model outputs enter allocation or fitting. Do not adjust top-eight size, mixture prior, gate, or seeds after generation."
+}
