@@ -1,0 +1,23 @@
+{
+  "protocol_id": "connected_factorial_pair_confirmation_v1",
+  "status": "frozen_before_fresh_system_generation",
+  "question": "Does posterior-risk pair acquisition improve final mechanism prediction beyond a fixed varied-value pair design at equal acquisition cost?",
+  "fresh_seeds": [900, 901, 902, 903, 904, 905, 906, 907, 908, 909, 910, 911, 912, 913, 914, 915, 916, 917, 918, 919, 920, 921, 922, 923, 924, 925, 926, 927, 928, 929, 930, 931, 932, 933, 934, 935, 936, 937, 938, 939],
+  "excluded_development_seeds": [400, 401, 402, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519],
+  "nodes": 30,
+  "motifs": 10,
+  "topology": "binary_tree",
+  "root_sd": 0.15,
+  "actuator_penalty": 4,
+  "cost_budget": 400,
+  "batch": 8,
+  "arms": ["random_single", "coverage_single", "random_pair", "coverage_pair", "risk_pair", "balanced_risk_pair", "hub_coverage_pair", "hub_random_pair", "factorial_hub_pair"],
+  "primary_endpoint": "final feasible_motif_mse, lower is better",
+  "primary_contrast": "risk_pair minus factorial_hub_pair, paired by system",
+  "primary_gate": "ratio of mean risk_pair error to mean factorial_hub_pair error below 0.80 and upper endpoint of a two-sided 95% paired t interval for risk_pair minus factorial_hub_pair below zero",
+  "secondary_context": "Report risk_pair against coverage_pair, balanced_risk_pair, and the strongest fixed pair arm. No secondary test can override a failed primary gate. Report single arms and exact costs without claiming joint-action superiority.",
+  "interpretation": "A primary pass supports an adaptive pair-selection advantage only in this exact synthetic binary-tree family and action menu. It does not establish a foundation-model effect. A failure leaves B unpromoted.",
+  "resource": "40 small local numerical systems; no GPU or closed-source model calls. Archive all cells and hashes even on gate failure.",
+  "limits": "The factorial control concentrates four actions at motif 0 while risk can choose motifs. It matches varied pair values and total cost, but does not separately isolate motif allocation from value selection. Same simulator family as development.",
+  "forbidden": "Do not alter simulator, learner, action rules, seeds, budget, endpoint, or threshold after inspecting these results"
+}
