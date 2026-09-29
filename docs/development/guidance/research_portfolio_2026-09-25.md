@@ -126,6 +126,8 @@ Pilot settings: N=5 and 15, 200 initial observations, then 10 batches of 20 acqu
 
 Consider a mechanism with an interaction `y = a*x1 + b*x2 + c*x1*x2`. In a deterministic example where unmanipulated parents remain zero, all single-parent probes fail to distinguish different c values; joint perturbations expose c. With Gaussian parents there is generally nonzero support, so the claim becomes poor finite-budget coverage/information, not absolute nonidentifiability. Sweep background variance to connect the exact toy obstruction with realistic weak excitation.
 
+The [nuisance-adjusted interaction audit](../../../results/local_joint_interaction_information_20260929/README.md) sharpens this claim: fixing one parent at one value makes the interaction column collinear with the other parent's main effect, even if that parent varies naturally. Varying the fixed parent's intervention value across actions restores information when natural variation is nonzero. A single repeated joint pair is also rank deficient; a varied factorial joint design is the informative comparison. B1/B2 must specify values, nuisance knowledge, and matched costs before crediting the actuator set.
+
 ### Architecture and principle
 
 Use the known graph to construct candidate *sets* of actuators, initially size one or two. A small factor-graph controller scores how each set changes input coverage or predictive uncertainty at nearby mechanisms. Start with exact Gaussian/linearized experimental design; then test ensemble approximations. A representative cost-aware objective is
