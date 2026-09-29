@@ -86,7 +86,7 @@ def main() -> None:
         raise ValueError('ACE_SOURCE_REVISION must equal HEAD')
     assert len(config['fresh_seeds']) == len(set(config['fresh_seeds']))
     assert len(config['fresh_seeds']) >= 20
-    assert not set(config['fresh_seeds']) & set(config['excluded_development_seeds'])
+    assert not set(config['fresh_seeds']) & set(config.get('excluded_development_seeds', []))
     args.output.mkdir(parents=True)
     summary = []
     for seed in config['fresh_seeds']:
