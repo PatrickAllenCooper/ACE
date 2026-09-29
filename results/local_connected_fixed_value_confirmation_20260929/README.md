@@ -1,0 +1,11 @@
+# Fresh value-selection confirmation (29 September 2026)
+
+The [protocol](../../docs/development/guidance/protocol_connected_fixed_value_confirmation_2026-09-29.json) was frozen at `d5205857` before systems 1100–1179 were generated. A receipt-key compatibility repair at `087aa108` occurred before any system was generated or outcome inspected; that is the recorded execution revision. The setup matches the previous 30-node, ten-motif binary-tree study: root SD 0.15, actuator penalty 4, cost cap 400, batch size 8, and the same exact-posterior learner and sealed feasible evaluator.
+
+The new control uses the existing posterior-risk scores to select a motif, then cycles through four fixed actuator-value pairs on each revisit. `risk_pair` selects both motif and value pair from the same menu. Both use five actions, 40 synthetic responses, and 360 cost units per system. Their paths can diverge after the first action as they update from different data.
+
+The prespecified primary gate **passes**. Risk pair mean final feasible-motif MSE was **0.025486** versus **0.032938** for fixed-value motif selection. The ratio of means was **0.7738**, below the 0.80 threshold. The mean paired difference (risk minus fixed) was **−0.007452**, with a two-sided 95% paired-t interval **[−0.011535, −0.003369]**. Risk won 58 of 80 systems. For context, balanced risk averaged 0.033349, factorial hub 0.037715, and coverage pair 0.046913. These secondary arms do not alter the primary gate.
+
+This supports value optimization within the given risk-scored pair-policy framework and synthetic binary-tree family. Because the acquired data and later motif choices can diverge, it is a policy-level comparison, not an identical-motif-path causal decomposition. The study says nothing about a foundation-model contribution or broader physical-domain transfer. The earlier joint-versus-single gate remains failed.
+
+The 80 system receipts cover 800 arm rows and 38,400 synthetic arm-response counts. Every action, cost, metric file, and system specification was checked against the protocol and hashed. The fixed-value cycle was checked against per-motif visit counts. A full independent rerun produced byte-identical files, including receipts and analysis. The short study ran locally; no CURC job or closed-model API was used.
