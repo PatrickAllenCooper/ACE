@@ -54,8 +54,9 @@ def main():
         design=np.column_stack((grid[:,0],grid[:,1],grid[:,0]*grid[:,1]))
         term=.85*np.tanh(1.7*grid[:,0]+.8*grid[:,1])
         projection=np.linalg.lstsq(design,term,rcond=None)[0]
-        residual=float(np.mean((term-design@projection)**2))
-        if residual <= .002:
+        fitted=np.sum(design*projection[None,:],axis=1)
+        residual=float(np.mean((term-fitted)**2))
+        if not np.isfinite(residual) or residual <= .002:
             raise AssertionError('held-out form nearly contained in fitted bank')
         rows.append({'seed':seed,'heldout_motif':7,'amplitude':.85,
                      'generated_paired_trajectories_per_domain':512,
