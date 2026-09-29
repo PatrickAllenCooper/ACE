@@ -65,6 +65,14 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
             levels = ((2., 2.), (-2., -2.))[step - 3]
         return next(action for action in menu
                     if action[0] == motif and action[2] == levels)
+    if method == 'factorial_hub_pair':
+        if public_system.motifs < 2:
+            raise ValueError('Factorial hub control requires two motifs')
+        motif = 0 if step < 4 else 1
+        levels = ((-2., -2.), (-2., 2.), (2., -2.), (2., 2.),
+                  (-2., -2.))[step]
+        return next(action for action in menu
+                    if action[0] == motif and action[2] == levels)
     scores = []
     for action in menu:
         # Student-predictive contexts only: public_system contains zero truth.
@@ -90,7 +98,7 @@ def choose(method, public_system, rng, padding_rng, mean, cov, step, batch,
 
 def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
                coverage_offset=0, coverage_order=None, include_balanced=False,
-               topology='chain', include_hub=False):
+               topology='chain', include_hub=False, include_factorial=False):
     if penalty < 0 or budget < batch:
         raise ValueError('Invalid cost parameters')
     if not 0 <= coverage_offset < motifs:
@@ -101,19 +109,23 @@ def experiment(seed, nodes, motifs, root_sd, penalty, budget=400, batch=8,
         raise ValueError('Hub controls require at least three motifs')
     if include_hub and budget // (batch * (1 + 2 * penalty)) != 5:
         raise ValueError('Frozen hub controls require exactly five pair actions')
+    if include_factorial and (motifs < 2 or budget // (batch * (1 + 2 * penalty)) != 5):
+        raise ValueError('Factorial control requires two motifs and five pair actions')
     system = make_system(seed, nodes, motifs, root_sd, topology=topology)
     public = replace(system, coefficients=np.zeros_like(system.coefficients))
     evaluator = SealedEvaluator(system, seed)
     rows, actions = [], []
     methods = METHODS + (('balanced_risk_pair',) if include_balanced else ()) + (
-        ('hub_coverage_pair', 'hub_random_pair') if include_hub else ())
+        ('hub_coverage_pair', 'hub_random_pair') if include_hub else ()) + (
+        ('factorial_hub_pair',) if include_factorial else ())
     hub_random_order = tuple(int(j) for j in
                              np.random.default_rng(seed + 991337).permutation(
                                  np.arange(1, motifs))) if include_hub else ()
     for mi, method in enumerate(methods):
         # Couple controls to the risk arm's initial stream; action paths can diverge.
         rng_index = METHODS.index('risk_pair') if method in (
-            'balanced_risk_pair', 'hub_coverage_pair', 'hub_random_pair') else mi
+            'balanced_risk_pair', 'hub_coverage_pair', 'hub_random_pair',
+            'factorial_hub_pair') else mi
         rng = np.random.default_rng(seed * 113 + rng_index + 31)
         padding_rng = np.random.default_rng(seed * 113 + rng_index + 80031)
         mean = np.zeros((motifs, 3))

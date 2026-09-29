@@ -1,0 +1,20 @@
+{
+  "protocol_id": "connected_factorial_hub_dev_v1",
+  "status": "frozen_before_development_outcomes",
+  "question": "Does a fixed full-factorial pair design at the upstream motif explain the exploratory risk-pair advantage?",
+  "systems": "reused bounded-degree binary-tree development systems",
+  "seeds": [400, 401, 402],
+  "nodes": 30,
+  "motifs": 10,
+  "root_sd": 0.15,
+  "actuator_penalty": 4,
+  "cost_budget": 400,
+  "batch": 8,
+  "new_arm": "factorial_hub_pair",
+  "action_rule": "Four pair interventions on motif 0 at (-2,-2), (-2,+2), (+2,-2), (+2,+2), then one pair intervention on motif 1 at (-2,-2)",
+  "comparators": ["risk_pair", "hub_coverage_pair", "coverage_pair"],
+  "endpoint": "final feasible_motif_mse, lower is better",
+  "development_decision": "Report all three paired values and action/cost parity. This reused-system screen cannot promote a claim. If the fixed factorial control approaches or beats risk, design a fresh confirmation with a frozen contrast; otherwise investigate full learner information before submitting more systems.",
+  "limits": "The fixed design concentrates on motif 0 and is not motif-coverage matched. All systems use the same synthetic family and no language-model prior.",
+  "forbidden": "No closed-source model API; do not alter the action rule after seeing these outcomes"
+}
