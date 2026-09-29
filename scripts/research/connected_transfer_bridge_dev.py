@@ -47,6 +47,7 @@ def main() -> None:
         raise ValueError('ACE_SOURCE_REVISION must equal HEAD')
     a.output.mkdir(parents=True)
     rows = []
+    cells = []
     broad_mean, broad_cov = np.zeros(3), 4*np.eye(3)
     for seed in range(1600, 1612):
         source = make_system(seed, 30, 10, .15, topology='fanout')
@@ -63,6 +64,29 @@ def main() -> None:
         paired_target, _, _ = sample(target, np.random.default_rng(seed+303), 128)
         if not source_natural.all() or not target_natural.all():
             raise AssertionError('missing natural mechanism observations')
+        cell = a.output / f'seed_{seed}'
+        cell.mkdir()
+        (cell/'system.json').write_text(json.dumps({
+            'seed': seed, 'nodes': source.nodes, 'motifs': source.motifs,
+            'topology': 'fanout', 'edges': source.edges, 'parents': source.parents,
+            'children': source.children, 'root_sd': source.root_sd,
+            'child_sd': source.child_sd,
+            'source_coefficients': source.coefficients.tolist(),
+            'target_coefficients': target.coefficients.tolist(),
+            'changed_motifs': [0, 5, 7], 'source_revision': revision}, indent=2)+'\n')
+        np.savez_compressed(cell/'observations.npz',
+                            source_values=source_values, source_features=source_phi,
+                            target_values=target_values, target_features=target_phi,
+                            paired_source_values=paired_source,
+                            paired_target_values=paired_target)
+        cell_receipt = {'seed': seed, 'source_revision': revision,
+                        'system_sha256': sha(cell/'system.json'),
+                        'observations_sha256': sha(cell/'observations.npz'),
+                        'source_trajectories': 64, 'target_trajectories': 14,
+                        'paired_diagnostic_trajectories_per_domain': 128,
+                        'closed_model_calls': 0}
+        (cell/'complete.json').write_text(json.dumps(cell_receipt, indent=2)+'\n')
+        cells.append(cell_receipt)
         for n in (16, 64):
             scores = []
             source_fits = []
@@ -123,6 +147,8 @@ def main() -> None:
                'target_assay_motif_response_uses_per_source_size': 12*10*4,
                'unique_target_assay_motif_responses': 12*10*4,
                'closed_model_calls': 0,
+               'cell_receipt_hashes': {str(c['seed']): sha(a.output/f"seed_{c['seed']}"/'complete.json')
+                                       for c in cells},
                'metrics_sha256': sha(a.output/'metrics.csv'),
                'summary_sha256': sha(a.output/'summary.json')}
     (a.output/'complete.json').write_text(json.dumps(receipt, indent=2)+'\n')
