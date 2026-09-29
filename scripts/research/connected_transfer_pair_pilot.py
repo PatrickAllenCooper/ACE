@@ -60,6 +60,7 @@ def main():
     a.output.mkdir(parents=True)
     all_metrics = []
     receipts = {}
+    input_hashes = {}
     broad_mean, broad_cov = np.zeros(3), np.eye(3)
     for seed in range(1800,1806):
         source = make_system(seed,30,10,.15,topology='fanout')
@@ -85,6 +86,9 @@ def main():
             'source_coefficients':source.coefficients.tolist(),
             'target_coefficients':target.coefficients.tolist(),
             'source_revision':revision},indent=2)+'\n')
+        input_hashes[str(seed)] = {
+            'system_sha256':sha(seed_dir/'system.json'),
+            'source_and_assay_sha256':sha(seed_dir/'source_and_assay.npz')}
         for source_n in (16,64):
             source_mean = np.empty((10,3)); source_cov = np.empty((10,3,3))
             for j, child in enumerate(source.children):
@@ -153,6 +157,7 @@ def main():
                 receipt = {'seed':seed,'source_n':source_n,'policy':method,
                            'source_revision':revision,'target_trajectories':44,
                            'target_cost':364,'actuator_uses':80,
+                           **input_hashes[str(seed)],
                            'natural_motif_labels':sum(r['natural_motif_labels'] for r in rows),
                            'masked_motif_labels':sum(r['masked_motif_labels'] for r in rows),
                            **{name+'_sha256':sha(cell/name)
@@ -179,6 +184,7 @@ def main():
         'target_arm_actuator_uses':24*80,'metric_rows':len(all_metrics),
         'source_generated_trajectories':6*64,
         'target_assay_generated_trajectories':6*4,
+        'seed_input_hashes':input_hashes,
         'cell_receipt_hashes':receipts,
         'metrics_sha256':sha(a.output/'metrics.csv'),
         'summary_sha256':sha(a.output/'summary.csv'),
