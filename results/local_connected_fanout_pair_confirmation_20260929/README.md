@@ -1,0 +1,9 @@
+# Fresh fanout pair-policy comparison
+
+The protocol was frozen in `docs/development/guidance/protocol_connected_fanout_pair_confirmation_2026-09-29.json` at source revision `5fac127ba40a768b84e3ac3cd326164e5a0fe7ef` before generation of independent synthetic systems 1400–1439. This reused the exact Gaussian posterior estimator and acquisition code from the binary-tree comparison, changing only the graph topology to a shared-parent fanout. N=30, ten motifs, root SD 0.15, five pair actions of eight responses, 360 total cost units per pair arm. No CURC job or closed-model call was needed; local CPU runtime was seconds.
+
+The primary comparison was risk_pair versus the fixed varied-value factorial_hub_pair on final feasible-motif MSE. Mean errors were 0.013271 and 0.015352, respectively. The ratio of means was 0.8645; the mean paired difference was -0.002081 with two-sided 95% paired t interval [-0.004491, 0.000329]. Risk won 25/40 systems. **The frozen gate failed** both its ratio-below-0.80 requirement and its interval-below-zero requirement.
+
+Secondary descriptive means: hub_coverage_pair 0.016775, hub_random_pair 0.016026, risk_motif_fixed_value_pair 0.017048, coverage_pair 0.115952. These comparisons do not change the primary outcome. The static hub schedules account for much of the fanout gain. The binary-tree result remains a within-family result; the current selector is not promoted as topology-robust.
+
+All 40 cell receipts and the suite receipt validate source and protocol SHA-256 hashes, ten methods per system, finite metrics, action counts, and exact response/actuator costs. The 400 arm rows contain 19,200 response counts across arms; these are not 19,200 independent systems or globally unique observations. A second run to `/tmp/ace_fanout_replay_20260929` was byte identical (`diff -qr` empty). There are no external SCMs or foundation-model effects in this experiment.
