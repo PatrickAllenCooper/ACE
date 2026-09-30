@@ -10,7 +10,9 @@ import subprocess
 from pathlib import Path
 
 
-def validate(schema: dict, proposal: dict) -> tuple[bool, str]:
+def validate(schema: dict, proposal: object) -> tuple[bool, str]:
+    if not isinstance(proposal, dict):
+        return False, "malformed_action"
     if set(proposal) != {"targets", "values"}:
         return False, "unknown_or_missing_field"
     targets, values = proposal["targets"], proposal["values"]
@@ -66,6 +68,8 @@ def main() -> None:
         ({"targets": ["unknown"], "values": [1]}, False, "unknown_actuator"),
         ({"targets": ["x"], "values": [True]}, False, "invalid_value"),
         ({"targets": [["x"]], "values": [1]}, False, "malformed_action"),
+        (None, False, "malformed_action"),
+        (["x"], False, "malformed_action"),
         ({"targets": ["x"], "values": [1], "hidden": 1}, False, "unknown_or_missing_field"),
     ]
     rows = []
