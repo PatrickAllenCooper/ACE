@@ -37,12 +37,13 @@ def fit(z: np.ndarray, y: np.ndarray, prior_mean: np.ndarray,
     ridge[:3,:3] = np.linalg.inv(prior_cov)
     ridge[3:,3:] = precision*np.eye(9)
     prior = np.r_[prior_mean,np.zeros(9)]
-    return np.linalg.solve(ridge+design.T@design/.15**2,
-                           ridge@prior+design.T@y/.15**2)
+    gram = np.einsum('ni,nj->ij',design,design)
+    rhs = np.einsum('ij,j->i',ridge,prior) + np.einsum('ni,n->i',design,y)/.15**2
+    return np.linalg.solve(ridge+gram/.15**2,rhs)
 
 
 def predict(z: np.ndarray, coef: np.ndarray, width: float) -> np.ndarray:
-    return np.column_stack((z,basis(z,width)))@coef
+    return np.sum(np.column_stack((z,basis(z,width)))*coef,axis=1)
 
 
 def main() -> None:
