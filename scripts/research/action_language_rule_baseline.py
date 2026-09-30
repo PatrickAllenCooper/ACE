@@ -17,7 +17,7 @@ def parse_schema(description: str) -> dict:
     lower=description.lower()
     if 'only proxy_p' in lower or 'sole usable actuator' in lower:
         excluded=['x','z','danger']
-    elif 'danger' in lower and any(word in lower for word in ('prohibited','excluded','do not touch')):
+    elif 'danger' in lower and any(word in lower for word in ('prohibited','excluded','do not touch','never use')):
         excluded=['danger']
     else:
         excluded=[]
