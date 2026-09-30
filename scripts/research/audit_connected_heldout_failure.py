@@ -55,8 +55,11 @@ def main() -> None:
                                   padding_rng=padding_rng,heldout_terms={7:.85})
             features.append(phi[mask[:,7],7])
         z = np.concatenate(features)
-        truth = z@target[7] + .85*np.tanh(1.7*z[:,0]+.8*z[:,1])
-        projected = z@np.linalg.lstsq(z,truth,rcond=None)[0]
+        truth = np.sum(z*target[7],axis=1) + .85*np.tanh(1.7*z[:,0]+.8*z[:,1])
+        projection = np.linalg.lstsq(z,truth,rcond=None)[0]
+        projected = np.sum(z*projection,axis=1)
+        if not np.isfinite(z).all() or not np.isfinite(truth).all() or not np.isfinite(projected).all():
+            raise AssertionError('nonfinite oracle projection')
         floor = float(np.mean((projected-truth)**2))
         if not np.isfinite(floor) or floor <= 0:
             raise AssertionError('invalid approximation floor')
