@@ -1,0 +1,15 @@
+# Connected transfer with a held-out target form: development result
+
+Protocol: `docs/development/guidance/protocol_connected_transfer_heldout_dev_2026-09-30.md`, frozen before these systems. Implementation/source revision: `76aaa3f692f3131cd566a9ee9201f81be3f9fed6`. Twelve 30-node fanout SCMs, seeds 2000–2011. Three target mechanism changes, including a target-only `0.85*tanh(1.7*x1+0.8*x2)` term absent from the learner's three-feature bank. Source training: 16 or 64 natural trajectories per system. No mixture gate was implemented; the comparison is source-warm versus scratch on each identical acquired dataset.
+
+Each of the 48 policy × source-size campaigns acquired 44 target trajectories at cost 364 with 80 actuator uses. Both pair policies used the same action menu and cost. All 48 cell receipts, costs, natural/masked motif counts, and 960 per-motif raw and normalized feasible errors were independently recomputed from saved inputs and action data. The 219 output files replayed byte for byte. The sealed evaluation truth includes the nonlinear term; the old coefficient-only score was not used. The full source/protocol and per-file SHA-256 receipts are in `complete.json` and the cell receipts.
+
+Mean changed-motif feasible MSE (motifs 0, 5, 7):
+
+- Source 16, warm: risk .11446 versus fixed factorial-hub .12440. Source 16, scratch: risk .12429 versus fixed .14778. Both paired 95% intervals for risk-minus-fixed include zero.
+- Source 64, warm: risk .10965 versus fixed .10716. Source 64, scratch: risk .16756 versus fixed .14778. Both paired intervals include zero; risk is numerically worse at this source size.
+- Same-data warm versus scratch on the fixed schedule: .12440 versus .14778 at source 16, and .10716 versus .14778 at source 64. Paired intervals for both differences are below zero. On the risk schedule, warm beats scratch in mean at both sizes, but the source-64 paired interval includes zero.
+
+The large changed-motif error is concentrated in out-of-bank motif 7: its mean is .33247–.36668 for warm at source 16 and .31577–.32072 at source 64; in-bank motifs 0 and 5 each have means below .007 in those warm arms. Thus a pooled changed-motif number obscures the mechanism-specific failure. Source warm start improves some same-data averages, but it does not demonstrate sparse local repair or a 2× sample-efficiency gain. The prespecified acquisition promotion gate fails because the risk selector has no consistent benefit over the fixed schedule. Do not launch a powered confirmation or neural module-library scale-up from this result.
+
+The suite generated 768 source training trajectories (64 per system) and 48 target assay trajectories as shared inputs. It evaluated 48 target arm campaigns totaling 2,112 acquired arm trajectories and 17,472 charged cost units; arm campaigns are separate comparisons, not unique environment queries across all arms. It also generated 30,720 sealed evaluation trajectories, inaccessible to the policies. No CURC job, closed-model call, or non-ACE job was used. CURC SSH remained disconnected during this local run.
