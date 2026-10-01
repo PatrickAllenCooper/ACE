@@ -29,9 +29,10 @@ def make_system(seed: int, nodes: int, motifs: int, root_sd: float,
                 topology: str = 'chain') -> System:
     if motifs < 1 or nodes < 2 * motifs + 1 or root_sd < 0:
         raise ValueError('Invalid connected motif system')
-    if topology not in ('chain', 'fanout', 'binary_tree'):
+    if topology not in ('chain', 'fanout', 'binary_tree', 'random_recursive'):
         raise ValueError('Invalid motif topology')
     rng = np.random.default_rng(seed + 81211)
+    graph_rng = np.random.default_rng(seed + 81212)
     # Node 0 and node 1 are roots; motif-0 child is node 2.
     # Every later motif contributes one fresh root and one child.
     parents = [(0, 1)]
@@ -42,7 +43,8 @@ def make_system(seed: int, nodes: int, motifs: int, root_sd: float,
         child = 2*j + 2
         upstream = (children[-1] if topology == 'chain' else
                     children[0] if topology == 'fanout' else
-                    children[(j - 1) // 2])
+                    children[(j - 1) // 2] if topology == 'binary_tree' else
+                    children[int(graph_rng.integers(j))])
         parents.append((upstream, root))
         children.append(child)
         edges.extend(((parents[-1][0], child), (root, child)))
