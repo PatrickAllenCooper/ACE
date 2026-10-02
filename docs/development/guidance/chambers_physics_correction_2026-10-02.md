@@ -1,0 +1,5 @@
+# Published-model correction, frozen before corrected scoring
+
+Upstream causal-chamber-package commit 9fb5d82e391bb91a89a64f2e1c9b6ae8e7aed6d6, `causalchamber/models/light_tunnel_models.py`, model_e1 implements I0*((Tp-Tc)*cos(theta1-theta2)^2+Tc). Our previous first-angle cos² factor was unsupported. The prior score is a misspecified control, not evidence of outperforming the published physics model. Offset calibration of that incorrect product does not cure the model error.
+
+Fit the equivalent two-coefficient linear basis [1, cos(theta1-theta2)^2] on exactly the same 789 white_64 training rows. Score the same 211 held-out rows, acknowledging development reuse. No offsets, tuning, new conditions or architecture changes. Fit intercept/amplitude freely as a predictive calibration; this does not identify I0,Tp,Tc separately or enforce all physical parameter constraints. Preserve earlier negative scores with the correction. Record source and result hashes. This bounded CPU correction is necessary before assessing learned-model headroom.
