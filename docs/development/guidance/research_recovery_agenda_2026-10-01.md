@@ -2,6 +2,8 @@
 
 This agenda supersedes the **execution order and resource escalation** in `research_portfolio_2026-09-25.md` and `scm_foundation_viability_agenda_2026-09-29.md`. Those documents remain historical context. The evidence ledger is `research_execution_2026-09-25.md`; later validated receipts take precedence over early snapshots. No Azure or other closed-source model API is authorized. Use CURC for justified CPU work and small offline open-model canaries only after the gates below; preserve all non-ACE jobs.
 
+**Broader design, later on 1 October:** the [experimental portfolio](broad_experimental_agenda_2026-10-01.md) and [22-experiment registry](broad_experiment_registry_2026-10-01.json) extend this recovery plan with intervention-trained inference, experiment memory, representation, and verified search. Begin their local source/split/recoverability work alongside the external-task and language intake work below. These are proposed studies, not launched runs; each new compute study needs its own frozen protocol. The broader plan clarifies that the language scorer's gold schema is evaluator-only and that a small learned prototype can be justified by recoverability/headroom without requiring a hand-written solution to the learned task first. Existing failed methods retain their stop gates.
+
 ## Current position and the actual blocker
 
 The original ACE paper's broad superiority claim did not survive metric, learner, and budget correction. The reproducible SCM harness and result custody are useful, but they are infrastructure rather than a new effect.
