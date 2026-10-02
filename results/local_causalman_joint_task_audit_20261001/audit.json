@@ -1,0 +1,54 @@
+{
+  "decision": "Probe menu does not establish nontrivial joint-action headroom. Retain as interface smoke only.",
+  "generated_rows": 0,
+  "model_calls": 0,
+  "probe_sha256": "cbaf639f0421161978d16dfb1b2997d646c2444e73bcb5e21f34a77675d971a3",
+  "public_descendants": {
+    "PF_M1_T1_sgrad": [
+      "PF_M1_T1_sgrad_MpGood",
+      "PF_M1_T1_smax",
+      "PF_M1_T1_smax_MpGood",
+      "Sec_C2_Machine1_ProcessResult"
+    ],
+    "PF_M1_T2_sgrad": [
+      "PF_M1_T2_sgrad_MpGood",
+      "PF_M1_T2_smax",
+      "PF_M1_T2_smax_MpGood",
+      "Sec_C2_Machine1_ProcessResult"
+    ]
+  },
+  "scope": "Private graph-based task construction audit; no learner sees equations; no policy result. Single actions versus observation may still change quality.",
+  "shared_equations": {
+    "Sec_C2_Machine1_ProcessResult": "Eq(Sec_C2_Machine1_ProcessResult, PF_M1_T1_Fmax_MpGood*PF_M1_T1_Force_MpGood*PF_M1_T1_s0_MpGood*PF_M1_T1_sgrad_MpGood*PF_M1_T2_Fmax_MpGood*PF_M1_T2_Force_MpGood*PF_M1_T2_s0_MpGood*PF_M1_T2_sgrad_MpGood)"
+  },
+  "shared_public_descendants": [
+    "Sec_C2_Machine1_ProcessResult"
+  ],
+  "threshold_checks": [
+    {
+      "lower_gate": 1,
+      "target": "PF_M1_T1_sgrad",
+      "upper_gate": 1,
+      "value": 16.5
+    },
+    {
+      "lower_gate": 1,
+      "target": "PF_M1_T1_sgrad",
+      "upper_gate": 1,
+      "value": 19.0
+    },
+    {
+      "lower_gate": 1,
+      "target": "PF_M1_T2_sgrad",
+      "upper_gate": 1,
+      "value": 16.5
+    },
+    {
+      "lower_gate": 1,
+      "target": "PF_M1_T2_sgrad",
+      "upper_gate": 1,
+      "value": 19.0
+    }
+  ],
+  "upstream_revision": "17529dad5ec8b8c691494c617b9af4533aa44bf8"
+}
