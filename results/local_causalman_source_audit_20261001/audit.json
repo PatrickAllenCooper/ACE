@@ -1,0 +1,50 @@
+{
+  "audit_type": "static_source_only",
+  "dataset_inventory": {
+    "causalman_large": {
+      "bytes": 7194286371,
+      "files": 6291
+    },
+    "causalman_medium": {
+      "bytes": 673007331,
+      "files": 1542
+    },
+    "causalman_micro": {
+      "bytes": 144812833,
+      "files": 1018
+    },
+    "causalman_small": {
+      "bytes": 199156432,
+      "files": 1320
+    }
+  },
+  "decision": "Do not launch a multi-seed confirmation through the high-level mixture API. Audit one fixed batch/path using the unchanged lower-level sampler before a custody smoke.",
+  "gpu_allocations": 0,
+  "independence": "Seed varies random sampling and row selection, not the bundled structural equations. Micro is one product with batch/path configurations, not independent seeded SCMs.",
+  "micro_configured_subbatches": 51,
+  "micro_sum_integer_batch_size_run": 14813,
+  "model_calls": 0,
+  "repository": "boschresearch/CausalMan",
+  "row_count_status": "Configured count only; actual generation uses saved path dataframe lengths and is unmeasured.",
+  "runtime_status": "Not executed; pair targets, public columns, peak RAM and latency still need a bounded runtime gate.",
+  "sample_return_order": [
+    "obs_dataset",
+    "mag",
+    "admg",
+    "fully_observable_dataset",
+    "dag",
+    "interventional_table"
+  ],
+  "simulator_queries": 0,
+  "source_checks": {
+    "fixed_source_seed_path": true,
+    "last_graph_returned": true,
+    "loads_path_specific_graphs": true,
+    "observability_action_dependent": true,
+    "one_micro_product": true,
+    "seed_changes_sampling": true,
+    "string_intervention_eval": true
+  },
+  "upstream_revision": "17529dad5ec8b8c691494c617b9af4533aa44bf8",
+  "upstream_tree_sha256": "e448384de590c0d7569cc0ebcec30e82cf55fad3daeeac425d325eb34e4734d0"
+}
