@@ -1,0 +1,5 @@
+# One bounded prior abstention diagnostic
+
+Use existing 12 development seeds 100–111 in local_prior_gate_dev_20260926, not fresh confirmation. Reuse the identical broad/proposal fits and eight charged validation examples. Accept proposal only if acquired-validation proposal SSE is at most 80% of broad SSE; otherwise abstain to broad. The 20% validation improvement margin is fixed before this audit, not selected by scanning saved test errors. This is an operational conservative margin, not a confidence bound. No per-example residuals are available here to establish statistical safety.
+
+Summarize each budget 16/32/64 and correct/wrong cue separately. Require wrong-cue mean MSE <=1.05 times broad and correct-cue mean MSE strictly below broad at every budget to pass this development screen. Report acceptance counts, ratios, and outcome source hashes. Selection uses validation SSE only, never condition labels or test errors; labels are solely for reporting. No threshold tuning after results. Failure pauses this candidate; success still requires fresh-system confirmation and external semantic validity. No model call or new sample.
