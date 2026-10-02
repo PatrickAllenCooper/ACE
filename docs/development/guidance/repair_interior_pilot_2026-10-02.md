@@ -1,0 +1,5 @@
+# Fixed interior-action engineering pilot
+
+One follow-up to the failed corner pilot, motivated by response-free separation/capacity checks. No confirmation or seed sweep. Keep the same fixed linear/RBF fitting implementation (including its original three baseline features), width1.5, precision10, source32, target fitting16 blocks of4, diagnostic128 blocks of4, clipping1, K2 gate. The capacity calculation included an intercept and is an optimistic ceiling, not an exact promise for this regularized learner.
+
+Change only the action menu to all 25 points {-2,-1,0,1,2}², uniformly and independently sampled per block, and use fresh system seed930217 with all RNG seeds offset by100000. Two unchanged/changed evaluator cases as before. Exactly1184 generated rows; retain all observations. Freeze before outcomes. Stop after this one pilot regardless of result; no tuning of width, threshold, or new seed. This tests implementation viability on a restricted synthetic distribution, not unchanged-mechanism protection across systems. Local CPU cap two minutes; no GPU.
