@@ -42,3 +42,21 @@ def sufficient_blocks(gain, *, comparisons=10, alpha=0.05, beta=0.2):
         raise ValueError('invalid comparison count')
     return math.floor(2*(math.sqrt(math.log(comparisons/alpha))+
                           math.sqrt(math.log(1/beta)))**2/gain**2)+1
+
+def empirical_bernstein(baseline, candidate, *, comparisons, alpha=0.05):
+    """Maurer-Pontil (2009), Theorem 4, applied to D in [-1,1].
+
+    Fixed sample, frozen predictors, i.i.d. independent diagnostic blocks.
+    Bonferroni across comparisons. Post hoc use is a development diagnostic.
+    """
+    baseline, candidate = list(baseline), list(candidate)
+    validated = decide(baseline, candidate, comparisons=comparisons, alpha=alpha)
+    n = validated.blocks
+    if n < 2:
+        raise ValueError('sample variance requires at least two blocks')
+    diff = [c-b for b,c in zip(baseline,candidate)]
+    variance = math.fsum((d-validated.mean_difference)**2 for d in diff)/(n-1)
+    logterm = math.log(2*comparisons/alpha)
+    radius = math.sqrt(2*variance*logterm/n) + 14*logterm/(3*(n-1))
+    upper = min(1.0, validated.mean_difference+radius)
+    return Decision(n, validated.mean_difference, upper, upper < 0)
