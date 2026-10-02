@@ -2,6 +2,8 @@
 
 Date: 29 September 2026. This is a research agenda with initial gates, not a claim that an FM advantage has been established. No Azure or other closed-model calls are authorized for this agenda.
 
+**Current execution plan:** [research recovery agenda, 1 October 2026](research_recovery_agenda_2026-10-01.md). Its work order and stop gates supersede the dated “next gate” sketches below. Read the [execution ledger](research_execution_2026-09-25.md) for validated outcomes.
+
 ## Common contract
 
 Treat a foundation model as an infrequent proposer of a typed, falsifiable object: a mechanism family, module mapping, actuator schema, or hypothesis set. Keep inference, action costs, and grading in numerical code. Use the existing known-graph, fully observed task for comparable mechanism experiments; mark hidden-confounder and partial-identification tasks as different settings. Freeze systems, actions, metrics, and controls before fresh confirmation. Report improvement over the strongest matched *simple* control, not only over an old ACE result. Count every environment sample, intervention, and model call; record seed, source revision, protocol and artifact hashes. Confirm on independent systems and at least one externally selected environment before a broad generalization claim.

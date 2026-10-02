@@ -3,6 +3,8 @@
 Date: 25 September 2026. Starting revision: `f01a158`.
 Status: proposed investigations; no new experiment jobs or paid API calls launched by this planning pass.
 
+**Current execution plan:** [research recovery agenda, 1 October 2026](research_recovery_agenda_2026-10-01.md). It supersedes this document's original execution order and resource escalation after the validated September–October results. The [execution ledger](research_execution_2026-09-25.md) records those outcomes.
+
 ## Recommendation
 
 Pursue three scientific directions in parallel: **fallible semantic priors over mechanisms**, **interventions that expose otherwise hidden interactions**, and **reuse and local repair of mechanisms across systems**. Maintain a smaller control track that settles the existing PEV result and makes the evaluation trustworthy. Reserve a small exploratory track for using SCMs to test whether foundation models revise their beliefs when evidence contradicts familiar semantics.
