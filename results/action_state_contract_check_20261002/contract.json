@@ -1,0 +1,45 @@
+{
+  "domains": {
+    "latch": [
+      "open",
+      "closed"
+    ],
+    "shaking": [
+      false,
+      true
+    ]
+  },
+  "commands": {
+    "close_latch": {
+      "requires": {
+        "shaking": false
+      },
+      "effects": {
+        "latch": "closed"
+      }
+    },
+    "open_latch": {
+      "requires": {
+        "shaking": false
+      },
+      "effects": {
+        "latch": "open"
+      }
+    },
+    "start": {
+      "requires": {
+        "latch": "closed",
+        "shaking": false
+      },
+      "effects": {
+        "shaking": true
+      }
+    },
+    "stop": {
+      "requires": {},
+      "effects": {
+        "shaking": false
+      }
+    }
+  }
+}
