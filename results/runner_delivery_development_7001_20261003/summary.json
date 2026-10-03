@@ -1,0 +1,360 @@
+{
+  "scope": "exposed single-bundle development only",
+  "online": {
+    "flat": {
+      "mse": 0.0007671669326034825,
+      "nmse": 0.012256630321573323,
+      "r2": 0.9877433696784267,
+      "mae": 0.02168384933070183,
+      "top1_regret": 0.0,
+      "exact": 0.47088896,
+      "within1": 0.93015552,
+      "snapped_r2": 0.9870751180757658
+    },
+    "chain": {
+      "mse": 0.00031235755731170436,
+      "nmse": 0.004990375556369273,
+      "r2": 0.9950096244436307,
+      "mae": 0.01297200215248585,
+      "top1_regret": 0.0,
+      "exact": 0.69692416,
+      "within1": 0.98523904,
+      "snapped_r2": 0.9939064297807868
+    }
+  },
+  "inits": [
+    {
+      "init": 0,
+      "fit_seconds": 92.49246658400807,
+      "total_seconds": 92.61491037500673,
+      "chain": {
+        "mse": 8.156869747764263e-05,
+        "nmse": 0.001303181000519544,
+        "r2": 0.9986968189994805,
+        "mae": 0.007313912778285981,
+        "top1_regret": 0.0,
+        "exact": 0.9825024,
+        "within1": 1.0,
+        "snapped_r2": 0.9996893887457435
+      },
+      "flat": {
+        "mse": 0.00019166711065089897,
+        "nmse": 0.0030621665510006542,
+        "r2": 0.9969378334489993,
+        "mae": 0.010787750289478305,
+        "top1_regret": 0.0,
+        "exact": 0.77915648,
+        "within1": 0.99801088,
+        "snapped_r2": 0.9961084749814367
+      },
+      "receipt": {
+        "kind": "post_acquisition_delivery_refit",
+        "epochs": 30000,
+        "seed": 0,
+        "charged_rows": 4803,
+        "eligible_rows": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        },
+        "charged_roles": {
+          "seed": 3,
+          "observational": 500,
+          "interventional_val": 2500,
+          "obs_refresh": 1000,
+          "lookahead": 800,
+          "teacher": 0,
+          "breaker": 0,
+          "baseline": 0
+        },
+        "custody_metadata_sha256": "584e7ebf729718cffed45cd394935e878cc6a9a933e433a3f934874d483e8870",
+        "source_rows_sha256": "f6d87379563a9cf22e644d2870a7e5cf3c7568bce77ec9c9cba5b31bf0c34e23",
+        "online_model_unchanged": true,
+        "evaluation": null,
+        "specifications": {
+          "flat": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count",
+              "leo_altitude_km",
+              "leo_antenna_power",
+              "meo_satellite_count",
+              "meo_altitude_km",
+              "meo_antenna_power",
+              "jamming_percent"
+            ],
+            "engagement_rate"
+          ],
+          "leo_link_score": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count",
+              "leo_altitude_km",
+              "leo_antenna_power",
+              "jamming_percent"
+            ],
+            "leo_link_score"
+          ],
+          "meo_link_score": [
+            [
+              "meo_satellite_count",
+              "meo_altitude_km",
+              "meo_antenna_power",
+              "jamming_percent"
+            ],
+            "meo_link_score"
+          ],
+          "iftu_score": [
+            [
+              "leo_link_score",
+              "meo_link_score"
+            ],
+            "iftu_score"
+          ],
+          "engagement_rate": [
+            [
+              "iftu_score"
+            ],
+            "engagement_rate"
+          ],
+          "comm_cost": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count"
+            ],
+            "comm_cost"
+          ]
+        }
+      },
+      "scored_at": "2026-10-03T18:20:00.434222+00:00"
+    },
+    {
+      "init": 1,
+      "fit_seconds": 86.9625571249926,
+      "total_seconds": 87.08675716699508,
+      "chain": {
+        "mse": 8.176472598097438e-05,
+        "nmse": 0.0013063128467914824,
+        "r2": 0.9986936871532085,
+        "mae": 0.007335243702584584,
+        "top1_regret": 0.0,
+        "exact": 0.98507264,
+        "within1": 1.0,
+        "snapped_r2": 0.9997350147444566
+      },
+      "flat": {
+        "mse": 0.00020218296845359095,
+        "nmse": 0.003230172986268173,
+        "r2": 0.9967698270137318,
+        "mae": 0.010745677276189169,
+        "top1_regret": 0.0,
+        "exact": 0.80076544,
+        "within1": 0.99396864,
+        "snapped_r2": 0.9962862073320327
+      },
+      "receipt": {
+        "kind": "post_acquisition_delivery_refit",
+        "epochs": 30000,
+        "seed": 1,
+        "charged_rows": 4803,
+        "eligible_rows": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        },
+        "charged_roles": {
+          "seed": 3,
+          "observational": 500,
+          "interventional_val": 2500,
+          "obs_refresh": 1000,
+          "lookahead": 800,
+          "teacher": 0,
+          "breaker": 0,
+          "baseline": 0
+        },
+        "custody_metadata_sha256": "584e7ebf729718cffed45cd394935e878cc6a9a933e433a3f934874d483e8870",
+        "source_rows_sha256": "f6d87379563a9cf22e644d2870a7e5cf3c7568bce77ec9c9cba5b31bf0c34e23",
+        "online_model_unchanged": true,
+        "evaluation": null,
+        "specifications": {
+          "flat": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count",
+              "leo_altitude_km",
+              "leo_antenna_power",
+              "meo_satellite_count",
+              "meo_altitude_km",
+              "meo_antenna_power",
+              "jamming_percent"
+            ],
+            "engagement_rate"
+          ],
+          "leo_link_score": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count",
+              "leo_altitude_km",
+              "leo_antenna_power",
+              "jamming_percent"
+            ],
+            "leo_link_score"
+          ],
+          "meo_link_score": [
+            [
+              "meo_satellite_count",
+              "meo_altitude_km",
+              "meo_antenna_power",
+              "jamming_percent"
+            ],
+            "meo_link_score"
+          ],
+          "iftu_score": [
+            [
+              "leo_link_score",
+              "meo_link_score"
+            ],
+            "iftu_score"
+          ],
+          "engagement_rate": [
+            [
+              "iftu_score"
+            ],
+            "engagement_rate"
+          ],
+          "comm_cost": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count"
+            ],
+            "comm_cost"
+          ]
+        }
+      },
+      "scored_at": "2026-10-03T18:21:27.521451+00:00"
+    },
+    {
+      "init": 2,
+      "fit_seconds": 85.69600587499735,
+      "total_seconds": 85.81700408300094,
+      "chain": {
+        "mse": 8.230904705476896e-05,
+        "nmse": 0.001315009183787006,
+        "r2": 0.998684990816213,
+        "mae": 0.0072409738608449304,
+        "top1_regret": 0.0,
+        "exact": 0.95498752,
+        "within1": 1.0,
+        "snapped_r2": 0.9992009542532888
+      },
+      "flat": {
+        "mse": 0.000172081805292102,
+        "nmse": 0.0027492622308114842,
+        "r2": 0.9972507377691885,
+        "mae": 0.010188402189812979,
+        "top1_regret": 0.0,
+        "exact": 0.8105344,
+        "within1": 0.99822592,
+        "snapped_r2": 0.9966958415437224
+      },
+      "receipt": {
+        "kind": "post_acquisition_delivery_refit",
+        "epochs": 30000,
+        "seed": 2,
+        "charged_rows": 4803,
+        "eligible_rows": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        },
+        "charged_roles": {
+          "seed": 3,
+          "observational": 500,
+          "interventional_val": 2500,
+          "obs_refresh": 1000,
+          "lookahead": 800,
+          "teacher": 0,
+          "breaker": 0,
+          "baseline": 0
+        },
+        "custody_metadata_sha256": "584e7ebf729718cffed45cd394935e878cc6a9a933e433a3f934874d483e8870",
+        "source_rows_sha256": "f6d87379563a9cf22e644d2870a7e5cf3c7568bce77ec9c9cba5b31bf0c34e23",
+        "online_model_unchanged": true,
+        "evaluation": null,
+        "specifications": {
+          "flat": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count",
+              "leo_altitude_km",
+              "leo_antenna_power",
+              "meo_satellite_count",
+              "meo_altitude_km",
+              "meo_antenna_power",
+              "jamming_percent"
+            ],
+            "engagement_rate"
+          ],
+          "leo_link_score": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count",
+              "leo_altitude_km",
+              "leo_antenna_power",
+              "jamming_percent"
+            ],
+            "leo_link_score"
+          ],
+          "meo_link_score": [
+            [
+              "meo_satellite_count",
+              "meo_altitude_km",
+              "meo_antenna_power",
+              "jamming_percent"
+            ],
+            "meo_link_score"
+          ],
+          "iftu_score": [
+            [
+              "leo_link_score",
+              "meo_link_score"
+            ],
+            "iftu_score"
+          ],
+          "engagement_rate": [
+            [
+              "iftu_score"
+            ],
+            "engagement_rate"
+          ],
+          "comm_cost": [
+            [
+              "leo_satellite_count",
+              "leo_dynamic_satellite_count"
+            ],
+            "comm_cost"
+          ]
+        }
+      },
+      "scored_at": "2026-10-03T18:22:53.338948+00:00"
+    }
+  ],
+  "median_chain_exact_error": 0.017497600000000002,
+  "median_chain_mse": 8.176472598097438e-05,
+  "median_flat_exact": 0.80076544,
+  "completed_at": "2026-10-03T18:22:53.341876+00:00",
+  "torch_version": "2.5.1",
+  "threads": 6,
+  "gpu_used": false,
+  "simulator_calls": 0,
+  "llm_calls": 0
+}
