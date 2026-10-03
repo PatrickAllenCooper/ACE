@@ -1,0 +1,14 @@
+"""Prepare unadjudicated review packet; never promote tasks to verified gold."""
+import hashlib,itertools,json,pathlib
+cache=pathlib.Path('/Users/pat/.cache/ace/instruction_sources');text=(cache/'opentrons_heater_shaker.txt').read_text()
+p=pathlib.Path('results/temporal_source_intake_20261002');receipt=json.loads((p/'source_receipt.json').read_text());assert hashlib.sha256(text.encode()).hexdigest()==receipt['text_sha256']
+spans=[]
+for start,end in [('Latch control ¶','Loading labware ¶'),('Deactivating ¶',None)]:
+ i=text.index(start);j=text.index(end,i) if end else len(text);span=text[i:j]
+ spans.append({'start_char':i,'end_char':j,'text':span,'sha256':hashlib.sha256(span.encode()).hexdigest()})
+commands=['close_latch','start_500rpm','stop_shaking']
+candidates=[list(c) for n in [1,2,3] for c in itertools.product(commands,repeat=n)]
+assert len(candidates)==39 and len({tuple(c) for c in candidates})==39
+packet={'status':'pending_independent_adjudication','publisher':'Opentrons','source_group':'opentrons','source_url':receipt['url'],'source_sha256':receipt['text_sha256'],'spans':spans,'context_author':'ACE preparation agent','gold_adjudicator':None,'robot_context':'must be fixed by reviewer; do not mix Flex/OT-2 restrictions','tasks':[{'id':'hs_closed_latch_start_review','initial_state':{'latch':'closed','shaking':False},'candidate_sequences':candidates,'private_gold':None},{'id':'hs_open_latch_start_review','initial_state':{'latch':'open','shaking':False},'candidate_sequences':candidates,'private_gold':None}],'command_bindings':{'close_latch':'close_labware_latch()','start_500rpm':'set_and_wait_for_shake_speed(500)','stop_shaking':'deactivate_shaker()'},'review_questions':['Confirm API version and robot context.','Check semantics for repeated start/stop and closing latch during shaking; obtain additional authoritative source if needed.','Determine whether unknown transition semantics require excluding sequences or ambiguity abstention.','Independently produce formal contract and complete candidate-menu gold; preparation agent must not certify its own labels.'],'split_contract':{'unit':'source_group','opentrons_role':'development-only until source-group assignment is frozen across sufficient independent groups','condition_variants_not_independent':True},'independent_adjudicated_tasks':0}
+raw=(json.dumps(packet,indent=2)+'\n').encode();(p/'review_packet.json').write_bytes(raw)
+(p/'complete.json').write_text(json.dumps({'files':{n:hashlib.sha256((p/n).read_bytes()).hexdigest() for n in ['review_packet.json','source_receipt.json']},'script_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),'model_calls':0,'hardware_calls':0},indent=2)+'\n');print('Retained two source spans; two unadjudicated contexts; 39 candidate sequences each; zero gold admissions')
