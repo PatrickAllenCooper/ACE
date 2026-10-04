@@ -463,3 +463,15 @@ Patrick explicitly prioritized independent confirmation; assignment authorizes p
 Claim is delivery-recipe improvement on fresh randomized histories of one deterministic Mission-1 emulator, not independent physical systems, a never-seen benchmark, foundation-model benefit, or acquisition superiority. Frozen online comparator versus the three-init30000epoch all-paid-row delivery recipe; identical paid-call history, architecture and full-grid support, explicitly unequal fitting/data-use compute recorded as treatment differences. No new Random/LHS or historical refit comparator is presented as a fresh matched control. All12 models/logs/receipts must be finalized before scores are opened; adapter source/dependency hashes must be frozen first. One primary paired-log error comparison with R<=.80,95%upperCI<1,two-sided sign-flip p<.05 and all12valid cases; failures/partial campaign cannot yield a selected-subset positive verdict.
 
 Explicit budget proposal: local CPU6threads,7200seconds total,8GiBRSS,5203calls/case and62436total; no GPUs/model APIs/cloud charge. Prior delivery timing267.14seconds supports about53.4minutes of delivery fits, but fresh online acquisition is unmeasured. Timing-only first-case gate includes20%reserve plus5minutes scoring allowance, with scores still sealed. Approval of this new campaign scope and outcome-blind execution/evaluator/supervisor implementation/validation remain before launch. Preparation made zero new emulator, fitting-campaign or model calls; PR57 remains draft/unmerged, frozen Peter-study analysis and results unchanged. No campaign launched.
+
+## 2026-10-04 — outcome-blind delivery runner validation
+
+Local adapter and sealed evaluator implemented against unchanged registration and
+Runner e9f811f; eleven deterministic safety/custody tests passed. Existing
+5f89033d history read for row/metadata/receipt parity only. Evidence:
+`results/runner_delivery_adapter_validation_20261004/{tests.txt,freeze.json}`;
+companion implementation note: `runner_delivery_adapter_2026-10-04.md`.
+Zero new confirmation histories, fits, scores, emulator calls, GPU or API calls.
+Campaign remains unlaunched. Gate: explicit adapter/dependency-bound authorization,
+additional registry reconciliation, then first-case timing-only admission within
+six CPU threads / 7200 seconds / 8 GiB sampled RSS. No PR57 merge.
