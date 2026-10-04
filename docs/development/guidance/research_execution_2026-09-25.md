@@ -475,3 +475,19 @@ Zero new confirmation histories, fits, scores, emulator calls, GPU or API calls.
 Campaign remains unlaunched. Gate: explicit adapter/dependency-bound authorization,
 additional registry reconciliation, then first-case timing-only admission within
 six CPU threads / 7200 seconds / 8 GiB sampled RSS. No PR57 merge.
+
+## 2026-10-04 — additional delivery seed-registry reconciliation
+
+Read-only local and live CURC audits completed. Local: 11,288 hashed files,
+three proposal-only mentions, no prior-use matches. CURC broad pass: 2,690 files,
+45-second partial bound; complete follow-up registry-only pass: 1,627 files,
+no unread candidates or proposed-seed matches. Covered scope, oversized/raw-table
+exclusions, absent remote protocol directory and per-file hashes retained in
+compressed manifests under `results/runner_delivery_registry_reconciliation_20261004`.
+Three reconciliation fixture tests passed; registration/adapter/dependency freeze
+identities revalidated. Final readiness SHA:
+81b949fdd45c6738ed28bdf55fc9bc0ed5c2972b9db7d01100381d7101e9b85e.
+Campaign execution remains disabled, with zero new emulator rows or scores.
+Next decision: authorize unchanged twelve-history local CPU campaign under
+six-thread/7200-second/8-GiB ceilings, acknowledging audited scope; first-case
+479.17-second timing admission then complete seal before scoring. No PR57 merge.
