@@ -1,0 +1,94 @@
+{
+  "status": "prepared_not_authorized_for_launch",
+  "date": "2026-10-04",
+  "source_repository": "ACE-Runner",
+  "source_revision": "e9f811fbc68fb70681c3d89182d8ebe024882ce3",
+  "source_hashes": {
+    "ace/delivery.py": "cd2a36d369a7e4f0adbe4c37315b83b673433acd172102e62ce6601aebfca9be",
+    "ace/config.py": "12d93c839aa4da5218d4c10e7060a85243ad7a8fde012747a774805e97fb4688",
+    "ace/oracle.py": "4d48bef21c4d45a82dba4c0616614a434eff5e94d99a1a99d00f5193718fac56",
+    "ace/observation_log.py": "ac93c43dddb900135a3026c10351934b3f5c6892cbf692a96a56a67d6d8d469b",
+    "ace/grid_eval.py": "1b3d7fe3214a8d6c35976784389ea48fe9c65d3545b1cd1cfcbd3520b369e930",
+    "ace/result.py": "ed7c6bfdc863a1ad9a769f59873c6dd6c1c9abfe178bdaa09d18dfa81b236f0c",
+    "environments/tlam_mission1.py": "18e3218f085a9a5df02d11882f8b3253d8c340867d2b652f60bae7814bc5f359",
+    "environments/emulators/tlam_mission1.py": "a8215c5b088960219d99c392b5380b9efbc3696b0bc7eb39570886981e05c8d3",
+    "environments/emulators/data/tlam_mission1_base.json": "dacce2e5c7a8392ed1369fdff88bb40727e3ea885fc6b82c9790b686fe7eac3f",
+    "scripts/analysis/study_stats.py": "f3ad42b0eb14fe55a5e49edcb755a0856307eb7d3772be5a3ee55a07af197ffa",
+    "pyproject.toml": "852305cfad1672b2ec2aba5690d7fb5c919a3ec9978ad8f2c9fe0e9d07ed0e9f",
+    "poetry.lock": "3e7d340bc16144df0c0c4cf0c4a8d9b7b564fa127315c6cc7e7379b3a3bf77db"
+  },
+  "claim": "delivery recipe improves exact-level error at matched charged calls on new histories of one fixed emulator; no acquisition superiority",
+  "seeds": [
+    27424209,
+    1726880744,
+    735595885,
+    983656467,
+    124753321,
+    921441405,
+    934168586,
+    546725957,
+    520888668,
+    1091699608,
+    585254818,
+    884825602
+  ],
+  "n_required": 12,
+  "environment": "tlam_mission1",
+  "iterations": 200,
+  "acquisition_config_file": "acquisition_config.json",
+  "acquisition_config_sha256": "d6595e9596fe6b461f279e787672838b9952cdeee511f2e1df1ae6d8a1b33212",
+  "delivery": {
+    "epochs": 30000,
+    "inits": [
+      0,
+      1,
+      2
+    ],
+    "optimizer": "Adam",
+    "lr": 0.002,
+    "schedule": "constant",
+    "normalization": "training eligible rows only",
+    "aggregation": "median per-case exact error; init0 descriptive single model"
+  },
+  "evaluation": {
+    "points": 390625,
+    "file_sha256": "0fed63740739fe0719036b528a9ee11a54c79b8f0a4085c719ed5963c5081807",
+    "array_sha256": "a62aeac6f1c1e5e1c835cf537b3de3bfd87b6cb53c582dfe6c32cc090c49e090",
+    "grid_previously_exposed": true,
+    "seal": "no scores until all model/log hashes finalized",
+    "inference_chunk_rows": 8192,
+    "error_floor": 2.56e-06
+  },
+  "analysis": {
+    "function": "scripts.analysis.study_stats.paired_log_ratio",
+    "confidence_level": 0.95,
+    "p_method": "two-sided exact sign-flip; symmetric-null assumption",
+    "alpha": 0.05,
+    "required_ratio_max": 0.8,
+    "required_ci_upper_below": 1,
+    "required_pairs": 12,
+    "no_optional_stopping": true
+  },
+  "resource_proposal": {
+    "host": "local CPU",
+    "threads": 6,
+    "elapsed_ceiling_seconds": 7200,
+    "rss_ceiling_bytes": 8589934592,
+    "call_cap_per_case": 5203,
+    "total_call_cap": 62436,
+    "gpu_count": 0,
+    "llm_calls": 0,
+    "timing_gate": "1.2*12*first_case_seconds+300 <=7200; scores sealed",
+    "prior_three_fit_development_seconds": 267.1443952080008
+  },
+  "seed_audit_sha256": "b843ccd429b57f16d4add629ed03906f838e0c7e9d335bd09861cb40d72b415e",
+  "protocol_sha256": "5dddf31de83544b329667c19936aa2993e3a53e5bb727a4149cfc7dd6dc4cafd",
+  "implementation_before_launch": [
+    "outcome-blind execution adapter",
+    "sealed evaluator adapter",
+    "independent resource supervisor",
+    "dependency/adapter hash freeze",
+    "additional registry reconciliation"
+  ],
+  "new_campaign_calls_during_preparation": 0
+}
