@@ -665,3 +665,24 @@ still absent. No acquisition/fit/score restart, source/resource change, exclusio
 retry, caching or new jobs caused by audit. Runner continues approved seed order.
 Receipt progress_audit_4_complete.json; next useful gate: activecase completion
 and next ordered seed, then eventual full12custody seal before scoring.
+
+## 2026-10-05 — due read-only audit, stage advanced to seven complete histories
+
+Audited all seven completed cases, including new124753321/921441405/934168586:
+canonical hashes, disjoint/derived counters, sequential journals/unique indices,
+200steps, finite eligible vectors/correctDO masks, all3original30000epoch receipt/
+metadata/model hashes passed. Original+retainedcopy and source/adapters/order
+unchanged. Newly reported durations503.348625/504.843263s for firsttwo; latest
+934168586 duration retained in machine case_reports receipt. No discrepancies.
+
+Completecalls33621; activeoriginalseed546725957 journal3726 at snapshot =>37347
+aggregateattempts lowerbound<62436,active<=5203. Same supervisor61498/stage61499
+and live case descendant verified. Processage3080s (~51.33m); conservative
+remaining4420s (~73.67m) of original7500s,noreset. Charged/reservedprior3503.592814
++age=6583.592814<11100. Current combinedRSS144834560bytes (~138MiB), below8GiB;
+this is a current sample, not a peak. FrozenTorch6/inter-op1/OMP-MKL6 and observed
+CPU activity; no invasive runtime counter injection. All12seal/scores stillabsent.
+No retries/restarts/duplicates/source/cap/caching/threshold changes or scorer/grid
+access caused by audit. Existing approved runner continues orderedremainingcases.
+Receipt progress_audit_7_complete.json. Next usefulcheckpoint: activecase complete
+then next originalseed520888668; final evaluation remains gated by all12custodyseal.
