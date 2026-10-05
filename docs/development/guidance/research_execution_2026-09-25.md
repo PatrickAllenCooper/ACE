@@ -605,3 +605,26 @@ explicit call-cap amendment. All projectionsonehistoryproxy,notconfidencebounds.
 Companion delivery_resource_amendment_recommendation_2026-10-05.md; exact bindings/
 arithmetic resource_amendment_recommendation.json. Both paths remain unapproved;
 campaign stopped/sealed scores unopened, PR57draft unchanged.
+
+## 2026-10-05 — Option A explicitly approved, prospective continuation frozen
+
+Patrick approved Option A at16:16UTC, verified in coordination record
+fco_01a10cda-583b-7532-8ab8-1ca51400e4d8: retain original unscored case, complete
+11original unusedseeds,125minute remaining/185minute aggregate,6threads8GiB
+originalcalllimit. Immutable original case/source preserved and copied byte-for-
+byte into separate delivery-option-a-20261005 output; no caching adopted.
+2448local retained meta/complete/receipt registries rechecked: remaining seeds
+unused, no read failures/matches. Source/archive hashes match original e9f811f.
+
+Five continuation fixtures pass (duplicatecase refusal,firstnew timing gate,
+casefailure stops without evaluator, timingstop before seal, owned descendant
+process-group watchdog cleanup);13existing custody/resource tests pass. Approval,
+source/case/adapter/implementation hashes and test receipts frozen prospectively
+in results/delivery_option_a_20261005. Explicit separate continuation with one
+7500s process-group watchdog includes nestedcase workers/evaluator; sampledRSS
+covers supervisor+stage+case descendants. Prior charge/reserve3503.592814s plus
+fullstage7500=11003.592814<11100,96.407186sheadroom; bounded setup/tests charged
+within1800s prep reserve(no measured-historical-total claim). Firstnewseed
+1726880744 admission<=545.454545s,aggregatecalls includes original4803.
+No score opens until all12cases pass complete semantic/hash/modelseal; any
+failure preserves partials, no retry/exclusion/replacement/epochchange.
