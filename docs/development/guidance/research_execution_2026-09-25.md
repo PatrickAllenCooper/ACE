@@ -644,3 +644,24 @@ GPU/API/remote job/PRmerge. Stage automatically continues only under original
 retries/exclusions/replacements. Current checkpoint receipt in
 results/delivery_option_a_20261005/first_new_checkpoint.json. Final scientific
 verdict pending complete12case seal and outcome-blind evaluator.
+
+## 2026-10-05 — due Option A read-only progress audit, four complete histories
+
+Completed original27424209 and new1726880744/735595885/983656467 independently
+validated: canonical row hashes, disjoint/derived counters, sequential journals,
+unique indices,200steps, finite eligible vectors, correct DO masks, all3original
+30000epoch metadata/receipt/modelhash custody; original and retained-copy hashes
+unchanged. Source/supervisor/case adapters still frozen. No discrepancies.
+Completecalls19212; active124753321 journal snapshot4803 =>aggregate24015(lower
+bound while runner remains live). Case durations492.335787/502.014370/493.844004s.
+Supervisor61498/stage61499/active96450 verified, active~587%CPU; combinedRSS sample
+509116416bytes(~486MiB),8GiBcap. Pinned adapter Torch6/inter-op1/OMP-MKL6; no
+in-process counter introspection. Supervisor ps age1911s, conservative remaining
+stage5589s, charged/reserved prior3503.592814+age=5414.592814<11100. Process age
+includes tiny pre-watchdog setup, not an exact monotonic-clock reading. Same
+supervisor since start, main+timer threads observed; frozen single7500s stage
+watchdog covers inherited case workers, no deadline reset. All12seal and scores
+still absent. No acquisition/fit/score restart, source/resource change, exclusion,
+retry, caching or new jobs caused by audit. Runner continues approved seed order.
+Receipt progress_audit_4_complete.json; next useful gate: activecase completion
+and next ordered seed, then eventual full12custody seal before scoring.
