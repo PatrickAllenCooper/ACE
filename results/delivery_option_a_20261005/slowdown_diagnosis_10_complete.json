@@ -1,0 +1,139 @@
+{
+  "at": "2026-10-05T18:05:22.413095+00:00",
+  "stage_timings": [
+    {
+      "seed": 934168586,
+      "case_seconds": 519.9716836670123,
+      "fits_seconds": 359.18316387498635,
+      "other_seconds": 160.7885197920259,
+      "per_init_seconds": [
+        127.08389437501319,
+        117.76226791698718,
+        114.33700158298598
+      ]
+    },
+    {
+      "seed": 546725957,
+      "case_seconds": 503.7400333340047,
+      "fits_seconds": 345.85469179198844,
+      "other_seconds": 157.88534154201625,
+      "per_init_seconds": [
+        111.29417691699928,
+        115.29415945798974,
+        119.26635541699943
+      ]
+    },
+    {
+      "seed": 520888668,
+      "case_seconds": 784.0319367090124,
+      "fits_seconds": 562.9754799569782,
+      "other_seconds": 221.05645675203414,
+      "per_init_seconds": [
+        184.26574391598115,
+        191.58312716599903,
+        187.12660887499806
+      ]
+    },
+    {
+      "seed": 1091699608,
+      "case_seconds": 1381.9728649170138,
+      "fits_seconds": 1090.1199140840035,
+      "other_seconds": 291.85295083301025,
+      "per_init_seconds": [
+        248.88454037500196,
+        416.44924187500146,
+        424.7861318340001
+      ]
+    }
+  ],
+  "load_cpu_memory": "vm.loadavg: { 12.48 12.48 11.70 }\nhw.logicalcpu: 18\nhw.memsize: 38654705664\nvm.swapusage: total = 13312.00M  used = 12750.06M  free = 561.94M  (encrypted)\n",
+  "memory_pressure_query": "The system has 38654705664 (2359296 pages with a page size of 16384).\nSystem-wide memory free percentage: 36%\n",
+  "thermal_query": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded\n",
+  "vm_sample_a": {
+    "at": "2026-10-05T18:05:20.398942+00:00",
+    "stats": {
+      "Pages free": 23353,
+      "Pages active": 413174,
+      "Pages inactive": 410355,
+      "Pages speculative": 945,
+      "Pages throttled": 0,
+      "Pages wired down": 250300,
+      "Pages purgeable": 7784,
+      "\"Translation faults\"": 4537240521,
+      "Pages copy-on-write": 110937467,
+      "Pages zero filled": 4044294481,
+      "Pages reactivated": 21423964,
+      "Pages purged": 9123705,
+      "File-backed pages": 356232,
+      "Anonymous pages": 468242,
+      "Pages stored in compressor": 1784596,
+      "Pages occupied by compressor": 1200575,
+      "Decompressions": 25807073,
+      "Compressions": 32379190,
+      "Pageins": 106938299,
+      "Pageouts": 236753,
+      "Swapins": 837696,
+      "Swapouts": 1670762,
+      "Pages tagged": 154598,
+      "Pages tagged resident": 114601,
+      "Pages tagged compressed": 39997,
+      "Pages tag-storage": 73728,
+      "Pages tag-storage holding tags": 6341,
+      "Pages tag-storage free": 10,
+      "Pages tag-storage non-tag pageable": 67252,
+      "Pages tag-storage non-tag wired": 8,
+      "Bytes of compressed tags": 6406016,
+      "Tagged compressions": 487492,
+      "Tagged decompressions": 415693
+    }
+  },
+  "vm_sample_b": {
+    "at": "2026-10-05T18:05:22.411196+00:00",
+    "stats": {
+      "Pages free": 23398,
+      "Pages active": 405024,
+      "Pages inactive": 410899,
+      "Pages speculative": 702,
+      "Pages throttled": 0,
+      "Pages wired down": 259484,
+      "Pages purgeable": 608,
+      "\"Translation faults\"": 4537278596,
+      "Pages copy-on-write": 110939193,
+      "Pages zero filled": 4044402537,
+      "Pages reactivated": 21423965,
+      "Pages purged": 9124663,
+      "File-backed pages": 357556,
+      "Anonymous pages": 459069,
+      "Pages stored in compressor": 1783020,
+      "Pages occupied by compressor": 1199195,
+      "Decompressions": 25809088,
+      "Compressions": 32379190,
+      "Pageins": 106940496,
+      "Pageouts": 236753,
+      "Swapins": 837972,
+      "Swapouts": 1670762,
+      "Pages tagged": 154623,
+      "Pages tagged resident": 114631,
+      "Pages tagged compressed": 39992,
+      "Pages tag-storage": 73728,
+      "Pages tag-storage holding tags": 6341,
+      "Pages tag-storage free": 157,
+      "Pages tag-storage non-tag pageable": 67105,
+      "Pages tag-storage non-tag wired": 8,
+      "Bytes of compressed tags": 6405760,
+      "Tagged compressions": 487492,
+      "Tagged decompressions": 415697
+    }
+  },
+  "vm_two_second_counter_deltas": {
+    "Compressions": 0,
+    "Decompressions": 2015,
+    "Pageins": 2197,
+    "Pageouts": 0,
+    "Swapins": 276,
+    "Swapouts": 0
+  },
+  "interpretation": "Slower fitting observed under unchanged source/recipe. Host swap/compressed memory use is high; counter deltas report current host VM activity, not attribution to this job. Available-memory percentage and CPU/load do not prove saturation. No thermal warning recorded, but no CPU power status available; cannot rule out hardware throttling.",
+  "risk": "Two remaining histories may not fit original7500s stage deadline at recent timing; watchdog remains unchanged.",
+  "action": "noninvasive read-only diagnosis; no unrelated process content, priority/thread/environment/source/cap changes, retries or cancellations"
+}

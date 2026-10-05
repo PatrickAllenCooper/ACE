@@ -720,3 +720,31 @@ cases finish. Watchdog unchanged; no reset/retry/duplicate/exclusion/caching/
 source/capchange or scoring/gridaccess duringaudit. No fullseal/scores yet.
 Receipt progress_audit_9_complete.json. Nextcheck activecase completion and
 originalseed585254818,then884825602; scoring remains contingent on all12fullseal.
+
+## 2026-10-05 — ten complete; noninvasive timing diagnosis and deadline risk
+
+Read-only fullcustody audit passed all10complete cases, including1091699608:
+canonicalrows/counters/journals/200steps/finiteeligibleDOmasks/all3original30000
+fit receipt/hash checks. Source, original+copy and fixedorder unchanged. Complete
+calls48030; active585254818(worker80064)3964journal lines =>51994snapshot<62436.
+Observedworker549.5%CPU, frozen6threads; combinedRSS286490624bytes(~273MiB)<8GiB.
+Same supervisor61498/stage61499, age5950s; remaining1550s(~25.83m) of original
+7500s. Prior3503.592814+age=9453.592814<11100. No seal/scores or gridaccess.
+
+Savedstage timings show fits slowing, not just setup:934168586359.18s fits/
+519.97s case;546725957345.85/503.74;520888668562.98/784.03;
+10916996081090.12/1381.97, with init times248.88/416.45/424.79s.
+Generic host read-only diagnostics:18logicalCPU/36GiB memory; load~12.5;
+~12.1GiB swap used/~18.4GiB compressor occupied, availablememory query35%;
+short CPU sample42%idle. VM2secondcounterdeltas retained separately. These
+observations do not establish causal attribution or prove CPU/memory saturation.
+pmset reports no recorded thermal/performance warnings but no CPU power status;
+not proof of no throttling. No unrelated process contents inspected or modified.
+
+Completing both remaining histories at recent slower times is at risk before
+unchangeddeadline. No parameter/priority/thread/env/watchdog/seed/source/cap
+change, reset,retry,duplicate,exclusion or cancellation. Existing runner continues
+only under approved guards; no partialscore. Receipts progress_audit_10_complete
+and slowdown_diagnosis_10_complete.json. Next usefulcheck: activecase completion
+versus remainingbudget, finaloriginalseed884825602 only if stage permits, otherwise
+watchdog stop with preservedpartials and no selected-subset verdict.
