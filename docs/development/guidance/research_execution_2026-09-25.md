@@ -528,3 +528,21 @@ campaign. Do not automatically expand7200seconds, reduce epochs/inits/cases,
 replace seeds, or resume after charged calls. PR57 stays draft/unmerged. The
 scientific scope remains one deterministic emulator and an exposed grid, with
 no acquisition-superiority or independent-system claim.
+
+## 2026-10-05 — prospective adapter correction, no restart
+
+Corrected disjoint charged-role versus derived startup/executed counter validation
+in working adapter; added exact timing-admission receipt for future executions.
+Thirteen tests pass, including read-only preserved first-case metadata and counter
+mutations. Historical adapter/run/case hashes verified unchanged; no new calls,
+fits, scores, campaign seal or execution. New hash/dependency/test review freeze
+in results/runner_delivery_prospective_amendment_20261005. Original timing gate
+failure remains independent and campaign incomplete.
+
+Measured delivery fits370.855188seconds; remaining acquisition/setup/supervision
+165.593231seconds. Aggregate elapsed proxy gives8024.857235seconds with registered
+reserve/scoring allowance (~133.75minutes); exact old admission duration was not
+persisted. Options: retain2h and stay stopped, or explicitly review135minute
+prospective cap with separately authorized restart/history/seed policy. No cap,
+seed,case,epoch orinit changes made; no automatic resumption. One-case estimate
+is not guaranteed feasibility. Companion:runner_delivery_amendment_options_2026-10-05.md.

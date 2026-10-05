@@ -34,6 +34,26 @@ class Validation(unittest.TestCase):
         digest=hashlib.sha256(json.dumps(ace,sort_keys=True,allow_nan=False).encode()).hexdigest()
         receipt=r.read(Path('/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-development-7001-20261003/init-0/receipt.json'))
         self.assertEqual(digest,receipt['source_rows_sha256'])
+    def test_derived_counters_overlap_and_fail_closed(self):
+        rows=[{'role':'seed','selected':False},{'role':'lookahead','selected':True}]
+        counters={'seed':1,'lookahead':1,'startup':1,'executed':1,'total':2}
+        r.validate_charged_counters(rows,counters)
+        for key,value in [('seed',2),('startup',2),('executed',0),('total',3),('teacher',1),('unknown',0),('seed',True)]:
+            with self.assertRaises(ValueError):r.validate_charged_counters(rows,{**counters,key:value})
+        with self.assertRaises(ValueError):r.validate_charged_counters([{'role':'unregistered'}],{'total':1})
+    def test_preserved_first_case_real_metadata(self):
+        out=Path('/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-confirmation-20261005')
+        before=r.inventory(out/'cases')
+        meta=r.read(out/'cases/27424209/online/meta.json')
+        self.assertEqual(meta['query_counts']['ace']['startup'],3003)
+        self.assertEqual(meta['query_counts']['ace']['executed'],200)
+        reg,_=r.validate_protocol()
+        subset={**reg,'seeds':[27424209]}
+        manifest=r.seal_cases(out,subset) # Read-only audit, NOT a campaign seal.
+        self.assertEqual(manifest['case_hashes'],before)
+        self.assertEqual(r.inventory(out/'cases'),before)
+        self.assertFalse((out/'sealed.json').exists())
+        self.assertFalse((out/'scores.json').exists())
     def test_inventory_symlink(self):
         (self.root/'data').write_text('fixture');(self.root/'alias').symlink_to(self.root/'data')
         with self.assertRaises(ValueError):r.inventory(self.root)

@@ -181,6 +181,29 @@ def inventory(folder):
     return {str(p.relative_to(folder)):sha(p) for p in paths if p.is_file()}
 
 
+CHARGED_ROLES = ('seed', 'observational', 'interventional_val', 'obs_refresh',
+                 'lookahead', 'teacher', 'breaker', 'baseline')
+STARTUP_ROLES = ('seed', 'observational', 'interventional_val')
+
+
+def validate_charged_counters(rows, counters):
+    """Derived startup/executed summaries overlap paid roles; never add them."""
+    allowed=set(CHARGED_ROLES)|{'total','startup','executed'}
+    if set(counters)-allowed or any(type(v) is not int or v<0 for v in counters.values()):
+        raise ValueError('invalid or unknown charged metadata counter')
+    observed=Counter(row['role'] for row in rows)
+    if set(observed)-set(CHARGED_ROLES):
+        raise ValueError('unknown charged observation role')
+    if (counters.get('total')!=len(rows)
+            or any(counters.get(role,0)!=observed.get(role,0) for role in CHARGED_ROLES)
+            or sum(counters.get(role,0) for role in CHARGED_ROLES)!=len(rows)):
+        raise ValueError('charged role/total mismatch')
+    if 'startup' in counters and counters['startup']!=sum(observed.get(role,0) for role in STARTUP_ROLES):
+        raise ValueError('derived startup mismatch')
+    if 'executed' in counters and counters['executed']!=sum(bool(row.get('selected')) for row in rows):
+        raise ValueError('derived executed mismatch')
+
+
 def seal_cases(out, reg):
     out=Path(out)
     expected={str(s) for s in reg['seeds']}
@@ -195,14 +218,12 @@ def seal_cases(out, reg):
         meta=read(case/'online/meta.json')
         rows=[json.loads(line) for line in (case/'online/observations.ndjson').read_text().splitlines()]
         digest=hashlib.sha256(json.dumps(rows,sort_keys=True,allow_nan=False).encode()).hexdigest()
-        roles=dict(Counter(r['role'] for r in rows))
         expected_roles=meta['query_counts']['ace']
+        validate_charged_counters(rows,expected_roles)
         if (digest!=done['rows_sha256'] or len(rows)!=done['calls']
                 or any(r['method']!='ace' for r in rows)
                 or len({r['query_index'] for r in rows})!=len(rows)
                 or expected_roles['total']!=len(rows)
-                or any(expected_roles.get(role)!=count for role,count in roles.items())
-                or sum(v for k,v in expected_roles.items() if k!='total')!=len(rows)
                 or done['calls']>reg['resource_proposal']['call_cap_per_case']):
             raise ValueError('persisted history/count custody failed')
         cfg=read(out/'protocol/acquisition_config.json');cfg['seed']=seed
@@ -391,7 +412,14 @@ def _launch(out,approval,python,protocol=PROTOCOL):
         journal=out/'cases'/str(seed)/'calls.jsonl'
         total+=journal_count(journal) if journal.exists() else 0
         if report['status']!='complete': status=report['status'];break
-        if index==0 and not timing_gate(time.monotonic()-before,reg): status='timing_gate_failed';break
+        if index==0:
+            first_seconds=time.monotonic()-before
+            admitted=timing_gate(first_seconds,reg)
+            write(out/'timing_admission.json',{'first_case_seconds':first_seconds,
+                  'projected_seconds':1.2*reg['n_required']*first_seconds+300,
+                  'ceiling_seconds':reg['resource_proposal']['elapsed_ceiling_seconds'],
+                  'admitted':admitted,'at':utc()})
+            if not admitted: status='timing_gate_failed';break
     else:
         write(out/'sealed.json',seal_cases(out,reg))
         report=supervise([python,str(out/'adapter.py'),'--evaluate-worker',str(out)],deadline,reg['resource_proposal']['rss_ceiling_bytes'],out/'evaluation.log',env=env,interval=.5)
