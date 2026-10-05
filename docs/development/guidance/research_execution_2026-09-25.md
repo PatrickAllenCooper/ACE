@@ -628,3 +628,19 @@ within1800s prep reserve(no measured-historical-total claim). Firstnewseed
 1726880744 admission<=545.454545s,aggregatecalls includes original4803.
 No score opens until all12cases pass complete semantic/hash/modelseal; any
 failure preserves partials, no retry/exclusion/replacement/epochchange.
+
+## 2026-10-05 — Option A start verified; first new case admitted
+
+Frozen0d6c1d13 before acquisition; verified start5a9c4fdb. Supervisor61498,
+stageworker61499,firstcaseworker61501, actual~6CPUcores with combinedRSS guarded.
+Firstnewseed1726880744 completed200steps/4803charged calls/all3original30000epoch
+fits in492.335787s, passed545.454545s admission. Exact projection6798.832394s
+<7500s remaining-stage cap. Independent rows/role/derivedcounter/digest/metadata/
+eligibility/receipt audit passed. Retained originalcasehashes unchanged.
+Two complete histories,9606calls; nextoriginalseed735595885 active(worker73178).
+Other9unusedhistories still ordered. Scores and all12seal absent. No caching,
+GPU/API/remote job/PRmerge. Stage automatically continues only under original
+7500s watchdog/8GiBcombinedRSS/62436aggregatecall and fullcustody gates; no resets,
+retries/exclusions/replacements. Current checkpoint receipt in
+results/delivery_option_a_20261005/first_new_checkpoint.json. Final scientific
+verdict pending complete12case seal and outcome-blind evaluator.
