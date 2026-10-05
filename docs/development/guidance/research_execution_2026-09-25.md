@@ -562,3 +562,25 @@ on any mismatch/cap/failure,no retry. Proposal only: no fits or execution occurr
 Companion:runner_delivery_budget_preserving_proposal_2026-10-05.md. Recommend
 remain stopped under2h unless a preserving route is independently qualified and
 new campaign/restart explicitly authorized. No seed/epoch/init/case/cap change.
+
+## 2026-10-05 — authorized finite caching validation completed
+
+Standing direct user authority for bounded existing-data local development applied;
+f38f3a2a frozen before fits. Budget accounting536.448419+267.144395measured prior
+seconds+1800explicit preparation reserve+900hard validation cap=3503.592814<7200.
+Supervisor17210/worker17230 observed~6CPUcores; combined process-tree RSS guarded
+at8GiB, sampled peak367820800bytes,1096samples. Observed sampling window574.431231s
+(excludes small spawn latency), hard900s watchdog; all six serial fits complete.
+20step fixture passed. All108 paired checkpoints matched parameters/buffers,
+gradients/loss/Adam state; independent saved tensor checks passed for18models,
+including bit-identical equality to historical first-case weights.
+
+Three-fit totals baseline295.459031s/candidate276.747107s; saving18.711924s(6.33%),
+below required57.281752s. Absolute313.573436s delivery target passed, but frozen
+joint runtime criterion FAILED. Baseline itself75.40s faster than historical
+fits, so cross-run changes cannot be attributed to caching. No new acquisition
+or scoring, no grid/API/GPU access, originalcase unchanged, campaign stillstopped.
+No automatic fitting repeats/tuning/restart/source substitution or PR57merge.
+Evidence results/delivery_runtime_qualification_20261005; companion
+delivery_runtime_qualification_2026-10-05.md. Outcome:equivalence qualified on
+oneexisting history/runtime, performance insufficient for frozen admission.
