@@ -546,3 +546,19 @@ persisted. Options: retain2h and stay stopped, or explicitly review135minute
 prospective cap with separately authorized restart/history/seed policy. No cap,
 seed,case,epoch orinit changes made; no automatic resumption. One-case estimate
 is not guaranteed feasibility. Companion:runner_delivery_amendment_options_2026-10-05.md.
+
+## 2026-10-05 — concrete two-hour-preserving engineering proposal
+
+Read-only source/stage analysis identified repeated invariant normalization in
+fixed full-batch delivery fits. Caching the exact float32 normalization once per
+model is a plausible semantics-preserving candidate, conditional on bit-identical
+fixture and real-data weights/optimizer checks. No speedup is claimed. Required
+saving using unlogged-old-gate aggregate proxy:57.281752seconds (10.68%overall),
+15.45%delivery reduction, three-fit target313.573436seconds with other costs fixed.
+Proposed separately approved finite validation:CPU6threads/900s/8GiB,at most six
+serial baseline/candidate30000epochfits on preserved rows, zero emulator/scorer/
+GPU/API calls; exact checkpoints, source/custody and matched timing checks,stop
+on any mismatch/cap/failure,no retry. Proposal only: no fits or execution occurred.
+Companion:runner_delivery_budget_preserving_proposal_2026-10-05.md. Recommend
+remain stopped under2h unless a preserving route is independently qualified and
+new campaign/restart explicitly authorized. No seed/epoch/init/case/cap change.

@@ -1,0 +1,54 @@
+{
+  "status": "proposal_only_not_authorized_for_fitting",
+  "new_calls": 0,
+  "new_fits": 0,
+  "new_scores": 0,
+  "required_saving_seconds_using_aggregate_proxy": 57.28175241633045,
+  "required_aggregate_fraction": 0.10677960895895201,
+  "required_delivery_fraction_if_other_costs_unchanged": 0.1544585441163771,
+  "candidate": "cache invariant training-input normalization once per fixed full-batch delivery model; preserve exact subtract/clamp/div order, dtype, six threads, architecture, RNG order, Adam, loss, per-step finiteness and all 30000 optimizer steps",
+  "candidate_evidence": [
+    "delivery.py constructs fixed x/y once, fixes training-derived range before epochs, and has no subsequent range mutation",
+    "oracle.py MLPSurrogate.forward recomputes identical normalization every epoch; inputs/buffers require no gradients",
+    "must prove no hook, stride/kernel or autograd difference before treating as semantics-preserving"
+  ],
+  "validation_proposal": {
+    "approval_required": true,
+    "host": "local CPU",
+    "threads": 6,
+    "elapsed_cap_seconds": 900,
+    "sampled_rss_cap_bytes": 8589934592,
+    "emulator_calls": 0,
+    "gpu": 0,
+    "api_calls": 0,
+    "scorer_calls": 0,
+    "data": "preserved first-case paid rows, already generated; no grid/labels or new acquisition",
+    "runs": "one baseline and one cached-normalization fit per fixed init 0/1/2; no more than six complete fits, no retries",
+    "epochs_each": 30000,
+    "comparisons": "exact tensor equality for normalized inputs, loss, gradients and optimizer state in short fixtures; exact saved weights/buffers at every registered checkpoint and final state across all real-data models/inits",
+    "checkpoint_epochs": [
+      1,
+      10,
+      100,
+      1000,
+      10000,
+      30000
+    ],
+    "order": "init0 baseline/candidate, init1 candidate/baseline, init2 baseline/candidate; serial with six threads each",
+    "acceptance": [
+      "All numerical checks bit-identical; any difference blocks this engineering route.",
+      "All source/data hashes and eligibility/role counts identical; no omitted checks or updates.",
+      "For runtime admission, candidate total delivery time <= baseline total delivery time minus required saving, using paired measured delta and preserving acquisition-cost proxy.",
+      "Candidate three-init delivery <=313.573436s using preserved165.593231s other-cost proxy; exact first-case admission must be measured in any separately approved future campaign.",
+      "No benchmark scoring, accuracy-based selection, training-epoch or seed changes.",
+      "If 900s budget or equivalence check fails, preserve artifacts and stop; no retune/retry."
+    ],
+    "limitations": [
+      "Timing evidence does not guarantee all12 histories fit within2h.",
+      "900s is a separate bounded engineering request, not an expansion of the stopped campaign.",
+      "Any successful candidate requires prospective source/freeze and new campaign authorization; no resumption."
+    ]
+  },
+  "recommendation": "Keep campaign stopped under2h. Request only the finite engineering validation if desired; do not promise required speedup.",
+  "required_delivery_seconds_max_if_other_costs_unchanged": 313.57343558266683
+}
