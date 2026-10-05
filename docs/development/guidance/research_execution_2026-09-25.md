@@ -759,3 +759,40 @@ original7500s stage clock. Combined owned-process RSS533676032bytes(~509MiB)
 ordered remaining work; no new submission, duplicate, restart, source, thread,
 threshold or budget changes. Recent timing risk remains; no partial scoring or
 selected-subset verdict. Next checkpoint is case completion or guarded deadline.
+
+## 2026-10-05 — Option A terminal watchdog stop; eleven valid histories
+
+Same original supervisor enforced time_limit, exit-9 at2026-10-05T18:29:49.159899Z.
+Measured stage7500.278414333996s; scheduling/cleanup overrun0.278414s recorded,
+not an extension. Prior charged/reserved3503.592814290998s gives aggregate
+11003.871228624994s<11100s.13942 samples, peak combined owned RSS744685568bytes
+(~710MiB)<8GiB. Supervisor, stage and original process group are absent.
+All11complete original histories independently pass canonical rows, counters,
+200steps, finite eligible DO masks, all3original30000epoch fit receipts and model
+hash custody. Original/copied case, source and adapters unchanged. Latest complete
+585254818 took1730.397102s. Final original seed884825602 started automatically
+in original order; watchdog preserved3326 charged attempted calls in its journal,
+with no completed online dataset/model or fit receipt. Complete calls52833 plus
+partial3326 =56159<62436. No fullseal, completed marker, scores or grid access.
+Result remains incomplete/inconclusive; no selected-subset scientific verdict.
+Terminal receipt results/delivery_option_a_20261005/terminal_audit.json records
+all11 case hash inventories and partial journal hash. No restart performed.
+
+Prospective recommendation, requiring explicit new authorization: retain all11
+unscored completed histories with their immutable hashes, preserve interrupted
+journal separately, and rerun only original seed884825602 from its initial state
+in a new output. No supported acquisition checkpoint exists; a partial history
+cannot be appended safely. Charge all3326 interrupted attempts even if unused.
+Expected4803 further calls =>60962 aggregate; worst5203 =>61362, both below existing
+62436 cap. Do not change seed/order, recipe, epochs, thresholds or scoring protocol.
+Allow45minutes(2700s) CPU-only remaining stage including sealing/evaluation; latest
+complete duration1730.397102s *1.2 +300s =2376.476522s, within2700s. Timing remains
+variable; this is a bounded recommendation, not a completion guarantee. Aggregate
+would reserve13703.871229s, so a230minute(13800s) total charged envelope is required,
+beyond currently authorized185minutes. Keep6threads/8GiB; no GPU justified.
+Before launch, freeze a separate explicit amendment covering final-seed restart,
+new time envelope, exact call accounting and custody mapping; preserve both old
+outputs. Validate a separate stage watchdog and aggregate ledger, duplicate-start
+refusal and retained11 hash gates. Final evaluation may run only after all12 cases
+are valid and sealed, and within the newly authorized stage. Do not score the11.
+Without that amendment, remaining authorized work is custody/documentation only.
