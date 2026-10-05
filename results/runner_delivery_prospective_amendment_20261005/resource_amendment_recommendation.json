@@ -1,0 +1,93 @@
+{
+  "status": "prospective_owner_decision_only_campaign_stopped",
+  "no_new_calls_fits_scores": true,
+  "accounting": {
+    "campaign_seconds": 536.4484190829971,
+    "prior_development_seconds": 267.1443952080008,
+    "validation_sample_window_seconds": 574.431231,
+    "validation_window_excludes_small_spawn_latency": true,
+    "measured_sum_seconds": 1378.024045290998,
+    "preparation_reserve_seconds": 1800,
+    "measured_sum_plus_preparation_reserve_seconds": 3178.024045290998,
+    "conservative_sum_charging_full_900_validation_seconds": 3503.592814290998,
+    "existing_aggregate_cap_seconds": 7200,
+    "existing_remaining_seconds_conservative": 3696.407185709002
+  },
+  "projection_method": "1.2*n_remaining*536.448419 +300; measured aggregate first-case proxy, not exact original gate duration or a confidence bound",
+  "options": {
+    "retain_original_complete_case": {
+      "remaining_histories": 11,
+      "nominal_compute_seconds": 5900.9326099129685,
+      "stage_projected_seconds": 7381.119131895562,
+      "stage_minimum_whole_minutes": 124,
+      "proposed_stage_cap_seconds": 7500,
+      "first_case_max_seconds_under_proposed_stage": 545.4545454545455,
+      "combined_projected_measured_plus_reserve_seconds": 10559.14317718656,
+      "combined_projected_conservative_seconds": 10884.711946186559,
+      "minimum_whole_minute_aggregate_conservative_projection": 182,
+      "aggregate_charged_using_proposed_stage_seconds": 11003.592814290998,
+      "proposed_aggregate_cap_seconds": 11100,
+      "prior_calls": 4803,
+      "maximum_additional_calls": 57233,
+      "maximum_aggregate_calls": 62036,
+      "existing_aggregate_call_cap": 62436,
+      "additional_call_cap_amendment_required": false
+    },
+    "fresh_twelve_histories": {
+      "remaining_histories": 12,
+      "nominal_compute_seconds": 6437.381028995966,
+      "stage_projected_seconds": 8024.857234795158,
+      "stage_minimum_whole_minutes": 134,
+      "proposed_stage_cap_seconds": 8100,
+      "first_case_max_seconds_under_proposed_stage": 541.6666666666667,
+      "combined_projected_measured_plus_reserve_seconds": 11202.881280086156,
+      "combined_projected_conservative_seconds": 11528.450049086156,
+      "minimum_whole_minute_aggregate_conservative_projection": 193,
+      "aggregate_charged_using_proposed_stage_seconds": 11603.592814290998,
+      "proposed_aggregate_cap_seconds": 11700,
+      "prior_calls": 4803,
+      "maximum_additional_calls": 62436,
+      "maximum_aggregate_calls": 67239,
+      "existing_aggregate_call_cap": 62436,
+      "additional_call_cap_amendment_required": true
+    }
+  },
+  "recommendation": "retain unscored immutable original first case only under explicit prospective amendment; authorize125min remaining-stage cap within185min aggregate envelope,6threads/8GiB. Otherwise stay stopped.",
+  "learning_recipe": "unchanged e9f811f acquisition/refit source; caching qualification failed and is not adopted.",
+  "required_owner_changes": [
+    "Explicitly supersede historical no-resume stop only for retaining the fully valid original case and completing the11 unchanged unstarted seeds.",
+    "Approve aggregate/stage resource caps; do not silently interpret old2h as a fresh allocation.",
+    "Freeze corrected counter/timing adapter separately from unchanged learner/source and bind all original case hashes.",
+    "Revalidate source/dependencies/unused-seed scope/no-duplicate workers before any authorized start.",
+    "Score all12 only after complete immutable custody/model seals; incomplete run still cannot yield positive primary verdict.",
+    "A continuation-capable adapter is not implemented/authorized by this recommendation; after approval it needs outcome-blind validation and a new complete prospective freeze before work."
+  ],
+  "fresh_option_requirements": [
+    "Separate prospective registration and fresh seed exclusion audit; no outcome-based replacement or reuse of the charged first seed.",
+    "All12 new histories must be authorized, not automatic continuation.",
+    "Explicit aggregate call ceiling increase from62436 to at least67239 if preserving fresh12 per-case worst-case allowance; old4803 attempted calls remain charged."
+  ],
+  "scientific_scope": "12 randomized histories of one deterministic emulator on an exposed grid; no independent-world/generalization/acquisition-superiority claim.",
+  "binding": {
+    "original_registration_sha256": "31f0ea78c0e31ac34e4ccd144847e62943d4c76810812bc96c3ad15af8a04dd1",
+    "original_adapter_sha256": "d2a67ba041b77c0540f9892e9326db804704f15aed85adcd715fe4ed1b84e941",
+    "original_execution_sha256": "cc47d250b747bfc3f10c834c83eb7c29d83090db2ffb12872f05fa02852a5672",
+    "original_custody_audit_sha256": "397c606f685e032c4716aeb847af83dfbd901ef83c35514a4e34c2f519d0a214",
+    "original_case_manifest_canonical_sha256": "6123db91797132008190b710be6ccffb92884cacbc6f2f8913940e2271052e32",
+    "prospective_counter_timing_adapter_sha256": "2f93bacbd6c14c66a5aeac5daabcff50d47886eeec38885e6e83ab40d141baee",
+    "prospective_counter_fix_receipt_sha256": "22cd10f60ffe706e270ec81b0287849579dbe844e6046b192628b2229235f53e",
+    "runtime_qualification_audit_sha256": "6e671ece4bf2c64377ba76965fd89d219d6ccecd1d039acc8f88453090acba17"
+  },
+  "first_case_retention_audit": {
+    "valid_complete_case": true,
+    "original_hashes_unchanged": true,
+    "original_learning_source": "e9f811fbc68fb70681c3d89182d8ebe024882ce3",
+    "unscored": true,
+    "all_three_original_fits_retained": true,
+    "fixed_original_seed_order_preserved": true,
+    "selection_basis": "first seed was prospectively fixed; retention conditional on custody validity and no observed evaluation scores, not favorable accuracy",
+    "engineering_exposure": "case used for normalization-equivalence/timing only; caching runtime gate failed and learner change is not adopted",
+    "no_resumption_authorized": true,
+    "explicit_historical_failure_retention_required": true
+  }
+}

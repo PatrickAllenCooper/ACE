@@ -584,3 +584,24 @@ No automatic fitting repeats/tuning/restart/source substitution or PR57merge.
 Evidence results/delivery_runtime_qualification_20261005; companion
 delivery_runtime_qualification_2026-10-05.md. Outcome:equivalence qualified on
 oneexisting history/runtime, performance insufficient for frozen admission.
+
+## 2026-10-05 — saved-evidence prospective resource recommendation
+
+Measured536.448419+267.144395+574.431231=1378.024045s; validation excludes small
+spawn latency. With1800s explicit prep reserve3178.024045s; charging full900s
+validation cap instead3503.592814s. Existing aggregate2h remaining3696.407186s.
+No new fits/acquisition/scoring/grid access or historical changes.
+
+Recommend explicit owner retention/no-resume amendment for original valid unscored
+first case plus11unstarted originalseeds:projection7381.119132s,125minute stage
+within185minute conservative aggregate, firstnewcase<=545.45s,6threads/8GiB,
+originale9learner(no caching), originalcase hashes separately bound to prospective
+counter/timing fix. Max aggregatecalls62036<=62436. Retention is based on fixed
+seed/custody and no evaluated outcomes, not accuracy; requires explicit amendment
+and validated continuation adapter, not an old approval or silent resumption.
+Fresh12alternative:projection8024.857235s,135minute stage/195minute aggregate,
+new prospective seed/exclusion registration and aggregatecalls67239 requiring
+explicit call-cap amendment. All projectionsonehistoryproxy,notconfidencebounds.
+Companion delivery_resource_amendment_recommendation_2026-10-05.md; exact bindings/
+arithmetic resource_amendment_recommendation.json. Both paths remain unapproved;
+campaign stopped/sealed scores unopened, PR57draft unchanged.
