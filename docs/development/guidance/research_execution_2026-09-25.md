@@ -748,3 +748,14 @@ only under approved guards; no partialscore. Receipts progress_audit_10_complete
 and slowdown_diagnosis_10_complete.json. Next usefulcheck: activecase completion
 versus remainingbudget, finaloriginalseed884825602 only if stage permits, otherwise
 watchdog stop with preservedpartials and no selected-subset verdict.
+
+## 2026-10-05 — continuation requested; existing stage remains active
+
+Fresh read-only custody audit again passes ten complete histories. Active original
+seed585254818 has4803 complete acquisition journal lines; aggregate snapshot52833
+<62436. Supervisor age6184s gives conservative1316s(~21.93m) remaining under
+original7500s stage clock. Combined owned-process RSS533676032bytes(~509MiB)
+<8GiB. No fullseal or scores. Existing approved process continues fitting and
+ordered remaining work; no new submission, duplicate, restart, source, thread,
+threshold or budget changes. Recent timing risk remains; no partial scoring or
+selected-subset verdict. Next checkpoint is case completion or guarded deadline.
