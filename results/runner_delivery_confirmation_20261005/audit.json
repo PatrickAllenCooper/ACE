@@ -1,0 +1,120 @@
+{
+  "at": "2026-10-05T15:01:04.842220+00:00",
+  "status": "timing_gate_failed",
+  "elapsed_seconds": 536.4484190829971,
+  "calls": 4803,
+  "first_case": {
+    "seed": 27424209,
+    "inits": [
+      0,
+      1,
+      2
+    ],
+    "calls": 4803,
+    "rows_sha256": "5724cbf69ecec11f97e0a5bf5ffe40f5fd765cada9a9afa00deb6ae2bae78ec9",
+    "config": {
+      "K": 4,
+      "GAMMA": 0.05,
+      "n_val_samples": 500,
+      "n_seed_samples": 3,
+      "learner_lr": 0.002,
+      "learner_epochs": 100,
+      "buffer_steps": 50,
+      "seed": 27424209,
+      "pretrain_steps": 0,
+      "pretrain_interval": 0,
+      "obs_refresh_every": 5,
+      "obs_refresh_samples": 25,
+      "ref_update_every": 0,
+      "select_on_mechanism": true,
+      "policy_update": "none",
+      "normalize_inputs": true,
+      "proposer": "random",
+      "train_on_lookahead": false,
+      "selection_objective": "raw_sum",
+      "checkpoint_every": 0,
+      "llm_revision": "8faed761d45a263340a0528343f099c05c9a4323",
+      "cov_bonus": 60.0,
+      "diversity_weight": 0.3,
+      "max_concentration": 0.4,
+      "eps_explore": 0.1,
+      "collapse_threshold": 0.5,
+      "smart_breaker": true,
+      "forced_diversity_every": 10,
+      "value_novelty_weight": 0.1,
+      "recent_window": 100
+    },
+    "refit_timings": [
+      {
+        "init": 0,
+        "seconds": 115.8377740829892,
+        "ended_at": "2026-10-05T14:55:16.044150+00:00"
+      },
+      {
+        "init": 1,
+        "seconds": 118.84960149999824,
+        "ended_at": "2026-10-05T14:57:14.893476+00:00"
+      },
+      {
+        "init": 2,
+        "seconds": 136.16781241600984,
+        "ended_at": "2026-10-05T14:59:31.060990+00:00"
+      }
+    ],
+    "completed_at": "2026-10-05T14:59:31.065432+00:00"
+  },
+  "sampled_peak_rss_bytes": 653066240,
+  "rss_samples": 1022,
+  "independent_custody_checks_passed": true,
+  "eligible_rows": {
+    "flat": 3803,
+    "iftu_score": 4303,
+    "leo_link_score": 4303,
+    "meo_link_score": 4303,
+    "engagement_rate": 4803,
+    "comm_cost": 4803
+  },
+  "role_counts": {
+    "observational": 500,
+    "interventional_val": 2500,
+    "seed": 3,
+    "lookahead": 800,
+    "obs_refresh": 1000
+  },
+  "source_metadata_derived_counters": {
+    "startup": 3003,
+    "executed": 200
+  },
+  "frozen_adapter_seal_defect": "seal_cases sums derived startup/executed counters as though disjoint charged roles; would incorrectly reject real metadata. Historical adapter unchanged; no scoring or automatic restart.",
+  "case_hashes": {
+    "27424209/calls.jsonl": "2e75f55383545183bb14ba63bb66b8477cf1dd88bddb79a138feb5c6be0a2d0f",
+    "27424209/complete.json": "0c10436af44d594aff2f897872885947eefb5bc7698a7fa6ec6b7c1b3aceef3b",
+    "27424209/init-0/models.pt": "571fb6bdb9dd0ec9859397d7cf52039a2a4817b5638ed8cb9c9cbe15f80e9ae5",
+    "27424209/init-0/receipt.json": "2a756b3c9027adbc2b50faa7873a9cdf139a64c3dbaaf63613bd83d3e32d8b65",
+    "27424209/init-1/models.pt": "3913f4db268ff0c80666879de4376349ee2d6a8c90e9cf6c6d49c26c8eeaf76d",
+    "27424209/init-1/receipt.json": "92502cdbb732d76930db4932982b4b6897c6148a5c4a5bb3fca726678d9406c6",
+    "27424209/init-2/models.pt": "a06cee89fe3712f21185bf7966b9d888c0f598bb18831e54c6e6c19d370cf4d0",
+    "27424209/init-2/receipt.json": "9ab268235ef21752709b7ae043de2297912024cb2fab76cb1947c164d41df778",
+    "27424209/online/dataset.csv": "6f8663d51367fbe0ff425fd88dae7a40342d1387ddf1e6faa1840d57535369a8",
+    "27424209/online/meta.json": "27bfbb6bed759b57d5c443679e216ce9f320ff4d39308525789f1c042c39dc94",
+    "27424209/online/mlp.pt": "d7b566811c5ba89bf1dc9eb019c02ce69057412ebf5e06dfc642a516abd5f68d",
+    "27424209/online/mlps/comm_cost.pt": "83888ec25296fad1712c75ed3a567f61a3c839d462443b1ad1847d6af2842bd6",
+    "27424209/online/mlps/engagement_rate.pt": "af2a6f48e9163ce45165fd5ee1c564e25d549d5675363b23dff3357d6aab582a",
+    "27424209/online/mlps/iftu_score.pt": "c6b90a368906b7445b4ca10091b98ecaf17885ff8960131ec0e88d5f34e4a7d7",
+    "27424209/online/mlps/leo_link_score.pt": "4c24754fe02b72b119a803dd5ee3b5cfae4657b09cbf82ee77d80259aff14f1a",
+    "27424209/online/mlps/meo_link_score.pt": "5f1d1535d2fc66003f0e6cbd7837d7a6c23f0d65a1445fe4ffce703862a24df9",
+    "27424209/online/observations.ndjson": "8f70c5d71910e40f228afc9b0002fe33014118b78dcc3bc418a30a2a8d967873",
+    "27424209/online/report.yaml": "bca08365679a53b62ac8dd23c324b46259cb0609c452e4736dd8091a123b9317",
+    "27424209/online/scm_edges.json": "e9c89060c662a66c8907f66a8a365dd03caa48c5663d0e4aaa58b182cc5e4839",
+    "27424209/online/sindy.txt": "f32ac03a7ee995614b4216fed8abd74ec3ef715690de68aa2718c6e99b23cfec"
+  },
+  "primary_verdict": "inconclusive_incomplete_campaign_not_scored",
+  "remaining_cases_started": false,
+  "scores_present": false,
+  "seal_present": false,
+  "output": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-confirmation-20261005",
+  "execution_sha256": "cc47d250b747bfc3f10c834c83eb7c29d83090db2ffb12872f05fa02852a5672",
+  "runtime_sha256": "b97b1a29281e3aa776a6c4a98a816a350b925d250965fde5565e6bcfa29fda00",
+  "approval_sha256": "24c36496ebf8dd4bb50e91c6d406dda32d449490ec0bb61aabd471888601c114",
+  "no_retry_or_expansion": true
+}

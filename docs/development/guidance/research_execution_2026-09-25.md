@@ -491,3 +491,40 @@ Campaign execution remains disabled, with zero new emulator rows or scores.
 Next decision: authorize unchanged twelve-history local CPU campaign under
 six-thread/7200-second/8-GiB ceilings, acknowledging audited scope; first-case
 479.17-second timing admission then complete seal before scoring. No PR57 merge.
+
+## 2026-10-05 — approved delivery confirmation started, stopped at timing gate
+
+Patrick approved the two-hour CPU campaign in coordination transcript evidence
+fco_01a10c89-47c1-7576-8fcb-05c1a24dd6bc, thread
+01a10a1a-bc19-707e-95a8-46b7bb11a024. Approval/source/dependency/readiness
+binding retained in results/runner_delivery_confirmation_20261005/approval.json.
+Live checks showed no duplicate local workers or matching ACE/delivery Slurm jobs.
+One local campaign started; supervisor PID51635, worker51660, observed 580–600%
+CPU. Pinned source e9f811f and original registration/adapter unchanged.
+
+Run terminated automatically with timing_gate_failed after536.448419seconds
+aggregate elapsed; first case27424209 completed200steps/4803attempted calls and
+all three30000epoch delivery fits. Refits115.84/118.85/136.17seconds. Sampled
+peak process-tree RSS653066240bytes (~623MiB),1022samples. No GPU/API/remote jobs,
+no second case, no evaluator invocation/seal/scores. Campaign incomplete: primary
+>=20% error reduction claim untested, with no accuracy/generalization verdict.
+All artifacts preserved at
+/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-confirmation-20261005.
+Compact start/audit/approval receipts committed under results.
+
+Independent post-stop audit found an additional frozen adapter defect:
+seal_cases sums derived startup/executed metadata counters alongside disjoint
+charged roles, incorrectly rejecting real Runner metadata. Independent raw-row,
+unique-index,role,total,startup/selected-counter,200step,canonical-row-hash,
+metadata-hash and all three refit receipt/eligible-row checks passed. Historical
+adapter and campaign source were not patched or restarted. The prospective
+correction must distinguish charged roles from derived counters and add a real
+metadata regression before any new approval. No score was accessed to diagnose
+this defect. First-case gate failure remains valid independently of the defect.
+
+Next decision requires a prospective amendment: repair the seal verifier and
+explicitly justify revised runtime scope or a different separately registered
+campaign. Do not automatically expand7200seconds, reduce epochs/inits/cases,
+replace seeds, or resume after charged calls. PR57 stays draft/unmerged. The
+scientific scope remains one deterministic emulator and an exposed grid, with
+no acquisition-superiority or independent-system claim.
