@@ -701,3 +701,22 @@ Completedcalls38424+active3460snapshot=41884<62436; currentcombinedRSS365543424b
 retry/exclusion/caching/source/capchange. Existingapprovedrunner continuesordered
 cases. Receipt progress_audit_8_complete.json. Nextcheck: activecase completion/
 nextoriginalseed1091699608; finalscoring onlyafter complete12custodyseal.
+
+## 2026-10-05 — due audit, nine complete; observed timing slowdown
+
+Full read-only audit passed all9completecases, including520888668: canonical
+rows/counters/journals/uniqueindices/200steps/finiteeligibleDO masks/all3original
+30000epoch fit receipts/metadata/modelhashes; retainedoriginal/copy/source/adapters
+and orderedseedprefix unchanged. Latestcase520888668 took784.031937s versus
+546725957503.740033s; slowdown observed, cause not established or corrected by
+changing workload. Active1091699608(worker60062) observed441.3%CPU; frozen6thread/
+inter-op1/OMP-MKL6 configured ceiling, no in-process thread counter introspection.
+
+Completecalls43227+active4803snapshot=48030<62436; currentcombinedRSS337166336bytes
+(~322MiB)<8GiB. Same supervisor61498/stage61499; processage4759s(~79.32m),remaining
+2741s(~45.68m)of unchanged7500s stage. Prior3503.592814+age=8262.592814<11100.
+No custody/source discrepancy; timing variability does not guarantee allremaining
+cases finish. Watchdog unchanged; no reset/retry/duplicate/exclusion/caching/
+source/capchange or scoring/gridaccess duringaudit. No fullseal/scores yet.
+Receipt progress_audit_9_complete.json. Nextcheck activecase completion and
+originalseed585254818,then884825602; scoring remains contingent on all12fullseal.
