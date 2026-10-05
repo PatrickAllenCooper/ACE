@@ -686,3 +686,18 @@ No retries/restarts/duplicates/source/cap/caching/threshold changes or scorer/gr
 access caused by audit. Existing approved runner continues orderedremainingcases.
 Receipt progress_audit_7_complete.json. Next usefulcheckpoint: activecase complete
 then next originalseed520888668; final evaluation remains gated by all12custodyseal.
+
+## 2026-10-05 — due audit, eight complete histories
+
+Read-only re-audit passed all8complete histories, including546725957: canonical
+rows/counters/journals/200steps/all3original30000epoch receipts/finiteeligibleDO
+masks/modelhash custody, fixedorder and immutableoriginal/copy/source/adapters.
+Active nextoriginalseed520888668(worker45172), observed498.5%CPU; frozencompute
+configuration6threads/inter-op1/OMP-MKL6, no runtimecounter injection. Same
+supervisor61498/stage61499; processage3563s, conservative remaining3937s (~65.62m)
+of unchanged7500s deadline. Account prior3503.592814+age=7066.592814<11100.
+Completedcalls38424+active3460snapshot=41884<62436; currentcombinedRSS365543424bytes
+(~349MiB)<8GiB. No discrepancies, score/seal, gridaccess, restart, duplicate,
+retry/exclusion/caching/source/capchange. Existingapprovedrunner continuesordered
+cases. Receipt progress_audit_8_complete.json. Nextcheck: activecase completion/
+nextoriginalseed1091699608; finalscoring onlyafter complete12custodyseal.
