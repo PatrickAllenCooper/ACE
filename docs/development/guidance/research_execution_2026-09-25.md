@@ -1305,3 +1305,25 @@ The original A/C conclusions and root-support limitations remain unchanged.
 Individual hourly automation remains paused; coordinated review advances work.
 
 Early thirty-node telemetry: concrete tasks33507430/33507431 (array33507421, indices0/1) each recorded6:11averageCPU, with maxRSS639660/629440KiB. Array-alias sstat did not resolve; read-only scontrol supplied concrete task IDs, then sstat succeeded. These counters support active CPU/memory consumption; they do not substitute for final optimizer receipts. Raw/compact telemetry preserved; no job change.
+
+
+### 23:32 UTC Stage B milestone audit
+
+At23:32:02UTC,62/640complete fit receipts pass frozen matrix/input/arm/init
+bindings, model hashes, expected head counts, recorded optimizer counts and
+400paid-row/50calibration-row accounting. These comprise60five-node fits and
+twothirty-node fits. Twofive-node worlds (5:00,5:01) are fully complete; their
+Slurm tasks33507420_0/_1 areCOMPLETED0:0 (685allocatedCPU-seconds each).
+Tasks33507420_2/_3 and33507421_0/_1 remainRUNNING; remainingworlds arePENDING
+under the two-per-array concurrency limits. Evaluation33507422 and audit33507423
+arePENDING/Dependency. No failed recorded attempts or study stop flag.
+
+All62immutable model/receipt pairs are pulled into a new timestamped external
+custody snapshot and independently hash-verified locally. Complete training
+custody remains80histories/32000responses; fullmatrix640. CompletedfitCPUtime
+is1.040715core-hours; it is partial worker compute, not the total allocation.
+Reserved86.86833CPUh,150ceiling and126historicalfailedpilotseconds unchanged.
+Fullfitseal is absent, evaluation directory/claim absent, heldoutresponses and
+scores unopened. No duplication, replacement, retry or frozen-source change.
+Compact progress/custody receipts: full_milestone_20261006T233202Z.json and
+full_milestone_custody_20261006T233202Z.json in the preparation receipt directory.
