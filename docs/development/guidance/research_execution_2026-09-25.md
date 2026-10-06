@@ -857,3 +857,13 @@ Paper README/current AISTATS supplement and historical handoff now carry dated
 claim-limited delivery evidence and compute/emulator/optimization-repeat limits.
 No experiment, scoring rerun, registration change, merge or publication. LaTeX
 source edited in existing multi-file manuscript; PDF compilation not verified.
+
+## 2026-10-06 — installed cached manuscript compilation verified
+
+Tectonic --only-cached exits0;31page PDF retained with log/bibliography log and
+source/PDF SHA receipt under results/delivery_final_history_20261006/manuscript_validation.
+No undefined references/citations. Targeted visual review pages1/30/31; delivery
+section now together on31 via clearpage, numbers/limitations intact. Existing
+5.1225pt title overfull warning atline77 remains visually legible; underfull
+warnings retained. No software install/network resources/experiment/release.
+This verifies build and targeted layout, not old manuscript scientific claims.
