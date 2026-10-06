@@ -971,3 +971,46 @@ unrelated jobs unchanged. No reconnection needed, filesystem readiness remains
 the remote launch blocker. Compact audit and validation receipts retained in
 results/delivery_paper_implementation_20261006. Continue local implementation and
 the existing batch; use validated CURC output paths when readiness returns.
+
+## 2026-10-06 20:20 UTC — Stage A complete; prospective recipe selected
+
+All480fits and twelve evaluations completed in the original supervisor/session;
+independent final custody audit passed model/receipt/score hashes, original
+weights/input/source/grid bindings, eligibility and matched-CPU budgets. Source
+af7809c5; full complete receipt6a78f7a79306c43bbafef8ab3b202e7d1c80577e43bf8004370927514f061bb1.
+Fit CPU10.87162core-hours, below80; original8h/6thread/8GiB watch unchanged.
+Zero new responses/API calls, no failed attempts. Compact full scored matrix,
+per-fit sizes/updates/costs, sensitivity and retained failure diagnostics copied
+to results/delivery_attribution_20261006; raw weights/logs remain in external
+local custody. No new full or partial fit launch.
+
+Registered exploratory gate: SCM all-paid30,000/init0 versus original online
+continuous-error ratio0.522334, frozen flat0.550850, CPU-matched flat0.423260.
+Versus buffer-long0.095560, all-paid100epochs0.033812, admitted-long0.980018.
+Optimization and replay retention dominate adding previously unused paid rows.
+SCM versus flat also differs in usable intermediate-clamp observations; this
+does not isolate pure architecture or support prospective superiority. All
+simpler controls retained. Gate selects SCM/all-paid30,000/init0, frozen flat
+comparator and SCM100epoch ablation. No post-score recipe/control rescues.
+
+History124753321 remains worse: target observed-parent MSE8.07063e-5 versus
+free-running2.85851e-4 and propagated prediction-shift2.09303e-4; only0.019712%
+of target parent vectors lie outside the training bounding box. In-box propagation
+and quantization are plausible explanatory diagnostics, not causal diagnoses or
+certified bounds. Claim generator independently recomputes paired ratios and
+binds the new table and failure numbers to complete receipts. Draft updated.
+
+Outcome-independent B preparation produced forty parameterized world/action
+descriptors, immutable collection/evaluation-block separation, no responses.
+Five generator tests pass, including global RNG preservation and coefficient/
+graph-drift rejection. B remains gated on worker/online/endpoint/runtime freeze.
+Primary proposal disables noise consistently for train/test; noisy flat-mean
+training versus a zero-noise target is an estimand mismatch, not an architectural
+win. Theory makes fresh-noise independence explicit and includes an exactly
+solved chain-of-means failure; nine analytic tests pass. C development timing
+pilot prepared behind the now-passed A gate; full5core-hour release still awaits
+its measured projection. No eleven-condition outcomes newly opened yet.
+
+CURC20:11UTC transport live; scratch stat/df each exit124 after10s. No ACE jobs
+or submissions, unrelated jobs unchanged. Continue bounded CPU local work until
+remote path readiness returns. No reconnect needed.

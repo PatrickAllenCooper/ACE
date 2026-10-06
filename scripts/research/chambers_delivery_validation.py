@@ -22,6 +22,8 @@ def validate_protocol(out):
     out=Path(out);p=read(out/'protocol.json')
     if sha(__file__)!=p['worker_sha256'] or sha(p['archive'])!=p['archive_sha256'] or p['archive_sha256']!=ARCHIVE_SHA:
         raise ValueError('source/archive changed')
+    if sha(Path(__file__).with_name('runner_delivery_confirmation.py'))!=p['guard_sha256']:
+        raise ValueError('resource guard changed')
     import importlib.metadata as m
     if any(m.version(n)!=v for n,v in p['dependencies'].items()):raise ValueError('dependency changed')
     for n,h in p['source_hashes'].items():
@@ -71,11 +73,16 @@ def physics_features(angles):
     return np.column_stack([np.ones(len(r)),np.cos(r[:,0]-r[:,1])**2])
 
 
-def freeze(archive,gate,source,out):
+def freeze(archive,gate,source,out,projection):
     if sha(archive)!=ARCHIVE_SHA:raise ValueError('archive changed')
     g=read(gate)
     if (g['stage']!='A exploratory attribution' or not g.get('complete_receipt_sha256')
             or not g.get('custody_audit',{}).get('full_acceptance')):raise ValueError('missing fully audited attribution gate')
+    r=read(projection)
+    if (not r['complete'] or not r['within_cap'] or r['stage_a_gate_sha256']!=sha(gate)
+            or r['physical_worker_sha256']!=sha(__file__) or r['archive_sha256']!=sha(archive)
+            or r['selected_delivery']!=g['selected_delivery'] or r['estimated_full_cpu_core_hours']>r['full_wall_ceiling_seconds']/3600
+            or r['full_wall_ceiling_seconds']>17880):raise ValueError('physical pilot/resource gate failed')
     out=Path(out);out.mkdir(parents=True,exist_ok=False)
     with zipfile.ZipFile(archive) as z:
         names=sorted(n for n in z.namelist() if n.endswith('.csv') and Path(n).stem!='white_64')
@@ -84,7 +91,8 @@ def freeze(archive,gate,source,out):
     write(out/'protocol.json',{'at':utc(),'archive':str(archive),'archive_sha256':ARCHIVE_SHA,'stage_a_gate_sha256':sha(gate),
         'conditions':names,'development_excluded':'white_64','selected_delivery':g['selected_delivery'],
         'source':str(source),'source_hashes':{str(p.relative_to(source)):sha(p) for p in (Path(source)/'ace').glob('*.py')},
-        'worker_sha256':sha(__file__),'dependencies':{n:m.version(n) for n in ('torch','numpy','scikit-learn')},
+        'worker_sha256':sha(__file__),'guard_sha256':sha(Path(__file__).with_name('runner_delivery_confirmation.py')),
+        'dependencies':{n:m.version(n) for n in ('torch','numpy','scikit-learn')},
         'endpoint':'test MSE divided by training variance; per-condition descriptive',
         'grouping':'joint 30-degree angle blocks; identical commands indivisible',
         'split':'(block1+2*block2)%5==0 test','epochs':30000,'init':0,'lr':.002,
@@ -92,11 +100,19 @@ def freeze(archive,gate,source,out):
         'neural_output_scaling':'training-only target mean and sd, both delivery and rolling buffer',
         'physics':'intercept + cos(relative angle)^2','fourier':'tensor of 1,sin2,cos2,sin4,cos4',
         'uncertainty':'paired action-block bootstrap conditional on observed conditions; not independent worlds',
-        'bootstrap_seed':620061,'bootstrap_replicates':2000,'cpu_core_hour_ceiling':5,'threads':1,'new_physical_queries':0})
+        'bootstrap_seed':620061,'bootstrap_replicates':2000,'cpu_core_hour_ceiling':5,'threads':1,'new_physical_queries':0,
+        'account':'ucb736_asc1','output':str(out),'rss_bytes':8*2**30,
+        'execution_environment':'CPU; transport/output readiness must be validated before any CURC submission'})
+    p=read(out/'protocol.json')
+    if r['dependencies']!=p['dependencies'] or r['source_hashes']!=p['source_hashes']:raise ValueError('pilot runtime/source changed')
+    p['resource_projection_sha256']=sha(projection);p['wall_seconds']=r['full_wall_ceiling_seconds']
+    write(out/'protocol.json',p)
 
 
 def fit(out):
     out=Path(out);p=validate_protocol(out)
+    from runner_delivery_confirmation import no_network
+    sys.addaudithook(no_network)
     with (out/'started.json').open('x') as f:json.dump({'at':utc(),'protocol_sha256':sha(out/'protocol.json')},f)
     sys.path.insert(0,p['source'])
     import numpy as np
@@ -114,7 +130,9 @@ def fit(out):
             x=torch.tensor(a/90,dtype=torch.float32);t=torch.tensor((y-mean)/sd,dtype=torch.float32)
             state={};pred={};cost={};coefficients={}
             # Fit all requested methods without reading their test losses.
-            for method in ('delivery_mlp','rolling_buffer'):
+            selected=p['selected_delivery']
+            methods=['rolling_buffer']+(['delivery_mlp'] if selected in ('scm','flat') else [])
+            for method in methods:
                 torch.random.default_generator.manual_seed(0);model=MLPSurrogate(2)
                 opt=torch.optim.Adam(model.parameters(),lr=.002);fit0=time.process_time();updates=0
                 sequence=[np.where(train)[0]] if method=='delivery_mlp' else [np.where(train)[0][max(0,k-49):k+1] for k in range(train.sum())]
@@ -130,9 +148,10 @@ def fit(out):
             features={'physics':physics_features(a),
                       'fourier':np.einsum('ni,nj->nij',b(r[:,0]),b(r[:,1])).reshape(len(y),-1)}
             for method,f in features.items():
+                fit0=time.process_time()
                 coef=np.linalg.lstsq(f[train],y[train],rcond=None)[0];pred[method]=f@coef
                 coefficients[method]=coef.tolist()
-            selected=p['selected_delivery']
+                cost[method]={'cpu_seconds':time.process_time()-fit0,'parameters':len(coef),'updates':0}
             if selected not in ('scm','flat'):
                 from sklearn.linear_model import Ridge
                 from sklearn.preprocessing import PolynomialFeatures
@@ -140,7 +159,10 @@ def fit(out):
                 from sklearn.ensemble import ExtraTreesRegressor
                 model=(ExtraTreesRegressor(n_estimators=256,min_samples_leaf=2,random_state=0,n_jobs=1) if selected=='tree' else
                        make_pipeline(PolynomialFeatures(3),Ridge(alpha=1.0)) if selected=='polynomial' else Ridge(alpha=1.0))
-                model.fit(a[train]/90,y[train]);pred['delivery']=model.predict(a/90)
+                fit0=time.process_time();model.fit(a[train]/90,y[train]);pred['delivery']=model.predict(a/90)
+                cost['delivery']={'cpu_seconds':time.process_time()-fit0,'updates':0,
+                    'parameters_or_tree_nodes':sum(t.tree_.node_count for t in model.estimators_) if selected=='tree' else
+                    int(model[-1].coef_.size+1) if selected=='polynomial' else int(model.coef_.size+1)}
             else:pred['delivery']=pred['delivery_mlp']
             condition=Path(name).stem;dest=out/condition;dest.mkdir(exist_ok=False)
             torch.save(state,dest/'models.pt')
@@ -162,6 +184,8 @@ def fit(out):
 def evaluate(out):
     # Evaluator is launched as a distinct process after all eleven fits seal.
     out=Path(out);p=validate_protocol(out);done,summaries=validate_fit_seal(out,p)
+    from runner_delivery_confirmation import no_network
+    sys.addaudithook(no_network)
     import numpy as np
     results={};rng=np.random.default_rng(p['bootstrap_seed']);start=time.monotonic();cpu0=time.process_time()
     for condition,s in summaries.items():
@@ -188,7 +212,9 @@ def evaluate(out):
 
 def run(out):
     from runner_delivery_confirmation import supervise
-    deadline=time.monotonic()+5*3600
+    p=validate_protocol(out)
+    if not 0<p['wall_seconds']<=17880:raise ValueError('physical wall ceiling changed')
+    deadline=time.monotonic()+p['wall_seconds']
     for phase in ('fit','evaluate'):
         r=supervise([sys.executable,__file__,phase,'--out',str(out)],deadline,8*2**30,
                     Path(out)/(phase+'.log'),interval=2,
@@ -200,6 +226,7 @@ def run(out):
 
 if __name__=='__main__':
     a=argparse.ArgumentParser();a.add_argument('command',choices=('freeze','run','fit','evaluate'));a.add_argument('--out',type=Path,required=True)
-    a.add_argument('--archive',type=Path);a.add_argument('--gate',type=Path);a.add_argument('--source',type=Path);args=a.parse_args()
-    if args.command=='freeze':freeze(args.archive,args.gate,args.source,args.out)
+    a.add_argument('--archive',type=Path);a.add_argument('--gate',type=Path);a.add_argument('--source',type=Path)
+    a.add_argument('--projection',type=Path);args=a.parse_args()
+    if args.command=='freeze':freeze(args.archive,args.gate,args.source,args.out,args.projection)
     else:globals()[args.command](args.out)

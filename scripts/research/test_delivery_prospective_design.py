@@ -1,5 +1,5 @@
 import unittest
-from delivery_prospective_design import structural_values,shared_actions,action_block,reserved
+from delivery_prospective_design import structural_values,shared_actions,action_block,reserved,world_spec,validate_world
 
 
 class ProspectiveDesignTests(unittest.TestCase):
@@ -26,6 +26,27 @@ class ProspectiveDesignTests(unittest.TestCase):
         for root in ('X1','X4'):
             counts=Counter(a[root] for a in actions)
             self.assertEqual(len(counts),11);self.assertLessEqual(max(counts.values())-min(counts.values()),2)
+
+    def test_large_generator_is_deterministic_without_global_rng_damage(self):
+        import numpy as np
+        from pathlib import Path
+        project=Path(__file__).resolve().parents[2]
+        state=np.random.get_state()
+        expected=np.random.random(3);np.random.set_state(state)
+        # Qualification fixture seed is not a selected prospective world.
+        a=world_spec(30,0,project);b=world_spec(30,0,project)
+        self.assertEqual(a,b)
+        self.assertTrue(np.array_equal(np.random.random(3),expected))
+        self.assertEqual(len(validate_world(a)),5)
+
+    def test_world_rejects_graph_and_mechanism_drift(self):
+        import copy
+        from pathlib import Path
+        s=world_spec(5,0,Path(__file__).resolve().parents[2]);validate_world(s)
+        bad=copy.deepcopy(s);bad['parents']['X2']=['X3']
+        with self.assertRaises(ValueError):validate_world(bad)
+        bad=copy.deepcopy(s);bad['coefficients']['q']=float('nan')
+        with self.assertRaises(ValueError):validate_world(bad)
 
 
 if __name__=='__main__':unittest.main()

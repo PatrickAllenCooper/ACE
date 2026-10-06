@@ -1,0 +1,28 @@
+% Generated exploratory init0 matrix; no inference from exposed grid.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{llrrrr}
+\toprule
+Data & Learner & Epochs & NMSE/online & Snap/online & CPU h\\
+\midrule
+Final50 & SCM & 100 & 26.889 & 4.082 & 0.002\\
+Final50 & SCM & 30,000 & 5.466 & 2.593 & 0.390\\
+Final50 & flat & 100 & 29.230 & 4.126 & $<0.001$\\
+Final50 & flat & 30,000 & 29.158 & 4.103 & 0.078\\
+Admitted & SCM & 100 & 16.661 & 3.865 & 0.003\\
+Admitted & SCM & 30,000 & 0.533 & 0.435 & 0.783\\
+Admitted & flat & 100 & 13.198 & 3.695 & 0.001\\
+Admitted & flat & 30,000 & 2.395 & 1.949 & 0.159\\
+All paid & SCM & 100 & 15.448 & 3.846 & 0.006\\
+All paid & SCM & 30,000 & 0.522 & 0.204 & 1.455\\
+All paid & flat & 100 & 12.248 & 3.655 & 0.002\\
+All paid & flat & 30,000 & 0.948 & 0.950 & 0.270\\
+All paid & ridge & -- & 28.890 & 4.150 & 0.002\\
+All paid & polynomial & -- & 4.440 & 2.737 & 0.002\\
+All paid & tree & -- & 24.582 & 3.883 & 0.004\\
+All paid & flat & CPU & 1.234 & 1.206 & 1.455\\
+\bottomrule
+\end{tabular}
+\caption{Exploratory primary initialization0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights; lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding imports and evaluation. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}
+\label{tab:attribution}
+\end{table}

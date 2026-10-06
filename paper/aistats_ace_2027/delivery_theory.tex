@@ -4,10 +4,12 @@ We study a known acyclic graph with measured parents. The following statements
 explain permissible reuse and possible error amplification. They do not prove
 identification for arbitrary neural models or certify the fitted networks.
 
+\begin{samepage}
 \begin{proposition}[Mechanism eligibility]
 Let $V_i=f_i(V_{\mathrm{Pa}(i)})+U_i$ be an invariant additive-noise
-mechanism. Suppose $U_i$ is integrable, independent of the other exogenous
-variables, and has mean zero. An intervention policy may depend on previous
+mechanism. In each experiment, suppose the current exogenous noises are
+independent across mechanisms and independent of all past experiments; $U_i$
+is integrable and has mean zero. An intervention policy may depend on previous
 experiments, but must choose its action before the current exogenous noises are
 realized. Retain a row only when the action does not replace mechanism $i$,
 and when retention does not select on its current noise or response conditional
@@ -19,6 +21,7 @@ Thus squared-loss regression can target this mechanism on supported parent
 values, assuming finite second moments. This is an estimand statement; finite
 data, optimization and extrapolation guarantees require further assumptions.
 \end{proposition}
+\end{samepage}
 \begin{proof}
 In an acyclic graph, a node's parents depend only on earlier exogenous noises
 and the chosen action. The current $U_i$ is independent of those noises and of
@@ -29,15 +32,22 @@ The conditional expectation minimizes population squared loss on the retained
 support. No statement outside that support follows.
 \end{proof}
 
-Confounding, missing parents, interventions that change rather than clamp a
+Confounding, temporal dependence of current noise on prior experiments,
+missing parents, interventions that change rather than clamp a
 mechanism, and response-dependent retention can invalidate the premise. In
 particular, selecting the best probe using its measured response can change
 the noise distribution. All-paid reuse avoids discarding probes on that basis,
 but still requires invariant mechanisms and measured parents. The current
-confirmation uses a deterministic emulator; this distinction matters for the
-prospective noisy systems. A non-additive stochastic SCM also needs a
+confirmation uses a deterministic emulator; this distinction matters for
+any extension to noisy systems. A non-additive stochastic SCM also needs a
 distributional treatment: composing conditional means need not produce a
 downstream interventional mean through a nonlinear mechanism.
+For example, clamp $W=0$, set $X=W+U$ with
+$\Pr(U=1)=\Pr(U=-1)=1/2$, and let $Y=X^2$. The conditional-mean mechanism
+for $X$ gives zero at $W=0$, so composing the mean mechanisms predicts zero
+for $Y$. The actual interventional expectation is one. The zero-noise
+structural map and the noisy interventional mean are distinct estimands,
+even when both conditional-mean mechanisms are exactly known.
 
 \begin{proposition}[Deterministic DAG propagation]
 Consider a deterministic SCM and its learned functions $\hat f_i$, evaluated

@@ -61,6 +61,73 @@ def structural_values(spec,clamps,noise=None):
     return values
 
 
+def validate_world(spec):
+    """Graph/mechanism qualification without evaluating any planned world."""
+    import math
+    order=spec['order'];parents=spec['parents'];seen=set()
+    if spec['size'] not in (5,30) or len(order)!=spec['size'] or len(set(order))!=len(order) or set(parents)!=set(order):
+        raise ValueError('unregistered or incomplete world')
+    for node in order:
+        pa=parents[node]
+        if len(set(pa))!=len(pa) or not set(pa)<=seen:raise ValueError('non-topological or duplicate parent')
+        seen.add(node)
+    roots=[node for node in order if not parents[node]]
+    if len(roots)!=(2 if spec['size']==5 else 5):raise ValueError('root count changed')
+    if spec['size']==5:
+        if parents!={'X1':[],'X4':[],'X2':['X1'],'X3':['X1','X2'],'X5':['X4']}:
+            raise ValueError('five-node family graph changed')
+        coef=spec['coefficients']
+        if set(coef)!={'a','b','c','d','s','q'} or any(not math.isfinite(v) or v<=0 for v in coef.values()):
+            raise ValueError('invalid five-node mechanism')
+    else:
+        coef=spec['coefficients']
+        if set(coef)!=set(order):raise ValueError('incomplete edge coefficients')
+        for node in order:
+            if set(coef[node])!=set(parents[node]) or any(not math.isfinite(v) or not .3<=v<=.7 for v in coef[node].values()):
+                raise ValueError('invalid frozen edge coefficients')
+        if spec['nonlinear_nodes']!=[node for i,node in enumerate(order,1) if i%5==0]:
+            raise ValueError('nonlinear rule changed')
+    return roots
+
+
+def draft_manifest(project,out,count=400):
+    """Prepare immutable proposed actions/coefficients; zero response collection.
+
+    This is NOT release or a final prospective freeze. Recipe, online-update
+    semantics, endpoint/normalizer and measured full-matrix CPU cost are gates.
+    No world replacement when a descriptor/action check fails.
+    """
+    from runner_delivery_confirmation import sha,write,utc
+    project,out=Path(project),Path(out);out.mkdir(parents=True,exist_ok=False)
+    manifest={'at':utc(),'stage':'B outcome-independent proposed manifest; not released',
+        'adapter_sha256':sha(__file__),'source_hashes':{str(p.relative_to(project)):sha(p)
+            for p in (project/'baselines.py',project/'experiments/large_scale_scm.py')},
+        'structural_responses_evaluated':0,'proposed_rows_per_history':count,
+        'candidate_estimand':'zero-noise structural map; not interventional expectation',
+        'worlds':{},'unresolved':['Stage A recipe/control/ablation selection','online update/admission mapping',
+            'primary nodes and training-only normalizer','fit/evaluation workers and resource projection',
+            'final source/dependencies/manifest freeze before response collection']}
+    seeds=[]
+    for size in (5,30):
+        for i in range(20):
+            label=f'{size}:{i:02d}';seed=seed_for('world:'+label);seeds.append(seed)
+            spec=world_spec(size,seed,project);roots=validate_world(spec)
+            actions={strategy:shared_actions(spec,strategy,seed_for(strategy+':'+label),count)
+                     for strategy in ('balanced','random','evaluation')}
+            blocks={strategy:{action_block([a[root] for root in roots]) for a in rows}
+                    for strategy,rows in actions.items()}
+            if blocks['evaluation']&(blocks['random']|blocks['balanced']):raise ValueError('shared heldout action block')
+            dest=out/label.replace(':','-');dest.mkdir()
+            write(dest/'world.json',spec);write(dest/'actions.json',actions)
+            manifest['worlds'][label]={'seed':seed,'graph_size':size,'world_sha256':sha(dest/'world.json'),
+                'actions_sha256':sha(dest/'actions.json'),'roots':roots,
+                'blocks_by_strategy':{k:len(v) for k,v in blocks.items()},
+                'rows_by_strategy':{k:len(v) for k,v in actions.items()}}
+    if len(set(seeds))!=40:raise ValueError('world seed collision; no silent replacement')
+    write(out/'manifest.json',manifest)
+    return manifest
+
+
 def action_block(values):
     import math
     if any(not -3<=v<=3 for v in values):raise ValueError('root action outside frozen support')
@@ -102,3 +169,12 @@ def shared_actions(spec,strategy,seed,count=400):
         if strategy=='balanced':
             for j,i in enumerate(indices):counts[j,i]+=1
     return actions
+
+
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--project',type=Path,required=True)
+    parser.add_argument('--out',type=Path,required=True)
+    args=parser.parse_args()
+    draft_manifest(args.project,args.out)

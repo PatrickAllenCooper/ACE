@@ -65,6 +65,17 @@ attribution analysis now invokes this audit with `require_complete=True`, bindin
 all 480 receipt hashes and all twelve score files before selection. The frozen
 fit adapter/batch remain unchanged while running.
 
+Completed6October: all480fits and twelve evaluations passed independent custody
+acceptance; no new responses. Fixed init0 continuous-error ratios for all-paid
+SCM30,000 are0.522334 versus original online,0.550850 versus development-selected
+flat,0.423260 versus CPU-matched flat,0.095560 versus buffer-only long fitting,
+0.033812 versus all-paid100epochs, and0.980018 versus online-admitted long fitting.
+These are exploratory outcomes on one exposed emulator grid. Frozen selection:
+SCM/all-paid/30,000/init0; flat/all-paid/30,000/init0 comparator; SCM/all-paid/100/
+init0 decisive optimization ablation. See receipt attribution_gate.json and the
+complete40configuration score/cost matrix in results/delivery_attribution_20261006.
+Do not replace the worsening124753321 or choose a different scored init.
+
 ## Stage B: held behind the attribution gate
 
 Prepare adapter/protocol without opening new outcomes until A selects and freezes
@@ -82,6 +93,15 @@ and correctly clamped nodes. For stochastic nonlinear systems distinguish
 conditional means, noise-coupled structural predictions and rollout expectations;
 do not silently substitute a chain of conditional means for an expected outcome.
 Freeze this estimand and the test normalizer before release.
+
+The primary prospective proposal now uses zero-noise responses in BOTH collection
+and evaluation, explicitly labeled as noise-disabled parameterizations. This
+avoids training a flat regressor on a noisy nonlinear expectation and scoring it
+against a different zero-noise structural map. A noisy extension needs matched
+expectation/distributional targets for all arms. The proposed forty-world/action
+manifest is prepared without evaluating any structural responses; it remains
+unreleased until online-update semantics, primary nodes/normalizer, workers,
+dependencies and the150core-hour projection are frozen.
 
 Primary: held-out continuous NMSE; snapped secondary only if quantized. Average
 the two history log-ratios within each system; sample size is 20 systems per
@@ -127,6 +147,16 @@ verify common-rotation symmetry and aligned/orthogonal relative-angle prediction
 the earlier product-form baseline is not used. Process-tree RSS is retained for
 each supervised phase. Stage C remains unlaunched pending the selected recipe
 and measured runtime projection.
+
+Development-only physical timing pilot: chambers_delivery_pilot.py, white_64
+only, fixed2,000updates for the selected neural batch and steady-state50-row
+rolling fit. Never score/pick hyperparameters. Full projection uses all eleven
+conditions,1,000training rows per condition as a conservative upper bound,2x
+timing margin and900s overhead. Pilot90s/CPU1/1GiB; reserve120s from the total5h,
+leaving full supervisor wall ceiling17,880s/CPU1/8GiB. Freeze consumes the complete
+audited A gate and this measured projection. Accountucb736_asc1; remote execution
+requires verified scratch, and exclusive local custody is permitted when scratch
+remains unavailable. Do not duplicate any started physical run.
 
 ## Theory and manuscript
 

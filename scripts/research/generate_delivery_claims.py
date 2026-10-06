@@ -1,6 +1,7 @@
 """Generate retained empirical LaTeX claims from the validated sealed receipt."""
 import hashlib
 import json
+import math
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -14,6 +15,57 @@ macros={'DeliveryN':str(stats['n']),'DeliveryRatio':f"{stats['ratio']:.3f}",
         'DeliveryP':f"{stats['exact_sign_flip_p']:.8f}",'DeliveryWins':str(len(pairs)-len(w)),
         'WorseSeed':str(w[0]['seed']),'WorseOnline':f"{w[0]['online_error']:.6f}",
         'WorseDelivery':f"{w[0]['delivery_median_error']:.6f}",'WorseRatio':f"{w[0]['ratio']:.6f}"}
+attribution=ROOT/'results/delivery_attribution_20261006'
+gate_path=ROOT/'results/delivery_paper_implementation_20261006/attribution_gate.json'
+attribution_index=None
+if attribution.exists():
+    def digest(file):return hashlib.sha256(file.read_bytes()).hexdigest()
+    summary=json.loads((attribution/'summary.json').read_text())
+    sealed=json.loads((attribution/'summary_complete.json').read_text())
+    gate=json.loads(gate_path.read_text());done=json.loads((attribution/'complete.json').read_text())
+    assert digest(attribution/'summary.json')==sealed['summary_sha256']
+    assert summary['gate_sha256']==digest(gate_path) and summary['custody']['full_acceptance']
+    assert digest(attribution/'complete.json')==gate['complete_receipt_sha256']
+    for case,h in done['score_hashes'].items():assert digest(attribution/'scores'/f'{case}.json')==h
+    # Independently recompute paired ratios from the retained twelve rows.
+    ratios={key:math.exp(sum(math.log(max(c['delivery']['nmse'],1e-12)/max(c[key]['nmse'],1e-12)) for c in gate['histories'])/12)
+            for key in gate['ratios_continuous_nmse_init0']}
+    for key,v in ratios.items():assert math.isclose(v,gate['ratios_continuous_nmse_init0'][key],rel_tol=1e-12)
+    macros.update({'AOnlineRatio':f"{ratios['online']:.3f}",'AFlatRatio':f"{ratios['simpler']:.3f}",
+        'AMatchedRatio':f"{ratios['matched_cpu_flat']:.3f}",'ABufferRatio':f"{ratios['data_ablation']:.3f}",
+        'AOptimizationRatio':f"{ratios['optimization_ablation']:.3f}",
+        'AUnusedRatio':f"{ratios['unused_observations_ablation']:.3f}",
+        'AFitCPU':f"{done['fit_cpu_core_hours']:.2f}"})
+    diagnosis=summary['worsening_history']['fits']['all_paid-scm-30000-i0']
+    head=diagnosis['node_diagnostics']['engagement_rate']
+    for key,value in [('AWorseLocalMSE',head['observed_parent_mse']),('AWorseChainMSE',head['free_running_mse']),
+                      ('AWorseShiftMSE',head['propagated_prediction_shift_mse'])]:
+        mantissa,exponent=f'{value:.2e}'.split('e');macros[key]=mantissa+'\\times10^{'+str(int(exponent))+'}'
+    macros['AWorseOutsidePercent']=f"{100*head['outside_training_parent_box_fraction']:.3f}"
+    macros['AWorseSnapped']=f"{1-diagnosis['score']['exact']:.3f}"
+    lines=['% Generated exploratory init0 matrix; no inference from exposed grid.',
+           '\\begin{table}[ht]','\\centering\\small',
+           '\\begin{tabular}{llrrrr}','\\toprule',
+           'Data & Learner & Epochs & NMSE/online & Snap/online & CPU h\\\\','\\midrule']
+    for label,values in summary['configurations'].items():
+        if not label.endswith('-i0'):continue
+        dataset=next(s for s in ('final_buffer','online_admitted','all_paid') if label.startswith(s+'-'))
+        # Explicit parsing avoids treating matched-CPU as30,000epochs.
+        parts=label[len(dataset)+1:].split('-');learner=parts[0]
+        epochs='--' if learner not in ('scm','flat') else 'CPU' if parts[1]=='matched' else f'{int(parts[1]):,}'
+        data_label={'final_buffer':'Final50','online_admitted':'Admitted','all_paid':'All paid'}[dataset]
+        cpu=f"{values['fit_cpu_core_hours']:.3f}" if values['fit_cpu_core_hours']>=.001 else '$<0.001$'
+        lines.append(f"{data_label} & {learner.upper() if learner=='scm' else learner} & {epochs} & "
+                     f"{values['geomean_nmse_ratio_online']:.3f} & {values['geomean_snapped_ratio_online']:.3f} & "
+                     f"{cpu}\\\\")
+    lines+=['\\bottomrule','\\end{tabular}',
+            '\\caption{Exploratory primary initialization0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights; lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding imports and evaluation. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}',
+            '\\label{tab:attribution}','\\end{table}']
+    (ROOT/'paper/aistats_ace_2027/delivery_attribution_table.tex').write_text('\n'.join(lines)+'\n')
+    attribution_index={'gate_sha256':digest(gate_path),'summary_sha256':digest(attribution/'summary.json'),
+        'complete_sha256':digest(attribution/'complete.json'),'score_hashes':done['score_hashes'],
+        'scope':'480 fits, one emulator, full exposed grid; exploratory; init0 primary',
+        'worsening_diagnostic_source':'scores/124753321.json, all_paid-scm-30000-i0'}
 tex='% Generated by scripts/research/generate_delivery_claims.py; do not hand edit.\n'
 tex+='\n'.join('\\newcommand{\\'+name+'}{'+value+'}' for name,value in macros.items())+'\n'
 (ROOT/'paper/aistats_ace_2027/delivery_claims.tex').write_text(tex)
@@ -23,4 +75,5 @@ index={'scores_sha256':hashlib.sha256(raw).hexdigest(),
        'macros':macros,'scope':'12 histories of one emulator, median scored optimization performance, full exposed grid',
        'pending_claims':['causal architecture attribution','equal-compute advantage','prospective generalization','external physical superiority'],
        'removed_claims':['acquisition superiority','foundation-model benefit','DPO optimality','unrestricted causal identification','generic MSE gain equals mutual information']}
+if attribution_index:index['attribution']=attribution_index
 (ROOT/'paper/aistats_ace_2027/claim_index.json').write_text(json.dumps(index,indent=2)+'\n')

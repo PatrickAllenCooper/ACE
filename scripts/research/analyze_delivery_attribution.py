@@ -1,6 +1,7 @@
 """Summarize fully sealed Stage A; explanatory gate, not a new confirmation."""
 import argparse
 import math
+import json
 from pathlib import Path
 from delivery_attribution import SEEDS
 from runner_delivery_confirmation import read,write,sha,utc
@@ -30,14 +31,23 @@ def analyze(folder,online_scores,out):
     ablations=('data_ablation','optimization_ablation','unused_observations_ablation')
     decisive=min(ablations,key=lambda k:ratios[k])
     selected='scm' if causal else reg['strongest_simpler_development']
-    write(out,{'at':utc(),'stage':'A exploratory attribution','complete_receipt_sha256':sha(folder/'complete.json'),
+    result={'at':utc(),'stage':'A exploratory attribution','complete_receipt_sha256':sha(folder/'complete.json'),
         'custody_audit':custody,
         'online_scores_sha256':sha(online_scores),'ratios_continuous_nmse_init0':ratios,'histories':cells,
         'causal_factorization_signal_exploratory':causal,'selected_delivery':selected,
         'strongest_simpler':reg['strongest_simpler_development'],'decisive_ablation':decisive,
         'stage_b_release':'protocol/resource/estimand validation still required; do not auto-launch from this result',
         'scope':('provisional causal-surrogate hypothesis for prospective testing' if causal else 'narrow delivery/accounting study; no architecture claim'),
-        'failures_retained':True,'no_new_simulator_responses':True})
+        'failures_retained':True,'no_new_simulator_responses':True}
+    out=Path(out)
+    if out.exists():
+        previous=read(out)
+        comparable=lambda r:{k:v for k,v in r.items() if k not in ('at','custody_audit')}
+        if not previous['custody_audit']['full_acceptance'] or comparable(previous)!=comparable(result):
+            raise ValueError('existing immutable attribution gate differs; preserve it')
+        return previous
+    with out.open('x') as f:json.dump(result,f,indent=2,allow_nan=False);f.write('\n')
+    return result
 
 
 if __name__=='__main__':

@@ -8,7 +8,7 @@
 \input{delivery_claims}
 \title{From Experimental Histories to Causal Surrogates:\\Data Reuse, Optimization, and Error Propagation}
 \author{Research draft}
-\date{6 October 2026 --- attribution and prospective validation pending}
+\date{6 October 2026 --- attribution completed; prospective validation pending}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -22,10 +22,13 @@ exact-level error to \DeliveryRatio{} times the online learner's error
 (95\% interval \DeliveryCILow{}--\DeliveryCIHigh{}), with
 \DeliveryWins{} histories improving. This comparison combines data reuse and
 additional optimization; it does not identify an architecture effect or an
-advantage at equal fitting compute. We give conditional statements for
+advantage at equal fitting compute. An exploratory attribution study on the
+same exposed grid gives continuous-error ratios of \AFlatRatio{} versus a
+development-selected flat refit and \AMatchedRatio{} versus a matched-CPU flat
+fit, using fixed initialization zero. We give conditional statements for
 mechanism eligibility, deterministic error propagation and quantization
-sensitivity, with explicit counterexamples to monotonic improvement. Controlled
-attribution, independent-system comparisons and an archived physical case study
+sensitivity, with explicit counterexamples to monotonic improvement.
+Independent-system comparisons and an archived physical case study
 remain necessary before submission. The present evidence supports a scoped
 post-collection delivery finding, without an acquisition or foundation-model
 claim.
@@ -45,12 +48,14 @@ emulator. The experimental program below is designed to test whether that
 recipe has a distinct causal-surrogate contribution. An ordinary flat refit
 explaining the result would narrow the contribution to delivery and experimental
 accounting. We will retain that conclusion rather than infer a more general
-architectural advantage from a favorable aggregate.
+architectural advantage from a favorable aggregate. Completed exploratory
+attribution supports carrying the structured recipe to a prospective test,
+while retaining its worsening history and limitations.
 
 \paragraph{Current contributions and scope.}
 We report a completed, receipt-backed comparison across repeated acquisition
 histories of one fixed system; derive conditions and limitations relevant to
-reuse and chain prediction; and implement an attribution protocol that separates
+reuse and chain prediction; and report exploratory attribution that separates
 retained data from fitting budget. Independent-system and physical results are
 pending. Neither causal structure discovery nor learned experiment selection is
 a current contribution. No foundation model is used in the delivery experiment.
@@ -106,7 +111,7 @@ model benefit, nor generalization over independently parameterized systems.
 
 \section{Attribution and prospective evaluation protocol}
 \label{sec:protocol}
-\paragraph{Stage A: attribution (exploratory; pending).}
+\paragraph{Stage A: attribution (exploratory; completed).}
 We compare three unique-row data sets: the final 50-entry buffer, all rows
 actually admitted at live online updates, and all eligible paid rows. Each is
 fit from scratch for 100 or 30,000 epochs with fixed architecture, initialization
@@ -122,9 +127,56 @@ adaptation can include a directly intervened node; and the final observation
 refresh enters the saved buffer after the last fit. These differences are
 recorded rather than silently attributed to data quantity. The scratch factorial
 controls masks among its cells but does not exactly replay the online objective.
+No selected clamped-node fast updates occurred in these archived confirmation
+histories, so that code-path limitation is not an observed explanation of their
+delivery improvement.
 Diagnostics retain support coverage, observed-parent residuals, propagated
 prediction shifts and decision margins, especially for the worsening history.
 No simulator responses are acquired in Stage A.
+
+\paragraph{Attribution findings.}
+The full registered matrix completed and passed an independent audit of source,
+inputs, eligibility masks, original artifacts, fitted-model hashes and all score
+files. With initialization zero, all-paid SCM fitting for 30,000 epochs gives
+geometric mean continuous NMSE ratios of \AOnlineRatio{} versus unchanged
+online weights, \AFlatRatio{} versus the development-selected flat refit, and
+\AMatchedRatio{} versus the separately matched-CPU flat fit. These are
+descriptive results from the previously exposed grid, not prospective
+superiority tests.
+
+Within the scratch SCM factorial, the all-paid long fit has ratios of
+\ABufferRatio{} versus final-buffer long fitting and \AOptimizationRatio{}
+versus all-paid 100-epoch fitting. Its ratio versus online-admitted long
+fitting is \AUnusedRatio{}: this comparison supplies little evidence of a
+benefit from the previously unused paid observations. Thus retaining a completed
+history and allocating fitting effort are much larger explanations here than
+adding those observations. The registered exploratory rule selects the all-paid
+SCM at initialization zero, the frozen flat comparator and the short-fit
+optimization ablation for prospective evaluation.
+
+SCM and flat fits share the paid history but differ in which intermediate-clamp
+rows can enter their regressions. The structured recipe can reuse measurements
+that a roots-only observational predictor cannot represent. Accordingly this
+comparison does not isolate a pure architecture effect with identical usable
+rows, nor prove general causal identifiability. Matched fit CPU includes every
+SCM head, including the communication-cost branch that does not feed the scored
+target. The complete matrix consumed \AFitCPU{} fit CPU-core-hours; this excludes
+process startup, imports and evaluation. Table~\ref{tab:attribution} retains all
+primary configurations; initialization sensitivity is preserved separately.
+
+\input{delivery_attribution_table}
+
+\paragraph{Retained failure and propagation.}
+History \WorseSeed{} still worsens under the primary delivery fit, with snapped
+error \AWorseSnapped{}. Its target mechanism's observed-parent MSE is
+$\AWorseLocalMSE{}$, while free-running chain MSE is $\AWorseChainMSE{}$;
+the propagated prediction-shift MSE is $\AWorseShiftMSE{}$. Only
+\AWorseOutsidePercent{}\% of evaluated target parent values lie outside the
+training bounding box. This points to an in-box propagation and decision-margin
+failure rather than widespread box extrapolation, although a bounding box is
+not a support-density certificate and shifted predictions do not add
+independently to local residual MSE. The history is retained without tuning a
+rescue or selecting a different scored initialization.
 
 \paragraph{Stage B: controlled generalization (gated; pending).}
 After attribution, freeze a deployable recipe with initialization zero, the
@@ -139,6 +191,10 @@ multiple-testing correction, practical thresholds and separate graph-size
 reporting are frozen before opening outcomes. The stochastic estimand must be
 specified explicitly: composing conditional means through nonlinear downstream
 functions does not generally produce their interventional expected outcome.
+The primary protocol proposal disables noise during both collection and
+evaluation, targeting the same deterministic structural map for every arm.
+This setting is labeled as a noise-disabled parameterization of the audited
+families; it does not establish a benefit for stochastic interventional means.
 
 \paragraph{Stage C: archived physical prediction (pending).}
 Use the eleven previously unscored conditions of \texttt{lt\_malus\_v1};
@@ -157,7 +213,9 @@ against physics.
 \section{Reproducibility and resource accounting}
 Fitting and evaluation run in separate processes. Training inputs, row selections,
 source, dependency versions, optimizer configuration and outputs are hash-bound.
-Fit workers are denied network access and evaluation arrays. Exclusive output
+Stage A fit workers are denied network access and evaluation arrays. The physical
+worker uses only registered training rows for fitting and normalization and
+seals predictions before computing held-out losses. Exclusive output
 paths preserve interrupted attempts and reject replacement. Supervisors enforce
 wall-time and memory ceilings. CPU time, wall time, unique eligible rows,
 parameters, optimizer updates and memory accompany each fit. Original histories

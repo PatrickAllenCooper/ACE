@@ -39,6 +39,22 @@ class TheoryTests(unittest.TestCase):
         child=lambda x:100*x
         self.assertEqual(child(0),0);self.assertEqual(child(.1),10)
 
+    def test_noisy_expectation_differs_from_exact_chain_of_means(self):
+        # do(W=0), X=W+U, Y=X^2, U uniform on {-1,+1}.
+        noise=[-1.,1.];conditional_mean_x=sum(noise)/2
+        chain_prediction=conditional_mean_x**2
+        interventional_mean=sum(u**2 for u in noise)/2
+        self.assertEqual(chain_prediction,0.)
+        self.assertEqual(interventional_mean,1.)
+
+    def test_response_selection_biases_an_eligible_mechanism(self):
+        # No clamp of X, measured parent W=0, mean-zero noise; retaining
+        # positive-response probes alone destroys zero conditional mean.
+        all_responses=[-1.,1.]
+        selected=[x for x in all_responses if x>0]
+        self.assertEqual(sum(all_responses)/len(all_responses),0.)
+        self.assertEqual(sum(selected)/len(selected),1.)
+
     def test_holm_and_paired_unit(self):
         self.assertEqual(holm([.01,.04,.2]),[.03,.08,.2])
         r=paired_log_ratio([.2,.4,.3],[1.,2.,1.5])

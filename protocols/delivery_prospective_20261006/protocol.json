@@ -1,20 +1,39 @@
 {
   "stage": "B conditional protocol preparation; outcomes not opened",
   "release": "requires fully validated Stage A attribution gate and prospective adapter qualification",
-  "n_systems_by_size": {"5": 20, "30": 20},
-  "histories_per_system": ["balanced_varied_value", "matched_random"],
+  "n_systems_by_size": {
+    "5": 20,
+    "30": 20
+  },
+  "histories_per_system": [
+    "balanced_varied_value",
+    "matched_random"
+  ],
   "primary_initialization": 0,
-  "sensitivity_initializations": [1, 2],
+  "sensitivity_initializations": [
+    1,
+    2
+  ],
   "heldout": "complete joint root-action blocks reserved before collection; free-running predicted intermediates",
   "primary_endpoint": "continuous held-out normalized MSE",
   "secondary_endpoint": "snapped error only for genuinely quantized target",
   "independent_unit": "system; average the two history log-ratios within system",
-  "contrasts": ["delivery versus online", "delivery versus development-selected simpler refit"],
-  "strata": [5, 30],
+  "contrasts": [
+    "delivery versus online",
+    "delivery versus development-selected simpler refit"
+  ],
+  "strata": [
+    5,
+    30
+  ],
   "multiple_testing": "Holm across four tests (two contrasts in each graph-size stratum)",
   "analysis_implementation": "scripts/research/delivery_prospective_analysis.py; must be hash-frozen with the final prospective protocol",
   "primary_matrix_acceptance": "all 240 init0 cells across the frozen 40 systems, two histories and three primary arms; reject omissions, duplicates and failed fits before significance calculations",
-  "superiority_gate": {"ratio_at_most": 0.8, "upper_marginal_95_log_ratio_interval_below": 1, "adjusted_p_below": 0.05},
+  "superiority_gate": {
+    "ratio_at_most": 0.8,
+    "upper_marginal_95_log_ratio_interval_below": 1,
+    "adjusted_p_below": 0.05
+  },
   "log_ratio_floor": 1e-12,
   "failures": "retain all failures; no favorable seed replacement",
   "cpu_core_hour_ceiling": 150,
@@ -27,5 +46,11 @@
     "freeze history response counts, test normalization and reserved action-block manifest",
     "qualify runtime and project all arms within 150 CPU-core-hours"
   ],
-  "status": "not released; no new simulator responses"
+  "status": "not released; no new simulator responses",
+  "selected_recipe_from_validated_stage_a": {
+    "delivery": "SCM all-paid scratch30000epochs init0",
+    "simpler": "flat MLP all-paid scratch30000epochs init0",
+    "decisive_ablation": "SCM all-paid scratch100epochs init0"
+  },
+  "estimand_fairness_gate": "Primary proposal uses zero-noise structural responses for both collection and evaluation. Noise-disabled parameterizations must be labeled. Training a flat map on noisy nonlinear responses and scoring it against a zero-noise target would introduce an estimand mismatch; do not release such a comparison. Any noisy extension needs the same interventional expectation or distributional target for every arm."
 }
