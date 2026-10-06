@@ -1042,3 +1042,31 @@ external limitation. A/C complete; Stage B workers/estimand/normalizers/runtime
 freeze remain before independent-system launch under its150core-hour allowance.
 Hourly automation updated to advance those gates and theory/writing, rather
 than repeatedly auditing completed A/C fits. No unrelated jobs modified.
+
+## 2026-10-06 — Stage B online kernels and target-runtime pilot prepared
+
+Implemented training-only SCM, flat, short-fit and archived rolling-update
+kernels. The rolling wrapper directly calls frozen ACEOracle._train_node_mlps_on
+with append-before-update, duplicated winner, persistent Adam and20fast+100replay
+updates. Shared joint-root collection does not trigger the known nonroot fast
+mask limitation. Fixed init0 and one seed scheme shared across SCM arms. Root
+inputs use specified support; all parent normalizers use only the first50paid
+calibration rows, available before retrospective replay; no future/test refresh.
+Primary target X3 at5nodes andX30 at30nodes; training variance is evaluator-only
+normalization. All SCM heads fitted/costed, including non-target branches.
+
+Five local tests pass: original-helper weight/Adam parity, replay truncation,
+calibration isolation, internal-clamp rejection, analytic predicted-parent
+inference and thirty-node adapter agreement with audited mechanisms. These are
+development fixtures, not confirmation outcomes. The target-runtime pilot first
+runs the same tests, then times2,000full-batch updates,100epoch ablation and10
+steady-state rolling rows on400training rows at development seed0 for eachsize.
+Projection covers640registered intended fits with3x timing margin, process
+startup and5,000s collection/evaluation overhead; no heldout losses computed.
+
+CURC master73102 live; scratch stat,df and bounded dedicated ACE write/read/delete
+probe now pass. Accountucb736_asc1 allowscpu-normal onacpu;1CPU/3GiB/15min pilot
+is within partition limits. Existing ace environment has torch2.9.1,numpy2.2.6,
+scipy1.15.3, distinct from local qualification; freeze its dependencies and
+rerun parity in the allocated job. No installs or unrelated environment changes.
+Independent-world batch remains unlaunched pending full protocol/worker freeze.

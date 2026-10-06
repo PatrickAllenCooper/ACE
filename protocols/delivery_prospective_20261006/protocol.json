@@ -39,12 +39,10 @@
   "cpu_core_hour_ceiling": 150,
   "account": "ucb736_asc1",
   "unresolved_before_release": [
-    "freeze recipe, simpler control and decisive ablation from complete Stage A",
-    "qualify and freeze the implemented parameterized five-node family extension before calling worlds independent",
-    "pin source and immutable coefficients for every thirty-node world; graph RNG must also be fixed",
-    "freeze stochastic estimand: noise-free structural map or rollout expectation, not a silent chain-of-means substitution",
-    "freeze history response counts, test normalization and reserved action-block manifest",
-    "qualify runtime and project all arms within 150 CPU-core-hours"
+    "fully pinned fit/evaluation/collection workers, including no-evaluation access guard",
+    "freeze final source/dependencies after target-runtime parity and measured projection",
+    "seal forty world/action descriptors, response journals, folds and query ceilings before collection",
+    "freeze failure stop/reconciliation and retained-artifact rules under150CPU-core-hours"
   ],
   "status": "not released; no new simulator responses",
   "selected_recipe_from_validated_stage_a": {
@@ -52,5 +50,23 @@
     "simpler": "flat MLP all-paid scratch30000epochs init0",
     "decisive_ablation": "SCM all-paid scratch100epochs init0"
   },
-  "estimand_fairness_gate": "Primary proposal uses zero-noise structural responses for both collection and evaluation. Noise-disabled parameterizations must be labeled. Training a flat map on noisy nonlinear responses and scoring it against a zero-noise target would introduce an estimand mismatch; do not release such a comparison. Any noisy extension needs the same interventional expectation or distributional target for every arm."
+  "estimand_fairness_gate": "Primary proposal uses zero-noise structural responses for both collection and evaluation. Noise-disabled parameterizations must be labeled. Training a flat map on noisy nonlinear responses and scoring it against a zero-noise target would introduce an estimand mismatch; do not release such a comparison. Any noisy extension needs the same interventional expectation or distributional target for every arm.",
+  "prepared_implementation": {
+    "models": "scripts/research/delivery_prospective_models.py",
+    "timing_gate": "scripts/research/delivery_prospective_pilot.py",
+    "qualification": "scripts/research/test_delivery_prospective_models.py",
+    "online": "archived ACEOracle._train_node_mlps_on invoked directly; append then duplicated winner; persistent Adam;20fast+100replay per charged row",
+    "collection": "400 joint-root-only paid rows per shared history, no nonroot clamp rows; every response shared across all arms",
+    "input_normalization": "roots fixed[-3,3]; measured-parent min/max from first50paid training rows; frozen and identical across SCM arms; prefix available before updates",
+    "primary_target": {
+      "5": "X3",
+      "30": "X30"
+    },
+    "metric_normalizer": "variance of primary-target responses in the full shared training history; evaluator only, no test-based scaling",
+    "outputs": "raw unscaled mechanism targets in all neural arms",
+    "initialization": "fixed init0; head seed init+topological index, flat seed init+graph size; SCM arms share identical starting weights",
+    "comparators_scope": "original rolling update kernel under shared joint-root history and calibrated normalization; no original acquisition/probe policy",
+    "sensitivity": "delivery and simpler init1/2 separately; never select deployment initialization",
+    "intended_matrix_fits": 640
+  }
 }
