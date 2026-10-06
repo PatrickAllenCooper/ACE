@@ -823,3 +823,27 @@ checks passed before launch. Start13:35:54.449719UTC, supervisor99455, stage9946
 or APIs. Exact original recipe/copied adapter unchanged. Evaluation onlyafter
 all12 fullseal; no partialscore. Frozen amendment/start receipts saved in
 results/delivery_final_history_20261006. Existing exec session85136 owns supervisor.
+
+## 2026-10-06 — final history complete; registered comparison confirmed
+
+Terminal status complete/exit0 at13:46:33.831988UTC. All12 custody seal independently
+verified in frozen .venv311 environment; system-Python audit dependency mismatch
+rejected correctly before scoring read, then correct interpreter passed. Retained11,
+prior partial journal/source/code/approval hashes unchanged; owned processes absent.
+Final4803calls gives60962 aggregate including3326 discarded attempts<62436.
+Amended charged/reserved939.381971s includes300s preparation reserve; actual run
+639.381971s. Aggregate11943.253200s<13800.1219 RSS samples, peak641515520bytes
+(~612MiB)<8GiB. Original fullseal preceded registered automatic evaluation; all12
+complete, no excluded/replaced history or partialscore. No new experiment launched.
+
+Registered paired exact-level-error ratio0.1827187393,95%CI[0.1019703466,
+0.3274102600], exact two-sided sign-flip p0.00146484375,11/12wins. Frozen thresholds
+R<=0.8,CIupper<1,p<.05 allpass. One originalseed124753321 worsened; retained in
+primary result.12acquisition histories of one fixed emulator,3optimization inits
+collapsed by registered median; no36-independent-case claim. Delivery uses allpaid
+rows and30000epochs versus online buffer/fit recipe, so extra fitting compute is
+part of treatment. Supports delivery recipe improvement at matched paid histories;
+no acquisition advantage, foundation-model benefit or world-generalization claim.
+Receipts terminal_audit.json, scores.json, completed.json in
+results/delivery_final_history_20261006; external full custody preserved at
+delivery-final-history-20261006. No further resource amendment needed for this stage.
