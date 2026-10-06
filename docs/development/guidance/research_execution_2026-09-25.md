@@ -1245,3 +1245,13 @@ noise and larger coefficient drift still fail; no resampling, score tolerance,
 fit settings or scientific endpoint changed. Forty local checks pass from an
 unrelated cwd. Need commit/package/verify new candidate, final freeze and40target
 checks before responses; no new timing fits because timed workers unchanged.
+
+
+Final pre-submission review also found the Slurm scope guard needed to resolve
+both sides of CURC's /scratch->/gpfs alias. Corrected both prepare/submit guards;
+an actual symlink preparation test accepts canonical ACE scratch and rejects
+outside paths. Forty-one local checks pass from unrelated cwd. The previous
+40-checkcandidate remains preserved without any full study/selected response;
+latest committed source/bundle and41target qualification are required for
+release. No model, scientific setting, original descriptor or timing worker
+changed. Rounded86.86833CPUh allocation and150ceiling remain unchanged.

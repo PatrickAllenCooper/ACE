@@ -219,3 +219,13 @@ drift fails. Forty local checks pass, including these rejections; final target
 qualification must run40checks before any selected response. Old candidate is
 preserved, new committed source/bundle required before final freeze. No new
 allocation or timing retry is needed for this metadata-only correction.
+
+
+Final pre-submission review also found the Slurm scope guard needed to resolve
+both sides of CURC's /scratch->/gpfs alias. Corrected both prepare/submit guards;
+an actual symlink preparation test accepts canonical ACE scratch and rejects
+outside paths. Forty-one local checks pass from unrelated cwd. The previous
+40-checkcandidate remains preserved without any full study/selected response;
+latest committed source/bundle and41target qualification are required for
+release. No model, scientific setting, original descriptor or timing worker
+changed. Rounded86.86833CPUh allocation and150ceiling remain unchanged.

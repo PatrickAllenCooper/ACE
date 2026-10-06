@@ -83,6 +83,23 @@ class ProspectiveBatchTests(unittest.TestCase):
         for altered in cases:
             with self.assertRaises(ValueError):descriptor_runtime_parity(frozen,altered)
 
+    def test_slurm_prepare_resolves_scratch_alias_and_rejects_outside_scope(self):
+        from delivery_prospective_slurm import prepare
+        projection={'estimated_full_cpu_core_hours':20.,'strata':{
+            '5':{'raw_full_fit_cpu_seconds':2000.},'30':{'raw_full_fit_cpu_seconds':20000.}}}
+        with tempfile.TemporaryDirectory() as directory:
+            base=Path(directory);physical=base/'physical';physical.mkdir()
+            alias=base/'scratch';alias.symlink_to(physical,target_is_directory=True)
+            out=physical/'study';out.mkdir();write(out/'pilot_projection.json',projection)
+            p={'resources':allocation_plan(projection),'source_revision':'synthetic metadata fixture','dependencies':{}}
+            write(out/'registration.json',p)
+            with patch('delivery_prospective_slurm.SCRATCH',alias),patch('delivery_prospective_slurm.validate',return_value=p):
+                result=prepare(alias/'study',out/'scripts')
+                self.assertEqual(result['out'],str(out.resolve()))
+                self.assertEqual(len(result['script_hashes']),6)
+                outside=base/'outside';outside.mkdir()
+                with self.assertRaises(ValueError):prepare(outside,outside/'scripts')
+
     def test_failure_blocks_test_generation_before_any_model_is_opened(self):
         with tempfile.TemporaryDirectory() as directory:
             out=Path(directory);write(out/'stop_new_fits.json',{'retained_failure':True})

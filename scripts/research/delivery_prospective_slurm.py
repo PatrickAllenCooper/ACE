@@ -64,7 +64,7 @@ export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 CUDA_VISIBLE_D
 
 def prepare(out,destination):
     out=Path(out).resolve();destination=Path(destination).resolve();p=validate(out)
-    if not out.is_relative_to(SCRATCH):raise ValueError('explicit ACE scratch output required')
+    if not out.is_relative_to(SCRATCH.resolve()):raise ValueError('explicit ACE scratch output required')
     if any((out/name).exists() for name in ('collection_started.json','submission_started.json','evaluation_started.json')):
         raise ValueError('already started study; reconcile instead of preparing another launch')
     calculated=allocation_plan(read(out/'pilot_projection.json'))
@@ -85,7 +85,7 @@ def prepare(out,destination):
 
 def submit(destination):
     destination=Path(destination).resolve();plan=read(destination/'plan.json');out=Path(plan['out']);p=validate(out)
-    if not out.is_relative_to(SCRATCH) or sys.executable!=plan['python']:
+    if not out.is_relative_to(SCRATCH.resolve()) or sys.executable!=plan['python']:
         raise ValueError('target runtime/output changed')
     if (sha(out/'registration.json')!=plan['registration_sha256'] or p['resources']!=plan['resources'] or
             allocation_plan(read(out/'pilot_projection.json'))!=p['resources']):
