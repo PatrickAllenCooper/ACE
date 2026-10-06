@@ -1070,3 +1070,26 @@ is within partition limits. Existing ace environment has torch2.9.1,numpy2.2.6,
 scipy1.15.3, distinct from local qualification; freeze its dependencies and
 rerun parity in the allocated job. No installs or unrelated environment changes.
 Independent-world batch remains unlaunched pending full protocol/worker freeze.
+
+## 2026-10-06 — Stage B pilot33505661 queued; response custody/evaluation advanced
+
+Submitted exactly one development-only CPU pilot33505661, sourcebefa0bd8,
+accountucb736_asc1,acpu/cpu-normal,1CPU/3GiB/15min. Output explicit scratch path
+delivery_prospective_pilot_20261006/pilot. Bundle hashc5fcfd24d0bc1c8caa56f86399dab2266fc26b9ea7a6681c036bddcd8555971f.
+Scratch stat/df and dedicated probe write/read/delete pass; no GPU or APIs.
+Latest statePENDING/ReqNodeNotAvail; no duplicate or partition switch. The
+queued job first runs original-helper/adapter parity under pinned target
+dependencies, then development-only timing; no confirmation responses or test
+losses. Registration, transfer/source hashes and scheduler submission copied
+into results/delivery_prospective_preparation_20261006.
+
+Implemented response journals that charge before generation, keep a failed
+charge, reject replacement, and separate heldout joint blocks. Fit access guard
+rejects test outcomes/mechanism files. Full640artifact seal primitive precedes
+test collection. Vectorized evaluation uses predicted intermediates; local
+observed-parent diagnostics are secondary, and only training variance normalizes
+primary continuous error. Four additional tests pass, including a failed
+response retained before exception and unchanged primary predictions when
+measured test intermediates are corrupted. Full freeze/orchestration remains
+to finish after measured target-runtime projection; no selected-world outcomes
+opened. Continue development while pilot waits; no owner decision required.

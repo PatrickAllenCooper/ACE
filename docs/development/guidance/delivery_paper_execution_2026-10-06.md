@@ -203,3 +203,38 @@ training-only normalizers and endpoint, runtime projection, and final protocol
 freeze before opening independently parameterized system outcomes. The Stage A
 attribution gate passed; the physical negative result is an applicability
 boundary, not authorization for another favorable physical sweep.
+
+### Stage B implementation and queued resource gate
+
+Kernels in delivery_prospective_models.py directly invoke the archived online
+update method, preserving duplicated winner, Adam state and20fast+100replay.
+Joint-root actions leave nonroot masks vacuous. Fixed initialization scheme is
+shared by SCM arms, with primary init0 and separate init1/2 delivery/flat
+sensitivity. Every SCM head is trained and costed; flat predicts primary X3
+orX30 directly from roots. Input normalization is fixed before algorithmic
+updates using the first50paid calibration observations and specified root
+support. This is retrospective shared-calibration replay, not a strict stream
+before those50observations exist. Raw outputs, Adam.002,30,000scratch epochs
+and100epoch ablation remain fixed. Primary normalization uses full training
+target variance in the evaluator only. No quantized endpoint is invented.
+
+Paid-history/evaluation primitives in delivery_prospective_io.py charge before
+generation, preserve failed attempts, reject replacement and heldout blocks,
+deny fit access to evaluation/mechanism files, and verify640distinct fitted
+artifacts before test collection. Caller must validate complete registered
+cell membership, freeze matrix/input hashes and seal before invoking scoring.
+Vectorized graph inference uses predicted parents; observed-parent residuals
+are separately labeled secondary diagnostics. Nine local scientific checks
+pass across model/I/O tests, not confirmation outcomes.
+
+CURC job33505661 (ace_delB_pilot) is a development-only timing gate, source
+befa0bd8, accountucb736_asc1,acpu/cpu-normal,1CPU/3GiB/15min. Scratch readiness
+including a bounded dedicated write/read/cleanup probe now passes. Remote
+output /scratch/alpine/paco0228/ACE/results/delivery_prospective_pilot_20261006/pilot.
+Original source/worker/dependency hashes frozen; do not change queued source or
+submit a duplicate. First qualify the target torch2.9.1 runtime, then measure
+seed0development fixtures only. No test losses/confirmation responses. The
+projection covers640fits with3x timing margin plus startup/collection/evaluation
+overheads within150CPU-core-hours. Wait for the queued pilot; advance batch
+release, collection/evaluation barriers and source freezing locally meanwhile.
+Full independent-system collection remains unlaunched.
