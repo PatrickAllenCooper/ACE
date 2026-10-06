@@ -1120,3 +1120,13 @@ Manuscript scope now explicitly distinguishes root-action recipe prediction
 from internal-action identification and pure-architecture/equal-compute claims.
 Cached compiler succeeds, eightpages, no undefined/overfull warnings; changed
 pages4,7,8 visually checked. All numerical claims/immutableA/C receipts unchanged.
+
+Candidate committed source f96407187a93e954ab0f2d17238fc4992b2640f8 packaged
+without responses and staged under new exclusive CURC scratch root
+/scratch/alpine/paco0228/ACE/results/delivery_prospective_release_20261006_f9640718.
+Bundle32198f015fca2d0ff2175edd46675d30670f8460b3e64693c1a8e01a78e94d92
+and every committed worker/generator verified after transfer at21:47:51UTC.
+Transport, bounded scratch stat/df and private write/read/cleanup pass,690Tfree.
+Pilot33505661 stillPENDING/notstarted. No final protocol freeze, new allocation
+or selected-system response. Release bundle/transfer receipts in compact local
+custody; raw candidate bundle external. Hourly prompt updated for these gates.
