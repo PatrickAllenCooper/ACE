@@ -1303,3 +1303,5 @@ and `final_*` receipts. Raw custody:
 Training inputs are complete; live fit custody remains explicitly partial.
 The original A/C conclusions and root-support limitations remain unchanged.
 Individual hourly automation remains paused; coordinated review advances work.
+
+Early thirty-node telemetry: concrete tasks33507430/33507431 (array33507421, indices0/1) each recorded6:11averageCPU, with maxRSS639660/629440KiB. Array-alias sstat did not resolve; read-only scontrol supplied concrete task IDs, then sstat succeeded. These counters support active CPU/memory consumption; they do not substitute for final optimizer receipts. Raw/compact telemetry preserved; no job change.
