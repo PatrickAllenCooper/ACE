@@ -162,3 +162,16 @@ and bound into final registration. No new allowance or matrix trimming.
 Per the user qualification-failure stop instruction, another pilot requires
 an implementation/resource decision. Timing/launch remain blocked; original
 A/C scientific outcomes and manuscript claims are unchanged.
+
+
+New candidate source5e8d6e48dae220ef0f20320f7fc81a14a34bdea0 is committed/pushed.
+A Git-byte-verified bundle is prepared in exclusive local external custody:
+delivery-prospective-audit-release-bundle-20261006, SHA256
+dff8d1a4df7b1f0b6ae94c6ba950fd6b939d1c9f562453ca71583facb50c95c9.
+It includes the historical failed-charge receipt and all39qualification checks.
+No transfer/final freeze/replacement submission yet; the previous remote candidate
+and failed pilot remain immutable. Compact bundle/release-status receipts are
+in results/delivery_prospective_preparation_20261006. The hourly automation stops
+at the explicit qualification decision gate; restart it only with the next
+implementation/resource authorization. Shared transport is working; authentication
+is not the blocker. No new manuscript result or outcome-based configuration change.
