@@ -1,0 +1,404 @@
+{
+  "at": "2026-10-06T20:47:40.606457+00:00",
+  "full_acceptance": true,
+  "source_custody": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-chambers-full-20261006",
+  "artifact_hashes_verified": true,
+  "archive_rows_splits_normalizers_verified": true,
+  "scores_bootstrap_recomputed": true,
+  "selected_gate_sha256": "a81d0ac51965f71123ecc915764cf18c8166537a1d69f1053d096dd36ed3310f",
+  "projection_sha256": "cec26cccd2a3d29dd5bc7a93f3779772b402f8bb9f1008aa7f3fe461dda45e4b",
+  "receipt_hashes": {
+    "protocol.json": "35ac5cd21f363d6a5b9cedef28e65daecd59fef929b4ca14b00107b140316336",
+    "launch_authorization.json": "6aa7e18d0d20ab035660eab2c011494947a4b06612dc225a25cc465f4cd901d3",
+    "started.json": "043723d7b19eaa38fafa923f372e81c14a2c55ac2f2687903c84aef158d2ca6a",
+    "fit_seal.json": "2233a62117576662dcf94180752256af1dbfce2c811b77607a36b70eda334471",
+    "fit_complete.json": "dbb802cf01960ef3b4379e081490e7fb5784bfbda410b90e960e10070dc3d99e",
+    "fit_execution.json": "667dce0fb3968572552336da8bf8b86ebcaa06663c5890409421346f972ea67e",
+    "evaluate_execution.json": "0438a859083d2deaff14280856b6af940e39c468506fae6d667bf72b93c00516",
+    "complete.json": "5c37040ec03a884421ef943be080f780e1d54a5caae99a31b4f7d05a6bb36c17",
+    "scores.json": "0f2a080e8af99567fba9ac3e7d85df33b159c10984b6b9384ad88c0046d1ad14"
+  },
+  "cpu_core_hours": 0.05285206888888889,
+  "scope": "single apparatus, condition-specific archived prediction; no population-world significance",
+  "new_queries": 0,
+  "conditions": {
+    "blue_128": {
+      "train_rows": 790,
+      "test_rows": 210,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.359184717708566,
+        "rolling_buffer": 0.15607258165964136,
+        "physics": 0.05841784678309421,
+        "fourier": 0.049109366457526095
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 10.011861000000001,
+          "updates": 79000,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.403246000000001,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 0.0003370000000018081,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.00023499999999998522,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "blue_255": {
+      "train_rows": 815,
+      "test_rows": 185,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.012231487922498672,
+        "rolling_buffer": 0.01694717422144311,
+        "physics": 0.02639137347461474,
+        "fourier": 0.0009425318796630618
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 10.208281,
+          "updates": 81500,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.583742000000001,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 8.499999999855845e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.0001829999999998222,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "blue_64": {
+      "train_rows": 793,
+      "test_rows": 207,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.4707436602077941,
+        "rolling_buffer": 2.0868254163937587,
+        "physics": 0.10262833405261491,
+        "fourier": 0.10180795874863117
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 9.929687999999999,
+          "updates": 79300,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.475471000000006,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 7.999999999697138e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.0001759999999961792,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "green_128": {
+      "train_rows": 794,
+      "test_rows": 206,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.7889040313117065,
+        "rolling_buffer": 0.2902011793785193,
+        "physics": 0.05756371640597415,
+        "fourier": 0.046456489208041206
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 10.003712999999998,
+          "updates": 79400,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.455349999999996,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 8.300000000360797e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.00017699999999365446,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "green_255": {
+      "train_rows": 789,
+      "test_rows": 211,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.009935954892344705,
+        "rolling_buffer": 0.03783153767204977,
+        "physics": 0.018256041598616175,
+        "fourier": 0.001506086351230087
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 9.834238999999997,
+          "updates": 78900,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.4388390000000015,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 7.300000000043383e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.00017800000000534055,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "green_64": {
+      "train_rows": 775,
+      "test_rows": 225,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 5.166832463989767,
+        "rolling_buffer": 3.3066814861254286,
+        "physics": 0.12133124339576608,
+        "fourier": 0.10240499023667775
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 9.6695,
+          "updates": 77500,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.334762999999995,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 7.80000000020209e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.00019399999999336615,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "red_128": {
+      "train_rows": 783,
+      "test_rows": 217,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.27559646335570187,
+        "rolling_buffer": 0.3888371359322929,
+        "physics": 0.047434916266628914,
+        "fourier": 0.045451108054680854
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 9.793130000000005,
+          "updates": 78300,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.386829000000006,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 7.599999999285956e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.0001719999999920674,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "red_255": {
+      "train_rows": 772,
+      "test_rows": 228,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.01102086726028646,
+        "rolling_buffer": 0.0626904661161921,
+        "physics": 0.02431812931709577,
+        "fourier": 0.0043394960004678055
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 9.633076000000003,
+          "updates": 77200,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.296706999999998,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 7.700000000454565e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.0001770000000078653,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "red_64": {
+      "train_rows": 774,
+      "test_rows": 226,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 1.1185228106072258,
+        "rolling_buffer": 0.8228164798362477,
+        "physics": 0.1587652611399367,
+        "fourier": 0.13532432642982758
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 9.637934000000001,
+          "updates": 77400,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.367234999999994,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 7.699999997612395e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.0001769999999794436,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "white_128": {
+      "train_rows": 787,
+      "test_rows": 213,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.16349268956394325,
+        "rolling_buffer": 0.4615436247803622,
+        "physics": 0.043690687590748054,
+        "fourier": 0.042006859940466636
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 9.826915000000014,
+          "updates": 78700,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.430867000000006,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 7.600000000707041e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.00018000000000029104,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    },
+    "white_255": {
+      "train_rows": 778,
+      "test_rows": 222,
+      "heldout_action_blocks": 8,
+      "nmse": {
+        "delivery": 0.019629705326413952,
+        "rolling_buffer": 0.023124117910150125,
+        "physics": 0.00636091619437292,
+        "fourier": 0.0023252980884906045
+      },
+      "cost": {
+        "rolling_buffer": {
+          "cpu_seconds": 9.720002999999991,
+          "updates": 77800,
+          "parameters": 4417
+        },
+        "delivery_mlp": {
+          "cpu_seconds": 7.379507000000018,
+          "updates": 30000,
+          "parameters": 4417
+        },
+        "physics": {
+          "cpu_seconds": 7.80000000020209e-05,
+          "parameters": 2,
+          "updates": 0
+        },
+        "fourier": {
+          "cpu_seconds": 0.0001769999999794436,
+          "parameters": 25,
+          "updates": 0
+        }
+      }
+    }
+  },
+  "descriptive_comparisons": {
+    "rolling_buffer": {
+      "conditions_with_lower_row_weighted_nmse": 7,
+      "conditions": 11
+    },
+    "physics": {
+      "conditions_with_lower_row_weighted_nmse": 3,
+      "conditions": 11
+    },
+    "fourier": {
+      "conditions_with_lower_row_weighted_nmse": 0,
+      "conditions": 11
+    }
+  },
+  "physical_boundary": "One measured mechanism; no factorization test or independent-world significance."
+}

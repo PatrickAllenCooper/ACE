@@ -1014,3 +1014,31 @@ its measured projection. No eleven-condition outcomes newly opened yet.
 CURC20:11UTC transport live; scratch stat/df each exit124 after10s. No ACE jobs
 or submissions, unrelated jobs unchanged. Continue bounded CPU local work until
 remote path readiness returns. No reconnect needed.
+
+## 2026-10-06 20:48 UTC — physical validation complete and independently audited
+
+Development-only white_64 pilot passed under90s/CPU1/1GiB, no external scores.
+Source0357cda7 and archive584490fc... bound to immutable selected A gate.
+Conservative full projection0.37437core-hours; exclusive local launch CPU1/8GiB
+with1,800s watchdog because CURC scratch readiness still times out. Supervisor
+session45487/PIDs60110,60112 completed normally, no Slurm job. Accountucb736_asc1
+and explicit external result custody recorded in launch authorization.
+
+Full study completed20:40:25UTC, fit/evaluation CPU0.052852core-hours, wall190.46s
+excluding imports/startup; both phase guards exit0, max fit RSS307740672bytes.
+Independent read-only acceptance verifies frozen inputs, selection/projection,
+all fitted artifacts,11conditions, row ledgers, grouped splits, train normalizers,
+relative-angle physics, all continuous scores and bootstrap intervals. Complete
+receipt5c37040ec03a884421ef943be080f780e1d54a5caae99a31b4f7d05a6bb36c17.
+Scores0f2a080e8af99567fba9ac3e7d85df33b159c10984b6b9384ad88c0046d1ad14.
+Compact custody results/delivery_chambers_20261006; raw weights/predictions remain
+under external delivery-chambers-full-20261006. No new physical queries/APIs.
+
+Delivery beats rolling on row-weighted NMSE in7/11 conditions, physics3/11,
+Fourier0/11. All conditions and conditional intervals reported. Do not turn
+these counts into independent-world inference, exclude failures, or tune a
+physical rescue. Manuscript and receipt-derived claims updated with this
+external limitation. A/C complete; Stage B workers/estimand/normalizers/runtime
+freeze remain before independent-system launch under its150core-hour allowance.
+Hourly automation updated to advance those gates and theory/writing, rather
+than repeatedly auditing completed A/C fits. No unrelated jobs modified.

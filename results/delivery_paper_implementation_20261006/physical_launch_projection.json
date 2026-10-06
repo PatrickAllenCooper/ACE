@@ -1,0 +1,63 @@
+{
+  "at": "2026-10-06T20:34:02.868419+00:00",
+  "complete": true,
+  "selected_delivery": "scm",
+  "stage_a_gate_sha256": "a81d0ac51965f71123ecc915764cf18c8166537a1d69f1053d096dd36ed3310f",
+  "archive_sha256": "584490fc05191c21debd75c70c94ee80358f66482694f98c21f405d695f1b3e9",
+  "physical_worker_sha256": "c83a65783dc033e4576fda1b33f9784c36e2735494a33b0a56dc7a5d6a3d188f",
+  "pilot_worker_sha256": "5de55df58a9db001fb618d9ccf51c65df08e0e54279cf7e8927a8f69e22e7a7d",
+  "dependencies": {
+    "torch": "2.5.1",
+    "numpy": "2.4.6",
+    "scikit-learn": "1.9.1"
+  },
+  "source_hashes": {
+    "ace/perf.py": "a4a6c9b2e31ac45c26ab6cb0c199fafc7212b05a552e39ee6e04b63f8d923b43",
+    "ace/seeding.py": "85477c90960859ae87213750e04c8919833f90012754c3f3cf9903b04b3ead7d",
+    "ace/delivery.py": "cd2a36d369a7e4f0adbe4c37315b83b673433acd172102e62ce6601aebfca9be",
+    "ace/metrics.py": "e2205e34771bb1aa62e324f032cd9d0a9ee142934690b1f68c28ea045882b537",
+    "ace/baselines.py": "ee88ebf901147628797b98eca2a998d59d3c6a439d96a1573e1867906c3219fb",
+    "ace/config.py": "12d93c839aa4da5218d4c10e7060a85243ad7a8fde012747a774805e97fb4688",
+    "ace/analysis.py": "be3013fad533453e3b3d9cc41f6379502efb8fa5c994cb0eb4dd703c38845890",
+    "ace/_version.py": "d0d5d463c5d6993079f25538980b47c6de276dea05ab05963d4d813044a29fd8",
+    "ace/registry.py": "84912042af03b554f64cfc25643f33ea8a1ea4bcaba3160f078e35fb2aee167b",
+    "ace/__init__.py": "3e1e594dc3589c515087cec199af3042a64cef536a6a082f819954d2e962c87f",
+    "ace/grid_eval.py": "1b3d7fe3214a8d6c35976784389ea48fe9c65d3545b1cd1cfcbd3520b369e930",
+    "ace/result.py": "ed7c6bfdc863a1ad9a769f59873c6dd6c1c9abfe178bdaa09d18dfa81b236f0c",
+    "ace/llm_policy.py": "eba01a5aac30c109f84e881b7aa5f1ebcecf816d0d1e4c4078bb3cdbc5da6fd9",
+    "ace/replay.py": "4363c56d7deba27e71dd450381281f3ab31bb8f37eb21f42880ce9a8864d65df",
+    "ace/cli.py": "f60bb016bfc326df9f0fbe65fd23acaddbe55f80b52ef8165e73dd9ac12b8aaa",
+    "ace/observation_log.py": "ac93c43dddb900135a3026c10351934b3f5c6892cbf692a96a56a67d6d8d469b",
+    "ace/oracle.py": "4d48bef21c4d45a82dba4c0616614a434eff5e94d99a1a99d00f5193718fac56",
+    "ace/optim.py": "f9459a4d2f412a0f1296ad5f08bbd3834a3b13edb8dae97d8bb32fb440dec961",
+    "ace/dpo.py": "fc2f2fdf01cd70f88ad74e42704d43d9510d0f9922ed71243a05263db155a6f9"
+  },
+  "condition": "white_64 development only",
+  "costs": {
+    "rolling_buffer": {
+      "updates": 2000,
+      "cpu_seconds": 0.259819
+    },
+    "delivery_mlp": {
+      "updates": 2000,
+      "cpu_seconds": 0.49069700000000016
+    }
+  },
+  "simple_fit_cpu_seconds": 0.0,
+  "estimated_full_cpu_core_hours": 0.3743696972222223,
+  "full_wall_ceiling_seconds": 1800,
+  "within_cap": true,
+  "pilot_cpu_core_hours": 0.0004219627777777778,
+  "pilot_wall_seconds": 1.567586749966722,
+  "pilot_wall_ceiling_seconds": 90,
+  "margin": "2x measured update costs +900s; reserve120s from5h for pilot and supervision",
+  "test_losses_computed": false,
+  "external_conditions_read": 0,
+  "new_queries": 0,
+  "model_hashes": {
+    "pilot_models.pt": "ceee8ae7e131051a11665f99532ff58d432e32977bceaee914366f31d96fa893"
+  },
+  "measured_projection_sha256": "2ef622cc45a616dd289b4de22228764fd7cf99bd58d838468f794774c9d969a5",
+  "maximum_authorized_full_wall_seconds": 17880,
+  "allocation_reason": "measured conservative0.3744core-hour full projection fits a CPU1/30minute allocation; approved5core-hour ceiling is not consumed by default"
+}

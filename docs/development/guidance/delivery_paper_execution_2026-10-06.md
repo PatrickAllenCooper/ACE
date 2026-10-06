@@ -145,8 +145,9 @@ any selected simpler regressor, predictions and splits. Evaluator refuses a
 changed artifact or protocol before loading prediction arrays. Analytic fixtures
 verify common-rotation symmetry and aligned/orthogonal relative-angle predictions;
 the earlier product-form baseline is not used. Process-tree RSS is retained for
-each supervised phase. Stage C remains unlaunched pending the selected recipe
-and measured runtime projection.
+each supervised phase. Stage C completed after the selected recipe and development-only measured
+runtime projection passed. Full acceptance is retained in
+results/delivery_chambers_20261006/acceptance.json; do not rerun scored conditions.
 
 Development-only physical timing pilot: chambers_delivery_pilot.py, white_64
 only, fixed2,000updates for the selected neural batch and steady-state50-row
@@ -176,3 +177,29 @@ Finish gates: attributable benefit, prospective controls and honest scope,
 external boundary reported, full proofs, failed cases, compute accounting,
 executable reproduction and claim-to-receipt check. If matched compute removes
 the advantage, finish a narrower delivery/accounting methodology report.
+
+### Stage C acceptance — 2026-10-06
+
+Source0357cda7; local exclusive output
+/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-chambers-full-20261006.
+Supervisor session45487 completed, no Slurm job, accountucb736_asc1 retained in
+authorization. CPU1/8GiB/1,800s based on white_64 timing only, conservative
+projection0.37437CPU-core-hours. Actual fit/evaluation0.052852core-hours,
+190.46s excluding process imports/startup; pilot0.000422core-hours. Peak fit
+process-tree RSS307740672bytes. Both supervised phases completed normally.
+
+Independent audit validates all11conditions, archive/source/dependency hashes,
+fit seals, identical-command/action-block splits, training-only normalizers,
+recomputed continuous errors and conditional paired-block bootstrap intervals.
+All11models sealed before evaluation; white_64 excluded. Zero new physical
+responses and no APIs. Delivery improves row-weighted NMSE over rolling in7/11,
+physics3/11, Fourier0/11. These are descriptive condition counts from one
+apparatus, not independent-world significance. All outcomes retained; no rescue
+or refit. One response mechanism cannot establish DAG-factorization benefit.
+Generated tables report every condition and its conditional uncertainty.
+
+Stage B remains conditional on faithful online-worker implementation, fixed
+training-only normalizers and endpoint, runtime projection, and final protocol
+freeze before opening independently parameterized system outcomes. The Stage A
+attribution gate passed; the physical negative result is an applicability
+boundary, not authorization for another favorable physical sweep.

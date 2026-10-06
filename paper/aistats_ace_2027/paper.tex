@@ -28,8 +28,10 @@ development-selected flat refit and \AMatchedRatio{} versus a matched-CPU flat
 fit, using fixed initialization zero. We give conditional statements for
 mechanism eligibility, deterministic error propagation and quantization
 sensitivity, with explicit counterexamples to monotonic improvement.
-Independent-system comparisons and an archived physical case study
-remain necessary before submission. The present evidence supports a scoped
+An archived physical case study retains all eleven conditions: delivery beats
+rolling learning in \CRollingWins{} conditions but Fourier regression in
+\CFourierWins{}. Independent-system comparisons remain necessary before
+submission. The present evidence supports a scoped
 post-collection delivery finding, without an acquisition or foundation-model
 claim.
 \end{abstract}
@@ -56,7 +58,8 @@ while retaining its worsening history and limitations.
 We report a completed, receipt-backed comparison across repeated acquisition
 histories of one fixed system; derive conditions and limitations relevant to
 reuse and chain prediction; and report exploratory attribution that separates
-retained data from fitting budget. Independent-system and physical results are
+retained data from fitting budget. An archived physical case study establishes
+a boundary against strong domain controls; independent-system results are
 pending. Neither causal structure discovery nor learned experiment selection is
 a current contribution. No foundation model is used in the delivery experiment.
 
@@ -76,7 +79,7 @@ that neural approximation or low MSE identifies an unrestricted SCM. Our
 conditional mechanism regression and deterministic propagation statements
 address a much narrower known-graph setting. Causal Chambers provide an external
 physical apparatus with published causal models \citep{gamella2025chambers};
-the planned archive study assesses physical prediction under that apparatus's
+the archive study assesses physical prediction under that apparatus's
 conditions, without claiming new live experiment design.
 
 \section{Completed delivery confirmation}
@@ -196,8 +199,8 @@ evaluation, targeting the same deterministic structural map for every arm.
 This setting is labeled as a noise-disabled parameterization of the audited
 families; it does not establish a benefit for stochastic interventional means.
 
-\paragraph{Stage C: archived physical prediction (pending).}
-Use the eleven previously unscored conditions of \texttt{lt\_malus\_v1};
+\paragraph{Stage C: archived physical prediction (completed).}
+We use the eleven previously unscored conditions of \texttt{lt\_malus\_v1};
 \texttt{white\_64} remains development only. Duplicate commands and joint action
 blocks are grouped before splitting. Compare delivery, rolling-buffer learning,
 joint Fourier regression and the published relative-angle physics model, using
@@ -205,8 +208,20 @@ continuous prediction error. The physics basis is an intercept and
 $\cos^2(\theta_1-\theta_2)$, with degree inputs converted to radians; the earlier
 product-form attenuation control is not retained. Conditions and repeated
 readings from one apparatus are not independent physical worlds. All conditions
-and conditional uncertainty will be reported, including negative comparisons
-against physics.
+and conditional uncertainty are reported in Tables~\ref{tab:physical} and
+\ref{tab:physical-ci}. At fixed initialization zero, delivery has lower
+row-weighted NMSE than rolling-buffer fitting in \CRollingWins{} conditions,
+than the physics fit in \CPhysicsWins{}, and than Fourier regression in
+\CFourierWins{}. These are descriptive counts, not independent-world tests.
+The study consumed \CCPU{} fit/evaluation CPU-core-hours, excluding imports
+and startup, and acquired no physical responses. All fits were sealed before
+held-out losses were computed. Fourier regression outperforming delivery in
+every condition rules out an external advantage over that control here; the
+fixed domain-informed control provides better predictions. This case contains one
+measured response mechanism, so it is not a test of DAG factorization. We retain
+the result without changing the recipe after scoring.
+
+\input{delivery_physical_table}
 
 \input{delivery_theory}
 
@@ -225,9 +240,11 @@ analytic checks and the execution ledger are versioned with the manuscript.
 No closed-source API is needed for the critical path.
 
 \section{Limitations and conclusion}
-The current positive result is restricted to a bundled delivery recipe, a
-quantized endpoint, and repeated histories of a single fixed emulator on an
-exposed evaluation grid. It does not yet justify a new architecture or equal-
+The current positive confirmation is restricted to a bundled delivery recipe,
+a quantized endpoint, and repeated histories of a single fixed emulator on an
+exposed evaluation grid. Exploratory continuous-error attribution is favorable,
+but physical prediction loses to the Fourier control in every condition.
+The evidence does not yet justify a new architecture or equal-
 compute superiority. The theoretical statements require graph, invariance,
 noise and support assumptions that cannot be inferred from small fitted
 residuals. Additional observations and optimization can worsen test performance,
