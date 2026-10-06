@@ -245,9 +245,10 @@ The release procedure is delivery_prospective_release_2026-10-06.md. The batch
 now binds exact640cell membership and all80shared training journals, requires
 target-runtime qualification before collection, rejects an invalid training
 normalizer before fitting, and seals every model/attempt before any held-out
-response. Qualification/collection/evaluation and fit children have bounded
+response. Qualification/collection/evaluation/audit and fit children have bounded
 CPU/RSS supervisors. Slurm preparation includes rounded allocation requests for
-qualification,40world tasks,collection,evaluation and the original pilot within
+qualification,40world tasks,collection,evaluation, a900second independent audit
+and the original pilot within
 150core-hours; every task is1CPU/3GiB. Two20world arrays have concurrency2 each.
 Exclusive submission claims and a per-attempt journal prevent blind duplicates.
 
@@ -264,3 +265,47 @@ updated pages4,7,8 pass visual review. Its new root-support proposition gives
 an explicit known-graph example with exact observed-parent fits yet arbitrarily
 amplified in-box chain error. It narrows the prospective claim to root actions;
 it is not a post-hoc diagnosis or a certified bound for the actual networks.
+
+### Independent prospective acceptance prepared before outcomes
+
+The new committed candidate adds read-only full640checkpoint replay, exact
+journal/matrix/source custody validation, independent errors and four-test Holm
+recomputation, plus descriptive ablation/history/init sensitivity. A separate
+1CPU/3GiB/15min audit job follows evaluation and is included in the existing
+150CPU-core-hour ceiling. All six Slurm scripts and the rounded total must be
+reviewed after the pilot gate; no new resource allowance is assumed.
+
+Only a complete independent acceptance with successful audit supervisor can
+feed the generated prospective claim index and LaTeX tables. Original scored
+prediction arrays stay fixed; numerical checkpoint replay tolerance is declared
+before outcomes and discrepancies recorded. Thirty-nine local checks pass;
+CURC runtime still must qualify. Existing pilot/source unchanged and full study
+unlaunched. No actual prospective numerical statement is added to the paper.
+
+### Current blocker: pilot qualification failed before timing
+
+Pilot33505661 started22:32:29UTC and failed22:34:35UTC2026-10-06 (126allocated
+CPU-seconds, one CPU). Four of five checks passed. The fifth could not import
+experiments.large_scale_scm because the launch environment omitted the frozen
+project root from PYTHONPATH. No timing fits/development inputs, projection or
+selected-system responses exist. Original artifacts and five worker hashes
+remain preserved; complete failed raw custody and Slurm accounting were pulled.
+Receipt: results/delivery_prospective_preparation_20261006/pilot33505661_failure.json.
+
+The full batch environment now supplies absolute project AND worker import
+roots. Thirty-nine local tests pass from /private/tmp, including an import
+regression independent of repository cwd. A bounded target-runtime import-only
+probe resolves the original frozen generator; this is not runtime qualification
+or timing acceptance. The proposed replacement pilot uses the same five unchanged
+befa0bd8 workers, a new exclusive output,1CPU/3GiB/15min, explicit import roots,
+and a new submission journal. Reviewable proposed script:
+results/delivery_prospective_preparation_20261006/pilot_importfix_proposal.sbatch.
+No replacement was submitted or registration overwritten.
+
+The new resource gate carries126historical failed allocated CPU-seconds inside
+the150core-hour ceiling, in addition to the900second next pilot reserve and
+900second independent result audit. The committed failed receipt is packaged
+and bound into final registration. No new allowance or matrix trimming.
+Per the user qualification-failure stop instruction, another pilot requires
+an implementation/resource decision. Timing/launch remain blocked; original
+A/C scientific outcomes and manuscript claims are unchanged.

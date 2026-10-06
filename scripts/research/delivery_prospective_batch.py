@@ -25,7 +25,11 @@ WORKERS=('delivery_prospective_batch.py','delivery_prospective_models.py','deliv
          'runner_delivery_confirmation.py','audit_delivery_prospective_pilot.py',
          'delivery_prospective_slurm.py','test_delivery_prospective_models.py',
          'test_delivery_prospective_io.py','test_delivery_prospective_batch.py',
-         'test_delivery_theory.py','test_delivery_prospective_analysis.py')
+         'test_delivery_theory.py','test_delivery_prospective_analysis.py',
+         'audit_delivery_prospective_results.py','test_delivery_prospective_results_audit.py',
+         'export_delivery_prospective_claims.py','test_export_delivery_prospective_claims.py')
+PILOT_FAILURE_RECEIPT='results/delivery_prospective_preparation_20261006/pilot33505661_failure.json'
+HISTORICAL_PILOT_CPU_SECONDS=126
 
 
 def expected_world_ids():
@@ -66,11 +70,13 @@ def allocation_plan(projection):
         per_world=projection['strata'][size]['raw_full_fit_cpu_seconds']/20
         wall[size]=max(900,math.ceil((3*per_world+16*5+60)/900)*900)
         if wall[size]>86400:raise ValueError('world wall request exceeds cpu-normal limit')
-    total=(20*sum(wall.values())+300+900+3600+900)/3600
+    total=(20*sum(wall.values())+300+900+3600+900+900+HISTORICAL_PILOT_CPU_SECONDS)/3600
     if total>150 or projection['estimated_full_cpu_core_hours']>150:
         raise ValueError('projection or requested allocation exceeds150core-hours')
     return {'world_wall_seconds':wall,'qualification_wall_seconds':300,
         'collection_wall_seconds':900,'evaluation_wall_seconds':3600,
+        'audit_wall_seconds':900,
+        'historical_failed_pilot_cpu_seconds':HISTORICAL_PILOT_CPU_SECONDS,
         'pilot_reserved_seconds':900,'total_requested_cpu_core_hours':total,'threads':1,'rss_bytes':3*2**30,
         'max_simultaneous_worlds':4,'account':'ucb736_asc1','partition':'acpu','qos':'cpu-normal'}
 
@@ -98,10 +104,14 @@ def freeze(draft,project,source,gate,pilot,out,source_revision):
     commit_receipt=read(project/'source_commit_receipt.json')
     if commit_receipt['source_revision']!=source_revision:
         raise ValueError('source revision does not match verified Git bundle')
-    required={'scripts/research/'+name for name in WORKERS}|{'baselines.py','experiments/large_scale_scm.py'}
+    required={'scripts/research/'+name for name in WORKERS}|{'baselines.py','experiments/large_scale_scm.py',PILOT_FAILURE_RECEIPT}
     if not required<=set(commit_receipt['files']):raise ValueError('committed worker coverage incomplete')
     for name,h in commit_receipt['files'].items():
         if sha(project/name)!=h:raise ValueError('verified committed file changed')
+    failed=read(project/PILOT_FAILURE_RECEIPT)
+    if (failed['job_id']!='33505661' or failed['account']!='ucb736_asc1' or failed['state']!='FAILED' or
+            failed['allocated_cpu_seconds']!=HISTORICAL_PILOT_CPU_SECONDS):
+        raise ValueError('historical failed pilot charge changed')
     accepted=audit(pilot,source,pilot/'acceptance.json');projection=read(pilot/'projection.json')
     if dependencies()!=accepted['dependencies']:raise ValueError('target runtime differs from measured pilot')
     for file in ('delivery_prospective_models.py','delivery_prospective_design.py','runner_delivery_confirmation.py'):
@@ -127,6 +137,7 @@ def freeze(draft,project,source,gate,pilot,out,source_revision):
     shutil.copyfile(gate,out/'attribution_gate.json')
     shutil.copyfile(pilot/'acceptance.json',out/'pilot_acceptance.json')
     shutil.copyfile(pilot/'projection.json',out/'pilot_projection.json')
+    shutil.copyfile(project/PILOT_FAILURE_RECEIPT,out/'historical_pilot_failure.json')
     write(out/'registration.json',{'at':utc(),'stage':'B frozen prospective protocol before collection',
         'source_revision':source_revision,'source':str(source),'project':str(project),'output':str(out),'worlds':expected_world_ids(),
         'worker_hashes':{n:sha(Path(__file__).with_name(n)) for n in WORKERS},'source_hashes':accepted['source_hashes'],
@@ -135,6 +146,7 @@ def freeze(draft,project,source,gate,pilot,out,source_revision):
         'dependencies':accepted['dependencies'],'descriptor_manifest_sha256':sha(out/'descriptor_manifest.json'),
         'gate_sha256':sha(out/'attribution_gate.json'),'pilot_acceptance_sha256':sha(out/'pilot_acceptance.json'),
         'pilot_projection_sha256':sha(out/'pilot_projection.json'),'histories':HISTORIES,'cells':CELLS,
+        'historical_pilot_failure_sha256':sha(out/'historical_pilot_failure.json'),
         'matrix_fits':640,'primary_cells':240,'resources':resources,'new_response_ceiling':48000,
         'training_responses':32000,'shared_evaluation_responses':16000,
         'estimand':'noise-disabled deterministic structural target for every arm; not stochastic interventional expectation',
@@ -155,7 +167,8 @@ def validate(out):
             p['matrix_fits']!=640 or p['new_response_ceiling']!=48000 or p['resources']['total_requested_cpu_core_hours']>150):
         raise ValueError('protocol matrix/resource drift')
     for file,key in (('descriptor_manifest.json','descriptor_manifest_sha256'),('attribution_gate.json','gate_sha256'),
-                     ('pilot_acceptance.json','pilot_acceptance_sha256'),('pilot_projection.json','pilot_projection_sha256')):
+                     ('pilot_acceptance.json','pilot_acceptance_sha256'),('pilot_projection.json','pilot_projection_sha256'),
+                     ('historical_pilot_failure.json','historical_pilot_failure_sha256')):
         if sha(out/file)!=p[key]:raise ValueError('protocol receipt changed')
     for name,h in p['worker_hashes'].items():
         if sha(Path(__file__).with_name(name))!=h:raise ValueError('frozen worker changed')
@@ -355,27 +368,38 @@ def evaluate(out):
         'account':p['resources']['account'],'job_id':os.environ.get('SLURM_JOB_ID')})
 
 
+def phase_environment(p,out):
+    """Explicit frozen import roots; qualification must not depend on cwd."""
+    return {**os.environ,'OMP_NUM_THREADS':'1','MKL_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1',
+        'CUDA_VISIBLE_DEVICES':'','PYTHONPATH':os.pathsep.join((str(Path(__file__).resolve().parent),str(Path(p['project']).resolve()))),
+        'ACE_DELIVERY_RUNNER_SOURCE':p['source'],'ACE_DELIVERY_DRAFT':str(Path(out)/'descriptors'),
+        'ACE_DELIVERY_DRAFT_MANIFEST':str(Path(out)/'descriptor_manifest.json')}
+
+
 def supervise_phase(out,phase):
     """Bound only a newly spawned ACE child; preserve failed phase custody."""
     out=Path(out);p=validate(out)
-    if phase not in ('qualification','collect','evaluate'):raise ValueError('unregistered phase')
+    if phase not in ('qualification','collect','evaluate','audit'):raise ValueError('unregistered phase')
     wall=p['resources'][{'collect':'collection','evaluate':'evaluation'}.get(phase,phase)+'_wall_seconds']
     claim(out/(phase+'_supervisor_started.json'),{'at':utc(),'job_id':os.environ.get('SLURM_JOB_ID'),
         'registration_sha256':sha(out/'registration.json'),'wall_seconds':wall})
-    env={**os.environ,'OMP_NUM_THREADS':'1','MKL_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1',
-        'CUDA_VISIBLE_DEVICES':'','PYTHONPATH':str(Path(__file__).resolve().parent),
-        'ACE_DELIVERY_RUNNER_SOURCE':p['source'],'ACE_DELIVERY_DRAFT':str(out/'descriptors'),
-        'ACE_DELIVERY_DRAFT_MANIFEST':str(out/'descriptor_manifest.json')}
+    env=phase_environment(p,out)
     if phase=='qualification':
         command=[sys.executable,'-m','unittest','test_delivery_prospective_models',
             'test_delivery_prospective_io','test_delivery_prospective_batch',
-            'test_delivery_theory','test_delivery_prospective_analysis']
+            'test_delivery_theory','test_delivery_prospective_analysis',
+            'test_delivery_prospective_results_audit','test_export_delivery_prospective_claims']
+    elif phase=='audit':
+        command=[sys.executable,str(Path(__file__).with_name('audit_delivery_prospective_results.py')),
+            '--out',str(out),'--project',p['project'],'--source',p['source'],
+            '--acceptance',str(out/'acceptance.json')]
     else:command=[sys.executable,__file__,phase,'--out',str(out)]
     start=time.monotonic();r=supervise(command,start+wall-20,p['resources']['rss_bytes'],
         out/(phase+'.log'),interval=1,env=env)
     samples=r.pop('samples',[]);r['peak_tree_rss_bytes']=max((s['rss_bytes'] for s in samples),default=0)
     r.update({'elapsed_seconds':time.monotonic()-start,'registration_sha256':sha(out/'registration.json'),
         'job_id':os.environ.get('SLURM_JOB_ID'),'account':p['resources']['account']})
+    if phase=='audit' and r['status']=='complete':r['acceptance_sha256']=sha(out/'acceptance.json')
     write(out/(phase+'_execution.json'),r)
     if r['status']!='complete':
         try:claim(out/'stop_new_fits.json',{'at':utc(),'phase':phase,**r})

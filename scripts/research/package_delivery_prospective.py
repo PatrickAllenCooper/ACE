@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import tarfile
 
-from delivery_prospective_batch import WORKERS,load_descriptors
+from delivery_prospective_batch import WORKERS,load_descriptors,PILOT_FAILURE_RECEIPT
 from runner_delivery_confirmation import read,write,sha,utc
 
 
@@ -15,7 +15,7 @@ def package(project,source,draft,gate,destination,revision):
     actual=subprocess.check_output(['git','rev-parse',revision],cwd=project,text=True).strip()
     files=sorted({'scripts/research/'+n for n in WORKERS}|{
         'scripts/research/delivery_prospective_pilot.py','scripts/research/package_delivery_prospective.py',
-        'baselines.py','experiments/large_scale_scm.py'})
+        'baselines.py','experiments/large_scale_scm.py',PILOT_FAILURE_RECEIPT})
     hashes={}
     for name in files:
         committed=subprocess.check_output(['git','show',actual+':'+name],cwd=project)

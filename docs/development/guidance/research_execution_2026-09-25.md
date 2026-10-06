@@ -1130,3 +1130,52 @@ Transport, bounded scratch stat/df and private write/read/cleanup pass,690Tfree.
 Pilot33505661 stillPENDING/notstarted. No final protocol freeze, new allocation
 or selected-system response. Release bundle/transfer receipts in compact local
 custody; raw candidate bundle external. Hourly prompt updated for these gates.
+
+
+## 2026-10-06 — Independent prospective audit and publication barrier
+
+Implemented read-only result acceptance across every640fit,32000training and
+16000shared heldout responses. It validates receipt/source/matrix hashes,
+phase/attempt telemetry and fit-before-evaluation timing, replays saved weights
+with predicted parents, then independently recomputes continuous NMSE and all
+four system-level Holm contrasts. Original cached predictions remain the scored
+endpoint. Pre-outcome CPU float32 replay tolerance is rtol1e-6/atol1e-7 with
+exact roots; all replay deltas are retained. Missing/failed cells block acceptance.
+Descriptive ablation/history/init sensitivity retains fixed deployment init0
+and introduces no significance test or scored selection.
+
+Added a sixth Slurm stage: independent audit after successful evaluation,
+1CPU/3GiB/15min,900seconds explicitly inside the existing150core-hour ceiling.
+The claim exporter requires independent acceptance AND successful audit execution;
+exclusive generated tables/macros carry receipt selectors and source hashes.
+Thirty-eight local tests pass; analytic fixtures test code, not new outcomes.
+Target-runtime38check qualification remains required before selected responses.
+The immutable A gate, accepted C outcomes and all five queued pilot workers
+remain unchanged; no manuscript numerical claim, selected-world fit/response,
+API call, GPU or extra submission. Pilot33505661 wasPENDING/notstarted at
+22:24:24UTC. A fresh bounded reconciliation is underway; retain the queued source
+and previous candidate bundle. Commit/package this new candidate before release.
+
+
+### 22:39UTC reconciliation — pilot33505661 failed; replacement decision needed
+
+Scheduler confirms start22:32:29UTC/end22:34:35UTC,FAILED/1:0,126allocated
+CPU-seconds, reported TotalCPU6.137s, batchMaxRSS1009004KiB. Qualification ran
+five checks: four pass, fifth ModuleNotFoundError for experiments.large_scale_scm.
+Missing frozen project-root PYTHONPATH was hidden by local repository cwd.
+No timing fits,800development timing rows,projection or prospective responses
+were produced. Raw logs/registration/supervisor/script/Slurm output/accounting
+pulled to exclusive delivery-prospective-pilot-failed-33505661 custody. Original
+failed job/source/output untouched; no duplicate or replacement submitted.
+
+Corrected full batch launch environment and reproduced39local checks from an
+unrelated working directory. Remote import-only check from /tmp now finds the
+original frozen generator with explicit PYTHONPATH; it does not qualify fits
+or timing. Prepared reviewable replacement pilot script using unchanged five
+befa0bd8workers,1CPU/3GiB/15min, new exclusive output/journal. The corrected
+resource plan includes126historical charged seconds plus next900s pilot and
+900s final audit inside150core-hours; failed receipt packaged/frozen with source.
+Full study and retry remain blocked by the user qualification-failure decision
+gate. Request one environment-only replacement, preserving all failures and
+scientific recipes. No further submissions until that decision; no scientific
+outcomes or manuscript numbers changed. Hourly work stops at this explicit gate.

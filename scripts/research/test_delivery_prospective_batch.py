@@ -1,5 +1,7 @@
 import copy
 import os
+import subprocess
+import sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -44,6 +46,7 @@ class ProspectiveBatchTests(unittest.TestCase):
                                                        '30':{'raw_full_fit_cpu_seconds':20*1000.}}}
         r=allocation_plan(p)
         self.assertEqual(r['threads'],1)
+        self.assertEqual(r['historical_failed_pilot_cpu_seconds'],126)
         self.assertTrue(all(s%900==0 for s in r['world_wall_seconds'].values()))
         self.assertLessEqual(r['total_requested_cpu_core_hours'],150)
         bad=copy.deepcopy(p);bad['estimated_full_cpu_core_hours']=151
@@ -51,6 +54,17 @@ class ProspectiveBatchTests(unittest.TestCase):
         # A plausible fit projection cannot hide excessive rounded requests.
         bad=copy.deepcopy(p);bad['strata']['30']['raw_full_fit_cpu_seconds']=20*12000.
         with self.assertRaises(ValueError):allocation_plan(bad)
+
+    def test_qualification_imports_frozen_project_from_unrelated_working_directory(self):
+        from delivery_prospective_batch import phase_environment
+        project=Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory() as directory:
+            env=phase_environment({'project':str(project),'source':'unused in import-only check'},directory)
+            # No model, selected outcome or simulator is loaded by this probe.
+            result=subprocess.check_output([sys.executable,'-c',
+                'import importlib.util; print(importlib.util.find_spec("experiments.large_scale_scm").origin)'],
+                cwd=directory,env=env,text=True).strip()
+            self.assertEqual(Path(result).resolve(),project/'experiments/large_scale_scm.py')
 
     def test_failure_blocks_test_generation_before_any_model_is_opened(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -77,11 +91,12 @@ class ProspectiveBatchTests(unittest.TestCase):
         resources=allocation_plan(projection)
         scripts=scripts_for('/scratch/alpine/paco0228/ACE/results/fixture','/usr/bin/python',
             '/project/scripts/research/delivery_prospective_batch.py',resources)
-        self.assertEqual(set(scripts),{'qualification','collect','fit5','fit30','evaluate'})
+        self.assertEqual(set(scripts),{'qualification','collect','fit5','fit30','evaluate','audit'})
         for script in scripts.values():
             self.assertIn('--account=ucb736_asc1',script)
             self.assertIn('--cpus-per-task=1',script)
             self.assertNotIn('--gres',script)
+        self.assertIn('--time=00:15:00',scripts['audit'])
         for name,size in (('fit5',5),('fit30',30)):
             self.assertIn('--array=0-19%2',scripts[name])
             self.assertIn(f"'{size}:%02d'",scripts[name])

@@ -32,7 +32,7 @@ def scripts_for(out,python,worker,resources):
         raise ValueError('resource request changed')
     scripts={}
     for name,phase,size in (('qualification','qualification',None),('collect','collect',None),
-                            ('fit5',None,5),('fit30',None,30),('evaluate','evaluate',None)):
+                            ('fit5',None,5),('fit30',None,30),('evaluate','evaluate',None),('audit','audit',None)):
         wall=resources['world_wall_seconds'][str(size)] if size else resources[
             {'collect':'collection','evaluate':'evaluation'}.get(phase,phase)+'_wall_seconds']
         array='\n#SBATCH --array=0-19%2' if size else ''
@@ -77,7 +77,7 @@ def prepare(out,destination):
     plan={'at':utc(),'registration_sha256':sha(out/'registration.json'),'source_revision':p['source_revision'],
         'out':str(out),'script_directory':str(destination),'script_hashes':hashes,'python':sys.executable,
         'resources':calculated,'dependencies':p['dependencies'],
-        'dependency_chain':'qualification -> collect -> fit5[20] + fit30[20] -> evaluate',
+        'dependency_chain':'qualification -> collect -> fit5[20] + fit30[20] -> evaluate -> audit',
         'no_new_responses_or_allocations_from_preparation':True}
     write(destination/'plan.json',plan)
     return plan
@@ -107,7 +107,7 @@ def submit(destination):
         'source_revision':p['source_revision'],'account':p['resources']['account']})
     jobs={};attempts=[]
     prerequisites={'qualification':[],'collect':['qualification'],'fit5':['collect'],
-                   'fit30':['collect'],'evaluate':['fit5','fit30']}
+                   'fit30':['collect'],'evaluate':['fit5','fit30'],'audit':['evaluate']}
     for name,deps in prerequisites.items():
         command=['sbatch','--parsable']
         if deps:command+=['--dependency=afterok:'+':'.join(jobs[d] for d in deps)]

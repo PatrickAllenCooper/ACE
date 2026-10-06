@@ -1,0 +1,69 @@
+{
+  "at": "2026-10-06T22:43:22.755774+00:00",
+  "checks": {
+    "models": 5,
+    "response_custody": 4,
+    "batch_and_resources": 7,
+    "analytic_theory": 10,
+    "primary_statistics": 5,
+    "independent_results_audit": 5,
+    "claim_export": 3,
+    "total": 39,
+    "all_passed": true,
+    "runtime_scope": "local development; exact target CURC runtime must still qualify",
+    "unrelated_cwd_regression_passed": true
+  },
+  "local_dependencies": {
+    "torch": "2.5.1",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "pandas": "3.0.6",
+    "sympy": "1.13.1",
+    "PyYAML": "6.0.3"
+  },
+  "candidate_worker_hashes": {
+    "delivery_prospective_batch.py": "67d6c11cfa5d2d6d9a7b58b8dec84499c9997dc04f93b957786531032ff93611",
+    "delivery_prospective_slurm.py": "b1445403704db7b53eb104d3bd665370deccc780ea19d1d13d9dddb0be75ab9c",
+    "test_delivery_prospective_batch.py": "4783871d93888b6410415fa0e8708162a4477588b53945a9391924b3b1636f35",
+    "audit_delivery_prospective_results.py": "b73c4db8c21ab1c1a4cd116e1a7dcb15df5c7e5d002492ad3975def9d495bf11",
+    "test_delivery_prospective_results_audit.py": "d551aa5547c914c508d4fed6fd1dca314b9641303d9a3253ba86be45b3367e60",
+    "export_delivery_prospective_claims.py": "090072f9f7ee08285a59f60352152e3bc7665c0ffea666db081d978f92cafb8e",
+    "test_export_delivery_prospective_claims.py": "0f36579db083baf5c02bede11969197418988b493a2832148d5063da5f8de40d",
+    "package_delivery_prospective.py": "7edb55dab5edef62875c97e7c53021ea3c77ce12c93d0c8bfea500b915942533"
+  },
+  "queued_pilot_workers_unchanged": true,
+  "last_validated_pilot": {
+    "job_id": "33505661",
+    "state": "FAILED",
+    "started": true,
+    "start_UTC": "2026-10-06T22:32:29Z",
+    "end_UTC": "2026-10-06T22:34:35Z",
+    "source": "befa0bd8",
+    "account": "ucb736_asc1",
+    "allocated_cpu_seconds": 126,
+    "failure_receipt_sha256": "93e32dc44ffb3eb69b3b1f11c97aa2a1054e99c24762d350f83a361edfe66ff2"
+  },
+  "new_audit_allocation": {
+    "cpu": 1,
+    "memory_GiB": 3,
+    "wall_seconds": 900,
+    "inside_existing_150_CPU_core_hour_ceiling": true
+  },
+  "slurm_job_stages": 6,
+  "stage_b_release": false,
+  "new_confirmation_responses": 0,
+  "new_fits": 0,
+  "closed_api_calls": 0,
+  "gpu_allocations": 0,
+  "attribution_gate_sha256": "a81d0ac51965f71123ecc915764cf18c8166537a1d69f1053d096dd36ed3310f",
+  "claim_index_sha256": "36b6a75d2f023fd5b25ac3c6d61b1533e27a0baa5055cf70d8c24e2f67148e71",
+  "replay_tolerance": {
+    "rtol": 1e-06,
+    "atol": 1e-07,
+    "roots": "exact",
+    "specified_before_outcomes": true
+  },
+  "publication_gate": "full independent acceptance and successful audit execution; analytic fixtures are not evidence",
+  "new_submission_permitted": false,
+  "decision_needed": "one environment-only replacement pilot; user qualification failure stop gate"
+}
