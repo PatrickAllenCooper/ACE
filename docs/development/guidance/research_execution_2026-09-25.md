@@ -906,3 +906,17 @@ project's environment. Small scratch stat/df probes timed out, so remote output
 readiness is unverified. No jobs submitted against unvalidated scratch paths.
 Continue theory/implementation locally while resolving readiness; unrelated jobs
 are protected. Queue waiting alone is acceptable, filesystem validity is a gate.
+
+## 2026-10-06 — full Stage A released locally within approved ceiling
+
+Corrected pilot validation and conservative25.4773core-hour projection pass.
+Frozen480-fit matrix (12histories x40cells) under sourceaf7809c5; strongest simpler
+comparator selected on development is flat. Separate resource authorization binds
+registration. Because explicit CURC scratch stat and df both exit124 after10s,
+remote output readiness fails; full CPU batch launched locally with6threads/8GiB,
+8h wall watchdog (maximum48core-hours<80approved). No remote job ID/no duplicate
+submission/no new responses. External custody delivery-attribution-full-20261006;
+supervisor exec session23740. All480fits must seal before new12-history scoring.
+Originalonline scores remain a separate unchanged comparator. StageB/C not released.
+Existing hourly automation resumed with the committed delivery agenda, including
+local theory/manuscript work, custody reconciliation and conditional next stages.
