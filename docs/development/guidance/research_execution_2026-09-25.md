@@ -808,3 +808,18 @@ is still explicit authorization to retain11 histories and restart original884825
 under45minute stage/230minute aggregate, same6threads/8GiB and62436call cap.
 Worst aggregate calls61362 including discarded interrupted attempts. No new
 experiment, scoring or restart. Receipt custody_recheck.json.
+
+## 2026-10-06 — explicitly approved final-history stage launched
+
+Patrick approval13:33UTC Sentinel_2dbe33397af08191923b777fa9a8c2d0 relayed by
+coordinator authorizes final884825602 restart,45minute additional/230minute total.
+New output delivery-final-history-20261006 retains11 hash-verified unscored
+histories; original stopped outputs/interrupted3326 attempts untouched. Prior
+charged/reserved11003.871229s and56159calls. Preparation reserved300s within
+authorized2700s; running watchdog2400s, combined6threads/8GiB, total13800s,
+62436calls. Positive custody gate and negative seed/time/hash/discarded-call
+checks passed before launch. Start13:35:54.449719UTC, supervisor99455, stage99460
+(PGID99460), case99465; observed564.1%CPU, actual Python3.11 interpreter. No GPU
+or APIs. Exact original recipe/copied adapter unchanged. Evaluation onlyafter
+all12 fullseal; no partialscore. Frozen amendment/start receipts saved in
+results/delivery_final_history_20261006. Existing exec session85136 owns supervisor.
