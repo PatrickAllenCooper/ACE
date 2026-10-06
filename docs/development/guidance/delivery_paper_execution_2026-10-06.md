@@ -238,3 +238,29 @@ projection covers640fits with3x timing margin plus startup/collection/evaluation
 overheads within150CPU-core-hours. Wait for the queued pilot; advance batch
 release, collection/evaluation barriers and source freezing locally meanwhile.
 Full independent-system collection remains unlaunched.
+
+### Stage B batch and theory gates implemented
+
+The release procedure is delivery_prospective_release_2026-10-06.md. The batch
+now binds exact640cell membership and all80shared training journals, requires
+target-runtime qualification before collection, rejects an invalid training
+normalizer before fitting, and seals every model/attempt before any held-out
+response. Qualification/collection/evaluation and fit children have bounded
+CPU/RSS supervisors. Slurm preparation includes rounded allocation requests for
+qualification,40world tasks,collection,evaluation and the original pilot within
+150core-hours; every task is1CPU/3GiB. Two20world arrays have concurrency2 each.
+Exclusive submission claims and a per-attempt journal prevent blind duplicates.
+
+The package helper compares each worker/generator byte against its committed Git
+revision before transferring a minimal source bundle. Freeze verifies that
+receipt, original learner, accepted timing gate, dependencies and all40immutable
+world/action descriptors. New selected-world outcomes remain unopened; current
+pilot33505661 isPENDING at21:41UTC. No frozen queued file was changed.
+
+All30local scientific/statistical/batch checks pass: model5, custody4, batch6,
+theory10 and primary analysis5. CURC must independently qualify the final source;
+local results do not replace that gate. The eight-page manuscript compiles and
+updated pages4,7,8 pass visual review. Its new root-support proposition gives
+an explicit known-graph example with exact observed-parent fits yet arbitrarily
+amplified in-box chain error. It narrows the prospective claim to root actions;
+it is not a post-hoc diagnosis or a certified bound for the actual networks.

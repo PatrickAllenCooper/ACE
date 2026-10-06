@@ -1093,3 +1093,30 @@ response retained before exception and unchanged primary predictions when
 measured test intermediates are corrupted. Full freeze/orchestration remains
 to finish after measured target-runtime projection; no selected-world outcomes
 opened. Continue development while pilot waits; no owner decision required.
+
+## 2026-10-06 — Prospective orchestration and support theory advanced
+
+Pilot33505661 remainsPENDING at21:41UTC, accountucb736_asc1, CPU1/3GiB/15min,
+sourcebefa0bd8; none of its five frozen workers changed. No duplicate job,
+selected-world response, GPU allocation or API call. Queue waiting continues.
+
+Implemented full640cell registration, shared input/journal/matrix seals,
+training-only normalizer validation, final target-runtime qualification,
+CPU phase/fit watchdogs and source-commit custody. Slurm scripts prepare a
+qualification/collection/two20world-array/evaluation chain; each task requests
+CPU1/3GiB, arrays concurrency2each, with rounded requested allocation and pilot
+reserve capped at150CPU-core-hours. An exclusive submission journal retains
+partial/ambiguous outcomes and refuses a duplicate. No fullstudy launch yet.
+The next release requires accepted measured pilot projection, pinned runtime,
+new source bundle and frozen source/protocol/resource hashes before outcomes.
+Procedure: delivery_prospective_release_2026-10-06.md.
+
+Thirty local checks pass (models5, I/O4, batch6, theory10, analysis5).
+Added/proved/verified a root-support counterexample: M=R, trueY=R+M and
+g_K=R+M+K(M-R) agree under all root interventions, yet upstream prediction
+shiftdelta produces downstream error|(1+K)delta| inside the parent bounding box.
+This explains a possible support ambiguity, not the observed worsening history.
+Manuscript scope now explicitly distinguishes root-action recipe prediction
+from internal-action identification and pure-architecture/equal-compute claims.
+Cached compiler succeeds, eightpages, no undefined/overfull warnings; changed
+pages4,7,8 visually checked. All numerical claims/immutableA/C receipts unchanged.

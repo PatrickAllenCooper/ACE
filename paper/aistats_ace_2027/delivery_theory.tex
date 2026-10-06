@@ -82,6 +82,30 @@ Observed-parent test MSE is neither a uniform $\epsilon_i$ nor a verified
 Lipschitz constant. Our residual and support diagnostics are explanatory
 measurements, not certified instances of this proposition.
 
+\begin{proposition}[Root interventions need not constrain propagation]
+Consider the known graph $R\to M$, $R\to Y$, $M\to Y$, with
+$M=R$ and $Y=f(R,M)=R+M$. For any $K\notin\{-1,1\}$, the alternative
+mechanism $g_K(R,M)=R+M+K(M-R)$ uses both declared parents and agrees with
+$f$ under every intervention on $R$ alone. If a learned upstream mechanism
+instead predicts $\hat M=R+\delta$, its free-running prediction using $g_K$
+has error $|(1+K)\delta|$, although its observed-parent fit is exact.
+\end{proposition}
+\begin{proof}
+Root interventions leave the parent support of $Y$ on the diagonal $M=R$,
+where the added term vanishes. Substitution of $\hat M$ gives
+$g_K(R,\hat M)=2R+(1+K)\delta$, whereas the true outcome is $2R$.
+Both parent coefficients are nonzero for the stated choices of $K$.
+\end{proof}
+This failure need not leave a coordinate bounding box. For example, take
+$R=0.25$, $\delta=0.01$ and $K=1000$. Both true and predicted parent vectors
+are inside $[-1,1]^2$, but the prediction error is $10.01$. Observations
+covering the diagonal cannot constrain sensitivity normal to it; more root
+observations alone do not remove that ambiguity. An internal intervention can
+distinguish these mechanisms. Our prospective root-only protocol assesses
+prediction under held-out root interventions, not unrestricted internal-action
+identification. This is an existence example, not a diagnosis of a measured
+failure or a verified bound for the fitted networks.
+
 \begin{proposition}[Quantization margin]
 For distinct ordered levels $\ell_1<\cdots<\ell_m$, let $Q$ assign the nearest
 level, with a fixed tie rule, and let

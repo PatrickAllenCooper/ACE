@@ -39,6 +39,20 @@ class TheoryTests(unittest.TestCase):
         child=lambda x:100*x
         self.assertEqual(child(0),0);self.assertEqual(child(.1),10)
 
+    def test_root_support_ambiguity_amplifies_in_box_upstream_error(self):
+        true=lambda r,m:r+m
+        alternative=lambda r,m,k:r+m+k*(m-r)
+        for k in (-100.,0.,1000.):
+            for r in (-1.,-.25,0.,.25,1.):
+                self.assertEqual(true(r,r),alternative(r,r,k))
+        r,delta,k=.25,.01,1000.
+        self.assertTrue(-1<=r<=1 and -1<=r+delta<=1)
+        error=abs(alternative(r,r+delta,k)-true(r,r))
+        self.assertAlmostEqual(error,10.01)
+        self.assertAlmostEqual(error,abs((1+k)*delta))
+        # An internal clamp off the diagonal separates the two mechanisms.
+        self.assertNotEqual(true(r,.5),alternative(r,.5,k))
+
     def test_noisy_expectation_differs_from_exact_chain_of_means(self):
         # do(W=0), X=W+U, Y=X^2, U uniform on {-1,+1}.
         noise=[-1.,1.];conditional_mean_x=sum(noise)/2

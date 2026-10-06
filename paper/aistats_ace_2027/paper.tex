@@ -198,6 +198,21 @@ The primary protocol proposal disables noise during both collection and
 evaluation, targeting the same deterministic structural map for every arm.
 This setting is labeled as a noise-disabled parameterization of the audited
 families; it does not establish a benefit for stochastic interventional means.
+Each of 20 systems per graph-size stratum supplies two 400-row training
+histories and one shared 400-action held-out evaluation. All actions jointly
+clamp roots; the target is $X_3$ for five nodes and $X_{30}$ for thirty.
+The first 50 paid training rows supply fixed shared calibration before the
+retrospective online updates; target variance for NMSE uses training data only.
+All 640 fits must be sealed before any held-out response is generated.
+Initialization zero is primary; initializations one and two measure sensitivity
+without scored model selection. Four primary tests (two controls in each
+stratum) use Holm correction and system-level paired contrasts.
+SCM fits use measured intermediate labels and train all nonroot heads; the
+flat fit receives roots and the target. Thus supervision and fitting compute
+differ, and the comparison tests a delivery recipe rather than a pure
+architecture effect. Root-only histories can leave joint parent support on a
+manifold (Section~\ref{sec:theory}); this protocol does not test identification
+under arbitrary internal interventions.
 
 \paragraph{Stage C: archived physical prediction (completed).}
 We use the eleven previously unscored conditions of \texttt{lt\_malus\_v1};
