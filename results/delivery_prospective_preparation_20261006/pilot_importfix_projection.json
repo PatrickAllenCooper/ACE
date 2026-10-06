@@ -1,0 +1,1808 @@
+{
+  "at": "2026-10-06T22:52:33.390670+00:00",
+  "complete": true,
+  "registration_sha256": "99a5ff5a8b630d7c7f5329237a5edc0c78a6ad764be5db835ec665b800ce9bf6",
+  "dependencies": {
+    "torch": "2.9.1",
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "pandas": "2.3.3",
+    "sympy": "1.14.0",
+    "PyYAML": "6.0.3"
+  },
+  "worker_hashes": {
+    "delivery_prospective_pilot.py": "528ad70e0fc651de7c32dc209fc37720b3338440b9bbcbb59507b99fb89a4b9e",
+    "delivery_prospective_models.py": "044c7856c5e838be9e0bcfbf3dc981a61239003ba24a0433b74fa8a5b43e997f",
+    "delivery_prospective_design.py": "8cc68039743e1b74c49cd9f56d7da65d1273a2126946542063165212cf01c713",
+    "runner_delivery_confirmation.py": "2f93bacbd6c14c66a5aeac5daabcff50d47886eeec38885e6e83ab40d141baee",
+    "test_delivery_prospective_models.py": "913dd23cf0aa34a22447f9c807753a1011e1c6684a70abbe1443eb9f26533f67"
+  },
+  "source_hashes": {
+    "ace/delivery.py": "cd2a36d369a7e4f0adbe4c37315b83b673433acd172102e62ce6601aebfca9be",
+    "ace/oracle.py": "4d48bef21c4d45a82dba4c0616614a434eff5e94d99a1a99d00f5193718fac56",
+    "ace/cli.py": "f60bb016bfc326df9f0fbe65fd23acaddbe55f80b52ef8165e73dd9ac12b8aaa",
+    "ace/analysis.py": "be3013fad533453e3b3d9cc41f6379502efb8fa5c994cb0eb4dd703c38845890",
+    "ace/grid_eval.py": "1b3d7fe3214a8d6c35976784389ea48fe9c65d3545b1cd1cfcbd3520b369e930",
+    "ace/replay.py": "4363c56d7deba27e71dd450381281f3ab31bb8f37eb21f42880ce9a8864d65df",
+    "ace/observation_log.py": "ac93c43dddb900135a3026c10351934b3f5c6892cbf692a96a56a67d6d8d469b",
+    "ace/__init__.py": "3e1e594dc3589c515087cec199af3042a64cef536a6a082f819954d2e962c87f",
+    "ace/dpo.py": "fc2f2fdf01cd70f88ad74e42704d43d9510d0f9922ed71243a05263db155a6f9",
+    "ace/perf.py": "a4a6c9b2e31ac45c26ab6cb0c199fafc7212b05a552e39ee6e04b63f8d923b43",
+    "ace/baselines.py": "ee88ebf901147628797b98eca2a998d59d3c6a439d96a1573e1867906c3219fb",
+    "ace/result.py": "ed7c6bfdc863a1ad9a769f59873c6dd6c1c9abfe178bdaa09d18dfa81b236f0c",
+    "ace/_version.py": "d0d5d463c5d6993079f25538980b47c6de276dea05ab05963d4d813044a29fd8",
+    "ace/optim.py": "f9459a4d2f412a0f1296ad5f08bbd3834a3b13edb8dae97d8bb32fb440dec961",
+    "ace/llm_policy.py": "eba01a5aac30c109f84e881b7aa5f1ebcecf816d0d1e4c4078bb3cdbc5da6fd9",
+    "ace/seeding.py": "85477c90960859ae87213750e04c8919833f90012754c3f3cf9903b04b3ead7d",
+    "ace/registry.py": "84912042af03b554f64cfc25643f33ea8a1ea4bcaba3160f078e35fb2aee167b",
+    "ace/config.py": "12d93c839aa4da5218d4c10e7060a85243ad7a8fde012747a774805e97fb4688",
+    "ace/metrics.py": "e2205e34771bb1aa62e324f032cd9d0a9ee142934690b1f68c28ea045882b537"
+  },
+  "generator_hashes": {
+    "baselines.py": "f75e2e5535c0b5e9263d2dd289c1452d1cc52ce1c6ee56bf892e429a4b38da79",
+    "experiments/large_scale_scm.py": "9100d50bbdd4f0c0c5e0a2009ad426cdb57f4d9e46d5dff2d47902af1938d8df"
+  },
+  "timings": {
+    "5": {
+      "delivery": {
+        "complete": true,
+        "arm": "delivery",
+        "init": 0,
+        "heads": {
+          "X2": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.2173332489999997
+          },
+          "X3": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2453199289999994
+          },
+          "X5": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.182475244
+          }
+        },
+        "normalizers": {
+          "X2": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X3": {
+            "lo": [
+              -3.0,
+              -5.3374088106295705
+            ],
+            "hi": [
+              3.0,
+              6.221190136936569
+            ]
+          },
+          "X5": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "flat": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          }
+        },
+        "cpu_seconds": 3.6497375739999995,
+        "wall_seconds": 3.774292439999954,
+        "unique_paid_rows": 400,
+        "calibration_rows": 50,
+        "new_queries_in_fit": 0,
+        "evaluation_responses_read": 0,
+        "online_source": "ACEOracle._train_node_mlps_on; append then duplicate winner; Adam persists",
+        "development_epoch_override": 2000,
+        "development_online_tail": null
+      },
+      "simpler": {
+        "complete": true,
+        "arm": "simpler",
+        "init": 0,
+        "heads": {
+          "flat": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2471448249999995
+          }
+        },
+        "normalizers": {
+          "X2": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X3": {
+            "lo": [
+              -3.0,
+              -5.3374088106295705
+            ],
+            "hi": [
+              3.0,
+              6.221190136936569
+            ]
+          },
+          "X5": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "flat": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          }
+        },
+        "cpu_seconds": 1.2473964839999994,
+        "wall_seconds": 1.2874322750003557,
+        "unique_paid_rows": 400,
+        "calibration_rows": 50,
+        "new_queries_in_fit": 0,
+        "evaluation_responses_read": 0,
+        "online_source": "ACEOracle._train_node_mlps_on; append then duplicate winner; Adam persists",
+        "development_epoch_override": 2000,
+        "development_online_tail": null
+      },
+      "ablation": {
+        "complete": true,
+        "arm": "ablation",
+        "init": 0,
+        "heads": {
+          "X2": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.060100542999999895
+          },
+          "X3": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.0629488450000002
+          },
+          "X5": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05977188600000005
+          }
+        },
+        "normalizers": {
+          "X2": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X3": {
+            "lo": [
+              -3.0,
+              -5.3374088106295705
+            ],
+            "hi": [
+              3.0,
+              6.221190136936569
+            ]
+          },
+          "X5": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "flat": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          }
+        },
+        "cpu_seconds": 0.18359707000000025,
+        "wall_seconds": 0.18455845100015722,
+        "unique_paid_rows": 400,
+        "calibration_rows": 50,
+        "new_queries_in_fit": 0,
+        "evaluation_responses_read": 0,
+        "online_source": "ACEOracle._train_node_mlps_on; append then duplicate winner; Adam persists",
+        "development_epoch_override": null,
+        "development_online_tail": null
+      },
+      "online": {
+        "complete": true,
+        "arm": "online",
+        "init": 0,
+        "heads": {
+          "X2": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X3": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X5": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          }
+        },
+        "normalizers": {
+          "X2": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X3": {
+            "lo": [
+              -3.0,
+              -5.3374088106295705
+            ],
+            "hi": [
+              3.0,
+              6.221190136936569
+            ]
+          },
+          "X5": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "flat": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          }
+        },
+        "cpu_seconds": 1.8077024489999998,
+        "wall_seconds": 1.8502877020000597,
+        "unique_paid_rows": 400,
+        "calibration_rows": 50,
+        "new_queries_in_fit": 0,
+        "evaluation_responses_read": 0,
+        "online_source": "ACEOracle._train_node_mlps_on; append then duplicate winner; Adam persists",
+        "development_epoch_override": null,
+        "development_online_tail": 10
+      }
+    },
+    "30": {
+      "delivery": {
+        "complete": true,
+        "arm": "delivery",
+        "init": 0,
+        "heads": {
+          "X6": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1940142280000003
+          },
+          "X7": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2448187929999985
+          },
+          "X8": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1910637590000004
+          },
+          "X9": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2440624529999997
+          },
+          "X10": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2493567799999994
+          },
+          "X11": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1842367370000009
+          },
+          "X12": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2440182150000005
+          },
+          "X13": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.187763530999998
+          },
+          "X14": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.181477006999998
+          },
+          "X15": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2433705899999978
+          },
+          "X16": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1805057060000017
+          },
+          "X17": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1891942970000002
+          },
+          "X18": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2465572860000016
+          },
+          "X19": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.183378803
+          },
+          "X20": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.184994618000001
+          },
+          "X21": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.244252417000002
+          },
+          "X22": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2427468740000016
+          },
+          "X23": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2483216090000013
+          },
+          "X24": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4481,
+            "cpu_seconds": 1.248593629000002
+          },
+          "X25": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 1.2440471950000003
+          },
+          "X26": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1847585719999998
+          },
+          "X27": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1853695590000015
+          },
+          "X28": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1842952370000006
+          },
+          "X29": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1874607210000008
+          },
+          "X30": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 1.1851227459999976
+          }
+        },
+        "normalizers": {
+          "X6": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X7": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X8": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X9": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X10": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X11": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X12": {
+            "lo": [
+              -1.5239374573894031,
+              -2.5485573688944485
+            ],
+            "hi": [
+              1.4084573483629472,
+              2.9477184521273956
+            ]
+          },
+          "X13": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X14": {
+            "lo": [
+              -1.5323339524073558
+            ],
+            "hi": [
+              1.5469099668811093
+            ]
+          },
+          "X15": {
+            "lo": [
+              -2.5485573688944485,
+              -1.5323339524073558
+            ],
+            "hi": [
+              2.9477184521273956,
+              1.5469099668811093
+            ]
+          },
+          "X16": {
+            "lo": [
+              -2.6288978568969394
+            ],
+            "hi": [
+              2.112619465827641
+            ]
+          },
+          "X17": {
+            "lo": [
+              -2.6288978568969394
+            ],
+            "hi": [
+              2.112619465827641
+            ]
+          },
+          "X18": {
+            "lo": [
+              -2.5485573688944485,
+              -1.5323339524073558
+            ],
+            "hi": [
+              2.9477184521273956,
+              1.5469099668811093
+            ]
+          },
+          "X19": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X20": {
+            "lo": [
+              -1.5323339524073558
+            ],
+            "hi": [
+              1.5469099668811093
+            ]
+          },
+          "X21": {
+            "lo": [
+              -1.9266488022454962,
+              -1.2339531807024615
+            ],
+            "hi": [
+              1.9434745742210469,
+              1.245009105128941
+            ]
+          },
+          "X22": {
+            "lo": [
+              -0.7795823489105863,
+              -0.9875188776556809
+            ],
+            "hi": [
+              0.7205075790040079,
+              0.9126872058541906
+            ]
+          },
+          "X23": {
+            "lo": [
+              -0.8802909687724063,
+              -1.0446059480243375
+            ],
+            "hi": [
+              0.7074142615856543,
+              0.9654483630574431
+            ]
+          },
+          "X24": {
+            "lo": [
+              -2.4042574827436676,
+              -0.8099301977493869,
+              -0.9875188776556809
+            ],
+            "hi": [
+              2.74900016833674,
+              0.6508713517484009,
+              0.9126872058541906
+            ]
+          },
+          "X25": {
+            "lo": [
+              -0.9875188776556809,
+              -1.9266488022454962
+            ],
+            "hi": [
+              0.9126872058541906,
+              1.9434745742210469
+            ]
+          },
+          "X26": {
+            "lo": [
+              -1.7030078013624554
+            ],
+            "hi": [
+              1.5878189119552986
+            ]
+          },
+          "X27": {
+            "lo": [
+              -1.576957916840287
+            ],
+            "hi": [
+              1.6857735899641484
+            ]
+          },
+          "X28": {
+            "lo": [
+              -0.858036563826565
+            ],
+            "hi": [
+              0.6741849992311293
+            ]
+          },
+          "X29": {
+            "lo": [
+              -2.1198611130229206
+            ],
+            "hi": [
+              2.067960823994694
+            ]
+          },
+          "X30": {
+            "lo": [
+              -2.1198611130229206
+            ],
+            "hi": [
+              2.067960823994694
+            ]
+          },
+          "flat": {
+            "lo": [
+              -3.0,
+              -3.0,
+              -3.0,
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0
+            ]
+          }
+        },
+        "cpu_seconds": 30.315878237,
+        "wall_seconds": 30.970287309000014,
+        "unique_paid_rows": 400,
+        "calibration_rows": 50,
+        "new_queries_in_fit": 0,
+        "evaluation_responses_read": 0,
+        "online_source": "ACEOracle._train_node_mlps_on; append then duplicate winner; Adam persists",
+        "development_epoch_override": 2000,
+        "development_online_tail": null
+      },
+      "simpler": {
+        "complete": true,
+        "arm": "simpler",
+        "init": 0,
+        "heads": {
+          "flat": {
+            "updates": 2000,
+            "eligible_rows": 400,
+            "parameters": 4609,
+            "cpu_seconds": 1.2497920359999952
+          }
+        },
+        "normalizers": {
+          "X6": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X7": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X8": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X9": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X10": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X11": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X12": {
+            "lo": [
+              -1.5239374573894031,
+              -2.5485573688944485
+            ],
+            "hi": [
+              1.4084573483629472,
+              2.9477184521273956
+            ]
+          },
+          "X13": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X14": {
+            "lo": [
+              -1.5323339524073558
+            ],
+            "hi": [
+              1.5469099668811093
+            ]
+          },
+          "X15": {
+            "lo": [
+              -2.5485573688944485,
+              -1.5323339524073558
+            ],
+            "hi": [
+              2.9477184521273956,
+              1.5469099668811093
+            ]
+          },
+          "X16": {
+            "lo": [
+              -2.6288978568969394
+            ],
+            "hi": [
+              2.112619465827641
+            ]
+          },
+          "X17": {
+            "lo": [
+              -2.6288978568969394
+            ],
+            "hi": [
+              2.112619465827641
+            ]
+          },
+          "X18": {
+            "lo": [
+              -2.5485573688944485,
+              -1.5323339524073558
+            ],
+            "hi": [
+              2.9477184521273956,
+              1.5469099668811093
+            ]
+          },
+          "X19": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X20": {
+            "lo": [
+              -1.5323339524073558
+            ],
+            "hi": [
+              1.5469099668811093
+            ]
+          },
+          "X21": {
+            "lo": [
+              -1.9266488022454962,
+              -1.2339531807024615
+            ],
+            "hi": [
+              1.9434745742210469,
+              1.245009105128941
+            ]
+          },
+          "X22": {
+            "lo": [
+              -0.7795823489105863,
+              -0.9875188776556809
+            ],
+            "hi": [
+              0.7205075790040079,
+              0.9126872058541906
+            ]
+          },
+          "X23": {
+            "lo": [
+              -0.8802909687724063,
+              -1.0446059480243375
+            ],
+            "hi": [
+              0.7074142615856543,
+              0.9654483630574431
+            ]
+          },
+          "X24": {
+            "lo": [
+              -2.4042574827436676,
+              -0.8099301977493869,
+              -0.9875188776556809
+            ],
+            "hi": [
+              2.74900016833674,
+              0.6508713517484009,
+              0.9126872058541906
+            ]
+          },
+          "X25": {
+            "lo": [
+              -0.9875188776556809,
+              -1.9266488022454962
+            ],
+            "hi": [
+              0.9126872058541906,
+              1.9434745742210469
+            ]
+          },
+          "X26": {
+            "lo": [
+              -1.7030078013624554
+            ],
+            "hi": [
+              1.5878189119552986
+            ]
+          },
+          "X27": {
+            "lo": [
+              -1.576957916840287
+            ],
+            "hi": [
+              1.6857735899641484
+            ]
+          },
+          "X28": {
+            "lo": [
+              -0.858036563826565
+            ],
+            "hi": [
+              0.6741849992311293
+            ]
+          },
+          "X29": {
+            "lo": [
+              -2.1198611130229206
+            ],
+            "hi": [
+              2.067960823994694
+            ]
+          },
+          "X30": {
+            "lo": [
+              -2.1198611130229206
+            ],
+            "hi": [
+              2.067960823994694
+            ]
+          },
+          "flat": {
+            "lo": [
+              -3.0,
+              -3.0,
+              -3.0,
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0
+            ]
+          }
+        },
+        "cpu_seconds": 1.2501013749999998,
+        "wall_seconds": 1.2563758619999135,
+        "unique_paid_rows": 400,
+        "calibration_rows": 50,
+        "new_queries_in_fit": 0,
+        "evaluation_responses_read": 0,
+        "online_source": "ACEOracle._train_node_mlps_on; append then duplicate winner; Adam persists",
+        "development_epoch_override": 2000,
+        "development_online_tail": null
+      },
+      "ablation": {
+        "complete": true,
+        "arm": "ablation",
+        "init": 0,
+        "heads": {
+          "X6": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05992911599999928
+          },
+          "X7": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.06251945199999653
+          },
+          "X8": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05955909600000098
+          },
+          "X9": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.0626143429999999
+          },
+          "X10": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.06256785200000081
+          },
+          "X11": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.059572579000004566
+          },
+          "X12": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.06243282299999464
+          },
+          "X13": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05972157899999786
+          },
+          "X14": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.06097366999999565
+          },
+          "X15": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.06230988899999801
+          },
+          "X16": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.0593980699999932
+          },
+          "X17": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05953464899999972
+          },
+          "X18": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.06222725500000337
+          },
+          "X19": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05917161799999349
+          },
+          "X20": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05949915400000094
+          },
+          "X21": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.06252901900000296
+          },
+          "X22": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.06212340700000141
+          },
+          "X23": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.06244689400000425
+          },
+          "X24": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4481,
+            "cpu_seconds": 0.06260241000000377
+          },
+          "X25": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4417,
+            "cpu_seconds": 0.062316660999997
+          },
+          "X26": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05947218099999674
+          },
+          "X27": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.059392857999995385
+          },
+          "X28": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.059507619000001455
+          },
+          "X29": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.05971190399999671
+          },
+          "X30": {
+            "updates": 100,
+            "eligible_rows": 400,
+            "parameters": 4353,
+            "cpu_seconds": 0.059279766000003065
+          }
+        },
+        "normalizers": {
+          "X6": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X7": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X8": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X9": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X10": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X11": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X12": {
+            "lo": [
+              -1.5239374573894031,
+              -2.5485573688944485
+            ],
+            "hi": [
+              1.4084573483629472,
+              2.9477184521273956
+            ]
+          },
+          "X13": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X14": {
+            "lo": [
+              -1.5323339524073558
+            ],
+            "hi": [
+              1.5469099668811093
+            ]
+          },
+          "X15": {
+            "lo": [
+              -2.5485573688944485,
+              -1.5323339524073558
+            ],
+            "hi": [
+              2.9477184521273956,
+              1.5469099668811093
+            ]
+          },
+          "X16": {
+            "lo": [
+              -2.6288978568969394
+            ],
+            "hi": [
+              2.112619465827641
+            ]
+          },
+          "X17": {
+            "lo": [
+              -2.6288978568969394
+            ],
+            "hi": [
+              2.112619465827641
+            ]
+          },
+          "X18": {
+            "lo": [
+              -2.5485573688944485,
+              -1.5323339524073558
+            ],
+            "hi": [
+              2.9477184521273956,
+              1.5469099668811093
+            ]
+          },
+          "X19": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X20": {
+            "lo": [
+              -1.5323339524073558
+            ],
+            "hi": [
+              1.5469099668811093
+            ]
+          },
+          "X21": {
+            "lo": [
+              -1.9266488022454962,
+              -1.2339531807024615
+            ],
+            "hi": [
+              1.9434745742210469,
+              1.245009105128941
+            ]
+          },
+          "X22": {
+            "lo": [
+              -0.7795823489105863,
+              -0.9875188776556809
+            ],
+            "hi": [
+              0.7205075790040079,
+              0.9126872058541906
+            ]
+          },
+          "X23": {
+            "lo": [
+              -0.8802909687724063,
+              -1.0446059480243375
+            ],
+            "hi": [
+              0.7074142615856543,
+              0.9654483630574431
+            ]
+          },
+          "X24": {
+            "lo": [
+              -2.4042574827436676,
+              -0.8099301977493869,
+              -0.9875188776556809
+            ],
+            "hi": [
+              2.74900016833674,
+              0.6508713517484009,
+              0.9126872058541906
+            ]
+          },
+          "X25": {
+            "lo": [
+              -0.9875188776556809,
+              -1.9266488022454962
+            ],
+            "hi": [
+              0.9126872058541906,
+              1.9434745742210469
+            ]
+          },
+          "X26": {
+            "lo": [
+              -1.7030078013624554
+            ],
+            "hi": [
+              1.5878189119552986
+            ]
+          },
+          "X27": {
+            "lo": [
+              -1.576957916840287
+            ],
+            "hi": [
+              1.6857735899641484
+            ]
+          },
+          "X28": {
+            "lo": [
+              -0.858036563826565
+            ],
+            "hi": [
+              0.6741849992311293
+            ]
+          },
+          "X29": {
+            "lo": [
+              -2.1198611130229206
+            ],
+            "hi": [
+              2.067960823994694
+            ]
+          },
+          "X30": {
+            "lo": [
+              -2.1198611130229206
+            ],
+            "hi": [
+              2.067960823994694
+            ]
+          },
+          "flat": {
+            "lo": [
+              -3.0,
+              -3.0,
+              -3.0,
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0
+            ]
+          }
+        },
+        "cpu_seconds": 1.5301228320000035,
+        "wall_seconds": 1.5708967279997523,
+        "unique_paid_rows": 400,
+        "calibration_rows": 50,
+        "new_queries_in_fit": 0,
+        "evaluation_responses_read": 0,
+        "online_source": "ACEOracle._train_node_mlps_on; append then duplicate winner; Adam persists",
+        "development_epoch_override": null,
+        "development_online_tail": null
+      },
+      "online": {
+        "complete": true,
+        "arm": "online",
+        "init": 0,
+        "heads": {
+          "X6": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X7": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X8": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X9": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X10": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X11": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X12": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X13": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X14": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X15": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X16": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X17": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X18": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X19": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X20": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X21": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X22": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X23": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X24": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4481
+          },
+          "X25": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4417
+          },
+          "X26": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X27": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X28": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X29": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          },
+          "X30": {
+            "updates": 1200,
+            "eligible_rows": 400,
+            "parameters": 4353
+          }
+        },
+        "normalizers": {
+          "X6": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X7": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X8": {
+            "lo": [
+              -3.0
+            ],
+            "hi": [
+              3.0
+            ]
+          },
+          "X9": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X10": {
+            "lo": [
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0
+            ]
+          },
+          "X11": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X12": {
+            "lo": [
+              -1.5239374573894031,
+              -2.5485573688944485
+            ],
+            "hi": [
+              1.4084573483629472,
+              2.9477184521273956
+            ]
+          },
+          "X13": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X14": {
+            "lo": [
+              -1.5323339524073558
+            ],
+            "hi": [
+              1.5469099668811093
+            ]
+          },
+          "X15": {
+            "lo": [
+              -2.5485573688944485,
+              -1.5323339524073558
+            ],
+            "hi": [
+              2.9477184521273956,
+              1.5469099668811093
+            ]
+          },
+          "X16": {
+            "lo": [
+              -2.6288978568969394
+            ],
+            "hi": [
+              2.112619465827641
+            ]
+          },
+          "X17": {
+            "lo": [
+              -2.6288978568969394
+            ],
+            "hi": [
+              2.112619465827641
+            ]
+          },
+          "X18": {
+            "lo": [
+              -2.5485573688944485,
+              -1.5323339524073558
+            ],
+            "hi": [
+              2.9477184521273956,
+              1.5469099668811093
+            ]
+          },
+          "X19": {
+            "lo": [
+              -1.5239374573894031
+            ],
+            "hi": [
+              1.4084573483629472
+            ]
+          },
+          "X20": {
+            "lo": [
+              -1.5323339524073558
+            ],
+            "hi": [
+              1.5469099668811093
+            ]
+          },
+          "X21": {
+            "lo": [
+              -1.9266488022454962,
+              -1.2339531807024615
+            ],
+            "hi": [
+              1.9434745742210469,
+              1.245009105128941
+            ]
+          },
+          "X22": {
+            "lo": [
+              -0.7795823489105863,
+              -0.9875188776556809
+            ],
+            "hi": [
+              0.7205075790040079,
+              0.9126872058541906
+            ]
+          },
+          "X23": {
+            "lo": [
+              -0.8802909687724063,
+              -1.0446059480243375
+            ],
+            "hi": [
+              0.7074142615856543,
+              0.9654483630574431
+            ]
+          },
+          "X24": {
+            "lo": [
+              -2.4042574827436676,
+              -0.8099301977493869,
+              -0.9875188776556809
+            ],
+            "hi": [
+              2.74900016833674,
+              0.6508713517484009,
+              0.9126872058541906
+            ]
+          },
+          "X25": {
+            "lo": [
+              -0.9875188776556809,
+              -1.9266488022454962
+            ],
+            "hi": [
+              0.9126872058541906,
+              1.9434745742210469
+            ]
+          },
+          "X26": {
+            "lo": [
+              -1.7030078013624554
+            ],
+            "hi": [
+              1.5878189119552986
+            ]
+          },
+          "X27": {
+            "lo": [
+              -1.576957916840287
+            ],
+            "hi": [
+              1.6857735899641484
+            ]
+          },
+          "X28": {
+            "lo": [
+              -0.858036563826565
+            ],
+            "hi": [
+              0.6741849992311293
+            ]
+          },
+          "X29": {
+            "lo": [
+              -2.1198611130229206
+            ],
+            "hi": [
+              2.067960823994694
+            ]
+          },
+          "X30": {
+            "lo": [
+              -2.1198611130229206
+            ],
+            "hi": [
+              2.067960823994694
+            ]
+          },
+          "flat": {
+            "lo": [
+              -3.0,
+              -3.0,
+              -3.0,
+              -3.0,
+              -3.0
+            ],
+            "hi": [
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0
+            ]
+          }
+        },
+        "cpu_seconds": 15.067222741999998,
+        "wall_seconds": 15.377307125000698,
+        "unique_paid_rows": 400,
+        "calibration_rows": 50,
+        "new_queries_in_fit": 0,
+        "evaluation_responses_read": 0,
+        "online_source": "ACEOracle._train_node_mlps_on; append then duplicate winner; Adam persists",
+        "development_epoch_override": null,
+        "development_online_tail": 10
+      }
+    }
+  },
+  "strata": {
+    "5": {
+      "histories": 40,
+      "raw_full_fit_cpu_seconds": 11714.509105599995
+    },
+    "30": {
+      "histories": 40,
+      "raw_full_fit_cpu_seconds": 80987.52460208
+    }
+  },
+  "matrix_fits": 640,
+  "estimated_full_cpu_core_hours": 79.77947253417777,
+  "within_cap": true,
+  "pilot_cpu_core_hours": 0.015448014597777778,
+  "pilot_wall_seconds": 57.44009190199995,
+  "ceiling_cpu_core_hours": 150,
+  "projection_formula": "3x projected fit CPU +640x5s startup +5000s overhead +900s reserved pilot",
+  "test_losses_computed": false,
+  "confirmation_responses_evaluated": 0,
+  "development_responses": 800,
+  "status": "resource advisory only; not Stage B scientific release"
+}

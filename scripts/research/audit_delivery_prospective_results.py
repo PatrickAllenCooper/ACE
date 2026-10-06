@@ -209,7 +209,8 @@ def audit(out,project,source,acceptance):
         raise ValueError('full study completion binding changed')
     for file,key in (('descriptor_manifest.json','descriptor_manifest_sha256'),('attribution_gate.json','gate_sha256'),
                      ('pilot_acceptance.json','pilot_acceptance_sha256'),('pilot_projection.json','pilot_projection_sha256'),
-                     ('historical_pilot_failure.json','historical_pilot_failure_sha256')):
+                     ('historical_pilot_failure.json','historical_pilot_failure_sha256'),
+                     ('descriptor_runtime_parity.json','descriptor_runtime_parity_sha256')):
         if sha(out/file)!=p[key]:raise ValueError('protocol receipt changed')
     if p['gate_sha256']!='a81d0ac51965f71123ecc915764cf18c8166537a1d69f1053d096dd36ed3310f':
         raise ValueError('immutable attribution gate changed')

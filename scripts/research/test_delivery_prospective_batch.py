@@ -1,5 +1,6 @@
 import copy
 import os
+import math
 import subprocess
 import sys
 from pathlib import Path
@@ -65,6 +66,22 @@ class ProspectiveBatchTests(unittest.TestCase):
                 'import importlib.util; print(importlib.util.find_spec("experiments.large_scale_scm").origin)'],
                 cwd=directory,env=env,text=True).strip()
             self.assertEqual(Path(result).resolve(),project/'experiments/large_scale_scm.py')
+
+    def test_coefficient_roundoff_qualification_never_changes_frozen_descriptor(self):
+        from delivery_prospective_batch import descriptor_runtime_parity
+        frozen={'seed':17,'parents':{'R':[],'Y':['R']},'coefficients':{'a':.5},'noise_sd':.1,'source':'local'}
+        before=copy.deepcopy(frozen);other=copy.deepcopy(frozen)
+        other['coefficients']['a']=math.nextafter(.5,1.);other['source']='remote'
+        differences=descriptor_runtime_parity(frozen,other)
+        self.assertEqual(len(differences),1);self.assertEqual(frozen,before)
+        cases=[]
+        two=copy.deepcopy(other);two['coefficients']['a']=math.nextafter(two['coefficients']['a'],1.);cases.append(two)
+        noise=copy.deepcopy(other);noise['noise_sd']=math.nextafter(.1,1.);cases.append(noise)
+        graph=copy.deepcopy(other);graph['parents']['Y']=[];cases.append(graph)
+        seed=copy.deepcopy(other);seed['seed']=18;cases.append(seed)
+        nonfinite=copy.deepcopy(other);nonfinite['coefficients']['a']=float('nan');cases.append(nonfinite)
+        for altered in cases:
+            with self.assertRaises(ValueError):descriptor_runtime_parity(frozen,altered)
 
     def test_failure_blocks_test_generation_before_any_model_is_opened(self):
         with tempfile.TemporaryDirectory() as directory:

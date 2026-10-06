@@ -175,3 +175,47 @@ in results/delivery_prospective_preparation_20261006. The hourly automation stop
 at the explicit qualification decision gate; restart it only with the next
 implementation/resource authorization. Shared transport is working; authentication
 is not the blocker. No new manuscript result or outcome-based configuration change.
+
+
+### Recovery decision resolved; one unchanged-science pilot running
+
+The newer owner coordinated-review instruction allows routine agreed execution
+within established scope/budget and reserves signoff for material deviations.
+After preserving/diagnosing the import-only failure, the coordinator resolved
+this implementation decision. Fresh custody/storage/runtime metadata checks
+passed; source/models/fit settings remain identical. Submitted33507335 exactly
+once22:50:38UTC; start22:50:39UTC andRUNNING verified22:51:23UTC on c3cpu-e2-u2.
+Accountucb736_asc1,acpu/cpu-normal,1CPU/3GiB/15min; output
+/scratch/alpine/paco0228/ACE/results/delivery_prospective_pilot_importfix_20261006/pilot.
+Original33505661 and126charged seconds remain preserved. Corrected registration
+SHA99a5ff5a8b630d7c7f5329237a5edc0c78a6ad764be5db835ec665b800ce9bf6.
+Receipt/journal: results/delivery_prospective_preparation_20261006/pilot_importfix_*.
+No new allowance, favorable recipe change, full-study release or selected-world
+response. Full gate still needs successful runtime/timing receipts and independent
+640fit projection, then final frozen39check protocol and allocations. Individual
+hourly automation stays paused; coordinated review handles further progress.
+
+
+### Accepted timing and pre-response numerical metadata correction
+
+Pilot33507335 completed0:0,119allocatedCPU-seconds (22:50:39–22:52:38UTC).
+All five target checks pass; all eight timing model/cost/input artifacts are
+in exclusive local custody and independently accepted. Conservative640fit
+projection79.77947core-hours; rounded full allocation86.86833core-hours including
+126historical failed seconds,900s successful-pilot reserve and900s final audit.
+No test losses or selected-world responses. Compact acceptance/accounting in
+results/delivery_prospective_preparation_20261006/pilot_importfix_*.
+
+The first metadata freeze of5e8d6e48 stopped before creating the full study:
+local NumPy2.4.6 versus CURC2.2.6 regeneration differs by one adjacent float64
+value in92coefficients across23of40worlds (largest absolute4.440892098500626e-16).
+No seed, graph or noncoefficient metadata difference. Diagnostic and decision
+receipts are preserved. The validator now permits only adjacent finite float64
+coefficient regeneration and records each hex-valued discrepancy. Original
+hashed descriptors remain byte-identical and are the only coefficients used
+for collection/evaluation. This changes neither simulator outcomes, recipes,
+menus, models nor timed kernels. Larger coefficient drift, noise or graph/seed
+drift fails. Forty local checks pass, including these rejections; final target
+qualification must run40checks before any selected response. Old candidate is
+preserved, new committed source/bundle required before final freeze. No new
+allocation or timing retry is needed for this metadata-only correction.

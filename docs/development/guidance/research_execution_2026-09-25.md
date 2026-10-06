@@ -1192,3 +1192,56 @@ in results/delivery_prospective_preparation_20261006. The hourly automation stop
 at the explicit qualification decision gate; restart it only with the next
 implementation/resource authorization. Shared transport is working; authentication
 is not the blocker. No new manuscript result or outcome-based configuration change.
+
+
+## 2026-10-06 — Cause-specific pilot recovery under coordinated authorization
+
+The newer owner coordinated-review instruction (source chat01a0ff6f, user
+message01a1135d-6eb6-739f-bddc-4285862a18e5) authorizes agreed actions within
+the existing agenda/budget, with signoff for material deviations. Coordinator
+01a10e89 clarifies this pre-learner import correction as routine engineering.
+The qualification stop was honored, diagnosed and resolved by that correction;
+no scientific parity failure was bypassed, fit settings changed or allowance
+expanded. Recovery decision receipt records exact owner scope and validation.
+Individual hourly automation remains paused; coordinated review replaces it.
+
+Fresh22:48UTC transport, bounded stat/df/private write/read/cleanup and exact
+five-worker/19original-source/generator/dependency checks passed. No ACE pilot
+was running or queued. Original33505661 terminalFAILED and126CPUTimeRAW seconds
+reconciled. New exclusive output delivery_prospective_pilot_importfix_20261006/pilot
+registered with identical scientific settings and absolute original source paths.
+One exclusive submission journal admitted33507335 at22:50:38UTC, source kernels
+befa0bd8, launch correction5e8d6e48, accountucb736_asc1,1CPU/3GiB/15min,
+acpu/cpu-normal. VerifiedRUNNING22:51:23UTC, actual start22:50:39UTC, node
+c3cpu-e2-u2. RegistrationSHA99a5ff5a8b630d7c7f5329237a5edc0c78a6ad764be5db835ec665b800ce9bf6.
+Submission/registration copied into exclusive local external custody and compact
+receipts. No ambiguous retry, original-source rewrite or unrelated job change.
+
+Full640fit study remains unlaunched. Wait for complete5check runtime qualification,
+all eight measured pilot model/cost receipts and independent projection audit.
+Any genuinely scientific/resource failure retains outcomes and stops for decision;
+no scored rescue. Historical126seconds plus next900second pilot reserve remain
+inside the150core-hour resource gate. New full39check bundle may be staged now,
+but final freeze/full submission still require measured acceptance and reviewed
+rounded allocation/source/protocol hashes before selected-world responses.
+
+
+### Pilot completed/accepted; freeze caught float64 regeneration discrepancy
+
+33507335COMPLETED0:0,119allocated CPU-seconds; five target tests pass.
+All eight timed cells with400development rows per size are complete, hashed and
+in exclusive local custody; independent audit accepts79.77947CPUh projection.
+Rounded total including126failed seconds,900pilot reserve, all40world tasks,
+qualification/collection/evaluation and900s audit is86.86833CPUh, within150.
+No selected-world outcomes opened. Full scripts/submission were not reached.
+
+5e8d6e48metadata freeze stopped on5:06 before study directory creation. Audit
+of all40descriptors shows92adjacent float64 coefficient differences in23worlds
+across localNumPy2.4.6/target2.2.6, max4.44e-16, no other metadata mismatch.
+Preserve diagnostic and previous candidate. Corrected validator admits only
+one representable finite float step in coefficients; original hashed parameters
+remain authoritative and unchanged for every simulator call. Graph, seeds,
+noise and larger coefficient drift still fail; no resampling, score tolerance,
+fit settings or scientific endpoint changed. Forty local checks pass from an
+unrelated cwd. Need commit/package/verify new candidate, final freeze and40target
+checks before responses; no new timing fits because timed workers unchanged.

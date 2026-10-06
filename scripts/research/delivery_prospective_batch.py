@@ -92,6 +92,35 @@ def load_descriptors(root,manifest):
     return descriptors
 
 
+def descriptor_runtime_parity(frozen,regenerated):
+    """Qualify RNG regeneration without replacing the hashed frozen values.
+
+    NumPy builds can differ by one float64 representable value in uniform
+    draws. Only adjacent finite coefficient floats qualify; all graph, seed,
+    family, support and noise metadata must match exactly. Collection always
+    evaluates the original hashed descriptor, never the regenerated values.
+    """
+    differences=[]
+    def check(a,b,path):
+        if type(a) is not type(b):raise ValueError('descriptor type drift: '+path)
+        if isinstance(a,dict):
+            if set(a)!=set(b):raise ValueError('descriptor keys drift: '+path)
+            for key in a:check(a[key],b[key],path+'/'+key)
+        elif isinstance(a,list):
+            if len(a)!=len(b):raise ValueError('descriptor length drift: '+path)
+            for i,(x,y) in enumerate(zip(a,b)):check(x,y,path+'/'+str(i))
+        elif a!=b:
+            if (not path.startswith('/coefficients/') or not isinstance(a,float) or
+                    not math.isfinite(a) or not math.isfinite(b) or math.nextafter(a,b)!=b):
+                raise ValueError('generator descriptor does not reproduce: '+path)
+            differences.append({'path':path,'frozen_hex':a.hex(),'regenerated_hex':b.hex(),
+                'absolute_difference':abs(a-b),'allowed_float64_steps':1})
+        elif isinstance(a,float) and not math.isfinite(a):raise ValueError('nonfinite descriptor')
+    check({k:v for k,v in frozen.items() if k!='source'},
+          {k:v for k,v in regenerated.items() if k!='source'},'')
+    return differences
+
+
 def freeze(draft,project,source,gate,pilot,out,source_revision):
     from audit_delivery_prospective_pilot import audit
     draft,project,source,pilot,out=map(lambda p:Path(p).resolve(),(draft,project,source,pilot,out))
@@ -123,10 +152,10 @@ def freeze(draft,project,source,gate,pilot,out,source_revision):
             raise ValueError('audited generator source changed')
     # Outcome-independent generator qualification for every descriptor, not
     # selected outcomes. Ignore only machine-specific provenance path strings.
+    parity={}
     for case,(spec,_) in descriptors.items():
         regenerated=world_spec(spec['size'],spec['seed'],project)
-        if {k:v for k,v in spec.items() if k!='source'}!={k:v for k,v in regenerated.items() if k!='source'}:
-            raise ValueError('generator descriptor does not reproduce: '+case)
+        parity[case]=descriptor_runtime_parity(spec,regenerated)
     resources=allocation_plan(projection)
     out.mkdir(parents=True,exist_ok=False)
     for case in expected_world_ids():
@@ -138,6 +167,9 @@ def freeze(draft,project,source,gate,pilot,out,source_revision):
     shutil.copyfile(pilot/'acceptance.json',out/'pilot_acceptance.json')
     shutil.copyfile(pilot/'projection.json',out/'pilot_projection.json')
     shutil.copyfile(project/PILOT_FAILURE_RECEIPT,out/'historical_pilot_failure.json')
+    write(out/'descriptor_runtime_parity.json',{'at':utc(),'cases':parity,
+        'authoritative_parameters':'unchanged hashed frozen descriptors; regenerated values never used in collection',
+        'coefficient_only_float64_steps':1,'structural_responses_evaluated':0})
     write(out/'registration.json',{'at':utc(),'stage':'B frozen prospective protocol before collection',
         'source_revision':source_revision,'source':str(source),'project':str(project),'output':str(out),'worlds':expected_world_ids(),
         'worker_hashes':{n:sha(Path(__file__).with_name(n)) for n in WORKERS},'source_hashes':accepted['source_hashes'],
@@ -147,6 +179,7 @@ def freeze(draft,project,source,gate,pilot,out,source_revision):
         'gate_sha256':sha(out/'attribution_gate.json'),'pilot_acceptance_sha256':sha(out/'pilot_acceptance.json'),
         'pilot_projection_sha256':sha(out/'pilot_projection.json'),'histories':HISTORIES,'cells':CELLS,
         'historical_pilot_failure_sha256':sha(out/'historical_pilot_failure.json'),
+        'descriptor_runtime_parity_sha256':sha(out/'descriptor_runtime_parity.json'),
         'matrix_fits':640,'primary_cells':240,'resources':resources,'new_response_ceiling':48000,
         'training_responses':32000,'shared_evaluation_responses':16000,
         'estimand':'noise-disabled deterministic structural target for every arm; not stochastic interventional expectation',
@@ -168,7 +201,8 @@ def validate(out):
         raise ValueError('protocol matrix/resource drift')
     for file,key in (('descriptor_manifest.json','descriptor_manifest_sha256'),('attribution_gate.json','gate_sha256'),
                      ('pilot_acceptance.json','pilot_acceptance_sha256'),('pilot_projection.json','pilot_projection_sha256'),
-                     ('historical_pilot_failure.json','historical_pilot_failure_sha256')):
+                     ('historical_pilot_failure.json','historical_pilot_failure_sha256'),
+                     ('descriptor_runtime_parity.json','descriptor_runtime_parity_sha256')):
         if sha(out/file)!=p[key]:raise ValueError('protocol receipt changed')
     for name,h in p['worker_hashes'].items():
         if sha(Path(__file__).with_name(name))!=h:raise ValueError('frozen worker changed')
