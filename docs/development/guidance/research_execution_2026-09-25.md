@@ -1327,3 +1327,35 @@ Fullfitseal is absent, evaluation directory/claim absent, heldoutresponses and
 scores unopened. No duplication, replacement, retry or frozen-source change.
 Compact progress/custody receipts: full_milestone_20261006T233202Z.json and
 full_milestone_custody_20261006T233202Z.json in the preparation receipt directory.
+
+
+### 23:56–23:57 UTC Stage B source, fit custody and accounting audit
+
+134/640completedfitreceipts at23:56:19UTC:122five-node and12thirty-node fits.
+All134model/receipt pairs are in a new exclusive external snapshot with locally
+verified hashes, frozen matrix/input/arm/init bindings, eligible/calibration
+counts and prescribed optimizer/head counts. Sixfive-node worlds (indices0–5)
+are complete; arrays33507420_6/_7 and33507421_0/_1 areRUNNING, remainingworlds
+PENDING/throttled. Evaluation33507422/audit33507423 remainPENDING/Dependency.
+No failed scheduler states, failed recorded attempts or study stop flag.
+CompletedfitCPUtime2.674394core-hours (partial). Peak supervised treeRSS755539968
+bytes, below3GiB. All80sharedtraininghistories/32000responses remain preserved.
+
+Read-only23:57:27UTC integrity check recomputed18worker/19originallearner/
+23committedfile hashes,40world/action pairs, protocol/gate/pilot/failure receipt
+bindings and exact target dependency versions using frozen ace Python. No drift.
+An initial metadata probe used login-basePython without torch metadata; the
+corrected probe used /projects/paco0228/miniconda3/envs/ace/bin/python. This was
+a diagnostic invocation correction, not a fit failure or environment/source change.
+
+Current chain accruedallocation11685CPU-seconds; including126failedpilot and
+119successfulpilotseconds gives11930seconds (3.313889core-hours) at this snapshot.
+Running tasks are incomplete; these Slurm allocation counters differ from fit
+processCPU. Roundedreservation86.86833core-hours and150ceiling unchanged.
+Fullfitseal and evaluationdirectory/claim absent; selectedtestresponses andscores
+unopened. Nextgate remains all640fits+40worldjournals sealed before registered
+evaluation, then independent audit and successful audit supervisor before claims.
+No duplicate, blind retry, worker/source change or automation change.
+Receipts: full_milestone_20261006T235620Z.json,
+full_source_accounting_20261006T235727Z.json and
+full_milestone_custody_20261006T235619Z.json in the preparation receipt directory.
