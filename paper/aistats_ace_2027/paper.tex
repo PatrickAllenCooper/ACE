@@ -1124,4 +1124,30 @@ Training & Checkpoint interval & 1 step (rolling) + 10 steps (milestone) \\
 
 \textbf{Decision-Pretrained Transformers and in-context pure exploration (Lee et al., 2023; Russo et al., 2025).} \citet{lee2023supervised} show that a transformer supervised to predict optimal actions from an in-context interaction dataset, across a distribution of tasks, implicitly performs Bayesian posterior sampling and inherits the associated regret guarantees, without any prompt-engineering or explicit exploration bonus. \citet{russo2025incontext} address a closely related active sequential hypothesis testing setting (including best-arm identification and generalized search) with In-Context Pure Explorer (ICPE): a supervised inference network and an RL-trained exploration network are meta-trained jointly across a task distribution so that, at deployment, a single forward pass substitutes for an explicit adaptive-design computation. Both are a different training regime from ACE's pretrained-LM-plus-lookahead approach (DPT and ICPE train a transformer from scratch on a curated task distribution, whereas ACE starts from natural-language pretraining and adds an explicit lookahead-scored selection step rather than relying on the forward pass alone to perform the equivalent of posterior sampling), but the underlying question is the same: how much of good sequential decision-making can be delivered by a sequence model's forward pass alone, versus requiring an explicit search or scoring step at deployment time. \citet{krishnamurthy2024explore} answer this question negatively for \emph{native} (untrained) LLM agents: GPT-3.5, GPT-4, and Llama2 do not robustly explore in simple bandit tasks without substantial prompt engineering, and the authors explicitly motivate DPT-style training interventions as the likely fix. ACE's ablation in Section~\ref{sec:results-scale} (ACE-w/o-DPO tied with full ACE at 30 nodes) is consistent with a specific, narrower version of \citet{krishnamurthy2024explore}'s conclusion: for the LM proposer we use, it is the lookahead-scored candidate selection --- not necessarily the DPO weight update itself --- that supplies the missing exploration structure their negative result identifies as absent from the raw LM prior.
 
+
+\section{Post-acquisition delivery confirmation}
+\label{app:delivery-confirmation}
+A separate registered comparison uses twelve acquisition histories of one fixed
+ deterministic emulator. The endpoint is the fraction of grid points whose
+predictions map to an incorrect nearest target level, floored at $1/390625$.
+For each history, the delivery error is the median across three optimization
+initializations; the comparator is that history's online SCM chain error.
+The geometric mean paired error ratio is $0.182719$, with a 95\% interval
+$[0.101970,0.327410]$ obtained from a t interval on mean log ratios, and a
+ two-sided exhaustive sign-flip $p=0.00146484$ (symmetric-null assumption).
+All registered criteria pass: twelve valid pairs, ratio $\leq0.8$, interval
+upper bound below one, and $p<0.05$.
+
+Eleven histories improve. One history worsens from error $0.196339$ to
+$0.395658$ and is retained in the comparison. Three initializations are
+optimization repeats, not three independent acquisition histories.
+Delivery trains on all eligible retained paid rows for 30,000 Adam epochs;
+online learning uses a rolling 50-step buffer and 100 epochs per update.
+Thus additional fitting compute and data retention are part of the treatment.
+This confirms a delivery-recipe improvement on this emulator, without
+establishing acquisition superiority, a foundation-model benefit, a pure
+architecture effect, or generalization across independent worlds. Flat-head
+scores are descriptive; individual mechanism heads and flat heads have no
+separately registered aggregate acceptance verdict in this comparison.
+
 \end{document}

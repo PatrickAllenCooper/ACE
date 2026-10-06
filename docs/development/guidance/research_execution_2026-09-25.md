@@ -847,3 +847,13 @@ no acquisition advantage, foundation-model benefit or world-generalization claim
 Receipts terminal_audit.json, scores.json, completed.json in
 results/delivery_final_history_20261006; external full custody preserved at
 delivery-final-history-20261006. No further resource amendment needed for this stage.
+
+## 2026-10-06 — independent interpretation/reproducibility check
+
+Independent stdlib median/log calculation, SciPy t quantile and exhaustive4096
+sign patterns reproduce all registered statistics to1e-12. Independent receipt
+binds exact scores SHA. Worseningseed124753321 explicitly retained (ratio2.015177).
+Paper README/current AISTATS supplement and historical handoff now carry dated
+claim-limited delivery evidence and compute/emulator/optimization-repeat limits.
+No experiment, scoring rerun, registration change, merge or publication. LaTeX
+source edited in existing multi-file manuscript; PDF compilation not verified.
