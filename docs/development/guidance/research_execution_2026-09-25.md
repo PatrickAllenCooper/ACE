@@ -934,3 +934,40 @@ balanced level-count discrepancy on an analytic fixture. No planned system
 outcomes opened, no simulator calls or Stage B release. Full generator/runtime
 qualification and recipe freeze still follow complete attribution. Stage A live
 batch making fit progress, with no scores produced before the full seal.
+
+## 2026-10-06 19:18 UTC — custody and prospective inference advanced
+
+Stage A remains in the original local supervisor68732/session23740, frozen fit
+sourceaf7809c5, no duplicate launch. Independent read-only audit validated257/480
+completed fits,144 immutable original files, every completed model/receipt hash,
+per-head eligibility IDs and masks, updates, matched-CPU budgets and source/input/
+grid bindings. No failed attempts, no full seal, no newly opened scores. Summed
+fit CPU so far5.82094core-hours, observed peak process-tree RSS519176192bytes;
+timing excludes startup/imports/evaluation. Shared8h/6thread/8GiB guard unchanged.
+Partial audit is progress, not scientific acceptance. Final attribution analysis
+now requires the independent full480fit/twelve-score custody audit.
+
+Implemented prospective primary inference accepting exactly240init0 cells across
+40frozen systems,two shared histories,three primary arms. Equal-weight history
+log ratios are averaged within each system before paired inference; n20 per
+stratum. Four Holm-adjusted contrasts, marginal intervals, floor activations and
+all three superiority gates are explicit. Missing/duplicate/failed/init-selected
+cells fail acceptance rather than disappearing. Five analytic tests pass,
+including a deliberately unequal-scale fixture that detects averaging errors
+instead of logs. No prospective outcomes or new response collection.
+
+External physical worker now requires fully audited A selection and rechecks its
+protocol, source, dependencies, archive and eleven-condition membership in both
+phases. Seal includes neural weights, Fourier/relative-angle coefficients,
+selected simpler regressor and prediction/split arrays; tampering prevents
+evaluation. Relative-angle rotation/aligned/orthogonal analytic checks pass.
+Two custody tests,two physical tests and two existing staging tests pass, in
+addition to the five statistical tests. This is implementation validation;
+Stage B/C remain unlaunched pending A attribution, recipe and runtime freezes.
+
+CURC transport verified onlogin-ci3 at19:11:28UTC; master73102 live. Scratch stat
+and df still each time out after10s (exit124). No ACE jobs observed or submitted;
+unrelated jobs unchanged. No reconnection needed, filesystem readiness remains
+the remote launch blocker. Compact audit and validation receipts retained in
+results/delivery_paper_implementation_20261006. Continue local implementation and
+the existing batch; use validated CURC output paths when readiness returns.

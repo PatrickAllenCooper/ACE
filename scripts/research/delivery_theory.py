@@ -37,9 +37,10 @@ def holm(pvalues):
 def paired_log_ratio(delivery,control,floor=1e-12):
     """One paired value per independently parameterized system, NOT per row/init.
 
-    Average two history-specific log ratios within each system before calling
-    this function. Two-sided paired t on log ratios; CI is marginal. Holm
-    adjustment and the practical effect threshold are separate gates.
+    Inputs here are paired errors for ONE history per system. For Stage B's
+    two-history design use delivery_prospective_analysis, which averages log
+    ratios (not errors) within each system. Two-sided paired t on log ratios;
+    CI is marginal. Holm and the practical threshold are separate gates.
     """
     if len(delivery)!=len(control) or len(delivery)<2:raise ValueError('unpaired study')
     if any(not math.isfinite(v) or v<0 for v in [*delivery,*control]):raise ValueError('invalid error')

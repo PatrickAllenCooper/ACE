@@ -12,6 +12,8 @@
   "contrasts": ["delivery versus online", "delivery versus development-selected simpler refit"],
   "strata": [5, 30],
   "multiple_testing": "Holm across four tests (two contrasts in each graph-size stratum)",
+  "analysis_implementation": "scripts/research/delivery_prospective_analysis.py; must be hash-frozen with the final prospective protocol",
+  "primary_matrix_acceptance": "all 240 init0 cells across the frozen 40 systems, two histories and three primary arms; reject omissions, duplicates and failed fits before significance calculations",
   "superiority_gate": {"ratio_at_most": 0.8, "upper_marginal_95_log_ratio_interval_below": 1, "adjusted_p_below": 0.05},
   "log_ratio_floor": 1e-12,
   "failures": "retain all failures; no favorable seed replacement",
@@ -19,7 +21,7 @@
   "account": "ucb736_asc1",
   "unresolved_before_release": [
     "freeze recipe, simpler control and decisive ablation from complete Stage A",
-    "five-node generator has fixed coefficients: implement and validate an explicit parameterized family extension before calling worlds independent",
+    "qualify and freeze the implemented parameterized five-node family extension before calling worlds independent",
     "pin source and immutable coefficients for every thirty-node world; graph RNG must also be fixed",
     "freeze stochastic estimand: noise-free structural map or rollout expectation, not a silent chain-of-means substitution",
     "freeze history response counts, test normalization and reserved action-block manifest",

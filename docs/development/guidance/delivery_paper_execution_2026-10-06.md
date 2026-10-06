@@ -56,6 +56,15 @@ Slurm queue waiting is acceptable. No duplicate jobs. Stage A must classify
 whether causal factorization adds benefit over ordinary refitting; a simpler
 explanation narrows the paper rather than prompting favorable sweeps.
 
+Independent acceptance: `scripts/research/audit_delivery_attribution.py` checks
+the live completed prefix without opening score arrays. It rechecks the full
+480-cell configuration, immutable original files, source/input/grid hashes,
+per-mechanism eligibility IDs and masks, optimizer updates, matched-CPU budget,
+model hashes and memory accounting. A partial receipt is progress only. Final
+attribution analysis now invokes this audit with `require_complete=True`, binding
+all 480 receipt hashes and all twelve score files before selection. The frozen
+fit adapter/batch remain unchanged while running.
+
 ## Stage B: held behind the attribution gate
 
 Prepare adapter/protocol without opening new outcomes until A selects and freezes
@@ -83,6 +92,17 @@ Superiority requires ratio<=.8, upper CI<1, adjusted p<.05. Report both strata,
 all failures, and initialization sensitivity. CPU ceiling150core-hours only
 after attribution release. No source/config change after outcome exposure.
 
+Executable primary analysis: `scripts/research/delivery_prospective_analysis.py`
+requires all 240 primary cells (40 systems x2 histories x3 arms), both strata,
+the frozen twenty IDs per stratum, initialization0 and complete finite fits.
+It rejects duplicate, missing, failed or sensitivity-init cells rather than
+performing complete-case filtering. It averages the two log ratios per system
+and computes four stratum/control tests, marginal t intervals, Holm adjustment
+and all three superiority gates. Numeric-floor activations are explicit. The
+decisive ablation and initialization sensitivity remain separate analyses.
+Analytical unequal-scale fixtures verify that errors are not averaged before
+taking a ratio. No prospective outcomes have been opened by these tests.
+
 ## Stage C: archived physical evaluation
 
 Freeze selected delivery and the physical adapter before the eleven untouched
@@ -97,6 +117,16 @@ Never reuse product-form attenuation. Primary continuous held-out error,
 training-only variance normalization; report all eleven conditions, block-level
 conditional uncertainty. One apparatus does not supply eleven independent worlds.
 CPU ceiling5core-hours. A negative physics comparison is a retained limitation.
+
+The external worker requires a fully audited Stage A gate before freezing. Both
+fit and evaluator revalidate source, dependencies, archive and the exact eleven
+conditions. The seal covers neural weights, linear physics/Fourier coefficients,
+any selected simpler regressor, predictions and splits. Evaluator refuses a
+changed artifact or protocol before loading prediction arrays. Analytic fixtures
+verify common-rotation symmetry and aligned/orthogonal relative-angle predictions;
+the earlier product-form baseline is not used. Process-tree RSS is retained for
+each supervised phase. Stage C remains unlaunched pending the selected recipe
+and measured runtime projection.
 
 ## Theory and manuscript
 

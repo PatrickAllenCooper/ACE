@@ -4,9 +4,11 @@ import math
 from pathlib import Path
 from delivery_attribution import SEEDS
 from runner_delivery_confirmation import read,write,sha,utc
+from audit_delivery_attribution import audit
 
 
 def analyze(folder,online_scores,out):
+    custody = audit(folder, require_complete=True)
     folder=Path(folder);done=read(folder/'complete.json');reg=read(folder/'registration.json')
     if done['n_histories']!=12 or done['n_fits']!=480 or done['registration_sha256']!=sha(folder/'registration.json'):
         raise ValueError('full study not complete')
@@ -29,6 +31,7 @@ def analyze(folder,online_scores,out):
     decisive=min(ablations,key=lambda k:ratios[k])
     selected='scm' if causal else reg['strongest_simpler_development']
     write(out,{'at':utc(),'stage':'A exploratory attribution','complete_receipt_sha256':sha(folder/'complete.json'),
+        'custody_audit':custody,
         'online_scores_sha256':sha(online_scores),'ratios_continuous_nmse_init0':ratios,'histories':cells,
         'causal_factorization_signal_exploratory':causal,'selected_delivery':selected,
         'strongest_simpler':reg['strongest_simpler_development'],'decisive_ablation':decisive,

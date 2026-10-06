@@ -18,19 +18,64 @@ from runner_delivery_confirmation import read,write,sha,utc
 ARCHIVE_SHA='584490fc05191c21debd75c70c94ee80358f66482694f98c21f405d695f1b3e9'
 
 
+def validate_protocol(out):
+    out=Path(out);p=read(out/'protocol.json')
+    if sha(__file__)!=p['worker_sha256'] or sha(p['archive'])!=p['archive_sha256'] or p['archive_sha256']!=ARCHIVE_SHA:
+        raise ValueError('source/archive changed')
+    import importlib.metadata as m
+    if any(m.version(n)!=v for n,v in p['dependencies'].items()):raise ValueError('dependency changed')
+    for n,h in p['source_hashes'].items():
+        if sha(Path(p['source'])/n)!=h:raise ValueError('runner source changed')
+    with zipfile.ZipFile(p['archive']) as z:
+        names=sorted(n for n in z.namelist() if n.endswith('.csv') and Path(n).stem!='white_64')
+    if p['conditions']!=names or len(names)!=11 or len({Path(n).stem for n in names})!=11:
+        raise ValueError('external condition set changed')
+    if p['selected_delivery'] not in ('scm','flat','ridge','polynomial','tree'):
+        raise ValueError('unregistered delivery method')
+    return p
+
+
+def validate_fit_seal(out,p):
+    """Verify every fitted artifact BEFORE evaluator opens prediction arrays."""
+    out=Path(out);done=read(out/'fit_complete.json');seal=read(out/'fit_seal.json')
+    if sha(out/'fit_seal.json')!=done['seal_sha256'] or seal['protocol_sha256']!=sha(out/'protocol.json'):
+        raise ValueError('fit seal/protocol changed')
+    if read(out/'started.json')['protocol_sha256']!=sha(out/'protocol.json'):
+        raise ValueError('started protocol changed')
+    summaries=seal['conditions']
+    if set(summaries)!={Path(n).stem for n in p['conditions']}:
+        raise ValueError('missing/extra sealed condition')
+    required={'models.pt','linear_coefficients.json','predictions.npz'}
+    if p['selected_delivery'] not in ('scm','flat'):required.add('selected_regressor.pkl')
+    for condition,s in summaries.items():
+        if set(s['artifact_hashes'])!=required:raise ValueError('incomplete model artifact seal')
+        for file,h in s['artifact_hashes'].items():
+            if sha(out/condition/file)!=h:raise ValueError('fitted artifact changed: '+condition+'/'+file)
+        if s['train_rows']+s['test_rows']!=s['rows'] or s['train_variance']<=0:
+            raise ValueError('invalid sealed split or normalizer')
+    return done,summaries
+
+
 def partition(angles):
     import numpy as np
     a=np.asarray(angles,float)
-    if not np.isfinite(a).all() or not ((a>=-90)&(a<90)).all():raise ValueError('angle domain changed')
+    if a.ndim!=2 or a.shape[1]!=2 or not np.isfinite(a).all() or not ((a>=-90)&(a<90)).all():raise ValueError('angle domain changed')
     blocks=np.floor((a+90)/30).astype(int)
     # Equal commands ALWAYS share a block. Never split repeated readings.
     return (blocks[:,0]+2*blocks[:,1])%5==0,blocks
 
 
+def physics_features(angles):
+    import numpy as np
+    r=np.deg2rad(np.asarray(angles,float))
+    return np.column_stack([np.ones(len(r)),np.cos(r[:,0]-r[:,1])**2])
+
+
 def freeze(archive,gate,source,out):
     if sha(archive)!=ARCHIVE_SHA:raise ValueError('archive changed')
     g=read(gate)
-    if g['stage']!='A exploratory attribution' or not g.get('complete_receipt_sha256'):raise ValueError('missing attribution gate')
+    if (g['stage']!='A exploratory attribution' or not g.get('complete_receipt_sha256')
+            or not g.get('custody_audit',{}).get('full_acceptance')):raise ValueError('missing fully audited attribution gate')
     out=Path(out);out.mkdir(parents=True,exist_ok=False)
     with zipfile.ZipFile(archive) as z:
         names=sorted(n for n in z.namelist() if n.endswith('.csv') and Path(n).stem!='white_64')
@@ -51,12 +96,7 @@ def freeze(archive,gate,source,out):
 
 
 def fit(out):
-    out=Path(out);p=read(out/'protocol.json')
-    if sha(__file__)!=p['worker_sha256'] or sha(p['archive'])!=p['archive_sha256']:raise ValueError('source/archive changed')
-    import importlib.metadata as m
-    if any(m.version(n)!=v for n,v in p['dependencies'].items()):raise ValueError('dependency changed')
-    for n,h in p['source_hashes'].items():
-        if sha(Path(p['source'])/n)!=h:raise ValueError('runner source changed')
+    out=Path(out);p=validate_protocol(out)
     with (out/'started.json').open('x') as f:json.dump({'at':utc(),'protocol_sha256':sha(out/'protocol.json')},f)
     sys.path.insert(0,p['source'])
     import numpy as np
@@ -80,12 +120,14 @@ def fit(out):
                 sequence=[np.where(train)[0]] if method=='delivery_mlp' else [np.where(train)[0][max(0,k-49):k+1] for k in range(train.sum())]
                 for indices in sequence:
                     for _ in range(30000 if method=='delivery_mlp' else 100):
-                        opt.zero_grad();loss=torch.nn.functional.mse_loss(model(x[indices]),t[indices]);loss.backward();opt.step();updates+=1
+                        opt.zero_grad();loss=torch.nn.functional.mse_loss(model(x[indices]),t[indices])
+                        if not torch.isfinite(loss):raise ValueError('nonfinite neural training loss')
+                        loss.backward();opt.step();updates+=1
                 state[method]=model.state_dict();cost[method]={'cpu_seconds':time.process_time()-fit0,'updates':updates,'parameters':sum(q.numel() for q in model.parameters())}
                 with torch.no_grad():pred[method]=model(x).numpy()*sd+mean
             r=np.deg2rad(a)
             def b(v):return np.column_stack([np.ones(len(v)),np.sin(2*v),np.cos(2*v),np.sin(4*v),np.cos(4*v)])
-            features={'physics':np.column_stack([np.ones(len(y)),np.cos(r[:,0]-r[:,1])**2]),
+            features={'physics':physics_features(a),
                       'fourier':np.einsum('ni,nj->nij',b(r[:,0]),b(r[:,1])).reshape(len(y),-1)}
             for method,f in features.items():
                 coef=np.linalg.lstsq(f[train],y[train],rcond=None)[0];pred[method]=f@coef
@@ -109,7 +151,8 @@ def fit(out):
             np.savez(dest/'predictions.npz',**pred,y=y,test=test,blocks=blocks)
             # Persist fits/splits BEFORE scoring any of the eleven conditions.
             summaries[condition]={'rows':len(y),'train_rows':int(train.sum()),'test_rows':int(test.sum()),'train_variance':sd**2,
-                'cost':cost,'models_sha256':sha(dest/'models.pt'),'predictions_sha256':sha(dest/'predictions.npz')}
+                'cost':cost,'artifact_hashes':{file.name:sha(file) for file in dest.iterdir() if file.is_file()}}
+            print(condition,'fits sealed',int(train.sum()),int(test.sum()),flush=True)
             if time.monotonic()-start>5*3600:raise RuntimeError('Stage C CPU wall ceiling')
     write(out/'fit_seal.json',{'conditions':summaries,'protocol_sha256':sha(out/'protocol.json'),'at':utc()})
     write(out/'fit_complete.json',{'at':utc(),'cpu_core_hours':(time.process_time()-cpu0)/3600,
@@ -118,13 +161,8 @@ def fit(out):
 
 def evaluate(out):
     # Evaluator is launched as a distinct process after all eleven fits seal.
+    out=Path(out);p=validate_protocol(out);done,summaries=validate_fit_seal(out,p)
     import numpy as np
-    out=Path(out);p=read(out/'protocol.json');done=read(out/'fit_complete.json')
-    if sha(out/'fit_seal.json')!=done['seal_sha256']:raise ValueError('fit seal changed')
-    summaries=read(out/'fit_seal.json')['conditions']
-    for condition,s in summaries.items():
-        if sha(out/condition/'predictions.npz')!=s['predictions_sha256'] or sha(out/condition/'models.pt')!=s['models_sha256']:
-            raise ValueError('prediction/model custody changed')
     results={};rng=np.random.default_rng(p['bootstrap_seed']);start=time.monotonic();cpu0=time.process_time()
     for condition,s in summaries.items():
         with np.load(out/condition/'predictions.npz') as z:
@@ -155,7 +193,8 @@ def run(out):
         r=supervise([sys.executable,__file__,phase,'--out',str(out)],deadline,8*2**30,
                     Path(out)/(phase+'.log'),interval=2,
                     env={**os.environ,'OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1','CUDA_VISIBLE_DEVICES':''})
-        r.pop('samples',None);write(Path(out)/(phase+'_execution.json'),r)
+        samples=r.pop('samples',[]);r['peak_tree_rss_bytes']=max((s['rss_bytes'] for s in samples),default=0)
+        write(Path(out)/(phase+'_execution.json'),r)
         if r['status']!='complete':raise RuntimeError('Stage C stopped: '+r['status'])
 
 
