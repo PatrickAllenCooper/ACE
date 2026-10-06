@@ -1,0 +1,102 @@
+\section{Conditions and limits of delivery}
+\label{sec:theory}
+We study a known acyclic graph with measured parents. The following statements
+explain permissible reuse and possible error amplification. They do not prove
+identification for arbitrary neural models or certify the fitted networks.
+
+\begin{proposition}[Mechanism eligibility]
+Let $V_i=f_i(V_{\mathrm{Pa}(i)})+U_i$ be an invariant additive-noise
+mechanism. Suppose $U_i$ is integrable, independent of the other exogenous
+variables, and has mean zero. An intervention policy may depend on previous
+experiments, but must choose its action before the current exogenous noises are
+realized. Retain a row only when the action does not replace mechanism $i$,
+and when retention does not select on its current noise or response conditional
+on its parents. Then, in the retained interventional mixture,
+\[
+ \mathbb{E}[V_i\mid V_{\mathrm{Pa}(i)}=p,\text{retained}]=f_i(p).
+\]
+Thus squared-loss regression can target this mechanism on supported parent
+values, assuming finite second moments. This is an estimand statement; finite
+data, optimization and extrapolation guarantees require further assumptions.
+\end{proposition}
+\begin{proof}
+In an acyclic graph, a node's parents depend only on earlier exogenous noises
+and the chosen action. The current $U_i$ is independent of those noises and of
+past experiments. Since the policy precedes the current realization, and the
+retention rule does not condition on $U_i$, the conditional expectation of
+$U_i$ remains zero. Substituting the structural equation yields the assertion.
+The conditional expectation minimizes population squared loss on the retained
+support. No statement outside that support follows.
+\end{proof}
+
+Confounding, missing parents, interventions that change rather than clamp a
+mechanism, and response-dependent retention can invalidate the premise. In
+particular, selecting the best probe using its measured response can change
+the noise distribution. All-paid reuse avoids discarding probes on that basis,
+but still requires invariant mechanisms and measured parents. The current
+confirmation uses a deterministic emulator; this distinction matters for the
+prospective noisy systems. A non-additive stochastic SCM also needs a
+distributional treatment: composing conditional means need not produce a
+downstream interventional mean through a nonlinear mechanism.
+
+\begin{proposition}[Deterministic DAG propagation]
+Consider a deterministic SCM and its learned functions $\hat f_i$, evaluated
+in topological order under identical correctly clamped interventions.
+For each non-clamped node, assume
+$|\hat f_i(v_{\mathrm{Pa}(i)})-f_i(v_{\mathrm{Pa}(i)})|\leq\epsilon_i$
+at every true parent vector in the deployment support. Assume also
+\[
+ |\hat f_i(p)-\hat f_i(q)|\leq
+ \sum_{j\in\mathrm{Pa}(i)}L_{ij}|p_j-q_j|
+\]
+on a region containing both true and predicted parent vectors, with
+$L_{ij}\geq0$. Writing $e_i=|\hat v_i-v_i|$, one has
+\[
+ e_i\leq\epsilon_i+\sum_{j\in\mathrm{Pa}(i)}L_{ij}e_j.
+\]
+Correctly clamped nodes have $e_i=0$. If their rows in $L$ and their local
+bounds are set to zero, the vector bound is
+$e\leq(I-L)^{-1}\epsilon=\sum_{k=0}^{d-1}L^k\epsilon$,
+where $d$ is the number of nodes and $L$ is strictly triangular in topological
+order.
+\end{proposition}
+\begin{proof}
+Add and subtract $\hat f_i(v_{\mathrm{Pa}(i)})$ and apply the triangle
+inequality. The local approximation bounds one term; the coordinate Lipschitz
+inequality bounds the other. Clamps are identical by assumption. Substitution
+in topological order gives the path sum. A strictly triangular $d\times d$
+matrix satisfies $L^d=0$, so the finite geometric sum is its inverse.
+\end{proof}
+The bound can amplify a small local error along deep or high-gain paths.
+Observed-parent test MSE is neither a uniform $\epsilon_i$ nor a verified
+Lipschitz constant. Our residual and support diagnostics are explanatory
+measurements, not certified instances of this proposition.
+
+\begin{proposition}[Quantization margin]
+For distinct ordered levels $\ell_1<\cdots<\ell_m$, let $Q$ assign the nearest
+level, with a fixed tie rule, and let
+$b_k=(\ell_k+\ell_{k+1})/2$. Define
+$M(y)=\min_k|y-b_k|$. If $|\hat y-y|<M(y)$ then
+$Q(\hat y)=Q(y)$. If a pointwise prediction bound $B(y)$ is valid,
+$\Pr(Q(\hat y)\ne Q(y))\leq\Pr(M(y)\leq B(y))$.
+\end{proposition}
+\begin{proof}
+The open interval of radius $M(y)$ around $y$ crosses no decision boundary.
+Consequently both values occupy the same decision cell. The contrapositive
+implies that a quantization error requires $M(y)\leq|\hat y-y|\leq B(y)$.
+Strict inequality excludes boundary ties.
+\end{proof}
+Snapped error depends on the location of errors relative to decision boundaries;
+similar MSE alone need not imply similar exact-level accuracy.
+
+\paragraph{Counterexamples.}
+For a constant predictor and test response zero, fitting a single training
+response zero gives zero risk; adding a noisy response two makes its
+least-squares mean one and test risk one. With a noisy training target one,
+optimizing a constant from $0.1$ to one reduces training error but increases
+test error. For a two-stage chain, suppose the true parent and child are zero
+on the observed support, the learned parent predicts $0.1$, and the learned
+child is $\hat f(z)=100z$. The child has zero observed-parent error at zero,
+but its free-running prediction is ten. These are existence examples, not
+descriptions of the measured histories. Analytically solved chains, forks,
+colliders and clamps are checked by executable tests.

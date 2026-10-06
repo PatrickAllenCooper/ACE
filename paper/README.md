@@ -1,3 +1,11 @@
+# Active delivery research draft
+
+The active source is `aistats_ace_2027/paper.tex`, rewritten on 6 October.
+The directory name is historical; no venue or submission deadline is committed.
+Stages A/B/C remain pending. Prior source is preserved in
+`aistats_ace_2027/archive/paper_before_delivery_20261006.tex`.
+The historical notes below describe previous drafts, not supported current claims.
+
 # Paper versions
 
 ## Verified delivery result — 6 October 2026
@@ -12,7 +20,7 @@ error. The independent sample count is12 histories, not36 fits.
 
 Eleven histories improve; seed124753321 worsens from0.196339 online error to
 0.395658 delivery median error (ratio2.015177), retained without exclusion.
-Delivery refits all eligible paid rows for30000epochs; online uses a rolling50-step
+Delivery refits all eligible paid rows for30000epochs; online uses a rolling50-entry
 buffer and100epochs per update. Additional data retention and fitting compute are
 part of the treatment. This supports a post-acquisition delivery recipe on one
 fixed deterministic emulator. It establishes neither acquisition superiority,
@@ -35,7 +43,7 @@ page limit.
 
 | Directory | Venue | Status |
 |---|---|---|
-| `aistats_ace_2027/` | AISTATS 2027 (deadline Oct 6, 2026) | **ACTIVE submission target** |
+| `aistats_ace_2027/` | AISTATS 2027 (deadline Oct 6, 2026) | Delivery research draft; venue deferred until evidence gates pass |
 | `iclr_ace_2027/` | ICLR 2027 | Superseded — kept as the full-length reference draft |
 | `neurips_ace_2026/` | NeurIPS 2026 | Submitted, rejected. Historical record; do not edit |
 

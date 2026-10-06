@@ -1,0 +1,686 @@
+{
+  "stage": "A exploratory",
+  "frozen_at": "2026-10-06T17:56:59.387987+00:00",
+  "acquisition_calls": 0,
+  "model_api_calls": 0,
+  "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/source",
+  "source_hashes": {
+    "ace/perf.py": "a4a6c9b2e31ac45c26ab6cb0c199fafc7212b05a552e39ee6e04b63f8d923b43",
+    "ace/seeding.py": "85477c90960859ae87213750e04c8919833f90012754c3f3cf9903b04b3ead7d",
+    "ace/delivery.py": "cd2a36d369a7e4f0adbe4c37315b83b673433acd172102e62ce6601aebfca9be",
+    "ace/metrics.py": "e2205e34771bb1aa62e324f032cd9d0a9ee142934690b1f68c28ea045882b537",
+    "ace/baselines.py": "ee88ebf901147628797b98eca2a998d59d3c6a439d96a1573e1867906c3219fb",
+    "ace/config.py": "12d93c839aa4da5218d4c10e7060a85243ad7a8fde012747a774805e97fb4688",
+    "ace/analysis.py": "be3013fad533453e3b3d9cc41f6379502efb8fa5c994cb0eb4dd703c38845890",
+    "ace/_version.py": "d0d5d463c5d6993079f25538980b47c6de276dea05ab05963d4d813044a29fd8",
+    "ace/registry.py": "84912042af03b554f64cfc25643f33ea8a1ea4bcaba3160f078e35fb2aee167b",
+    "ace/__init__.py": "3e1e594dc3589c515087cec199af3042a64cef536a6a082f819954d2e962c87f",
+    "ace/grid_eval.py": "1b3d7fe3214a8d6c35976784389ea48fe9c65d3545b1cd1cfcbd3520b369e930",
+    "ace/result.py": "ed7c6bfdc863a1ad9a769f59873c6dd6c1c9abfe178bdaa09d18dfa81b236f0c",
+    "ace/llm_policy.py": "eba01a5aac30c109f84e881b7aa5f1ebcecf816d0d1e4c4078bb3cdbc5da6fd9",
+    "ace/replay.py": "4363c56d7deba27e71dd450381281f3ab31bb8f37eb21f42880ce9a8864d65df",
+    "ace/cli.py": "f60bb016bfc326df9f0fbe65fd23acaddbe55f80b52ef8165e73dd9ac12b8aaa",
+    "ace/observation_log.py": "ac93c43dddb900135a3026c10351934b3f5c6892cbf692a96a56a67d6d8d469b",
+    "ace/oracle.py": "4d48bef21c4d45a82dba4c0616614a434eff5e94d99a1a99d00f5193718fac56",
+    "ace/optim.py": "f9459a4d2f412a0f1296ad5f08bbd3834a3b13edb8dae97d8bb32fb440dec961",
+    "ace/dpo.py": "fc2f2fdf01cd70f88ad74e42704d43d9510d0f9922ed71243a05263db155a6f9"
+  },
+  "adapter_sha256": "c0f52b2027e4643ecd414bc1f714e6ad30350110f139127dc02678ced03de2e3",
+  "guard_sha256": "2f93bacbd6c14c66a5aeac5daabcff50d47886eeec38885e6e83ab40d141baee",
+  "dependencies": {
+    "torch": "2.5.1",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.0.6"
+  },
+  "cases": {
+    "development7001": {
+      "input_sha256": "66500b323fe2c28905991c3a23e8dc770bfbffa1da75438ef8c1180b89708686",
+      "original_files": {
+        "report.yaml": "49c277dc9ab4a0c075f6ecdebb0a39e89adb93cd71dd79f4869ec6e4d6cc1fb1",
+        "ledger_entry.json": "5ad6180371dea19cf41460f994a9aef95d7a78d743c118ce2a4b98e9a98ca966",
+        "observations.ndjson": "b8ca246fe48f162f3a2783955d834408ed96f93ecaaea2fab036ab231b661865",
+        "dataset.csv": "44484c23b2405b8ebb674601c528344c0420d35e03ce253a6a991603852946f4",
+        "scm_edges.json": "11519330b0ba6861066228659d2fd40e340596fa1469232624eadadead1947df",
+        "mlp.pt": "b3023f575b8508d7af82d0b66fd0d7c941cfe06f8073590f8991f77f5e052337",
+        "sindy.txt": "20465d6e2219ca1417c6d96d7674ec64a57b9bba1aa6c7146325093185c08a08",
+        "meta.json": "584e7ebf729718cffed45cd394935e878cc6a9a933e433a3f934874d483e8870",
+        "mlps/comm_cost.pt": "5cb3810a8088a22453b9aa66d420252063da72d4942f5e88d08d2c964dc3f99a",
+        "mlps/meo_link_score.pt": "28d2ee0237aa0ee856231cf6e32bc9a2ad6b63660ed5f1d09b14c89f7e7828b3",
+        "mlps/iftu_score.pt": "2efa9191246adcc0f2937fc100adc6aea8ff7f0b38d38c3578ebb49c6d1d5542",
+        "mlps/engagement_rate.pt": "3a83dd50ac2e0495a7b9d3d5c251e76df89222a72e81b16e7fa4703262ab0b65",
+        "mlps/leo_link_score.pt": "07fb90ae18cb2045f23cb7e1e69afe0d6d7826b1109443d4d939080ad3237588"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/host-mirror/results/slot0/ace_results/5f89033d",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "27424209": {
+      "input_sha256": "94420ce1ad90f71b45b73e6b5ea5226b733b87fd9191a9bd5debaf6cfb57b88d",
+      "original_files": {
+        "report.yaml": "bca08365679a53b62ac8dd23c324b46259cb0609c452e4736dd8091a123b9317",
+        "observations.ndjson": "8f70c5d71910e40f228afc9b0002fe33014118b78dcc3bc418a30a2a8d967873",
+        "dataset.csv": "6f8663d51367fbe0ff425fd88dae7a40342d1387ddf1e6faa1840d57535369a8",
+        "scm_edges.json": "e9c89060c662a66c8907f66a8a365dd03caa48c5663d0e4aaa58b182cc5e4839",
+        "mlp.pt": "d7b566811c5ba89bf1dc9eb019c02ce69057412ebf5e06dfc642a516abd5f68d",
+        "sindy.txt": "f32ac03a7ee995614b4216fed8abd74ec3ef715690de68aa2718c6e99b23cfec",
+        "meta.json": "27bfbb6bed759b57d5c443679e216ce9f320ff4d39308525789f1c042c39dc94",
+        "mlps/comm_cost.pt": "83888ec25296fad1712c75ed3a567f61a3c839d462443b1ad1847d6af2842bd6",
+        "mlps/meo_link_score.pt": "5f1d1535d2fc66003f0e6cbd7837d7a6c23f0d65a1445fe4ffce703862a24df9",
+        "mlps/iftu_score.pt": "c6b90a368906b7445b4ca10091b98ecaf17885ff8960131ec0e88d5f34e4a7d7",
+        "mlps/engagement_rate.pt": "af2a6f48e9163ce45165fd5ee1c564e25d549d5675363b23dff3357d6aab582a",
+        "mlps/leo_link_score.pt": "4c24754fe02b72b119a803dd5ee3b5cfae4657b09cbf82ee77d80259aff14f1a"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/27424209/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "1726880744": {
+      "input_sha256": "83a8f064e9c570fb7b2e6f92cee2cf1987f0247e2e02b7ba7b9a0dc9e1abda03",
+      "original_files": {
+        "report.yaml": "8b9b7427efa83694746bee6d613fcc90a7018bbc7e5edc5b17b532c6e992b8a7",
+        "observations.ndjson": "c72efd3e8139823741b8d76f83993921138c46e5bb811b5efc42acfb5ab6a699",
+        "dataset.csv": "fbbdd04d36e2b6ad63b454facd359abd75d7ebc741a1cb0796f47ffb0b8f7cd4",
+        "scm_edges.json": "a5feae18f116fceb6cbe7925a80028a3e89fd216b8338d1d9528e82d58c4b61e",
+        "mlp.pt": "5b1bf723f386d1d96ace95b86dd92a98db208826d65d363d9e72320ce85881ed",
+        "sindy.txt": "c012ceccc577d487842d38b2bf929dd4c340da7c950a2ae12ad7f451bb2ac373",
+        "meta.json": "46982ed540e97424791d0b1ff086a63c1e93f4eb52ff446cbfa7b52c458d6109",
+        "mlps/comm_cost.pt": "696c756ca03fc9d70498c922b8ede115b4306459a8955b81e9f72aac368190bc",
+        "mlps/meo_link_score.pt": "59b4a30331d96b26b5ddedb65847d14df0fbce474ce5013007e5d648f07a90cc",
+        "mlps/iftu_score.pt": "16eca4902b55e4a6587b05d6900f37e62a661b0f47e0af7a46035bf19911fcf5",
+        "mlps/engagement_rate.pt": "85594dc1c1651dd6adafa684b3646e1a60c9d5cee65a5b81f3b0012edd70e917",
+        "mlps/leo_link_score.pt": "1a086a6b752768f6e701fe683b9d555a71457bb41edc5827993fd693da5c206e"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/1726880744/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "735595885": {
+      "input_sha256": "059609fa29dd8790fd4769c46193bf8d4b7f3f924f3caf04a2f716afe84ee6d8",
+      "original_files": {
+        "report.yaml": "6d34db6b6967f55f512b547c8d4fc1fbc509f8634ff89c0b0692d96acc59da21",
+        "observations.ndjson": "4845cec9623438ad63ea546dd5f0922fd2624ad3699c849078464f42805e6be7",
+        "dataset.csv": "6ad93d634551925cf749ddac0ed44db7fd0eeb701e87c38048b2e73e267605e3",
+        "scm_edges.json": "1089788861b7f18ea624203083ae6bb1b1653d99ee3bff9220530bae7b320ab1",
+        "mlp.pt": "bcd4eaab2b8c8e82c23c296e5ebd27ffa9e896a0c724052ebc1e5ad519bdd315",
+        "sindy.txt": "be13b04ec2357e078cefbc26b35cfe54ffcfe2d5a397d77f20ef96eabb73acaa",
+        "meta.json": "cb6beaafd1031ac38e72476f12f15b3cf50348afc413bf1061f68dc0c80aaf28",
+        "mlps/comm_cost.pt": "5c93a3b941bf705c8f887a99c24d1df3cdb47c2d68caafe38a01386580219dea",
+        "mlps/meo_link_score.pt": "7b5b3c4a1efe63ffa137b58ed257bfaeb0251908cf99927ced5cc930f9478429",
+        "mlps/iftu_score.pt": "9b6fca5529ef9b8b996d17e8da65945c2b45b4466848f5b13dd19e6c7c910bb6",
+        "mlps/engagement_rate.pt": "8f1fe74540cb73893137740176c457f1f18d0b59cb06e69482dc122f9a6f3c57",
+        "mlps/leo_link_score.pt": "4990e49c705ff6dfd960ac43652983812a5a37f70d38a8d29f6480fedba1d6f5"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/735595885/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "983656467": {
+      "input_sha256": "feff9c5b4dc7fb6b78153e47bdbc9ef6c397d917ea87b8ca741a9e9f7d84500e",
+      "original_files": {
+        "report.yaml": "7d4201d17dc8e256792fa1e5a1f1cd41d4efbaf0291dc7ac9f13c80107cbf5d5",
+        "observations.ndjson": "3dee9a6201320862de9713a81070c55513b83631bf4a47f91875dcd870403948",
+        "dataset.csv": "0d3333d830609b269383251308934a7124cc3fcacc6e18ef0775e27c7ab35d85",
+        "scm_edges.json": "78b4dc5614d9567cc49fa64412ede45295959563e62a390474d25865a0d3dcf5",
+        "mlp.pt": "577deefce4d28342601cba7d397e35ce1fa19c99f4b67a04e9e1c38b24f7fbaf",
+        "sindy.txt": "a897752df8694e11092164bf9e8fc4a88374d72cd0c67a6659ee43f429298598",
+        "meta.json": "8e006f5c45a745dbdfe3835e78400278d3a3fed79f287917bdf36a571e493dff",
+        "mlps/comm_cost.pt": "70a3f3973acc4ba47b5cfc1e73e4a42bbeaf95eacd702abb604c5dd1621648c1",
+        "mlps/meo_link_score.pt": "7ed0b4a17342a8cf75848d213a9adb9fa552cc59ae06a25329d20bdf36b5d525",
+        "mlps/iftu_score.pt": "c266cf2492b50563bf77761a8db7259cbfcdb17dfadd857351a505279173640f",
+        "mlps/engagement_rate.pt": "1de486983a879750d8f7de15c88b0c6ae7eb706d8bc28cad6e24648c690850b6",
+        "mlps/leo_link_score.pt": "ae1911419240bca79fabfb451da912cb91a4da2457777ea8daf56e37d8691e72"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/983656467/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "124753321": {
+      "input_sha256": "ebe048fdc97783e35e35ec4743d84a415e3cf88fc31507b5e8e9c63e551f131a",
+      "original_files": {
+        "report.yaml": "8aca55d8e507f3cd68c236ef32a92c3475624e625b475b97a69590f702f88aba",
+        "observations.ndjson": "785126da1f435082e94caf2e4bdbfa44db78eb1450c59ba3181cfb7b7d6211db",
+        "dataset.csv": "56bedc99fd9d5fe587f2774f83be79159e1f9ef22049e56fd64ac109bf7a7dff",
+        "scm_edges.json": "d77b4fdca4fba604ba3bb7808d5d47edeb9ea605ab57520a4aaa9ab134a766d9",
+        "mlp.pt": "8fe670a3083610d9ba60238dfa537d5d30ce1154ddf70aa1322c7a43ca68a6c9",
+        "sindy.txt": "95c22d633713cd653501607c34a0f012c66175a35bb9296920d8112cee94614d",
+        "meta.json": "cd05dc7514209da5c1c85b76c12c02a9b617349b27e4e6e41e27abdd107cc985",
+        "mlps/comm_cost.pt": "7f427bfda56be6eb9889f3dcaac759bcdc1f6c40b1e0574f835bb534e580756f",
+        "mlps/meo_link_score.pt": "2953570bcc9e46f801d9a1e11b029e8e14b5c3f42b213bffb212b6ba95b77b9c",
+        "mlps/iftu_score.pt": "d3973c8296a18c0288acc6747df4659aacc26e7aa357030578e860c29c5474c1",
+        "mlps/engagement_rate.pt": "643141e2c5e344f4b366c4980820032510854256f349b88d6748946eb3cf5798",
+        "mlps/leo_link_score.pt": "e67898fe1c7e4c2d63abf41d00957aed7fd082a37516c3ad79e42f4e13a86b61"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/124753321/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "921441405": {
+      "input_sha256": "33cc748c2e54659b396474015d5831d4078e791aa7cca35f842f79831ba2b566",
+      "original_files": {
+        "report.yaml": "5ab29b85b7efad4cc02b1daac90f34d9d7d1e4634a4a4fe7fc09d46b0f0d354e",
+        "observations.ndjson": "7a6af788067bacfb2cd756b4c810f4f7305317e679c9d5f8e8434b0694c58567",
+        "dataset.csv": "7771e10b09430a276a997ced9bb5f45c1fb7e62645470853af862e8282c17b5a",
+        "scm_edges.json": "9a7e55a5c4501ee6eb0cf36fdf262a0fbe0fced1035e0d2fe0890286afcc5403",
+        "mlp.pt": "b9f93a4c468a9bb40c38e027afc4185b2a73179744ae0f673bc48d8725cdc1d1",
+        "sindy.txt": "fbac2a0d74d27a8f45154ad7d64147e55610b91b969ea5ad5d1044e4ec33c96d",
+        "meta.json": "4480edd8791a80a513864e6ed17857d81288df2b4a8cb6b35bcec32fd6586296",
+        "mlps/comm_cost.pt": "e9b79b06753d68880e93c43aa2a53e8ebd6dfa12756e60c8bf5940ba16ceaf53",
+        "mlps/meo_link_score.pt": "ddc2c47ae46a94993eb73bf8248f93cdb169f0d5fd7f6c1794acf6b92281e38e",
+        "mlps/iftu_score.pt": "df36b0dd65815b39cf56c5e6c4cbe6244ce4d8738b748aafe722975ef1064fec",
+        "mlps/engagement_rate.pt": "ced47b9231334af39686e69a4eaf850a6415bf9343233fe293966214b979aa5b",
+        "mlps/leo_link_score.pt": "e8e36578c5028769cf4e959d9841125a822af72f2ab85c93e4e71b87554e0fb7"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/921441405/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "934168586": {
+      "input_sha256": "4c1abddffbb64af14c5500b26d3f764d83e003c44c496f0a0a6ca8979ca37730",
+      "original_files": {
+        "report.yaml": "7f5049d32080c95604ab3f311b6708c2abc0e20a7fae91f4a86a6c89afe506d8",
+        "observations.ndjson": "e462e18c15a0d2ae94e5093c4d7f0174d7c3de0927ddcc2ffb788e9d53558e2e",
+        "dataset.csv": "b2a902aa759f6cdd176f8c83dc4562336b07bc49964cdc7caffa5ae55e1f5f93",
+        "scm_edges.json": "3722d65ec4217e62d7b70258a0b84d5496c9ae13ff6dd620a271593f224af18e",
+        "mlp.pt": "2a3574e34c7c7bf898d23f6b81bb3d1db7af7eaa5d3985b495bd6afe9c0d40c6",
+        "sindy.txt": "c838bb457aea6e46d0dd30eaf6ebbafa59a3de8b04251115eca228c5ac52db50",
+        "meta.json": "51fe5219ba291c755b37ecac6abfb29e13352af78834c8fe8d663d808c4c5e2f",
+        "mlps/comm_cost.pt": "b785a8a8da5a73b76f7dea1f1255ef21421fc70788bb34f31fae202b2b20eca3",
+        "mlps/meo_link_score.pt": "88f0f0d1e6821827523fa8d163418376e1b37fb7ffeddb46466c30cbd270c0da",
+        "mlps/iftu_score.pt": "eb93ffeacb5ef0f71a37b72bc5f8c8c06463a4e0ec6c0bb7827dc34945ff395f",
+        "mlps/engagement_rate.pt": "44ea8c2af31e4e8b28d8f4c46583df7d4092f97c417c37052f1cc73ff958f3df",
+        "mlps/leo_link_score.pt": "9e7f11199cc89a9c2e835af902cfa09002651adb2474e8952802a12bca3bbf13"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/934168586/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "546725957": {
+      "input_sha256": "ee28c72dfec0cb1fe9e1426ca6b019003aaa755fbe76ed1a595a21c73517c4a2",
+      "original_files": {
+        "report.yaml": "22082c82e2a1503c85b7fa6e751090e9d3f1a2a78ea3d6e341bfc5d03b334129",
+        "observations.ndjson": "d6b1b2254f3addbedf9ba46f6c761557f618eb9ee818e54bf124dc8d6fe41756",
+        "dataset.csv": "7f633ae1ae4cb5c1567ca48ca869b7b9307e6a49f1a55a252c0ce70281168126",
+        "scm_edges.json": "14447263d3f0f8a9c79fab6633eb865724f8640b5a388c230c2a4b6494ec8769",
+        "mlp.pt": "d85a031db483498bf8ad2fe7315927ebbf7b4e6f9f41ee13a33b2817eb5ea7aa",
+        "sindy.txt": "9c2ec6c82274d9d4a751d4f8ac710e8ca2b1cd9ae676feb88366a2e2d4f85812",
+        "meta.json": "f1d5cfc746a81e1d9e07aeed2ef90b8e4baa14b32be1ff8626e356636ea46865",
+        "mlps/comm_cost.pt": "307488cc30ac6c4823d7f37178b6b4d4fede0ba5941eff49438a13c70ed4c794",
+        "mlps/meo_link_score.pt": "4e0c9ebacca29d00aa7d9237ed847fbc64ad684cdf203e83bf308869395a269d",
+        "mlps/iftu_score.pt": "0f6a6fd2a4a0b8deb624237956e5a23faa16b24d663700f4e8296b3ce6ceb94b",
+        "mlps/engagement_rate.pt": "20921833a2a37f02bd2b175c2d7ab0c00702f2ecc53063b7b5b515215ba3d7b9",
+        "mlps/leo_link_score.pt": "0614a6b18676e3c956610e12263265dd3c5903c399875bd1056b4b24bd789b74"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/546725957/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "520888668": {
+      "input_sha256": "50735c9a786c608718c392ec7f69a77bc1085ec9092cea68d6ace437f76ab3e7",
+      "original_files": {
+        "report.yaml": "2d86f3272ceed9a8f67fdfd5bba1a26175365275d7efab27004a26b91d531113",
+        "observations.ndjson": "48d5705ea47e5be7ef257132b863e2ffb3da70d6cff18ace7ad6dfd67eedf818",
+        "dataset.csv": "5a027c4b34c32e73169000b57e2be89ba5f0c881509e107cdc076a9731d4aa97",
+        "scm_edges.json": "b4c17e5cc64b05958891293ab8cca4de77cb36df02362d166b40703de38795bf",
+        "mlp.pt": "f5d14f3e7593c97b7d7db9b62bf80a5a3d069752101aeefa12e276ae234a5124",
+        "sindy.txt": "720eb895865ee9b3ad226b6f9997f0e40fad4ee6a3cb0502296606c27ca3a58e",
+        "meta.json": "cf38b4ef2482703d9d303500af96f3a2945d9348bcb6da4f35e79be6fe585c58",
+        "mlps/comm_cost.pt": "4d5790dce05eb3cfebac2597eecfeddd8c359eabdd00d7b3abfb0b60ab24ebf3",
+        "mlps/meo_link_score.pt": "e5a7740fdf1d9350efc437ac176255d2412dd45c9ba8fc6d02e42d0f7d8b07c1",
+        "mlps/iftu_score.pt": "7c187fb87e678e0ad68c89d74b3cc949080d0f3c2487cf3dab42b349e9ad0ad6",
+        "mlps/engagement_rate.pt": "f581f21cc411a9b2e2da6abbd8622b9fd95cd67bf96250a8ddc45b0eaeec88a3",
+        "mlps/leo_link_score.pt": "80cc4b187cc6a5ab57539480e27f0bc507760d2a1760070f35a060002d443ede"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/520888668/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "1091699608": {
+      "input_sha256": "3e3196b043d306721b29c5808df5313d1e351b59d4aff6182ead77450593f103",
+      "original_files": {
+        "report.yaml": "ca811fe9eb18af48f493e1dccb34791ea11e5ed577fdd54339c3a1d59c3caa51",
+        "observations.ndjson": "7db1653df389c638adfdf96ea287d013e786a7d3b6a87e6f591901c7b4ac2c4b",
+        "dataset.csv": "6b7755d80c3a2162a4d4a7bca4528a54293f6523a45615934c9050895ea8e81d",
+        "scm_edges.json": "02eb6ac8f86555bd5dca75b5d9acb6efee492ab951719f46ff1cf0346fcf6e00",
+        "mlp.pt": "88255fdf5ebc89ae8a8a727c5425951428963cbb4685dda673f046b5e64e6510",
+        "sindy.txt": "eb0ed6db238396d18ce021894d857c228f6b2d0d28f9723ed4ee8272e16d8981",
+        "meta.json": "70787b7e3224e7d8bdb1185338cb99091b7894e290c408e3783dbd96142ff8e4",
+        "mlps/comm_cost.pt": "8d1aba0dc26c67f778cb55aa469dc19722ac4747317cd04ed4e15955fac44156",
+        "mlps/meo_link_score.pt": "9ed002c32cd87e8ceaab6dbaf2a7bcfc66febe9293c59e026d792c9eee6cbda2",
+        "mlps/iftu_score.pt": "705c0a868a6a5e34531306683f0bd00a17190d84254363b714622687b5f7daea",
+        "mlps/engagement_rate.pt": "1e69799960d293fb3d0a5ac763b2b4d8c545f069bd5506fe77519bc75d1d1683",
+        "mlps/leo_link_score.pt": "66ba40b1be0fc362861c47342acb4acafa56e3ab8cd090204032a7a92b481433"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/1091699608/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "585254818": {
+      "input_sha256": "da20c29d5484bbc93476e835e3f1926bb8c61ea93c15fe3e67de868428ea4122",
+      "original_files": {
+        "report.yaml": "6084ce4b7e1be58d18f02eaf89ab9bbc52afaab842f42e5d6bafb5ceb9d6900e",
+        "observations.ndjson": "b70b6035e5a15c00083c17a701e7e1a2c1bdcf0fa32130137730ea557ee19f05",
+        "dataset.csv": "2068bb5d292b54b94e4e9eaca028b016ebbeda17a9bd36f084f379d2ad5fa9d1",
+        "scm_edges.json": "35e0d29e8967c8c70698d09bd41d36ad69b282d0e117d4bbf8fe689885b9898b",
+        "mlp.pt": "a8847e22733e1e4baf641213287bca55e2b3169716b45886d4a53c97bc39ad28",
+        "sindy.txt": "f3f72c4a4fb0d0c54730c75c5a10926fc119665ae6e1eae19fb85decb3535bb8",
+        "meta.json": "c2466bc158030a6988fa8b369ef98e6c37f7d785e33ef61e92ca237e999045d4",
+        "mlps/comm_cost.pt": "bb08d7a47e6362475aaebc6ffa99cfe4a41226031d3cc6d1460cf61cf171a484",
+        "mlps/meo_link_score.pt": "04670233c00e85bd80004ff90bf63bc21987aea73a7056d1ba965fb54b4e17d5",
+        "mlps/iftu_score.pt": "061596cf6ebfdd8f88658519f41109f18f3f8b6f0628afa6ff085b831b4a8110",
+        "mlps/engagement_rate.pt": "57c1424de74760b4f7d67b7ccaeb66cb5db501e62f08a97bb52892113e5bdfa4",
+        "mlps/leo_link_score.pt": "72732bda5fb44e11481940e89bee4617f078e5aa0d7ae8db3178a7d5ad0992e0"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/585254818/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    },
+    "884825602": {
+      "input_sha256": "b011841e5252279c42b76da2020c47b54793d275c468bd8f45ff8e506bca8795",
+      "original_files": {
+        "report.yaml": "067196d6d5f92ec40ae150ff70e6834fa0aa2b42a1ab9cdce2e287b455b91019",
+        "observations.ndjson": "49f37ea7c5f7611765e19ab77674515817fdac0f719b672dd732e6291614e1a1",
+        "dataset.csv": "9312670b5ee07341a862f44edc19aa1da4c0b5eaf90bed08972001b4bc95de2e",
+        "scm_edges.json": "ba788e8e37bdced69932d0687a4a604250d1a5d44023829241063d835cd31a96",
+        "mlp.pt": "5ab5af45eaf79bf5b76f64ce579c9fa956b94d3add76245043716b1948c10c68",
+        "sindy.txt": "efa53a440e81e43c10f5f10fca61e15ce1880d52033581cd8da2f4b7b4d419ac",
+        "meta.json": "f822259e0dcf69bd2f4d84cf2abbb582b8578d86da56876c7e623f4f3c65fab0",
+        "mlps/comm_cost.pt": "f60d5d6b6e23b067de1e9aa43f39b7352bd1f0d3313d6a526c1e085be3a163a9",
+        "mlps/meo_link_score.pt": "4c3f661f139d2bf42f5d3e9cd1e0fa30d64db6696dc1d73bb9d28063168eef58",
+        "mlps/iftu_score.pt": "3ea7485d330cb650e9652800925380326765f19b3756de3aa9a9ef5d248ba555",
+        "mlps/engagement_rate.pt": "ef41a52e38979ae910edd7accd6ce71b49fb7d7620769852948363f6728a600b",
+        "mlps/leo_link_score.pt": "44814e306eb4e3d88c835e5445589990e855880dd4293d6de4b09199b453cfd8"
+      },
+      "bundle": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-final-history-20261006/cases/884825602/online",
+      "counts": {
+        "final_buffer": {
+          "flat": 50,
+          "leo_link_score": 50,
+          "meo_link_score": 50,
+          "iftu_score": 50,
+          "engagement_rate": 50,
+          "comm_cost": 50
+        },
+        "online_admitted": {
+          "flat": 1178,
+          "leo_link_score": 1178,
+          "meo_link_score": 1178,
+          "iftu_score": 1178,
+          "engagement_rate": 1178,
+          "comm_cost": 1178
+        },
+        "all_paid": {
+          "flat": 3803,
+          "leo_link_score": 4303,
+          "meo_link_score": 4303,
+          "iftu_score": 4303,
+          "engagement_rate": 4803,
+          "comm_cost": 4803
+        }
+      },
+      "never_admitted_final_rows": 25,
+      "clamped_fast_adapt_updates": {}
+    }
+  },
+  "row_sets": [
+    "final_buffer",
+    "online_admitted",
+    "all_paid"
+  ],
+  "epochs": [
+    100,
+    30000
+  ],
+  "inits": [
+    0,
+    1,
+    2
+  ],
+  "primary_init": 0,
+  "optimizer": {
+    "name": "Adam",
+    "lr": 0.002,
+    "schedule": "constant",
+    "batch": "full"
+  },
+  "normalization": "training-set min/max only; zero-width becomes width 1",
+  "architecture": "Linear(d,64),ReLU,Linear(64,64),ReLU,Linear(64,1)",
+  "controls": {
+    "ridge": {
+      "alpha": 1.0
+    },
+    "polynomial": {
+      "degree": 3,
+      "alpha": 1.0
+    },
+    "tree": {
+      "class": "ExtraTreesRegressor",
+      "n_estimators": 256,
+      "min_samples_leaf": 2,
+      "random_state": 0,
+      "n_jobs": 1
+    }
+  },
+  "matched_cpu": "flat all-paid init0 uses summed SCM all-paid 30000 init0 fit CPU seconds, including all 5 heads; excludes imports/evaluation",
+  "control_selection": "development7001 continuous NMSE at init0; deterministic tie order flat, polynomial, tree, ridge",
+  "resources": {
+    "pilot_wall_seconds": 3600,
+    "threads": 6,
+    "rss_bytes": 8589934592,
+    "full_cpu_core_hours": 80
+  },
+  "evaluation": "full previously exposed grid, descriptive continuous MSE and exact-level error; no prospective inferential claim"
+}

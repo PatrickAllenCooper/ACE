@@ -867,3 +867,42 @@ section now together on31 via clearpage, numbers/limitations intact. Existing
 5.1225pt title overfull warning atline77 remains visually legible; underfull
 warnings retained. No software install/network resources/experiment/release.
 This verifies build and targeted layout, not old manuscript scientific claims.
+
+## 2026-10-06 — delivery paper implementation and development-only attribution pilot
+
+Patrick explicitly requested implementation of the delivery-centered A/B/C plan.
+New authority: delivery_paper_execution_2026-10-06.md. No closed APIs/GPU.
+Archived the current manuscript source by hash and rewrote active paper title,
+abstract, contributions, results, theory and conclusion around supported delivery.
+All historical ICLR/NeurIPS sources unchanged. Five-page research draft compiles
+with cached Tectonic, no undefined references/overfull warnings; pages1/4 visually
+reviewed. Numeric result macros generated from independently verified confirmation
+receipt; claim index lists unsupported/pending claims. Submission not ready.
+
+Three row sets reconstructed and CSV-reconciled for development7001 and all12
+histories: final50 entries,1178 unique online-admitted rows,4803 all-paid rows.
+Last25 refresh rows in finalbuffer were never trained online. Frozen online code
+also duplicates selected rows during consolidation and permits unmasked per-node
+fast adaptation, but there were ZERO selected clamped-node fast updates in these
+12 histories. The mask issue is a code-path limitation, not an observed cause of
+this confirmation's improvement. New scratch factorial masks remain fixed.
+
+First eight-cell development pilot fit succeeded; evaluator rejected the legacy
+grid's missing target metadata before scoring. Inputs/source/attempt preserved;
+corrected adapter and separate input-v3/pilot-v2 freeze completed eight fits and
+validated development-only evaluation. CPU projection25.4773core-hours (30% margin)
+<80full-stage ceiling. Strongest frozen simpler control is flat MLP (development
+NMSE.00306217 vs SCM.00130318); NOT a twelve-history architecture conclusion.
+Pilot receipts, projections, hashes and local custody paths are compactly retained
+in results/delivery_paper_implementation_20261006. 17 analytic/replay/staging tests
+pass. Full Stage A has not been scored; protocol releases depend on completed
+custody and resource checks. Stage B150core-hours remains attribution-gated.
+Stage C5core-hours code is prepared but needs frozen A recipe; white_64 excluded.
+
+CURC transport is live, no ACE jobs currently in queue. ace env lacks sklearn;
+existing mono_s2s runtime has torch2.7.1/numpy2.1.2/scipy1.15.3/sklearn1.7.2/pandas2.3.3.
+It can be reused read-only with a separately frozen runtime; do not change another
+project's environment. Small scratch stat/df probes timed out, so remote output
+readiness is unverified. No jobs submitted against unvalidated scratch paths.
+Continue theory/implementation locally while resolving readiness; unrelated jobs
+are protected. Queue waiting alone is acceptable, filesystem validity is a gate.
