@@ -1,0 +1,95 @@
+{
+  "attempts": [
+    {
+      "phase": "qualification",
+      "started_at": "2026-10-06T23:08:10.925060+00:00",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006/scripts/qualification.sbatch"
+      ],
+      "finished_at": "2026-10-06T23:08:10.959508+00:00",
+      "exit_code": 0,
+      "stdout": "33507418\n",
+      "stderr": ""
+    },
+    {
+      "phase": "collect",
+      "started_at": "2026-10-06T23:08:10.967058+00:00",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--dependency=afterok:33507418",
+        "/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006/scripts/collect.sbatch"
+      ],
+      "finished_at": "2026-10-06T23:08:11.005669+00:00",
+      "exit_code": 0,
+      "stdout": "33507419\n",
+      "stderr": ""
+    },
+    {
+      "phase": "fit5",
+      "started_at": "2026-10-06T23:08:11.011724+00:00",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--dependency=afterok:33507419",
+        "/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006/scripts/fit5.sbatch"
+      ],
+      "finished_at": "2026-10-06T23:08:11.131781+00:00",
+      "exit_code": 0,
+      "stdout": "33507420\n",
+      "stderr": ""
+    },
+    {
+      "phase": "fit30",
+      "started_at": "2026-10-06T23:08:11.137042+00:00",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--dependency=afterok:33507419",
+        "/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006/scripts/fit30.sbatch"
+      ],
+      "finished_at": "2026-10-06T23:08:11.173428+00:00",
+      "exit_code": 0,
+      "stdout": "33507421\n",
+      "stderr": ""
+    },
+    {
+      "phase": "evaluate",
+      "started_at": "2026-10-06T23:08:11.178259+00:00",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--dependency=afterok:33507420:33507421",
+        "/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006/scripts/evaluate.sbatch"
+      ],
+      "finished_at": "2026-10-06T23:08:11.214097+00:00",
+      "exit_code": 0,
+      "stdout": "33507422\n",
+      "stderr": ""
+    },
+    {
+      "phase": "audit",
+      "started_at": "2026-10-06T23:08:11.220436+00:00",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--dependency=afterok:33507422",
+        "/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006/scripts/audit.sbatch"
+      ],
+      "finished_at": "2026-10-06T23:08:11.268313+00:00",
+      "exit_code": 0,
+      "stdout": "33507423\n",
+      "stderr": ""
+    }
+  ],
+  "jobs": {
+    "qualification": "33507418",
+    "collect": "33507419",
+    "fit5": "33507420",
+    "fit30": "33507421",
+    "evaluate": "33507422",
+    "audit": "33507423"
+  }
+}

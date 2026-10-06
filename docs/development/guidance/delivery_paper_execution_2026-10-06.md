@@ -353,3 +353,51 @@ drift fails. Forty local checks pass, including these rejections; final target
 qualification must run40checks before any selected response. Old candidate is
 preserved, new committed source/bundle required before final freeze. No new
 allocation or timing retry is needed for this metadata-only correction.
+
+
+### Stage B released once; target qualification and shared collection accepted
+
+Frozen source `45ebeb89d2c76daa97a55f07728239245e0c4f60` and bundle
+SHA256 `2449e67882f57b28ec3ce92e0d571cdb33f5e2740cab49ae64982585e939ede7`
+passed committed-byte transfer validation at 23:04:39 UTC. Full registration
+SHA256 `e9fb12aa807010388f2cb4701304f61fc7cd2092a459e9aab393b3aff49a65f5`
+was frozen before any selected response. Six generated scripts were pulled and
+reviewed against the exact registered plan before the exclusive submission.
+Output: `/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006`.
+Account `ucb736_asc1`, `acpu/cpu-normal`, one CPU and 3 GiB per task. The rounded
+total request is **86.86833 CPU-core-hours**, including pilot/failure reserves,
+all forty world tasks and qualification/collection/evaluation/audit, within 150.
+
+Submitted once at 23:08:11 UTC: qualification **33507418**, collection **33507419**,
+five-node array **33507420**, thirty-node array **33507421**, evaluation **33507422**,
+and independent audit **33507423**. Each twenty-world array permits concurrency
+two; at most four world tasks run simultaneously. Original pilots and prior
+candidate bundles are preserved. No frozen-source modification or duplicate job.
+
+Qualification passed **41 target-runtime checks** and finished successfully at
+23:08:44 UTC (28.13 supervisor seconds; peak process-tree RSS 749,678,592 bytes).
+Shared collection finished at 23:08:53 UTC (4.31 supervisor seconds; peak RSS
+73,662,464 bytes). All **32,000 charged training responses**, eighty histories,
+240 raw input/journal/receipt artifacts, and exact **640-cell matrix** are now in
+exclusive local custody. Local verification recomputed every history artifact
+hash, checked 400 paid rows per history, qualification log/execution hashes,
+registration/matrix bindings and per-size/arm/init membership. This is input
+and execution acceptance, not prospective scientific acceptance.
+
+At **23:14:04 UTC**, four world tasks were running and **12 completed fit receipts**
+were verified against model hashes, input bindings and recorded optimizer counts:
+30,000 updates per head for delivery/flat, 48,000 for online, and 100 for the
+short-fit ablation. No fit generated or read evaluation responses. These initial
+receipts are from two five-node systems; thirty-node fits remain in progress.
+All completed supervised attempts had successful exits and memory below 3 GiB.
+No stop flag; evaluation/audit remain dependency-pending. Held-out responses and
+prospective scores have not been generated or opened. Evaluation requires all
+640 fit receipts and forty completed world journals, followed by independent
+result audit and successful audit-supervisor validation before any paper claims.
+
+Compact evidence: `results/delivery_prospective_preparation_20261006/full_*`
+and `final_*` receipts. Raw custody:
+`/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-full-20261006`.
+Training inputs are complete; live fit custody remains explicitly partial.
+The original A/C conclusions and root-support limitations remain unchanged.
+Individual hourly automation remains paused; coordinated review advances work.
