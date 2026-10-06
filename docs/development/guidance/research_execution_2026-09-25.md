@@ -796,3 +796,15 @@ outputs. Validate a separate stage watchdog and aggregate ledger, duplicate-star
 refusal and retained11 hash gates. Final evaluation may run only after all12 cases
 are valid and sealed, and within the newly authorized stage. Do not score the11.
 Without that amendment, remaining authorized work is custody/documentation only.
+
+## 2026-10-05 — post-stop custody recheck
+
+Independent read-only recheck matches all11 completed case inventories, partial
+3326-call journal, execution hash and original/source/copy hashes to terminal
+audit. No owned workers or seal/scoring/completion markers remain. Exact charged
+attempts56159; only96.128771s remain in existing185minute aggregate envelope.
+A final-seed restart cannot fit that remaining budget. The single pending decision
+is still explicit authorization to retain11 histories and restart original884825602
+under45minute stage/230minute aggregate, same6threads/8GiB and62436call cap.
+Worst aggregate calls61362 including discarded interrupted attempts. No new
+experiment, scoring or restart. Receipt custody_recheck.json.
