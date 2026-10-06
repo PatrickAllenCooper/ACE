@@ -920,3 +920,17 @@ supervisor exec session23740. All480fits must seal before new12-history scoring.
 Originalonline scores remain a separate unchanged comparator. StageB/C not released.
 Existing hourly automation resumed with the committed delivery agenda, including
 local theory/manuscript work, custody reconciliation and conditional next stages.
+
+## 2026-10-06 — prospective action/world adapter preparation
+
+Added outcome-independent Stage B adapters: explicit parameterized extension of
+fixed five-node equations, reuse of audited30-node generator with pinned graph
+and coefficient RNG, noise supplied separately, correctly clamped structural
+rollouts, immutable held-out joint-root blocks, balanced varied-level and random
+shared-action menus. Primary candidate estimand is explicitly zero-noise
+structural prediction, not stochastic interventional expectation. Three tests
+check base equations/clamps, no shared train/test action blocks, and bounded
+balanced level-count discrepancy on an analytic fixture. No planned system
+outcomes opened, no simulator calls or Stage B release. Full generator/runtime
+qualification and recipe freeze still follow complete attribution. Stage A live
+batch making fit progress, with no scores produced before the full seal.
