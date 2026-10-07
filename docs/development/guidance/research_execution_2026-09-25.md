@@ -1888,3 +1888,59 @@ original B acceptance/target-runtime and final submission gates. A limited scree
 pass is not anonymity certification. ACE Apache and Chambers terms are unchanged.
 The historical candidate11/report/receipt pending-owner statements remain intact
 as prior evidence; future planning should inherit candidate12's notice plan.
+
+## October 7 23:15 UTC — source contract qualified; original B still queued
+
+New `extend_delivery_source_contract.py` authenticates the pinned candidate12
+plan, all24 original worker/generator edges and five separately authored replay
+interfaces. It preserves all private originals and records per-edge roles,
+original revisions/digests, source notice and unqualified anonymous execution.
+The current contract is explicitly A/C/F preparation; it is not original-worker
+training/collection reproduction. Projected runtime/protocol hashes refer to new
+packaged bytes, while original receipts retain original digests. Runner ownership
+and MIT notice remain resolved; ACE source notice and Runner notice are bound.
+
+A distinct bounded implementation review identified projection handling, future
+B/helper disposition and provenance/scope issues. Current issues are fixed:
+explicit four-location captured-byte projections, hard supported base-plan pin,
+B/helper/training-role rejection, source notice edges and an authenticated
+executing-source snapshot. Nine final tests pass from an unrelated directory,
+including source replacement rejection. Initial rejected preflight, an
+intermediate test failure and all13/14/15 prototypes remain in exclusive custody.
+Reviewer final snapshot matches the qualified tool; no required current fix
+remains. Review: reviews/delivery_source_contract_review_2026-10-07.md.
+
+Final private candidate16, delivery-anonymous-relocated-20261007-16, has1431files/
+2549bindings. All1430 inherited candidate12 manifest entries/bytes are unchanged;
+only reproduction/source_contract.json is added. ManifestSHA
+0e477f833bda84866499e68a5155114c18d6c1d51312f583dadf3dd95fe8316c;
+contractSHA9f4766216adbc1bfc217994c4c1122ccc874fa927880114ba311395c600ef3c2;
+planSHA8043456453dccb782daa20338196dd7a68a73fbfc493f0e968b5b4022e926e41.
+Build and renamed byte verification pass without model inference. Final qualified
+implementation changes custody validation; its public manifest is byte-identical
+to prototype15. Final build/check30.243124parentCPU+28.590418childCPU seconds,
+59.182584elapsedseconds and63,651,840peak parentRSS. Earlier prototypes, tests,
+writing, reviews and monitoring are excluded from this final cost. No total
+sprint cost is inferred. Evidence source_contract_preparation.json under
+results/delivery_release_preparation_20261007; guide delivery_source_contract_2026-10-07.md.
+
+Future B integration MUST supersede this A/C/F contract with a new digest before
+including the frozen design helper or B core/interface; record original/released
+helper identity and derived core lineage. Old private-only/B-not-included status
+cannot be represented as final B source disposition. This remains implementation
+work within the authorized preparation, not a new owner/resource decision.
+Unchanged original B full acceptance, successful supervisor, complete composite
+custody, exact-runtime replay and human anonymity/submission gates remain.
+No old A/C/F inference review or fits were repeated; no public upload/manuscript
+edit/experiment submission/response/optimizer update/install occurred.
+
+Fresh23:07:56UTC queue/source metadata still560/640fits,35/40worlds,39unchanged
+source bindings, no seal/evaluation/completion/stop flag. Five original30-node
+world tasks remainPENDING/None and evaluation/auditDependency. Slurm reported a
+transient configuration-stat retry on stderr but returned successful queue and
+accounting commands; original work unchanged. Raw receipt:
+full_queue_check_20261007T230752Z.json. After that queue check, the shared master and a new remote
+hostname channel succeeded (login-ci4). CPU scheduler capacity, not access or
+licensing, is the current external wait. Preserve the original chain; no ETA is
+established and no duplicate/rescue is authorized. Parent cadence ownership and
+hourly development/theory/writing/analysis work continue.

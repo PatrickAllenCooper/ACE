@@ -516,3 +516,28 @@ original B acceptance/target-runtime and final submission gates. A limited scree
 pass is not anonymity certification. ACE Apache and Chambers terms are unchanged.
 The historical candidate11/report/receipt pending-owner statements remain intact
 as prior evidence; future planning should inherit candidate12's notice plan.
+
+## October 7 source-contract follow-up — supersedes earlier source status
+
+Read delivery_source_contract_2026-10-07.md and source_contract_preparation.json.
+Final private candidate16 adds an explicit24-binding/five-interface source
+contract to candidate12; all1430 inherited artifacts and manifest entries are
+unchanged.1431files/2549bindings; manifestSHA
+0e477f833bda84866499e68a5155114c18d6c1d51312f583dadf3dd95fe8316c.
+New bounded implementation review and nine focused checks close current
+projection/scope/provenance issues, including source-replacement rejection.
+No inference, refit, new response or original-worker execution was performed.
+The license owner gate remains resolved. The contract truthfully describes
+saved-artifact replay and private original custody, not full anonymous historical
+training/collection reproduction or final public approval.
+
+B integration must supersede this A/C/F contract with a new digest and explicitly
+record the included design helper, derived core and target-runtime interface.
+That transition requires unchanged original acceptance and complete custody;
+actual B numerical replay remains unqualified. Continue derived location/import/
+fixture interfaces preserving substantive guards while the original queue waits.
+Final integrated proof/prose/visual review, all-sprint accounting, human anonymity
+and submission review remain. No additional fitted study is presently needed.
+Fresh23:07UTC CURC remains560/640fits,35/40worlds, five pending30-node worlds,
+with no source drift/seal/evaluation/complete/stop. Remote SSH channel also works.
+Do not duplicate the original chain or repeat completed A/C/F numerical checks.
