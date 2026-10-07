@@ -661,3 +661,22 @@ A/C/F accepted receipts, private candidate09 and the current manuscript remain
 unchanged. All-sprint compute/attempt disposition, anonymous full workers,
 redistribution/anonymity, integrated proofs/claims/tables/visual review and human
 final submission approval remain. No additional fitted studies are required.
+
+### 20:25 UTC supplemental replay handoff
+
+Current software now includes `reconcile_delivery_prospective_custody.py`,
+`extend_delivery_prospective_release_plan.py` and
+`replay_delivery_prospective_release.py`. Read the prospective replay preparation
+document and its new review disposition before use.26focused local checks pass;
+actual partial custody rejects before outputs/outcome access. No actual B plan,
+full positive assembly, target replay, response or submission was created.
+Fresh20:05UTC CURC still560/640fits,35/40worlds; preserve the maintenance queue.
+
+After successful original acceptance, pull all raw outcomes/journals and committed
+sources, create the complete conflict-rejecting inventory, and extend the inherited
+A/C/F plan into a new exclusive candidate. Preserve originals and explicit newly
+hashed projections; no blind path replacement or source-guard edits. Reconcile
+all copies and phase/failure evidence. Only then freeze/qualify the extra bounded
+CPU replay and run all640checkpoint/statistical reconstructions in exact B runtime.
+Local A/C versions are not qualification. Keep positive-path qualification,
+full worker anonymity/redistribution and complete sprint accounting explicit.

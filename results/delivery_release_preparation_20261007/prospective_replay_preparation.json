@@ -1,0 +1,70 @@
+{
+  "at": "2026-10-07T20:25:06.386789+00:00",
+  "stage": "supplemental B release source/preflight preparation only",
+  "worker_sha256": {
+    "replay_delivery_prospective_release.py": "43b7d240a7401e69b124d8db1f4b6daac5cac119a8104a922c46985789da82b3",
+    "extend_delivery_prospective_release_plan.py": "9f5610180829077392c97408de3fecedb67a56f0c771bf1138c4ebb951cc0084",
+    "reconcile_delivery_prospective_custody.py": "d70540d82f4f4240dd13010c36fe02e3f401b959d95588f686b0642e892bec76",
+    "test_delivery_prospective_release_replay.py": "71e699f0354cd80c68754520926493a070d23d2e3c383daa85a794943fa4bb7f",
+    "test_delivery_prospective_release_plan.py": "a867db3fa33b3efe94258faa7801e26da97703fb883c0aae410fdda15f4ace58",
+    "test_delivery_prospective_custody_release.py": "fb523c57c0c7bd93c8e63100c831373519ac8eaadde5be2a0db713911ce22eaa"
+  },
+  "local_checks": {
+    "passed": 26,
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "8840ad30ce0144233db41dad4688df25f9a478b76fe32764ecf92373236af6d6",
+    "cwd": "unrelated directory",
+    "child_cpu_seconds": 0.591337,
+    "elapsed_seconds": 0.6139316249755211,
+    "peak_child_rss_bytes": 200081408,
+    "cost_scope": "single final combined test run only; excludes prior tests, imports/probes, source preparation and reviews"
+  },
+  "actual_partial_custody_probes": {
+    "custody": {
+      "expected_rejection": "missing complete.json",
+      "actual_B_outcomes_opened": false,
+      "output_created": false
+    },
+    "planner": {
+      "expected_rejection": "missing complete.json",
+      "actual_B_outcomes_opened": false,
+      "output_created": false
+    }
+  },
+  "target_runtime_metadata_gate_rejected": true,
+  "local_dependencies": {
+    "torch": "2.5.1",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "pandas": "3.0.6",
+    "sympy": "1.13.1",
+    "PyYAML": "6.0.3"
+  },
+  "target_dependencies": {
+    "torch": "2.9.1",
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "pandas": "2.3.3",
+    "sympy": "1.14.0",
+    "PyYAML": "6.0.3"
+  },
+  "prepared_core_sha256": "5c8caa608a5012571b538bf292faa8f39345a5adfd1241e18e790adcf2e00aa3",
+  "prepared_core_contract_sha256": "ab6ae92cfb36005d44d140faee4ceddd3f782a1581e814c5cbf67cd8f794258d",
+  "queue_receipt_sha256": "6cf42082fdf57daf3d21678659637cefbd6efcdb075be2975e8f9475e3bdc302",
+  "actual_B_outcomes_opened": false,
+  "actual_B_plan_assembled": false,
+  "full_positive_assembly_qualified": false,
+  "full_target_runtime_replay_qualified": false,
+  "new_fits": 0,
+  "new_optimizer_updates": 0,
+  "new_responses": 0,
+  "new_submissions": 0,
+  "private_tests_custody": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-replay-preparation-20261007T2026Z",
+  "limits": [
+    "not full positive assembly or real640checkpoint replay",
+    "not historical freeze authenticity",
+    "not full anonymous workers or redistribution approval",
+    "not full sprint CPU/attempt accounting"
+  ]
+}

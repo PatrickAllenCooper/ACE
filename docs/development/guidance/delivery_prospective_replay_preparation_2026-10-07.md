@@ -81,3 +81,89 @@ Keep the current A/C/confirmation candidate unchanged. Final B integration,
 all-sprint compute/attempt accounting, full anonymous worker/guard relocation,
 redistribution/anonymity, manuscript proof/claim/layout review and human final
 submission approval remain open. No additional fits are currently required.
+
+## Supplemental full replay adapter (prequalification)
+
+`replay_delivery_prospective_release.py` implements a separate relative-artifact
+replay. An independently supplied manifest digest binds the private derivation;
+this is not an original signature or historical freeze proof. Before parsing
+scores, it checks the complete original audit metadata projection, successful
+supervisor and exact target dependency versions. Known original auditor,
+derived core and core-contract hashes are independently pinned in the adapter.
+
+After complete artifact verification, it validates all640 fit configurations,
+training-input/kernel/learner bindings, calibration prefixes, parameter counts,
+all40 world attempt journals and the full fit-before-evaluation barrier. Only
+then does it reconstruct the heldout outputs using predicted parents. Unchanged
+cached predictions remain the scored endpoint; all replay discrepancies are
+reported at the original rtol1e-6/atol1e-7, with exact root clamps. Continuous
+MSE, training-variance NMSE, observed-parent/free-running/shift diagnostics,
+240-cell primary statistics, four-test Holm and640-cell descriptive summaries
+are independently recomputed and checked against accepted originals.
+
+Authenticated source segments execute the captured bytes. Explicit supplemental
+snapshot I/O adapters bind metadata, charge journals, models and prediction
+arrays to the bytes actually parsed/deserialized, retaining contiguous charge
+order. These wrappers are distinct new adapter code; original files and guards
+remain unchanged. The endpoint and statistics functions are the separately
+hashed exact-body core. No refitting or simulator call occurs.
+
+Local rejection and analytical chain fixtures are development checks only.
+They do not qualify the target runtime, prove all640 real checkpoint replays,
+close anonymous full-worker redistribution, or authorize a public release.
+A complete conflict-rejecting original inventory and the original successful
+full audit remain prerequisites to constructing the actual B artifact plan.
+The current560-cell custody cannot satisfy those gates. Accepted A/C/confirmation
+artifacts and the current manuscript remain unchanged.
+
+### Bounded execution proposal after original acceptance
+
+After the original chain succeeds, pull the complete raw outcomes and reconcile
+all original/composite artifacts before deriving an exclusive candidate. Freeze
+that candidate's manifest, replay source, exact dependencies, input hashes and
+resource specification. A proposed supplemental inference-only qualification
+uses1CPU/3GiB with a15-minute wall ceiling (at most0.25allocated core-hours),
+accountucb736_asc1 and a new explicit ACE scratch output. This is a proposal,
+not a submitted job or measured target-runtime qualification. The full source,
+input and resource freeze and current total allocation must pass before one
+submission. Use the original audit's measured time/RSS to validate this request;
+if it cannot fit, retain failures and seek a concrete resource decision. No
+installation, simulator responses, optimizer updates, GPU or new fitted study.
+
+### Verification ordering and actual imported code
+
+The full package verifier's decoded-identifier and JSON-binding checks themselves
+read scientific objects. They must therefore run **after** all640 fit records,
+all40 successful world journals and the evaluation barrier have passed. The
+adapter first checks only file bytes, paths, hashes, transforms and membership,
+with no JSON artifact decoding. Its API rejects a missing/malformed external pin
+before reading the manifest. Outcome projections explicitly connect the original
+accepted score/acceptance digests to newly authored derived bytes; equal numerical
+statistics do not substitute for those provenance links.
+
+Target dependency verification covers both distribution metadata and the actual
+imported module version/origin. The entire archived learner closure is captured
+and authenticated before import; a dedicated loader executes those snapshots,
+rejecting cached or unrecorded learner modules. This is a supplemental execution
+boundary, not a claim that installed dependency binaries have a cryptographic
+supply-chain certificate. Original audit and qualified dependency gates remain.
+
+`reconcile_delivery_prospective_custody.py` constructs the full composite schema
+required by the planner from explicit dedicated study snapshots and the original
+committed project/learner closures. It requires original acceptance first,
+rejects missing/conflicting cells and every claimed copy, and hashes outcomes
+without decoding them. Complete status additionally requires all response,
+prediction, descriptor, world-journal, protocol and phase artifacts. The earlier
+560-cell receipt/model inventory is not this complete scientific custody object.
+It is deliberately insufficient to assemble an actual Stage B release now.
+
+### Final local preparation status
+
+Twenty-six focused checks pass from an unrelated cwd:11replay,11planner and
+4custody checks. Actual partial planner/reconciler probes reject before outputs
+at missingcomplete.json; local dependency metadata correctly rejects exact B
+qualification. Receipt `prospective_replay_preparation.json` binds current sources
+and exclusive logs. The single final combined test run used0.591337childCPU-seconds
+and0.613932elapsedseconds, excluding earlier tests/source preparation/reviews.
+No actual B plan or numerical outcome access occurred. Full positive assembly
+and exact target-runtime full replay are explicitly untested and remain gates.

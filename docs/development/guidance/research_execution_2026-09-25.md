@@ -1641,3 +1641,64 @@ A/C/F accepted receipts, private candidate09 and the current manuscript remain
 unchanged. All-sprint compute/attempt disposition, anonymous full workers,
 redistribution/anonymity, integrated proofs/claims/tables/visual review and human
 final submission approval remain. No additional fitted studies are required.
+
+### 2026-10-07 — supplemental B relative replay/plan implementation (20:25 UTC)
+
+Fresh bounded CURC channel/source/Slurm reconciliation at20:05:18UTC still shows
+560/640fits,35/40world journals and the same five maintenance-pending thirty-node
+worlds. All39frozen worker/learner/generator bindings match; no seal, evaluation
+start, completion or stop flag. Evaluation/audit remain dependency-pending.
+Raw JobIDRaw accounting is retained in full_queue_check_20261007T2004Z.json:
+37completed allocations=88102CPU-seconds; actual pilots126+119seconds produce
+24.540833allocated core-hours observed so far, not process CPU or final totals.
+Original45ebeb89 source, six jobs and all accepted A/C/F artifacts are unchanged.
+
+R7 advanced with three new supplemental tools: full conflict-rejecting composite
+custody reconciliation; private relative-artifact plan assembly; and checkpoint/
+metric/statistical replay from a derived package. The planner calls original
+acceptance first, requires all640fits/40journals/80training/40evaluation bundles,
+640predictions, phase/descriptors/source bindings, and checks every claimed copy.
+It preserves unprojected originals privately and explicitly connects newly
+hashed projections to original digests. It cannot construct a B plan from the
+current partial custody. Missing legacy attempt elapsed time remains unknown.
+
+The replay requires an independent manifest pin, approved numerical-core hashes,
+successful original acceptance/supervisor and exact target dependencies. It
+checks byte integrity without scientific JSON decoding, then all fits/journals
+and barrier before semantic outcome verification. Authenticated learner/helper
+snapshots and captured model/prediction bytes prevent source/parse substitution.
+It implements free-running inference, calibration/parameter accounting, all
+continuous metrics/diagnostics,240primary rows/four-test Holm and640descriptive
+cells against unchanged cached endpoints. It is a new supplemental adapter,
+not an altered frozen worker or a replacement for original acceptance.
+
+A distinct bounded review found4adapter defects: premature semantic outcome
+parsing, optional API pin, missing original/derived outcome links, and imported
+module/source authentication. All were fixed. Follow-up found a custody seal
+binding gap; fixed exact640original seal membership and receipt/model digest
+bindings. Final static adapter/planner review reported no further defects; the
+last custody fix is covered by a missing-seal rejection. Reports/disposition:
+reviews/delivery_prospective_release_replay_review_2026-10-07.md.
+
+Twenty-six new focused checks pass from an unrelated cwd:11adapter,11planner,
+4custody. Actual partial-custody probes for both planner and reconciler reject
+at missingcomplete.json before inventory/source/outcome access or output. The
+local A/C dependency environment correctly rejects exact B qualification.
+No actual B outcomes or new plan, fits, optimizer updates, responses, submission,
+installs or manuscript changes. Single final combined tests consumed0.591337child
+CPU-seconds/0.613932elapsedseconds; this excludes earlier tests/probes, source
+preparation/reviews and does not claim complete all-preparation accounting.
+Compact evidence: results/delivery_release_preparation_20261007/prospective_replay_preparation.json
+SHA80e074d6fb09f82183485185b560921348168579bea7aeb48fcbd917bc4ad395.
+Exclusive test/probe custody: delivery-prospective-replay-preparation-20261007T2026Z.
+
+Remaining gates: original B seal/evaluation/full audit supervisor; complete raw
+pull/composite inventory; positive plan assembly/build and exact-runtime full
+supplemental replay; registered claim export and integrated manuscript proofs,
+prose/tables/visual checks. Full positive assembly/replay is explicitly untested.
+The proposed extra inference-only1CPU/3GiB/15min qualification has not been
+submitted; freeze complete inputs/source/resources after original acceptance
+and justify it with measured original audit time/RSS inside150core-hours.
+Anonymous full-worker relocation, third-party/archive redistribution, deliberate
+anonymity, complete sprint compute/attempt disposition and human submission
+approval remain. No additional fitted experiment is currently required.

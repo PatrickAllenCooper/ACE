@@ -329,3 +329,25 @@ A/C/F accepted receipts, private candidate09 and the current manuscript remain
 unchanged. All-sprint compute/attempt disposition, anonymous full workers,
 redistribution/anonymity, integrated proofs/claims/tables/visual review and human
 final submission approval remain. No additional fitted studies are required.
+
+## October 7 follow-up — relative B replay and full custody preparation
+
+R7 now has a full supplemental replay implementation, a private relative-artifact
+planner and a complete composite reconciler. All are separately derived software;
+the original B chain and its gates remain unchanged. Twenty-six focused local
+checks pass, including genuine partial-custody rejection before outcome access.
+No actual B plan or real checkpoint replay has occurred. Full positive assembly,
+manifest/build verification and exact target-runtime execution remain open.
+
+A distinct reviewer found four adapter issues and one custody seal-binding issue,
+all corrected. See `reviews/delivery_prospective_release_replay_review_2026-10-07.md`
+and receipt `prospective_replay_preparation.json`. The new checks distinguish
+byte-only verification from semantic screening, require an external API pin,
+bind original/derived outcomes, authenticate actual imported code and preserve
+missing legacy telemetry. No extra fitted experiment is indicated.
+
+The20:05UTC queue remains560/640fits with five maintenance-pending worlds and
+no drift/barrier/stop flag. Do not rerun earlier A/C/F replays or these completed
+reviews as busywork. Next qualify the positive path after original B acceptance,
+then integrate registered results and finish scientific, visual, anonymous
+redistribution, accounting and human submission gates.

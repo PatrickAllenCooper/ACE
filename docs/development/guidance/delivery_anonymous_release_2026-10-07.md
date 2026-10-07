@@ -274,3 +274,19 @@ This does not yet implement the full B replay/relative-artifact plan or qualify
 inference. Existing A/C/confirmation candidate09 is unchanged. Continue full
 B adapter preparation while the original chain waits; final raw custody, source
 relocation, accounting, anonymity/redistribution and human approval remain gates.
+
+## Prospective full-adapter preparation follow-up
+
+Complete composite reconciliation, relative plan assembly and scientific replay
+are implemented as separately hashed supplemental tools.26focused checks pass;
+no B package is assembled from the current560fits. Actual partial-custody probes
+reject at original completion before source/outcome access or output. Positive
+full assembly and all640checkpoint replay remain unqualified. Original45ebeb89
+workers/guards and the qualified A/C/F candidate09 remain unchanged.
+
+Read `delivery_prospective_replay_preparation_2026-10-07.md` and
+`reviews/delivery_prospective_release_replay_review_2026-10-07.md`. New metadata
+projections preserve original private bytes, expose distinct original/derived
+hashes and keep absent per-attempt elapsed telemetry unknown. An authenticated
+manifest binds these derivations; it does not authenticate historical freeze
+order or erase archive/source license and final anonymity obligations.
