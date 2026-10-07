@@ -1359,3 +1359,28 @@ No duplicate, blind retry, worker/source change or automation change.
 Receipts: full_milestone_20261006T235620Z.json,
 full_source_accounting_20261006T235727Z.json and
 full_milestone_custody_20261006T235619Z.json in the preparation receipt directory.
+
+
+### 2026-10-07 07:49 MDT — Stage B 35 worlds complete, maintenance queue
+
+Fresh13:49UTC audit verifies560/640completedfitreceipts and35/40worldjournals:
+all20five-node systems (320fits) and15thirty-node systems (240fits). All560
+immutable model/receipt pairs are now locally hash-verified in composite exclusive
+custody: prior134snapshot plus426new pairs, with no refit or replacement.
+Remaining30:15–30:19 are80fits andPENDING/ReqNodeNotAvail,Reserved for maintenance.
+No world task currentlyRUNNING. Evaluation33507422/audit33507423 arePENDING on
+registereddependencies. No failed attempt/schedulerstate, stopflag, sourcebyte
+or target dependency drift. No fullfitseal, evaluationclaim/directory or heldout
+responses/scores. Continue validqueuedwork without duplicate or queue bypass.
+
+Exact-accounting sacct with explicit2026-10-06start confirms20five-node+15thirty-
+node tasksCOMPLETED0:0 and qualification/collectionCOMPLETED. Chain allocation
+88102CPU-seconds; bothpilots add245seconds, totaling24.540833core-hours accrued.
+Reservation86.86833core-hours remains within150. Full32000trainingresponses and
+input/journalhashcustody preserved. Science remains pending full640/40seal,
+16000sharedheldoutresponses, independentaudit/successfulsupervisor and registered
+four-testHolm analysis. No extra job, automationchange, sourcechange or paperedit.
+New progress/source-accounting/custody receipts are timestamped20261007T1349 in
+results/delivery_prospective_preparation_20261006. Source stays45ebeb89; archival
+A/C findings and theory are unchanged. This is a queue delay, not a new approval
+or scientific gate failure; no favorable rescue or score-based selection.
