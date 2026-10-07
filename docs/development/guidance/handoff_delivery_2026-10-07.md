@@ -696,3 +696,50 @@ Latest raw queue receipt `full_queue_check_20261007T210630Z.json` records
 completion estimate. No seal/evaluation/stop flag or drift.37completed allocations
 remain88102CPU-seconds; actual pilots add245seconds, hence24.540833allocated
 core-hours observed partial. Preserve original chain; continue local gates.
+
+## October 7 notice/metadata follow-up — reviewed private candidate11
+
+A new exclusive private candidate preserves candidate09 and pre-review prototype10.
+`extend_delivery_notice_plan.py` adds five manifest-bound ACE/Chambers notice and
+provenance files. Only three optional Runner TOML fields (authors/homepage/
+repository) are projected; every other parsed value, including license and
+dependencies, is retained. Original metadata bytes match exact Runner Git revision
+e9f811fbc68fb70681c3d89182d8ebe024882ce3 and remain privately preserved. F's
+protocol bytes/source digest are unchanged; the F link now explicitly binds
+original_sha256, with a separate derived-sha binding. No original source guard
+or study receipt was edited.1421prior artifact bytes remain identical.
+
+Final private candidate:delivery-anonymous-relocated-20261007-11,1428files/
+2536bindings, manifestSHA6c4755937411627bba53f1253a66b537f6ea420543d8ddaaf3484e5ca2fff610.
+PlanSHAba22781ea25d830ac0975903e02024583e7dd0fddc5883b1fa0c8ca778c600d0.
+Build and relocated verification pass. Their measured combined process cost
+57.801793CPU-seconds/58.011959elapsedseconds/61,751,296peakRSS excludes earlier
+prototype, tests, review, license search and independent standalone verification.
+No full preparation/sprint cost is claimed. No checkpoint inference or new fit.
+
+A distinct notice implementation review found three P2issues, all corrected:
+resolved bidirectional source/output alias guards before writing, independently
+pinned notice snapshots, and an import-time verifier digest authenticated by
+compiled-implementation comparison and frozen in private custody. Five new tests
+and eight existing interface regression checks pass. Expanded screen detects
+organizational metadata beyond old patterns; old candidate09 remains interpretable
+with its own archived verifier. Newly derived tools are not historical workers.
+See reviews/delivery_notice_preparation_review_2026-10-07.md and
+results/delivery_release_preparation_20261007/notices_verification.json.
+
+Bounded license search: exact Runner tree has no license/notice file; its own
+code_health backlog saysAdd LICENSE (pyproject declaresMIT). No license-path
+changes exist across available284revision history, including case-insensitive
+search. Inspected core/environment/README headers supply no authoritative grant.
+Public exact-revision tree lookup was restricted and LICENSE raw URL404; neither
+establishes absence, ownership or permission. The declaredMIT field alone does
+not resolve grant authority. Owner input needed: who can authorize redistribution
+of exact e9f811f revision and supply its MIT copyright/permission notice?
+
+This blocks public redistribution, not original B completion or local manuscript
+work. No upload, experiment, job, access, spending, resource/cadence change or
+schedule update occurred. The long-lived trusted worker was checked, found
+sleeping with no active children or project lock/mutation file, and left alone.
+Current scientific outcomes, open manuscript and candidate09 remain unchanged.
+Proceed with original B gates, complete accounting, full worker/anonymity/human
+submission review. Parent coordinator retains cadence ownership.

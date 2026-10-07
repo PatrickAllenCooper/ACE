@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 import shutil
 
-from verify_delivery_release import sha, relative, verify
+from verify_delivery_release import sha, relative, verify, project_toml_bytes
 
 
 def write(path, value):
@@ -56,6 +56,12 @@ def build(plan_file, destination, private_receipt):
             if len(set(keys)) != len(keys) or not keys:
                 raise ValueError('explicit unique projection keys required')
             write(target, {key: original[key] for key in keys})
+        elif transform['kind'] == 'project-toml':
+            import hashlib
+            raw = source.read_bytes()
+            if hashlib.sha256(raw).hexdigest() != entry['original_sha256']:
+                raise ValueError('original TOML snapshot changed')
+            target.write_bytes(project_toml_bytes(raw, transform))
         else:
             raise ValueError('unsupported derivation')
         files.append({'path': name, 'sha256': sha(target), 'bytes': target.stat().st_size,

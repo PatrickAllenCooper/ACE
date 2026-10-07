@@ -10,6 +10,14 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import re
+import sys
+
+# Pin an import-time source snapshot and confirm its compiled implementation
+# matches the executing module. Later on-disk edits cannot change the exemption.
+_VERIFIER_BYTES = Path(__file__).read_bytes()
+if compile(_VERIFIER_BYTES, __file__, "exec", dont_inherit=True) != sys._getframe().f_code:
+    raise ValueError("verifier source snapshot differs from executing implementation")
+VERIFIER_SHA256 = hashlib.sha256(_VERIFIER_BYTES).hexdigest()
 
 
 def sha(path):
@@ -55,7 +63,7 @@ def identifying_bytes(path):
     """
     import zipfile
     pattern = re.compile(rb'/Users/|/scratch/|/projects/|paco0228|ucb736_asc1|'
-                         rb'PatrickAllenCooper|ACE_Study_Results|defab-curc\.sock', re.I)
+                         rb'PatrickAllenCooper|ACE_Study_Results|defab-curc\.sock|DECISIVIE[- ]AI|Decisive AI', re.I)
     # Raw byte matching alone misses JSON slash/Unicode escape spellings.
     if Path(path).suffix in ('.json', '.ndjson'):
         with Path(path).open() as stream:
@@ -84,6 +92,41 @@ def identifying_bytes(path):
                     if scan(stream):
                         return True
     return False
+
+
+def project_toml_bytes(raw, transform):
+    """Explicit optional metadata projection; retain all other TOML semantics.
+
+    Never remove license/copyright notices. Original bytes remain private and
+    original/derived hashes are independently recorded by the preparation plan.
+    """
+    import copy
+    import tomllib
+    allowed = ['tool.poetry.authors', 'tool.poetry.homepage', 'tool.poetry.repository']
+    if transform != {'kind': 'project-toml', 'omit': allowed}:
+        raise ValueError('only explicit optional runner metadata projection allowed')
+    original = tomllib.loads(raw.decode('utf-8'))
+    expected = copy.deepcopy(original)
+    fields = {name.rsplit('.', 1)[1] for name in allowed}
+    for name in fields:
+        if name not in expected['tool']['poetry']:
+            raise ValueError('required original metadata field missing')
+        del expected['tool']['poetry'][name]
+    lines, removed, active = [], set(), False
+    for line in raw.decode('utf-8').splitlines(keepends=True):
+        stripped = line.strip()
+        if stripped.startswith('['):
+            active = stripped == '[tool.poetry]'
+        match = re.match(r'^\s*(authors|homepage|repository)\s*=', line) if active else None
+        if match:
+            if match[1] in removed: raise ValueError('duplicate projected field')
+            removed.add(match[1])
+        else:
+            lines.append(line)
+    projected = ''.join(lines).encode('utf-8')
+    if removed != fields or tomllib.loads(projected.decode('utf-8')) != expected:
+        raise ValueError('metadata projection changed other TOML fields')
+    return projected
 
 
 def verify(root, expected=None):
@@ -116,12 +159,20 @@ def verify(root, expected=None):
             data = json.loads(p.read_text())
             if set(data) != set(transform['keys']):
                 raise ValueError('derived metadata projection mismatch')
+        elif transform['kind'] == 'project-toml':
+            import tomllib
+            allowed = ['tool.poetry.authors', 'tool.poetry.homepage', 'tool.poetry.repository']
+            if transform != {'kind': 'project-toml', 'omit': allowed}:
+                raise ValueError('unapproved TOML projection')
+            data = tomllib.loads(p.read_text())
+            if any(n.rsplit('.', 1)[1] in data['tool']['poetry'] for n in allowed):
+                raise ValueError('optional identifiers remain in projected metadata')
         else:
             raise ValueError('unsupported derivation')
         # Apply screening only to research artifacts, not this verifier's own
         # explicit list of blocked patterns. A privileged role is reserved for it.
         if f['role'] == 'verification-tool':
-            if f['path'] != 'verify_delivery_release.py' or f['sha256'] != sha(__file__):
+            if f['path'] != 'verify_delivery_release.py' or f['sha256'] != VERIFIER_SHA256:
                 raise ValueError('verification exemption requires the executing trusted tool bytes')
         elif identifying_bytes(p):
             raise ValueError('identifying material requires disposition: ' + f['path'])
@@ -143,7 +194,7 @@ def verify(root, expected=None):
     return {'manifest_sha256': digest, 'files_verified': len(files),
             'bindings_verified': len(manifest['bindings']),
             'expected_digest_supplied': expected is not None,
-            'pin_origin_verified': False, 'verifier_sha256': sha(__file__), 'status': manifest['status'],
+            'pin_origin_verified': False, 'verifier_sha256': VERIFIER_SHA256, 'status': manifest['status'],
             'scope': 'byte/digest/relocation verification; no checkpoint replay or historical protocol proof',
             'new_fits': 0, 'new_responses': 0}
 

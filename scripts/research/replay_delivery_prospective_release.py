@@ -148,7 +148,7 @@ def byte_integrity(root, manifest):
         if not p.is_file() or p.stat().st_size != f['bytes'] or sha(p) != f['sha256']:
             raise ValueError('artifact bytes changed before replay barrier')
         if (not isinstance(f['original_sha256'], str) or re.fullmatch('[0-9a-f]{64}', f['original_sha256']) is None or
-                f['transform']['kind'] not in ('identity', 'project-json') or
+                f['transform']['kind'] not in ('identity', 'project-json', 'project-toml') or
                 f['transform']['kind'] == 'identity' and f['original_sha256'] != f['sha256']):
             raise ValueError('artifact derivation changed')
     actual = set()
