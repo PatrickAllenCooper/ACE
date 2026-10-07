@@ -502,3 +502,48 @@ Still required: complete B acceptance/integration, A/B scientific replay entry
 points and full frozen-worker provenance, confirmation/claim/attempt accounting,
 deliberate anonymity/redistribution review, and human final submission approval.
 The same open manuscript compiled after the scoped provenance update.
+
+## October 7 follow-up — full attribution replay (17:14 UTC)
+
+The fresh17:00UTC CURC receipt remains560/640fits with five maintenance-pending
+thirty-node worlds, no source drift, full seal, evaluation or stop flag. Existing
+jobs and sources are unchanged. No new Slurm submissions or fitted studies.
+
+R7 advanced with a read-only attribution adapter: all480accepted configurations
+across all12histories, including124753321 and every classical/matched-CPU control,
+reconstruct scores, mechanism diagnostics and quantization margins with maximum
+absolute numeric discrepancy zero. It runs from an actually renamed package and
+unrelated cwd with exact recorded dependencies, fixed comparison tolerances and
+one CPU thread. No optimization, response acquisition, favorable rescue or
+historical acceptance edit. The final replay used158.927602childCPUseconds,
+159.795762elapsedseconds and1,415,118,848bytes peak childRSS. Smoke and earlier
+full replay are retained; total measured childCPU across the three A replay
+attempts is350.041653seconds (0.097234corehours). This excludes packaging,
+checksum/projection verification, tests and source inventory construction.
+
+An independent bounded adapter review found three robustness/reporting issues:
+exact cohort identity, cached learner imports, and score-only discrepancy
+reporting. All were fixed and three focused tests pass; eight release tests also
+pass. Review/dispositions: reviews/delivery_attribution_release_review_2026-10-07.md.
+
+The latest private A/C candidate contains1,153files/2,005bindings; manifestSHA
+63caf4b16757f6aa79c5cf9b1d4452c0f8dfd5b2c45c377af68fdef9605ed28c. All1,152
+previously verified A/C artifacts are unchanged; only the new A adapter was added.
+C's existing scientific replay therefore retains the exact same numerical/model/
+protocol/source byte identities. The prior candidates/receipts remain preserved.
+One preparation configuration failure (wrong physical acceptance path) occurred
+before candidate creation; it is recorded separately, with no fit attempt.
+
+Preserved24frozen source bindings in exclusive private custody directly from
+immutable Git objects: A/C worker and guard,18B workers,2generators. Eleven files
+contain screened identifiers; no silent source rewrites, guard bypass or public
+upload. The inventory is a source-provenance record, not a complete anonymous
+execution adapter. The same open manuscript compiled after the scoped verification
+paragraph; nine companion/style files remain synchronized.
+
+Remaining: complete original B acceptance and all registered analyses; B scientific
+replay/analysis packaging using complete conflict-rejecting composite custody;
+full confirmation/claim/attempt accounting; explicit anonymous worker relocation,
+redistribution/anonymity review and final human submission approval. Additional
+fits remain unnecessary for the current scoped recipe/accounting claims.
+Evidence: results/delivery_release_preparation_20261007/attribution_verification.json.

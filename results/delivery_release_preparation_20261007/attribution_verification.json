@@ -1,0 +1,110 @@
+{
+  "at": "2026-10-07T17:15:23.220850+00:00",
+  "status": "supplemental full A checkpoint replay accepted; private A/C release preparation only",
+  "manifest_sha256": "63caf4b16757f6aa79c5cf9b1d4452c0f8dfd5b2c45c377af68fdef9605ed28c",
+  "private_plan_sha256": "24fc394aff0cfe79f662cede440c18e75bb855d1137831ade9a7ab6fce1c51e1",
+  "private_derivation_sha256": "4599f1f6b0f5ce9a8e846ae11cf3e7661cca6d64e25a55ebb8773b3d106c6e11",
+  "private_full_replay_sha256": "9c0fc8184b079c2522b863d0ade8199fe0db98b4537b9540620708859af2fc93",
+  "private_post_replay_verification_sha256": "e2d365e2410c3980d9e01d0970eccd17b13366b1e77f5982d529b08a37d28c53",
+  "replay": {
+    "integrity": {
+      "manifest_sha256": "63caf4b16757f6aa79c5cf9b1d4452c0f8dfd5b2c45c377af68fdef9605ed28c",
+      "files_verified": 1153,
+      "bindings_verified": 2005,
+      "expected_digest_supplied": true,
+      "pin_origin_verified": false,
+      "verifier_sha256": "e0398b8db3f49c1a15763ab41b3580b6b413e1c711d8905d720a6fef2a198269",
+      "status": "A/C preparation only; B pending; public release and human anonymity review not approved",
+      "scope": "byte/digest/relocation verification; no checkpoint replay or historical protocol proof",
+      "new_fits": 0,
+      "new_responses": 0
+    },
+    "histories_replayed": 12,
+    "fits_replayed": 480,
+    "full_matrix_replayed": true,
+    "maximum_absolute_numeric_difference": 0.0,
+    "discrepancy_scope": "all numeric scores, mechanism diagnostics and quantization margins",
+    "comparison_tolerance": {
+      "rtol": 1e-10,
+      "atol": 1e-12
+    },
+    "fit_cpu_seconds": 0,
+    "replay_cpu_seconds": 138.888169,
+    "replay_wall_seconds": 139.58975437498884,
+    "new_optimizer_updates": 0,
+    "new_responses": 0,
+    "scope": "accepted A checkpoints/scores/diagnostics only; not refitting, online-comparator replay or prospective acceptance"
+  },
+  "replay_elapsed_seconds": 159.79576229100348,
+  "replay_child_cpu_seconds": 158.927602,
+  "replay_peak_rss_bytes": 1415118848,
+  "attempts": [
+    {
+      "receipt_sha256": "ee3e62abdc94e322c2838a942c73a3933bdbcb115ae201f375b083197b39b28a",
+      "exit_code": 0,
+      "started_at": "2026-10-07T17:03:14.655652+00:00",
+      "finished_at": "2026-10-07T17:03:48.326310+00:00",
+      "fits_replayed": 40,
+      "child_cpu_seconds": 32.213165,
+      "elapsed_seconds": 33.6704145410331,
+      "scope": "fixed first lexical history, all forty archived configurations; replay only, not full acceptance"
+    },
+    {
+      "receipt_sha256": "953bb64f67bc86ed3c3fa3ac5d54c270432dd778bebd9ef22a7dee0b7cd545bf",
+      "exit_code": 0,
+      "started_at": "2026-10-07T17:06:44.049052+00:00",
+      "finished_at": "2026-10-07T17:09:24.542499+00:00",
+      "fits_replayed": 480,
+      "child_cpu_seconds": 158.90088599999999,
+      "elapsed_seconds": 160.49363791698124,
+      "scope": "all twelve histories and480 accepted A configurations; supplemental reconstruction, not refitting or B acceptance"
+    },
+    {
+      "receipt_sha256": "9c0fc8184b079c2522b863d0ade8199fe0db98b4537b9540620708859af2fc93",
+      "exit_code": 0,
+      "started_at": "2026-10-07T17:10:40.571027+00:00",
+      "finished_at": "2026-10-07T17:13:20.366840+00:00",
+      "fits_replayed": 480,
+      "child_cpu_seconds": 158.927602,
+      "elapsed_seconds": 159.79576229100348,
+      "scope": "review-tightened all-numeric480fit replay; not refitting or B acceptance"
+    }
+  ],
+  "recorded_attempt_child_cpu_seconds": 350.041653,
+  "accounting_scope": "three A inference replay attempts only; excludes packaging/checksum/projection/source-custody/tests and retained configuration failure with unmeasured CPU",
+  "configuration_failure_sha256": "ff239ac758ef3f2eb70454a45c2877849fdd4506bc9ddc30a22758d20080d2f5",
+  "unchanged_artifacts_from_previously_C_replayed_candidate": 1152,
+  "prior_C_verification_sha256": "a3a1b2853ffdd4a41c1753297e7d1eb695c6bf5c5f8e9414c24baca9765f1982",
+  "frozen_worker_inventory_sha256": "38b70084bad189fafbf2879aa54c056a1bbd9b9ce9bef21d73304bb773e52ccc",
+  "frozen_worker_bindings": 24,
+  "worker_known_identifier_positive": 11,
+  "frozen_worker_custody_scope": "private unchanged source only, not anonymous relocation/execution",
+  "source_hashes": {
+    "scripts/research/replay_delivery_attribution_release.py": "2924930f1be4b3f53cd540f53d254c110a6ddf595be63e5dbac81420f6bc5c56",
+    "scripts/research/archive_delivery_worker_provenance.py": "be468e480543d65cc104a93c5de674a5bddf77f32e9b9ee41809013905b927a7",
+    "scripts/research/prepare_delivery_release_plan.py": "cd99b0bd1ba4c4377e829852d8adc59ad1b8c961df62f0291e8fae473c920516",
+    "scripts/research/test_delivery_attribution_release.py": "bf377ebbbce8e6384f64e5502442d1bf53363ab1ab56b8480a6fb74c7a03b49c"
+  },
+  "stage_A_gate_sha256": "a81d0ac51965f71123ecc915764cf18c8166537a1d69f1053d096dd36ed3310f",
+  "stage_C_acceptance_sha256": "915526f09a947b274332adb40cf69f84973e4579b237394df18e5914b342a352",
+  "CURC_queue_receipt_sha256": "eb184c3f40cdfe75a3e561c3ada6cc43f87519809936775c6a5988446bc80a6f",
+  "stage_B_fits_metadata_only": 560,
+  "stage_B_outcomes_read": false,
+  "new_fits": 0,
+  "new_optimizer_updates": 0,
+  "new_responses": 0,
+  "review_findings_addressed": 3,
+  "focused_adapter_tests_passed": 3,
+  "existing_release_tests_passed": 8,
+  "manuscript_sha256": "8abc4a0d548f1732c1673b7f33891ec016ab0cf0af142ef91b2e4507584f59d6",
+  "native_compilation": "success",
+  "visual_QA": "not performed",
+  "remaining": [
+    "complete and accept original B chain",
+    "B replay/analysis and complete composite release custody",
+    "original online/confirmation/claim/attempt packaging",
+    "explicit anonymous worker relocation",
+    "deliberate anonymity and redistribution review",
+    "human final submission review"
+  ]
+}

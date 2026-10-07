@@ -135,6 +135,8 @@ def prepare(attribution, physical, out, gate, physical_acceptance):
     add(tool, 'verify_delivery_release.py', 'verification-tool')
     replay = Path(__file__).with_name('replay_delivery_physical_release.py')
     add(replay, 'replay_delivery_physical_release.py', 'physical-replay-adapter')
+    replay = Path(__file__).with_name('replay_delivery_attribution_release.py')
+    add(replay, 'replay_delivery_attribution_release.py', 'attribution-replay-adapter')
     write(out, {'status': 'A/C preparation only; B pending; public release and human anonymity review not approved',
                 'files': files, 'bindings': bindings})
     return {'planned_files': len(files), 'bindings': len(bindings), 'stage_a_fits': 480,

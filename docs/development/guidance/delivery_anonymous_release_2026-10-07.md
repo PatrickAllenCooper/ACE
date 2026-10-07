@@ -137,3 +137,53 @@ Still required before final release:
 These are release/review tasks, not new fitted experiments. Neither the completed
 scientific nor reproducibility review required additional fits for the scoped
 recipe/accounting paper. Keep the existing study and resource ceilings unchanged.
+
+## October 7 attribution replay and frozen-worker provenance follow-up
+
+A new `replay_delivery_attribution_release.py` adapter reproduces the stored A
+checkpoints using the original archived learner and exposed grid. It requires
+A's exact recorded dependencies, the exact twelve-history membership and all
+forty configurations in each history, including classical and matched-CPU
+controls. It rejects already cached learner imports: use a fresh process.
+Classical control pickle deserialization requires explicit trust after manifest
+authentication; the standard-library checksum verifier never deserializes them.
+
+```sh
+python /path/to/release/replay_delivery_attribution_release.py \
+  --expected-manifest-sha256 DIGEST_FROM_INDEPENDENT_CUSTODY \
+  --trust-original-classical-pickles
+```
+
+This reconstructs continuous/snapped scores, observed-parent residuals,
+predicted-parent chain errors, propagation shifts, eligible support coverage and
+quantization-margin diagnostics. It does not fit models, acquire responses,
+reconstruct the original online comparator, prove historical freeze timing or
+qualify B. Numeric comparisons use fixed rtol1e-10/atol1e-12; the result reports
+maximum discrepancy across every numeric score and diagnostic. A fixed first
+lexical-history smoke is explicitly partial and cannot qualify the full matrix.
+
+The separate `archive_delivery_worker_provenance.py` utility resolved immutable
+Git objects and checked every byte against original A/C protocols and B's frozen
+registration before creating exclusive PRIVATE source custody. It preserved
+24 bindings: two A worker/guard files, two C worker/guard files, eighteen B workers
+and two B generators. Inventory SHA:
+`38b70084bad189fafbf2879aa54c056a1bbd9b9ce9bef21d73304bb773e52ccc`.
+Eleven files trigger the known identifier screen. Do not copy those files into
+an anonymous package unchanged or silently edit their defaults/hash guards.
+Thirteen screen-negative files still require deliberate anonymity/license review.
+The source archive is not an executable relocation or permission to rerun fits.
+
+The numerical replay adapter is a newly hashed reconstruction implementation;
+the original worker and guard byte identities remain independently recorded.
+The original protocol checks were not bypassed. Full confirmation/claim/attempt
+packaging, complete B composite custody and analysis/replay, explicit anonymous
+worker relocation, redistribution review and final human approval remain gates.
+The bounded adapter review and dispositions are in
+`reviews/delivery_attribution_release_review_2026-10-07.md`.
+
+The latest candidate supersedes earlier candidate references above:1,153files,
+2,005bindings, SHA63caf4b16757f6aa79c5cf9b1d4452c0f8dfd5b2c45c377af68fdef9605ed28c.
+The final full480replay reports zero discrepancy across all numeric results.
+Its compact receipt is `results/delivery_release_preparation_20261007/attribution_verification.json`.
+This closes A checkpoint/diagnostic reconstruction, but not the original online
+comparator or full confirmation reproduction. The candidate remains private.
