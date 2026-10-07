@@ -167,3 +167,23 @@ and exclusive logs. The single final combined test run used0.591337childCPU-seco
 and0.613932elapsedseconds, excluding earlier tests/source preparation/reviews.
 No actual B plan or numerical outcome access occurred. Full positive assembly
 and exact target-runtime full replay are explicitly untested and remain gates.
+
+## October 7 21:09 UTC — synthetic positive assembly coverage
+
+The new `test_delivery_prospective_release_assembly.py` exercises fabricated full
+640-cell/40-world custody through the actual planner, builder, semantic verifier,
+byte integrity and replay metadata gate. It independently requires all2477
+published paths and every identity-artifact hash; verifies private originals,
+inherited evidence, relocation and corruption rejection. A distinct review found
+two coverage defects, both fixed, with no required fixes on final static recheck.
+No numerical checkpoint loading/inference or runtime qualification occurs. Only
+synthetic registration/core-contract pins are substituted. Earlier26checks remain
+previous evidence; this is one new integration test, not another full runtime gate.
+
+The final unrelated-cwd test passed with24.304288childCPU-seconds,
+24.353277elapsedseconds and81,526,784peakRSS bytes; these costs exclude earlier
+smoke/reviewer runs and implementation. Receipt `prospective_assembly_preparation.json`
+and `reviews/delivery_prospective_assembly_review_2026-10-07.md` retain scope and
+source hashes. Actual B assembly and full640checkpoint/statistical replay still
+require original acceptance and the exact target runtime. No accepted A/C/F
+artifact, production adapter, frozen source, model, response or submission changed.

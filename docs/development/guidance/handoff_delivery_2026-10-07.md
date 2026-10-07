@@ -680,3 +680,19 @@ all copies and phase/failure evidence. Only then freeze/qualify the extra bounde
 CPU replay and run all640checkpoint/statistical reconstructions in exact B runtime.
 Local A/C versions are not qualification. Keep positive-path qualification,
 full worker anonymity/redistribution and complete sprint accounting explicit.
+
+### 21:09 UTC positive assembly and release provenance handoff
+
+Read the new prospective assembly and redistribution review reports. One new
+synthetic integration test passes the actual planner/build/verification interfaces
+with2477 independently expected files and distinct identity bytes. Actual B
+assembly/replay still awaits full acceptance; candidate09 and all scientific
+results are unchanged. Production adapters and original guards were not edited.
+Notice packaging, Runner copyright notice authority, explicit identifying
+pyproject metadata derivation and full worker/human anonymity remain open.
+
+Latest raw queue receipt `full_queue_check_20261007T210630Z.json` records
+560/640fits and35/40worlds; pending tasks now display reasonNone, no start or
+completion estimate. No seal/evaluation/stop flag or drift.37completed allocations
+remain88102CPU-seconds; actual pilots add245seconds, hence24.540833allocated
+core-hours observed partial. Preserve original chain; continue local gates.

@@ -1702,3 +1702,44 @@ and justify it with measured original audit time/RSS inside150core-hours.
 Anonymous full-worker relocation, third-party/archive redistribution, deliberate
 anonymity, complete sprint compute/attempt disposition and human submission
 approval remain. No additional fitted experiment is currently required.
+
+## 2026-10-07 21:09 UTC — positive synthetic release assembly and notice audit
+
+Original B chain remains untouched. Fresh21:06:30UTC metadata/source/Slurm check
+records560/640fits,35/40worlds,39unchanged source bindings and no seal/evaluation/
+completion/stop flag. Five30-node tasks remainPENDING with reasonNone (earlier
+maintenance reason no longer printed); no reliable start/finish ETA follows.
+Evaluation33507422 and audit33507423 remainDependency.37completed allocations
+remain88102CPU-seconds plus actual failed/successful pilots126+119seconds:
+24.540833allocated core-hours observed partial, not process CPU/final totals.
+Raw receipt: full_queue_check_20261007T210630Z.json. No new submissions/responses.
+
+Implemented `test_delivery_prospective_release_assembly.py`: a wholly fabricated
+640fit/40world/80training/40evaluation/640prediction fixture exercises the actual
+planner, builder, semantic verifier, byte-integrity and replay metadata gate.
+A distinct review found two test coverage issues (self-reported membership and
+identical dummy bytes), fixed by independent exact2477-path membership and unique
+cell/bundle bytes with original identity-hash comparisons. Final unrelated-cwd
+check passes; originals/inherited input preserved, relocation verified, corruption
+rejected. Only synthetic registration/core-contract pins substituted; runtime
+gate and numerical replay are not called. Actual B outcomes stayed unopened.
+Single final test24.304288childCPU-seconds/24.353277elapsedseconds/81,526,784peakRSS,
+excluding prior smoke/reviewer runs/implementation. Evidence and source hashes:
+prospective_assembly_preparation.json; review delivery_prospective_assembly_review.
+
+Distinct local license/anonymity review: Chambers README declaresCC BY4.0 for
+CSV/image data andMIT for software; generator contains Gamella's MIT notice.
+Candidate09 contains no license/notice artifacts and exposes organizational
+metadata in archivedpyproject.toml beyond existing conservative screen patterns.
+Runner MIT declaration alone does not authenticate its copyright notice. These
+remain explicit public-release gates; never relabel source licenses, blindly
+remove metadata/source bindings, or strip required attribution. Recorded in
+redistribution_preparation.json and delivery_redistribution_review_2026-10-07.md.
+Original candidate09 and all accepted A/C/F results remain unchanged; no new fits,
+optimizer updates, responses, installs or manuscript numerical claims.
+
+Next: original B full seal/evaluation/audit acceptance; complete raw conflict-free
+custody; actual positive plan/build and separately frozen target-runtime inference
+qualification; registered claim export and integrated manuscript checks. License/
+notice packaging, explicit metadata/worker derivations, full sprint accounting and
+human anonymous submission approval remain. No additional fitted study required.

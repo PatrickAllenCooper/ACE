@@ -290,3 +290,22 @@ projections preserve original private bytes, expose distinct original/derived
 hashes and keep absent per-attempt elapsed telemetry unknown. An authenticated
 manifest binds these derivations; it does not authenticate historical freeze
 order or erase archive/source license and final anonymity obligations.
+
+## October 7 21:09 UTC — positive interface and redistribution review
+
+A synthetic full2477-file B fixture now passes actual planning/build/verification
+and relocation with independent membership/identity routing checks. This does not
+qualify real B custody or numerical replay. See the prospective replay preparation
+document and `prospective_assembly_preparation.json`; candidate09 is unchanged.
+
+A distinct local redistribution/anonymity review establishes the pinned Chambers
+README's CC BY4.0 dataset and MIT software declarations, including the generator's
+Gamella notice. Notice packaging is still absent from candidate09. Runner metadata
+declares MIT but an authoritative copyright notice remains unresolved. An extra
+organizational text scan found identifying authors/repository metadata in archived
+`source/runner/pyproject.toml`, beyond current screen patterns. Keep the F original
+source binding intact; a future metadata projection must separately bind original
+and derived bytes and retain required attribution. Do not silently delete it or
+remove attribution to obtain anonymity. `redistribution_preparation.json` and
+`reviews/delivery_redistribution_review_2026-10-07.md` record these release gates.
+No public upload is authorized by byte verification or the synthetic test.

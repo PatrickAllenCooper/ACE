@@ -351,3 +351,23 @@ no drift/barrier/stop flag. Do not rerun earlier A/C/F replays or these complete
 reviews as busywork. Next qualify the positive path after original B acceptance,
 then integrate registered results and finish scientific, visual, anonymous
 redistribution, accounting and human submission gates.
+
+## October 7 21:09 UTC — new positive assembly and redistribution findings
+
+R7 gained one independently reviewed positive synthetic assembly integration
+check, with an exact2477-file membership oracle and unique identity bytes. Two
+test coverage findings are fixed; final check passes from unrelated cwd. Real B
+plan/build and target-runtime640checkpoint/statistical replay remain gated on
+original acceptance. Do not repeat completed reviews/replays as busywork.
+
+The distinct redistribution review found absent license/notice packaging and
+organizational metadata in the immutable private candidate. Pinned Chambers
+license categories are established locally; Runner authoritative copyright notice
+is unresolved. Preserve all originals and source bindings; resolve notices and
+explicit metadata derivation before anonymous release. Human review remains.
+Scientific manuscript preparation and the original B queue can continue.
+
+Fresh21:06:30UTC Slurm/39source checks:560/640fits,35/40worlds, no drift/barrier/stop
+flag. Five30-node tasks remainPENDING; the queue now prints reasonNone rather
+than the prior maintenance reason. That alone supplies no start/completion ETA.
+Evaluation/audit remainDependency. No new submission or fitted study.
