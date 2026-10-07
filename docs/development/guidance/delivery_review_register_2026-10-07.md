@@ -273,3 +273,59 @@ anonymous worker relocation and redistribution/anonymity review. After the origi
 registered B outcomes via the claim exporter, then review proofs/prose/tables,
 visual layout and submission package. Human final submission approval remains.
 Additional fitted experiments remain unnecessary for the current scoped claims.
+
+
+## October 7 follow-up — prospective replay-core preparation (19:16 UTC)
+
+Fresh19:01UTC bounded CURC metadata/source/Slurm check remains560/640fits,
+35/40worlds and five thirty-node maintenance-pending tasks. Evaluation/audit
+remain dependency-pending; no drift, full seal, evaluation or stop flag. Source,
+queued chain and study settings remain unchanged. Exact37completed full-chain
+allocations sum88,102CPU-seconds; with the two actual pilots126+119seconds,
+observed partial allocation is24.540833CPU-core-hours. This is allocated time,
+not process CPU or final sprint accounting. Raw JobIDRaw accounting and queue
+are preserved in full_queue_check_20261007T190130Z.json. No new submission or fit.
+
+R7 advanced through prepare_delivery_prospective_release_core.py: it validates
+all20private frozen worker/generator bindings, then extracts14exact source/AST
+segments from the original auditor and utility into a distinct numerical core.
+This covers action/charge validation, predicted-parent traversal, calibration,
+240primary-cell statistics and640cell descriptive sensitivity. The original
+whole-file hashes and newly derived core are separately recorded. No historical
+source guard was edited or bypassed; unchanged original full acceptance and its
+successful supervisor remain mandatory. It is not a full anonymous worker.
+
+A bounded distinct review found5preflight issues across initial/follow-up review:
+outcome parsing before acceptance; malformed telemetry; incomplete evidence maps;
+metadata/hash file-replacement race; and non-JSON Unicode digits. All were fixed.
+A strict metadata projection skips scientific analyses without decoding their
+numeric/string values, requires exact original receipt structure/evidence, uses
+single captured bytes for hash/parsing, and checks types/finite limits/failure
+flags first. Source extraction uses the same snapshot rule. Thirteen focused
+checks pass, including analytic240cell statistics, omitted evidence, failed audit,
+wrong runtime, scanner sentinels and source/metadata replacement fixtures. Final
+bounded disposition found no remaining required fixes. These are not B outcomes.
+
+Private final preparation delivery-prospective-release-core-20261007-12 has
+contractSHAab6ae92cfb36005d44d140faee4ceddd3f782a1581e814c5cbf67cd8f794258d
+and numerical coreSHA5c8caa608a5012571b538bf292faa8f39345a5adfd1241e18e790adcf2e00aa3.
+The earlier two prototypes are preserved with identical numerical cores. Actual
+partial custody rejects at missing complete.json before acceptance/scores; the
+local A/C dependency environment deliberately fails exact B runtime qualification.
+No installs, original model replay, optimization or response acquisition. Final
+metadata/source/probe work used0.044005CPU-seconds/0.046486elapsedseconds, excluding
+imports, prototypes, tests and review. No complete all-preparation cost is claimed.
+Evidence: results/delivery_release_preparation_20261007/prospective_core_preparation.json;
+procedure: delivery_prospective_replay_preparation_2026-10-07.md; review:
+reviews/delivery_prospective_release_core_review_2026-10-07.md.
+
+Next independent local work: implement the full supplemental B replay and relative
+artifact-plan assembly, leaving outcomes unopened until original acceptance.
+Then consume only a complete conflict-rejecting composite inventory, exact target
+runtime, all640models/receipts,40world journals,80training/40evaluation bundles,
+registered descriptors, source/guard provenance and complete phase failures.
+The prepared core alone is not a full replay/audit or public-release gate.
+A/C/F accepted receipts, private candidate09 and the current manuscript remain
+unchanged. All-sprint compute/attempt disposition, anonymous full workers,
+redistribution/anonymity, integrated proofs/claims/tables/visual review and human
+final submission approval remain. No additional fitted studies are required.

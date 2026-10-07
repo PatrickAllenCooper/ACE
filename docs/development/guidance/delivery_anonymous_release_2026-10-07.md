@@ -256,3 +256,21 @@ implementation fixes. The same manuscript compiled after the scoped disclosure
 and provenance update. All-sprint accounting, full B replay and claim integration,
 anonymous frozen workers, redistribution/anonymity and human submission review
 remain gates. The package is private and must not be uploaded as a final release.
+
+
+## Prospective source/replay-core preparation
+
+The separate B preparation procedure is now
+`delivery_prospective_replay_preparation_2026-10-07.md`. It preserves twenty frozen
+worker/generator bindings and derives an explicitly separate fourteen-segment
+numerical core with source-text/AST provenance. A reviewed preflight checks
+original successful full acceptance through a hash-bound metadata projection,
+without parsing its scientific analyses, and requires exact registered runtime.
+Thirteen focused synthetic checks pass; the actual partial custody and local
+runtime are correctly rejected. Five review findings are fixed and disposed in
+`reviews/delivery_prospective_release_core_review_2026-10-07.md`. Evidence is
+`results/delivery_release_preparation_20261007/prospective_core_preparation.json`.
+This does not yet implement the full B replay/relative-artifact plan or qualify
+inference. Existing A/C/confirmation candidate09 is unchanged. Continue full
+B adapter preparation while the original chain waits; final raw custody, source
+relocation, accounting, anonymity/redistribution and human approval remain gates.
