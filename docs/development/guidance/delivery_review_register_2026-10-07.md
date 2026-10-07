@@ -139,3 +139,34 @@ physical apparatuses would support broader claims. Both reviewers found them
 unnecessary for the narrowed recipe/accounting study. They are future directions,
 not queued add-ons to the frozen study. If the final evidence motivates a necessary
 new contrast, register a concrete decision and budget before generating outcomes.
+
+## October 7 release progress (16:18 UTC)
+
+The original queued study is unchanged: the 16:07 UTC remote check confirms
+560/640 fits, no registration/source drift, no seal/evaluation/stop flag and the
+same five maintenance-pending world tasks. Accounting remains 24.540833 allocated
+CPU-core-hours including the recorded pilots. The earlier GitHub server error
+cleared; commit `39fe413e` was pushed successfully on this wakeup.
+
+R7 now has an actual private derived A/C package: 1,152 files, 2,005 digest
+bindings, all 480 fits, original online weights, paid inputs, exposed grid, eleven
+physical conditions and nineteen archived learner modules. The anonymous
+manifest preserves original digests; original private receipts are unchanged.
+Eight focused release tests pass and the final candidate was genuinely renamed
+and checked outside the repository. A distinct release-machinery review found
+five issues; fixes/dispositions are preserved in
+`reviews/delivery_release_review_2026-10-07.md`. This does not repeat the two
+completed manuscript reviews.
+
+The new read-only physical adapter replays all 22 neural checkpoints and 22 linear
+coefficient predictions, continuous errors and conditional bootstrap intervals.
+Prediction discrepancy is zero, with no optimization or new responses. Two failed
+adapter attempts remain preserved: import cache writes and NumPy scalar promotion.
+The existing manuscript compiled after a scoped provenance update.
+
+R7 remains **partly complete**: full B custody/acceptance, A/B scientific replay
+entry points, frozen-worker provenance, complete claims/confirmation accounting,
+and deliberate anonymity/redistribution/human review are still required. Follow
+`delivery_anonymous_release_2026-10-07.md`; do not upload the private candidate
+or assert that hash consistency proves historical freeze timing. Additional fits
+remain unnecessary for the scoped recipe/accounting paper.

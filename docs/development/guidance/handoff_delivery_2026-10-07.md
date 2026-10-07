@@ -472,3 +472,33 @@ protocol boundaries and an existing explicit resource authorization. Do not
 alter the running study to satisfy a review request. Venue acceptance is not a
 guaranteed completion condition; human final scientific and submission approval
 remains necessary.
+
+### October 7 anonymous release follow-up
+
+The failed GitHub push recovered; `39fe413e` reached remote main. At 16:07 UTC,
+CURC still has the same five maintenance-pending tasks, 560 completed fits, no
+frozen source drift and no evaluation/seal/stop flag. The composite inventory
+independently reconciles all 560 model/receipt pairs without opening losses.
+
+New release machinery is described in
+`delivery_anonymous_release_2026-10-07.md`, with a distinct bounded review in
+`reviews/delivery_release_review_2026-10-07.md`. The current private A/C candidate
+contains 1,152 files and 2,005 digest bindings; eight focused tests pass. Immutable
+original digests are distinguished from newly derived protocol metadata digests.
+No blind path replacement occurred and nothing was publicly uploaded.
+
+A read-only relocated C adapter reconstructs all retained neural and linear
+predictions and continuous/bootstrap statistics with zero cached discrepancy.
+Its receipt is `results/delivery_release_preparation_20261007/verification.json`.
+The original physical acceptance is unchanged; this strengthens later release
+verification, not the scientific scope or B readiness. Two failed adapter attempts
+were retained. Technical lessons: disable Python bytecode writes inside a verified
+bundle, and preserve Python-float versus NumPy-scalar casts when reproducing
+float32 outputs. The wrong scalar type shifted one condition's predictions by
+2.27266e-5; matching frozen arithmetic restored exact outputs without tolerance
+relaxation, new fits or responses.
+
+Still required: complete B acceptance/integration, A/B scientific replay entry
+points and full frozen-worker provenance, confirmation/claim/attempt accounting,
+deliberate anonymity/redistribution review, and human final submission approval.
+The same open manuscript compiled after the scoped provenance update.

@@ -3185,7 +3185,13 @@ conflicts. An offline unrelated-directory verification remains a submission gate
 Archived attribution audits bind checkpoints to scores but do not independently
 replay every checkpoint; the physical audit independently recomputes sealed
 prediction errors and physics predictions, but does not replay its neural or
-Fourier models. Prospective acceptance requires all 640 checkpoint replays.
+Fourier models. A subsequent, separately hashed release adapter reconstructs
+the retained physical neural checkpoint and linear coefficient predictions,
+continuous errors and conditional bootstrap statistics from relocated artifacts,
+without optimization or response acquisition. This supplementary verification
+leaves the original acceptance records unchanged and does not establish model
+refitting, historical freeze timing or final reviewer anonymity.
+Prospective acceptance requires all 640 checkpoint replays.
 Python audit hooks restrict trusted worker access; they are not an operating-system
 sandbox. The physical fit process loads the archive and uses only its registered
 training indices for objectives and scales before sealing predictions and scoring.

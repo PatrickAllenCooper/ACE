@@ -1447,3 +1447,38 @@ Both reviewers judge additional fitted controls unnecessary for narrowed recipe/
 accounting claims; broader controls require a separate prospective decision.
 Hourly execution should work on anonymous release machinery while valid CURC
 maintenance-pending work waits. Never replace hash-bound receipts to anonymize.
+
+## 2026-10-07 16:18 UTC — anonymous release preparation and physical replay
+
+- CURC remains at 560/640 fits with five thirty-node tasks pending for maintenance.
+  The 16:07 UTC source/receipt/queue check found no drift, evaluation start, fit
+  seal or stop flag. Completed allocation plus prior pilots remains 24.540833
+  CPU-core-hours; valid jobs and dependencies were left unchanged.
+- GitHub's earlier server-side push failure recovered. Local `39fe413e` was pushed
+  successfully, without reset, rebase or experiment-source changes.
+- Added explicit private release planning, derived metadata, a relative-path
+  manifest/verifier and conflict-rejecting composite custody reconciliation.
+  The current A/C candidate has 1,152 files, 2,005 bindings, all 480 fits, original
+  weights/paid rows, eleven physical conditions and nineteen archived learner
+  modules. It is private preparation, not a final or published release.
+- A distinct read-only release review found five issues. Semantic acceptance,
+  escaped identifiers, verifier exemption, C metadata allowlisting and pin-origin
+  reporting were corrected. Composite B release integration and complete worker/
+  scientific replay provenance remain open. Eight focused tests pass.
+- The renamed package's C replay passed from an unrelated working directory.
+  All 22 neural and 22 linear predictions exactly match cached arrays; NMSE and
+  conditional bootstrap intervals reconstruct correctly. No optimizer updates,
+  new responses, model API calls or historical receipt changes. The successful
+  replay used 20.043025 child CPU-seconds, 20.3869 seconds elapsed and 284,852,224
+  bytes peak child RSS. Two failed adapter attempts (cache writes; NumPy scalar
+  promotion) remain in custody; their measured CPU is retained in the receipt.
+- Supplemented the manuscript's verification scope and compiled the SAME open
+  source successfully. Original A/C numerical claims and accepted gates are
+  unchanged; prospective claims remain unopened/gated.
+
+Evidence: `results/delivery_release_preparation_20261007/verification.json` and
+`results/delivery_prospective_preparation_20261006/full_queue_check_20261007T160714Z.json`.
+Follow `delivery_anonymous_release_2026-10-07.md` and the review register for
+remaining A/B replay, full claim/confirmation/attempt packaging, completed B
+acceptance, anonymity/redistribution review and human submission gates. No
+additional fitted experiment is required by the current scoped reviews.
