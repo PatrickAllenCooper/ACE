@@ -1384,3 +1384,66 @@ New progress/source-accounting/custody receipts are timestamped20261007T1349 in
 results/delivery_prospective_preparation_20261006. Source stays45ebeb89; archival
 A/C findings and theory are unchanged. This is a queue delay, not a new approval
 or scientific gate failure; no favorable rescue or score-based selection.
+
+
+### 2026-10-07 14:57 UTC — TMLR preparation, review and hourly execution
+
+Patrick renewed explicit hourly CURC and general research/manuscript execution,
+including review agents. Existing heartbeat ace-hourly-curc-research-progress
+changed PAUSED->ACTIVE on FREQ=HOURLY;INTERVAL=1, same thread. Replaced obsolete
+pilot-failure gate with released45ebeb89 chain, latest custody and the review
+register; read back saved status/schedule/protocol references. No new allocation.
+
+Read-only check verifies560completefitreceipts/35worlds, unchanged registration,
+18worker/19originallearner/2generator hashes. Lastfive30node tasks remain pending
+maintenance; evaluation33507422/audit33507423Dependency. No fitseal, evaluation
+start/directory, completedstudy or stopflag; no selectedtestresponses/scores read.
+Queue receipt: full_queue_check_20261007T145739Z.json. This lightweight snapshot
+does not replace earlier full model/input/optimizer custody or final acceptance.
+An initial diagnostic used the learner directory for worker hashes and failed;
+the corrected read-only probe used frozen project/scripts/research. No study
+worker, response, environment or job was changed by that diagnostic.
+
+Existing open manuscript converted in place to official anonymous TMLR style,
+with sourced related work, explicit fixed-init/prospective-pending scope and
+first-page AI-assistance disclosure. Same-source filecontents companions solve
+the native editor compiler's single-source constraint; sync helper checks all
+eight authoritative files and unchanged official style hashes. Native compilation
+succeeded; no separate PDF/document/editor was created. No page-by-page visual
+inspection claimed. Handoff records accepted A/C, retained failures, mechanisms,
+masking/normalization, compute, custody, runtime/import findings and B resume gate.
+
+Two bounded reviewers examine scientific/statistical/theory and reproducibility
+issues. Findings and dispositions: delivery_review_register_2026-10-07.md. No
+additional experiment is preauthorized merely by a concern; preserve frozen
+protocols and existing ceilings. Acceptance cannot be guaranteed. Brain search
+is unresponsive in bounded connector and CLI diagnostics despite mounted drive;
+no archive database/process changes. Continue from repository evidence.
+
+
+### 2026-10-07 — Independent reviews integrated in TMLR working draft
+
+Scientific and implementation reviewers completed9and8findings respectively.
+Reports retained unchanged; all dispositions in delivery_review_register_2026-10-07.md.
+Fixed nearest scratch-refit precedent, conditional factorial interpretation,
+row-dependent normalization, unused-row heterogeneity, exact extended quantizer,
+true-vs-predicted parent coverage, eligibility/quantization precision, restricted
+generator scope, numerical kernels and stage-specific telemetry/audit granularity.
+Added receipt-generated per-history/init sensitivity and historical charged-call
+reporting. No new fits/responses, gate changes or frozen-worker changes.
+
+Added archived equations and verified against all390625savedgridrows: link errors
+<=2.220446049250313e-16, zero target disagreement, cost exact. Nine authoritative
+companions/official style hashes and eightcitationkeys validate. Built-in compiler
+succeeds after repairing digit-bearing macro names. No separate document/PDF,
+page-by-page visual claim or venue-acceptance guarantee. Compact preparation
+verification saved in results/delivery_manuscript_preparation_20261007.
+
+Remaining mandatory gates are complete original Stage B acceptance and all
+registered contrasts/secondary outcomes, final compute/attempt accounting,
+relocatable derived anonymous manifest plus offline reproduction (immutable
+originals kept privately), and final scientific/visual/human submission review.
+Both reviewers judge additional fitted controls unnecessary for narrowed recipe/
+accounting claims; broader controls require a separate prospective decision.
+Hourly execution should work on anonymous release machinery while valid CURC
+maintenance-pending work waits. Never replace hash-bound receipts to anonymize.

@@ -1,16 +1,2480 @@
-% Delivery research draft. Venue selection follows the evidence gates.
+% TMLR working manuscript; prospective outcomes await independent validation.
+% Editable narrative starts below the generated companion bundle.
+% Refresh companions: python scripts/research/sync_delivery_manuscript.py --write
+% Check companions: python scripts/research/sync_delivery_manuscript.py --check
 % Historical source retained in archive/paper_before_delivery_20261006.tex.
-\documentclass[11pt]{article}
-\usepackage[margin=1in]{geometry}
-\usepackage[round]{natbib}
+% BEGIN EDITOR COMPANION BUNDLE (generated; edit companion files)
+% tmlr.sty: SHA256 816214ff5919aa457b6b443bee52b15d9561421417b7f8a50cc84651519f0002
+\begin{filecontents*}[overwrite]{tmlr.sty}
+%%%% TMLR Macros (LaTex)
+%%%% Adapted by Hugo Larochelle and Fabian Pedregosa from the 
+%%%% ICLR stylefile Macros and borrowing from the JMLR Macros
+%%%% Style File
+
+%%%% Last edited, January 2021 by Chris J. Maddison
+%%%%      Change font choice
+
+% Change the overall width of the page.  If these parameters are
+%       changed, they will require corresponding changes in the
+%       maketitle section.
+%
+\usepackage{eso-pic} % used by \AddToShipoutPicture
+\RequirePackage{fancyhdr}
+\RequirePackage{natbib}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% modification to natbib citations
+\setcitestyle{authoryear,round,citesep={;},aysep={,},yysep={;}}
+
+\renewcommand{\topfraction}{0.95}   % let figure take up nearly whole page
+\renewcommand{\textfraction}{0.05}  % let figure take up nearly whole page
+
+
+%%%%%%%% Options
+\newif\if@accepted\@acceptedfalse
+\DeclareOption{accepted}{%
+    \@acceptedtrue
+}
+% declare preprint option, which creates a preprint version ready for
+% upload to, e.g., arXiv
+\newif\if@preprint\@preprintfalse
+\DeclareOption{preprint}{
+  \@preprinttrue
+  \@acceptedtrue
+}
+
+\DeclareOption*{\PackageWarning{tmlr}{Unknown ‘\CurrentOption’}}
+\ProcessOptions\relax
+
+% Specify the dimensions of each page
+
+\setlength{\paperheight}{11in}
+\setlength{\paperwidth}{8.5in}
+
+
+\oddsidemargin 0in    %   Note \oddsidemargin = \evensidemargin
+\evensidemargin 0in
+\marginparwidth 0.07 true in
+%\marginparwidth 0.75 true in
+%\topmargin 0 true pt           % Nominal distance from top of page to top of
+%\topmargin 0.125in
+\topmargin -0.625in
+\addtolength{\headsep}{0.25in}
+\textheight 9.0 true in       % Height of text (including footnotes & figures)
+\textwidth 6.5 true in        % Width of text line.
+\widowpenalty=10000
+\clubpenalty=10000
+
+
+% \thispagestyle{empty}        \pagestyle{empty}
+\flushbottom \sloppy
+
+% We're never going to need a table of contents, so just flush it to
+% save space --- suggested by drstrip@sandia-2
+\def\addcontentsline#1#2#3{}
+
+% Title stuff, taken from deproc.
+\def\maketitle{\par
+\begingroup
+   \def\thefootnote{\fnsymbol{footnote}}
+   \def\@makefnmark{\hbox to 0pt{$^{\@thefnmark}$\hss}} % for perfect author
+                                                        % name centering
+%   The footnote-mark was overlapping the footnote-text,
+%   added the following to fix this problem               (MK)
+   \long\def\@makefntext##1{\parindent 1em\noindent
+                            \hbox to1.8em{\hss $\m@th ^{\@thefnmark}$}##1}
+   \@maketitle \@thanks
+\endgroup
+\setcounter{footnote}{0}
+\let\maketitle\relax \let\@maketitle\relax
+\gdef\@thanks{}\gdef\@author{}\gdef\@title{}\let\thanks\relax}
+
+\newlength\aftertitskip     \newlength\beforetitskip
+\newlength\interauthorskip  \newlength\aftermaketitskip
+
+%% Changeable parameters.
+\setlength\aftertitskip{0.3in plus 0.2in minus 0.2in}
+\setlength\beforetitskip{0.05in plus 0.08in minus 0.08in}
+\setlength\interauthorskip{0.08in plus 0.1in minus 0.1in}
+\setlength\aftermaketitskip{0.3in plus 0.1in minus 0.1in}
+
+\def\@startauthor{\noindent \normalsize\bf}
+\def\@endauthor{}
+
+\def\addr{\small\it}%
+\def\email{\hfill\small\it}%
+\def\name{\normalsize\bf}%
+\def\name{\normalsize\bf}%
+\def\AND{\@endauthor\rm\hss \vskip \interauthorskip \@startauthor}
+
+% The toptitlebar has been raised to top-justify the first page
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+
+\if@accepted
+    \if@preprint
+        \lhead{}
+    \else
+        \lhead{Published in Transactions on Machine Learning Research (\month/\year)}
+    \fi
+\else
+       \lhead{Under review as submission to TMLR}
+\fi
+
+% Title (includes both anonymized and non-anonymized versions)
+\def\@maketitle{\vbox{\hsize\textwidth
+%\linewidth\hsize \vskip 0.1in \toptitlebar \centering
+{\LARGE\bf\sffamily \@title\par}\vskip \aftertitskip
+%\bottomtitlebar % \vskip 0.1in %  minus
+\if@accepted
+    \if@preprint
+        \@startauthor \@author \@endauthor
+    \else
+        \@startauthor \@author \\ \\ {\bf Reviewed on OpenReview:} \openreview \@endauthor
+    \fi
+\else
+    \@startauthor Anonymous authors\\Paper under double-blind review \@endauthor
+\fi
+\vskip 0.3in minus 0.1in}}
+
+\renewenvironment{abstract}{\vskip.075in\centerline{\large\bf\sffamily
+Abstract}\vspace{0.5ex}\begin{quote}}{\par\end{quote}\vskip 1ex}
+
+% sections with less space
+\def\section{\@startsection {section}{1}{\z@}{-2.0ex plus
+    -0.5ex minus -.2ex}{1.5ex plus 0.3ex
+minus0.2ex}{\large\bf\raggedright\sffamily}}
+
+\def\subsection{\@startsection{subsection}{2}{\z@}{-1.8ex plus
+-0.5ex minus -.2ex}{0.8ex plus .2ex}{\normalsize\bf\raggedright\sffamily}}
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}{-1.5ex
+plus      -0.5ex minus -.2ex}{0.5ex plus
+.2ex}{\normalsize\bf\raggedright\sffamily}}
+\def\paragraph{\@startsection{paragraph}{4}{\z@}{1.5ex plus
+0.5ex minus .2ex}{-1em}{\normalsize\bf}}
+\def\subparagraph{\@startsection{subparagraph}{5}{\z@}{1.5ex plus
+  0.5ex minus .2ex}{-1em}{\normalsize\bf}}
+\def\subsubsubsection{\vskip
+5pt{\noindent\normalsize\rm\raggedright\sffamily}}
+
+
+% Footnotes
+\footnotesep 6.65pt %
+\skip\footins 9pt plus 4pt minus 2pt
+\def\footnoterule{\kern-3pt \hrule width 12pc \kern 2.6pt }
+\setcounter{footnote}{0}
+
+% Lists and paragraphs
+\parindent 0pt
+\topsep 4pt plus 1pt minus 2pt
+\partopsep 1pt plus 0.5pt minus 0.5pt
+\itemsep 2pt plus 1pt minus 0.5pt
+\parsep 2pt plus 1pt minus 0.5pt
+\parskip .5pc
+
+
+%\leftmargin2em
+\leftmargin3pc
+\leftmargini\leftmargin \leftmarginii 2em
+\leftmarginiii 1.5em \leftmarginiv 1.0em \leftmarginv .5em
+
+%\labelsep \labelsep 5pt
+
+\def\@listi{\leftmargin\leftmargini}
+\def\@listii{\leftmargin\leftmarginii
+   \labelwidth\leftmarginii\advance\labelwidth-\labelsep
+   \topsep 2pt plus 1pt minus 0.5pt
+   \parsep 1pt plus 0.5pt minus 0.5pt
+   \itemsep \parsep}
+\def\@listiii{\leftmargin\leftmarginiii
+    \labelwidth\leftmarginiii\advance\labelwidth-\labelsep
+    \topsep 1pt plus 0.5pt minus 0.5pt
+    \parsep \z@ \partopsep 0.5pt plus 0pt minus 0.5pt
+    \itemsep \topsep}
+\def\@listiv{\leftmargin\leftmarginiv
+     \labelwidth\leftmarginiv\advance\labelwidth-\labelsep}
+\def\@listv{\leftmargin\leftmarginv
+     \labelwidth\leftmarginv\advance\labelwidth-\labelsep}
+\def\@listvi{\leftmargin\leftmarginvi
+     \labelwidth\leftmarginvi\advance\labelwidth-\labelsep}
+
+\abovedisplayskip 7pt plus2pt minus5pt%
+\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip  0pt plus3pt%
+\belowdisplayshortskip  4pt plus3pt minus3pt%
+
+
+\def\toptitlebar{\hrule height4pt\vskip .25in\vskip-\parskip}
+
+\def\bottomtitlebar{\vskip .29in\vskip-\parskip\hrule height1pt\vskip
+.09in} %
+\end{filecontents*}
+% fancyhdr.sty: SHA256 3d2922548e0e5f1a6c5676eda6ebb6dc20d7d305b4d8c2be5f1c833fb1084e6d
+\begin{filecontents*}[overwrite]{fancyhdr.sty}
+%%
+%% This is file `fancyhdr.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% fancyhdr.dtx  (with options: `fancyhdr')
+%% 
+%% This is a generated file.
+%% 
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.3 of this license
+%% or (at your option) any later version.  The latest version of this
+%% license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.3 or later is part of all distributions of LaTeX version
+%% 2005/12/01 or later.
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{fancyhdr}%
+           [2021/01/28 v4.0.1
+                  Extensive control of page headers and footers]%
+% Copyright (C) 1994-2021 by Pieter van Oostrum <pieter@vanoostrum.org>
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand\if@nch@mpty[1]{\def\temp@a{#1}\ifx\temp@a\@empty}
+\newif\iff@nch@check
+\f@nch@checktrue
+\DeclareOption{nocheck}{%
+  \f@nch@checkfalse
+}
+\newif\iff@nch@compatViii
+\let\f@nch@gbl\relax
+\DeclareOption{compatV3}{%
+  \let\f@nch@gbl\global
+  \f@nch@compatViiitrue
+}
+\newcommand\f@nch@def[2]{\if@nch@mpty{#2}\f@nch@gbl\def#1{\leavevmode}\else
+                                   \f@nch@gbl\def#1{#2\strut}\fi}
+\newcommand{\f@nch@ifundefined}[1]{%
+  \begingroup\expandafter\expandafter\expandafter\endgroup
+  \expandafter\ifx\csname #1\endcsname\relax
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+    \fi}
+\DeclareOption{myheadings}{%
+  \f@nch@ifundefined{chapter}{%
+    \def\ps@myheadings{\ps@f@nch@fancyproto \let\@mkboth\@gobbletwo
+      \fancyhf{}
+      \fancyhead[LE,RO]{\thepage}%
+      \fancyhead[RE]{\slshape\leftmark}%
+      \fancyhead[LO]{\slshape\rightmark}%
+      \let\sectionmark\@gobble
+      \let\subsectionmark\@gobble
+    }%
+  }%
+  {\def\ps@myheadings{\ps@f@nch@fancyproto \let\@mkboth\@gobbletwo
+      \fancyhf{}
+      \fancyhead[LE,RO]{\thepage}%
+      \fancyhead[RE]{\slshape\leftmark}%
+      \fancyhead[LO]{\slshape\rightmark}%
+      \let\chaptermark\@gobble
+      \let\sectionmark\@gobble
+    }%
+  }%
+}
+\DeclareOption{headings}{%
+  \f@nch@ifundefined{chapter}{%
+    \if@twoside
+      \def\ps@headings{\ps@f@nch@fancyproto \let\@mkboth\markboth
+        \fancyhf{}
+        \fancyhead[LE,RO]{\thepage}%
+        \fancyhead[RE]{\slshape\leftmark}%
+        \fancyhead[LO]{\slshape\rightmark}%
+        \def\sectionmark##1{%
+          \markboth{\MakeUppercase{%
+            \ifnum \c@secnumdepth >\z@ \thesection\quad \fi##1}}{}}%
+        \def\subsectionmark##1{%
+          \markright{%
+            \ifnum \c@secnumdepth >\@ne \thesubsection\quad \fi##1}}%
+      }%
+    \else
+      \def\ps@headings{\ps@f@nch@fancyproto \let\@mkboth\markboth
+        \fancyhf{}
+        \fancyhead[LE,RO]{\thepage}%
+        \fancyhead[RE]{\slshape\leftmark}%
+        \fancyhead[LO]{\slshape\rightmark}%
+        \def\sectionmark##1{%
+          \markright {\MakeUppercase{%
+            \ifnum \c@secnumdepth >\z@ \thesection\quad \fi##1}}}%
+        \let\subsectionmark\@gobble % Not needed but inserted for safety
+      }%
+    \fi
+  }{\if@twoside
+      \def\ps@headings{\ps@f@nch@fancyproto \let\@mkboth\markboth
+        \fancyhf{}
+        \fancyhead[LE,RO]{\thepage}%
+        \fancyhead[RE]{\slshape\leftmark}%
+        \fancyhead[LO]{\slshape\rightmark}%
+        \def\chaptermark##1{%
+          \markboth{\MakeUppercase{%
+            \ifnum \c@secnumdepth >\m@ne \if@mainmatter
+              \@chapapp\ \thechapter. \ \fi\fi##1}}{}}%
+        \def\sectionmark##1{%
+          \markright {\MakeUppercase{%
+            \ifnum \c@secnumdepth >\z@ \thesection. \ \fi##1}}}%
+      }%
+    \else
+      \def\ps@headings{\ps@f@nch@fancyproto \let\@mkboth\markboth
+        \fancyhf{}
+        \fancyhead[LE,RO]{\thepage}%
+        \fancyhead[RE]{\slshape\leftmark}%
+        \fancyhead[LO]{\slshape\rightmark}%
+        \def\chaptermark##1{%
+          \markright{\MakeUppercase{%
+            \ifnum \c@secnumdepth >\m@ne \if@mainmatter
+              \@chapapp\ \thechapter. \ \fi\fi##1}}}%
+        \let\sectionmark\@gobble % Not needed but inserted for safety
+      }%
+    \fi
+  }%
+}
+\ProcessOptions*
+\newcommand\f@nch@errmsg[1]{%
+  \f@nch@ifundefined{PackageError}{\errmessage{#1}}{\PackageError{fancyhdr}{#1}{}}}
+\newcommand\f@nch@warning[1]{%
+  \f@nch@ifundefined{PackageWarning}{\errmessage{#1}}{\PackageWarning{fancyhdr}{#1}{}}}
+\newcommand{\f@nch@forc}[3]{\expandafter\f@nchf@rc\expandafter#1\expandafter{#2}{#3}}
+\newcommand{\f@nchf@rc}[3]{\def\temp@ty{#2}\ifx\@empty\temp@ty\else
+                                    \f@nch@rc#1#2\f@nch@rc{#3}\fi}
+\def\f@nch@rc#1#2#3\f@nch@rc#4{\def#1{#2}#4\f@nchf@rc#1{#3}{#4}}
+\newcommand{\f@nch@for}[3]{\edef\@fortmp{#2}%
+  \expandafter\@forloop#2,\@nil,\@nil\@@#1{#3}}
+\newcommand\f@nch@default[3]{%
+  \edef\temp@a{\lowercase{\edef\noexpand\temp@a{#3}}}\temp@a \def#1{}%
+  \f@nch@forc\tmpf@ra{#2}%
+  {\expandafter\f@nch@ifin\tmpf@ra\temp@a{\edef#1{#1\tmpf@ra}}{}}%
+  \ifx\@empty#1\def#1{#2}\fi}
+\newcommand{\f@nch@ifin}[4]{%
+  \edef\temp@a{#2}\def\temp@b##1#1##2\temp@b{\def\temp@b{##1}}%
+  \expandafter\temp@b#2#1\temp@b\ifx\temp@a\temp@b #4\else #3\fi}
+\newcommand{\fancyhead}[2][]{\f@nch@fancyhf\fancyhead h[#1]{#2}}%
+\newcommand{\fancyfoot}[2][]{\f@nch@fancyhf\fancyfoot f[#1]{#2}}%
+\newcommand{\fancyhf}[2][]{\f@nch@fancyhf\fancyhf {}[#1]{#2}}%
+\newcommand{\fancyheadoffset}[2][]{\f@nch@fancyhfoffs\fancyheadoffset h[#1]{#2}}%
+\newcommand{\fancyfootoffset}[2][]{\f@nch@fancyhfoffs\fancyfootoffset f[#1]{#2}}%
+\newcommand{\fancyhfoffset}[2][]{\f@nch@fancyhfoffs\fancyhfoffset {}[#1]{#2}}%
+\def\f@nch@fancyhf#1#2[#3]#4{%
+  \def\temp@c{}%
+  \f@nch@forc\tmpf@ra{#3}%
+  {\expandafter\f@nch@ifin\tmpf@ra{eolcrhf,EOLCRHF}%
+    {}{\edef\temp@c{\temp@c\tmpf@ra}}}%
+  \ifx\@empty\temp@c\else \f@nch@errmsg{Illegal char `\temp@c' in
+    \string#1 argument: [#3]}%
+  \fi \f@nch@for\temp@c{#3}%
+  {\f@nch@default\f@nch@@eo{eo}\temp@c \if@twoside\else \if\f@nch@@eo
+    e\f@nch@warning {\string#1's `E' option without twoside option is
+      useless}\fi\fi \f@nch@default\f@nch@@lcr{lcr}\temp@c
+    \f@nch@default\f@nch@@hf{hf}{#2\temp@c}%
+    \f@nch@forc\f@nch@eo\f@nch@@eo
+        {\f@nch@forc\f@nch@lcr\f@nch@@lcr
+          {\f@nch@forc\f@nch@hf\f@nch@@hf
+            {\expandafter\f@nch@def\csname
+              f@nch@\f@nch@eo\f@nch@lcr\f@nch@hf\endcsname {#4}}}}}}
+\def\f@nch@fancyhfoffs#1#2[#3]#4{%
+  \def\temp@c{}%
+  \f@nch@forc\tmpf@ra{#3}%
+  {\expandafter\f@nch@ifin\tmpf@ra{eolrhf,EOLRHF}%
+    {}{\edef\temp@c{\temp@c\tmpf@ra}}}%
+  \ifx\@empty\temp@c\else \f@nch@errmsg{Illegal char `\temp@c' in
+    \string#1 argument: [#3]}%
+  \fi \f@nch@for\temp@c{#3}%
+  {\f@nch@default\f@nch@@eo{eo}\temp@c \if@twoside\else \if\f@nch@@eo
+    e\f@nch@warning {\string#1's `E' option without twoside option is
+      useless}\fi\fi \f@nch@default\f@nch@@lcr{lr}\temp@c
+    \f@nch@default\f@nch@@hf{hf}{#2\temp@c}%
+    \f@nch@forc\f@nch@eo\f@nch@@eo
+        {\f@nch@forc\f@nch@lcr\f@nch@@lcr
+          {\f@nch@forc\f@nch@hf\f@nch@@hf
+            {\expandafter\setlength\csname
+              f@nch@O@\f@nch@eo\f@nch@lcr\f@nch@hf\endcsname {#4}}}}}%
+  \f@nch@setoffs}
+\newcommand{\lhead}[2][\f@nch@olh]%
+                     {\f@nch@def\f@nch@olh{#2}\f@nch@def\f@nch@elh{#1}}
+\newcommand{\chead}[2][\f@nch@och]%
+                     {\f@nch@def\f@nch@och{#2}\f@nch@def\f@nch@ech{#1}}
+\newcommand{\rhead}[2][\f@nch@orh]%
+                     {\f@nch@def\f@nch@orh{#2}\f@nch@def\f@nch@erh{#1}}
+\newcommand{\lfoot}[2][\f@nch@olf]%
+                     {\f@nch@def\f@nch@olf{#2}\f@nch@def\f@nch@elf{#1}}
+\newcommand{\cfoot}[2][\f@nch@ocf]%
+                     {\f@nch@def\f@nch@ocf{#2}\f@nch@def\f@nch@ecf{#1}}
+\newcommand{\rfoot}[2][\f@nch@orf]%
+                     {\f@nch@def\f@nch@orf{#2}\f@nch@def\f@nch@erf{#1}}
+\newlength{\f@nch@headwidth} \let\headwidth\f@nch@headwidth
+\newlength{\f@nch@O@elh}
+\newlength{\f@nch@O@erh}
+\newlength{\f@nch@O@olh}
+\newlength{\f@nch@O@orh}
+\newlength{\f@nch@O@elf}
+\newlength{\f@nch@O@erf}
+\newlength{\f@nch@O@olf}
+\newlength{\f@nch@O@orf}
+\newcommand{\headrulewidth}{0.4pt}
+\newcommand{\footrulewidth}{0pt}
+\f@nch@ifundefined{headruleskip}%
+      {\newcommand{\headruleskip}{0pt}}{}
+\f@nch@ifundefined{footruleskip}%
+      {\newcommand{\footruleskip}{.3\normalbaselineskip}}{}
+\newcommand{\plainheadrulewidth}{0pt}
+\newcommand{\plainfootrulewidth}{0pt}
+\newif\if@fancyplain \@fancyplainfalse
+\def\fancyplain#1#2{\if@fancyplain#1\else#2\fi}
+\headwidth=-123456789sp
+\let\f@nch@raggedleft\raggedleft
+\let\f@nch@raggedright\raggedright
+\let\f@nch@centering\centering
+\let\f@nch@everypar\everypar
+\def\f@nch@reset{\f@nch@everypar{}\restorecr\endlinechar=13
+  \let\\\@normalcr \let\raggedleft\f@nch@raggedleft
+  \let\raggedright\f@nch@raggedright \let\centering\f@nch@centering
+  \def\baselinestretch{1}%
+  \hsize=\headwidth
+  \def\nouppercase##1{{\let\uppercase\relax\let\MakeUppercase\relax
+      \expandafter\let\csname MakeUppercase \endcsname\relax##1}}%
+  \f@nch@ifundefined{@newbaseline} % NFSS not present; 2.09 or 2e
+  {\f@nch@ifundefined{@normalsize} {\normalsize} % for ucthesis.cls
+   {\@normalsize}}%
+  {\@newbaseline}% NFSS (2.09) present
+  }
+\newcommand*{\fancycenter}[1][1em]{%
+  \@ifnextchar[{\f@nch@center{#1}}{\f@nch@center{#1}[3]}%
+}
+\def\f@nch@center#1[#2]#3#4#5{%
+  \def\@tempa{#4}\ifx\@tempa\@empty
+    \hbox to\linewidth{\color@begingroup{#3}\hfil {#5}\color@endgroup}%
+  \else
+    \setlength\@tempdima{#1}%
+    \setlength{\@tempdimb}{#2\@tempdima}%
+    \@tempdimc \@tempdimb \advance\@tempdimc -\@tempdima
+    \setlength\@tempskipa{\@tempdimb \@plus 1fil \@minus \@tempdimc}%
+    \@tempskipb\@tempskipa
+    \def\@tempa{#3}\ifx\@tempa\@empty
+      \addtolength\@tempskipa{\z@ \@minus \@tempdima}%
+    \fi
+    \def\@tempa{#5}\ifx\@tempa\@empty % empty right
+      \addtolength\@tempskipb{\z@ \@minus \@tempdima}%
+    \fi
+    \settowidth{\@tempdimb}{#3}%
+    \settowidth{\@tempdimc}{#5}%
+    \ifdim\@tempdimb>\@tempdimc
+      \advance\@tempdimb -\@tempdimc
+      \addtolength\@tempskipb{\@tempdimb \@minus \@tempdimb}%
+    \else
+      \advance\@tempdimc -\@tempdimb
+      \addtolength\@tempskipa{\@tempdimc \@minus \@tempdimc}%
+    \fi
+    \hbox to\linewidth{\color@begingroup{#3}\hskip \@tempskipa
+                      {#4}\hskip \@tempskipb {#5}\color@endgroup}%
+  \fi
+}
+\newcommand{\f@nch@headinit}{}
+\newcommand{\fancyheadinit}[1]{%
+  \def\f@nch@headinit{#1}%
+}
+\newcommand{\f@nch@footinit}{}
+\newcommand{\fancyfootinit}[1]{%
+  \def\f@nch@footinit{#1}%
+}
+\newcommand{\fancyhfinit}[1]{%
+  \def\f@nch@headinit{#1}%
+  \def\f@nch@footinit{#1}%
+}
+\newcommand\f@nch@vbox[2]{%
+  \setbox0\vbox{#2}%
+  \ifdim\ht0>#1\relax
+    \iff@nch@check
+      \dimen0=#1\advance\dimen0-\ht0
+      \f@nch@warning{%
+        \string#1 is too small (\the#1): \MessageBreak
+        Make it at least \the\ht0, for example:\MessageBreak
+        \string\setlength{\string#1}{\the\ht0}%
+        \iff@nch@compatViii .\MessageBreak
+        We now make it that large for the rest of the document.\MessageBreak
+        This may cause the page layout to be inconsistent, however
+        \fi
+        \ifx#1\headheight .\MessageBreak
+          You might also make \topmargin smaller to compensate:\MessageBreak
+          \string\addtolength{\string\topmargin}{\the\dimen0}%
+        \fi
+        \@gobble
+      }%
+    \fi
+    \iff@nch@compatViii
+      \dimen0=#1\relax
+      \global#1=\ht0\relax
+      \ht0=\dimen0 %
+    \else
+      \ht0=#1%
+    \fi
+  \fi
+  \box0}
+\newcommand\f@nch@head[5]{%
+  \f@nch@reset
+  \f@nch@headinit\relax
+  #1%
+  \hbox to\headwidth{%
+    \f@nch@vbox\headheight{%
+      \hbox{%
+        \rlap{\parbox[b]{\headwidth}{\raggedright#2}}%
+        \hfill
+        \parbox[b]{\headwidth}{\centering#3}%
+        \hfill
+        \llap{\parbox[b]{\headwidth}{\raggedleft#4}}%
+      }%
+      \vskip\headruleskip\relax
+      \headrule
+    }%
+  }%
+  #5%
+}
+\newcommand\f@nch@foot[5]{%
+  \f@nch@reset
+  \f@nch@footinit\relax
+  #1%
+  \hbox to\headwidth{%
+    \f@nch@vbox\footskip{%
+      \setbox0=\vbox{\footrule}\unvbox0
+      \vskip\footruleskip
+      \hbox{%
+        \rlap{\parbox[t]{\headwidth}{\raggedright#2}}%
+        \hfill
+        \parbox[t]{\headwidth}{\centering#3}%
+        \hfill
+        \llap{\parbox[t]{\headwidth}{\raggedleft#4}}%
+      }%
+    }%
+  }%
+  #5%
+}
+\f@nch@ifundefined{MakeUppercase}{\def\MakeUppercase{\uppercase}}{}%
+\f@nch@ifundefined{@chapapp}{\let\@chapapp\chaptername}{}%
+\def\f@nch@initialise{%
+  \f@nch@ifundefined{chapter}%
+   {\def\sectionmark##1{\markboth{\MakeUppercase{\ifnum \c@secnumdepth>\z@
+          \thesection\hskip 1em\relax
+        \fi ##1}}{}}%
+    \def\subsectionmark##1{\markright {\ifnum \c@secnumdepth >\@ne
+      \thesubsection\hskip 1em\relax \fi ##1}}}%
+   {\def\chaptermark##1{\markboth {\MakeUppercase{\ifnum
+        \c@secnumdepth>\m@ne \@chapapp\ \thechapter. \ \fi ##1}}{}}%
+    \def\sectionmark##1{\markright{\MakeUppercase{\ifnum \c@secnumdepth >\z@
+        \thesection. \ \fi ##1}}}%
+   }%
+  \def\headrule{{\if@fancyplain\let\headrulewidth\plainheadrulewidth\fi
+      \hrule\@height\headrulewidth\@width\headwidth
+      \vskip-\headrulewidth}}%
+  \def\footrule{{\if@fancyplain\let\footrulewidth\plainfootrulewidth\fi
+      \hrule\@width\headwidth\@height\footrulewidth}}%
+  \def\headrulewidth{0.4pt}%
+  \def\footrulewidth{0pt}%
+  \def\headruleskip{0pt}%
+  \def\footruleskip{0.3\normalbaselineskip}%
+  \fancyhf{}%
+  \if@twoside
+    \fancyhead[el,or]{\fancyplain{}{\slshape\rightmark}}%
+    \fancyhead[er,ol]{\fancyplain{}{\slshape\leftmark}}%
+  \else
+    \fancyhead[l]{\fancyplain{}{\slshape\rightmark}}%
+    \fancyhead[r]{\fancyplain{}{\slshape\leftmark}}%
+  \fi
+  \fancyfoot[c]{\rmfamily\thepage}% page number
+}
+\f@nch@initialise
+\def\ps@f@nch@fancyproto{%
+  \ifdim\headwidth<0sp
+    \global\advance\headwidth123456789sp\global\advance\headwidth\textwidth
+  \fi
+  \gdef\ps@f@nch@fancyproto{\@fancyplainfalse\ps@f@nch@fancycore}%
+  \@fancyplainfalse\ps@f@nch@fancycore
+}%
+\@namedef{f@nch@ps@f@nch@fancyproto-is-fancyhdr}{}
+\def\ps@fancy{\ps@f@nch@fancyproto}
+\@namedef{f@nch@ps@fancy-is-fancyhdr}{}
+\def\ps@fancyplain{\ps@f@nch@fancyproto \let\ps@plain\ps@plain@fancy}
+\def\ps@plain@fancy{\@fancyplaintrue\ps@f@nch@fancycore}
+\let\f@nch@ps@empty\ps@empty
+\def\ps@f@nch@fancycore{%
+  \f@nch@ps@empty
+  \def\@mkboth{\protect\markboth}%
+  \def\@oddhead{\f@nch@head\f@nch@Oolh\f@nch@olh\f@nch@och\f@nch@orh\f@nch@Oorh}%
+  \def\@oddfoot{\f@nch@foot\f@nch@Oolf\f@nch@olf\f@nch@ocf\f@nch@orf\f@nch@Oorf}%
+  \def\@evenhead{\f@nch@head\f@nch@Oelh\f@nch@elh\f@nch@ech\f@nch@erh\f@nch@Oerh}%
+  \def\@evenfoot{\f@nch@foot\f@nch@Oelf\f@nch@elf\f@nch@ecf\f@nch@erf\f@nch@Oerf}%
+}
+\def\ps@fancydefault{%
+  \f@nch@initialise
+  \ps@f@nch@fancyproto
+}
+\@namedef{f@nch@ps@fancydefault-is-fancyhdr}{}
+\def\f@nch@Oolh{\if@reversemargin\hss\else\relax\fi}
+\def\f@nch@Oorh{\if@reversemargin\relax\else\hss\fi}
+\let\f@nch@Oelh\f@nch@Oorh
+\let\f@nch@Oerh\f@nch@Oolh
+\let\f@nch@Oolf\f@nch@Oolh
+\let\f@nch@Oorf\f@nch@Oorh
+\let\f@nch@Oelf\f@nch@Oelh
+\let\f@nch@Oerf\f@nch@Oerh
+\def\f@nch@offsolh{\headwidth=\textwidth\advance\headwidth\f@nch@O@olh
+                   \advance\headwidth\f@nch@O@orh\hskip-\f@nch@O@olh}
+\def\f@nch@offselh{\headwidth=\textwidth\advance\headwidth\f@nch@O@elh
+                   \advance\headwidth\f@nch@O@erh\hskip-\f@nch@O@elh}
+\def\f@nch@offsolf{\headwidth=\textwidth\advance\headwidth\f@nch@O@olf
+                   \advance\headwidth\f@nch@O@orf\hskip-\f@nch@O@olf}
+\def\f@nch@offself{\headwidth=\textwidth\advance\headwidth\f@nch@O@elf
+                   \advance\headwidth\f@nch@O@erf\hskip-\f@nch@O@elf}
+\def\f@nch@setoffs{%
+  \f@nch@gbl\let\headwidth\f@nch@headwidth
+  \f@nch@gbl\let\f@nch@Oolh\f@nch@offsolh
+  \f@nch@gbl\let\f@nch@Oelh\f@nch@offselh \f@nch@gbl\let\f@nch@Oorh\hss
+  \f@nch@gbl\let\f@nch@Oerh\hss \f@nch@gbl\let\f@nch@Oolf\f@nch@offsolf
+  \f@nch@gbl\let\f@nch@Oelf\f@nch@offself \f@nch@gbl\let\f@nch@Oorf\hss
+  \f@nch@gbl\let\f@nch@Oerf\hss
+}
+\newif\iff@nch@footnote
+\AtBeginDocument{%
+  \let\latex@makecol\@makecol
+  \def\@makecol{\ifvoid\footins\f@nch@footnotefalse\else\f@nch@footnotetrue\fi
+    \let\topfloat\@toplist\let\botfloat\@botlist\latex@makecol}%
+}
+\newcommand\iftopfloat[2]{\ifx\topfloat\empty #2\else #1\fi}%
+\newcommand\ifbotfloat[2]{\ifx\botfloat\empty #2\else #1\fi}%
+\newcommand\iffloatpage[2]{\if@fcolmade #1\else #2\fi}%
+\newcommand\iffootnote[2]{\iff@nch@footnote #1\else #2\fi}%
+\newcommand{\fancypagestyle}[1]{%
+  \@ifnextchar[{\f@nch@pagestyle{#1}}{\f@nch@pagestyle{#1}[f@nch@fancyproto]}%
+}
+\long\def\f@nch@pagestyle#1[#2]#3{%
+  \f@nch@ifundefined{ps@#2}{%
+    \f@nch@errmsg{\string\fancypagestyle: Unknown base page style `#2'}%
+  }{%
+    \f@nch@ifundefined{f@nch@ps@#2-is-fancyhdr}{%
+      \f@nch@errmsg{\string\fancypagestyle: Base page style `#2' is not fancyhdr-based}%
+    }%
+    {%
+      \@namedef{ps@#1}{\let\f@nch@gbl\relax\@nameuse{ps@#2}#3\relax}%
+      \@namedef{f@nch@ps@#1-is-fancyhdr}{}%
+    }%
+  }%
+}%
+\endinput
+%%
+%% End of file `fancyhdr.sty'.
+\end{filecontents*}
+% tmlr.bst: SHA256 306fd454cf40771bee01293eeb98d2c1cd5f4e11ed0cd7296b335f354fc45206
+\begin{filecontents*}[overwrite]{tmlr.bst}
+%% File: `tmlr.bst'
+%% A copy of iclm2010.bst, which is a modification of `plainnl.bst' for use with natbib package 
+%%
+%% Copyright 2010 Hal Daum\'e III
+%% Modified by J. Fürnkranz
+%% - Changed labels from (X and Y, 2000) to (X & Y, 2000)
+%%
+%% Copyright 1993-2007 Patrick W Daly
+%% Max-Planck-Institut f\"ur Sonnensystemforschung
+%% Max-Planck-Str. 2
+%% D-37191 Katlenburg-Lindau
+%% Germany
+%% E-mail: daly@mps.mpg.de
+%%
+%% This program can be redistributed and/or modified under the terms
+%% of the LaTeX Project Public License Distributed from CTAN
+%% archives in directory macros/latex/base/lppl.txt; either
+%% version 1 of the License, or any later version.
+%%
+ % Version and source file information:
+ % \ProvidesFile{icml2010.mbs}[2007/11/26 1.93 (PWD)]
+ %
+ % BibTeX `plainnat' family
+ %   version 0.99b for BibTeX versions 0.99a or later,
+ %   for LaTeX versions 2.09 and 2e.
+ %
+ % For use with the `natbib.sty' package; emulates the corresponding
+ %   member of the `plain' family, but with author-year citations.
+ %
+ % With version 6.0 of `natbib.sty', it may also be used for numerical
+ %   citations, while retaining the commands \citeauthor, \citefullauthor,
+ %   and \citeyear to print the corresponding information.
+ %
+ % For version 7.0 of `natbib.sty', the KEY field replaces missing
+ %   authors/editors, and the date is left blank in \bibitem.
+ %
+ % Includes field EID for the sequence/citation number of electronic journals
+ %  which is used instead of page numbers.
+ %
+ % Includes fields ISBN and ISSN.
+ %
+ % Includes field URL for Internet addresses.
+ %
+ % Includes field DOI for Digital Object Idenfifiers.
+ %
+ % Works best with the url.sty package of Donald Arseneau.
+ %
+ % Works with identical authors and year are further sorted by
+ %   citation key, to preserve any natural sequence.
+ %
+ENTRY
+  { address
+    author
+    booktitle
+    chapter
+    doi
+    eid
+    edition
+    editor
+    howpublished
+    institution
+    isbn
+    issn
+    journal
+    key
+    month
+    note
+    number
+    organization
+    pages
+    publisher
+    school
+    series
+    title
+    type
+    url
+    volume
+    year
+  }
+  {}
+  { label extra.label sort.label short.list }
+
+INTEGERS { output.state before.all mid.sentence after.sentence after.block }
+
+FUNCTION {init.state.consts}
+{ #0 'before.all :=
+  #1 'mid.sentence :=
+  #2 'after.sentence :=
+  #3 'after.block :=
+}
+
+STRINGS { s t }
+
+FUNCTION {output.nonnull}
+{ 's :=
+  output.state mid.sentence =
+    { ", " * write$ }
+    { output.state after.block =
+        { add.period$ write$
+          newline$
+          "\newblock " write$
+        }
+        { output.state before.all =
+            'write$
+            { add.period$ " " * write$ }
+          if$
+        }
+      if$
+      mid.sentence 'output.state :=
+    }
+  if$
+  s
+}
+
+FUNCTION {output}
+{ duplicate$ empty$
+    'pop$
+    'output.nonnull
+  if$
+}
+
+FUNCTION {output.check}
+{ 't :=
+  duplicate$ empty$
+    { pop$ "empty " t * " in " * cite$ * warning$ }
+    'output.nonnull
+  if$
+}
+
+FUNCTION {fin.entry}
+{ add.period$
+  write$
+  newline$
+}
+
+FUNCTION {new.block}
+{ output.state before.all =
+    'skip$
+    { after.block 'output.state := }
+  if$
+}
+
+FUNCTION {new.sentence}
+{ output.state after.block =
+    'skip$
+    { output.state before.all =
+        'skip$
+        { after.sentence 'output.state := }
+      if$
+    }
+  if$
+}
+
+FUNCTION {not}
+{   { #0 }
+    { #1 }
+  if$
+}
+
+FUNCTION {and}
+{   'skip$
+    { pop$ #0 }
+  if$
+}
+
+FUNCTION {or}
+{   { pop$ #1 }
+    'skip$
+  if$
+}
+
+FUNCTION {new.block.checka}
+{ empty$
+    'skip$
+    'new.block
+  if$
+}
+
+FUNCTION {new.block.checkb}
+{ empty$
+  swap$ empty$
+  and
+    'skip$
+    'new.block
+  if$
+}
+
+FUNCTION {new.sentence.checka}
+{ empty$
+    'skip$
+    'new.sentence
+  if$
+}
+
+FUNCTION {new.sentence.checkb}
+{ empty$
+  swap$ empty$
+  and
+    'skip$
+    'new.sentence
+  if$
+}
+
+FUNCTION {field.or.null}
+{ duplicate$ empty$
+    { pop$ "" }
+    'skip$
+  if$
+}
+
+FUNCTION {emphasize}
+{ duplicate$ empty$
+    { pop$ "" }
+    { "\emph{" swap$ * "}" * }
+  if$
+}
+
+INTEGERS { nameptr namesleft numnames }
+
+FUNCTION {format.names}
+{ 's :=
+  #1 'nameptr :=
+  s num.names$ 'numnames :=
+  numnames 'namesleft :=
+    { namesleft #0 > }
+    { s nameptr "{ff~}{vv~}{ll}{, jj}" format.name$ 't :=
+      nameptr #1 >
+        { namesleft #1 >
+            { ", " * t * }
+            { numnames #2 >
+                { "," * }
+                'skip$
+              if$
+              t "others" =
+                { " et~al." * }
+                { " and " * t * }
+              if$
+            }
+          if$
+        }
+        't
+      if$
+      nameptr #1 + 'nameptr :=
+      namesleft #1 - 'namesleft :=
+    }
+  while$
+}
+
+FUNCTION {format.key}
+{ empty$
+    { key field.or.null }
+    { "" }
+  if$
+}
+
+FUNCTION {format.authors}
+{ author empty$
+    { "" }
+    { author format.names }
+  if$
+}
+
+FUNCTION {format.editors}
+{ editor empty$
+    { "" }
+    { editor format.names
+      editor num.names$ #1 >
+        { " (eds.)" * }
+        { " (ed.)" * }
+      if$
+    }
+  if$
+}
+
+FUNCTION {format.isbn}
+{ isbn empty$
+    { "" }
+    { new.block "ISBN " isbn * }
+  if$
+}
+
+FUNCTION {format.issn}
+{ issn empty$
+    { "" }
+    { new.block "ISSN " issn * }
+  if$
+}
+
+FUNCTION {format.url}
+{ url empty$
+    { "" }
+    { new.block "URL \url{" url * "}" * }
+  if$
+}
+
+FUNCTION {format.doi}
+{ doi empty$
+    { "" }
+    { new.block "\doi{" doi * "}" * }
+  if$
+}
+
+FUNCTION {format.title}
+{ title empty$
+    { "" }
+    { title "t" change.case$ }
+  if$
+}
+
+FUNCTION {format.full.names}
+{'s :=
+  #1 'nameptr :=
+  s num.names$ 'numnames :=
+  numnames 'namesleft :=
+    { namesleft #0 > }
+    { s nameptr
+      "{vv~}{ll}" format.name$ 't :=
+      nameptr #1 >
+        {
+          namesleft #1 >
+            { ", " * t * }
+            {
+              numnames #2 >
+                { "," * }
+                'skip$
+              if$
+              t "others" =
+                { " et~al." * }
+                { " and " * t * }
+              if$
+            }
+          if$
+        }
+        't
+      if$
+      nameptr #1 + 'nameptr :=
+      namesleft #1 - 'namesleft :=
+    }
+  while$
+}
+
+FUNCTION {author.editor.full}
+{ author empty$
+    { editor empty$
+        { "" }
+        { editor format.full.names }
+      if$
+    }
+    { author format.full.names }
+  if$
+}
+
+FUNCTION {author.full}
+{ author empty$
+    { "" }
+    { author format.full.names }
+  if$
+}
+
+FUNCTION {editor.full}
+{ editor empty$
+    { "" }
+    { editor format.full.names }
+  if$
+}
+
+FUNCTION {make.full.names}
+{ type$ "book" =
+  type$ "inbook" =
+  or
+    'author.editor.full
+    { type$ "proceedings" =
+        'editor.full
+        'author.full
+      if$
+    }
+  if$
+}
+
+FUNCTION {output.bibitem}
+{ newline$
+  "\bibitem[" write$
+  label write$
+  ")" make.full.names duplicate$ short.list =
+     { pop$ }
+     { * }
+   if$
+  "]{" * write$
+  cite$ write$
+  "}" write$
+  newline$
+  ""
+  before.all 'output.state :=
+}
+
+FUNCTION {n.dashify}
+{ 't :=
+  ""
+    { t empty$ not }
+    { t #1 #1 substring$ "-" =
+        { t #1 #2 substring$ "--" = not
+            { "--" *
+              t #2 global.max$ substring$ 't :=
+            }
+            {   { t #1 #1 substring$ "-" = }
+                { "-" *
+                  t #2 global.max$ substring$ 't :=
+                }
+              while$
+            }
+          if$
+        }
+        { t #1 #1 substring$ *
+          t #2 global.max$ substring$ 't :=
+        }
+      if$
+    }
+  while$
+}
+
+FUNCTION {format.date}
+{ year duplicate$ empty$
+    { "empty year in " cite$ * warning$
+       pop$ "" }
+    'skip$
+  if$
+  month empty$
+    'skip$
+    { month
+      " " * swap$ *
+    }
+  if$
+  extra.label *
+}
+
+FUNCTION {format.btitle}
+{ title emphasize
+}
+
+FUNCTION {tie.or.space.connect}
+{ duplicate$ text.length$ #3 <
+    { "~" }
+    { " " }
+  if$
+  swap$ * *
+}
+
+FUNCTION {either.or.check}
+{ empty$
+    'pop$
+    { "can't use both " swap$ * " fields in " * cite$ * warning$ }
+  if$
+}
+
+FUNCTION {format.bvolume}
+{ volume empty$
+    { "" }
+    { "volume" volume tie.or.space.connect
+      series empty$
+        'skip$
+        { " of " * series emphasize * }
+      if$
+      "volume and number" number either.or.check
+    }
+  if$
+}
+
+FUNCTION {format.number.series}
+{ volume empty$
+    { number empty$
+        { series field.or.null }
+        { output.state mid.sentence =
+            { "number" }
+            { "Number" }
+          if$
+          number tie.or.space.connect
+          series empty$
+            { "there's a number but no series in " cite$ * warning$ }
+            { " in " * series * }
+          if$
+        }
+      if$
+    }
+    { "" }
+  if$
+}
+
+FUNCTION {format.edition}
+{ edition empty$
+    { "" }
+    { output.state mid.sentence =
+        { edition "l" change.case$ " edition" * }
+        { edition "t" change.case$ " edition" * }
+      if$
+    }
+  if$
+}
+
+INTEGERS { multiresult }
+
+FUNCTION {multi.page.check}
+{ 't :=
+  #0 'multiresult :=
+    { multiresult not
+      t empty$ not
+      and
+    }
+    { t #1 #1 substring$
+      duplicate$ "-" =
+      swap$ duplicate$ "," =
+      swap$ "+" =
+      or or
+        { #1 'multiresult := }
+        { t #2 global.max$ substring$ 't := }
+      if$
+    }
+  while$
+  multiresult
+}
+
+FUNCTION {format.pages}
+{ pages empty$
+    { "" }
+    { pages multi.page.check
+        { "pp.\ " pages n.dashify tie.or.space.connect }
+        { "pp.\ " pages tie.or.space.connect }
+      if$
+    }
+  if$
+}
+
+FUNCTION {format.eid}
+{ eid empty$
+    { "" }
+    { "art." eid tie.or.space.connect }
+  if$
+}
+
+FUNCTION {format.vol.num.pages}
+{ volume field.or.null
+  number empty$
+    'skip$
+    { "\penalty0 (" number * ")" * *
+      volume empty$
+        { "there's a number but no volume in " cite$ * warning$ }
+        'skip$
+      if$
+    }
+  if$
+  pages empty$
+    'skip$
+    { duplicate$ empty$
+        { pop$ format.pages }
+        { ":\penalty0 " * pages n.dashify * }
+      if$
+    }
+  if$
+}
+
+FUNCTION {format.vol.num.eid}
+{ volume field.or.null
+  number empty$
+    'skip$
+    { "\penalty0 (" number * ")" * *
+      volume empty$
+        { "there's a number but no volume in " cite$ * warning$ }
+        'skip$
+      if$
+    }
+  if$
+  eid empty$
+    'skip$
+    { duplicate$ empty$
+        { pop$ format.eid }
+        { ":\penalty0 " * eid * }
+      if$
+    }
+  if$
+}
+
+FUNCTION {format.chapter.pages}
+{ chapter empty$
+    'format.pages
+    { type empty$
+        { "chapter" }
+        { type "l" change.case$ }
+      if$
+      chapter tie.or.space.connect
+      pages empty$
+        'skip$
+        { ", " * format.pages * }
+      if$
+    }
+  if$
+}
+
+FUNCTION {format.in.ed.booktitle}
+{ booktitle empty$
+    { "" }
+    { editor empty$
+        { "In " booktitle emphasize * }
+        { "In " format.editors * ", " * booktitle emphasize * }
+      if$
+    }
+  if$
+}
+
+FUNCTION {empty.misc.check}
+{ author empty$ title empty$ howpublished empty$
+  month empty$ year empty$ note empty$
+  and and and and and
+  key empty$ not and
+    { "all relevant fields are empty in " cite$ * warning$ }
+    'skip$
+  if$
+}
+
+FUNCTION {format.thesis.type}
+{ type empty$
+    'skip$
+    { pop$
+      type "t" change.case$
+    }
+  if$
+}
+
+FUNCTION {format.tr.number}
+{ type empty$
+    { "Technical Report" }
+    'type
+  if$
+  number empty$
+    { "t" change.case$ }
+    { number tie.or.space.connect }
+  if$
+}
+
+FUNCTION {format.article.crossref}
+{ key empty$
+    { journal empty$
+        { "need key or journal for " cite$ * " to crossref " * crossref *
+          warning$
+          ""
+        }
+        { "In \emph{" journal * "}" * }
+      if$
+    }
+    { "In " }
+  if$
+  " \citet{" * crossref * "}" *
+}
+
+FUNCTION {format.book.crossref}
+{ volume empty$
+    { "empty volume in " cite$ * "'s crossref of " * crossref * warning$
+      "In "
+    }
+    { "Volume" volume tie.or.space.connect
+      " of " *
+    }
+  if$
+  editor empty$
+  editor field.or.null author field.or.null =
+  or
+    { key empty$
+        { series empty$
+            { "need editor, key, or series for " cite$ * " to crossref " *
+              crossref * warning$
+              "" *
+            }
+            { "\emph{" * series * "}" * }
+          if$
+        }
+        'skip$
+      if$
+    }
+    'skip$
+  if$
+  " \citet{" * crossref * "}" *
+}
+
+FUNCTION {format.incoll.inproc.crossref}
+{ editor empty$
+  editor field.or.null author field.or.null =
+  or
+    { key empty$
+        { booktitle empty$
+            { "need editor, key, or booktitle for " cite$ * " to crossref " *
+              crossref * warning$
+              ""
+            }
+            { "In \emph{" booktitle * "}" * }
+          if$
+        }
+        { "In " }
+      if$
+    }
+    { "In " }
+  if$
+  " \citet{" * crossref * "}" *
+}
+
+FUNCTION {article}
+{ output.bibitem
+  format.authors "author" output.check
+  author format.key output
+  new.block
+  format.title "title" output.check
+  new.block
+  crossref missing$
+    { journal emphasize "journal" output.check
+      eid empty$
+        { format.vol.num.pages output }
+        { format.vol.num.eid output }
+      if$
+      format.date "year" output.check
+    }
+    { format.article.crossref output.nonnull
+      eid empty$
+        { format.pages output }
+        { format.eid output }
+      if$
+    }
+  if$
+  format.issn output
+  format.doi output
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {book}
+{ output.bibitem
+  author empty$
+    { format.editors "author and editor" output.check
+      editor format.key output
+    }
+    { format.authors output.nonnull
+      crossref missing$
+        { "author and editor" editor either.or.check }
+        'skip$
+      if$
+    }
+  if$
+  new.block
+  format.btitle "title" output.check
+  crossref missing$
+    { format.bvolume output
+      new.block
+      format.number.series output
+      new.sentence
+      publisher "publisher" output.check
+      address output
+    }
+    { new.block
+      format.book.crossref output.nonnull
+    }
+  if$
+  format.edition output
+  format.date "year" output.check
+  format.isbn output
+  format.doi output
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {booklet}
+{ output.bibitem
+  format.authors output
+  author format.key output
+  new.block
+  format.title "title" output.check
+  howpublished address new.block.checkb
+  howpublished output
+  address output
+  format.date output
+  format.isbn output
+  format.doi output
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {inbook}
+{ output.bibitem
+  author empty$
+    { format.editors "author and editor" output.check
+      editor format.key output
+    }
+    { format.authors output.nonnull
+      crossref missing$
+        { "author and editor" editor either.or.check }
+        'skip$
+      if$
+    }
+  if$
+  new.block
+  format.btitle "title" output.check
+  crossref missing$
+    { format.bvolume output
+      format.chapter.pages "chapter and pages" output.check
+      new.block
+      format.number.series output
+      new.sentence
+      publisher "publisher" output.check
+      address output
+    }
+    { format.chapter.pages "chapter and pages" output.check
+      new.block
+      format.book.crossref output.nonnull
+    }
+  if$
+  format.edition output
+  format.date "year" output.check
+  format.isbn output
+  format.doi output
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {incollection}
+{ output.bibitem
+  format.authors "author" output.check
+  author format.key output
+  new.block
+  format.title "title" output.check
+  new.block
+  crossref missing$
+    { format.in.ed.booktitle "booktitle" output.check
+      format.bvolume output
+      format.number.series output
+      format.chapter.pages output
+      new.sentence
+      publisher "publisher" output.check
+      address output
+      format.edition output
+      format.date "year" output.check
+    }
+    { format.incoll.inproc.crossref output.nonnull
+      format.chapter.pages output
+    }
+  if$
+  format.isbn output
+  format.doi output
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {inproceedings}
+{ output.bibitem
+  format.authors "author" output.check
+  author format.key output
+  new.block
+  format.title "title" output.check
+  new.block
+  crossref missing$
+    { format.in.ed.booktitle "booktitle" output.check
+      format.bvolume output
+      format.number.series output
+      format.pages output
+      address empty$
+        { organization publisher new.sentence.checkb
+          organization output
+          publisher output
+          format.date "year" output.check
+        }
+        { address output.nonnull
+          format.date "year" output.check
+          new.sentence
+          organization output
+          publisher output
+        }
+      if$
+    }
+    { format.incoll.inproc.crossref output.nonnull
+      format.pages output
+    }
+  if$
+  format.isbn output
+  format.doi output
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {conference} { inproceedings }
+
+FUNCTION {manual}
+{ output.bibitem
+  format.authors output
+  author format.key output
+  new.block
+  format.btitle "title" output.check
+  organization address new.block.checkb
+  organization output
+  address output
+  format.edition output
+  format.date output
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {mastersthesis}
+{ output.bibitem
+  format.authors "author" output.check
+  author format.key output
+  new.block
+  format.title "title" output.check
+  new.block
+  "Master's thesis" format.thesis.type output.nonnull
+  school "school" output.check
+  address output
+  format.date "year" output.check
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {misc}
+{ output.bibitem
+  format.authors output
+  author format.key output
+  title howpublished new.block.checkb
+  format.title output
+  howpublished new.block.checka
+  howpublished output
+  format.date output
+  format.issn output
+  format.url output
+  new.block
+  note output
+  fin.entry
+  empty.misc.check
+}
+
+FUNCTION {phdthesis}
+{ output.bibitem
+  format.authors "author" output.check
+  author format.key output
+  new.block
+  format.btitle "title" output.check
+  new.block
+  "PhD thesis" format.thesis.type output.nonnull
+  school "school" output.check
+  address output
+  format.date "year" output.check
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {proceedings}
+{ output.bibitem
+  format.editors output
+  editor format.key output
+  new.block
+  format.btitle "title" output.check
+  format.bvolume output
+  format.number.series output
+  address output
+  format.date "year" output.check
+  new.sentence
+  organization output
+  publisher output
+  format.isbn output
+  format.doi output
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {techreport}
+{ output.bibitem
+  format.authors "author" output.check
+  author format.key output
+  new.block
+  format.title "title" output.check
+  new.block
+  format.tr.number output.nonnull
+  institution "institution" output.check
+  address output
+  format.date "year" output.check
+  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {unpublished}
+{ output.bibitem
+  format.authors "author" output.check
+  author format.key output
+  new.block
+  format.title "title" output.check
+  new.block
+  note "note" output.check
+  format.date output
+  format.url output
+  fin.entry
+}
+
+FUNCTION {default.type} { misc }
+
+
+MACRO {jan} {"January"}
+
+MACRO {feb} {"February"}
+
+MACRO {mar} {"March"}
+
+MACRO {apr} {"April"}
+
+MACRO {may} {"May"}
+
+MACRO {jun} {"June"}
+
+MACRO {jul} {"July"}
+
+MACRO {aug} {"August"}
+
+MACRO {sep} {"September"}
+
+MACRO {oct} {"October"}
+
+MACRO {nov} {"November"}
+
+MACRO {dec} {"December"}
+
+
+
+MACRO {acmcs} {"ACM Computing Surveys"}
+
+MACRO {acta} {"Acta Informatica"}
+
+MACRO {cacm} {"Communications of the ACM"}
+
+MACRO {ibmjrd} {"IBM Journal of Research and Development"}
+
+MACRO {ibmsj} {"IBM Systems Journal"}
+
+MACRO {ieeese} {"IEEE Transactions on Software Engineering"}
+
+MACRO {ieeetc} {"IEEE Transactions on Computers"}
+
+MACRO {ieeetcad}
+ {"IEEE Transactions on Computer-Aided Design of Integrated Circuits"}
+
+MACRO {ipl} {"Information Processing Letters"}
+
+MACRO {jacm} {"Journal of the ACM"}
+
+MACRO {jcss} {"Journal of Computer and System Sciences"}
+
+MACRO {scp} {"Science of Computer Programming"}
+
+MACRO {sicomp} {"SIAM Journal on Computing"}
+
+MACRO {tocs} {"ACM Transactions on Computer Systems"}
+
+MACRO {tods} {"ACM Transactions on Database Systems"}
+
+MACRO {tog} {"ACM Transactions on Graphics"}
+
+MACRO {toms} {"ACM Transactions on Mathematical Software"}
+
+MACRO {toois} {"ACM Transactions on Office Information Systems"}
+
+MACRO {toplas} {"ACM Transactions on Programming Languages and Systems"}
+
+MACRO {tcs} {"Theoretical Computer Science"}
+
+
+READ
+
+FUNCTION {sortify}
+{ purify$
+  "l" change.case$
+}
+
+INTEGERS { len }
+
+FUNCTION {chop.word}
+{ 's :=
+  'len :=
+  s #1 len substring$ =
+    { s len #1 + global.max$ substring$ }
+    's
+  if$
+}
+
+FUNCTION {format.lab.names}
+{ 's :=
+  s #1 "{vv~}{ll}" format.name$
+  s num.names$ duplicate$
+  #2 >
+    { pop$ " et~al." * }
+    { #2 <
+        'skip$
+        { s #2 "{ff }{vv }{ll}{ jj}" format.name$ "others" =
+            { " et~al." * }
+            { " \& " * s #2 "{vv~}{ll}" format.name$ * }
+          if$
+        }
+      if$
+    }
+  if$
+}
+
+FUNCTION {author.key.label}
+{ author empty$
+    { key empty$
+        { cite$ #1 #3 substring$ }
+        'key
+      if$
+    }
+    { author format.lab.names }
+  if$
+}
+
+FUNCTION {author.editor.key.label}
+{ author empty$
+    { editor empty$
+        { key empty$
+            { cite$ #1 #3 substring$ }
+            'key
+          if$
+        }
+        { editor format.lab.names }
+      if$
+    }
+    { author format.lab.names }
+  if$
+}
+
+FUNCTION {author.key.organization.label}
+{ author empty$
+    { key empty$
+        { organization empty$
+            { cite$ #1 #3 substring$ }
+            { "The " #4 organization chop.word #3 text.prefix$ }
+          if$
+        }
+        'key
+      if$
+    }
+    { author format.lab.names }
+  if$
+}
+
+FUNCTION {editor.key.organization.label}
+{ editor empty$
+    { key empty$
+        { organization empty$
+            { cite$ #1 #3 substring$ }
+            { "The " #4 organization chop.word #3 text.prefix$ }
+          if$
+        }
+        'key
+      if$
+    }
+    { editor format.lab.names }
+  if$
+}
+
+FUNCTION {calc.short.authors}
+{ type$ "book" =
+  type$ "inbook" =
+  or
+    'author.editor.key.label
+    { type$ "proceedings" =
+        'editor.key.organization.label
+        { type$ "manual" =
+            'author.key.organization.label
+            'author.key.label
+          if$
+        }
+      if$
+    }
+  if$
+  'short.list :=
+}
+
+FUNCTION {calc.label}
+{ calc.short.authors
+  short.list
+  "("
+  *
+  year duplicate$ empty$
+  short.list key field.or.null = or
+     { pop$ "" }
+     'skip$
+  if$
+  *
+  'label :=
+}
+
+FUNCTION {sort.format.names}
+{ 's :=
+  #1 'nameptr :=
+  ""
+  s num.names$ 'numnames :=
+  numnames 'namesleft :=
+    { namesleft #0 > }
+    {
+      s nameptr "{vv{ } }{ll{ }}{  ff{ }}{  jj{ }}" format.name$ 't :=
+      nameptr #1 >
+        {
+          "   "  *
+          namesleft #1 = t "others" = and
+            { "zzzzz" * }
+            { numnames #2 > nameptr #2 = and
+                { "zz" * year field.or.null * "   " * }
+                'skip$
+              if$
+              t sortify *
+            }
+          if$
+        }
+        { t sortify * }
+      if$
+      nameptr #1 + 'nameptr :=
+      namesleft #1 - 'namesleft :=
+    }
+  while$
+}
+
+FUNCTION {sort.format.title}
+{ 't :=
+  "A " #2
+    "An " #3
+      "The " #4 t chop.word
+    chop.word
+  chop.word
+  sortify
+  #1 global.max$ substring$
+}
+
+FUNCTION {author.sort}
+{ author empty$
+    { key empty$
+        { "to sort, need author or key in " cite$ * warning$
+          ""
+        }
+        { key sortify }
+      if$
+    }
+    { author sort.format.names }
+  if$
+}
+
+FUNCTION {author.editor.sort}
+{ author empty$
+    { editor empty$
+        { key empty$
+            { "to sort, need author, editor, or key in " cite$ * warning$
+              ""
+            }
+            { key sortify }
+          if$
+        }
+        { editor sort.format.names }
+      if$
+    }
+    { author sort.format.names }
+  if$
+}
+
+FUNCTION {author.organization.sort}
+{ author empty$
+    { organization empty$
+        { key empty$
+            { "to sort, need author, organization, or key in " cite$ * warning$
+              ""
+            }
+            { key sortify }
+          if$
+        }
+        { "The " #4 organization chop.word sortify }
+      if$
+    }
+    { author sort.format.names }
+  if$
+}
+
+FUNCTION {editor.organization.sort}
+{ editor empty$
+    { organization empty$
+        { key empty$
+            { "to sort, need editor, organization, or key in " cite$ * warning$
+              ""
+            }
+            { key sortify }
+          if$
+        }
+        { "The " #4 organization chop.word sortify }
+      if$
+    }
+    { editor sort.format.names }
+  if$
+}
+
+
+FUNCTION {presort}
+{ calc.label
+  label sortify
+  "    "
+  *
+  type$ "book" =
+  type$ "inbook" =
+  or
+    'author.editor.sort
+    { type$ "proceedings" =
+        'editor.organization.sort
+        { type$ "manual" =
+            'author.organization.sort
+            'author.sort
+          if$
+        }
+      if$
+    }
+  if$
+  "    "
+  *
+  year field.or.null sortify
+  *
+  "    "
+  *
+  cite$
+  *
+  #1 entry.max$ substring$
+  'sort.label :=
+  sort.label *
+  #1 entry.max$ substring$
+  'sort.key$ :=
+}
+
+ITERATE {presort}
+
+SORT
+
+STRINGS { longest.label last.label next.extra }
+
+INTEGERS { longest.label.width last.extra.num number.label }
+
+FUNCTION {initialize.longest.label}
+{ "" 'longest.label :=
+  #0 int.to.chr$ 'last.label :=
+  "" 'next.extra :=
+  #0 'longest.label.width :=
+  #0 'last.extra.num :=
+  #0 'number.label :=
+}
+
+FUNCTION {forward.pass}
+{ last.label label =
+    { last.extra.num #1 + 'last.extra.num :=
+      last.extra.num int.to.chr$ 'extra.label :=
+    }
+    { "a" chr.to.int$ 'last.extra.num :=
+      "" 'extra.label :=
+      label 'last.label :=
+    }
+  if$
+  number.label #1 + 'number.label :=
+}
+
+FUNCTION {reverse.pass}
+{ next.extra "b" =
+    { "a" 'extra.label := }
+    'skip$
+  if$
+  extra.label 'next.extra :=
+  extra.label
+  duplicate$ empty$
+    'skip$
+    { "{\natexlab{" swap$ * "}}" * }
+  if$
+  'extra.label :=
+  label extra.label * 'label :=
+}
+
+EXECUTE {initialize.longest.label}
+
+ITERATE {forward.pass}
+
+REVERSE {reverse.pass}
+
+FUNCTION {bib.sort.order}
+{ sort.label  'sort.key$ :=
+}
+
+ITERATE {bib.sort.order}
+
+SORT
+
+FUNCTION {begin.bib}
+{   preamble$ empty$
+    'skip$
+    { preamble$ write$ newline$ }
+  if$
+  "\begin{thebibliography}{" number.label int.to.str$ * "}" *
+  write$ newline$
+  "\providecommand{\natexlab}[1]{#1}"
+  write$ newline$
+  "\providecommand{\url}[1]{\texttt{#1}}"
+  write$ newline$
+  "\expandafter\ifx\csname urlstyle\endcsname\relax"
+  write$ newline$
+  "  \providecommand{\doi}[1]{doi: #1}\else"
+  write$ newline$
+  "  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi"
+  write$ newline$
+}
+
+EXECUTE {begin.bib}
+
+EXECUTE {init.state.consts}
+
+ITERATE {call.type$}
+
+FUNCTION {end.bib}
+{ newline$
+  "\end{thebibliography}" write$ newline$
+}
+
+EXECUTE {end.bib}
+\end{filecontents*}
+% delivery_references.bib: SHA256 000ee25428dc4e888e1e7f1df9dc0934372bcae0fcd196440a2503f15b8a106c
+\begin{filecontents*}[overwrite]{delivery_references.bib}
+@inproceedings{xia2021causal,
+  title={The Causal-Neural Connection: Expressiveness, Learnability, and Inference},
+  author={Xia, Kevin and Lee, Kai-Zhan and Bengio, Yoshua and Bareinboim, Elias},
+  booktitle={Advances in Neural Information Processing Systems},
+  year={2021}, url={https://arxiv.org/abs/2107.00793}}
+@article{gamella2025chambers,
+  title={Causal chambers as a real-world physical testbed for AI methodology},
+  author={Gamella, Juan L. and Peters, Jonas and B{\"u}hlmann, Peter},
+  journal={Nature Machine Intelligence}, volume={7}, pages={107--118},
+  year={2025}, doi={10.1038/s42256-024-00964-x}}
+
+@article{peters2016invariant,
+  title={Causal Inference by using Invariant Prediction: Identification and Confidence Intervals},
+  author={Peters, Jonas and B{\"u}hlmann, Peter and Meinshausen, Nicolai},
+  journal={Journal of the Royal Statistical Society Series B: Statistical Methodology},
+  volume={78}, number={5}, pages={947--1012}, year={2016},
+  doi={10.1111/rssb.12167}}
+@article{scholkopf2021representation,
+  title={Toward Causal Representation Learning},
+  author={Sch{\"o}lkopf, Bernhard and Locatello, Francesco and Bauer, Stefan and Ke, Nan Rosemary and Kalchbrenner, Nal and Goyal, Anirudh and Bengio, Yoshua},
+  journal={Proceedings of the IEEE}, volume={109}, number={5},
+  pages={612--634}, year={2021}, doi={10.1109/JPROC.2021.3058954}, url={https://arxiv.org/abs/2102.11107}}
+@article{cesabianchi2004generalization,
+  title={On the Generalization Ability of On-Line Learning Algorithms},
+  author={Cesa-Bianchi, Nicol{\`o} and Conconi, Alex and Gentile, Claudio},
+  journal={IEEE Transactions on Information Theory}, volume={50}, number={9},
+  pages={2050--2057}, year={2004}, doi={10.1109/TIT.2004.833339},
+  url={https://cesa-bianchi.di.unimi.it/Pubblicazioni/J20.pdf}}
+@inproceedings{ross2011reduction,
+  title={A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning},
+  author={Ross, Stephane and Gordon, Geoffrey and Bagnell, Drew},
+  booktitle={Proceedings of the Fourteenth International Conference on Artificial Intelligence and Statistics},
+  series={Proceedings of Machine Learning Research}, volume={15},
+  pages={627--635}, year={2011}, url={https://proceedings.mlr.press/v15/ross11a.html}}
+@inproceedings{prabhu2020gdumb,
+  title={{GDumb}: A Simple Approach that Questions Our Progress in Continual Learning},
+  author={Prabhu, Ameya and Torr, Philip H. S. and Dokania, Puneet K.},
+  booktitle={European Conference on Computer Vision}, year={2020},
+  url={https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123470511.pdf}}
+@inproceedings{rolnick2019replay,
+  title={Experience Replay for Continual Learning},
+  author={Rolnick, David and Ahuja, Arun and Schwarz, Jonathan and Lillicrap, Timothy P. and Wayne, Greg},
+  booktitle={Advances in Neural Information Processing Systems}, year={2019},
+  url={https://arxiv.org/abs/1811.11682}}
+\end{filecontents*}
+% delivery_claims.tex: SHA256 78f7cb04979c2998ab226a2ea843c3a577328a4bf92d0ab809264412a600cbcd
+\begin{filecontents*}[overwrite]{delivery_claims.tex}
+% Generated by scripts/research/generate_delivery_claims.py; do not hand edit.
+\newcommand{\DeliveryN}{12}
+\newcommand{\DeliveryRatio}{0.183}
+\newcommand{\DeliveryCILow}{0.102}
+\newcommand{\DeliveryCIHigh}{0.327}
+\newcommand{\DeliveryP}{0.00146484}
+\newcommand{\DeliveryWins}{11}
+\newcommand{\WorseSeed}{124753321}
+\newcommand{\WorseOnline}{0.196339}
+\newcommand{\WorseDelivery}{0.395658}
+\newcommand{\WorseRatio}{2.015177}
+\newcommand{\ConfirmationChargedCalls}{60,962}
+\newcommand{\AOnlineRatio}{0.522}
+\newcommand{\AFlatRatio}{0.551}
+\newcommand{\AMatchedRatio}{0.423}
+\newcommand{\ABufferRatio}{0.096}
+\newcommand{\AOptimizationRatio}{0.034}
+\newcommand{\AUnusedRatio}{0.980}
+\newcommand{\AFitCPU}{10.87}
+\newcommand{\AWorseLocalMSE}{8.07\times10^{-5}}
+\newcommand{\AWorseChainMSE}{2.86\times10^{-4}}
+\newcommand{\AWorseShiftMSE}{2.09\times10^{-4}}
+\newcommand{\AWorseOutsidePercent}{0.020}
+\newcommand{\AWorseSnapped}{0.397}
+\newcommand{\AUnusedWins}{10}
+\newcommand{\AUnusedMin}{0.644}
+\newcommand{\AUnusedMax}{2.874}
+\newcommand{\AUnusedSnappedRatio}{0.469}
+\newcommand{\AFlatInitOneRatio}{0.458}
+\newcommand{\AFlatInitTwoRatio}{0.519}
+\newcommand{\CRollingWins}{7}
+\newcommand{\CPhysicsWins}{3}
+\newcommand{\CFourierWins}{0}
+\newcommand{\CCPU}{0.053}
+\end{filecontents*}
+% delivery_attribution_table.tex: SHA256 a6f4834b5256d47c1f41b844346a5753b95edb170a905a83448c1447b662ce9e
+\begin{filecontents*}[overwrite]{delivery_attribution_table.tex}
+% Generated exploratory init0 matrix; no inference from exposed grid.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{llrrrr}
+\toprule
+Data & Learner & Epochs & NMSE/online & Snap/online & CPU h\\
+\midrule
+Final50 & SCM & 100 & 26.889 & 4.082 & 0.002\\
+Final50 & SCM & 30,000 & 5.466 & 2.593 & 0.390\\
+Final50 & flat & 100 & 29.230 & 4.126 & $<0.001$\\
+Final50 & flat & 30,000 & 29.158 & 4.103 & 0.078\\
+Admitted & SCM & 100 & 16.661 & 3.865 & 0.003\\
+Admitted & SCM & 30,000 & 0.533 & 0.435 & 0.783\\
+Admitted & flat & 100 & 13.198 & 3.695 & 0.001\\
+Admitted & flat & 30,000 & 2.395 & 1.949 & 0.159\\
+All paid & SCM & 100 & 15.448 & 3.846 & 0.006\\
+All paid & SCM & 30,000 & 0.522 & 0.204 & 1.455\\
+All paid & flat & 100 & 12.248 & 3.655 & 0.002\\
+All paid & flat & 30,000 & 0.948 & 0.950 & 0.270\\
+All paid & ridge & -- & 28.890 & 4.150 & 0.002\\
+All paid & polynomial & -- & 4.440 & 2.737 & 0.002\\
+All paid & tree & -- & 24.582 & 3.883 & 0.004\\
+All paid & flat & CPU & 1.234 & 1.206 & 1.455\\
+\bottomrule
+\end{tabular}
+\caption{Exploratory primary initialization0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights; lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding imports and evaluation. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}
+\label{tab:attribution}
+\end{table}
+\end{filecontents*}
+% delivery_history_table.tex: SHA256 12286aea9f3404e1290232f90fc6a15d66ba2fb5dcebdabb62d2c9b81709ed76
+\begin{filecontents*}[overwrite]{delivery_history_table.tex}
+% Generated from accepted fixed-init0 attribution rows; no selection.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{lrrrrr}
+\toprule
+History & Online NMSE & SCM NMSE & Flat NMSE & SCM/admitted & SCM snap\\
+\midrule
+27424209 & 0.002492 & 0.001273 & 0.002948 & 0.959 & 0.023\\
+1726880744 & 0.003233 & 0.001782 & 0.002801 & 0.946 & 0.148\\
+735595885 & 0.002856 & 0.001306 & 0.002708 & 0.877 & 0.017\\
+983656467 & 0.003046 & 0.001319 & 0.002665 & 0.935 & 0.029\\
+124753321 & 0.002734 & 0.004567 & 0.002534 & 2.874 & 0.397\\
+921441405 & 0.002524 & 0.001342 & 0.002783 & 0.929 & 0.042\\
+934168586 & 0.003245 & 0.001304 & 0.002946 & 0.854 & 0.020\\
+546725957 & 0.002488 & 0.001339 & 0.002727 & 0.792 & 0.042\\
+520888668 & 0.002959 & 0.001585 & 0.002682 & 1.091 & 0.116\\
+1091699608 & 0.003617 & 0.001307 & 0.002751 & 0.644 & 0.019\\
+585254818 & 0.002309 & 0.001301 & 0.002742 & 0.884 & 0.018\\
+884825602 & 0.003601 & 0.001272 & 0.002688 & 0.939 & 0.020\\
+\bottomrule
+\end{tabular}
+\caption{Every archived history at fixed initialization zero. SCM and flat use all paid rows and 30,000 updates; admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history124753321 and are not prospective tests.}
+\label{tab:attribution-histories}
+\end{table}
+\end{filecontents*}
+% delivery_physical_table.tex: SHA256 05d1fb10c68cb560c4d71f1cb822373fe298bb93727f7be9c0e4c70f1a8a5d60
+\begin{filecontents*}[overwrite]{delivery_physical_table.tex}
+% Generated from the fully accepted eleven-condition physical receipt.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+Condition & Delivery & Rolling & Physics & Fourier\\
+\midrule
+blue\_128 & 0.359 & 0.156 & 0.058 & 0.049\\
+blue\_255 & 0.012 & 0.017 & 0.026 & $9.43\times10^{-4}$\\
+blue\_64 & 0.471 & 2.087 & 0.103 & 0.102\\
+green\_128 & 0.789 & 0.290 & 0.058 & 0.046\\
+green\_255 & 0.010 & 0.038 & 0.018 & 0.002\\
+green\_64 & 5.167 & 3.307 & 0.121 & 0.102\\
+red\_128 & 0.276 & 0.389 & 0.047 & 0.045\\
+red\_255 & 0.011 & 0.063 & 0.024 & 0.004\\
+red\_64 & 1.119 & 0.823 & 0.159 & 0.135\\
+white\_128 & 0.163 & 0.462 & 0.044 & 0.042\\
+white\_255 & 0.020 & 0.023 & 0.006 & 0.002\\
+\bottomrule
+\end{tabular}
+\caption{Continuous held-out MSE divided by the training variance for every physical condition. Lower is better. These conditions are readings of one apparatus, not independent systems.}
+\label{tab:physical}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrr}
+\toprule
+Condition & Delivery/Rolling & Delivery/Physics & Delivery/Fourier\\
+\midrule
+blue\_128 & 2.55 [0.50, 8.03] & 6.61 [0.97, 17.08] & 7.88 [1.40, 17.91]\\
+blue\_255 & 0.71 [0.24, 1.01] & 0.47 [0.10, 1.22] & 13.05 [2.29, 28.48]\\
+blue\_64 & 0.22 [0.07, 1.12] & 4.38 [1.56, 8.49] & 4.41 [1.56, 8.29]\\
+green\_128 & 2.58 [0.43, 4.38] & 12.96 [1.15, 38.54] & 16.22 [1.91, 46.75]\\
+green\_255 & 0.23 [0.06, 2.40] & 0.54 [0.10, 1.57] & 6.26 [1.41, 19.05]\\
+green\_64 & 1.56 [0.17, 1.78] & 43.05 [1.14, 125.29] & 51.08 [1.51, 136.39]\\
+red\_128 & 0.75 [0.08, 2.97] & 6.47 [1.04, 14.30] & 6.64 [1.21, 13.20]\\
+red\_255 & 0.18 [0.06, 0.60] & 0.52 [0.18, 1.36] & 2.74 [1.48, 4.21]\\
+red\_64 & 1.31 [0.19, 4.59] & 6.54 [1.40, 16.18] & 7.37 [1.73, 18.01]\\
+white\_128 & 0.36 [0.12, 1.12] & 3.86 [1.09, 7.31] & 3.95 [1.16, 7.86]\\
+white\_255 & 0.85 [0.16, 3.55] & 2.92 [0.54, 6.83] & 8.57 [1.65, 15.65]\\
+\bottomrule
+\end{tabular}
+\caption{Equal-action-block error ratios and conditional 95\% bootstrap intervals. Eight held-out blocks are resampled within each condition. These ratios weight blocks equally, whereas Table~\ref{tab:physical} weights held-out rows equally. Intervals describe uncertainty conditional on this apparatus and observed blocks; they are not independent-world confidence intervals or multiplicity-adjusted superiority tests.}
+\label{tab:physical-ci}
+\end{table}
+\end{filecontents*}
+% delivery_theory.tex: SHA256 5a176b4f0d979a15dfec8cb947f115bd90ae17dbf96c2179d64fda8c3d693250
+\begin{filecontents*}[overwrite]{delivery_theory.tex}
+\section{Conditions and limits of delivery}
+\label{sec:theory}
+We study a known acyclic graph with measured parents. The following statements
+explain permissible reuse and possible error amplification. They do not prove
+identification for arbitrary neural models or certify the fitted networks.
+
+\begin{samepage}
+\begin{proposition}[Mechanism eligibility]
+Let $V_i=f_i(V_{\mathrm{Pa}(i)})+U_i$ be an invariant additive-noise
+mechanism. In each experiment, suppose the current exogenous noises are
+independent across mechanisms and independent of all past experiments; $U_i$
+is integrable and has mean zero. An intervention policy may depend on previous
+experiments, but must choose its action before the current exogenous noises are
+realized. Retain a row only when the action does not replace mechanism $i$,
+and let $S_i$ denote the final retained-row indicator, including any terminal
+selection. Require $\mathbb E[U_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1]=0$
+on the retained support, where $A$ is the current action and $H$ the preceding
+history. Conditional independence of $S_i$ and $U_i$ given parents, action and
+history is a sufficient retention condition. Then, in the retained mixture,
+\[
+ \mathbb{E}[V_i\mid V_{\mathrm{Pa}(i)}=p,\text{retained}]=f_i(p).
+\]
+Thus squared-loss regression can target this mechanism on supported parent
+values, assuming finite second moments. This is an estimand statement; finite
+data, optimization and extrapolation guarantees require further assumptions.
+\end{proposition}
+\end{samepage}
+\begin{proof}
+In an acyclic graph, a node's parents depend only on earlier exogenous noises
+and the chosen action. The current $U_i$ is independent of those noises and of
+past experiments. Since the policy precedes the current realization, and the
+stated retention condition preserves conditional mean zero. Taking the further
+conditional expectation over action and history yields the assertion after
+substitution of the structural equation.
+The conditional expectation minimizes population squared loss on the retained
+support. No statement outside that support follows.
+\end{proof}
+
+Confounding, temporal dependence of current noise on prior experiments,
+missing parents, interventions that change rather than clamp a
+mechanism, and response-dependent retention can invalidate the premise. In
+particular, selecting the best probe using its measured response can change
+the noise distribution. All-paid reuse avoids discarding probes on that basis,
+but still requires invariant mechanisms and measured parents. The current
+confirmation uses a deterministic emulator; this distinction matters for
+any extension to noisy systems. Even within this additive-noise class,
+composing conditional means need not produce a
+downstream interventional mean through a nonlinear mechanism.
+For example, clamp $W=0$, set $X=W+U$ with
+$\Pr(U=1)=\Pr(U=-1)=1/2$, and let $Y=X^2$. The conditional-mean mechanism
+for $X$ gives zero at $W=0$, so composing the mean mechanisms predicts zero
+for $Y$. The actual interventional expectation is one. The zero-noise
+structural map and the noisy interventional mean are distinct estimands,
+even when both conditional-mean mechanisms are exactly known.
+
+\begin{proposition}[Deterministic DAG propagation]
+Consider a deterministic SCM and its learned functions $\hat f_i$, evaluated
+in topological order under identical correctly clamped interventions.
+For each non-clamped node, assume
+$|\hat f_i(v_{\mathrm{Pa}(i)})-f_i(v_{\mathrm{Pa}(i)})|\leq\epsilon_i$
+at every true parent vector in the deployment support. Assume also
+\[
+ |\hat f_i(p)-\hat f_i(q)|\leq
+ \sum_{j\in\mathrm{Pa}(i)}L_{ij}|p_j-q_j|
+\]
+on a region containing both true and predicted parent vectors, with
+$L_{ij}\geq0$. Writing $e_i=|\hat v_i-v_i|$, one has
+\[
+ e_i\leq\epsilon_i+\sum_{j\in\mathrm{Pa}(i)}L_{ij}e_j.
+\]
+Correctly clamped nodes have $e_i=0$. If their rows in $L$ and their local
+bounds are set to zero, the vector bound is
+$e\leq(I-L)^{-1}\epsilon=\sum_{k=0}^{d-1}L^k\epsilon$,
+where $d$ is the number of nodes and $L$ is strictly triangular in topological
+order.
+\end{proposition}
+\begin{proof}
+Add and subtract $\hat f_i(v_{\mathrm{Pa}(i)})$ and apply the triangle
+inequality. The local approximation bounds one term; the coordinate Lipschitz
+inequality bounds the other. Clamps are identical by assumption. Substitution
+in topological order gives the path sum. A strictly triangular $d\times d$
+matrix satisfies $L^d=0$, so the finite geometric sum is its inverse.
+\end{proof}
+The bound can amplify a small local error along deep or high-gain paths.
+Observed-parent test MSE is neither a uniform $\epsilon_i$ nor a verified
+Lipschitz constant. Our residual and support diagnostics are explanatory
+measurements, not certified instances of this proposition.
+
+\begin{proposition}[Root interventions need not constrain propagation]
+Consider the known graph $R\to M$, $R\to Y$, $M\to Y$, with
+$M=R$ and $Y=f(R,M)=R+M$. For any $K\notin\{-1,1\}$, the alternative
+mechanism $g_K(R,M)=R+M+K(M-R)$ uses both declared parents and agrees with
+$f$ under every intervention on $R$ alone. If a learned upstream mechanism
+instead predicts $\hat M=R+\delta$, its free-running prediction using $g_K$
+has error $|(1+K)\delta|$, although its observed-parent fit is exact.
+\end{proposition}
+\begin{proof}
+Root interventions leave the parent support of $Y$ on the diagonal $M=R$,
+where the added term vanishes. Substitution of $\hat M$ gives
+$g_K(R,\hat M)=2R+(1+K)\delta$, whereas the true outcome is $2R$.
+Both parent coefficients are nonzero for the stated choices of $K$.
+\end{proof}
+This failure need not leave a coordinate bounding box. For example, take
+$R=0.25$, $\delta=0.01$ and $K=1000$. Both true and predicted parent vectors
+are inside $[-1,1]^2$, but the prediction error is $10.01$. Observations
+covering the diagonal cannot constrain sensitivity normal to it; more root
+observations alone do not remove that ambiguity. An internal intervention can
+distinguish these mechanisms. Our prospective root-only protocol assesses
+prediction under held-out root interventions, not unrestricted internal-action
+identification. This is an existence example, not a diagnosis of a measured
+failure or a verified bound for the fitted networks.
+
+\begin{proposition}[Quantization margin]
+For $m\geq2$ distinct ordered levels $\ell_1<\cdots<\ell_m$, let $Q$ assign the nearest
+level, with a fixed tie rule, and let
+$b_k=(\ell_k+\ell_{k+1})/2$. Define
+$M(y)=\min_k|y-b_k|$. If $|\hat y-y|<M(y)$ then
+$Q(\hat y)=Q(y)$. If a pointwise prediction bound $B(y)$ is valid,
+$\Pr(Q(\hat y)\ne Q(y))\leq\Pr(M(y)\leq B(y))$ under any specified deployment
+probability measure for which the bound holds almost surely.
+\end{proposition}
+\begin{proof}
+The open interval of radius $M(y)$ around $y$ crosses no decision boundary.
+Consequently both values occupy the same decision cell. The contrapositive
+implies that a quantization error requires $M(y)\leq|\hat y-y|\leq B(y)$.
+Strict inequality excludes boundary ties.
+\end{proof}
+Snapped error depends on the location of errors relative to decision boundaries;
+similar MSE alone need not imply similar exact-level accuracy.
+This finite-level example clips outside values to endpoint cells. The empirical
+scorer instead extends the lattice past both endpoints. The same argument uses
+the complete set of boundaries of that extended quantizer; at a recorded true
+level, its nearest boundary distance remains half the adjacent gap. The
+empirical evaluation measure is uniform over the archived grid.
+
+\paragraph{Counterexamples.}
+For a constant predictor and test response zero, fitting a single training
+response zero gives zero risk; adding a noisy response two makes its
+least-squares mean one and test risk one. With a noisy training target one,
+optimizing a constant from $0.1$ to one reduces training error but increases
+test error. For a two-stage chain, suppose the true parent and child are zero
+on the observed support, the learned parent predicts $0.1$, and the learned
+child is $\hat f(z)=100z$. The child has zero observed-parent error at zero,
+but its free-running prediction is ten. These are existence examples, not
+descriptions of the measured histories. Analytically solved chains, forks,
+colliders and clamps are checked by executable tests.
+\end{filecontents*}
+% END EDITOR COMPANION BUNDLE
+\documentclass[10pt]{article}
+\usepackage{tmlr}
 \usepackage{amsmath,amssymb,amsthm,booktabs,hyperref}
 \newtheorem{proposition}{Proposition}[section]
 \input{delivery_claims}
-\title{From Experimental Histories to Causal Surrogates:\\Data Reuse, Optimization, and Error Propagation}
-\author{Research draft}
-\date{6 October 2026 --- attribution completed; prospective validation pending}
+\title{From Experimental Histories to Causal Surrogates:\\Data Reuse, Optimization, and Error Propagation\thanks{AI-assisted tools
+supported research planning, code development, analysis and manuscript drafting.
+The human authors are responsible for the final scientific assessment,
+verification and submission.}}
+\author{\name Anonymous authors}
+\newif\ifdeliverydraft
+\deliverydrafttrue % Remove the working notice only after prospective acceptance.
+\hypersetup{pdftitle={From Experimental Histories to Causal Surrogates},pdfauthor={Anonymous authors}}
 \begin{document}
 \maketitle
+\ifdeliverydraft
+\noindent\textbf{Working manuscript, 7 October 2026.} Archived attribution and
+physical validation are complete. The frozen independent-system study is in
+progress; its results and final scientific review remain pending.
+\fi
 \begin{abstract}
 A sequential experimental learner need not be the best model delivered after
 collection ends. We investigate whether retaining and refitting a completed
@@ -30,57 +2494,168 @@ mechanism eligibility, deterministic error propagation and quantization
 sensitivity, with explicit counterexamples to monotonic improvement.
 An archived physical case study retains all eleven conditions: delivery beats
 rolling learning in \CRollingWins{} conditions but Fourier regression in
-\CFourierWins{}. Independent-system comparisons remain necessary before
-submission. The present evidence supports a scoped
+\CFourierWins{}. A frozen independent-system comparison is in progress and its results remain
+pending. The present evidence supports a scoped
 post-collection delivery finding, without an acquisition or foundation-model
 claim.
 \end{abstract}
 
 \section{Introduction}
-Experimental collection and final model delivery have different constraints.
-An online learner must update quickly and may discard observations to bound
-memory or computation. After collection, a separate fit can use retained
-observations, including paid probes and former validation rows. Any apparent
-benefit then has several possible explanations: a larger retained data set,
-more fitting compute, different optimization history, or the use of a known
-mechanism graph. Our aim is to separate these explanations.
+\label{sec:introduction}
+An experimental learner has two jobs: maintain a useful model while observations
+arrive, and deliver a predictor after collection ends. These jobs can favor
+different uses of the same paid observations. A rolling buffer limits update
+cost, but it also forgets earlier parts of the experimental support. A completed
+history permits a fresh batch fit, whose extra computation is spent after the
+experimental responses have already been obtained. Evaluating only the online
+learner can therefore understate the predictive value of the collected data.
+Conversely, an improvement after refitting can be wrongly credited to causal
+factorization when ordinary data retention or optimization explains it.
 
-The completed comparison supplies evidence for a delivery recipe on one
-emulator. The experimental program below is designed to test whether that
-recipe has a distinct causal-surrogate contribution. An ordinary flat refit
-explaining the result would narrow the contribution to delivery and experimental
-accounting. We will retain that conclusion rather than infer a more general
-architectural advantage from a favorable aggregate. Completed exploratory
-attribution supports carrying the structured recipe to a prospective test,
-while retaining its worsening history and limitations.
+We study this distinction for structural causal model (SCM) surrogates with a
+known graph and measured intermediate variables. A mechanism network is fit on
+observed parents, but a deployed chain must use its own predicted intermediates.
+Thus a local regression improvement and a downstream prediction improvement
+are different outcomes. Intervention masks determine which observations can
+estimate each mechanism, and the joint parent support determines where such
+estimates are constrained. These details matter even when every measured
+variable lies inside its training range.
 
-\paragraph{Current contributions and scope.}
-We report a completed, receipt-backed comparison across repeated acquisition
-histories of one fixed system; derive conditions and limitations relevant to
-reuse and chain prediction; and report exploratory attribution that separates
-retained data from fitting budget. An archived physical case study establishes
-a boundary against strong domain controls; independent-system results are
-pending. Neither causal structure discovery nor learned experiment selection is
-a current contribution. No foundation model is used in the delivery experiment.
+Our central question is empirical: \emph{what does a completed experimental
+history buy at delivery time, and what accounts for that benefit?} We investigate
+three explanations: retaining observations that a rolling buffer discards,
+using paid observations that never entered a live update, and performing more
+optimization. A direct flat predictor and fixed classical regressors test
+whether a simpler refit can explain the result. We use ``delivery'' to denote
+this post-collection fitting procedure, without implying a new optimization
+algorithm or a general identification guarantee.
 
-\section{Problem and related work}
-We assume a known directed acyclic graph. A surrogate predicts each nonroot
-node from its measured parents during fitting and its predicted parents during
-free-running deployment. Correct interventions replace the relevant prediction
-with its clamped value. A roots-to-target flat predictor supplies a simpler
-prediction control; when intermediate mechanisms are intervened on, a flat
-predictor without action inputs cannot represent that response using roots alone.
-Such rows are excluded from its observational-map fit.
+\paragraph{Contributions.}
+First, we document a completed comparison over repeated histories of one fixed
+emulator and an exploratory factorial attribution with unchanged original
+weights and explicit fitting costs. Second, we formalize the eligibility of
+interventional observations for mechanism regression and explain the distinction
+between observed-parent fit and free-running prediction through propagation
+bounds and support counterexamples. These elementary results clarify the
+empirical estimand and its limits; they are not new general causal-identification
+theorems. Third, we report an archived physical prediction study with domain
+controls and all conditions retained, including unfavorable results. A frozen
+prospective study tests the selected recipe on independent parameterizations
+and reserved action blocks; its outcomes remain pending in this working version.
 
-The connection between neural models and SCMs already has substantial theory.
-Expressiveness is distinct from causal learnability, and structural constraints
-and identification assumptions matter \citep{xia2021causal}. We do not claim
-that neural approximation or low MSE identifies an unrestricted SCM. Our
-conditional mechanism regression and deterministic propagation statements
-address a much narrower known-graph setting. Causal Chambers provide an external
-physical apparatus with published causal models \citep{gamella2025chambers};
-the archive study assesses physical prediction under that apparatus's
-conditions, without claiming new live experiment design.
+Within the scratch-fit matrix, long fits on retained histories outperform
+final-buffer fits and 100-update fits; adding unused paid rows changes aggregate
+continuous error much less. These conditional recipe contrasts do not partition
+the original online-to-delivery gain. The matrix also favors the structured recipe against the selected flat
+controls on the exposed evaluation grid. Differences in usable rows,
+intermediate supervision and computation limit that interpretation. The physical
+study supplies a complementary boundary: a domain-informed Fourier predictor
+outperforms neural delivery in every evaluated condition. Our contribution is
+therefore an assessment of delivery behavior and accounting, with its scope
+fixed by the controls and evaluation design.
+
+\section{Setting and delivery procedure}
+\label{sec:setting}
+Let $G$ be a known DAG, $\mathrm{Pa}(i)$ the parents of node $i$, and $R$ its
+root nodes. A paid history is a sequence
+$\mathcal H=\{(a_t,v_t)\}_{t=1}^{T}$, where $a_t$ specifies the intervention
+set $I_t$ and its clamped values, and $v_t$ records all measured nodes. A response
+is counted when obtained, including duplicate commands and probes that were
+not chosen for an online update. Observation reuse adds fitting computation,
+not experimental responses.
+
+For an invariant deterministic mechanism $v_i=f_i(v_{\mathrm{Pa}(i)})$, define
+its eligible rows by $E_i(\mathcal H)=\{t:i\notin I_t\}$. With a retained row
+set $S$, the delivery head minimizes the empirical objective
+\begin{equation}
+ \widehat{\mathcal L}_{i,S}(\theta_i)=
+ \frac{1}{|S\cap E_i|}\sum_{t\in S\cap E_i}
+ \bigl(\hat f_{i,\theta_i}(v_{t,\mathrm{Pa}(i)})-v_{t,i}\bigr)^2.
+ \label{eq:local-objective}
+\end{equation}
+The objective requires $|S\cap E_i|>0$; an empty eligible set supplies no fitted
+mechanism and blocks a delivery claim for that head. This objective uses measured parents during fitting. At deployment, each
+non-clamped node is evaluated in topological order at predicted parents;
+clamped nodes take their specified values. We call this \emph{free-running}
+prediction. For noisy systems, conditional-mean regression is justified only
+under the assumptions in Section~\ref{sec:theory}; recursively composing such
+means is not generally an interventional-mean estimator.
+
+\paragraph{Recipe and simpler control.}
+The selected delivery recipe fits separate two-hidden-layer ReLU networks of
+width 64 from scratch, with full-batch Adam, learning rate $0.002$, and 30,000
+updates per head. Initialization zero is the deployment specification. A
+100-update version is the optimization ablation. The simpler control uses the
+same MLP form for a direct root-to-target regression. It predicts the composed
+map without supplying intermediate labels. In the archived attribution,
+intermediate-intervention rows are excluded from this flat regression because
+its root-only inputs cannot represent those responses. In the prospective
+root-only design, all training rows are eligible for every nonroot head and
+for the flat predictor. Intermediate supervision and total parameter counts
+still differ. These comparisons evaluate complete recipes rather than isolating
+architecture with identical supervision.
+
+\paragraph{Endpoints.}
+For a target $Y$ and an evaluation action set $\mathcal A$, continuous MSE is
+$|\mathcal A|^{-1}\sum_{a\in\mathcal A}(\hat y(a)-y(a))^2$.
+Prospective normalized MSE (NMSE) divides this quantity by the target variance
+in the corresponding training history, using no held-out responses to set the
+scale. Archived attribution instead normalizes by the population target variance
+of its exposed grid, shared across arms; physical errors use each condition's
+training target variance. Exact-level error is the fraction with
+$Q(\hat y)\ne Q(y)$ for the fixed archived quantizer. It extends the recorded
+level lattice beyond both endpoints using the adjacent end spacing and resolves
+midpoint ties downward, rather than clipping predictions to endpoint levels.
+Nonfinite predictions are invalid for scientific acceptance.
+It is secondary for genuinely quantized targets outside the archival confirmation;
+it is not interchangeable with continuous prediction error. We distinguish
+exposed-grid assessment, which includes acquired inputs, from action-block
+holdout evaluation.
+
+\section{Related work}
+\label{sec:related}
+\paragraph{Causal models and invariance.}
+Neural causal models connect expressive function classes to structural causal
+inference, but expressiveness does not itself establish learnability or
+identification \citep{xia2021causal}. Our setting supplies the graph and measured
+parents rather than recovering causal structure from unrestricted observations.
+Invariant prediction uses stable relationships across experimental settings
+for causal inference \citep{peters2016invariant}. Here invariance is an assumption
+supporting eligible-row regression; we do not perform invariant-prediction
+structure selection or claim its confidence guarantees. Work on causal
+representation learning addresses learning causal variables and mechanisms
+from observations \citep{scholkopf2021representation}. We assume the variables
+are already measured, so representation discovery is outside the study.
+
+\paragraph{Online learning and final prediction.}
+Obtaining a final predictor from sequential learning has a substantial
+literature. Online-to-batch results can extract predictors with risk bounds
+from online hypotheses under specified sampling assumptions
+\citep{cesabianchi2004generalization}. Our procedure instead fits anew on a
+retained interventional history and measures the data-use and compute changes.
+Its adaptive histories and neural optimization do not inherit those bounds.
+Batch refitting and replay are existing tools; the contribution here is the
+controlled account of which rows, fitting budgets and deployment semantics
+explain the observed delivery behavior.
+GDumb already stores streaming examples and trains from scratch at test time
+\citep{prabhu2020gdumb}; experience replay retains earlier samples during
+continual learning \citep{rolnick2019replay}. Thus separating collection from
+scratch fitting is established. Our specific assessment concerns intervention
+eligibility, the difference between measured-parent fitting and predicted-parent
+deployment, admitted-versus-paid response accounting, and constrained recipe
+comparisons, rather than a new temporal fitting principle.
+
+\paragraph{Prediction-dependent inputs and physical validation.}
+Sequential prediction can fail when an earlier prediction changes later inputs;
+imitation-learning reductions address this distribution mismatch
+\citep{ross2011reduction}. A DAG surrogate similarly receives predicted parents
+at deployment, but we do not apply that algorithm or transfer its regret
+results to our intervention setting. Our deterministic bound states the needed
+support and Lipschitz assumptions directly. Causal Chambers supply manipulable
+physical systems with published causal models \citep{gamella2025chambers}. We use
+one archived light-tunnel task as a prediction check against physical and
+Fourier bases, rather than claiming a new apparatus or a live action-design
+experiment.
 
 \section{Completed delivery confirmation}
 \label{sec:confirmation}
@@ -104,17 +2679,20 @@ $t$ interval of [\DeliveryCILow{}, \DeliveryCIHigh{}] and exhaustive two-sided
 sign-flip $p=\DeliveryP{}$. \DeliveryWins{} of \DeliveryN{} histories improve.
 The worsening history \WorseSeed{} changes from \WorseOnline{} online error
 to \WorseDelivery{} delivery median error (ratio \WorseRatio{}); it is retained
-without exclusion or rescue tuning. The generated values and source hashes are
-listed in \texttt{claim\_index.json}.
+without exclusion or rescue tuning. The registered numerical floor is below every observed paired error and does
+not alter these ratios. The interval is conditional on the history sampling
+for this fixed emulator; interpreting the sign-flip test requires symmetry
+of the paired log differences under its null. The generated values and source
+hashes are listed in \texttt{claim\_index.json}.
 
 This supports the bundled delivery procedure on repeated histories of that
 emulator. Paid histories are matched, but fitting compute is not. It establishes
 neither acquisition superiority, causal-factorization attribution, a foundation
 model benefit, nor generalization over independently parameterized systems.
 
-\section{Attribution and prospective evaluation protocol}
+\section{Exploratory attribution of the delivery benefit}
 \label{sec:protocol}
-\paragraph{Stage A: attribution (exploratory; completed).}
+\subsection{Design and controls}
 We compare three unique-row data sets: the final 50-entry buffer, all rows
 actually admitted at live online updates, and all eligible paid rows. Each is
 fit from scratch for 100 or 30,000 epochs with fixed architecture, initialization
@@ -123,6 +2701,10 @@ separate comparator. Flat MLPs have both equal-epoch and separately labeled
 matched-CPU comparisons. Fixed ridge, polynomial and tree controls are
 configured on an earlier development history, with no configuration tuning on
 the twelve exposed histories.
+Input ranges are recomputed from each row set's eligible observations. Retention
+contrasts therefore change both rows and training-derived scaling; identical
+parameter seeds need not give identical initial functions in physical coordinates.
+The all-paid 100/30,000 contrast holds the rows and scaling fixed.
 
 Replay reconstruction reveals additional differences from the online training
 path: the selected observation is duplicated in consolidation; per-node fast
@@ -137,7 +2719,7 @@ Diagnostics retain support coverage, observed-parent residuals, propagated
 prediction shifts and decision margins, especially for the worsening history.
 No simulator responses are acquired in Stage A.
 
-\paragraph{Attribution findings.}
+\subsection{Results and interpretation}
 The full registered matrix completed and passed an independent audit of source,
 inputs, eligibility masks, original artifacts, fitted-model hashes and all score
 files. With initialization zero, all-paid SCM fitting for 30,000 epochs gives
@@ -150,10 +2732,13 @@ superiority tests.
 Within the scratch SCM factorial, the all-paid long fit has ratios of
 \ABufferRatio{} versus final-buffer long fitting and \AOptimizationRatio{}
 versus all-paid 100-epoch fitting. Its ratio versus online-admitted long
-fitting is \AUnusedRatio{}: this comparison supplies little evidence of a
-benefit from the previously unused paid observations. Thus retaining a completed
-history and allocating fitting effort are much larger explanations here than
-adding those observations. The registered exploratory rule selects the all-paid
+fitting is \AUnusedRatio{}: there is little aggregate continuous-error change,
+but \AUnusedWins{} histories improve and individual ratios range from
+\AUnusedMin{} to \AUnusedMax{}. The snapped-error ratio is
+\AUnusedSnappedRatio{}, showing that the endpoint also matters.
+These are conditional scratch-fit contrasts, not an additive decomposition of
+the gain over online weights, which retain information and optimizer states from
+earlier updates. The registered exploratory rule selects the all-paid
 SCM at initialization zero, the frozen flat comparator and the short-fit
 optimization ablation for prospective evaluation.
 
@@ -166,55 +2751,110 @@ SCM head, including the communication-cost branch that does not feed the scored
 target. The complete matrix consumed \AFitCPU{} fit CPU-core-hours; this excludes
 process startup, imports and evaluation. Table~\ref{tab:attribution} retains all
 primary configurations; initialization sensitivity is preserved separately.
+SCM/flat continuous ratios for initializations one and two are
+\AFlatInitOneRatio{} and \AFlatInitTwoRatio{}; neither changes the primary
+initialization-zero rule. The CPU-budgeted flat comparison tests that specified
+training schedule, not the best prediction attainable by an optimally allocated
+flat compute budget. Table~\ref{tab:attribution-histories} retains each history.
 
 \input{delivery_attribution_table}
 
-\paragraph{Retained failure and propagation.}
+\subsection{Retained failure and propagation}
 History \WorseSeed{} still worsens under the primary delivery fit, with snapped
 error \AWorseSnapped{}. Its target mechanism's observed-parent MSE is
 $\AWorseLocalMSE{}$, while free-running chain MSE is $\AWorseChainMSE{}$;
 the propagated prediction-shift MSE is $\AWorseShiftMSE{}$. Only
-\AWorseOutsidePercent{}\% of evaluated target parent values lie outside the
-training bounding box. This points to an in-box propagation and decision-margin
-failure rather than widespread box extrapolation, although a bounding box is
-not a support-density certificate and shifted predictions do not add
-independently to local residual MSE. The history is retained without tuning a
+\AWorseOutsidePercent{}\% of true evaluation parent vectors lie outside the
+training bounding box. That summary establishes neither joint support nor
+coverage of deployed predicted-parent vectors. Writing
+$r=\hat f(p_{\rm true})-y$ and
+$d=\hat f(p_{\rm pred})-\hat f(p_{\rm true})$, the grid average satisfies
+$\mathrm{MSE}_{\rm chain}=\mathbb E[r^2]+\mathbb E[d^2]+2\mathbb E[rd]$.
+The cross-term prevents additive attribution of local residual and propagated
+shift. Neither this diagnostic nor the snapped endpoint identifies a unique cause.
+The history is retained without tuning a
 rescue or selecting a different scored initialization.
 
-\paragraph{Stage B: controlled generalization (gated; pending).}
-After attribution, freeze a deployable recipe with initialization zero, the
-strongest simpler refit and a decisive ablation. Compare them and the online
-learner on independently parameterized five-node and thirty-node systems in
-the audited generator families. Both balanced varied-value and matched random
-histories are shared across prediction methods. Complete joint-action blocks
-are reserved before collection. Continuous held-out normalized MSE is primary;
-snapped error is secondary only for genuinely quantized outputs. Histories and
-optimization repeats are nested within systems. Paired log-ratio contrasts,
-multiple-testing correction, practical thresholds and separate graph-size
-reporting are frozen before opening outcomes. The stochastic estimand must be
-specified explicitly: composing conditional means through nonlinear downstream
-functions does not generally produce their interventional expected outcome.
-The primary protocol proposal disables noise during both collection and
-evaluation, targeting the same deterministic structural map for every arm.
-This setting is labeled as a noise-disabled parameterization of the audited
-families; it does not establish a benefit for stochastic interventional means.
-Each of 20 systems per graph-size stratum supplies two 400-row training
-histories and one shared 400-action held-out evaluation. All actions jointly
-clamp roots; the target is $X_3$ for five nodes and $X_{30}$ for thirty.
-The first 50 paid training rows supply fixed shared calibration before the
-retrospective online updates; target variance for NMSE uses training data only.
-All 640 fits must be sealed before any held-out response is generated.
-Initialization zero is primary; initializations one and two measure sensitivity
-without scored model selection. Four primary tests (two controls in each
-stratum) use Holm correction and system-level paired contrasts.
-SCM fits use measured intermediate labels and train all nonroot heads; the
-flat fit receives roots and the target. Thus supervision and fitting compute
-differ, and the comparison tests a delivery recipe rather than a pure
-architecture effect. Root-only histories can leave joint parent support on a
-manifold (Section~\ref{sec:theory}); this protocol does not test identification
-under arbitrary internal interventions.
+\section{Frozen prospective evaluation}
+\label{sec:prospective}
+\textbf{Results pending.} This section describes the released protocol, frozen
+before collecting responses or opening held-out outcomes. It supplies no
+prospective performance claim. The recipe, simpler control and short-fit
+ablation were selected at the completed attribution gate and are unchanged.
 
-\paragraph{Stage C: archived physical prediction (completed).}
+\subsection{Systems, histories and estimand}
+We use 20 independently parameterized systems in each of two graph-size strata.
+The five-node family is an explicit parameterized extension of the audited
+legacy equations, whose unparameterized base is fixed; varying collection seeds
+alone would not make independent systems. The thirty-node family reuses the
+audited graph and coefficient generator with both random states pinned.
+These are controlled extensions within the specified families, not an external
+benchmark or a representative sample of all SCMs. Appendix~\ref{app:systems}
+gives the mechanisms and action construction.
+The five-node target depends effectively on one root; its other branch is
+irrelevant to that target. The families differ in structure and functions as
+well as node count. Graph size labels strata and does not isolate a scaling effect.
+
+Each system supplies two shared 400-response histories: balanced varied-value
+root interventions and matched random root interventions. Each also has one
+shared set of 400 held-out root actions. Complete joint-action blocks are
+reserved before collection and cannot appear in either training history.
+All arms receive the same paid history. This design tests dependence on the
+collection strategy without establishing acquisition superiority. The target
+is $X_3$ in the five-node family and $X_{30}$ in the thirty-node family.
+
+Collection and evaluation both disable noise and target the same deterministic
+structural map. This estimand does not substitute a composed conditional mean
+for the expected outcome of a noisy nonlinear SCM. The first 50 paid training
+responses provide a common, fixed input calibration for structured learners
+before their retrospective updates. Thus the rolling comparator reproduces
+the archived online update kernel after calibration; it is not a streaming
+algorithm that operates before those calibration observations are available.
+The primary NMSE denominator uses the full training-history target variance.
+
+\subsection{Comparators and separation of fitting from evaluation}
+The primary comparison uses initialization zero for delivery, the original
+rolling update kernel, the selected flat refit and the 100-update SCM ablation.
+Initialization one and two fits of delivery and flat measure optimization
+sensitivity separately; no scored initialization is selected for deployment.
+There are eight fits per history, totaling 640 fits across the frozen systems.
+All model states, optimizer accounting, inputs and attempt receipts must be
+sealed before the evaluator generates any held-out response. Failed or
+interrupted attempts remain in custody and block acceptance; they are not
+replaced by favorable worlds or removed from the analysis.
+
+Joint root interventions leave every nonroot mechanism eligible. Nevertheless,
+SCM and flat learners differ in intermediate supervision and total fitting
+compute. The comparison therefore tests the selected recipe against a simpler
+predictor, not an architecture effect at equal supervision or compute. Root-only
+histories can leave parent support on a lower-dimensional manifold, so this
+study also does not establish identification for arbitrary internal interventions.
+
+\subsection{Registered primary analysis}
+For system $s$, history $h$, and control $c$, define
+\begin{equation}
+ z_{s,c}=\frac{1}{2}\sum_{h\in\{\mathrm{balanced},\mathrm{random}\}}
+ \left[\log\max(\mathrm{NMSE}_{s,h,\mathrm{delivery}},\eta)
+       -\log\max(\mathrm{NMSE}_{s,h,c},\eta)\right],\qquad\eta=10^{-12}.
+ \label{eq:paired-analysis}
+\end{equation}
+The numerical floor and its activation count are reported. The independent
+unit is the system, with histories weighted equally within it. Each stratum's
+ratio is $\exp(\bar z_c)$ with a marginal 95\% $t$ interval on the mean log
+ratio and a two-sided paired $t$ test across its 20 systems. Holm adjustment
+covers four primary tests: delivery versus rolling and delivery versus flat
+in each of the two strata. An asserted superiority requires all three frozen
+conditions: ratio at most $0.8$, upper marginal interval below one, and
+Holm-adjusted $p<0.05$. The intervals themselves are not simultaneous intervals.
+These parametric intervals and tests rely on system-level log-ratio sampling
+assumptions; they are not distribution-free guarantees. Ablation, initialization
+sensitivity, history-specific summaries and failure diagnostics are reported
+separately. No grid rows, histories or optimization
+repeats are counted as independent systems. No result is accepted from an
+incomplete primary matrix.
+
+\section{Archived physical prediction}
+\label{sec:physical}
 We use the eleven previously unscored conditions of \texttt{lt\_malus\_v1};
 \texttt{white\_64} remains development only. Duplicate commands and joint action
 blocks are grouped before splitting. Compare delivery, rolling-buffer learning,
@@ -240,37 +2880,313 @@ the result without changing the recipe after scoring.
 
 \input{delivery_theory}
 
-\section{Reproducibility and resource accounting}
+\section{Reproducibility and compute accounting}
+\label{sec:reproducibility}
 Fitting and evaluation run in separate processes. Training inputs, row selections,
 source, dependency versions, optimizer configuration and outputs are hash-bound.
 Stage A fit workers are denied network access and evaluation arrays. The physical
 worker uses only registered training rows for fitting and normalization and
 seals predictions before computing held-out losses. Exclusive output
 paths preserve interrupted attempts and reject replacement. Supervisors enforce
-wall-time and memory ceilings. CPU time, wall time, unique eligible rows,
-parameters, optimizer updates and memory accompany each fit. Original histories
+wall-time and memory ceilings. Eligible rows, parameters, optimizer updates and
+CPU time accompany fits. Archived attribution records fit timing/RSS;
+prospective fits add supervised attempt memory. Physical memory and elapsed
+telemetry are available at whole-process or phase granularity, rather than
+independently for each method. Original histories
 and weights are retained under local result custody. The claim generator binds
 every retained numerical result to its validated receipt. Experimental controls,
 analytic checks and the execution ledger are versioned with the manuscript.
 No closed-source API is needed for the critical path.
 
-\section{Limitations and conclusion}
-The current positive confirmation is restricted to a bundled delivery recipe,
-a quantized endpoint, and repeated histories of a single fixed emulator on an
-exposed evaluation grid. Exploratory continuous-error attribution is favorable,
-but physical prediction loses to the Fourier control in every condition.
-The evidence does not yet justify a new architecture or equal-
-compute superiority. The theoretical statements require graph, invariance,
-noise and support assumptions that cannot be inferred from small fitted
-residuals. Additional observations and optimization can worsen test performance,
-and local accuracy can fail under chain deployment.
+\section{Discussion and limitations}
+\label{sec:discussion}
+\paragraph{Data retention and fitting effort.}
+The exploratory contrasts distinguish keeping a completed history from keeping
+only the final buffer, and a short scratch fit from a much longer fit. Both
+changes are consequential within the scratch-fit matrix. Retention also changes
+normalization, while the online comparator carries persistent weights and Adam
+states; this matrix does not isolate their separate causal effects.
+The all-paid versus admitted-row aggregate continuous contrast is small, but
+has marked history-level and endpoint heterogeneity. This distinction is useful for experimental
+systems: recording observations and budgeting a final fit can improve delivery
+without a change in acquisition. It does not imply that more data or more
+updates improve every system, as the retained failure and counterexamples show.
 
-Submission requires an attributable benefit, prospective controls, an honest
-external boundary, compute accounting and complete reproducibility. If ordinary
-refitting or matched compute removes the distinction, a narrower empirical
-methodology report is the appropriate outcome. The present draft makes those
-unresolved requirements explicit.
+\paragraph{Structured prediction and support.}
+A known graph gives a decomposition and a rule for row eligibility. It also
+creates a deployment dependency: upstream error changes the inputs of later
+heads. A low observed-parent residual cannot by itself validate the deployed
+chain, and a coordinate bounding box cannot establish joint support.
+Intermediate-intervention measurements may constrain mechanisms that a
+root-only predictor cannot learn from those inputs, but no pure factorization
+advantage follows from a comparison with unequal usable supervision. The
+prospective protocol deliberately tests prediction of root-interventional maps;
+its results will not resolve the internal-action ambiguity.
 
-\bibliographystyle{apalike}
+\paragraph{External boundary and reporting units.}
+The physical task is a single mechanism in one apparatus. Neural delivery wins
+some comparisons with a rolling learner, but loses every comparison with the
+joint Fourier predictor. This limits claims about a generally preferable
+neural recipe and gives a concrete example where domain structure is more
+useful. Condition-specific bootstrap intervals describe observed action blocks,
+not a population of independently built apparatuses. Similarly, the archived
+histories supply conditional evidence about one emulator, not twelve causal
+worlds. The prospective systems address variation within two generator
+families, with broader physical generalization still outside their scope.
+
+\paragraph{Remaining evidence and validity limits.}
+The archived evaluation grid was previously exposed and includes acquired
+inputs. Attribution on that grid is exploratory, even though its configurations
+were fixed before the new fits. The confirmation's median of three scored
+initializations describes sensitivity and must not be read as a deployable
+model-selection rule. The prospective fixed-initialization protocol is needed
+to test the selected recipe on unused action blocks. Compute totals distinguish
+fitting process time from full execution and requested allocations; an
+equal-epoch neural comparison is not an equal-compute comparison. The eligibility
+and propagation propositions require measured parents, invariance, noise and
+support assumptions that fitted residuals cannot certify. Causal discovery,
+counterfactual identification and foundation-model capability are not tested.
+
+\section{Conclusion}
+A completed experimental history can support a substantially different delivered
+predictor from the learner maintained during collection. Within the archived
+scratch-fit matrix, long fits on retained histories improve substantially over
+final-buffer and short fits, while unused paid rows have a smaller aggregate
+continuous effect with substantial heterogeneity. This is a conditional recipe
+comparison, rather than a partition of the online-to-delivery gain. Structured delivery remains
+favorable against the selected simpler refits on the exposed grid, while a
+physical prediction study shows a clear boundary against domain-informed
+controls. The theoretical analysis explains why eligible-row fitting, joint
+support and free-running error must be considered separately. The frozen
+prospective comparison remains the outstanding test of independent-system
+prediction; until its outcomes are validated, the empirical conclusion is
+restricted to the completed archived studies.
+
+\bibliographystyle{tmlr}
 \bibliography{delivery_references}
+
+\appendix
+\section{Implementation and accounting details}
+\label{app:implementation}
+The neural architecture for an input dimension $d$ is
+$\mathrm{Linear}(d,64)$--ReLU--$\mathrm{Linear}(64,64)$--ReLU--
+$\mathrm{Linear}(64,1)$. Each head therefore has $64d+4289$ trainable
+parameters; structured-model totals sum the head counts rather than counting
+only the scored target head. The retrospective scratch fits use separate Adam
+optimizers with constant learning rate $0.002$, full batches and squared loss.
+Neural fit receipts include optimizer update count, row IDs, parameter count
+and CPU process time; memory is measured at fit/attempt or whole-process
+granularity as specified above. An epoch denotes one full-batch update
+per fitted head, not an acquired observation.
+
+\subsection{Archived emulator and acquisition histories}
+The archived task is a hand-coded deterministic emulator, rather than a physical
+world. It has eight controllable roots and five measured nonroot mechanisms:
+two link scores $L,M$, their combined score $I$, the target $Y$ and a separate
+cost branch $C$. Write the roots as $(N,D,h,p,N_M,h_M,p_M,J)$, representing
+total and dynamic counts, altitude and power for the first link, count, altitude
+and power for the second, and shared jamming. Their five-level supports are
+\begin{align*}
+ N&\in\{250,350,450,550,650\},&D&\in\{0,50,100,150,200\},\\
+ h&\in\{250,300,350,400,450\},&p&\in\{1,1.25,1.5,1.75,2\},\\
+ N_M&\in\{5,10,15,20,25\},&h_M&\in\{6000,7000,8000,9000,10000\},\\
+ p_M&\in\{1,1.25,1.5,1.75,2\},&J&\in\{0,0.25,0.5,0.75,1\}.
+\end{align*}
+Let $s(z)=\min(1,\max(0,z))$ and $d=D/N$. The fixed mechanisms are
+\begin{align*}
+ L={}&s\left(0.35s\left(\frac{N+0.3D-100}{600}\right)
+ +0.25s\left(1-\frac{|h-350|}{300}\right)
+ +0.40s\left(\frac{p(1+0.15d)-0.8}{1.2}\right)
+ -0.30s(J(1-0.6d))\right),\\
+ M={}&s\left(0.25s\left(\frac{N_M-5}{20}\right)
+ +0.30s\left(1-\frac{|h_M-8000|}{4000}\right)
+ +0.45s\left(\frac{p_M-0.8}{1.2}\right)-0.25s(0.85J)\right),\\
+ I={}&s(0.55L+0.45M),\qquad
+ Y=\frac{\operatorname{round}_{\rm even}(30s((I-0.35)/0.50))}{30},
+ \qquad C=N+0.75D.
+\end{align*}
+The shared $J$ is a fork and $I$ is a collider; $C$ never feeds the target.
+Response generation follows frozen Python rounding; scorer midpoint ties are
+separately defined above. The 31 target levels are $\{k/30:k=0,\ldots,30\}$.
+Every one of the $5^8=390{,}625$ root actions receives equal weight in the exposed
+grid. Its target variance normalizes archived continuous errors.
+
+Each independently seeded history runs 200 iterations with four random proposed
+probes per iteration and outcome-dependent mechanism selection, no model API
+or policy update. Frozen settings include three initial rows, 500 validation
+rows, 100 learner epochs, a 50-entry buffer and a 25-row observation refresh
+every five iterations. All paid calls, including unselected probes, are logged.
+Case seeds derive from the first 32 SHA-256 bits of a fixed pre-outcome
+case-index string modulo $2^{31}-1$; the full seed rule and settings accompany
+the frozen protocol. Independence concerns these acquisition streams, not
+different mechanisms.
+
+\input{delivery_history_table}
+
+\paragraph{Archived attribution.}
+The row sets use unique paid query IDs, not unique action values. The admitted
+set is the union available during actual live updates, excluding probe-clone
+training. Reconstruction accounts for the selected row's duplicated appearance
+in consolidation and for observation refreshes added after fitting. Intervention
+masking excludes a directly clamped response from its own mechanism fit.
+Inputs are normalized as $(x-\mathrm{lo})/(\mathrm{hi}-\mathrm{lo})$ using
+eligible training minima and maxima, without input clipping; a constant range
+is given width one. The structured fit includes the
+communication-cost branch even though it does not feed the evaluated target.
+In every archived history, the final buffer supplies 50 unique paid rows per
+head and the admitted union 1,178. All-paid mechanism fits have 4,303 eligible
+rows for the two links and combined score, and 4,803 for the target and cost;
+the root-only flat fit has 3,803. Counts refer to query identities, not distinct
+commands. The five-head structured model has 22,341 parameters; the eight-input
+flat model has 4,801. These unequal counts and supervision remain part of the
+recipe comparison.
+
+Ridge uses penalty $1$; polynomial regression uses degree-three features and
+ridge penalty $1$; the extra-trees control uses 256 trees, minimum leaf size two,
+random state zero and one worker. The flat MLP uses the same width and optimizer
+as a mechanism head. Configurations and the simpler-control selection were
+fixed using the earlier development history. The matched-CPU flat control
+receives the sum of the corresponding all-paid long SCM heads' fit process
+time, excluding imports and evaluation. Its update count varies and is retained;
+it is not presented as another 30,000-update cell. The full matrix contains
+480 fits, including the two budgets, three row sets and initialization
+sensitivity cells, plus the fixed classical and matched-CPU controls.
+
+\paragraph{Original rolling comparator.}
+Original archived weights are never refit in the confirmation or attribution
+comparison. In the prospective study, the archived training kernel is invoked
+directly with its persistent Adam states, 50-entry replay and duplicated newly
+selected observation. Its fast adaptation and consolidation updates remain
+unchanged. The known directly-clamped-node fast-adaptation limitation is inactive
+in the root-only prospective histories. The common calibration prefix avoids
+changing feature scales using held-out observations.
+After calibrating on the first 50 rows, retrospective online replay starts with
+an empty buffer and processes all 400 arrivals, including that prefix. Each
+arrival performs 20 fast and 100 consolidation updates per nonroot head, totaling
+48,000 per head. Consolidation uses up to 50 buffer entries plus the duplicated
+current row. Neural computation uses float32 and the recorded Adam defaults;
+stage-specific dependency and seed schemes accompany the release.
+
+\section{Prospective systems and action construction}
+\label{app:systems}
+The five-node family has roots $X_1,X_4$ and mechanisms
+\begin{align*}
+ X_2&=aX_1+b,&
+ X_3&=cX_1-dX_2+s\sin(X_2),&
+ X_5&=qX_4^2.
+\end{align*}
+Independent coefficient draws multiply base coefficients
+$(a,b,c,d,s,q)=(2,1,0.5,1,1,0.2)$ by independent uniform factors in
+$[0.8,1.2]$. The thirty-node family has five layers of sizes $(5,5,10,5,5)$ and edge
+coefficients drawn uniformly in $[0.3,0.7]$. Nodes in the second layer choose
+one or two roots uniformly without replacement. In the third layer, nodes
+whose one-based index is divisible by three choose two second-layer parents;
+other nodes choose one. Fourth-layer nodes choose two or three third-layer
+parents uniformly without replacement. Each final-layer node chooses one
+fourth-layer parent. Graph and coefficient random states are pinned by the
+system descriptor; no edge or coefficient is redrawn per response. For a nonroot
+$i$, write $u_i=\sum_{j\in\mathrm{Pa}(i)}w_{ij}X_j$; its structural response
+is $u_i+0.2\sin(u_i)$ when its one-based node index is divisible by five,
+and $u_i$ otherwise. Both families use zero exogenous noise in this study.
+All graph and coefficient descriptors precede response generation and are
+shared unchanged across arms.
+
+Each root action lies in $[-3,3]$. Joint blocks are Cartesian products of five
+width-$1.2$ bins, with the upper endpoint assigned to the last bin. A fixed hash
+of each block reserves approximately one fifth of blocks for evaluation.
+Random training and evaluation actions are uniform draws accepted only in
+their respective block partitions. Balanced training favors the least-used
+of eleven evenly spaced levels at each root, subject to the same block
+exclusion; the bounded tie and quota rules are frozen in the implementation.
+Duplicate commands remain charged observations. No observed outcome determines
+which action or world enters the frozen design.
+
+Mechanism input ranges are fixed from the first 50 paid training rows;
+root ranges use the declared $[-3,3]$ support. For initialization $r$, each
+nonroot head is seeded by $r$ plus its position in the topological order; the
+flat head uses $r$ plus the number of nodes. These deterministic offsets are
+shared across the corresponding structured arms. No outcome selects an offset,
+initialization or replacement world.
+
+\section{Physical split and uncertainty}
+\label{app:physical}
+The archive task uses the two polarizer commands and the measured light response
+\texttt{vis\_3}. Angles are in $[-90,90)$ degrees. For command pair
+$(\theta_1,\theta_2)$, define $b_j=\lfloor(\theta_j+90)/30\rfloor$.
+A joint block is held out if $(b_1+2b_2)\bmod5=0$; identical commands and their
+repeated readings always share a block. The development condition
+\texttt{white\_64} is excluded from the eleven-condition evaluation.
+Neural output centering and scaling use the training mean and standard
+deviation, and are inverted before scoring; neural angle inputs are divided by
+90. The neural delivery fit uses
+30,000 full-batch updates. Rolling fitting follows archive order, using the
+last 50 eligible training rows and 100 updates per arriving row with persistent
+Adam. Its retrospective access to the training normalizer is shared with
+delivery and is not a strictly streaming normalization claim.
+
+Physics regression fits an intercept and $\cos^2(\theta_1-\theta_2)$ after
+conversion to radians. Fourier regression uses the 25 tensor-product features
+from $\{1,\sin(2\theta),\cos(2\theta),\sin(4\theta),\cos(4\theta)\}$ at each
+angle. Both fit linear coefficients on training rows only. Conditional intervals
+use 2,000 paired bootstrap resamples of the eight held-out action blocks within
+each condition, with fixed bootstrap seed 620061. Resampling gives each block
+equal weight; the primary descriptive NMSE instead weights readings equally.
+This difference explains why a block-weighted ratio need not equal a ratio
+computed from the row-weighted table. Neither bootstrap establishes uncertainty
+across independently constructed physical systems. The intervals are a conditional
+resampling assessment under block exchangeability; archive-order dependence or
+unobserved action blocks can limit that interpretation.
+
+\section{Historical execution and release accounting}
+The confirmation's accepted terminal audit retains
+\ConfirmationChargedCalls{} aggregate charged emulator calls, including discarded
+or interrupted attempts. This is neither a per-history count nor an additional
+refitting response count. An explicit execution amendment retained the first
+eleven completed cases and a partial final attempt before completing the matrix;
+the custody record preserves the original attempts. Stage A and the physical
+study acquire no new responses: they reuse frozen observations.
+Stage A records \AFitCPU{} fit CPU-core-hours and the physical study
+\CCPU{} fit/evaluation CPU-core-hours, with imports and startup excluded.
+The prospective qualification failure charged 126 allocated CPU-seconds;
+the successful replacement charged 119. Both remain in the final allocation
+accounting. Requested reservation, process CPU and supervised elapsed time are
+different quantities. Final prospective costs remain pending and will be
+reported with the completed matrix and audit, rather than inferred from the
+reserved allocation or a partial checkpoint.
+
+\section{Verification and evidence provenance}
+\label{app:provenance}
+The retained claim index maps each empirical macro to a validated score receipt,
+source hashes and acceptance record. The archived confirmation is linked to its
+independently recomputed paired statistics; attribution is linked to its
+immutable selection gate, full matrix and eligibility audit; physical results
+are linked to the fit seal and eleven-condition acceptance. The prospective
+registration freezes world descriptors, actions, dependencies, initialization,
+normalization, primary contrasts and resource ceilings before responses.
+Release requires independent recomputation of the completed result custody and
+all declared primary contrasts. No prospective score is included in this version.
+
+Executable analytical checks cover chains, forks, colliders, clamped nodes,
+root-support ambiguity, quantization margins and the nonlinear conditional-mean
+counterexample. Scientific checks also verify replay reconstruction,
+intervention masks, predicted-parent inference, action-block disjointness,
+initialization membership and system-level statistical calculations. Passing
+implementation checks verifies those constructed cases, not the assumptions
+of a general statistical guarantee. A reproducibility release must include
+frozen protocols, exact observation ledgers, model and optimizer receipts,
+interrupted-attempt records, compact outcomes and verification commands. Author
+paths and identifying metadata must be removed from the anonymous review copy;
+original custody artifacts remain unchanged. The derived anonymous release must
+use relative artifact locations and its own hashed manifest mapping to original
+immutable digests, rather than editing hash-bound source receipts. Its verification
+entry point must resolve local artifacts independently of author paths, include
+the archived learner source and reconcile split fit snapshots without replacing
+conflicts. An offline unrelated-directory verification remains a submission gate.
+Archived attribution audits bind checkpoints to scores but do not independently
+replay every checkpoint; the physical audit independently recomputes sealed
+prediction errors and physics predictions, but does not replay its neural or
+Fourier models. Prospective acceptance requires all 640 checkpoint replays.
+Python audit hooks restrict trusted worker access; they are not an operating-system
+sandbox. The physical fit process loads the archive and uses only its registered
+training indices for objectives and scales before sealing predictions and scoring.
 \end{document}

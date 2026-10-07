@@ -15,6 +15,11 @@ macros={'DeliveryN':str(stats['n']),'DeliveryRatio':f"{stats['ratio']:.3f}",
         'DeliveryP':f"{stats['exact_sign_flip_p']:.8f}",'DeliveryWins':str(len(pairs)-len(w)),
         'WorseSeed':str(w[0]['seed']),'WorseOnline':f"{w[0]['online_error']:.6f}",
         'WorseDelivery':f"{w[0]['delivery_median_error']:.6f}",'WorseRatio':f"{w[0]['ratio']:.6f}"}
+terminal_path=folder/'terminal_audit.json'
+terminal=json.loads(terminal_path.read_text())
+assert terminal['status']=='complete' and terminal['all12_seal_verified']
+assert terminal['scores_sha256']==hashlib.sha256(raw).hexdigest()
+macros['ConfirmationChargedCalls']=f"{terminal['aggregate_calls_including_discarded']:,}"
 attribution=ROOT/'results/delivery_attribution_20261006'
 gate_path=ROOT/'results/delivery_paper_implementation_20261006/attribution_gate.json'
 attribution_index=None
@@ -43,6 +48,28 @@ if attribution.exists():
         mantissa,exponent=f'{value:.2e}'.split('e');macros[key]=mantissa+'\\times10^{'+str(int(exponent))+'}'
     macros['AWorseOutsidePercent']=f"{100*head['outside_training_parent_box_fraction']:.3f}"
     macros['AWorseSnapped']=f"{1-diagnosis['score']['exact']:.3f}"
+    # Descriptive additions requested by review; no new outcomes or selection.
+    unused=[c['delivery']['nmse']/c['unused_observations_ablation']['nmse'] for c in gate['histories']]
+    snapped=[(1-c['delivery']['exact'])/(1-c['unused_observations_ablation']['exact']) for c in gate['histories']]
+    macros.update({'AUnusedWins':str(sum(v<1 for v in unused)),
+        'AUnusedMin':f'{min(unused):.3f}','AUnusedMax':f'{max(unused):.3f}',
+        'AUnusedSnappedRatio':f'{math.exp(sum(map(math.log,snapped))/12):.3f}'})
+    for init in (1,2):
+        numerator=summary['configurations'][f'all_paid-scm-30000-i{init}']['geomean_nmse']
+        denominator=summary['configurations'][f'all_paid-flat-30000-i{init}']['geomean_nmse']
+        macros['AFlatInit'+{1:'One',2:'Two'}[init]+'Ratio']=f'{numerator/denominator:.3f}'
+    diagnostic_lines=['% Generated from accepted fixed-init0 attribution rows; no selection.',
+        '\\begin{table}[ht]','\\centering\\small','\\begin{tabular}{lrrrrr}',
+        '\\toprule','History & Online NMSE & SCM NMSE & Flat NMSE & SCM/admitted & SCM snap\\\\','\\midrule']
+    for c in gate['histories']:
+        diagnostic_lines.append(str(c['seed'])+' & '+
+            ' & '.join(f"{c[key]['nmse']:.6f}" for key in ('online','delivery','simpler'))+
+            f" & {c['delivery']['nmse']/c['unused_observations_ablation']['nmse']:.3f}"+
+            f" & {1-c['delivery']['exact']:.3f}\\\\")
+    diagnostic_lines+=['\\bottomrule','\\end{tabular}',
+        '\\caption{Every archived history at fixed initialization zero. SCM and flat use all paid rows and 30,000 updates; admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history124753321 and are not prospective tests.}',
+        '\\label{tab:attribution-histories}','\\end{table}']
+    (ROOT/'paper/aistats_ace_2027/delivery_history_table.tex').write_text('\n'.join(diagnostic_lines)+'\n')
     lines=['% Generated exploratory init0 matrix; no inference from exposed grid.',
            '\\begin{table}[ht]','\\centering\\small',
            '\\begin{tabular}{llrrrr}','\\toprule',
@@ -65,7 +92,10 @@ if attribution.exists():
     attribution_index={'gate_sha256':digest(gate_path),'summary_sha256':digest(attribution/'summary.json'),
         'complete_sha256':digest(attribution/'complete.json'),'score_hashes':done['score_hashes'],
         'scope':'480 fits, one emulator, full exposed grid; exploratory; init0 primary',
-        'worsening_diagnostic_source':'scores/124753321.json, all_paid-scm-30000-i0'}
+        'worsening_diagnostic_source':'scores/124753321.json, all_paid-scm-30000-i0',
+        'descriptive_review_additions':'unused-row range/wins, init1/2 flat ratios and all12init0 errors from accepted summary and gate; no new fits'}
+    attribution_index['normalizer']='MSE divided by population target variance on the shared exposed grid; not training variance'
+    attribution_index['input_protocol_sha256']=digest(ROOT/'results/delivery_paper_implementation_20261006/stage_a_input_protocol.json')
 physical_index=None
 physical=ROOT/'results/delivery_chambers_20261006'
 if physical.exists():
@@ -114,6 +144,7 @@ tex+='\n'.join('\\newcommand{\\'+name+'}{'+value+'}' for name,value in macros.it
 index={'scores_sha256':hashlib.sha256(raw).hexdigest(),
        'statistics_sha256':hashlib.sha256((folder/'independent_statistics.json').read_bytes()).hexdigest(),
        'generator_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+       'terminal_audit_sha256':hashlib.sha256(terminal_path.read_bytes()).hexdigest(),
        'macros':macros,'scope':'12 histories of one emulator, median scored optimization performance, full exposed grid',
        'pending_claims':['causal architecture attribution','equal-compute advantage','prospective generalization','external physical superiority'],
        'removed_claims':['acquisition superiority','foundation-model benefit','DPO optimality','unrestricted causal identification','generic MSE gain equals mutual information']}

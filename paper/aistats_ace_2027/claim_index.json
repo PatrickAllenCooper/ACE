@@ -1,7 +1,8 @@
 {
   "scores_sha256": "3129105072bfbb34e200bb9ef324eeb6aeaf98678acea2b166ebf3e4822feb13",
   "statistics_sha256": "85e5c6cb401979dbfe3ef9a522ac1182c45254f3b0eeec961ae222c1e4a0a0b2",
-  "generator_sha256": "47deca34ac446c7fe001c92f238f70fa5325d9b1977fb5cbddcd3bebb4c691f9",
+  "generator_sha256": "6c37025771d4c41bb62849dfbfbaa81251d1db774a937af4602c824682c324ae",
+  "terminal_audit_sha256": "7249abea4ed8e8b4c08983ffb7695b29ca09c07c899cdd8c67236a139c6d5c05",
   "macros": {
     "DeliveryN": "12",
     "DeliveryRatio": "0.183",
@@ -13,6 +14,7 @@
     "WorseOnline": "0.196339",
     "WorseDelivery": "0.395658",
     "WorseRatio": "2.015177",
+    "ConfirmationChargedCalls": "60,962",
     "AOnlineRatio": "0.522",
     "AFlatRatio": "0.551",
     "AMatchedRatio": "0.423",
@@ -25,6 +27,12 @@
     "AWorseShiftMSE": "2.09\\times10^{-4}",
     "AWorseOutsidePercent": "0.020",
     "AWorseSnapped": "0.397",
+    "AUnusedWins": "10",
+    "AUnusedMin": "0.644",
+    "AUnusedMax": "2.874",
+    "AUnusedSnappedRatio": "0.469",
+    "AFlatInitOneRatio": "0.458",
+    "AFlatInitTwoRatio": "0.519",
     "CRollingWins": "7",
     "CPhysicsWins": "3",
     "CFourierWins": "0",
@@ -62,7 +70,10 @@
       "884825602": "81a2b6966818f74bacecbc88890377afa71ead7389edd935f0cc20e7598b0dce"
     },
     "scope": "480 fits, one emulator, full exposed grid; exploratory; init0 primary",
-    "worsening_diagnostic_source": "scores/124753321.json, all_paid-scm-30000-i0"
+    "worsening_diagnostic_source": "scores/124753321.json, all_paid-scm-30000-i0",
+    "descriptive_review_additions": "unused-row range/wins, init1/2 flat ratios and all12init0 errors from accepted summary and gate; no new fits",
+    "normalizer": "MSE divided by population target variance on the shared exposed grid; not training variance",
+    "input_protocol_sha256": "a454e59feeaf6b0570bc725816d95f101c3f770362ad563b4056fe48860ef169"
   },
   "physical": {
     "acceptance_sha256": "915526f09a947b274332adb40cf69f84973e4579b237394df18e5914b342a352",

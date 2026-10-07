@@ -12,8 +12,11 @@ independent across mechanisms and independent of all past experiments; $U_i$
 is integrable and has mean zero. An intervention policy may depend on previous
 experiments, but must choose its action before the current exogenous noises are
 realized. Retain a row only when the action does not replace mechanism $i$,
-and when retention does not select on its current noise or response conditional
-on its parents. Then, in the retained interventional mixture,
+and let $S_i$ denote the final retained-row indicator, including any terminal
+selection. Require $\mathbb E[U_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1]=0$
+on the retained support, where $A$ is the current action and $H$ the preceding
+history. Conditional independence of $S_i$ and $U_i$ given parents, action and
+history is a sufficient retention condition. Then, in the retained mixture,
 \[
  \mathbb{E}[V_i\mid V_{\mathrm{Pa}(i)}=p,\text{retained}]=f_i(p).
 \]
@@ -26,8 +29,9 @@ data, optimization and extrapolation guarantees require further assumptions.
 In an acyclic graph, a node's parents depend only on earlier exogenous noises
 and the chosen action. The current $U_i$ is independent of those noises and of
 past experiments. Since the policy precedes the current realization, and the
-retention rule does not condition on $U_i$, the conditional expectation of
-$U_i$ remains zero. Substituting the structural equation yields the assertion.
+stated retention condition preserves conditional mean zero. Taking the further
+conditional expectation over action and history yields the assertion after
+substitution of the structural equation.
 The conditional expectation minimizes population squared loss on the retained
 support. No statement outside that support follows.
 \end{proof}
@@ -39,8 +43,8 @@ particular, selecting the best probe using its measured response can change
 the noise distribution. All-paid reuse avoids discarding probes on that basis,
 but still requires invariant mechanisms and measured parents. The current
 confirmation uses a deterministic emulator; this distinction matters for
-any extension to noisy systems. A non-additive stochastic SCM also needs a
-distributional treatment: composing conditional means need not produce a
+any extension to noisy systems. Even within this additive-noise class,
+composing conditional means need not produce a
 downstream interventional mean through a nonlinear mechanism.
 For example, clamp $W=0$, set $X=W+U$ with
 $\Pr(U=1)=\Pr(U=-1)=1/2$, and let $Y=X^2$. The conditional-mean mechanism
@@ -107,12 +111,13 @@ identification. This is an existence example, not a diagnosis of a measured
 failure or a verified bound for the fitted networks.
 
 \begin{proposition}[Quantization margin]
-For distinct ordered levels $\ell_1<\cdots<\ell_m$, let $Q$ assign the nearest
+For $m\geq2$ distinct ordered levels $\ell_1<\cdots<\ell_m$, let $Q$ assign the nearest
 level, with a fixed tie rule, and let
 $b_k=(\ell_k+\ell_{k+1})/2$. Define
 $M(y)=\min_k|y-b_k|$. If $|\hat y-y|<M(y)$ then
 $Q(\hat y)=Q(y)$. If a pointwise prediction bound $B(y)$ is valid,
-$\Pr(Q(\hat y)\ne Q(y))\leq\Pr(M(y)\leq B(y))$.
+$\Pr(Q(\hat y)\ne Q(y))\leq\Pr(M(y)\leq B(y))$ under any specified deployment
+probability measure for which the bound holds almost surely.
 \end{proposition}
 \begin{proof}
 The open interval of radius $M(y)$ around $y$ crosses no decision boundary.
@@ -122,6 +127,11 @@ Strict inequality excludes boundary ties.
 \end{proof}
 Snapped error depends on the location of errors relative to decision boundaries;
 similar MSE alone need not imply similar exact-level accuracy.
+This finite-level example clips outside values to endpoint cells. The empirical
+scorer instead extends the lattice past both endpoints. The same argument uses
+the complete set of boundaries of that extended quantizer; at a recorded true
+level, its nearest boundary distance remains half the adjacent gap. The
+empirical evaluation measure is uniform over the archived grid.
 
 \paragraph{Counterexamples.}
 For a constant predictor and test response zero, fitting a single training
