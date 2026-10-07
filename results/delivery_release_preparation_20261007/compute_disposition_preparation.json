@@ -1,0 +1,2047 @@
+{
+  "A_development_pilot": {
+    "distinct_complete_attempts": 8,
+    "fit_cpu_seconds": 600.5367299999999,
+    "scope": "eight receipt fit CPU only; no imports/supervision/evaluation or full study overlap"
+  },
+  "A_full": {
+    "charged_responses": 0,
+    "distinct_complete_attempts": 480,
+    "fit_cpu_core_hours": 10.871620539999997,
+    "fit_cpu_seconds": 39137.83394399999,
+    "max_per_worker_reported_peak_rss_bytes": 471171072,
+    "original_journal_complete_field": false,
+    "scope": "summed worker FIT CPU; excludes imports, evaluation, supervision, packaging and reviews; worker walls are not whole study elapsed; per-worker RSS not tree RSS",
+    "sum_per_worker_wall_seconds": 6785.035718576342,
+    "terminal_marker": "complete.json; independent acceptance unchanged"
+  },
+  "B_outcomes_opened": false,
+  "B_partial": {
+    "actual_pilot_allocated_seconds": {
+      "failed": 126,
+      "successful": 119
+    },
+    "allocated_core_hours_including_actual_pilots": 24.54083333333333,
+    "at": "2026-10-07T22:06:02.913129+00:00",
+    "distinct_completed_allocations": 37,
+    "full_chain_allocated_cpu_seconds": 88102,
+    "pilot_job_ids": {
+      "failed": "33505661",
+      "successful": "33507335"
+    },
+    "scope": "Slurm allocation times; not process CPU, final totals or per-fit CPU; running/pending allocations not added",
+    "training_collection_metadata": {
+      "charged_responses": 32000,
+      "checked_at": "2026-10-07T22:10:54.206771+00:00",
+      "hashed_artifacts": 240,
+      "persisted_journal_lines": 32000,
+      "scope": "bounded raw byte hash and receipt/journal line count audit; input and response values not decoded; no evaluation outcomes accessed",
+      "sealed_bundles": 80
+    }
+  },
+  "C_development_pilot": {
+    "cpu_core_hours": 0.0004219627777777778,
+    "scope": "pilot function process CPU/wall after imports; separate from full C",
+    "wall_seconds": 1.567586749966722
+  },
+  "C_full": {
+    "evaluation_function_cpu_core_hours": 6.218166666666775e-05,
+    "evaluation_process_tree_peak_rss_bytes": 4784128,
+    "fit_and_evaluation_function_cpu_core_hours": 0.05285206888888889,
+    "fit_function_cpu_core_hours": 0.05278988722222222,
+    "fit_process_tree_peak_rss_bytes": 307740672,
+    "scope": "function process CPU/wall after imports; not supervisor total; no rescore or predictions loaded",
+    "sum_function_wall_seconds": 190.45769108401146
+  },
+  "at": "2026-10-07T22:09:28.956505+00:00",
+  "inputs": {
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "e300130b2bd6005103adf648ecf150593c0f0468a8479a7ab39ccc492abcc7ad"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 968,
+      "sha256": "dae91a606805a90b58086575f555466f4fa7ce3dadb613022638bd2d8ca7f599"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 968,
+      "sha256": "a3acdb13a6619301921c5b2d13bf77728959661d9968c610a8967281cfb4db48"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 951,
+      "sha256": "04a3e83d5604db2cd06725c122849d147f94694cb01ebd0e44e21ff70e2e942f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 968,
+      "sha256": "7c377726aca25ce7bdb3626259083d21d744e4d94b50bfe778d17d1ec2b4286f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 952,
+      "sha256": "0db3ef9e49fd1dede86a73e7017c25e13464034cde11ae7330e5695912a1dea4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 958,
+      "sha256": "e4a205f3f8ec2efa1a43bc89fcf1f903a429ecfe249853854e7e30c9751e0dfe"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 948,
+      "sha256": "8282aaf0cde2565ba544c6d4d9722baaacdf1750737c4516050ef02af1099385"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 959,
+      "sha256": "e5215132422d375e3cca072a6a90d6dd105a626687f9bba2978d95c55dcfa33e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2228,
+      "sha256": "9a59b5b72538c183c28dbe6ae0940e6bffdafabed52218ae07f8caed736b9c85"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2233,
+      "sha256": "0dc72d0d70f36957ac591aab31dbe4b2bf9da10cc29e9a759d2149b321870c13"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2242,
+      "sha256": "1f5e80229a5bb053f98ba9356137960b04f03a4d6393c851d9b157408c7e137b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2203,
+      "sha256": "46291e27c023266bfb447eeeb5a75655d394e27f36fa004cf3f8612367e86c81"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2237,
+      "sha256": "4b1a91f93e4536b9e74b1de2ba7168ddf5cb2b8bfad66af9be930d89fe116152"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2229,
+      "sha256": "6b31618020e5c7aa05f28998396af6205da33968ab78d404f571f599fa8e45dd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 944,
+      "sha256": "341c134b1be799daa5613273205673f9aaa72b2cf36681effa427e37cb21dc77"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 970,
+      "sha256": "9aec806b7f840e770206610f6c67120b4af43eaab6bdeb91537f0f2729623df1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 950,
+      "sha256": "633157476bcbe5c3dcd4f6627112b7a30c009b5f62a0dd9eb9d7aabd3e5bc697"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 971,
+      "sha256": "46523f13b6e3f03d36d6218f60ee79e8013de3789bfe63c724c638eb4cc2202b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 952,
+      "sha256": "4fdf68dc9009fe67bbf40890aa64556506a3ddc48f0c6080d38ffdebabeeb404"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 971,
+      "sha256": "08e0866c38fc972df2e0650c02eb5a7e7956f31ba1323cecfc37cf59f474f614"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 954,
+      "sha256": "2c268d8b08df7a5e0ba0b309bac1d86ea708f58d6b1cf81f02d957e40d534feb"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2251,
+      "sha256": "d4760ce477aae8774a7732f61f76246d08954155750c016cf1459bda1b2f3ff9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2256,
+      "sha256": "7259a28475a3cf00ecf9617646001966aa63349cf7c798c69cf668b4ad45c3de"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2254,
+      "sha256": "2e4457b7c2e991beda8511a3e51b8e9bb382c88b1fa231c29903c5e05ef5db9f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2229,
+      "sha256": "dade31a852e381682fa9654d0ca86fd54e870f484e5f6a57ddaaa1efd4ada3d6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2229,
+      "sha256": "f58c208b9d6ddb68027ee5361a3c6fb3241193e57f172fe3925c9922dfe084d1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2241,
+      "sha256": "9fe08aca78cc8b6625f7bd81ae896d7472e735c86d1a62a622bdba76422b50b4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 976,
+      "sha256": "7c3595ab2101fcead7166a6e7a894bfd33e42a105f7a9c7ebc247904af7e59af"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 977,
+      "sha256": "5a54f7f021dff0328442c9ce479dfcda7a70f9677aedfc070924c22cb0fa3d51"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 974,
+      "sha256": "a709bfc7f61d29651c17803bfcebde16326106e6a0d8d4f314fcadebdf526d86"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 956,
+      "sha256": "9bc408c19edc292d2bdca564813219906f6f8c59c55904988f417254c9086478"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 976,
+      "sha256": "63140869e81256ed823195ca3a655a2e48388ac3fad861eabe8f3e69e713e041"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 975,
+      "sha256": "9bd404f3aaa1dadb436ab4f5a687675339ac8d060ecfb6225b2a071a96fd8b4a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2243,
+      "sha256": "960bfaf9e05a63c6a93a57eb866434961abcd2bbe104b68709f4776197b4ab8c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2253,
+      "sha256": "c9ebd35368c269a6e5d29915900e54c9cf8de0d97e31e52d9ffc6d1f24955765"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2253,
+      "sha256": "e8aab7cbdd9088bbaa21d6f972a14fd3cecb00a11c738a2613aa788cb49eb561"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2233,
+      "sha256": "3c568fd7d1a1d1101271e5979d3d3105f7b0af8216c10d0fafc0fbdb388f9de2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2215,
+      "sha256": "cbe4ff9d1d412551211c1cbfe2997a939fdd9fa4edcf3cd9fbe54771ea857ad9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1091699608/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2250,
+      "sha256": "51a4363afa27870bd77e80007782ee25a9d9d1f79004cd80f75eb2fe5216183c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "ab4e665a9e34b9f9673ab5c71af0fe95a81ee98b6a236ca53566a0e61a4242e8"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 966,
+      "sha256": "859271bdca934fe949bfe147a5e1a7eda64a09388b891f915ade78dafb14dc9d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 947,
+      "sha256": "93457f00236516e635f9b9ce1a678b9cdd813f154ec3f5777afb78ebce4c311d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "0da1de43692e405d7c6123405a0b9345182ac97e5892a770e27f4e8067eca643"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "4bce6db1202d230c48c2a8cec5dba3614a4ee4002ab7663d031698f27e054182"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 949,
+      "sha256": "c0927537edf2b9581c10ed9f5aefd932429517f6b476af1b91f3b7624d51d473"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 981,
+      "sha256": "190810fde97a102566a581b3a4a9dbcb53d58098a11a5927b16af9a6b7b0f865"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "ec1586c86dfc2f45da3b52807cd76abde182cd133e1cb4e669b087b3555fab8b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 960,
+      "sha256": "0223faac96dde4184cd233d65d6196d4f41a33fc5bc0dec00e70eb3094f71fbe"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2244,
+      "sha256": "212c940ed8b6e4c233316e68a0374530deda97bd2bf464ea7c3cbb1dbea8bd9a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2229,
+      "sha256": "5d00c9ad3a1baa5e0c2ae83181ef36ec68e4333f6fe1f476e9298b15be87c148"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2243,
+      "sha256": "6989f39a5f4237ff2565e0b1da1f537bc793706fcde215d732d592faeaa87605"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2231,
+      "sha256": "9bf3b62f5789233a3fbd4aa662158165fa681d4f8c7343e1daf0dbaf0a4c7d38"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2219,
+      "sha256": "c9f27f962db87f2e2a0b9cd93aac62ae64d365871d899806d408d876f1d13114"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2225,
+      "sha256": "7b2b6ab58f428afb6b742fa5d565cc2ee484872934795eba20a9c6d8e2c926e2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 944,
+      "sha256": "4bc09e9ead70098a5804d659403eba8418bb60a04432f5ba74b50a036d26a507"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 968,
+      "sha256": "8b0148685ed296152e36fae2a4cd6b8270d6a2e44c6e7afff34ece6fb6daa40b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 971,
+      "sha256": "ba398db36793727e3d7be2656780eef43bf4a28ecac4948ba3e5ded0394278b4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 971,
+      "sha256": "04e858e28fdfe863cf3ca48497c2092b69c05edb85282b6eb6eb4fa4574c3d9f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 948,
+      "sha256": "83aa8245bc8f30f5e97693dbb71ed26533e0dc18dd31bb8a7ae7f21fd533be70"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "a1c4e4c4a02aba138c2d0572bb31348712431a20f3ccc4d709dee28c3a49cc9f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 970,
+      "sha256": "bf3c57f7cabb47b9cadf51e4ec3885b46c342a4b35c6a442ca1584451102cf7d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2254,
+      "sha256": "5185b8b9a9cf76209a12b403f240ee0a78fa638b942d56906f221e8f58f2363a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2242,
+      "sha256": "772c877033a4b5cbfd3d997726a9f4365bd6dec7cb0b01df355f24bf81aae0b0"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2252,
+      "sha256": "36a540185de63a10dd7ede76d2a243df13ce31f0204328bcb8c1fa8a429e0cc2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2220,
+      "sha256": "7380d2a094800ddc9c9353f0c0b58726b797c5e222ce022482de491296ce1136"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2212,
+      "sha256": "83ee4151ffe3a9e433e7c1fff04158eeee45a90466d6980116c1510378e00398"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2220,
+      "sha256": "279f4575ed523cf2f89067cf85ad174a5a6fd6e2c534fec3692b7b795918820a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 953,
+      "sha256": "e2bcf7a9e77193cbc1c8f2d0653ad5c87288792ccd79ec458e1dc92e2c88f0f1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 954,
+      "sha256": "c228b19ca5e4ef0f7e6dd5f9d7e79dd19730e136c91b2849cb0dbf15887f6343"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 954,
+      "sha256": "76d10fb5b707fff4e11c9d5dbc610bdc97853929cb095e919f4d69648a662ad5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 974,
+      "sha256": "f32464b1ce97e91f405d1ce1b15e3faa0ac49d19eacf70d7aaf32468378c745b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 956,
+      "sha256": "dfda576837fe3aee34c4ae54f09d67a0ce781f0325a8e0e50b6b146fc852700c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 976,
+      "sha256": "22fe8e1ad7cca9bc5eb1c1f3be61db642c4d0ca1e41cee2fd4fdeacc13581706"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2255,
+      "sha256": "c903afd59363b0776959b7c468b710c64b780821a7c7b18b115160fd0a309c6b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2256,
+      "sha256": "a328251d3c2a23fc284d9928093af285985e247e402a0838ba061433978221d6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2251,
+      "sha256": "a352b9db79417305893fa086a83587b88c40b4b88ce99e0340879db59cf7ca0b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2231,
+      "sha256": "6674bf71cc759d5d0b631b23ababcbbb404efc820b00a56225af63fc83be0c9e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2246,
+      "sha256": "bc913b14e20488060f2589a5888a1e9a25d7f8014346e22e92d2c7f6352c706c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/124753321/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2232,
+      "sha256": "e0b8a938a3ad4e72761805df8dd5fdb100d861feefd5aa5bbca00abf7fd23230"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 969,
+      "sha256": "67eca7321796f7fc044242ae9cffe3ea0d3329881e3ed952ffdca5a6fb754fdc"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 946,
+      "sha256": "86fab3b58b8c462af9ea6aa049177624c29b073235d8bdfdd22b6c8487a5fd61"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 967,
+      "sha256": "4f23deee6ac26f9a3c95962758fa32d82a389b3659dac4b6881c5c1d82a5dcf9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 951,
+      "sha256": "040b43cc7a7243e605202e1793791666b08a3fcc33e2342264068bf800821616"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 950,
+      "sha256": "4bd3a54ae3d8366cb3ae32336bf35788a7fc32f7418f7ae96a636d07e9f25691"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 968,
+      "sha256": "0af90a435ec0736c6b8c554fc14d3e137246feab3c2f4f0c836d3baf91ea78e3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 958,
+      "sha256": "90d577ea58dd398d4d4d9d0ce720a212bfe331f505d03b73d3b800a3231a3392"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 949,
+      "sha256": "2b2a8c6b20c27b79cac4f422c4e0e2b6fd1b55250bb84fcfd4799157a3b94d0c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 962,
+      "sha256": "08f64489d2fc4467be96cb37af726d70aa90f5baa9039874b810d3004363a408"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2223,
+      "sha256": "48a5ec02b842530467f3abbb32a95fe7b9f88d580bfb6b50b1cb144504d26030"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2254,
+      "sha256": "b5576089770b5350db10ab096814fd963cc1e2fb878acd5eef6a540e88a41520"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2213,
+      "sha256": "2947fffe0a703d6edd918778eb84d9607bb276a0201c219e11e2320655d3d992"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2212,
+      "sha256": "9d43f783d5a97fa142d0c0a1573e15749e7e9102648ee4f96f251e5fab1e1a3d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2220,
+      "sha256": "3de2dced16f7ea7669c187a62b147a7881cd185ed07b359cc5023dec79ca9554"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2236,
+      "sha256": "9e1e482db3a690cba932a54d13d1367bad89bc768c5f02bc34c822553f8b8134"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 965,
+      "sha256": "80e80e2c3df3ada3b2feb7dacb1aaea6ea9ca433faa83d4ba69ac1a3f119a3ef"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 971,
+      "sha256": "44397ac8899826fe6b85bd47805173e60d301deedcab185b0dbff759bb352192"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 972,
+      "sha256": "83bbb799bc748c79ed1a034999f50a86a1941a2215966a6d9c5380e164fa5819"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 970,
+      "sha256": "c140105446e086669f26e7477dd71cd7b60bd2af5057dcfcef30e50268242de8"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 952,
+      "sha256": "e0956e28ac50615444ddb5b59031357e8f85b0befa6ee92ef38b061e656f31b5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "52f9e21f11205fdc0860d1cc7f2116a2d94faa7a5826435f60403058d33a5b3c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 952,
+      "sha256": "f7d09d0b8110e6a42cbaa7139573e336c74bd2f9505ae4f29172ed6ae816ee2e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2244,
+      "sha256": "acfda6e5518e668f1603458f69dcab645bb260a3c78daed2d57d0cbe97e5defb"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2243,
+      "sha256": "1ff5f210fec196b7afbe778cd2f54f5cff9923595a6f97e64c192a1e0fbbcf86"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2242,
+      "sha256": "7ec1939adc8ce87479f100ccb537a8b1fbd18a48d5569a807ec9f5b0be782652"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2213,
+      "sha256": "ed280e893a2da3b092b05e9110d5e10a94403e40b9975a5c05861d33bc3a49ba"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2242,
+      "sha256": "1d2ad471c5aeb68d9677340c52d58f2571f5d66219e2331bf44272741504e6e5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2220,
+      "sha256": "a0b94e1599557c846a775dd46101cb299bbcb2de53f2e5e66cec8eabf0805db2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 975,
+      "sha256": "97474faa9716772830395433574b961a7570fb28ca3074b15f9bea90ca919876"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 953,
+      "sha256": "114bb8db17eb75c651e4e4ccabd718ce953b208c71eb02485405a60db22529ac"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 977,
+      "sha256": "5866c5614f08a0db9df0cffa4afb59dbc2ed3fe9ff0b914befa6340980211dcb"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 957,
+      "sha256": "656085ee4691f9697eb5c48058cd067a33260e3d6158b4af6df1e19df4baa1fa"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 955,
+      "sha256": "a6a6a7a639f96ba1eca8d79875c35d7ded5027e941faa81141edbe1eb11cc874"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 957,
+      "sha256": "4f53e5b36718337841adadb49714f7730363cdfdb57dac76da4645e983b576d1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2254,
+      "sha256": "926e4ecf20ded504e64db4328075c1b07d0fcc1b9643561101fb42b892b62d59"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2255,
+      "sha256": "fc3095e154953466a8d93f923397a24cb04c1ba9b7aa8efb8a9f9b3dd5986143"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2244,
+      "sha256": "254f68c2119b35fce94ebf3820b74ea5b5936877825d9aa7338d34e76e76e67d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2231,
+      "sha256": "156c8717b9e50109a7abc5fa01be62e3ad3961cc02ab30f6c3f4d0a6f73eb551"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2231,
+      "sha256": "643afb83a1f5a0705883036c75ba6dd4bbdf568e7c5be6eb1c10706d42258494"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/1726880744/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2242,
+      "sha256": "2ab0b9c5fc7e6c644e1db769785d421ef269af29dee9309142f6c077d29f4ff5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 964,
+      "sha256": "6ca60622e3f839fb8fca96c1b44d54f83d41ddbb700d67072c1dd9899cdbbaa5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 965,
+      "sha256": "4eb61314c0d442286fd2b899238049a4a6c4b6984a83c48d01259e08e066ab3a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 945,
+      "sha256": "dda43c916dc28d6e1bc3581de2a945a4b878467a584ab2c132bcccd62f544343"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 950,
+      "sha256": "12868c47bd2813c5b21ed79ccb5618c3bafb1d11507bc29e87ece71e70ef24b9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 948,
+      "sha256": "d15205b5cae662ec3df7f1e90f87689426e69c089617f78efbd15e6e7766d7db"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 950,
+      "sha256": "0228a817f00132157ff5f497706d2e3740ccd5ebff5e6325d95392ae9f888014"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 972,
+      "sha256": "f003495db2cf1cb082e17f957d270cab8523cac8ec0aa8d55ff940e85ad99fca"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 947,
+      "sha256": "fe079430e0fbb624d9bfcf6f0e027050901d38f1cc301f5cf439472501520443"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 938,
+      "sha256": "4e8cd83a039beba591bdf564c99c17e267a7fd34105a8cb3f87b025492feff54"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2243,
+      "sha256": "01616a7fc33d09ef3cfa0b0dd8dba0d4c9ce18d50fd17cfc06e2395ad5179b86"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2256,
+      "sha256": "4c066bbb65da6eaa7f6fb56035f13f6cf56d9d436761875bd8a4779641047404"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2211,
+      "sha256": "ffe3dcf19d60dd5511feacaf53c517f5eb2b5895333850d07438bbc633e8efe6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2226,
+      "sha256": "b8a8840c3a0b316f84d7e99a0971613d7f871b5dc48a064eeb0fa2bddfb68df7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2241,
+      "sha256": "730cb7cca8b7861dd2837e30ff832a9c7f0270e6ad308c7a90f79bd237cc69d7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2226,
+      "sha256": "0c290438e2358ad0e3d2e013734ecd2b2258a3e20ef545f1623d28e0759bf3bf"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 943,
+      "sha256": "c5f8aba20864506c4515589bab772f0763d0007429c37236b147d45457047bca"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 969,
+      "sha256": "cb18eab6acc54c78e7704bece69274080b4ca75a5c3dd6c20654911991611d73"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 969,
+      "sha256": "0a1f57352184d34af90bc849e0e02dfd7c1f7e9f89f78221cb2035149a8ecd9c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 948,
+      "sha256": "e10dc1ff29e308c58f00a58392dcffc3f94b89232be18521a2a03f5d17c80c9e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 950,
+      "sha256": "40d011a1ea49a4ce6e4e88d17640ccf2974037ce40507eec12954ce53c8a645e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 950,
+      "sha256": "f1be7becf8ae23a064107c6a0bead526522fa3d9d3390bd5c8a71a6dca0d27b8"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 951,
+      "sha256": "ce00e697c1a0bb15adcc5124acec9fb05fc31edb9f206851fa0173d3d6e89c1f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2252,
+      "sha256": "7f5f7d73fd9bf2165ba432a9ed94514912057bac26e800228cef7564a6136b1a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2253,
+      "sha256": "5f57e29aed1e7a607cf9e410cd99a0ea700a732707d62c612d0000a944a17675"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2241,
+      "sha256": "e279e8ee0c251457f40ded2a6948906f929d45dcd5bcd7e65e57e00ac5f25298"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2213,
+      "sha256": "89a93dbda05e6f2c590e0178367a8870f9051d0a3de67ead08fa2f058599acd0"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2228,
+      "sha256": "b1afab74360ca133cdcf716e241ef8794e0dc4b132dddce642f58b067d47fc4e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2238,
+      "sha256": "a1255fc8d55968fc7d8a118688743495c947ffff8ff495bc3018679c22683e16"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 953,
+      "sha256": "41fb7c9b6e0764eca5b856ed88b3fcad22dd07d89d75a6c38a44dd63859311f1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 975,
+      "sha256": "9052d7508ad60e93b1b4fdb41f4a50e519978705e80d536c111964a2e56a9d2f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 975,
+      "sha256": "533eb0f5acaccc40ffa98bc42138f9f466cf1d19eaa26f69e1f4b06e9b34854c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 957,
+      "sha256": "a709301ec9efa344a4d741e14897616766fbf7628dd750f24feee97264991b23"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 954,
+      "sha256": "2a1e24691b77ae09aeecc67cbf10525069f415a842007d53d8f788a06e851dfa"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 955,
+      "sha256": "8d98530caabcd0547783ebe8735c12146101e58ba51c4bb39a6cd6c29835a58c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2253,
+      "sha256": "7c70b6e5e4856d61ea72c723d234f02a5331d2b77f9106c4d15cca0c788a2170"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2233,
+      "sha256": "93e88a9c8ed87d61e883cc3eccecdb13b4810396f447b3f924ee34af1dce5f86"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2265,
+      "sha256": "0f004e7e98fb5a9b70241c60ce0258c8513cb486d12567cc8d015d0f99e68e62"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2219,
+      "sha256": "26f012dc470c159c92a2831282c461b48163a9190a4040072ab6812a5bf7fa34"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2247,
+      "sha256": "079a0f1fa4b843f06ab335f7b8e6c4f947f6b680d9c4383b2178473170428f35"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/27424209/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2256,
+      "sha256": "c8aa6aa26a912e6841a1b704d437e2c273b63eca164aa082f452c5d0cd566403"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "c2707dfc6b4a0a152a6993592e034c8be6bb74a9decc2bccc2838a6a20f9f016"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 947,
+      "sha256": "d1b5b40b4e67275265f4a75e987f630ede190e776a8d957b39162b85fa34d902"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 969,
+      "sha256": "5fc87a9640d789803de2cec707bdb16fd48b3420ebd42ef7137cf61380f4c1d0"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 951,
+      "sha256": "279a9c1811d5e29235ae4bcc30b7a24740270b715dc4eb8d23580bac99337b40"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "37716a3133f98200f052b6804a100e114253f68e3e48317ea0e63972eaff3fe1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 966,
+      "sha256": "6ef48880e7794172e553a8ac563b875e44eda619c02124c0295f0f508d0758e9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 982,
+      "sha256": "eac8c699cf80f801976411d6acf839aaf7ff08f64df219d332747d41cea4eeca"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 968,
+      "sha256": "499fa9ed973db8052a54494c516bc7ea1724e70d1e03b3bee6ae4413dc6905d7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 961,
+      "sha256": "a47453cdcd2625fc98ed28eceb1174f5654b4eb2802af723b175a78db4e5423e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2233,
+      "sha256": "375c1272f355b83bbeecc03d1a0c227f8cc12f43f92307080cd11df28e378f1f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2246,
+      "sha256": "5d3eb4e656addeb0a7c72327f2135c52236071967908b73990b369b4411991fe"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2237,
+      "sha256": "17514ac8bb1ad66eb5348322ba4aa212588b17509ac6d1548b063cc370aa55b5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2228,
+      "sha256": "5792479d005c7a6e3d9dd645fd945cabed1d745c4b0564b3bf84b1ddc23e0134"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2225,
+      "sha256": "86c11ce1854f7d29ae3a9263954f2a8763a7833cdd24e9b83182f16a312a6640"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2217,
+      "sha256": "1f254b838590700cded5f66db7687a80466e9bb81dcd858df25bf75b24ba48a3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 965,
+      "sha256": "33d37dafc6ee89ea7ad120208a1fe2d6faefca217cbcddaa0cb7dc496678ed02"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 971,
+      "sha256": "d007899ae6a9d6878828f801b8cdfc9b1245d5de67c582802cefa2fe04379ed9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 945,
+      "sha256": "76c6723923ec88bbe21784153d7dd2f13ad0a75826cd5ece3841ef2ffc6c1582"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 970,
+      "sha256": "730cfa1dc67d9ba6d7c0524271f056016fdc6ce7b8202958dfa9eeda1d4bd0c3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 952,
+      "sha256": "21d167d67d057e0e5c54a8060492d1a72aef9504ec4371b6e521a05c6b14181b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "ae2838e946f4a1711986c4c0f8bbf9a46a8df64545a452f24f2d644708d9de2c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 952,
+      "sha256": "7b0804d9c610dd034137358527e1eb955fec39aaa5d4366249688fa48237420d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2227,
+      "sha256": "511b43146fab993dbc6cae741323bb77e59b7244df7f95eb4c76215496b46b51"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2241,
+      "sha256": "7a0455d0cb40baac3685e1ccc923cc59e35744d99fc9bbd1191c9f0d204c78e4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2242,
+      "sha256": "63e9c5d6b3037cf816f6868b21734d9fc87e8916666fa5d70428de512493ee8f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2241,
+      "sha256": "b727eaabd49467cafd6dfd483d63243fdc6e09e296021394f7fe52fdeea98a42"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2222,
+      "sha256": "392eeec2d99bc82a7f3b57c80a107ab0f8cda82f5922250f6aba2719c0a01c62"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2229,
+      "sha256": "5c60fac5a1c9d22c7abe6dcdfefcd5933a8353b7238ca000656ec4093260d8b3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 976,
+      "sha256": "95b9ba167f7bdaf495a97b2af2266b0eb9f026e2a74c0328616a5c7ca7555bd5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 953,
+      "sha256": "e8502ad0a21df07cfbd4339fa2d93de24292f9b7a631bba932c123384049f143"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 953,
+      "sha256": "e02d5dfd3e79e05086c0b4ed4314cc252b7c5d1adaf5028662c2537a7055fb80"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 956,
+      "sha256": "31b09001a89815496765197ccec2e844269a5ee89edfb043291f0929cde783de"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 956,
+      "sha256": "d85480fbfe01fb8b4c06a966314be37c7253bbf5bd73d3e8c5a7d271c5fffaa2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 956,
+      "sha256": "e59689019880ea70673ae6505e66d35f5ee5e43255e7639ae8bddc571c2b5042"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2245,
+      "sha256": "4dc394a75c52352f1abfd02e341ca12bfa01d7515083b75586824c18c84f912c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2266,
+      "sha256": "fc5d6c6cf8d9d4d6fbdb3399aa2c80648ae2131be10526c4595d0ba1a2a56821"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2264,
+      "sha256": "98fe8786b77d4e0e8a793cdc30cd96139e7436b819d540488fd1650320b5bace"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2238,
+      "sha256": "470efd5a07f624f29f8812b411880ccf2f6ff666f62c433e838b7ca0e97c2082"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2206,
+      "sha256": "11ebf5ba059a9fa16166a402ae8e55a341e046b7f79fee16fe7e75d15cfdc98a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/520888668/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2230,
+      "sha256": "11e879b8f4dd28272e4870d317742bbcfc46220c2c1edc337fbd798bfaeddad0"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 947,
+      "sha256": "ed766bfb877e5890be5d3cbb47f6443e96d0466e77d6259f3c773dfbcbcd522f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 946,
+      "sha256": "d5dd102d41a712d41865795842ff0470710f56a8d88555d72242126857a73e17"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 947,
+      "sha256": "74e11462b1a64ca131d64d69da1b855c9429dffc62248cd7f2eb9c319ac454be"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "65d755a4ec24f2c50e2ac1ff76c2f214f9f19c0cc87c1c30feb97db330be40dd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 950,
+      "sha256": "d26bfbed2aef5b00a0fe5585ff9875b3d8ef81d26147afba4bf1defcb4ee0bba"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 966,
+      "sha256": "fbeeff802e6adbccc1d74cbca54b0848c0914bca716638fc655c134edae5073f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 957,
+      "sha256": "80174b40a97a4d5887b80b663f07744b34184363c477f3492d7e75212cc73401"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 968,
+      "sha256": "d4fcb700deba335d49c14960b527c9e8c80eaeef5290bc134cef7867c3b59564"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 941,
+      "sha256": "c12c7f99c1bac3c23e4a2f6d9a636814db6891b8035ab0b8503c31b09fd0eeab"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2243,
+      "sha256": "ddfe05751f4749226732309de59d090bfc0f1c2c0cd5255716af1f54d85dad43"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2232,
+      "sha256": "afe76af6b7d1e904d167480d76222e767bf3153661a51f7c98d928ce17c1ce0f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2246,
+      "sha256": "7485ed676c5c9bd9a5047f1f2149f782e3498f84a387d4e2b1aeaaa2ebb4e0e1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2227,
+      "sha256": "cb36b5c43b090a447f88934cef32a0e8fe20134682528336ab2dd6f9f349035d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2228,
+      "sha256": "06946230d006027b247fae984fc29fedbb490ff085d90f3022f8d454e264a205"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2236,
+      "sha256": "0acc61a10b0ae170ade57542f750d420a59245e00ec77e98d1a2ec4981b5ac62"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 945,
+      "sha256": "84b6cef1af62abd0aa71eccf0297a0778affdfb217513d83b8e9c18a568aacd4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 949,
+      "sha256": "ee86ac15e2afebf4e97abc411ccd342232aff98f94eb2caa3916ab146b76644d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 971,
+      "sha256": "610f649112e39b389d4bc962a02d31c19380484ccc9544081cd00661b0611dc1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 971,
+      "sha256": "1f82e9ab955e96f81276284cede3206a3171970dc25e76d9e7603a419abe270d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 969,
+      "sha256": "313fc00e522b5dd3dab32c34933b45657aadb997a18d9fc5a3788253db5de8dd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 970,
+      "sha256": "2dbb5a510f57aab2ca9553374574e501a677919c0cda9362c88a76d041fb1d6c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 952,
+      "sha256": "2177462d848f2995e5f11ccbd6f44bedb8cf92e0e9bff6d33edf1d15aabe1da0"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2231,
+      "sha256": "c8e5a4e0d905536dff8d870de9335d26b5f3716961d9b3d2d63cf992a7cf0a22"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2241,
+      "sha256": "a3699b289838c8a477c2a47c8350ee6c1bbaafb1d35e442d8e5e85a3c2f1ec94"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2240,
+      "sha256": "33ebe20757779f3ed0cda444a852525e54d9cec31998a192eb3c73986b9eeb58"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2230,
+      "sha256": "38008baf791f05317528d741bf6a9c11fb6922d07a35e89d6f9c8e2567c70206"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2203,
+      "sha256": "ea2cfa4daf6a478bc9f18df4ac956ca72dbfec995921e3128e2d3cfae76ef47c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2230,
+      "sha256": "b083368b475ee1035b3fe2144764d651ce0d14591e835b99cbc54d48c4f03983"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 974,
+      "sha256": "91339a16b2732330ec0dbef3a08b48e59ad89f5e6df58c7bd72f0ca0c5ff577b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 954,
+      "sha256": "63b9ae0ea5bb8f134831d6a1dd600f81e9cf72174f44ef611e27f75723a7ff59"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 975,
+      "sha256": "9fe626db45ce6d989b34eb8a079aceb332cf374d71c5ac9234dc76b4399802da"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 974,
+      "sha256": "a2e47d88fe2db10d245302d01171b214672f745a141d2a4a6cc12bdec48938c3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 956,
+      "sha256": "69090868446750f76533496d01b2e01af5cab2177270edef7efbfaf93b192bdb"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 957,
+      "sha256": "7a36c0b09328ea09eedf42443d3796a4d0d4419451a19dea6c93364cf6f2a3d7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2267,
+      "sha256": "46755b5a701c9be145004fd05afd35d998e8f562606aa9479a6c25c5c29fe11f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2243,
+      "sha256": "6ae788b535ffef3b844f0ee4a9f1eb977d509eda3debffc8862c536e19c9ef1d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2241,
+      "sha256": "28f58c9a430d289347fc3bb35a22765993111f05de6f6da13992abe8e1d0143e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2248,
+      "sha256": "5d585a7518b3acc59ee61c28941ee132365d2565f1b95f29635e1d13f9dc1cd3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2250,
+      "sha256": "886e5715836ae72e0c0d36d1aa0cb32a4e50bdf30b7d65ebb1fe874239b170e8"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/546725957/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2238,
+      "sha256": "a721eaa271aa2639d2ab6c6499be156641c44bdda1e6fe19cea90b4a23e045a1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 968,
+      "sha256": "fe044b62ff1e3a531068c84093bab4f5ff738b0137d0a0383ba6cbbbbd359260"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 966,
+      "sha256": "bba6b72ede60befe2de138f09aa09200249c64384b714b13871ed90b267b714e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 966,
+      "sha256": "cbb699a58d782564eeac308cb95591ea9bf1458a911cb5789de63fadc5a36f1c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 950,
+      "sha256": "3c08d6503906b703366ea3c71591429ffff39aa7e69aa201efece1d0ef00ab97"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 965,
+      "sha256": "3476c344d24420befcdd40a9b64fe82ba4794ef6ad870e0604d7c1a49d0eedce"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 967,
+      "sha256": "59f8021c8fcd708b4d950d3311231e5624cde66c01e80f890590861e8a352568"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 966,
+      "sha256": "e152f72147f417c3186be7774ac0ae5b71218ea4fcfaf78c159db2cdadec23ff"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 946,
+      "sha256": "68a714a763164c32a83a4f197183c926ef4a06ab548a8c1d73e683ea5fab8510"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 961,
+      "sha256": "493722f3b0456aef01b28b7dd1cec14b48454273a2977701900a1b3fb9f8497b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2241,
+      "sha256": "ebb82d26113f65617d9a278eb6728af99c77928da7c8ae8cc227834a8a0f0c1b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2233,
+      "sha256": "834157c35fd2c42f8045b0dd1c4b61caae877f37c9f166ffeb287c3bf16c4fd4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2233,
+      "sha256": "ceb58da9c47f4f012496fd0a4a3eb6785dd41e59f8519a9a4cbfd81a6d11261e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2250,
+      "sha256": "80c36aca024fbc897707b29723ca3735f4f93667097007ffafd4ad15da502b9d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2235,
+      "sha256": "3f008a82b5e8f1341004d697613cd880330c76a859e60c43c8a32633cd3c48d1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2226,
+      "sha256": "d59a05e7b4052ee580eedbc55ca6706c8c6cb081e32c86906c2c24ee23843693"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 945,
+      "sha256": "dbd600aa9a9f42314f6761dcd2eaa925b6471df82789c3245ca7a354ea91db13"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 970,
+      "sha256": "bbbf9009487cf0729a5f3dc7edb27ad4a3a423fe45196ab677b6793095c9b1c7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 970,
+      "sha256": "e9c6474c824aa6bc91d361f9ebc5fff00cea65b632947f737a10243b81e23009"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 970,
+      "sha256": "a10d13badb0f1527a306d95c8cbeed83f90c1362563af460b9222688c6cf845d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 953,
+      "sha256": "60e9b34de96cbed39c2ea0803f73e3f2b9b50ef025d0ce391b2b2149005c19d7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 952,
+      "sha256": "62b28c37d6e97d8183ed2378d508c3eacdde529679c5eb3ff17f463a9ebbb114"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 952,
+      "sha256": "efa22492555ed24e04e7628faf3dd65293aa169e4f1c3bb0fe956a1b1c3bbb4a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2249,
+      "sha256": "e5218e6c8dc858c8861204c1fcc6b812a3261ea1063127a2bed3cbf245f2dd62"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2253,
+      "sha256": "98279e9731dd04a4617842b5c35f4b5591018111decada7dea4e99c4926a0734"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2231,
+      "sha256": "c2358ee9be1d60463e7bddd18f285f5ebd99aebfadb924170b87063da811b3ea"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2237,
+      "sha256": "ced355461f25206c39d802051735a00245e9e7a173c9b0850d5f76a4441fd6a3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2240,
+      "sha256": "1daee91d8c84bbd92c43be262ca9ea0c7e098282958280f5d504b9760938e5b2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2230,
+      "sha256": "8a1e297c0da2ea4aa1f6382b92b558a04e8548a1e48ce03f296bba9d107dbf86"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 954,
+      "sha256": "9068aaea28fb3c501471522c9cc8055b3415f331f340fab8f028423e5acd6893"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 976,
+      "sha256": "503caec70df49e15dfe7aab3313fdf383c22c89f4168bd4d6d50459071473fc1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 973,
+      "sha256": "417f0334e2e2100ac0fee26490b74424d6917dfeb45dd3eb9dd588ec006ceb45"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 957,
+      "sha256": "40693d8179c19356ac731ca3f35ef38ad7a0ce21fe07326817c316c19d4911d3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 954,
+      "sha256": "4922e66989e673c0d4a0e3ca50dfb2ff6a3a7dcdda19b24af77affbe27cbd9fc"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 956,
+      "sha256": "c559c3a92edc5e6a47ce709cf2d018ec91d17febc2d76e27a5145a7047a458ae"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2255,
+      "sha256": "c408c607ce431c960ba43ff877be3e5bbbe45c430f6b6e4f05db1ed12c52a8d2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2252,
+      "sha256": "8d2c8dd253daf130bceb0e91c3b2f8b77d39485d4e6864199ca6d35b7711a20d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2241,
+      "sha256": "d574b9983b1b8564b1614b48b572f3d59a972492b8d15c43da5e29383968e6e3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2231,
+      "sha256": "4d216dcd9492eeff1dbb4ccee191e4736b2847821663589a3deed76183003510"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2241,
+      "sha256": "2f4acfd7c4758c0a93fe9899edb4c4ea51551a62e49e4513fb941d8d8e1ef358"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/585254818/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2242,
+      "sha256": "25fe476962d63b9db1dd7860988b3db405a7896f97d6271bde1111cdd6a1d169"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 947,
+      "sha256": "b924da8cb6df06e13c0c0f990e7bad45f59d771daf735e44238ecc108bc610c5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 946,
+      "sha256": "78e9da1494006e7e3e7885c69b777ca8ac91b63c390b9cb974e8a319fceca4d3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 968,
+      "sha256": "501caa26adba5c10ad0797c9ddf65eaec25c7fb89ebeb2637dd2fdd1c9ee9499"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "047c92cf3f7f6d63bb5ece79786da57ad94792e401ec644994a26a9929ba2478"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "88d6cdbdea82df485a44e6f6c2c18eec86d4650096948baa0025f33c1c65fbcf"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 949,
+      "sha256": "709efb95562732beee4124643ff2f541864441f22574444549d7a2afbe2fce7a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 966,
+      "sha256": "97de0b52a2c58bf914554b7c0dc19b233bbec5325334eb47ca4cde6579e8a84d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 948,
+      "sha256": "38af61b61731e9215a1d44171fab84c7aeceb23112460fbdb2175375ef2d9b11"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 939,
+      "sha256": "f03aa35b2b2a2123a348e092b0418a7a8c5b3583076a9262afdc2da8c3c2bd02"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2244,
+      "sha256": "4ab25b019589193ee61d7c960c3e5ae6424f9ca270470ef050581d620af06d05"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2234,
+      "sha256": "a6a9865b93a9fe170d49a17c0eb1aac6f3c2dffdaf826e51630fd180feda3ce4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2225,
+      "sha256": "daf77bbeda98905eaf1093aaac77a356c95ad2504896ef8319d8401b6cf182f6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2233,
+      "sha256": "3071d71dfa5340be1075ac4bb0bda5013d32e1509b119904eae423a762cf6206"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2251,
+      "sha256": "b0696766b1ac38abde7743db086704023e0783d4741b871a5b6d8cd3a4cbb50e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2218,
+      "sha256": "896c646adfaa62a57201fcd623b754335f7e21b2ea139961af1074dcc51ce63e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 943,
+      "sha256": "b2f207c814ff12e516c53d0959442d5ca16189344ad395a3b547d2fbf1062f99"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 949,
+      "sha256": "60c38e18c650bbca56f79c1e9c3939cafc3c70395cc8a5a5907249bcf71db095"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 969,
+      "sha256": "5b8b65a441ef4fbc75a849f1e7ce0f59b01b83f637c3fd4e1867f60fcb00801d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 946,
+      "sha256": "030b7aa20b9e76c22d22c883d369c225ec293ccbd60550a144dc101d3be86720"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 951,
+      "sha256": "7e125b69034c9ff08facf0bd049e5bb5706f7368ed18fc4b05e979cc335f5d9d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "e194d420ef2024cde333b3b17c81ae7fb6e4b9700e1df6fde101ecafc96e7abb"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 950,
+      "sha256": "0e6d142d7b14f9c3c61541440b558dddfde06a58880567bbe59e15f05df280eb"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2253,
+      "sha256": "c9f0256440ca8d4faeaba72c21d61fc93cc6cc176791ff37537c111a6850bfd7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2232,
+      "sha256": "5f511cbc734e6d520c9de4d11da919a02cf1793c37b9a3d31ce7e00b9cfbf26f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2230,
+      "sha256": "a1298ff1025a1ba4c4d075e84bc77195cee47cdfb84ade724a4bf4b1c6aa1358"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2221,
+      "sha256": "d3b528d0202ce0cc1aa1cfe35a4c9b1add1d7c6a1eb3f929ac99d3a052356bf8"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2246,
+      "sha256": "657a0b06a57b2894f5ed9b36380fad2bf67accfb657701cb3234e085e6d2ea56"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2219,
+      "sha256": "4b602dc243c3d19b6d228f903076779af2d9056393f80c93a29a8be47d508ad6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 974,
+      "sha256": "6de9fc4d459921e34fbafacab4fab6aa4ab4007a0c7a414bc4666b87f1cd9367"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 972,
+      "sha256": "4529db67706d1983af01802e6c156cf42c5da42b1f1f7bf5b3458b2446b54a4d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 975,
+      "sha256": "7fc90959f2791ccedfa74e781a232ed276ffbcbbcdc69344d70b4270731500de"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 954,
+      "sha256": "334481b4a246c65bd119b9bdd6668aac5e5e935e21acd4a6584d47f025dcdcd2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 954,
+      "sha256": "be0a0df990f14973b05f888e8899b8cee10427e49e7b8b2d69539797eb004cbf"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 974,
+      "sha256": "71e0c4543def560b51394dab1904c6bd1eab94391a2bd9d5238687e7081ed178"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2254,
+      "sha256": "2f2d9583f1a0183403eb335a7a596230ebf3ee27cc72340260710b0550112dbd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2231,
+      "sha256": "866fb307ea229bd3c006da5cdf43957d34d9d88d0e0a4312abceccea198b8000"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2254,
+      "sha256": "856870781e1fac8f5aacfb527bf54b95d8d8ca7f88b98e65f2f7b41252b705bd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2240,
+      "sha256": "50baed03cdb84d60a585277e8fea13066558b9538871ec648f32230fd19406d5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2239,
+      "sha256": "383916bd727ba7e48ebb3196852b7b50160e78fb57b09dd912b6eb58e8d1a9ac"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/735595885/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2222,
+      "sha256": "0b6aa6aac62086bf0b147ac9d45a59574e6ce96b123dfd61abcb4987fa2a3dfd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 947,
+      "sha256": "c66bdcc72f16520dbd2d307e5e2d456f61bde91e46c5ee3752b6207454e01229"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 966,
+      "sha256": "33d5694ccc301dc609101680b7b02d557a9a091f670084700550ab6b7fb62d19"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 966,
+      "sha256": "04e4da0fee9c0fd7b1180f0af78f6b266d3939b54f534c735cee6202c356491d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 951,
+      "sha256": "14f9e8f1f8887c4c5ad1384c53a4ccdecc95c29f1323865dc7316c0b7a022a91"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "63fb5da239873f5045961fd6dacfa8302d980ede41fc47d39f6a64f9befe4216"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 949,
+      "sha256": "f71492d8097a9c928935cbdfc5c9bde442576ba6ad0409733d1ac6e20c68f111"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 966,
+      "sha256": "cc719f6bca0ee3109ba0c8068a113614b545c77ff1f874de658e46ef23eba078"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 948,
+      "sha256": "42a51abf5b64eb4a2938aaa9164a9a80cf23b2c757cc1b051980fadb74c5d0f2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 961,
+      "sha256": "4aef911b953a2179a6a99963ac0274ca6114e0d6d11a40aeb316a9323efbfa45"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2243,
+      "sha256": "a1239f8aa7d6ce2b6f52ec2dfb54a5778ab2931b91719655555b530eaa62e02c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2222,
+      "sha256": "e4eb7423ae2d80e4ae23bebd85a6ec5e660c4c36c330bfdeee2e8349345135c4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2258,
+      "sha256": "ad1b54df758b3a83aab62c23b63f23036418c15464006f92a0bb825584e53633"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2243,
+      "sha256": "3ccdb77ffeef68d3c762dba49c34fb96cc1231112635efb242dcaead0d062e72"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2236,
+      "sha256": "7c2ecba9e9006e9930c2273f2ba6a8a85754dcd3e894c54597b3b1dc2c3a981c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2235,
+      "sha256": "a9a798bb21a2862380ed4b777b95cd557adca1440a4252f0fb6fda6130a0be5a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 944,
+      "sha256": "967a4d2e6a00ce014f6344f41a5fc0b398a168241a681ea7718c3e8074bd7cbf"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 971,
+      "sha256": "dd39ccfdb2aa542f3153e382a6b5c07bdb05a11b8e9a97519de19e554143a3e1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 949,
+      "sha256": "14890cac7c18f607f62340e9f8b7e1859eba77bff65aead34222057140ef3be1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 971,
+      "sha256": "d6588bacce1507b669b08f03a1bc4430db66ab96943889d2c385419386d48f10"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 951,
+      "sha256": "4e367f7be09e76a5493d4df7b77356576a04851368feefe733a7f00065c5e866"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 953,
+      "sha256": "47b1f3dc93bdb1493acb4de5c96536ca7bc6e53df1e079a813f30ca024a0cb68"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 952,
+      "sha256": "916d15f72e0da214221a60bf23e55072cb68c0f344c35e6bb44e81eeb660928c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2227,
+      "sha256": "a934f911c77f328d48ddf0e24cddf8d1daea0919011402216d928931195e236e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2243,
+      "sha256": "a6eaae20d8eead3a3118b11c5cd5de612d2c40a327ce4e1ce03efaef493f91aa"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2242,
+      "sha256": "4f2a3ae3913f58a6eddc392534ea480319bfb657acbfdfb4038bef1279bac48a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2210,
+      "sha256": "f108c4804a5334db877c3e0266d4229d047ab144ea838d44ac909aad4803e462"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2230,
+      "sha256": "ee98ba379ff38a2bf3a1de90b3f70963e3f9af342a3080b3dd7f310ec6d1ebc7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2212,
+      "sha256": "00b7825dd576537f6004c29739e883b542d8ae7b2ba7ed03385d557ac60456ef"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 974,
+      "sha256": "afa761e251e387f12b291f2f0b7e72ff369fd662f0f3587759488aadf9341a8f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 975,
+      "sha256": "a65de231d29f1b83b930b29597d21cb845ef37bc2963e2cb46bca63ee1820133"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 973,
+      "sha256": "77deab46586315a1141c82ecf3cf5e7eadefc80b2de4b01b47b52777c04ff70f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 956,
+      "sha256": "cb9490c838d0c47a55d3bee26110268cddd0621882e23f6010a6d71185baa847"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 956,
+      "sha256": "5b6b11e2d0937ba15ec2d002fece9a7e4ec14464eb9a898f935ed0dba5e192ef"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 956,
+      "sha256": "5a16c9db0edd84f0d973f93c914a6c8cc8cca4cae55c291eba5bd482bd392ed1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2261,
+      "sha256": "5d351cb53e47222131285234f51fe9bc08467da22cd43e6f98500e64c488866d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2267,
+      "sha256": "f210759494a8c9d96ead61ec35e18a597de0615f9c9b61a111a6c36d072aba8d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2252,
+      "sha256": "b952ce4641b7da9684a52a7078de5e9a05d7e96e027e50aa108a2c365ad22181"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2251,
+      "sha256": "611969edcdb3e8a96b60d04997da23b143d09177d89a5a5da5328050f0ff2cc1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2241,
+      "sha256": "60e1a492d123c9b455056964550fa8c5e3db04823d9dfd32c3b9110c24da7510"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/884825602/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2214,
+      "sha256": "47d9dee299c7be21b50018329cb4c46766a09d1a497e007a295aaedd4e710a35"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 947,
+      "sha256": "19a4580faf9b51365eb1160ff5e20ce8ae3caa7fa4d7032d9ed756a8020d116e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 947,
+      "sha256": "ab9f68e9faf9d45b1dc4446ec7450e2c8dc69dcd9e74244e07a7da30401262ee"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 966,
+      "sha256": "db3cd4f5b12a3317d9f5b63e68d3307cfd36f325669e6d274ff5d824013c12da"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 950,
+      "sha256": "df2b350a4c556ccca9d4971576682326a618429685069377845389fb1fbff2d1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 949,
+      "sha256": "0eeafa7289cf8c052ce13470b83ecaeb382d00e1bf242b4eba716368b4eb6141"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 966,
+      "sha256": "ebb3f132b740a891b37842803133d5b032ad54a9f8bdf6c3e5a8981526285f28"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 957,
+      "sha256": "386d524e061d5854a9f8d4a24f2f224906537a309e520f7b8dcb082903cf1ad5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 968,
+      "sha256": "2097f1e5c3660337e01553c3e2482a10b7f5644eb91bf8836e159ded412f9762"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 961,
+      "sha256": "041de9eb70bb1433421fd093cbe0ec6c0b9c9803a0aa89fa3cbc983ca34130c6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2234,
+      "sha256": "f5fa85f39fef446823f6c161f6c52ace438a40f901b80cb04ee7a625d983b4c9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2244,
+      "sha256": "2da9b72c79894c4ce6a57e4b84cc8ab5da6c81fca1397d837af547db96e0b329"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2242,
+      "sha256": "83883c9e2c0f2c4b6ead8292bdf720633496d9c65dc8b47d9127c28cdbe77ad2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2222,
+      "sha256": "eb300ab60812aa5d9b6bd657174f4b9ce2eb8226b78562bdd97f8330ed850cdc"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2226,
+      "sha256": "3efa935916be1cd44e4dd20a8abde0395b1e30f28cb16f8df439f7ece53ae290"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2227,
+      "sha256": "a3fb4d8b65ffa22eb1b70c192a86521f095a08358e389204ea745cdff404b3e2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 964,
+      "sha256": "aea975a6622590d5fb524b99326deb72026098a1c75c7e35a72fc2e91fa81e1b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 971,
+      "sha256": "b8d7131f5ad0dab11523979dedd2aed2ca51368c4dcd4e1da1c97911f002d353"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 948,
+      "sha256": "e00ad174b04dbc5ccec2245ba2499e8c8e49cdd986f450c14e8fa8363c68d779"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 970,
+      "sha256": "75b1ea6bdc3793c076c7aa4ce76d06f22e18dc41a4afea58238cca1bda97908b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 952,
+      "sha256": "4189881118aa05746033572f9081d60059e1d08628bffed1f356ed2de16ecedf"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 971,
+      "sha256": "5b319ce00d9892291952d6d7d3bb3c69a6721f414065a6cce4b4dd5e6d4cbc17"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 969,
+      "sha256": "6c1f7ab37187110839bc5cafc2b92dc04bb516003519d17bf2e631a990f529a6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2233,
+      "sha256": "9dad751443424a1ab2cd1f41565b9c99f30fd297fabe5ab87b8a1c954dd616c3"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2251,
+      "sha256": "4cdfb12306335e09baf61bf6a576c038ee8026abc55724dc8d89da88ee567ae5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2242,
+      "sha256": "f80bdc59b789601c7697660b1794a3f4116e3fad27246dbcf9559f7f629792bd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2229,
+      "sha256": "25c9e50e2e5cbe846cfe2ab3be900838d3a1d685eb70835dd9c4644391da5a05"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2240,
+      "sha256": "3f97a28baad7238378b4678515b1394ab60504fb639d5221be98683b364b91b8"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2239,
+      "sha256": "ddc764d8e03699df37ed22501baf4e221dbce4a412b57660ad6f1273d4e8190c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 976,
+      "sha256": "e162da3844f27f59878cad96b764f8582067f4ece35cabf8c50d0b79542823d8"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 976,
+      "sha256": "af702995b5d0c8a08e4313f81a8a0b98df52da6dea05c10f8567fec8379c08fb"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 976,
+      "sha256": "f927a86eb15b3cf48685fe355610d6bee6d93dfa2b7eddb1fd60f8c761fdbbf1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 956,
+      "sha256": "b901d14389af7943868ab82864b924ba52d37c275917fec040bdc1f79e735453"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 973,
+      "sha256": "5ed2f2f67295f25abd12931495e9cb722e5c86ba014a2e978afde8fc64606d2c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 956,
+      "sha256": "eb5dd2a80479aceeb1f1fb73e505889e5f72fcccaed57229e9040014c69897b7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2244,
+      "sha256": "d24f696ba11b422ed4cdc7fa4036e03249254d7fab425c77487715a0c282382b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2253,
+      "sha256": "6537f1a23f10fc7053ec8bf03ec3a52c9468981ef1c8fdbb1b2a83d1a8df3ae6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2255,
+      "sha256": "31544d68492176290de910c149345bf4365b2d0a57ca3e01e43d601863b39d39"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2240,
+      "sha256": "484e5d3f7d0b75a66eb7f425aa557cabf3bc1f4cdb3aaed3daa3a786edaa85f9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2229,
+      "sha256": "2e07ed897339032789888ffa5a157f162359ebc9b192a849b91f1ed69afb4283"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/921441405/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2234,
+      "sha256": "63c1b8dcb2bed69f6b4b69642286dcefff829fdb6663f2bbdc1d97136b2e4b55"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 942,
+      "sha256": "115519c900502854d69e68ecb0ba1bb156740246a1a520acc0c1f0635a731f25"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 947,
+      "sha256": "025686c5e8649ae4a6a9422a055e2cfe055120c97d33115f9f401b3d0d67053b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 945,
+      "sha256": "9061c71de6ba1c91138d290c6bea6e2dd21fa45cf04276afbd9bd1c06a4b046b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 951,
+      "sha256": "f45507775e20633ac65bd3c841254987bcd266f75aea5f40905df165e81ffbe4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "6c00c75fe25cc5b5a3a307d402704d4c6b9c9f55385f3bef62600e79eec9af25"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 951,
+      "sha256": "3a4c97959e8e2af5fe44d6b6b6710731b7d3dbdb481acb025b7a8f2f4d081c92"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 955,
+      "sha256": "a7c7b68794898e077ceebbd487cd9bef34cd77fd30ac5b2c486f2c68b125f7dd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 966,
+      "sha256": "fdce3a0194b6543b4f4747ff9254f2ff47b70c9cf77df1c618adf5a1b41700fe"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 941,
+      "sha256": "f9d9db90ffe299a58d5572eded694488c4d6fe987b3219b0f2ec3ea4ebf1a8f4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2251,
+      "sha256": "dbce1c5a5276784d65bc4fa9b44675afe61487c051bf6d59968cb92b3255c2d0"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2252,
+      "sha256": "871ed59376d93358e1cba84f57dd2610fbca12fbad571f828daab07c46de3f7d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2232,
+      "sha256": "404bff3cc114f85565752399543c68e31de927355e61e5a05dc5a131fedae4bd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2234,
+      "sha256": "5b77eb0dd6ea3d90662c7246eb4987d3fbe43e4d172368752af8435d56073bd6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2236,
+      "sha256": "e837ed0b2717c9064d4847590358387e1eb978015079040a5fb0739a22ce2bb8"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2228,
+      "sha256": "c9a5b3d6aabf45427de764f9abaeef1210c7ae84482775e5d302f3c384d32cdd"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 944,
+      "sha256": "8397d396f681c1b6b56ed5504e38ae1b91e844ec946c2b3657befb445198427a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 949,
+      "sha256": "62941af0bfbcd10c998de74e21f43412fd50e18170baa3044f9c38fd227d36f5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 968,
+      "sha256": "15e57128fcc9c722ed075f52554f9f11e78509e84f4333732dacca179de8f50b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 949,
+      "sha256": "f1be23dc79a26c6209b2681732ffa2a4944198a698d9c584df10ce7984e77994"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 951,
+      "sha256": "60cee7843d477e575c9d717daa8a4408e5326077b39ebe3a0dde09f471f1ae0a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 952,
+      "sha256": "a1c10c116fbe4b9580d351909d204e115144f6735a885f8d0beda7346a4e559d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 950,
+      "sha256": "9c5cba8ed4d356ca10eb00df2cc8053620180ad199a40df3db46f522614ff580"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2234,
+      "sha256": "dbd23639a5fc932ff3c7061ff587a21f229be4fad3d85f0e177a0f56f1a89156"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2243,
+      "sha256": "208c38f2c5f1a0ced9f76590c21c713c4bd688529837549dd3a29a5b8a1a7536"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2251,
+      "sha256": "1e9751507791c5e8ce3b849a053f101ed89c7c601c2f15f05ad43131cecc2ce6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2227,
+      "sha256": "04bbc5c9247ce1e89b22040608951ccd8d62e19dfa6ec62c5588ee7fb8226304"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2236,
+      "sha256": "afa6af886b48e8bd38a43494875779be70b3e6051db19f4ca25749eb36aa42be"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2230,
+      "sha256": "8afacf7dac4963a6e253b76070739e4578ba997d226cdd7b126a940c3cc1017d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 974,
+      "sha256": "c334f5d2ebc38d0bc7bfd2a6cd8f172118f4a1a46812970e6cb7b155b8dad5c6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 974,
+      "sha256": "9eea0b559f4466c1e5bcb7a0f2c5a1b0e96978fa19131b1b5d6c80fd2befb7fc"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 975,
+      "sha256": "98e2a8764c0046fac25e3f5d609997a2e60004571e8321650430586dc9c2e211"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 974,
+      "sha256": "7b4e8d34a1009844d8ac074276c613cc782e8b6cde65572f8271487803a9bfe2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 956,
+      "sha256": "72e60946e278d36d8e43f3dd27991c0fb63ce2bffb71c215dcf80c32a77f8334"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 956,
+      "sha256": "ce427dc335e9707b46f84815c7b0064e21628870c0d4f91f0653a304f5059c21"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2244,
+      "sha256": "1e8e060e3301ee3d412e154904932e9f08dd057d6bc2aa54c878d29ca3d9bfa6"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2265,
+      "sha256": "d005fdbdeab4674a8d89d54b084fed956c8b19e0c0f58d19c1d5b123f7d6afc7"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2252,
+      "sha256": "90e5409300d1d5cff799cd1de56a07467ed9819dea4b62ee3b8086a6ab0956b0"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2229,
+      "sha256": "40d1a9b8b8b269fcb4b37e389910447f116411463f3532f54bfcde2945b906db"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2229,
+      "sha256": "4ffaddae40747451d47d336f063f4667cf5a473ecb6c5b6370a334c8343d0cc9"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/934168586/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2223,
+      "sha256": "e3b154685333da05e064a47666478ee0d55095becae936b4330ee566d27f73d0"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-flat-100-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "76666655dad7712422f8ffc9a8ca5c8cd8e586b3911eb8539acd2002ae97f07d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-flat-100-i1/receipt.json": {
+      "bytes": 967,
+      "sha256": "da5c7a2ee3ef36c22f1e0d38cbdd86d7266a5568d00334af9a3ee58bc0a1a332"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-flat-100-i2/receipt.json": {
+      "bytes": 969,
+      "sha256": "3b6d65a24f90ce8e72a2c6dd54c112c969de194e4496ca7f121e65e18eb75f28"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-flat-30000-i0/receipt.json": {
+      "bytes": 967,
+      "sha256": "4d4142b835f76aa990d370fae0488776656a2c5a6dc19870910cb8d258a83154"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-flat-30000-i1/receipt.json": {
+      "bytes": 967,
+      "sha256": "04ade1dbad313125e6679f8785c2da05c3670fcdb1e5bd4526995b9c75bcbea4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-flat-30000-i2/receipt.json": {
+      "bytes": 951,
+      "sha256": "d424762a0a5b5d2398d46e861205338dd8aa45d37fb99a2e6cf5b1659fdaaa92"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-flat-matched-cpu-i0/receipt.json": {
+      "bytes": 958,
+      "sha256": "6624cf0da26a9a82213cc42da0db6cbbc2849f42978282102b457343b45021b5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-polynomial-100-i0/receipt.json": {
+      "bytes": 966,
+      "sha256": "f74f2bc012f039cf2914ab234a63cd069d6be5fa064da66800c886a836cdb2f4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-ridge-100-i0/receipt.json": {
+      "bytes": 941,
+      "sha256": "238276f5687e811edddf2ff8920ffb95c08c5f85724eee8e7c32a33f172843af"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-scm-100-i0/receipt.json": {
+      "bytes": 2254,
+      "sha256": "b256a3a321991c99793f8e73e2695731e9d212f98d61b0acd79ff44e4e5a68aa"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-scm-100-i1/receipt.json": {
+      "bytes": 2245,
+      "sha256": "517495405e2b40faa67f7225ce69e36cc3042cd3408da0599b0de3c080b6ecaa"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-scm-100-i2/receipt.json": {
+      "bytes": 2231,
+      "sha256": "6245fd7c1a20a1e952e5fbd7ad619fb1ee3f3184cff0d9ba15a40fca8e6dac7d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-scm-30000-i0/receipt.json": {
+      "bytes": 2226,
+      "sha256": "68af02e9db0056207b49b2232a350d83dd0202c3fb64155a2e66294392399c7a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-scm-30000-i1/receipt.json": {
+      "bytes": 2212,
+      "sha256": "d8d558013b3dfbf936259535fd9d213cb7bb3a6809c8a2e04fcb011dc3166a97"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-scm-30000-i2/receipt.json": {
+      "bytes": 2235,
+      "sha256": "a3c34dba0eee3a1b1fa48b3b7b2d91257eb0d4635fa7eaaf0f9b41cc5a68ee1d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/all_paid-tree-100-i0/receipt.json": {
+      "bytes": 965,
+      "sha256": "0d59320cd9bb1eaac32ad454964d800facce48543a8b95dfe0957c485802ef5f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-flat-100-i0/receipt.json": {
+      "bytes": 971,
+      "sha256": "c7e5b508da343900a193ab38f205807599fc4cb69b2079c5f8cf702650011a43"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-flat-100-i1/receipt.json": {
+      "bytes": 947,
+      "sha256": "d8e313a64aa6e1bd2d0c02f6fe1587d56e780dbd400887576724a01af37091ca"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-flat-100-i2/receipt.json": {
+      "bytes": 948,
+      "sha256": "9ae4fa0676c5c8b712bafc0ea80281eec768c666372244ff5c088853ec8baade"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-flat-30000-i0/receipt.json": {
+      "bytes": 953,
+      "sha256": "4fec1301ba0013953a41e5a086e6458069047426b0a2b8babc69a6cef02d1792"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-flat-30000-i1/receipt.json": {
+      "bytes": 951,
+      "sha256": "e3467ff24cd6edef46187bf34968d3122e6d91419550b5b5cbd9df9c1ca487f2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-flat-30000-i2/receipt.json": {
+      "bytes": 951,
+      "sha256": "e6e2cf906e3516938f29e950574b47d1b7ea7071f818d41f1d3faf673308de0f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-scm-100-i0/receipt.json": {
+      "bytes": 2255,
+      "sha256": "a7f549cbfb8c1b591d6f6b4fb23611bc33074b9fc4cbbf8f100f8b00e442673a"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-scm-100-i1/receipt.json": {
+      "bytes": 2255,
+      "sha256": "b78c18b367193d6813923fefff35555dbf7c7da5ba6282e5c9c6dc3a76194385"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-scm-100-i2/receipt.json": {
+      "bytes": 2254,
+      "sha256": "5812e7272e2d97aa4cdab24364efe23a1cf235f8bb82a9014293d98ff7d6cde5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-scm-30000-i0/receipt.json": {
+      "bytes": 2215,
+      "sha256": "44b5d7b3fe48929855e782c2102157a5a2ab325ae1a142550aac392d81c0ed1d"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-scm-30000-i1/receipt.json": {
+      "bytes": 2230,
+      "sha256": "13fc737b9e17b1ca5ce7bb76de503b6483f8d0654b7ab9ff2568bedd536aa5d2"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/final_buffer-scm-30000-i2/receipt.json": {
+      "bytes": 2231,
+      "sha256": "7d18ef453a2a8ce64bdb7c8523ac7124ea61c72db46fda6fa363e196593b293e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-flat-100-i0/receipt.json": {
+      "bytes": 974,
+      "sha256": "ffc256dd3da7210b4667efdb58c482a65b1515279f3aa03d9c73a9a63339f797"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-flat-100-i1/receipt.json": {
+      "bytes": 976,
+      "sha256": "802a843dd72bbf5db469f5fd5a9970fb4e09236d7403a9c18b59c875b7340378"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-flat-100-i2/receipt.json": {
+      "bytes": 975,
+      "sha256": "5de37ec2278eae64dd27b2e7e08a57dfe112faa8557c2446de800d841c698822"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-flat-30000-i0/receipt.json": {
+      "bytes": 957,
+      "sha256": "8dee3d15b51b11ab951118d9e66fd1d9517c7ef3f960f62469ed23e8ffdf95db"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-flat-30000-i1/receipt.json": {
+      "bytes": 956,
+      "sha256": "5222070c9e7d0bf87a8322e2553f703123bcb1991f0d93c7e509f61be388b07e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-flat-30000-i2/receipt.json": {
+      "bytes": 956,
+      "sha256": "041c8119b50750e05fa3719b9c0b943efef9b1874c060781ee011690e1faebb5"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-scm-100-i0/receipt.json": {
+      "bytes": 2253,
+      "sha256": "8eb739c010737c75ee15102e7fb5c86cd64f1309a42e90eefacaa8c4a7de4142"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-scm-100-i1/receipt.json": {
+      "bytes": 2242,
+      "sha256": "d8af069639ae2b97ac0df388371714f0c87f58a88cc256037234631ec0683c4c"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-scm-100-i2/receipt.json": {
+      "bytes": 2264,
+      "sha256": "d0f3c230f0983b298943b29804334be667d8e73307a29092543855453b273b19"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-scm-30000-i0/receipt.json": {
+      "bytes": 2239,
+      "sha256": "e4f4c3f5e9f1cbce02b23785a6ddf516b6fdac8ce783db587c6d70baff92fd4b"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-scm-30000-i1/receipt.json": {
+      "bytes": 2221,
+      "sha256": "181047920f4ec53796fd2a8781c84b9e9e99c43473a8bb2f17ebce920e1fcf7e"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/983656467/online_admitted-scm-30000-i2/receipt.json": {
+      "bytes": 2239,
+      "sha256": "fd8b45039c017eedbcece2b3edb486edbc12bb234d31166863aecd11c24887fa"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/complete.json": {
+      "bytes": 1305,
+      "sha256": "6a78f7a79306c43bbafef8ab3b202e7d1c80577e43bf8004370927514f061bb1"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/execution.json": {
+      "bytes": 217475,
+      "sha256": "e8c1b01c65baa248705d1236adfe55b54862692d58fa4c0f0bfd25a0e53efd1f"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-attribution-full-20261006/registration.json": {
+      "bytes": 131989,
+      "sha256": "cf28b4de86b6f0b6cbbb3bec17933563a3099b4b2d8358d78ddbb307d9d56b58"
+    },
+    "/Users/pat/code/ACE/results/delivery_chambers_20261006/complete.json": {
+      "bytes": 302,
+      "sha256": "5c37040ec03a884421ef943be080f780e1d54a5caae99a31b4f7d05a6bb36c17"
+    },
+    "/Users/pat/code/ACE/results/delivery_chambers_20261006/evaluate_execution.json": {
+      "bytes": 132,
+      "sha256": "0438a859083d2deaff14280856b6af940e39c468506fae6d667bf72b93c00516"
+    },
+    "/Users/pat/code/ACE/results/delivery_chambers_20261006/fit_complete.json": {
+      "bytes": 211,
+      "sha256": "dbb802cf01960ef3b4379e081490e7fb5784bfbda410b90e960e10070dc3d99e"
+    },
+    "/Users/pat/code/ACE/results/delivery_chambers_20261006/fit_execution.json": {
+      "bytes": 134,
+      "sha256": "667dce0fb3968572552336da8bf8b86ebcaa06663c5890409421346f972ea67e"
+    },
+    "/Users/pat/code/ACE/results/delivery_paper_implementation_20261006/execution.json": {
+      "bytes": 1435,
+      "sha256": "7d010667b029b9e45acbc4277aca23142f75527a57345f7c1c06940a13e28574"
+    },
+    "/Users/pat/code/ACE/results/delivery_paper_implementation_20261006/physical_pilot_projection.json": {
+      "bytes": 3109,
+      "sha256": "2ef622cc45a616dd289b4de22228764fd7cf99bd58d838468f794774c9d969a5"
+    },
+    "/Users/pat/code/ACE/results/delivery_paper_implementation_20261006/pilot_receipts.json": {
+      "bytes": 13752,
+      "sha256": "c50b1f4aa74d05447f46ea850adebcb0412b0b02ddd9414942b88e47cf8e3591"
+    },
+    "/Users/pat/code/ACE/results/delivery_prospective_preparation_20261006/full_collection_metadata_check_20261007T221054Z.json": {
+      "bytes": 33377,
+      "sha256": "303b7a15933eda76da210e336bc61d954b809bc12e839b079b1b04840acb62f9"
+    },
+    "/Users/pat/code/ACE/results/delivery_prospective_preparation_20261006/full_queue_check_20261007T220602Z.json": {
+      "bytes": 2684,
+      "sha256": "fcb9bdaca1df7c02e39baefd2aa8c36784fc9140a55df09f7394b169c8e1e70e"
+    },
+    "/Users/pat/code/ACE/results/delivery_prospective_preparation_20261006/pilot33505661_sacct.txt": {
+      "bytes": 430,
+      "sha256": "4277a841d44d43118e74a6cf006516f1a89ec2d21c918f15181f91c56d906d7a"
+    },
+    "/Users/pat/code/ACE/results/delivery_prospective_preparation_20261006/pilot_importfix_sacct.txt": {
+      "bytes": 400,
+      "sha256": "3b063949863e7df7a85f22c97381ac475cd53abd5dd2ef8cf384c113be14d5cf"
+    }
+  },
+  "new_fits": 0,
+  "new_optimizer_updates": 0,
+  "new_responses": 0,
+  "no_sum_across_incompatible_measurement_scopes": true,
+  "status": "bounded accepted A/C and partial B cost disposition, not final sprint accounting",
+  "total_sprint_cpu_core_hours": null,
+  "unknowns": [
+    "historical A pilot/full import, evaluator and supervisor process CPU not measured in these receipts",
+    "C import/supervisor/standalone acceptance overhead",
+    "B remaining five worlds, evaluation and audit costs pending",
+    "complete confirmation acquisition/refit process cost and release/test/review/preparation overhead not covered by this bounded inventory"
+  ]
+}

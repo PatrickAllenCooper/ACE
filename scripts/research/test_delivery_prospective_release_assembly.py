@@ -8,6 +8,7 @@ import copy
 import json
 from pathlib import Path
 import tempfile
+import tomllib
 import unittest
 from unittest.mock import patch
 
@@ -159,9 +160,39 @@ def fixture(root):
     inherited = root/'inherited.json'
     inherited_object = root/'prior.json'
     inherited_hash = put(inherited_object, {'synthetic_prior':True})
+    # Carry the new A/C/F notice-plan interface into the real B planner. This
+    # is deliberately synthetic metadata, not a substitution for candidate11.
+    metadata = root/'prior-pyproject.toml'
+    metadata.write_text('[tool.poetry]\nname = "fixture"\nauthors = ["Decisive AI Team"]\n'
+                        'homepage = "https://fixture.invalid"\nrepository = "https://fixture.invalid/repo"\n'
+                        'license = "MIT"\n[tool.poetry.dependencies]\npython = ">=3.11"\n')
+    original_metadata = sha(metadata)
+    metadata_transform = {'kind':'project-toml','omit':['tool.poetry.authors','tool.poetry.homepage','tool.poetry.repository']}
+    projected_metadata = root/'projected-pyproject.toml'
+    projected_metadata.write_bytes(builder.project_toml_bytes(metadata.read_bytes(),metadata_transform))
+    prior_protocol = root/'prior-protocol.json'
+    put(prior_protocol, {'source_hashes':{'pyproject.toml':original_metadata}})
+    prior_notice = root/'prior-notice.json'
+    put(prior_notice, {'original_sha256':original_metadata,'derived_sha256':sha(projected_metadata),
+                      'public_release_approved':False,'runner_grant_authority_resolved':False})
+    license_notice = root/'prior-license.txt'
+    license_notice.write_text('Synthetic license notice only; not a redistribution grant.\n')
     put(inherited, {'files':[{'path':'F/prior-fixture.json','sources':[str(inherited_object)],
          'role':'synthetic-prior-artifact','original_sha256':inherited_hash,'transform':{'kind':'identity'}}],
          'bindings':[], 'status':'synthetic fixture only'})
+    inherited_plan = json.loads(inherited.read_text())
+    for name, path, role, transform in (
+        ('source/runner/pyproject.toml',metadata,'derived-runtime-metadata',metadata_transform),
+        ('F/protocol.json',prior_protocol,'synthetic-original-protocol',{'kind':'identity'}),
+        ('notices/provenance.json',prior_notice,'synthetic-notice-provenance',{'kind':'identity'}),
+        ('notices/fixture-license.txt',license_notice,'synthetic-license-notice',{'kind':'identity'})):
+        inherited_plan['files'].append({'path':name,'sources':[str(path)],'role':role,
+                                       'original_sha256':sha(path),'transform':transform})
+    inherited_plan['bindings'] = [
+        {'record':'F/protocol.json','pointer':'/source_hashes/pyproject.toml','artifact':'source/runner/pyproject.toml','digest':'original_sha256'},
+        {'record':'notices/provenance.json','pointer':'/original_sha256','artifact':'source/runner/pyproject.toml','digest':'original_sha256'},
+        {'record':'notices/provenance.json','pointer':'/derived_sha256','artifact':'source/runner/pyproject.toml','digest':'sha256'}]
+    inherited.write_text(json.dumps(inherited_plan,sort_keys=True)+'\n')
     return dict(plan_file=inherited,prospective=study,inventory=inv,source_inventory=src_inv,source_root=source,
                 core_file=core_file,core_contract=contract_file,expected_core_contract_sha256=cch,
                 private_dir=root.parent/(root.name+'-private'),out=root.parent/(root.name+'-plan.json'),
@@ -184,7 +215,8 @@ class PositiveAssemblyTests(unittest.TestCase):
             contract = json.loads((destination/'B/replay_contract.json').read_text())
             replay.byte_integrity(destination, manifest)
             # Independent membership oracle, not planner-reported counts.
-            expected = {'F/prior-fixture.json','delivery_prospective_design.py',
+            expected = {'F/prior-fixture.json','F/protocol.json','source/runner/pyproject.toml',
+                        'notices/provenance.json','notices/fixture-license.txt','delivery_prospective_design.py',
                         'delivery_prospective_replay_core.py','replay_delivery_prospective_release.py',
                         'B/core_contract.json','B/replay_contract.json'}
             expected.update('B/'+n for n in ('registration.json','scores.json','acceptance.json','complete.json',
@@ -214,6 +246,16 @@ class PositiveAssemblyTests(unittest.TestCase):
                  patch.object(replay,'CORE_CONTRACT_SHA',args['expected_core_contract_sha256']):
                 replay.gate(contract)
             self.assertTrue(json.loads((destination/'F/prior-fixture.json').read_text())['synthetic_prior'])
+            inherited_plan = json.loads(args['plan_file'].read_text())
+            prior_metadata = next(f for f in inherited_plan['files'] if f['path']=='source/runner/pyproject.toml')
+            original_toml = tomllib.loads(Path(prior_metadata['sources'][0]).read_text())
+            expected_toml = copy.deepcopy(original_toml)
+            for field in ('authors','homepage','repository'): del expected_toml['tool']['poetry'][field]
+            self.assertEqual(tomllib.loads((destination/'source/runner/pyproject.toml').read_text()),expected_toml)
+            self.assertEqual(json.loads((destination/'F/protocol.json').read_text())['source_hashes']['pyproject.toml'],prior_metadata['original_sha256'])
+            self.assertNotEqual(published['source/runner/pyproject.toml'],prior_metadata['original_sha256'])
+            self.assertEqual(sha(destination/'notices/fixture-license.txt'),
+                             next(f['original_sha256'] for f in inherited_plan['files'] if f['path']=='notices/fixture-license.txt'))
             self.assertEqual(len(contract['cells']),640)
             self.assertEqual(len(contract['world_attempt_elapsed_seconds_unknown']),640)
             self.assertEqual(len(contract['training']),80)

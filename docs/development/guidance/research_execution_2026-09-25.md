@@ -1790,3 +1790,70 @@ sleeping with no active children or project lock/mutation file, and left alone.
 Current scientific outcomes, open manuscript and candidate09 remain unchanged.
 Proceed with original B gates, complete accounting, full worker/anonymity/human
 submission review. Parent coordinator retains cadence ownership.
+
+## October 7 22:11 UTC — notice/B interface and bounded cost reconciliation
+
+The new inherited TOML projection and notice-plan interface now passes the actual
+B planner/builder/semantic verifier/byte-integrity metadata path with fabricated
+640-cell membership. The independent path oracle covers2481objects, including
+four added inherited metadata/notice objects; original confirmation digest,
+distinct derived metadata digest, all other parsed TOML values and notice bytes
+are retained through relocation. No real B assembly, checkpoint inference,
+runtime gate, acceptance or historical freeze is inferred. The single modified
+interface test used24.694505childCPU-seconds,24.745827elapsedseconds and82,640,896
+peakRSS; earlier tests, implementation and monitoring are excluded. Evidence:
+results/delivery_release_preparation_20261007/notices_prospective_interface_preparation.json.
+The prior reviewed13notice/interface checks are not rerun as busywork. Production
+adapters and candidate11 remain unchanged; only the integration fixture changed.
+
+A bounded cost disposition independently reconciles480distinct completed A
+attempts against their fit receipts and the terminal complete marker. Summed
+recorded fitCPU39137.833944seconds equals10.87162054core-hours; eight separate
+development pilot fits record600.53673fitCPU-seconds. A's historical attempt
+journal retains complete:false, while all480attempts are complete and the
+separate terminal complete.json/accepted scientific receipts remain unchanged.
+The journal flag is not rewritten and does not replace independent acceptance.
+Imports, evaluation and supervisor CPU are absent from these A cost measurements.
+C's recorded fit/evaluation function costs total0.052852069core-hours, with its
+separate development pilot0.000421963core-hours. C imports/supervisor overhead are
+not included. Per-worker RSS, process-tree RSS, function CPU and Slurm allocation
+are labeled separately; no overall sprint cost is invented. Evidence:
+results/delivery_release_preparation_20261007/compute_disposition_preparation.json.
+
+Fresh22:06:02UTC CURC source/Slurm check remains560/640fits,35/40worlds and39unchanged
+source bindings, with no seal/evaluation/complete/stop flag. Five original30-node
+worlds remainPENDING/None, evaluation/auditDependency. Queue waiting is preserved.
+Thirty-seven completed allocations sum88102CPU-seconds; actual pilot jobs33505661
+and33507335 add126+119seconds, excluding batch/extern child duplication, yielding
+24.540833partial allocated core-hours. This is not process CPU or final cost.
+At22:10:54UTC all80sealed training bundles/240artifacts pass byte hashes and
+receipt/journal line-count reconciliation:32000charged responses and32000persisted
+journal lines. Input/response values and evaluation outcomes were not decoded.
+Queue receipt full_queue_check_20261007T220602Z.json and collection receipt
+full_collection_metadata_check_20261007T221054Z.json are in prospective preparation.
+
+GitHub main independently matches8b1a08cf after bounded push of the previously
+local notice work. No new submission, fit, optimizer update, response, install,
+public artifact upload or manuscript edit. Original B acceptance, actual private
+B assembly/target-runtime qualification, integrated claims/proofs/visual review,
+full source dispositions, Runner grant authority, anonymity and human submission
+approval remain gates. Cost unknowns stay explicit. The pending owner license
+question remains unchanged and does not block local work or original B completion.
+
+### Distinct frozen-worker disposition review completed
+
+The bounded source reviewer authenticated the private inventory pin and all24
+original bindings before source inspection. Each binding now has an explicit
+original role, identifier/import/guard hazard, source authority basis and required
+original-versus-derived relocation disposition. Main-agent reconciliation matched
+all24report headings and source hashes (22distinct byte identities,11known-screen
+positives). No original worker or guard changed. Existing saved-checkpoint replay
+must not be advertised as reproduction of collection, optimizer trajectories,
+scheduling or original full-audit workers. Screen-negative files still require
+human anonymity review; ACE/Chambers notices do not resolve Runner authority.
+Report: reviews/delivery_frozen_worker_disposition_2026-10-07.md. Evidence:
+results/delivery_release_preparation_20261007/worker_disposition_preparation.json.
+Next implement the explicit manifest/source/entry-point contract in a future
+exclusive candidate; retain original B acceptance and exact-runtime gates.
+This review is static provenance/disposition, not another scientific fit, public
+source release, license grant or final submission approval.
