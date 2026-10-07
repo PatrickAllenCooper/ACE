@@ -20,6 +20,21 @@ terminal=json.loads(terminal_path.read_text())
 assert terminal['status']=='complete' and terminal['all12_seal_verified']
 assert terminal['scores_sha256']==hashlib.sha256(raw).hexdigest()
 macros['ConfirmationChargedCalls']=f"{terminal['aggregate_calls_including_discarded']:,}"
+
+confirmation_accounting=None
+accounting_path=ROOT/'results/delivery_release_preparation_20261007/confirmation_verification.json'
+if accounting_path.exists():
+    verification=json.loads(accounting_path.read_text())
+    counts=verification['replay']['accounting']
+    assert verification['replay']['complete_histories']==12 and verification['replay']['model_sets_replayed']==48
+    assert counts['aggregate_charged_attempts']==terminal['aggregate_calls_including_discarded']
+    assert counts['persisted_complete_responses']+counts['interrupted_charged_reservations']==counts['aggregate_charged_attempts']
+    macros['PersistedConfirmationResponses']=f"{counts['persisted_complete_responses']:,}"
+    macros['InterruptedConfirmationAttempts']=f"{counts['interrupted_charged_reservations']:,}"
+    confirmation_accounting={'verification_sha256':hashlib.sha256(accounting_path.read_bytes()).hexdigest(),
+        'scope':'thirteen distinct acquisition attempts; charged reservations differ from persisted responses',
+        'interrupted_returned_responses':'unknown; no persisted interrupted response history'}
+
 attribution=ROOT/'results/delivery_attribution_20261006'
 gate_path=ROOT/'results/delivery_paper_implementation_20261006/attribution_gate.json'
 attribution_index=None
@@ -148,6 +163,7 @@ index={'scores_sha256':hashlib.sha256(raw).hexdigest(),
        'macros':macros,'scope':'12 histories of one emulator, median scored optimization performance, full exposed grid',
        'pending_claims':['causal architecture attribution','equal-compute advantage','prospective generalization','external physical superiority'],
        'removed_claims':['acquisition superiority','foundation-model benefit','DPO optimality','unrestricted causal identification','generic MSE gain equals mutual information']}
+if confirmation_accounting:index['confirmation_accounting']=confirmation_accounting
 if attribution_index:index['attribution']=attribution_index
 if physical_index:
     index['physical']=physical_index

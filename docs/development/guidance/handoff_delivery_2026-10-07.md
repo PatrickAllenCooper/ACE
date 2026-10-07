@@ -547,3 +547,61 @@ full confirmation/claim/attempt accounting; explicit anonymous worker relocation
 redistribution/anonymity review and final human submission approval. Additional
 fits remain unnecessary for the current scoped recipe/accounting claims.
 Evidence: results/delivery_release_preparation_20261007/attribution_verification.json.
+
+
+## October 7 follow-up — confirmation, accounting and claim reconstruction
+
+Fresh CURC evidence at18:01UTC remains560/640fits and35/40worlds, with the
+last five thirty-node worlds maintenance-pending. No full fit seal, evaluation,
+stop flag or drift. The original queued chain and frozen sources were unchanged;
+no new submissions, fits or responses. Queue evidence:
+`results/delivery_prospective_preparation_20261006/full_queue_check_20261007T180135Z.json`.
+
+R7 now includes all240sealed original confirmation case files, online weights,
+three delivery initializations, original/prior accounting projections and the
+separate interrupted journal. A read-only relocated replay reconstructed48model
+sets/288neural heads and the paired statistics with maximum numeric discrepancy
+5.551115123125783e-17 at unchanged rtol1e-10/atol1e-12. This is floating-point
+roundoff, not an exact-zero claim. The original worsening history and all scientific
+results remain unchanged. Replay used40.519136childCPUseconds,41.587096elapsed
+seconds and463,060,992bytes peak childRSS, including imports/checksums. No A/C
+model replay, optimization or new acquisition was repeated.
+
+A distinct original-journal audit clarified60,962charged attempts versus57,636
+persisted complete responses and3,326interrupted reservations. Returned responses
+for the interrupted attempt are unknown. Thirteen distinct acquisition journals
+are counted once; copied retained cases, overlapping summary counters and refit
+initializations add no charges. The manuscript explicitly discloses the separately
+authorized continuation for the same registered final seed before whole-matrix
+scoring. Original hash-bound receipts and gates remain unchanged.
+
+The latest private candidate09 contains1,423files/2,533bindings; manifestSHA
+f49733578564e3b8e2e302bc1e41c282dead7a630beaf8764bf1226cbdb5a4fa. All280
+confirmation inference/input/source/dependency objects remain unchanged from the
+qualified candidate08. Its renamed unrelated-directory metadata check reconstructs
+all35empirical macros and verifies complete generated LaTeX macro bytes against
+the bound claim index. This used24.032717childCPUseconds,24.043367elapsedseconds
+and81,362,944bytes peak childRSS. It does not verify every prose statement/table
+or B claims. The current manuscript compiled successfully; all nine companion
+and official style digests remain synchronized.
+
+Two distinct bounded reviews are complete: original confirmation accounting and
+new release implementation. The accounting ambiguity and continuation disclosure
+were corrected; implementation review found no remaining required fixes. Three
+synthetic journal/accounting tests pass. Reviewer did not rerun inference; dedicated
+replay/macro rejection fixtures remain a testing limitation. Reports are in
+`reviews/delivery_confirmation_accounting_review_2026-10-07.md` and
+`reviews/delivery_confirmation_release_review_2026-10-07.md`. Evidence is bound by
+`results/delivery_release_preparation_20261007/confirmation_verification.json`
+and `confirmation_claims_preparation.json`. Integrity and numerical reconstruction
+do not establish historical freeze timing, authentication of the supplied digest,
+model refitting or final anonymity. This is private preparation, not release readiness.
+
+Remaining independent work: B scientific replay/analysis relocation using exact
+registered runtime, explicit frozen-worker/generator/guard handling and complete
+conflict-rejecting composite custody; all-sprint compute/attempt disposition;
+anonymous worker relocation and redistribution/anonymity review. After the original
+640fit seal, evaluation and successful independent audit supervisor, integrate all
+registered B outcomes via the claim exporter, then review proofs/prose/tables,
+visual layout and submission package. Human final submission approval remains.
+Additional fitted experiments remain unnecessary for the current scoped claims.

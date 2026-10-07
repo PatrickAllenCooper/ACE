@@ -187,3 +187,72 @@ The final full480replay reports zero discrepancy across all numeric results.
 Its compact receipt is `results/delivery_release_preparation_20261007/attribution_verification.json`.
 This closes A checkpoint/diagnostic reconstruction, but not the original online
 comparator or full confirmation reproduction. The candidate remains private.
+
+## Confirmation and empirical claim follow-up (October 7)
+
+`extend_delivery_confirmation_release_plan.py` adds the full original twelve-case
+seal (240 files), all original online weights and three-init delivery checkpoints,
+raw complete response journals, the distinct interrupted attempt, original/prior
+terminal accounting projections, and manuscript claim receipts/companions.
+Original source/protocol/case bytes are preserved. Approval fields naming humans,
+threads or private custody are omitted by explicit metadata projection. Such
+projections remain newly hashed assertions; they do not prove historical approval
+or freeze timing to an anonymous reader.
+
+`replay_delivery_confirmation_release.py` requires recorded torch/NumPy/SciPy
+versions and a fresh process. It reconstructs 48 model sets (288 neural heads),
+both chain and flat scores, the archived paired log-ratio statistics and the
+independently recorded ratio/interval/sign-flip result. All comparisons pass at
+fixed rtol1e-10/atol1e-12; maximum numeric difference is 5.55e-17. It runs from a
+renamed bundle and unrelated directory, using one CPU thread, without optimization
+or new responses. Inference/checksum/import child CPU was 40.519136 seconds,
+elapsed 41.587096 seconds, peak child RSS 463,060,992 bytes. No accepted A/C
+inference was repeated to produce this new confirmation verification.
+
+```sh
+python /path/to/release/replay_delivery_confirmation_release.py \
+  --expected-manifest-sha256 DIGEST_FROM_INDEPENDENT_CUSTODY
+```
+
+The accounting review establishes 60,962 charged attempts, 57,636 persisted
+responses across twelve complete histories, and 3,326 interrupted reservations
+whose returned-response count is unknown. The adapter recomputes these from
+thirteen distinct journals; retained copies are counted once, and startup/executed
+summary counters and refit initializations do not add acquisition calls.
+See `reviews/delivery_confirmation_accounting_review_2026-10-07.md`.
+
+`verify_delivery_claims_release.py` is an independent standard-library metadata
+entry point for the current empirical macros and their LaTeX bytes. It uses the
+stored A history contrasts, worsening diagnostics, initialization sensitivity,
+physical condition errors/acceptance, confirmation statistics and disjoint
+attempt accounting. It does not replay models or read B losses. Full prose/table
+review and final B claim integration remain distinct gates.
+
+```sh
+python /path/to/release/verify_delivery_claims_release.py \
+  --expected-manifest-sha256 DIGEST_FROM_INDEPENDENT_CUSTODY
+```
+
+`results/delivery_release_preparation_20261007/confirmation_verification.json`
+binds the first complete confirmation replay and unchanged private derivations.
+The later claim package changes only the generated macro/index/generator objects
+and adds the new accounting receipt and macro checker. All 280 confirmation
+replay/input/source objects are unchanged, preserving the qualified inference
+byte identities without another model replay. This is private preparation;
+full B custody, all-sprint compute/attempt accounting, anonymous worker relocation,
+redistribution/anonymity and human submission approval remain outstanding.
+
+
+### Latest verified private candidate
+
+Candidate09 has1,423files/2,533bindings, manifestSHA
+f49733578564e3b8e2e302bc1e41c282dead7a630beaf8764bf1226cbdb5a4fa.
+All280 confirmation inference/input/source/dependency objects from candidate08
+remain unchanged. The unrelated-directory check reconstructs all35current
+empirical macros and verifies generated LaTeX bytes; its compact receipt is
+`results/delivery_release_preparation_20261007/confirmation_claims_preparation.json`.
+The accounting/implementation reviews are complete, with no remaining required
+implementation fixes. The same manuscript compiled after the scoped disclosure
+and provenance update. All-sprint accounting, full B replay and claim integration,
+anonymous frozen workers, redistribution/anonymity and human submission review
+remain gates. The package is private and must not be uploaded as a final release.
