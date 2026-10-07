@@ -810,3 +810,34 @@ Next implement the explicit manifest/source/entry-point contract in a future
 exclusive candidate; retain original B acceptance and exact-runtime gates.
 This review is static provenance/disposition, not another scientific fit, public
 source release, license grant or final submission approval.
+
+## October 7 owner confirmation — Runner MIT notice resolved
+
+Patrick confirmed personal ownership in response to the proposal to formalize
+ACE-Runner's existing MIT declaration: “I do, I own it, I am its inventor.” The
+new root Runner LICENSE names Copyright(c)2026PatrickCooper. Its licensing record
+covers owner-held code at archived revisione9f811fbc68fb70681c3d89182d8ebe024882ce3
+and current repository; it preserves third-party terms. This records a notice
+supplied now, not a claim that the old Git tree contained it or an independent
+investigation of title. The prior unresolved-owner question is superseded.
+Runner README/doc index/backlog now link the notice and archived scope.
+
+New private candidate12 adds the MIT notice and archived-scope record; only the
+new derived notices/provenance.json changes from candidate11. All1427other
+existing artifacts, including original source/protocol/checkpoint/score bytes,
+remain unchanged. Candidate1430files/2538bindings passes build and relocated
+byte verification. ManifestSHA4d1ea0f96a08593c2c7350eb9fe6cef0e106c5f4cd3551c010b1e6177db9628f;
+planSHAf2217b20a73d7ba2e47df881a3bfa26c8f1e4c27181c0e1c79929ca4eb6c2551.
+Combined build/check59.170875processCPU-seconds/59.588649elapsedseconds/
+60,456,960peakRSS excludes notice writing/docs/commit overhead. No inference,
+fits, responses, job changes or manuscript edits. Notice/license bytes and owner
+statement bind in runner_license_authorization.json; preparation verification
+is runner_license_verification.json under delivery_release_preparation_20261007.
+
+The Runner owner/notice gate is resolved on this trusted declaration. Public
+release is still unapproved: retain copyright attribution, finish source and
+entry-point dispositions and deliberate human anonymity review, and preserve
+original B acceptance/target-runtime and final submission gates. A limited screen
+pass is not anonymity certification. ACE Apache and Chambers terms are unchanged.
+The historical candidate11/report/receipt pending-owner statements remain intact
+as prior evidence; future planning should inherit candidate12's notice plan.
