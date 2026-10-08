@@ -566,3 +566,31 @@ reviews/delivery_prospective_source_transition_review_2026-10-08.md and
 results/delivery_release_preparation_20261007/prospective_source_transition_preparation.json.
 Original B completion/acceptance, full custody, exact-runtime replay, integrated
 claims/manuscript, complete accounting and human final reviews remain open.
+
+
+## October 8 compute-disposition review and live progress
+
+At01:01:24UTC original B metadata verifies578/640fits and35/40worlds, with
+sixteen new checkpoint/receipt pairs locally saved and hash-verified. Prior562
+fingerprints and39 source bindings are unchanged. Two thirty-node tasks run and
+three await the original concurrency limit. No failure, stop, seal or evaluation;
+evaluation/audit remain dependency-pending. Partial accrued allocation including
+actual pilots is27.337500core-hours, distinct from fit process CPU and final cost.
+
+A distinct bounded compute-accounting implementation review is complete. Three
+findings concerning raw/display scheduler identity, overlapping/padded array
+coverage and reservation validation are closed. Seven focused tests and the
+actual pinned metadata audit pass. Independent scheduler-map provenance comes
+from separately committed previous evidence; original registration fixes the
+reservation basis. No A/C/F numerical replay or experiment was repeated.
+
+Accounting now explicitly separates confirmation monotonic wall time from unknown
+process CPU and inherited A/C function-level costs from Slurm allocation. Overlap
+and unmeasured preparation costs prevent a whole-sprint CPU total. This closes the
+bounded validator review, not final project cost accounting or publication gates.
+See delivery_compute_disposition_2026-10-08.md,
+reviews/delivery_compute_disposition_review_2026-10-08.md and
+results/delivery_release_preparation_20261007/compute_accounting_preparation_20261008.json.
+All previous review dispositions remain evidence; no additional fitted study is
+currently required. Complete B acceptance, actual release/replay qualification,
+integrated claims/proofs/prose/layout, anonymity and human submission review remain.

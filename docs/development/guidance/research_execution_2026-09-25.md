@@ -2007,3 +2007,63 @@ validation within150core-hours, and integrate registered claims into the SAME
 open manuscript after replay gates. Full accounting, anonymity, scientific/proof/
 prose/visual and human submission reviews remain. No additional fitted study is
 currently required. No reliable completion ETA is established.
+
+
+## October 8 01:01–01:19 UTC — 578 fits and bounded compute disposition
+
+Fresh original CURC metadata reconciliation records578/640 verified fits,
+35/40 completed worlds and32000 training responses. Thirty-node indices15/16
+remain running;17–19 await JobArrayTaskLimit. Evaluation/audit retain their
+dependencies. All39 source bindings are unchanged. No failed attempt, stop flag,
+full seal, evaluation, completion or accepted scientific outcome exists. Preserve
+the original six jobs and frozen45ebeb89 source; no new submission or fit occurs.
+
+Sixteen newly completed model/receipt pairs were pulled into exclusive
+fit-new-20261008T010124Z custody. All32 local file hashes match remote metadata;
+prior562 fingerprints are unchanged. Composite snapshots now locally verify all
+578 model/receipt pairs, without deserialization or inference. See
+full_milestone_20261008T010124Z.json,
+full_source_accounting_20261008T010121Z.json and
+full_milestone_custody_20261008T010124Z.json under the prospective preparation
+results directory. Custody receipt SHA
+4c75965e2f9e7f61463c37e35a458e0d34ff3b1d9501af884801285f05d4399a.
+
+At01:01:21UTC, original-chain accrued allocation is98170CPU-seconds:88102
+completed and10068 running. Adding the separate actual126failed+119successful
+pilot seconds gives27.337500 partial allocated core-hours. Recorded fit process
+CPU is90765.50917458003seconds and recorded fit wall time93103.68490537305seconds.
+These overlapping scopes are not added. Reserved86.868333 remains within150.
+
+New read-only audit_delivery_compute_accounting.py separates inherited accepted
+A/C function-level costs, original confirmation monotonic wall timing, B fit
+process CPU and Slurm allocation. Confirmation36 saved refits total6123.0245357
+wall seconds; confirmation process CPU remains unknown. Nested cumulative
+charged/reserved wall budgets are not added to stages or treated as CPU. No whole
+sprint CPU total is inferred. Prior A/C/F scientific replays and charged-response
+accounting are not repeated. Candidate16 and all original receipts are unchanged.
+
+A distinct bounded accounting implementation review found three defects:
+misleading raw/display scheduler identities, padded/overlapping array identities,
+and unvalidated reservation values. All are fixed. Raw/display pairs now require
+an independently pinned map derived from separately committed previous scheduler
+evidence, canonical array coverage rejects aliases/overlap, and reservations must
+match the original registration basis or remain explicitly unknown. Final review
+has no remaining required fix in scope; seven focused tests pass from/tmp.
+Actual metadata audit also passes. Final tests cost0.166467childCPU seconds;
+fresh-process metadata audit costs0.039790childCPU seconds. Both exclude earlier
+attempts, implementation, review and monitoring; no full preparation total follows.
+
+Evidence: delivery_compute_disposition_2026-10-08.md,
+reviews/delivery_compute_disposition_review_2026-10-08.md and
+results/delivery_release_preparation_20261007/compute_accounting_preparation_20261008.json
+(SHA8be132b6b0fd8cdd300bedefddc5949edea0d97f9879262d25e832a09a6b5baf).
+Exclusive preparation custody retains preliminary and final inputs/results.
+
+Next gates remain unchanged: original640fit/40world seal,16000heldout responses,
+independent acceptance and successful audit supervisor; complete conflict-rejecting
+local custody; source successor and bounded exact-runtime inference-only replay;
+registered claim integration into the same open manuscript; integrated proof,
+prose, table, visual, anonymity, redistribution, final accounting and human review.
+Final costs remain open until original phases finish. When new raw array IDs appear,
+freeze a new independently validated identity map rather than accepting unmapped
+identities. No new fitted study or scientific rescue is currently needed.

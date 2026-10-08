@@ -1,0 +1,357 @@
+{
+  "B_scientific_outcomes_opened": false,
+  "at": "2026-10-08T01:17:46.998192+00:00",
+  "external_evidence": {
+    "final-accounting.json": "176d51c9f6dd207b53459467468b375117eaaa407d15c095cb7f2329fbb9b5be",
+    "final-audit.log": "55212b2095143f77ff826bc9c370aa800065f8ea796ebf3eb763779420cc5b6c",
+    "final-execution.json": "fdef7792dce8f10a84b690de8eaa5e321e875df8ff86a675a6e114ee51448ba1",
+    "final-inputs.json": "f785121668af4d4f52c522871a1ec8247e23ed466753833922b950af778583f3",
+    "final-tests.json": "f374a43655205b243abdd02886a4eadef6831eff4eda238dbc1570660ddd1542",
+    "final-tests.log": "b43af5923e604f9fd0432a63cf4003e3ee1fe0c720a5357852a8c0865e9d47cc",
+    "inputs.json": "d51d923316942c40f00efb407132439ceeed58189468fa9be19d11bdc44c279f",
+    "preliminary-accounting.json": "f1d352731e582cb4ed9f55326f7a85ae4a5ea04ecbf81cb6133fd92e1981aa48",
+    "preliminary-execution.json": "5bd8288a9466c39cec875d834f8e6382ef92a3104f9d0aaee697c2ada81beb7b",
+    "scheduler-identity-map.json": "867c5756f24b115227e6a8dcddfaca0024059379deb9dc0142fd5d2b51c260a8"
+  },
+  "external_evidence_root": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-compute-disposition-preparation-20261008T0109Z",
+  "limitations": [
+    "Metadata pins do not prove historical freeze or all-sprint input completeness.",
+    "Known overlapping CPU/wall/reservation/allocation scopes are not summed.",
+    "Preliminary prototype/result preserved; review defects demonstrated only on fabricated inputs, not evidence of actual corrupt scheduler costs.",
+    "No accepted A/C/F replays or original confirmation journal audit repeated."
+  ],
+  "metadata_audit_run": {
+    "at": "2026-10-08T01:13:26.911849+00:00",
+    "child_CPU_seconds": 0.03979,
+    "elapsed_seconds": 0.043222540989518166,
+    "input_freeze_sha256": "f785121668af4d4f52c522871a1ec8247e23ed466753833922b950af778583f3",
+    "peak_child_RSS_bytes": 32456704,
+    "returncode": 0,
+    "scope": "one final fresh-process read-only metadata audit from unrelated cwd, including import/startup; excludes parent freeze, prior probes, tests, reviews, writing and monitoring",
+    "tool_sha256": "2bfbfd4c2531122df2f2305a37220c0c94e12837f39e35378aa5371e98c486f4"
+  },
+  "new_fits": 0,
+  "new_optimizer_updates": 0,
+  "new_responses": 0,
+  "new_submissions": 0,
+  "public_release_approved": false,
+  "review": {
+    "final_recheck": "bounded static review; main owns actual provenance and run verification",
+    "path": "docs/development/guidance/reviews/delivery_compute_disposition_review_2026-10-08.md",
+    "required_findings": 3,
+    "resolved": 3,
+    "sha256": "2c3f0ecd95a09b29fac93a46244d001027f3de2e92028ab71b4ca63dbda9e5fd"
+  },
+  "scope": "reviewed metadata compute disposition; no new numerical inference or experiment",
+  "source_hashes": {
+    "audit_delivery_compute_accounting.py": "2bfbfd4c2531122df2f2305a37220c0c94e12837f39e35378aa5371e98c486f4",
+    "test_delivery_compute_accounting.py": "3e1d1c22a16e59392ae8fa61bfa8de78348769bb16b4159cca9297d21242587d"
+  },
+  "status": "scoped costs verified; sprint total remains unmeasured",
+  "verification_test_run": {
+    "at": "2026-10-08T01:13:27.040604+00:00",
+    "child_CPU_seconds": 0.16646699999999998,
+    "elapsed_seconds": 0.17194237501826137,
+    "peak_child_RSS_bytes": 23494656,
+    "returncode": 0,
+    "scope": "one final seven-test fabricated metadata suite from unrelated cwd; excludes previous tests, implementation, review, actual audits and monitoring",
+    "source_hashes": {
+      "audit_delivery_compute_accounting.py": "2bfbfd4c2531122df2f2305a37220c0c94e12837f39e35378aa5371e98c486f4",
+      "test_delivery_compute_accounting.py": "3e1d1c22a16e59392ae8fa61bfa8de78348769bb16b4159cca9297d21242587d"
+    }
+  },
+  "verified_accounting": {
+    "A_C_prior_measured_scopes": {
+      "A_development_pilot": {
+        "distinct_complete_attempts": 8,
+        "fit_cpu_seconds": 600.5367299999999,
+        "scope": "eight receipt fit CPU only; no imports/supervision/evaluation or full study overlap"
+      },
+      "A_full": {
+        "charged_responses": 0,
+        "distinct_complete_attempts": 480,
+        "fit_cpu_core_hours": 10.871620539999997,
+        "fit_cpu_seconds": 39137.83394399999,
+        "max_per_worker_reported_peak_rss_bytes": 471171072,
+        "original_journal_complete_field": false,
+        "scope": "summed worker FIT CPU; excludes imports, evaluation, supervision, packaging and reviews; worker walls are not whole study elapsed; per-worker RSS not tree RSS",
+        "sum_per_worker_wall_seconds": 6785.035718576342,
+        "terminal_marker": "complete.json; independent acceptance unchanged"
+      },
+      "C_development_pilot": {
+        "cpu_core_hours": 0.0004219627777777778,
+        "scope": "pilot function process CPU/wall after imports; separate from full C",
+        "wall_seconds": 1.567586749966722
+      },
+      "C_full": {
+        "evaluation_function_cpu_core_hours": 6.218166666666775e-05,
+        "evaluation_process_tree_peak_rss_bytes": 4784128,
+        "fit_and_evaluation_function_cpu_core_hours": 0.05285206888888889,
+        "fit_function_cpu_core_hours": 0.05278988722222222,
+        "fit_process_tree_peak_rss_bytes": 307740672,
+        "scope": "function process CPU/wall after imports; not supervisor total; no rescore or predictions loaded",
+        "sum_function_wall_seconds": 190.45769108401146
+      }
+    },
+    "B_current": {
+      "allocated_core_hours_including_pilots": 27.3375,
+      "at": "2026-10-08T01:01:21.644098+00:00",
+      "completed_fit_cpu_seconds_sum": 90765.50917458003,
+      "completed_fit_receipts": 578,
+      "completed_fit_wall_seconds_sum": 93103.68490537305,
+      "completed_worlds": 35,
+      "original_chain_allocated_cpu_seconds_accrued": 98170,
+      "pilot_allocated_cpu_seconds": {
+        "failed": 126,
+        "successful": 119
+      },
+      "reservation_basis": "original full-registration total_requested_cpu_core_hours",
+      "reservation_unavailable_reason": null,
+      "reserved_CPU_core_hours": 86.86833333333334,
+      "scope": "current unique fit workers versus distinct Slurm allocations; CPU/wall/allocation rows overlap and are not additive; incomplete tasks/evaluation/audit remain unknown"
+    },
+    "B_scientific_outcomes_opened": false,
+    "F_confirmation": {
+      "elapsed_wall_by_distinct_stage": {
+        "authorized_final_same_seed_continuation": 939.3819708750234,
+        "first_history_timing_gate": 536.4484190829971,
+        "retained_history_stage_with_interruption": 7500.278414333996
+      },
+      "final_nested_charged_reserved_wall_seconds": 11943.253199500017,
+      "process_cpu_seconds": null,
+      "refit_wall_seconds_sum": 6123.02453570388,
+      "refits": [
+        {
+          "init": 0,
+          "recorded_wall_seconds": 115.8377740829892,
+          "seed": 27424209
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 118.84960149999824,
+          "seed": 27424209
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 136.16781241600984,
+          "seed": 27424209
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 109.6974581250106,
+          "seed": 1726880744
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 112.55579595800373,
+          "seed": 1726880744
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 113.01961333298823,
+          "seed": 1726880744
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 112.25134962500306,
+          "seed": 735595885
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 114.61164370799088,
+          "seed": 735595885
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 121.13307708298089,
+          "seed": 735595885
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 112.39670754200779,
+          "seed": 983656467
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 112.0712351250113,
+          "seed": 983656467
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 112.05282491701655,
+          "seed": 983656467
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 113.65894283298985,
+          "seed": 124753321
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 115.61508541600779,
+          "seed": 124753321
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 114.88918566697976,
+          "seed": 124753321
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 113.9657110410044,
+          "seed": 921441405
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 118.34312912498717,
+          "seed": 921441405
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 116.19867474999046,
+          "seed": 921441405
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 127.08389437501319,
+          "seed": 934168586
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 117.76226791698718,
+          "seed": 934168586
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 114.33700158298598,
+          "seed": 934168586
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 111.29417691699928,
+          "seed": 546725957
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 115.29415945798974,
+          "seed": 546725957
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 119.26635541699943,
+          "seed": 546725957
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 184.26574391598115,
+          "seed": 520888668
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 191.58312716599903,
+          "seed": 520888668
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 187.12660887499806,
+          "seed": 520888668
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 248.88454037500196,
+          "seed": 1091699608
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 416.44924187500146,
+          "seed": 1091699608
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 424.7861318340001,
+          "seed": 1091699608
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 389.9140429160034,
+          "seed": 585254818
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 487.25834875000874,
+          "seed": 585254818
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 375.595332375,
+          "seed": 585254818
+        },
+        {
+          "init": 0,
+          "recorded_wall_seconds": 138.80951524997363,
+          "seed": 884825602
+        },
+        {
+          "init": 1,
+          "recorded_wall_seconds": 148.62378858297598,
+          "seed": 884825602
+        },
+        {
+          "init": 2,
+          "recorded_wall_seconds": 141.37463587499224,
+          "seed": 884825602
+        }
+      ],
+      "saved_refits": 36,
+      "scope": "monotonic elapsed and reserved accounting, not CPU; refit walls overlap stage walls; stage walls exclude preparation/approval gaps; nested aggregates are not additive"
+    },
+    "inputs": {
+      "accepted_cost_disposition_sha256": "d383478a0b8e9bddbffcaeb63d78db8dcdd331a10033e767b9b641008129973c",
+      "confirmation_metadata": {
+        "F/cases/1091699608/complete.json": "8bb0872360abafb518d80dc52a1ebb659928e383e114ca616d521fd4d2887f21",
+        "F/cases/124753321/complete.json": "aba0354d772ab1fbd691747aa7bddfbc236e9a5e3927e558b72a182ecd2d2571",
+        "F/cases/1726880744/complete.json": "35d2de4d06c779b48637a6d5173d14450404aba3d7d82581f463df8e72f1629d",
+        "F/cases/27424209/complete.json": "0c10436af44d594aff2f897872885947eefb5bc7698a7fa6ec6b7c1b3aceef3b",
+        "F/cases/520888668/complete.json": "42e1cf2e15d45bab74814ff5822879f08e4aac8b0c94cb378ba3fa962ef1b320",
+        "F/cases/546725957/complete.json": "13900ec34f6383158db0b813991aea205897bbb89a9e130a045cf3fda3af214f",
+        "F/cases/585254818/complete.json": "3d15b1573cf336a8364e58860cd9d7db393d06a61461300ad9132c705fa47037",
+        "F/cases/735595885/complete.json": "c75bfc9dfad83b47b9d7784e473899b099c94e1ddd634952a5290903d34a4ddc",
+        "F/cases/884825602/complete.json": "b63f2d2ff98a1a2f8052148f3c0b347c16424dfc2aa1ca1afb345ca7520e8098",
+        "F/cases/921441405/complete.json": "f40c06314df8b1097e4c08b000a08481d7706fc9bc6c815ae0267724738d9ada",
+        "F/cases/934168586/complete.json": "63f837868a8d766e0ed30be3f056a6159b745b25479fea285483f86c9ba64012",
+        "F/cases/983656467/complete.json": "03d1cf4a8405cf8097808cd49c8c7bcceec3e9de7a58603dd476b20c73e88d1a",
+        "F/execution.json": "8e9ac15201f1821187b36bd2657aa50c9fb704ad561a4e04ce410aca0ce49a09",
+        "F/original_terminal.json": "dbb6b15a7ae2a60cab15bfeb763f87a4172b2989558a4bf2eb632540fc7718e4",
+        "F/prior_execution.json": "b0c638ea11c5115e8efefbf6738e6b974e4b54c5ce8da0272ba1817c936eb0bf",
+        "F/protocol.json": "31f0ea78c0e31ac34e4ccd144847e62943d4c76810812bc96c3ad15af8a04dd1",
+        "F/runtime.json": "b18bed4cb9db69d59b7e59fed58ac5690d2047b63c9340849532f0f2cd115260",
+        "F/terminal.json": "348bc2fb77da8bc7180e6296f163c772edb6432be2a5cc08b1db004fd86ef03e"
+      },
+      "confirmation_worker_sha256": "2f93bacbd6c14c66a5aeac5daabcff50d47886eeec38885e6e83ab40d141baee",
+      "fit_metadata_sha256": "481cbc36bf953a573944fa749fc377aeec066fea81a5f36c73f84faeceb4b970",
+      "manifest_sha256": "0e477f833bda84866499e68a5155114c18d6c1d51312f583dadf3dd95fe8316c",
+      "scheduler_identity_mapping_sha256": "867c5756f24b115227e6a8dcddfaca0024059379deb9dc0142fd5d2b51c260a8",
+      "scheduler_mapping_capture_sha256": "7d6136bf167d058cea66aacc05e846251160c542a4e9dd018148083d4299f253",
+      "scheduler_metadata_sha256": "c41e5cf0ba45df980f948630b5d95a1966b9eb74eb0e74df62589fd29c991558"
+    },
+    "limitations": [
+      "Metadata pins authenticate captured inputs, not original historical freeze or inventory completeness.",
+      "Prior A/C scope summaries are inherited evidence; their original models are not replayed or cost receipts re-audited here."
+    ],
+    "new_fits": 0,
+    "new_optimizer_updates": 0,
+    "new_responses": 0,
+    "no_sum_across_incompatible_or_overlapping_scopes": true,
+    "schema": "delivery-compute-disposition-v1",
+    "status": "bounded measured scopes; incomplete total research cost",
+    "total_sprint_cpu_core_hours": null,
+    "unknown_costs": [
+      "historical A pilot/full import, evaluator and supervisor process CPU not measured in these receipts",
+      "C import/supervisor/standalone acceptance overhead",
+      "B remaining five worlds, evaluation and audit costs pending",
+      "complete confirmation acquisition/refit process cost and release/test/review/preparation overhead not covered by this bounded inventory",
+      "F acquisition/refit process CPU was not recorded; elapsed and sampled CPU percent cannot recover it",
+      "all historical preparation, tests, review, transfer and metadata-check costs; individual measured subsets remain separate receipts"
+    ]
+  }
+}
