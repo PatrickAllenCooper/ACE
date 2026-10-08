@@ -864,3 +864,28 @@ not repeat numerical qualification or completion of final integrated review.
 Exact-runtime replay, final reporting/manifest lineage, science/proofs/prose/
 page visuals/accounting/anonymity and human approval remain open. The prior
 private reconnect request remains pending; no new submission or notice.
+
+## October 8 publication source snapshot
+
+New revision-pinned metadata custody preserves current publication/source bytes
+outside the frozen replay package:20files, eleven companions, required official
+style notice/template and current guide/checker/generator/sync source bindings.
+No empirical values are recomputed; current manuscript is unchanged. A final
+integrated writing/report release needs its own successor manifest after the
+still-unsubmitted exact-runtime03 replay and both reporting interfaces qualify.
+
+A distinct bounded implementation review's six required findings are fixed:
+Git replacement objects, write-path race, private/read-only modes, trusted-parent
+boundary, tree-object identity and native macOS ACL grants. Final scoped recheck
+has zero required defects under the explicit trusted root/current-user boundary.
+Nine new Git/permission fixtures pass; no completed component test/review or
+scientific replay repeats. Own-tempfile ACL cleanup and initial ACL-absence
+failures are recorded, with no user ACL/environment change.
+
+Actual final03 writing snapshot at8347ae99 preserves20files/11companions;
+inventory023b04fbca347ae5bc8c22e2eb9e5a4724b60a813cee353d34e2341022a89ece.
+See delivery_publication_snapshot_2026-10-08.md, the corresponding review and
+publication_snapshot_preparation_20261008.json. Prototypes01/02 remain custody
+evidence. This is not target numerical qualification, final anonymity, page
+layout or release approval. Shared master remains absent/prior reconnect pending;
+no new experiment, submission or manuscript edit. Final integrated gates remain.

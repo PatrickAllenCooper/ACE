@@ -2627,3 +2627,49 @@ remote package/launch03 and reconcile exclusive submission state before one
 supervised replay; then integrate original/descriptive reports and final
 scientific/proof/prose/visual/accounting/anonymity/human review. Routine handoff
 preparation and unchanged pending reconnect warrant no notification.
+
+## October 8 12:05 wakeup — pinned publication source custody
+
+Shared master check still exits255 with missing socket; prior reconnect request
+stands. No remote state is inferred, no submission and no change to active03 or
+its frozen package. Original B acceptance and exact-runtime replay gate remain.
+
+Implemented prepare_delivery_publication_snapshot.py to close the writing-source
+custody gap since the replay package freeze. It captures20 publication/source
+files from an independently full-pinned Git revision, including the SAME
+manuscript, eleven companions, style notice/template, claim index/provenance and
+generator/sync/table-checker/reviewer-guide bytes. Dirty checkout or changedHEAD
+cannot alter the selected snapshot. Embedded bundle, style/notice provenance
+and generator/index source bindings are checked without executing copied tools
+or recomputing scientific values. Snapshot is separate private custody, not a
+replacement manuscript, anonymous release or mutation of qualified replay inputs.
+
+One bounded distinct implementation review identified six required issues across
+initial and scoped rechecks: Git replacements, symlink write races, umask/privacy,
+trusted parent ownership, unverified tree identity and macOS ACL grants. All are
+fixed; final static recheck has zero required defects within the stated trusted
+root/current-UID boundary. Native ACL checks reject allow/inherited grants before
+data writes; deny-only/no-ACL state passes. Ordinary read-only permissions do not
+constrain a malicious owner. Nine new fixture methods pass from unrelatedcwd;
+one native ACL fixture changes only its own temporary files. Initial no-ACL
+handling and two deny-delete cleanup failures are recorded; no user ACL or
+experimental environment is changed. Existing tests/reviews/replays are not run.
+
+Actual final03 private metadata capture of writing revision8347ae99 succeeds:
+20files/11companions, inventorySHA
+023b04fbca347ae5bc8c22e2eb9e5a4724b60a813cee353d34e2341022a89ece,
+delivery-publication-source-snapshot-20261008-03. Superseded01/02 remain preserved.
+Final03 command alone uses0.354384childCPU seconds (including Git children),
+0.41770558297866955elapsed seconds and23707648peak childRSS bytes; excludes
+earlier captures, tests, implementation, review and monitoring. No whole-sprint
+cost is inferred. Evidence publication_snapshot_preparation_20261008.json SHA
+479c81513c77a37f7a0b2b0ed6ee7c14b9f2eaed3e0a9d165b360a1796451189,
+new guidance and reviews/delivery_publication_snapshot_review_2026-10-08.md.
+
+No original checkpoint/response/score replay, fit, update, new response, allocation,
+B performance report or manuscript edit occurred. This is current source/metadata
+coherence only; final B report and integrated writing need new successor manifest
+bindings after supervised replay. Exact-runtime03, original/descriptive report
+integration, scientific/proof/prose/page visuals/accounting/anonymity and human
+approval remain open. Routine local preparation and unchanged reconnect status
+warrant no notification; do not repeat this completed snapshot review/tests.
