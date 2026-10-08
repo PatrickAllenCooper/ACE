@@ -2351,3 +2351,30 @@ for catchable exceptions and invalid/missing child receipt. Uncatchable schedule
 termination must be reconciled against logs/accounting, never classified as success
 or blindly retried. Static/fabricated checks do not establish target numerical
 qualification, historical freeze or final reviewer anonymity.
+
+## October 8 05:04 wakeup — qualitative manuscript method figure
+
+Shared CURC master remains unavailable; the previously requested private reconnect
+is still needed. No repeat reconnect notification or submission is issued. Original
+B completion/acceptance and local custody remain evidence, not a claim of fresh
+remote state. Active03launch remains untransferred/unsubmitted; all source pins,
+package, originals and resource ceilings are unchanged.
+
+Useful independent writing: a new native LaTeX method schematic separates measured-
+parent fitting from predicted-parent deployment, names intervention eligibility
+and saved fitting receipts, and explains the flat control's different supervision.
+It highlights support mismatch without claiming certified propagation or causal
+identification. No performance number, new result or selection rule is added.
+The SAME editor manuscript references the new authoritative companion;
+script sync now bundles10files with unchanged official TMLR style hashes. Native
+compilation succeeds; page-level visual review remains a final integration gate.
+Accepted35macro/attribution/history/physical/theory companion bytes are unchanged
+from bd1ab4c4. No fit, model load, prediction processing, new response, package
+replay, experimental source change or job occurs. No completed component review
+or numerical check was repeated. Evidence method_diagram_preparation_20261008.json.
+
+After restored transport, follow delivery_prospective_replay_launch_2026-10-08.md
+for bounded readiness, remote package and03input authentication, coordinator
+reconciliation and one exclusive inference-only submission. Registered/descriptive
+claim integration and final evidence/visual/human reviews remain gated. Routine
+writing progress and unchanged reconnect state do not warrant another notification.

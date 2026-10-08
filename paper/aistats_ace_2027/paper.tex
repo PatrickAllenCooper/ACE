@@ -2458,6 +2458,56 @@ but its free-running prediction is ten. These are existence examples, not
 descriptions of the measured histories. Analytically solved chains, forks,
 colliders and clamps are checked by executable tests.
 \end{filecontents*}
+% delivery_method_diagram.tex: SHA256 e03689feadd5dc50f4f19a5090902a67e2fe3a3c0d6c5aabdf3db812273b7d5c
+\begin{filecontents*}[overwrite]{delivery_method_diagram.tex}
+% Qualitative method schematic; no empirical outcome is encoded here.
+\begin{figure}[t]
+\centering
+\begin{minipage}[t]{0.47\linewidth}
+\centering\small
+\textbf{Fit on measured parents}\par\medskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Completed paid history $\mathcal H$\\
+Known graph and intervention masks}}
+\par\smallskip$\downarrow$\par\smallskip
+\fbox{\parbox{0.87\linewidth}{\centering
+For head $i$, retain $S\cap E_i$\\
+Inputs: measured $v_{\mathrm{Pa}(i)}$\\
+Label: measured $v_i$}}
+\par\smallskip$\downarrow$\par\smallskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Scratch initialization and optimizer\\
+Fit each eligible mechanism\\
+Save weights and fitting receipts}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.47\linewidth}
+\centering\small
+\textbf{Deploy with predicted parents}\par\medskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Requested intervention $a$\\
+Clamp its specified nodes}}
+\par\smallskip$\downarrow$\par\smallskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Visit remaining nodes in DAG order\\
+Inputs: predicted $\hat v_{\mathrm{Pa}(i)}$\\
+Output: $\hat v_i=\hat f_i(\hat v_{\mathrm{Pa}(i)})$}}
+\par\smallskip$\downarrow$\par\smallskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Delivered target prediction\\
+Errors may propagate along paths\\
+Observed-parent loss is insufficient}}
+\end{minipage}
+\caption{The structured delivery procedure separates mechanism fitting from
+free-running deployment. Rows intervened on head $i$ are ineligible for that
+head; an empty eligible set cannot fit its mechanism. The prospective experiment
+clamps roots only and seals every fit before generating held-out responses.
+The flat control instead fits a direct root-to-target map on the same prospective
+history, without intermediate labels. Additional optimization and intermediate
+supervision therefore differ across recipes. This schematic supplies no
+extrapolation, identification or error-bound certification.}
+\label{fig:delivery-procedure}
+\end{figure}
+\end{filecontents*}
 % END EDITOR COMPANION BUNDLE
 \documentclass[10pt]{article}
 \usepackage{tmlr}
@@ -2603,6 +2653,12 @@ root-only design, all training rows are eligible for every nonroot head and
 for the flat predictor. Intermediate supervision and total parameter counts
 still differ. These comparisons evaluate complete recipes rather than isolating
 architecture with identical supervision.
+
+Figure~\ref{fig:delivery-procedure} summarizes the fitting and deployment
+interfaces. Each head's training input is an observed parent vector; its deployed
+input can differ because upstream nodes are predicted. Saving the completed
+history makes a new fit possible, but does not resolve that support mismatch.
+\input{delivery_method_diagram}
 
 \paragraph{Endpoints.}
 For a target $Y$ and an evaluation action set $\mathcal A$, continuous MSE is

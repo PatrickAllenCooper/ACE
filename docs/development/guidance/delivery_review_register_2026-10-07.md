@@ -726,3 +726,18 @@ results/delivery_prospective_replay_preparation_20261008/launch_preparation_03.j
 Original B/A/C/F evidence and manuscript scientific claims remain unchanged.
 Transport restoration, complete remote bytes and actual inference-only replay
 are still required before prospective reporting and integrated evidence review.
+
+## October 8 qualitative method-figure preparation
+
+A conceptual figure now makes the measured-parent training/predicted-parent
+inference distinction explicit and preserves the supervision/compute and support
+limitations. It introduces no empirical claim or new study. Accepted numerical
+macros, all existing result tables and theory companion are byte-unchanged from
+bd1ab4c4. The SAME document's10companion bundle and official TMLR hashes match;
+native compilation succeeds. This is writing preparation, not closure of final
+page-level visual, prospective scientific or public release review.
+
+CURC shared master remains unavailable; prior reconnect request is pending. No
+repeat request, new submission, fitted study, response, replay or completed
+component review is made. Supplemental exact-runtime replay and integrated B
+reporting remain the critical gates. See method_diagram_preparation_20261008.json.

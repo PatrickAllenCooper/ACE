@@ -1,0 +1,47 @@
+% Qualitative method schematic; no empirical outcome is encoded here.
+\begin{figure}[t]
+\centering
+\begin{minipage}[t]{0.47\linewidth}
+\centering\small
+\textbf{Fit on measured parents}\par\medskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Completed paid history $\mathcal H$\\
+Known graph and intervention masks}}
+\par\smallskip$\downarrow$\par\smallskip
+\fbox{\parbox{0.87\linewidth}{\centering
+For head $i$, retain $S\cap E_i$\\
+Inputs: measured $v_{\mathrm{Pa}(i)}$\\
+Label: measured $v_i$}}
+\par\smallskip$\downarrow$\par\smallskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Scratch initialization and optimizer\\
+Fit each eligible mechanism\\
+Save weights and fitting receipts}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.47\linewidth}
+\centering\small
+\textbf{Deploy with predicted parents}\par\medskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Requested intervention $a$\\
+Clamp its specified nodes}}
+\par\smallskip$\downarrow$\par\smallskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Visit remaining nodes in DAG order\\
+Inputs: predicted $\hat v_{\mathrm{Pa}(i)}$\\
+Output: $\hat v_i=\hat f_i(\hat v_{\mathrm{Pa}(i)})$}}
+\par\smallskip$\downarrow$\par\smallskip
+\fbox{\parbox{0.87\linewidth}{\centering
+Delivered target prediction\\
+Errors may propagate along paths\\
+Observed-parent loss is insufficient}}
+\end{minipage}
+\caption{The structured delivery procedure separates mechanism fitting from
+free-running deployment. Rows intervened on head $i$ are ineligible for that
+head; an empty eligible set cannot fit its mechanism. The prospective experiment
+clamps roots only and seals every fit before generating held-out responses.
+The flat control instead fits a direct root-to-target map on the same prospective
+history, without intermediate labels. Additional optimization and intermediate
+supervision therefore differ across recipes. This schematic supplies no
+extrapolation, identification or error-bound certification.}
+\label{fig:delivery-procedure}
+\end{figure}
