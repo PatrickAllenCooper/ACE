@@ -2,25 +2,38 @@
 
 This is an outcome-independent completion checklist for the current TMLR recipe
 and accounting paper. It adds no experiment, selection rule or resource release.
-The frozen original Stage B outcomes remain unopened. All accepted A/C/F results,
-including negative conditions and the worsening history, remain immutable.
+The original Stage B study and independent audit are complete and accepted.
+Accepted score metadata was decoded by the release planner after that acceptance;
+prospective performance reporting remains gated on the separate exact-runtime
+supplemental replay. All accepted A/C/F results, including negative conditions
+and the worsening history, remain immutable.
 
 ## Original chain and release gates
 
-Require the original full 640-fit seal, forty world journals, 32,000 training and
-16,000 shared evaluation responses; unchanged independent acceptance and a
-successful original audit supervisor. Retrieve complete raw results and the
-project/learner closure into exclusive local custody. Build the conflict-rejecting
-composite inventory before extending candidate16 with the reviewed successor.
-A partial checkpoint inventory cannot satisfy this gate.
+The original full 640-fit seal, forty world journals, 32,000 training and 16,000
+shared evaluation responses, unchanged independent acceptance and successful
+original audit supervisor are accepted. Complete raw results and project/learner
+closure are in exclusive local custody; the completed conflict-rejecting inventory
+fed the actual B successor package. A partial checkpoint inventory cannot replace
+that evidence. Current locations and independent digests are recorded in
+delivery_prospective_replay_launch_2026-10-08.md.
 
-Freeze the actual candidate manifest/source/input/resource contract and measure
-original audit timing/RSS before bounded exact-runtime supplemental replay.
-The proposed one-CPU, 3-GiB, fifteen-minute job is not submitted or qualified.
+The actual candidate manifest/source/input/resource contract is frozen, and
+original audit timing/RSS support the bounded exact-runtime supplemental replay.
+Active launch03 requests one CPU, 3 GiB and fifteen minutes. It is not transferred,
+submitted or qualified while the shared SSH master is unavailable. Preparations
+01/02 are preserved and superseded; never submit them. Remote package bytes
+remain unverified despite the earlier successful transfer exit.
 Keep the existing 150-core-hour ceiling and no-install rule. Qualify all saved
 checkpoints and registered analyses without fitting or new responses. Then use
 accepted receipt exporters and synchronize the same open manuscript. Original
 workers are not edited to change paths or digest guards.
+
+The internal delivery_reviewer_commands_2026-10-08.md supplies future independent
+reader templates and stage-specific environment requirements. It is outside the
+existing candidate manifest and must receive a new release binding if included.
+Static command checks are not another numerical replay or original training
+reproduction. Current project qualification still uses supervised launch03.
 
 ## Evidence to report, independent of direction
 

@@ -758,3 +758,22 @@ SSH remains unavailable; prior private reconnect request stands. Active03 is
 unsubmitted, no original study or accepted replay is repeated, and no new fit
 is required. Exact-runtime prospective replay and full integrated reporting/
 scientific/visual/human gates remain open.
+
+## October 8 independent reader command guide
+
+A distinct static review of the new seven-interface guide found two clarity
+issues, now closed: all four Python executables explicitly require3.11/tomllib;
+reporter receipt parsing is distinguished from its later package score/acceptance
+decoding gate. Follow-up scope/failure suggestions are integrated. Four Bash
+blocks and seven option sets pass static checks only; no adapter, model or study
+replay is executed. Dependency/interface checks read only pinned metadata.
+
+The guide is internal and outside the candidate manifest, requiring a new release
+binding and final approved independent pins before distribution. It does not
+replace supervised launch03 or certify anonymous collection/training. Original
+registered primary/init export remains separate from descriptive reporting and
+35 archived macro reconstruction. Manuscript/source/package originals are unchanged.
+Review: reviews/delivery_reviewer_commands_review_2026-10-08.md; evidence:
+reviewer_commands_preparation_20261008.json. Do not repeat this completed guide
+review or static checks as busywork. SSH absence remains unchanged; no new fit
+is required. All prospective integrated and human approval gates remain open.

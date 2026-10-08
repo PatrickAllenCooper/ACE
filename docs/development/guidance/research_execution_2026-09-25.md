@@ -2417,3 +2417,49 @@ runtime inference replay before original-plus-descriptive prospective reporting.
 Final integrated evidence/prose/tables/visual, accounting, anonymity and human
 approval remain mandatory. Routine analytic preparation and the unchanged
 reconnect state do not warrant a new notification.
+
+## October 8 07:03 wakeup — independent reader command preparation
+
+Shared transport still fails locally with the socket absent. The prior private
+reconnect request remains pending. No fresh scheduler statement, repeat notice,
+remote mutation or supplemental submission is made; active03 pins are unchanged.
+
+Prepared delivery_reviewer_commands_2026-10-08.md as an internal guide for future
+independent review of the saved artifacts. It distinguishes byte verification,
+35 archived empirical macro reconstruction, A/C/F checkpoint/statistical replay,
+B exact-runtime checkpoint replay and complete descriptive reporting. Every stage
+uses an independently supplied final manifest; the guide specifies stage-specific
+checked dependency versions, fresh processes, external exclusive receipt/log
+locations, error stopping and explicit A classical-pickle authorization. Full
+historical F environment metadata does not require installing unused cloud SDKs
+or calling services. This writing launches no command, fit or new observation.
+
+One distinct static guide reviewer found two required clarity defects: omission
+of Python3.11/tomllib and overstating score-decoding order. Both are fixed, with
+CHECK_PYTHON explicitly included after follow-up. The reporter parses the pinned
+replay receipt before counter/integrity checks; those checks precede package
+score/acceptance decoding. Optional A/F online-replay scope, B cached-prediction
+metric recomputation and separate stderr/failure preservation were also clarified.
+Four Bash blocks parse and all seven CLI option sets match static source schemas.
+The seven interface hashes match the independently pinned prepared manifest; only
+manifest and dependency metadata were read, with no scientific outcome decoding,
+model loading, actual interface execution or repeat of completed component checks.
+
+Updated the final integration contract's stale pre-completion status to reflect
+accepted original B/raw custody, actual successor and pending03 replay, without
+changing frozen science/reporting/approval gates. New guide bytes are OUTSIDE the
+current candidate manifest and need a new release binding before inclusion.
+This is not anonymous original collection/training execution, a new numerical
+qualification, historical freeze proof or public release readiness. The original
+registered exporter remains required beside the descriptive reporter.
+
+The open manuscript and empirical/theory/figure companions are byte-unchanged
+from c57ef7c0; no new native compile is required for documentation-only work.
+Actual exact-runtime supervised replay, report/source lineage, integrated science/
+proof/prose/table/visual review, anonymity and human submission gates remain open.
+No installs, responses, optimization or allocations occur. Preparation CPU is
+unmetered, not inferred as experimental or whole-sprint cost. Evidence:
+reviewer_commands_preparation_20261008.json SHA
+d243e2da70fbc428aa1295ddcadfd3462aed8d9738295b657c7932bfce8f87ca and
+reviews/delivery_reviewer_commands_review_2026-10-08.md. Routine preparation
+and unchanged reconnect state do not warrant a repeated user notification.
