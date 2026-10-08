@@ -594,3 +594,33 @@ results/delivery_release_preparation_20261007/compute_accounting_preparation_202
 All previous review dispositions remain evidence; no additional fitted study is
 currently required. Complete B acceptance, actual release/replay qualification,
 integrated claims/proofs/prose/layout, anonymity and human submission review remain.
+
+
+## October 8 manuscript compute disclosure and final reporting contract
+
+A distinct bounded review of the new qualitative compute-disclosure paragraph
+found no required fixes. The prose explicitly leaves historical confirmation
+process CPU unknown, separates elapsed/refit/stage/cumulative reservation scopes
+and avoids an inferred whole-project total. No new numerical claim is introduced;
+all35 empirical macros, claim index and theory are unchanged. Nine companions
+remain synchronized and native compilation of the SAME open manuscript succeeds.
+This closes the disclosure review, not underlying historical-cost authenticity,
+final B accounting, page-level visual review or scientific acceptance.
+Evidence: reviews/delivery_compute_reporting_review_2026-10-08.md and
+results/delivery_release_preparation_20261007/compute_reporting_preparation_20261008.json.
+
+The outcome-independent delivery_final_integration_2026-10-08.md keeps all
+original reporting and scope gates explicit. Primary/init export tables alone
+are insufficient: final accepted B integration must include receipt-bound
+absolute MSE/NMSE, all system log ratios, short-fit ablation, history-specific
+summaries and numerical-floor activations without additional selection or tests.
+Do not declare original scientific findings closed before this integrated review.
+
+Fresh original B custody is594/640 fits and37/40 worlds at01:58:31UTC, with
+sixteen new saved checkpoint/receipt pairs locally verified and prior578
+fingerprints unchanged. Two thirty-node worlds run and the last awaits the
+original array concurrency limit. No failure, stop, seal or evaluation.
+Partial Slurm allocation including pilots is29.287500core-hours at01:59:51UTC.
+Separately checked scontrol identities bind the two new raw array IDs; final
+accounting needs an updated independently pinned map. Original chain, source,
+A/C/F accepted artifacts and private candidate16 remain unchanged.

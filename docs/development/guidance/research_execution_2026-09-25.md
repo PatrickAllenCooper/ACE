@@ -2067,3 +2067,67 @@ prose, table, visual, anonymity, redistribution, final accounting and human revi
 Final costs remain open until original phases finish. When new raw array IDs appear,
 freeze a new independently validated identity map rather than accepting unmapped
 identities. No new fitted study or scientific rescue is currently needed.
+
+
+## October 8 01:58–02:04 UTC — 594 fits; manuscript compute disclosure
+
+Fresh bounded original-chain reconciliation records594/640 verified fit receipts
+and37/40 completed worlds. Thirty-node15/16 finished;17/18 now run and19 waits
+on JobArrayTaskLimit. Evaluation/audit retain their dependencies.32000 training
+responses and80 histories remain unchanged. No failure, stop flag, full fit seal,
+evaluation, study completion or independent acceptance exists. All39 worker,
+learner and generator bindings plus23 committed project files verify unchanged.
+The descriptor manifest and qualified dependency receipt remain hash-bound; this
+source check does not re-evaluate systems or read held-out outcomes.
+
+Sixteen new receipt/model pairs are locally hash-verified in exclusive
+fit-new-20261008T015831Z. Composite snapshots verify all594 saved model/receipt
+pairs; prior578 remote fingerprints are unchanged. No checkpoint is deserialized.
+Evidence full_milestone_20261008T015831Z.json,
+full_milestone_custody_20261008T015831Z.json and
+full_source_accounting_20261008T015951Z.json under prospective preparation.
+At01:59:51UTC original-chain accrued allocation105190CPU-seconds includes
+102723 completed allocation seconds. Adding actual126failed+119successful pilot
+seconds gives29.287500 partial allocated core-hours, not process CPU or final cost.
+Reserved86.868333 remains within150; no new submission, fit, response or install.
+
+New raw/display pairs33516270/33507421_17 and33516271/33507421_18 are separately
+confirmed by bounded scontrol show job calls: original array33507421, task17/18,
+ace_delB_fit30 and accountucb736_asc1. Receipt
+full_scheduler_identity_additions_20261008T0202Z.json retains command output and
+identity validation. The next final accounting freeze must incorporate these
+separately verified pairs into a new pinned map; the old42-pair map is not a
+license to accept unmapped future allocations. No accounting tests are repeated.
+
+The SAME open manuscript now discloses the confirmation's monotonic elapsed
+clock, overlap with acquisition stages, cumulative wall reservations, unknown
+historical process CPU and inability to infer a whole-project CPU total. No
+numeric statement or empirical macro was added. All35 empirical macros, claim
+index, theory and nine embedded companion/style files are unchanged. Native
+compile_latex_document succeeded; page-level final visual review remains open.
+A distinct bounded review of only this new disclosure found no required fixes.
+It checked identified accounting guidance/metadata, not original workers or B
+scientific acceptance. Evidence compute_reporting_preparation_20261008.json
+SHAdde4c04ebca7026fe1c8c93037fe99d6d91107768eb58e6aa19d988ea6783042
+and reviews/delivery_compute_reporting_review_2026-10-08.md. Prior reviews/replays
+remain evidence and were not repeated.
+
+New delivery_final_integration_2026-10-08.md fixes outcome-independent reporting
+and scope rules before outcomes: all four original contrasts, twenty system
+log ratios per contrast, all eighty history-level fixed-init0 absolute errors,
+ablation, history-specific and initialization sensitivity, floor activations and
+all failures. The original exporter typesets primary/init tables but does not
+alone close absolute-error/ablation/history reporting; supplement integration
+remains explicit work after original acceptance and supplemental replay gates.
+Registered inferential rules stay unchanged. A failed superiority gate is neither
+proof of equivalence nor a reason for favorable rescue. Even successful contrasts
+cannot support pure architecture, equal-compute, internal-action identification or
+confidence that population improvement is at least20%.
+
+Remaining critical work is original640fit/40world seal,16000heldout responses,
+independent acceptance and successful audit supervisor; complete raw/source custody,
+source-successor assembly and exact-runtime bounded inference-only replay within
+150core-hours; receipt-bound full reporting, integrated proof/prose/table/visual,
+final phase accounting, anonymity/redistribution and human submission approval.
+No additional fitted study is currently required. Candidate16 and historical
+A/C/F gates are unchanged; no reliable completion ETA is established.

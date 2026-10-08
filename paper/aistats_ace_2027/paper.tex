@@ -3154,6 +3154,14 @@ the first eleven completed histories and the interrupted final attempt, then
 ran a separately retained final attempt for that same registered history before
 scoring the complete matrix. This continuation was not chosen by scored performance. Stage A and the physical
 study acquire no new responses: they reuse frozen observations.
+The confirmation worker measures refit durations using a monotonic elapsed-time
+clock. These intervals overlap the containing acquisition stages; the nested
+charged/reserved wall budgets are cumulative accounting records, rather than
+additional executions. Historical process CPU for the complete confirmation
+campaign is unmeasured. We therefore report that quantity as unknown and do not
+infer a whole-project CPU total by adding elapsed time, reservations, fit process
+CPU and scheduler allocation. Replay, packaging and review measurements cover
+their identified runs only.
 Stage A records \AFitCPU{} fit CPU-core-hours and the physical study
 \CCPU{} fit/evaluation CPU-core-hours, with imports and startup excluded.
 The prospective qualification failure charged 126 allocated CPU-seconds;
