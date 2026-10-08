@@ -656,3 +656,30 @@ commit-origin labels and prototype lineage. Final all-phase accounting is open.
 Original640fit/40journal seal,16000heldout responses, successful full audit,
 complete conflict-rejecting custody and exact-runtime supplemental replay remain
 the critical gates before accepted-outcome reporting. No additional fits required.
+
+
+## October 8 accepted B custody and reporting source integration
+
+Original640fit/40world seal,16000 heldout responses and full independent audit
+completed successfully. Unchanged original acceptance/supervisor metadata and
+scheduler exits are verified; complete raw/source custody and conflict-rejecting
+inventory are local. Supplemental actual package/replay and integrated paper
+review remain open; scientific values have not yet been decoded in main custody.
+No new fitted study or favorable rescue is needed.
+
+A distinct optional-reporting source review identified one required import-description
+finding. Corrected captured AST import/symbol/alias/transitive closure checks and
+oracle source bindings close it; final recheck has zero remaining required fixes.
+Eight fabricated tests pass, including six changed-closure rejection cases; prior
+seven-test/reproduction/failure evidence remains. Default six-interface behavior,
+seventh-interface false qualification flags and originals/notices are preserved.
+This is static metadata/interface preparation, not actual runtime execution,
+full-worker anonymity or public readiness. See delivery_reporting_source_integration
+_2026-10-08.md, reviews/delivery_reporting_source_integration_review_2026-10-08.md
+and reporting_source_integration_preparation_20261008.json. Do not repeat this
+completed bounded review or old A/C/F numerical replays as busywork.
+
+Next required gates are actual accepted B source-successor assembly, independently
+pinned source/manifest/resource freeze and bounded exact-runtime supplemental
+inference replay; original-plus-descriptive reporting, integrated scientific/proof/
+prose/table/visual review, phase accounting and human submission approval follow.

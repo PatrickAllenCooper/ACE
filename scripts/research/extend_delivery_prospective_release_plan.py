@@ -23,14 +23,19 @@ identity entries. Their original/derived provenance lives in replay_contract.jso
 and the private derivation record, not a fabricated original receipt digest.
 The future replay caller can be supplied explicitly with replay; no implicit
 lookup or read of replay_delivery_prospective_release.py is performed.
+Optional descriptive reporting requires an explicit replay, inherited source
+contract and independent reporting SHA256 pin. Inclusion records preparation
+only, not generated reports or numerical/runtime qualification.
 """
 import argparse
 import copy
 from datetime import datetime
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
+import stat
 
 import prepare_delivery_prospective_release_core as core
 import delivery_prospective_source_contract as source_contracts
@@ -66,6 +71,23 @@ PROTOCOL_FILES = {
     'historical_pilot_failure.json': 'historical_pilot_failure_sha256',
     'descriptor_runtime_parity.json': 'descriptor_runtime_parity_sha256'}
 MAX_JSON_BYTES = 32 * 1024 * 1024
+
+
+def module_snapshot(path, name, expected=None):
+    """Capture source once; package only these bytes, never reopen the caller."""
+    path = Path(path).absolute()
+    require(not any(p.is_symlink() for p in (path, *path.parents)),
+            'symlink in optional interface source')
+    require(path.is_file(), 'missing optional interface source')
+    with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW), 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        require(stat.S_ISREG(info.st_mode) and info.st_size <= MAX_JSON_BYTES,
+                'optional interface source exceeds bound or is not regular')
+        raw = stream.read(MAX_JSON_BYTES + 1)
+    require(len(raw) <= MAX_JSON_BYTES, 'optional interface source exceeds bound')
+    digest = hashlib.sha256(raw).hexdigest()
+    require(expected is None or digest == expected, 'reporting source SHA256 differs from independent pin')
+    return {'path': name, 'sources': [str(path)], 'sha256': digest, '_raw': raw}
 
 
 def snapshot(path, expected=None):
@@ -130,7 +152,8 @@ def execution(value, reg, wall_key, account=True):
 def extend(plan_file, prospective, inventory, source_inventory, source_root,
            core_file, core_contract, expected_core_contract_sha256, private_dir, out,
            replay=None, expected_registration=core.REGISTRATION_SHA,
-           expected_source_contract_sha256=source_contracts.PREDECESSOR_SHA):
+           expected_source_contract_sha256=source_contracts.PREDECESSOR_SHA,
+           reporting=None, expected_reporting_sha256=None):
     # This MUST be the first operation. No plan/inventory/core/score reads precede it.
     gate = core.accepted_before_scores(prospective, expected_registration)
     prospective = Path(prospective)
@@ -322,9 +345,48 @@ def extend(plan_file, prospective, inventory, source_inventory, source_root,
     source_contracts.validate_before_scores(plan, prepared_sources, frozen, cc, checked_copies)
     replay_entry = None
     if replay is not None:
-        replay_entry = {'path': 'replay_delivery_prospective_release.py',
-                        'sources': [str(Path(replay).absolute())], 'sha256': sha(replay)}
-        checked_copies(replay_entry['sources'], replay_entry['sha256'])
+        replay_entry = module_snapshot(replay, 'replay_delivery_prospective_release.py')
+    reporting_entry = None
+    if reporting is not None:
+        require(replay_entry is not None and prepared_sources is not None,
+                'reporting requires explicit replay and inherited source predecessor')
+        require(core.digest(expected_reporting_sha256), 'independent reporting SHA256 required')
+        reporting_entry = module_snapshot(reporting, source_contracts.REPORTING, expected_reporting_sha256)
+        source_contracts.validate_reporting_before_scores(plan, reporting_entry, checked_copies, replay_entry)
+    else:
+        require(expected_reporting_sha256 is None, 'reporting SHA256 supplied without reporting source')
+    # Optional sources, package collisions and output overlap fail before scores.
+    for name in indexed:
+        relative(Path('/'), name)
+    reserved = {'delivery_prospective_replay_core.py', 'replay_delivery_prospective_release.py'}
+    if reporting_entry:
+        reserved.add(reporting_entry['path'])
+    require(not any(n.startswith('B/') or any(n == r or n.startswith(r+'/') or r.startswith(n+'/')
+                    for r in reserved) for n in indexed), 'B/interface collision in inherited plan')
+    private_dir, out = Path(private_dir).absolute(), Path(out).absolute()
+    require(not any(p.is_symlink() for path in (private_dir, out) for p in (path, *path.parents)),
+            'symlink in planner output location')
+    private_dir, out = private_dir.resolve(), out.resolve()
+    require(not private_dir.exists() and not out.exists() and not out.is_relative_to(private_dir) and
+            not private_dir.is_relative_to(out), 'exclusive separate private directory and plan output required')
+    inputs = [Path(p).absolute() for p in (prospective, source_root, plan_file, inventory, source_inventory,
+                                          core_file, core_contract)]
+    inputs += [Path(s).absolute() for e in [*entries.values(), *frozen.values(), *indexed.values()]
+               for s in e['sources']]
+    optional_entries = [e for e in (replay_entry, reporting_entry) if e is not None]
+    inputs += [Path(s) for e in optional_entries for s in e['sources']]
+    for p in inputs:
+        p = p.resolve()
+        require(not private_dir.is_relative_to(p) and not p.is_relative_to(private_dir) and
+                out != p and not out.is_relative_to(p) and not p.is_relative_to(out),
+                'output overlaps original custody')
+    for name, h in reg['source_hashes'].items():
+        path = 'source/runner/'+name
+        if path in indexed:
+            e = indexed[path]
+            require(e.get('transform', {'kind': 'identity'}) == {'kind': 'identity'} and e['original_sha256'] == h,
+                    'inherited learner conflict')
+            checked_copies(e['sources'], h)
     scores = metadata('B/scores.json', gate['scores_sha256'])
     require(set(scores) == set(SCORE_KEYS) and set(scores['cells']) == {str(i) for i in range(640)} and
             scores['fit_seal_sha256'] == bound('B/fit_seal.json')['sha256'] and scores['scope'] == reg['scope'] and
@@ -342,27 +404,6 @@ def extend(plan_file, prospective, inventory, source_inventory, source_root,
     acceptance = metadata('B/acceptance.json', gate['acceptance_sha256'])
     require(set(acceptance) == core.ACCEPTANCE_FIELDS and
             project(acceptance, accepted.keys()) == accepted, 'captured acceptance metadata differs')
-    # All output paths and collision checks precede the first output write.
-    for name in indexed:
-        relative(Path('/'), name)
-    require(not any(n.startswith('B/') or n == 'delivery_prospective_replay_core.py' or
-                    n == 'replay_delivery_prospective_release.py' for n in indexed), 'B already in inherited plan')
-    private_dir, out = Path(private_dir).absolute(), Path(out).absolute()
-    require(not private_dir.exists() and not out.exists() and not out.is_relative_to(private_dir),
-            'exclusive separate private directory and plan output required')
-    inputs = [Path(p).absolute() for p in (prospective, source_root, plan_file, inventory, source_inventory,
-                                          core_file, core_contract)]
-    inputs += [Path(s) for e in [*entries.values(), *frozen.values()] for s in e['sources']]
-    for p in inputs:
-        require(not private_dir.is_relative_to(p) and not p.is_relative_to(private_dir) and
-                out != p and not out.is_relative_to(p), 'output overlaps original custody')
-    for name, h in reg['source_hashes'].items():
-        path = 'source/runner/'+name
-        if path in indexed:
-            e = indexed[path]
-            require(e.get('transform', {'kind': 'identity'}) == {'kind': 'identity'} and e['original_sha256'] == h,
-                    'inherited learner conflict')
-            checked_copies(e['sources'], h)
     private_dir.mkdir(parents=True, exist_ok=False)
     (private_dir/'original').mkdir(); (private_dir/'derived').mkdir()
     for name, raw in [('input_plan.json', plan_raw), ('composite_inventory.json', inv_raw),
@@ -428,8 +469,12 @@ def extend(plan_file, prospective, inventory, source_inventory, source_root,
     add_identity('delivery_prospective_replay_core.py', core_target, cc['derived_core_sha256'], 'derived-exact-numerical-core')
     contract_target = private_dir/'prepared_core_contract.json'
     add_identity('B/core_contract.json', contract_target, cc_hash, 'prepared-core-provenance')
-    if replay_entry:
-        add_identity(replay_entry['path'], Path(replay_entry['sources'][0]), replay_entry['sha256'], 'prospective-replay-adapter')
+    for entry in optional_entries:
+        target = private_dir/entry['path']
+        with target.open('xb') as stream:
+            stream.write(entry['_raw'])
+        role = 'prospective-descriptive-reporting-adapter' if entry is reporting_entry else 'prospective-replay-adapter'
+        add_identity(entry['path'], target, entry['sha256'], role)
     safe_reg = project(reg, REGISTRATION_KEYS); safe_reg['resources'] = project(reg['resources'], RESOURCE_KEYS)
     derive('B/registration.json', safe_reg, 'B/registration.json')
     derive('B/scores.json', scores, 'B/scores.json')
@@ -499,20 +544,24 @@ def extend(plan_file, prospective, inventory, source_inventory, source_root,
     for n in reg['source_hashes']:
         bind('/learner_hashes/'+escape(n), 'source/runner/'+n)
     source_transition = source_contracts.transition(plan, indexed, prepared_sources, private_dir,
-        plan_hash, frozen, cc, contract, sha(target), replay_entry)
+        plan_hash, frozen, cc, contract, sha(target), replay_entry, reporting_entry)
     plan['status'] = 'private accepted B relative-artifact preparation; target-runtime replay and public approval pending'
     write(private_dir/'derivation.json', {'inherited_plan_sha256': plan_hash,
           'composite_inventory_sha256': inv_hash, 'source_inventory_sha256': src_inv_hash,
           'core_contract_sha256': cc_hash, 'original_artifacts': {n: {'sources': e['sources'],
            'sha256': e['sha256'], 'private_snapshot': str(preserved[n])} for n, e in entries.items()},
           'metadata_projections': provenance, 'source_contract_transition': source_transition,
+          'optional_interface_snapshots': [{'path': e['path'], 'source': e['sources'][0],
+              'sha256': e['sha256'], 'private_snapshot': str(private_dir/e['path'])} for e in optional_entries],
           'B_outcomes_decoded_after_full_acceptance': True,
           'new_fits': 0, 'new_responses': 0})
     write(out, plan)
     return {'plan_sha256': sha(out), 'replay_contract_sha256': sha(target),
             'files': len(plan['files']), 'fits': 640, 'worlds': 40, 'training_bundles': 80,
             'evaluation_bundles': 40, 'predictions': 640, 'preparation_only': True,
-            'replay_adapter_included': replay is not None, 'source_contract_transition': source_transition,
+            'replay_adapter_included': replay is not None, 'descriptive_reporting_included': reporting is not None,
+            'reporting_sha256': reporting_entry['sha256'] if reporting_entry is not None else None,
+            'source_contract_transition': source_transition,
             'new_fits': 0, 'new_responses': 0}
 
 
@@ -524,5 +573,7 @@ if __name__ == '__main__':
     parser.add_argument('--expected-core-contract-sha256', required=True)
     parser.add_argument('--expected-source-contract-sha256', default=source_contracts.PREDECESSOR_SHA)
     parser.add_argument('--replay', type=Path)
+    parser.add_argument('--reporting', type=Path)
+    parser.add_argument('--expected-reporting-sha256')
     args = parser.parse_args()
     print(json.dumps(extend(**vars(args)), indent=2))

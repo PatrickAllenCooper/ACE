@@ -2197,3 +2197,77 @@ report integration. Record this separately authored reporting interface and its
 derived outputs in final source/manifest dispositions. Then complete registered
 claims, integrated proof/prose/table/visual review, phase accounting, anonymity/
 redistribution and human approval. No additional fitted study is currently needed.
+
+
+## October 8 04:03–04:19 UTC — original B completes; full accepted custody
+
+At04:03:18UTC638/640 fits and39/40 worlds were verified, with21 new local pairs
+and prior617 fingerprints unchanged. The last two models were subsequently
+verified against the complete original fit seal. All640 saved checkpoint/receipt
+pairs now match their original seal across complete local custody and all prior
+exclusive snapshots. No deserialization occurred in these custody checks.
+The original fit seal SHA iscc167516d53775c5173cf4e1fb93e6ef3bd1b442d5d3c1ca2c4bce2adcdf536c.
+Forty world journals closed; evaluation started04:09:58.652150UTC only after seal.
+No stop flag or failed fit/world attempt. Existing source45ebeb89 and all39
+worker/generator/learner bindings plus23 committed project files are unchanged.
+
+Original evaluation33507422 and audit33507423 completed successfully. At04:13:51
+all40 evaluation receipts and640 prediction files, completion, acceptance and
+successful audit supervisor were present. Full study raw results were copied to
+exclusive delivery-prospective-accepted-raw-20261008T0414Z custody. Metadata-only
+accepted_before_scores passed against the unchanged registration, full640-fit/
+240-primary-cell/48000-response acceptance and successful original supervisor;
+independent sacct confirms both final jobsCOMPLETED/0:0/accountucb736_asc1.
+Acceptance SHA dda7a9a4414524ed74e6e8955718c4be93177e452f68dcc961984a521060a3cb;
+audit supervisor SHA e74911f3cfd662981ee9a62d8cf29ab2480d4910f4ad0da0d90bc91d50f2ca04;
+scores bytes SHA3ce9ee28f4c85b9b909c5e65c90b8d1d7eb39747d846ab5964cec1c36c0aded6.
+Scientific values remain undecoded here; original acceptance does not itself
+qualify the supplemental relative package/replay or manuscript claims.
+
+The original project closure24objects (23files plus commit receipt) and19learner
+objects were independently hash-verified locally without executing sources.
+Complete conflict-rejecting inventory covers3245raw/source objects. All640 previous
+model/receipt copies match the complete raw study; ancillary transfer metadata
+stays outside the study inventory. Composite SHA
+f6e04175638f608d541cfc3035ca4a76b6ffd147c85120b307ec20a4a2bc6a13.
+Evidence full_original_acceptance_20261008T0414Z.json, full_fit_seal_boundary,
+full_fit_custody, frozen_closure_custody and prospective_complete_custody_20261008.json.
+The complete original44allocations total118680allocated CPU-seconds; actual
+failed/successful pilots126+119 give33.03472222222222allocated core-hours for
+this original B chain/pilots only. Not whole-sprint processCPU or accounting for
+new reproduction preparation. Exact identities match the independent44-pair map;
+parent/child steps are not double-counted. Initial monitor mistyped the successful
+pilot ID in a read-only sacct query; unrelated records were preserved privately
+and excluded from ACE accounting. Correct33507335 was independently queried.
+The earlier uppercase stop filename diagnostic was corrected by an explicit
+lowercase stop_new_fits.json check. No unrelated work was modified.
+
+Original audit supervisor used20.427792918seconds and766464000peak treeRSS bytes.
+This supports the proposed inference-only1CPU/3GiB/900second replay allocation,
+subject to new actual source/manifest/input freeze and scratch validation. Adding
+0.25reserved core-hours to the original86.868333 reservation gives87.118333 within
+150. No supplemental job is submitted in this entry; no additional fit needed.
+
+The optional reporting source integration adds a separately pinned captured module,
+explicit seventh interface and direct/transitive import/runtime/source digest
+edges. Original acceptance remains the first operation. Source/output collisions,
+symlinks, overlap and pin failures reject before scores or writes; captured optional
+bytes survive caller replacement. Omitting reporting retains six interfaces.
+Distinct reviewR1 found a misdescribed changed-source import closure. Main now
+validates supported static imports/symbols/aliases and replay exports from captured
+bytes, uses that validated description and binds the oracle learner digest.
+Eight focused fabricated checks pass, including six new changed-closure cases;
+review recheck finds no remaining required fixes. Final main run37.83wallseconds,
+29.02user+8.72system CPU,77053952peakRSS, excluding previous development/review.
+Tests do not execute models/reports or qualify actual B runtime. Initial3.9import
+failure and worker artifacts are retained privately. Same manuscript, original
+workers/exporter, candidate16 and accepted A/C/F remain unchanged.
+
+See delivery_reporting_source_integration_2026-10-08.md, its distinct review and
+reporting_source_integration_preparation_20261008.json. Next: commit this reviewed
+source, assemble a NEW actual accepted B successor package from complete custody,
+freeze source/manifest/inputs/resources, verify scratch and submit the bounded
+exact-runtime inference-only replay once. After supervised qualification, generate
+original registered and supplemental descriptive reports, integrate the SAME
+manuscript and compile; finish integrated proofs/prose/tables/layout, phase costs,
+anonymity/redistribution and human approval. No favorable rescues or extra fits.

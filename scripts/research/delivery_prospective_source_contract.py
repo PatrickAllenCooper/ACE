@@ -6,6 +6,7 @@ This records included helper/core/interface roles; exact-runtime numerical repla
 and human anonymity/submission approval remain distinct gates.
 """
 import copy
+import ast
 import hashlib
 from pathlib import Path
 
@@ -18,6 +19,8 @@ PREDECESSOR_SHA = '9f4766216adbc1bfc217994c4c1122ccc874fa927880114ba311395c600ef
 DESIGN = 'B/scripts/research/delivery_prospective_design.py'
 AUDITOR = 'B/scripts/research/audit_delivery_prospective_results.py'
 GUARD = 'B/scripts/research/runner_delivery_confirmation.py'
+REPORTING = 'prepare_delivery_prospective_supplement.py'
+VERIFIER = 'verify_delivery_release.py'
 
 
 def require(condition, message):
@@ -103,8 +106,76 @@ def validate_before_scores(plan, prepared, frozen, cc, checked_copies):
                 'included helper source differs')
 
 
+def import_description(raw):
+    """Describe supported static import statements without executing source."""
+    try:
+        tree = ast.parse(raw)
+    except (SyntaxError, UnicodeError) as error:
+        raise ValueError('invalid captured interface source') from error
+    imports = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            imports.append((type(node).__name__, getattr(node, 'module', None),
+                            getattr(node, 'level', 0), tuple((a.name, a.asname) for a in node.names)))
+    return tree, imports
+
+
+def validate_reporting_before_scores(plan, reporting_entry, checked_copies, replay_entry):
+    """Reporting imports existing package modules; it never imports originals."""
+    indexed = {e['path']: e for e in plan['files']}
+    name = reporting_entry['path']
+    require(not any(p == name or p.startswith(name+'/') or name.startswith(p+'/') for p in indexed),
+            'reporting interface collision in inherited plan')
+    require(VERIFIER in indexed, 'reporting requires packaged verifier import')
+    checked_copies(indexed[ACTIVE]['sources'], indexed[ACTIVE]['original_sha256'])
+    verifier = indexed[VERIFIER]
+    require(verifier.get('transform', {'kind': 'identity'}) == {'kind': 'identity'},
+            'reporting verifier import requires identity bytes')
+    checked_copies(verifier['sources'], verifier['original_sha256'])
+    reporting_entry['verifier_sha256'] = verifier['original_sha256']
+    standard = [('Import', None, 0, ((name, None),)) for name in
+                ('argparse', 'csv', 'hashlib', 'json', 'math', 're')]
+    standard += [('ImportFrom', 'datetime', 0, (('datetime', None), ('timezone', None))),
+                 ('ImportFrom', 'pathlib', 0, (('Path', None),))]
+    symbols = ('ARMS', 'DEPENDENCIES', 'HISTORIES', 'WORLDS', 'byte_integrity', 'gate')
+    _, imports = import_description(reporting_entry['_raw'])
+    expected = standard + [('ImportFrom', 'replay_delivery_prospective_release', 0,
+                            tuple((n, None) for n in symbols)),
+                           ('ImportFrom', 'verify_delivery_release', 0, (('relative', None),))]
+    require(sorted(map(repr, imports)) == sorted(map(repr, expected)),
+            'unsupported captured reporting import closure')
+    replay_tree, replay_imports = import_description(replay_entry['_raw'])
+    replay_expected = [('Import', None, 0, ((n, None),)) for n in
+                       ('argparse', 'hashlib', 'importlib.metadata', 'importlib.abc',
+                        'importlib.util', 'json', 'math', 're', 'sys', 'time', 'torch')]
+    replay_expected += [('Import', None, 0, (('numpy', 'np'),))] * 2
+    replay_expected += [('ImportFrom', 'datetime', 0, (('datetime', None),)),
+                        ('ImportFrom', 'io', 0, (('BytesIO', None),)),
+                        ('ImportFrom', 'pathlib', 0, (('Path', None),)),
+                        ('ImportFrom', 'verify_delivery_release', 0,
+                         (('relative', None), ('verify', None), ('sha', None))),
+                        ('ImportFrom', 'ace.oracle', 0, (('MLPSurrogate', None),))]
+    require(sorted(map(repr, replay_imports)) == sorted(map(repr, replay_expected)),
+            'unsupported captured reporting replay import closure')
+    exports = {n.name for n in replay_tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
+    exports.update(t.id for n in replay_tree.body if isinstance(n, ast.Assign)
+                   for t in n.targets if isinstance(t, ast.Name))
+    require(set(symbols) <= exports, 'captured replay reporting exports missing')
+    reporting_entry['validated_import_records'] = [
+        {'path': replay_entry['path'], 'sha256': replay_entry['sha256'], 'symbols': list(symbols)},
+        {'path': VERIFIER, 'sha256': verifier['original_sha256'], 'symbols': ['relative']}]
+    reporting_entry['validated_standard_library_imports'] = sorted({
+        module if kind == 'ImportFrom' else names[0][0] for kind, module, _, names in standard})
+    reporting_entry['validated_replay_imports'] = [
+        {'kind': kind, 'module': module, 'level': level,
+         'names': [{'name': name, 'alias': alias} for name, alias in names]}
+        for kind, module, level, names in replay_imports]
+
+
 def transition(plan, indexed, prepared, private_dir, input_plan_sha, frozen, cc,
-               replay_contract, replay_contract_sha, replay_entry):
+               replay_contract, replay_contract_sha, replay_entry, reporting_entry=None):
+    require(reporting_entry is None or prepared is not None and replay_entry is not None,
+            'reporting requires explicit replay and inherited source predecessor')
     if prepared is None:
         return {'status': 'legacy input has no source-disposition contract; full disposition remains required'}
     require(replay_entry is not None, 'source-contract transition requires explicit B replay adapter')
@@ -160,6 +231,37 @@ def transition(plan, indexed, prepared, private_dir, input_plan_sha, frozen, cc,
         'runtime_records': [{'path': 'B/replay_contract.json', 'sha256': replay_contract_sha}],
         'does_not_reproduce': ['response collection', 'optimizer trajectories', 'Slurm scheduling', 'original full-audit worker'],
     })
+    if reporting_entry is not None:
+        require(identity(reporting_entry['path']) == reporting_entry['sha256'] and
+                identity(VERIFIER) == reporting_entry['verifier_sha256'],
+                'reporting source/import identity differs')
+        new['B_descriptive_reporting_qualified'] = False
+        new['interfaces'].append({
+            'path': reporting_entry['path'], 'sha256': reporting_entry['sha256'],
+            'role': 'prospective-descriptive-reporting-adapter',
+            'scope': 'complete-matrix descriptive reporting after independently pinned full supplemental replay; preparation only',
+            'implementation': 'separately authored release adapter; identity source snapshot included',
+            'command': ['python', reporting_entry['path'], '--root', '.', '--manifest-sha256',
+                        '<independently supplied manifest digest>', '--replay-receipt',
+                        '<external full supplemental replay receipt>', '--replay-sha256',
+                        '<independently supplied replay receipt digest>', '--destination',
+                        '<exclusive output outside package>'],
+            'additional_full_replay_arguments': [],
+            'runtime_records': [{'path': 'B/replay_contract.json', 'sha256': replay_contract_sha}],
+            'import_records': reporting_entry['validated_import_records'],
+            'standard_library_imports': reporting_entry['validated_standard_library_imports'],
+            'captured_replay_imports': reporting_entry['validated_replay_imports'],
+            'transitive_runtime_imports': {name: replay_contract['dependencies'][name] for name in ('numpy', 'torch')},
+            'transitive_learner_import': {'path': 'source/runner/ace/oracle.py',
+                'sha256': replay_contract['learner_hashes']['ace/oracle.py'], 'symbols': ['MLPSurrogate']},
+            'anonymous_execution_qualified': False, 'import_qualified': False,
+            'reporting_execution_qualified': False, 'generated_report_qualified': False,
+            'B_numerical_replay_qualified': False,
+            'does_not_reproduce': ['response collection', 'optimizer trajectories', 'Slurm scheduling',
+                                  'original full-audit worker', 'numerical supplemental replay',
+                                  'additional significance tests'],
+            'next_gate': 'pinned full target-runtime supplemental replay, reporting/import qualification and human anonymity review',
+        })
     new['future_B_extension'] = 'B metadata source transition recorded; exact target-runtime full numerical replay and human approval remain required'
     # Preserve and bind the old bytes under an explicitly historical location.
     target = Path(private_dir)/'source_contract_predecessor.json'
@@ -187,6 +289,11 @@ def transition(plan, indexed, prepared, private_dir, input_plan_sha, frozen, cc,
         bind(f'/interfaces/{i}/sha256', interface['path'])
         for j, runtime in enumerate(interface['runtime_records']):
             bind(f'/interfaces/{i}/runtime_records/{j}/sha256', runtime['path'])
+        for j, imported in enumerate(interface.get('import_records', [])):
+            bind(f'/interfaces/{i}/import_records/{j}/sha256', imported['path'])
+        if 'transitive_learner_import' in interface:
+            imported = interface['transitive_learner_import']
+            bind(f'/interfaces/{i}/transitive_learner_import/sha256', imported['path'])
     for field, path in [('runner_notice_sha256', 'notices/ACE_RUNNER_MIT.txt'),
                         ('ACE_source_notice_sha256', 'notices/ACE_APACHE_2_0.txt')]:
         require(identity(path) == new[field], 'inherited source notice differs')
@@ -199,7 +306,11 @@ def transition(plan, indexed, prepared, private_dir, input_plan_sha, frozen, cc,
     require(new['training_reproduction_available'] is False and new['public_release_approved'] is False and
             new['anonymity_review_complete'] is False and all(r['anonymous_execution_qualified'] is False for r in new['bindings']),
             'source transition cannot qualify execution or public readiness')
-    return {'status': 'source contract superseded; numerical target replay remains unqualified',
+    result = {'status': 'source contract superseded; numerical target replay remains unqualified',
             'predecessor_sha256': prepared['sha256'], 'active_contract_sha256': active['original_sha256'],
             'original_edges': 24, 'included_original_helpers': 1, 'interfaces': len(new['interfaces']),
             'B_numerical_replay_qualified': False, 'new_fits': 0, 'new_responses': 0}
+    if reporting_entry is not None:
+        result['B_descriptive_reporting_qualified'] = False
+        result['generated_report_qualified'] = False
+    return result
