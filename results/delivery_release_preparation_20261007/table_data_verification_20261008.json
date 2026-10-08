@@ -1,0 +1,168 @@
+{
+  "recorded_at_utc": "2026-10-08T08:18:38.273381+00:00",
+  "base_revision": "de01c6c7103867476d77fd987707dd2ab45da870",
+  "scope": "New read-only A/C table-data verification; no B outcomes, inference or fitting",
+  "source_hashes": {
+    "scripts/research/verify_delivery_table_data.py": "651ad0dd7d8f609a2739ca82410b7f4a8fefcf923c7efe98cd62eef76d99b479",
+    "scripts/research/test_delivery_table_data.py": "1a7394a23402b8b9dd8bdb9060e2851fba7a0f02f0c4fd44f0b18cb544585754",
+    "docs/development/guidance/reviews/delivery_table_data_review_2026-10-08.md": "8c22884583196b2a7b9a1dddd722de249dff07b30b5e2dcabf1ff7d58703526e",
+    "paper/aistats_ace_2027/paper.tex": "540351c05bd1e0cc57fcd0a9292a51bda12fb68665f1fa4d574d1c935fbdb39c"
+  },
+  "exclusive_custody": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-table-data-verification-20261008-03",
+  "custody_hashes": {
+    "freeze.json": "82f9b8f152ff8b0bbb177c5423d0c9f57761d793ba82edec458882a1cb34875e",
+    "execution.json": "1b8f9bf3c1a0b8403474384b38685bfd99940cbad23f9ca28c2486b387e0b26a",
+    "stdout.json": "693d6c1940b0138390319b916523a3ef9609484a7f8b27b0d12e24a63f75fb90",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "acceptance.json": "eb745a2d9378a9cb91114e6f563230d8c0d67c93f9b8aba83d025452c5588a84",
+    "verifier.py": "651ad0dd7d8f609a2739ca82410b7f4a8fefcf923c7efe98cd62eef76d99b479",
+    "tests.py": "1a7394a23402b8b9dd8bdb9060e2851fba7a0f02f0c4fd44f0b18cb544585754"
+  },
+  "freeze": {
+    "at": "2026-10-08T08:17:34.614381+00:00",
+    "source_sha256": "651ad0dd7d8f609a2739ca82410b7f4a8fefcf923c7efe98cd62eef76d99b479",
+    "test_sha256": "1a7394a23402b8b9dd8bdb9060e2851fba7a0f02f0c4fd44f0b18cb544585754",
+    "manifest_sha256": "0e477f833bda84866499e68a5155114c18d6c1d51312f583dadf3dd95fe8316c",
+    "package": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-anonymous-relocated-20261007-16",
+    "table_dir": "/Users/pat/code/ACE/paper/aistats_ace_2027",
+    "table_hashes": {
+      "delivery_attribution_table.tex": "a6f4834b5256d47c1f41b844346a5753b95edb170a905a83448c1447b662ce9e",
+      "delivery_history_table.tex": "12286aea9f3404e1290232f90fc6a15d66ba2fb5dcebdabb62d2c9b81709ed76",
+      "delivery_physical_table.tex": "05d1fb10c68cb560c4d71f1cb822373fe298bb93727f7be9c0e4c70f1a8a5d60"
+    },
+    "scope": "A/C table rows, headers and displayed data against bound original receipts; no inference or B access",
+    "threads": 1,
+    "numerical_replay": false,
+    "static_final_review_pending": false,
+    "prototype_predecessor": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-table-data-verification-20261008-01",
+    "prototype_counter_267_accepted": false,
+    "static_required_unresolved": 0,
+    "predecessor": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-table-data-verification-20261008-02",
+    "reviewer": "01a11a8c-e1df-7383-b728-cb55bad330f3"
+  },
+  "execution": {
+    "command": [
+      "/opt/homebrew/bin/python3.11",
+      "-B",
+      "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-table-data-verification-20261008-03/verifier.py",
+      "--root",
+      "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-anonymous-relocated-20261007-16",
+      "--expected-manifest-sha256",
+      "0e477f833bda84866499e68a5155114c18d6c1d51312f583dadf3dd95fe8316c",
+      "--table-dir",
+      "/Users/pat/code/ACE/paper/aistats_ace_2027"
+    ],
+    "cwd": "/tmp",
+    "exit_code": 0,
+    "elapsed_seconds": 0.03579704096773639,
+    "child_cpu_seconds": 0.032278,
+    "peak_child_rss_bytes": 27590656,
+    "peak_rss_platform": "Darwin ru_maxrss bytes",
+    "freeze_sha256": "82f9b8f152ff8b0bbb177c5423d0c9f57761d793ba82edec458882a1cb34875e",
+    "stdout_sha256": "693d6c1940b0138390319b916523a3ef9609484a7f8b27b0d12e24a63f75fb90",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scientific_acceptance": false,
+    "cost_scope": "Final single metadata child only; excludes prototypes, preparation, tests and review"
+  },
+  "verified_table_data": {
+    "tables_checked": 4,
+    "attribution_configuration_rows": 16,
+    "retained_history_rows": 12,
+    "physical_rows_per_table": 11,
+    "metric_scalar_fields_checked": 251,
+    "numeric_epoch_fields_checked": 12,
+    "numeric_display_fields_checked": 263,
+    "scope": "A/C table data and row order only; not captions, prose, F macros, B claims or model inference",
+    "manifest_sha256": "0e477f833bda84866499e68a5155114c18d6c1d51312f583dadf3dd95fe8316c",
+    "input_hashes": {
+      "A/gate.json": "a81d0ac51965f71123ecc915764cf18c8166537a1d69f1053d096dd36ed3310f",
+      "A/summary.json": "006ac3abf196892388445f1fee0a31ea9b54f01ef203b8899464ae426257d444",
+      "A/complete.json": "6a78f7a79306c43bbafef8ab3b202e7d1c80577e43bf8004370927514f061bb1",
+      "C/acceptance.json": "7aa22104c25b654adbd7aee909b0baa3ed45284424aff86371c2fb984476530f",
+      "C/scores.json": "0f2a080e8af99567fba9ac3e7d85df33b159c10984b6b9384ad88c0046d1ad14"
+    },
+    "table_hashes": {
+      "delivery_attribution_table.tex": "a6f4834b5256d47c1f41b844346a5753b95edb170a905a83448c1447b662ce9e",
+      "delivery_history_table.tex": "12286aea9f3404e1290232f90fc6a15d66ba2fb5dcebdabb62d2c9b81709ed76",
+      "delivery_physical_table.tex": "05d1fb10c68cb560c4d71f1cb822373fe298bb93727f7be9c0e4c70f1a8a5d60"
+    },
+    "verifier_sha256": "651ad0dd7d8f609a2739ca82410b7f4a8fefcf923c7efe98cd62eef76d99b479",
+    "new_fits": 0,
+    "new_optimizer_updates": 0,
+    "new_responses": 0,
+    "model_loads": 0,
+    "full_package_integrity_verified_here": false,
+    "public_release_ready": false
+  },
+  "acceptance": {
+    "at": "2026-10-08T08:17:34.651970+00:00",
+    "accepted_table_data_check": true,
+    "execution_sha256": "1b8f9bf3c1a0b8403474384b38685bfd99940cbad23f9ca28c2486b387e0b26a",
+    "stdout_sha256": "693d6c1940b0138390319b916523a3ef9609484a7f8b27b0d12e24a63f75fb90",
+    "freeze_sha256": "82f9b8f152ff8b0bbb177c5423d0c9f57761d793ba82edec458882a1cb34875e",
+    "source_sha256": "651ad0dd7d8f609a2739ca82410b7f4a8fefcf923c7efe98cd62eef76d99b479",
+    "test_sha256": "1a7394a23402b8b9dd8bdb9060e2851fba7a0f02f0c4fd44f0b18cb544585754",
+    "source_unchanged_after_execution": true,
+    "scope": "Only A/C table rows, headers, numeric formatting and original input digest bindings",
+    "metric_scalar_fields_checked": 251,
+    "numeric_epoch_fields_checked": 12,
+    "display_fields_checked": 263,
+    "static_required_unresolved": 0,
+    "prototype01_02_accepted": false,
+    "public_release_ready": false,
+    "B_claims_qualified": false
+  },
+  "review": {
+    "agent": "01a11a8c-e1df-7383-b728-cb55bad330f3",
+    "initial_required_findings": 4,
+    "first_recheck_additional_required": 1,
+    "required_unresolved": 0,
+    "static_only": true
+  },
+  "tests": {
+    "focused_methods": 9,
+    "pass": true,
+    "scope": "Fabricated omission, label, estimand and digest regressions"
+  },
+  "prototype_attempts": [
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-table-data-verification-20261008-01",
+      "accepted": false,
+      "hashes": {
+        "freeze.json": "e5066ff20b2c4003aff9e44de91b6beef6e55c76b857e71d6f5226b69aa86b7f",
+        "execution.json": "7a319862e1bd9031a412c928b8ea7c3e8f21cb63ef92f637376d9ef88d9ef8d2",
+        "stdout.json": "26ee3fe585aa6d1c89059474608d24bc67fbd6e8bcf7a6360c2779fbe26ce511",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "verifier.py": "a78bd6facef455019f8839464b548a6fc61764f8eed477766625646cf154b158",
+        "tests.py": "2949877395fe20989b73ec52a870e6370fcef74632ece98a80c1a7f53bdf1d23"
+      }
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-table-data-verification-20261008-02",
+      "accepted": false,
+      "hashes": {
+        "freeze.json": "6fe84644ad63dd94978226fc54c447a6f1050e175f7ba0f7d6a2f6ba76d9ffcc",
+        "execution.json": "6693c469028f37153ae14a12fa9e74f4af229d5caf7dac8bb2162884fc05cdac",
+        "stdout.json": "a19ff29038e8a3aef319733825234350aa74a797190b00c0ef251bfb58a62ebb",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "verifier.py": "e3e57c23429b48f0790e66fabda434244e5643988619bc5e5eb104418d6baa4b",
+        "tests.py": "67a624f01fa67228f33fa25cc41df457ec768495379c3e7ed77af2dcd98c22fe"
+      }
+    }
+  ],
+  "native_compile": {
+    "path": "/Users/pat/code/ACE/paper/aistats_ace_2027/paper.tex",
+    "status": "success",
+    "ten_companions_match": true,
+    "official_style_hashes_verified": true
+  },
+  "new_checker_in_existing_candidate": false,
+  "public_release_ready": false,
+  "final_integrated_review_complete": false,
+  "actual_B_outcomes_decoded_here": false,
+  "actual_B_performance_export": false,
+  "fresh_remote_state_observed": false,
+  "active03_submitted": false,
+  "curc_check_exit_code": 255,
+  "prior_reconnect_request_pending": true
+}

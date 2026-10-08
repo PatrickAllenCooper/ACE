@@ -2463,3 +2463,50 @@ reviewer_commands_preparation_20261008.json SHA
 d243e2da70fbc428aa1295ddcadfd3462aed8d9738295b657c7932bfce8f87ca and
 reviews/delivery_reviewer_commands_review_2026-10-08.md. Routine preparation
 and unchanged reconnect state do not warrant a repeated user notification.
+
+## October 8 08:01 wakeup — archived table-data verification
+
+Shared CURC master remains absent (local check255); the prior private reconnect
+request remains pending. No fresh remote statement, repeat notice, submission
+or change to active03 or accepted original B is made.
+
+Implemented a distinct read-only standard-library table checker to close the
+existing gap between archived macro reconstruction and displayed A/C table data.
+Five authenticated A/C metadata snapshots are checked against the independent
+candidate16 manifest and original gate/summary/complete/physical acceptance digest
+relationships. Exact row membership, order, four header schemas, numeric formats,
+CPU units, initialization/budget labels, snapped error and row-versus-block
+estimands are compared with the three current companion files (four tables).
+No checkpoint inference, accepted replay repeat or B outcome decoding occurs.
+
+One distinct bounded static reviewer found four initial required issues and one
+recheck issue, now fixed: unexamined rows/environments, missing header checks,
+missing acceptance-input bindings, incorrect counter and inconsistent identity
+C acceptance digests. Final recheck has zero required fixes. Nine focused
+fabricated methods pass. Frozen prototypes01/02 remain unaccepted, including the
+incorrect267 counter in01; they are not silently replaced.
+
+Final exclusive delivery-table-data-verification-20261008-03 reconstructs all four
+tables from an unrelated cwd with no displayed discrepancy:16 attribution rows,
+12 retained histories,11 conditions in each physical table,251 metric scalars
+plus12 numeric epoch fields (263 total). Source/input/table/freeze/execution and
+separate final acceptance hashes are preserved. The final child alone records
+0.032278 CPU seconds,0.03579704096773639 elapsed seconds,27590656 peak RSS bytes;
+preparation, prototypes, tests/reviews and full-sprint costs are outside that scope.
+
+The SAME open manuscript gains a scoped provenance paragraph; all ten companion
+and official style bindings match and native compilation passes. All35empirical
+macros, existing table bytes, theory and method figure are unchanged. Captions,
+prose, layout and final B integrated tables remain unverified by this checker.
+It is outside existing candidate manifests and needs a new release binding before
+inclusion; old pins do not authenticate new code. No original worker, receipt,
+private package, fit, response, optimizer or environment changed. This is not
+historical freeze proof, anonymous original training or public release readiness.
+
+Evidence table_data_verification_20261008.json SHA
+91e705ec0ca1588c3e3085f83e234d20b04dbb114b3f7fac344fb8de6b3ef5a2 and
+reviews/delivery_table_data_review_2026-10-08.md. Do not repeat this completed
+table check or review as busywork. Exact-runtime supervised B replay, original
+plus descriptive prospective reporting, integrated proof/prose/visual review,
+all-phase accounting, anonymity/redistribution and human approval remain open.
+Routine local preparation and unchanged reconnect status warrant no notification.

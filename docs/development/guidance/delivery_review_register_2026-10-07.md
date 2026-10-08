@@ -777,3 +777,27 @@ Review: reviews/delivery_reviewer_commands_review_2026-10-08.md; evidence:
 reviewer_commands_preparation_20261008.json. Do not repeat this completed guide
 review or static checks as busywork. SSH absence remains unchanged; no new fit
 is required. All prospective integrated and human approval gates remain open.
+
+## October 8 archived A/C table-data verification
+
+One new narrow static review of the table verifier found four initial defects
+and one recheck defect, now all closed. Hidden rows/unsupported environments,
+header/units, original acceptance-input bindings, identity/projection digest
+semantics and correct displayed-field counts have focused regression coverage;
+nine fabricated methods pass. Final reviewer recheck reports zero required fixes.
+This is distinct from the completed checkpoint replays and seven-command guide.
+
+Final exclusive attempt03 verifies four actual A/C tables against independently
+pinned receipts from an unrelated cwd:16 configuration rows,12 histories,11
+conditions per physical table,251 metric scalars plus12 numeric epoch fields.
+Attempts01/02 are preserved unaccepted. No table data, model, fit, response, B
+outcome or existing package changed. The SAME manuscript gains a scoped
+provenance paragraph and compiles; all ten companion/style bindings match.
+
+Source/test/receipt lineage and single-command telemetry are bound in
+table_data_verification_20261008.json; disposition is in
+reviews/delivery_table_data_review_2026-10-08.md. New checker bytes lie outside
+existing manifests and need a new release binding before inclusion. No captions,
+prose/layout, final B claims or public readiness are certified. Do not repeat
+this completed review/check as busywork; supervised B replay and final integrated
+science/proof/prose/visual/accounting/anonymity/human gates remain mandatory.
