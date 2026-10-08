@@ -2673,3 +2673,45 @@ bindings after supervised replay. Exact-runtime03, original/descriptive report
 integration, scientific/proof/prose/page visuals/accounting/anonymity and human
 approval remain open. Routine local preparation and unchanged reconnect status
 warrant no notification; do not repeat this completed snapshot review/tests.
+
+## October 8 13:05–15:15 wakeup — fixture location interface
+
+Shared master remains absent at the latest continuation check (255/missing
+socket). The prior private reconnect request stands. No current remote state is
+inferred; active03 remains unsubmitted and its package/source are unchanged.
+
+Implemented a narrow source-only interface for the original B model/IO development
+fixtures. It authenticates the pinned original24-project/19-learner closure,
+including independently fixed original fixture hashes. Exactly two model-fixture
+location RHS expressions now require an explicit project/source layout root;
+all other bytes, functions/classes/assertions and original workers/guards remain
+unchanged. IO remains byte-identical. Original and derived bytes have separate
+hashes/custody; private original expressions are not an anonymous public artifact.
+
+Five new fabricated source/AST methods pass without executing their source
+sentinels or any scientific fixture. One distinct bounded implementation/static
+source review independently checks original Git fixture identities and the exact
+two-expression byte oracle, with zero required findings. No prior component
+test/review/replay repeats. Actual unrelated-cwd source preparation verifies all
+43 original objects and the independent actual-source byte oracle. Four emitted
+source objects are bound in delivery-fixture-location-sources-20261008-01,
+contractSHA35a628be79266b5a58fad1a5f3287f484c10169bf99bba55f007d7f77634934c.
+The test-only preparation01 and actual preparation02 retain distinct evidence.
+
+Final actual source preparation/oracle alone uses0.014232process CPU seconds,
+0.018705292022787035elapsed seconds and22872064peak process RSS bytes; excludes
+tests/review/implementation/monitoring, with no whole-sprint cost inference.
+Receipt fixture_locations_preparation_20261008.json SHA
+0235179afd23a1ab6f38c1d8e9f8ddd535fa901a7ee6a585b8f4fddd268885bc;
+see delivery_fixture_locations_2026-10-08.md and corresponding review.
+
+Original fixture imports still precede their location declarations. Authenticated
+imports, cached-module rejection, explicit absolute layout root, exact target
+runtime and execution authorization remain open. No fixture execution command
+is offered; source preservation does not qualify original charging/training
+behavior or anonymity. Remaining batch/audit/collection/training location and
+guard contracts need distinct implementation. No scientific score/model/response,
+fit/update/allocation, manuscript or frozen-package mutation occurred. Exact
+runtime03, both report interfaces, final lineage/integrated science/proofs/prose/
+page visuals/accounting/anonymity/human approval remain mandatory. Routine
+preparation and unchanged pending reconnect warrant no notification.

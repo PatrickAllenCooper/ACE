@@ -889,3 +889,30 @@ publication_snapshot_preparation_20261008.json. Prototypes01/02 remain custody
 evidence. This is not target numerical qualification, final anonymity, page
 layout or release approval. Shared master remains absent/prior reconnect pending;
 no new experiment, submission or manuscript edit. Final integrated gates remain.
+
+## October 8 original fixture location preparation
+
+R7 now has a narrow source-only location derivation for the original B model/IO
+development fixtures. Exactly two model-fixture location expressions change to
+an explicit layout root; every other source byte/assertion remains unchanged,
+and IO is an identity copy. All24 project/19 learner closure objects authenticate
+before output. A distinct bounded review independently checks frozen Git fixture
+hashes and byte derivation; zero required findings. Five new fabricated source/AST
+methods pass. No scientific fixture, prior test or replay executes.
+
+Actual private four-source output contract is
+35a628be79266b5a58fad1a5f3287f484c10169bf99bba55f007d7f77634934c.
+See delivery_fixture_locations_2026-10-08.md,
+reviews/delivery_fixture_locations_review_2026-10-08.md and
+fixture_locations_preparation_20261008.json. Test preparation01 and actual
+preparation02 are separate. Originals/private path expressions remain private;
+no source guard, fit, response, manuscript, replay input or launch03 changes.
+
+This closes only the two-expression source derivation, not fixture execution,
+authenticated imports, cached-module/runtime guards, anonymous original training,
+or public readiness. Original imports precede location declarations, so runtime
+execution remains deliberately unqualified. Further guard/location contracts,
+single exact-runtime03 replay after reconnect, final B reporting/lineage and
+integrated science/proof/prose/page visuals/accounting/anonymity/human gates remain.
+Do not repeat this completed source check/review as busywork. The prior private
+reconnect request remains pending; no repeated notice is needed.
