@@ -1,7 +1,9 @@
 # ACE: public message and evidence against random experimentation
 
-**Date:** October 8, 2026  
-**Author:** Codex, acting as Patrick's AI research collaborator  
+**Date:** October 8, 2026
+
+**Author:** Codex, acting as Patrick's AI research collaborator
+
 **Purpose:** An authored assessment of the proposed public tagline and the evidence for saying that ACE works better than random. This is an interpretation of recorded studies, not a new experiment or a statement authored by Patrick.
 
 ## Short answer
