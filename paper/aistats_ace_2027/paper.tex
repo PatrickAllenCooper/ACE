@@ -2534,6 +2534,26 @@ extrapolation, identification or error-bound certification.}
 \label{fig:delivery-procedure}
 \end{figure}
 \end{filecontents*}
+% delivery_evaluation_design.tex: SHA256 63b47344c77ff7891b250db15f2ab2f322a76ddf0e1eecd72292a6f7c17d4736
+\begin{filecontents*}[overwrite]{delivery_evaluation_design.tex}
+% Design summary only; no prospective performance values.
+\begin{table}[ht]
+\centering\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{0.10\linewidth}p{0.23\linewidth}p{0.34\linewidth}p{0.25\linewidth}}
+\toprule
+Study & Reporting unit & Evaluation and scale & Initialization summary\\
+\midrule
+Confirmation & Paired histories of one fixed emulator & Previously exposed discrete grid; snapped exact-level error & Median of three scored initializations; sensitivity summary\\[4pt]
+Attribution (A) & The same archived histories; exploratory contrasts & The same exposed grid; continuous NMSE using grid target variance & Initialization zero primary; one and two for sensitivity\\[4pt]
+Prospective (B) & Independent system within each specified family; two histories paired within system & Reserved joint root-action blocks; continuous NMSE using the corresponding training-history target variance & Initialization zero for deployment; one and two for sensitivity\\[4pt]
+Physical (C) & Condition-specific assessment of one apparatus; no independent-world tests & Held-out joint angle blocks; continuous NMSE using each condition's training target variance & Initialization zero for neural fits; fixed linear controls\\
+\bottomrule
+\end{tabular}
+\caption{The studies assess different endpoints, evaluation supports and reporting units. Scored initialization summaries are not deployable selection rules. Conditions, rows and repeated initializations do not supply additional independent systems. Prospective performance remains unreported pending supplemental reproduction qualification.}
+\label{tab:evaluation-design}
+\end{table}
+\end{filecontents*}
 % END EDITOR COMPANION BUNDLE
 \documentclass[10pt]{article}
 \usepackage{tmlr}
@@ -2563,8 +2583,9 @@ collection ends. We investigate whether retaining and refitting a completed
 experimental history improves the resulting causal surrogate, and which parts
 of the delivery procedure account for that change. A completed confirmation on
 one fixed deterministic emulator covers \DeliveryN{} acquisition histories:
-refitting all eligible paid observations reduces geometric mean snapped
-exact-level error to \DeliveryRatio{} times the online learner's error
+the median snapped exact-level error over three scored refit initializations
+on all eligible paid observations is \DeliveryRatio{} times the online learner's
+error in geometric mean across histories
 (95\% interval \DeliveryCILow{}--\DeliveryCIHigh{}), with
 \DeliveryWins{} histories improving. This comparison combines data reuse and
 additional optimization; it does not identify an architecture effect or an
@@ -2701,7 +2722,10 @@ Nonfinite predictions are invalid for scientific acceptance.
 It is secondary for genuinely quantized targets outside the archival confirmation;
 it is not interchangeable with continuous prediction error. We distinguish
 exposed-grid assessment, which includes acquired inputs, from action-block
-holdout evaluation.
+holdout evaluation. Table~\ref{tab:evaluation-design} summarizes the endpoints,
+reporting units and initialization rules; these distinctions prevent pooling
+histories, systems and physical conditions into a single evidence population.
+\input{delivery_evaluation_design}
 
 \section{Related work}
 \label{sec:related}

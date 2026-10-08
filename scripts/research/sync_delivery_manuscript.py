@@ -16,7 +16,7 @@ END = '% END EDITOR COMPANION BUNDLE'
 FILES = ('tmlr.sty', 'fancyhdr.sty', 'tmlr.bst', 'delivery_references.bib',
          'delivery_claims.tex', 'delivery_attribution_table.tex',
          'delivery_history_table.tex', 'delivery_physical_table.tex', 'delivery_theory.tex',
-         'delivery_method_diagram.tex')
+         'delivery_method_diagram.tex', 'delivery_evaluation_design.tex')
 
 
 def bundled():

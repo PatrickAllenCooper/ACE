@@ -823,3 +823,24 @@ reviews/delivery_caption_review_2026-10-08.md. Do not repeat this completed
 caption check or regeneration; final integrated B claims/proofs/prose/layout,
 accounting/anonymity/human approval remain open. SSH is still absent, the prior
 reconnect request stands, and active03 is not submitted.
+
+## October 8 evaluation-design map and abstract summary
+
+A new qualitative table aligns existing endpoints, reporting units, evaluation
+supports, normalizers and initialization rules across confirmation/A/B/C. The
+abstract now explicitly names the confirmation's median of three scored refit
+initializations. A new bounded source-consistency review finds zero required
+fixes; this is not another numerical or broad scientific review. No B performance
+claim or new selection/inferential rule is introduced.
+
+All35 empirical macros, prior result tables/index, theory/bibliography and method
+figure are byte-unchanged. The SAME manuscript embeds eleven companions, retains
+official TMLR style hashes and compiles natively. New table/manuscript bytes need
+new final release bindings; active03/package and original receipts/workers remain
+unchanged. No new fit, inference, response or allocation occurs.
+
+See reviews/delivery_evaluation_design_review_2026-10-08.md and
+evaluation_design_preparation_20261008.json. Do not repeat this completed narrow
+check. Actual B replay/report integration and final scientific/proof/prose/page
+layout/accounting/anonymity/human submission review remain open; the prior
+reconnect request remains pending without a repeated notice.

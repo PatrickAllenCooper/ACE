@@ -2556,3 +2556,38 @@ reviews/delivery_caption_review_2026-10-08.md. Do not repeat this completed
 caption review/regeneration as busywork. Supervised B replay, result integration,
 final scientific/proof/prose/visual/accounting/anonymity/human gates remain open.
 Routine writing corrections and unchanged reconnect state warrant no notification.
+
+## October 8 10:04 wakeup — evaluation-design reading map
+
+Shared master remains absent (local check255); the prior reconnect request
+stands. No repeat notice, fresh scheduler claim, remote action or new submission.
+Original B and active03/package remain unchanged; exact-runtime supplemental
+replay still precedes prospective performance integration.
+
+Added a qualitative evaluation-design map to the SAME manuscript. It aligns
+the four study lanes with their actual reporting units, exposed versus held-out
+support, grid versus training-variance normalization and initialization rules.
+The confirmation headline in the abstract now explicitly describes the median
+of three scored refit initializations rather than leaving that fact to its
+results section. These are existing endpoint definitions and scope distinctions,
+not new results, inference or model selection. No population pooling is implied.
+
+One new narrow source-consistency reviewer reports zero required fixes, limited
+to the design map and abstract sentence. No old broad review, numerical replay
+or table check is repeated. The new companion is embedded by the existing sync
+utility; all eleven companions and official style hashes match and native
+compilation succeeds. All35 empirical macro bytes, current result tables/claim
+index, bibliography, theory and method figure remain identical to62d4f27a.
+No fits, model loads, optimizer updates, responses, B scores or allocations.
+Writing/review/compile CPU remains unmetered and is not inferred as sprint cost.
+
+The new companion/manuscript bytes need new final release bindings; no existing
+candidate, original worker or receipt is modified. Page-level layout, final
+integrated results/proofs/prose/visual review and human approval remain open.
+Evidence evaluation_design_preparation_20261008.json SHA
+4efeeec2562f8fd5419d672f9de9f21051db3b4e0ffc10da1ae50d12e2ec8824 and
+reviews/delivery_evaluation_design_review_2026-10-08.md. Do not repeat this
+completed source check as busywork. Restore transport and authenticate remote
+package/job03 bytes before the once-only supervised replay, then complete the
+already prepared original/descriptive reporting and final submission gates.
+Routine writing preparation and unchanged reconnect status warrant no notice.
