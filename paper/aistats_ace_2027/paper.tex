@@ -2201,7 +2201,7 @@ EXECUTE {end.bib}
 \newcommand{\CFourierWins}{0}
 \newcommand{\CCPU}{0.053}
 \end{filecontents*}
-% delivery_attribution_table.tex: SHA256 a6f4834b5256d47c1f41b844346a5753b95edb170a905a83448c1447b662ce9e
+% delivery_attribution_table.tex: SHA256 47d6bf0a4628897b68582b7ace91dae77e1b31e2b7d9965caca35f0aaf2ceee6
 \begin{filecontents*}[overwrite]{delivery_attribution_table.tex}
 % Generated exploratory init0 matrix; no inference from exposed grid.
 \begin{table}[ht]
@@ -2228,11 +2228,11 @@ All paid & tree & -- & 24.582 & 3.883 & 0.004\\
 All paid & flat & CPU & 1.234 & 1.206 & 1.455\\
 \bottomrule
 \end{tabular}
-\caption{Exploratory primary initialization0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights; lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding imports and evaluation. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}
+\caption{Exploratory primary initialization0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights; lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding evaluation and imports performed before the fit timer. Classical-library imports inside the timer remain included. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}
 \label{tab:attribution}
 \end{table}
 \end{filecontents*}
-% delivery_history_table.tex: SHA256 12286aea9f3404e1290232f90fc6a15d66ba2fb5dcebdabb62d2c9b81709ed76
+% delivery_history_table.tex: SHA256 f236205aeebecf7e43123c23644eb6730c16677dfc0895521fce97bf4a25c35a
 \begin{filecontents*}[overwrite]{delivery_history_table.tex}
 % Generated from accepted fixed-init0 attribution rows; no selection.
 \begin{table}[ht]
@@ -2255,11 +2255,11 @@ History & Online NMSE & SCM NMSE & Flat NMSE & SCM/admitted & SCM snap\\
 884825602 & 0.003601 & 0.001272 & 0.002688 & 0.939 & 0.020\\
 \bottomrule
 \end{tabular}
-\caption{Every archived history at fixed initialization zero. SCM and flat use all paid rows and 30,000 updates; admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history124753321 and are not prospective tests.}
+\caption{Every archived history at fixed initialization zero. SCM and flat draw their respective eligible subsets from the same paid history and use 30,000 full-batch updates per SCM head and for the flat model. A mechanism head excludes rows that clamp that mechanism; the root-to-target flat fit excludes rows that clamp any nonroot node. Admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history124753321 and are not prospective tests.}
 \label{tab:attribution-histories}
 \end{table}
 \end{filecontents*}
-% delivery_physical_table.tex: SHA256 05d1fb10c68cb560c4d71f1cb822373fe298bb93727f7be9c0e4c70f1a8a5d60
+% delivery_physical_table.tex: SHA256 32e6e6c65980169bfb2e79f5e474f24bb67d0ae9f7c915463746ed7b214c95de
 \begin{filecontents*}[overwrite]{delivery_physical_table.tex}
 % Generated from the fully accepted eleven-condition physical receipt.
 \begin{table}[ht]
@@ -2281,7 +2281,7 @@ white\_128 & 0.163 & 0.462 & 0.044 & 0.042\\
 white\_255 & 0.020 & 0.023 & 0.006 & 0.002\\
 \bottomrule
 \end{tabular}
-\caption{Continuous held-out MSE divided by the training variance for every physical condition. Lower is better. These conditions are readings of one apparatus, not independent systems.}
+\caption{Continuous held-out MSE divided by the training variance for all eleven evaluation conditions, excluding development condition \texttt{white\_64}. Lower is better. These conditions are readings of one apparatus, not independent systems.}
 \label{tab:physical}
 \end{table}
 \begin{table}[ht]
@@ -2840,7 +2840,8 @@ comparison does not isolate a pure architecture effect with identical usable
 rows, nor prove general causal identifiability. Matched fit CPU includes every
 SCM head, including the communication-cost branch that does not feed the scored
 target. The complete matrix consumed \AFitCPU{} fit CPU-core-hours; this excludes
-process startup, imports and evaluation. Table~\ref{tab:attribution} retains all
+process startup, evaluation and imports completed before each head's timer.
+Classical-library imports within the timer remain included. Table~\ref{tab:attribution} retains all
 primary configurations; initialization sensitivity is preserved separately.
 SCM/flat continuous ratios for initializations one and two are
 \AFlatInitOneRatio{} and \AFlatInitTwoRatio{}; neither changes the primary
@@ -2961,8 +2962,8 @@ and conditional uncertainty are reported in Tables~\ref{tab:physical} and
 row-weighted NMSE than rolling-buffer fitting in \CRollingWins{} conditions,
 than the physics fit in \CPhysicsWins{}, and than Fourier regression in
 \CFourierWins{}. These are descriptive counts, not independent-world tests.
-The study consumed \CCPU{} fit/evaluation CPU-core-hours, excluding imports
-and startup, and acquired no physical responses. All fits were sealed before
+The study consumed \CCPU{} fit/evaluation CPU-core-hours, excluding startup
+and imports completed before the phase timers, and acquired no physical responses. All fits were sealed before
 held-out losses were computed. Fourier regression outperforming delivery in
 every condition rules out an external advantage over that control here; the
 fixed domain-informed control provides better predictions. This case contains one
@@ -3143,7 +3144,7 @@ random state zero and one worker. The flat MLP uses the same width and optimizer
 as a mechanism head. Configurations and the simpler-control selection were
 fixed using the earlier development history. The matched-CPU flat control
 receives the sum of the corresponding all-paid long SCM heads' fit process
-time, excluding imports and evaluation. Its update count varies and is retained;
+time, excluding evaluation and imports completed before each head's timer. Its update count varies and is retained;
 it is not presented as another 30,000-update cell. The full matrix contains
 480 fits, including the two budgets, three row sets and initialization
 sensitivity cells, plus the fixed classical and matched-CPU controls.
@@ -3255,7 +3256,9 @@ infer a whole-project CPU total by adding elapsed time, reservations, fit proces
 CPU and scheduler allocation. Replay, packaging and review measurements cover
 their identified runs only.
 Stage A records \AFitCPU{} fit CPU-core-hours and the physical study
-\CCPU{} fit/evaluation CPU-core-hours, with imports and startup excluded.
+\CCPU{} fit/evaluation CPU-core-hours. These measurements exclude startup
+and imports completed before the respective timers; classical-library imports
+inside the attribution fit timers remain included.
 The prospective qualification failure charged 126 allocated CPU-seconds;
 the successful replacement charged 119. Both remain in the final allocation
 accounting. Requested reservation, process CPU and supervised elapsed time are

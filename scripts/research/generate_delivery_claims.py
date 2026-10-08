@@ -82,7 +82,7 @@ if attribution.exists():
             f" & {c['delivery']['nmse']/c['unused_observations_ablation']['nmse']:.3f}"+
             f" & {1-c['delivery']['exact']:.3f}\\\\")
     diagnostic_lines+=['\\bottomrule','\\end{tabular}',
-        '\\caption{Every archived history at fixed initialization zero. SCM and flat use all paid rows and 30,000 updates; admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history124753321 and are not prospective tests.}',
+        '\\caption{Every archived history at fixed initialization zero. SCM and flat draw their respective eligible subsets from the same paid history and use 30,000 full-batch updates per SCM head and for the flat model. A mechanism head excludes rows that clamp that mechanism; the root-to-target flat fit excludes rows that clamp any nonroot node. Admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history124753321 and are not prospective tests.}',
         '\\label{tab:attribution-histories}','\\end{table}']
     (ROOT/'paper/aistats_ace_2027/delivery_history_table.tex').write_text('\n'.join(diagnostic_lines)+'\n')
     lines=['% Generated exploratory init0 matrix; no inference from exposed grid.',
@@ -101,7 +101,7 @@ if attribution.exists():
                      f"{values['geomean_nmse_ratio_online']:.3f} & {values['geomean_snapped_ratio_online']:.3f} & "
                      f"{cpu}\\\\")
     lines+=['\\bottomrule','\\end{tabular}',
-            '\\caption{Exploratory primary initialization0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights; lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding imports and evaluation. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}',
+            '\\caption{Exploratory primary initialization0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights; lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding evaluation and imports performed before the fit timer. Classical-library imports inside the timer remain included. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}',
             '\\label{tab:attribution}','\\end{table}']
     (ROOT/'paper/aistats_ace_2027/delivery_attribution_table.tex').write_text('\n'.join(lines)+'\n')
     attribution_index={'gate_sha256':digest(gate_path),'summary_sha256':digest(attribution/'summary.json'),
@@ -136,7 +136,7 @@ if physical.exists():
     for condition,v in scored['conditions'].items():
         lines.append(condition.replace('_','\\_')+' & '+' & '.join(cell(v['nmse'][key]) for key in ('delivery',)+controls)+'\\\\')
     lines+=['\\bottomrule','\\end{tabular}',
-            '\\caption{Continuous held-out MSE divided by the training variance for every physical condition. Lower is better. These conditions are readings of one apparatus, not independent systems.}',
+            '\\caption{Continuous held-out MSE divided by the training variance for all eleven evaluation conditions, excluding development condition \\texttt{white\\_64}. Lower is better. These conditions are readings of one apparatus, not independent systems.}',
             '\\label{tab:physical}','\\end{table}',
             '\\begin{table}[ht]','\\centering\\scriptsize','\\begin{tabular}{lrrr}',
             '\\toprule','Condition & Delivery/Rolling & Delivery/Physics & Delivery/Fourier\\\\','\\midrule']

@@ -2510,3 +2510,49 @@ table check or review as busywork. Exact-runtime supervised B replay, original
 plus descriptive prospective reporting, integrated proof/prose/visual review,
 all-phase accounting, anonymity/redistribution and human approval remain open.
 Routine local preparation and unchanged reconnect status warrant no notification.
+
+## October 8 09:04 wakeup — caption eligibility and CPU scope
+
+Shared transport still fails with no local master; the prior reconnect request
+remains pending. No new remote claim, repeated notice, submission or modification
+of active03/package occurs. The exact-runtime replay gate remains outstanding.
+
+The completed table-data checker explicitly excluded captions. A new source-only
+caption check found that saying SCM and flat use all paid rows obscured their
+different eligible subsets. The generated per-history caption now states each
+mask and30,000 full-batch updates per SCM head and for the flat model. A distinct
+bounded reviewer additionally identified ambiguous CPU/import wording and the
+physical development-condition exclusion. All are corrected; final static
+recheck reports zero required fixes in this caption/timer scope. The fourth
+conditional physical caption remains unchanged. This is not another numerical
+table or checkpoint replay and does not close full integrated manuscript review.
+
+In the unchanged A worker, classical-library imports happen inside the per-head
+timer, whereas NumPy/torch/learner imports precede it. Recorded CPU includes that
+classical import work. Captions and associated main/appendix prose now exclude
+only imports completed before the respective timer, startup and evaluation as
+appropriate. Physical costs refer to phase timers. No historical number is
+changed and no import cost is subtracted. The physical caption explicitly
+reports eleven evaluation conditions excluding development white_64.
+
+Three generator caption literals and corresponding cost prose change; final
+metadata regeneration retains all35 empirical macro bytes. The claim index
+differs only in its generator digest. Every table's non-caption bytes, including
+headers, row order, numeric values and labels, match the previously verified
+versions exactly; fourth-caption bytes also match. The prior table-data receipt
+is unchanged with its original hashes. Exclusive caption-correction01/02 source,
+before/after bytes, logs, freeze and execution lineage are retained. Final02
+child alone records0.026644CPU seconds,0.030141833005473018elapsed seconds and
+21610496peakRSS bytes, excluding predecessor/editing/comparisons/review/compile.
+No model load, optimization, fit, new response, B result access or allocation.
+
+The SAME manuscript's ten companion/style bindings match and native compile
+passes. Current generator/index/caption hashes need new final release bindings;
+old candidate manifests do not cover these updates. Original workers, receipts
+and private packages remain unchanged; never alter active03 for a prose change.
+Evidence caption_reporting_preparation_20261008.json SHA
+1e349e2bec075f54201cecdb84bb36bcb4d79d3105ae56fc42a00a0fb2eb36c1 and
+reviews/delivery_caption_review_2026-10-08.md. Do not repeat this completed
+caption review/regeneration as busywork. Supervised B replay, result integration,
+final scientific/proof/prose/visual/accounting/anonymity/human gates remain open.
+Routine writing corrections and unchanged reconnect state warrant no notification.

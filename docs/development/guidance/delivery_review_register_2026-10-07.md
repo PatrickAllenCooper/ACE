@@ -801,3 +801,25 @@ existing manifests and need a new release binding before inclusion. No captions,
 prose/layout, final B claims or public readiness are certified. Do not repeat
 this completed review/check as busywork; supervised B replay and final integrated
 science/proof/prose/visual/accounting/anonymity/human gates remain mandatory.
+
+## October 8 A/C caption and timer semantics
+
+A new narrow source-only caption review, distinct from the numeric/header audit,
+corrects eligible-subset wording, full-batch updates per head, pre-timer versus
+within-timer imports and physical development-condition exclusion. Final reviewer
+recheck has zero required fixes. The actual A timer includes classical-library
+imports; no cost number or frozen matched-budget rule is changed or adjusted.
+Associated main/appendix cost prose is consistent with this scope.
+
+Final regeneration changes three captions and the generator digest in the claim
+index only. All35 empirical macro bytes, all table headers/rows/numeric fields,
+labels and the fourth caption remain unchanged. Previous table-data acceptance
+and all original workers/receipts/packages remain unchanged; new current outputs
+need new release bindings. Exclusive01/02 preparation and final execution scope
+are preserved. The SAME ten-companion manuscript compiles natively.
+
+Evidence caption_reporting_preparation_20261008.json and
+reviews/delivery_caption_review_2026-10-08.md. Do not repeat this completed
+caption check or regeneration; final integrated B claims/proofs/prose/layout,
+accounting/anonymity/human approval remain open. SSH is still absent, the prior
+reconnect request stands, and active03 is not submitted.
