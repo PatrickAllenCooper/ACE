@@ -1,10 +1,52 @@
 # Supplemental replay failure and runtime recovery proposal
 
-**Current state at October 8, 18:49 UTC:** Patrick approved the bounded search,
-one isolated preparation and one further replay. Preparation33556219 failed
-before any installer or environment creation. The further replay is unsubmitted;
-a second preparation requires a new decision. See the current section below.
+**Current state after October 8, 19:10 UTC:** Patrick approved the corrected
+second preparation. Job33560677 installed the isolated environment and passed
+pipcheck, then failed module provenance qualification. No successful runtime
+receipt or numerical replay exists. The single further replay remains approved
+and unused; no further installation is authorized. See the latest section below.
 Earlier unapproved-proposal wording records the historical state.
+
+## Latest corrected preparation33560677
+
+Patrick's direct approval covers one corrected1CPU/3GiB/30minute preparation
+and the existing single further1CPU/3GiB/15minute inference-only replay.
+Reservation88.368333core-hours is within150. New06 freeze76b601ef preserves
+reviewed proposal05 source; exclusive journals submitted33560677 exactly once.
+
+The node resolved both base spellings to the same approved Python3.11 ELF,
+with expected bytes. Venv/bootstrap/exact-six installation/pipcheck completed0.
+The captured qualifier then rejected fileless module
+`torch._C._dynamo.autograd_compiler`, after its unique metadata/actual import
+version/origin checks. No qualification or full environment inventory receipt
+was emitted. Do not treat completed installation as qualified numerical replay.
+
+All15 terminal objects match independent remote hashes in exclusive external
+custody delivery-runtime-preparation-job33560677-failed-20261008-01. Compact
+repository disposition failed33560677/failure_disposition.json SHA
+6de8dc6ccfe502b05cb9262a25e9fd5890c23610b02d676ef48e094f8ad52108.
+Actual resources matched freeze; FAILED1:0,169allocatedseconds, TotalCPU65.454
+seconds and batchMaxRSS642936KiB. Known allocated original/pilots/failedreplay/
+preparations=119284seconds=33.13444444444445core-hours; not whole-sprintCPU.
+
+Installed environment remains at
+`/scratch/alpine/paco0228/ACE/envs/delivery_replay_py311_20261008_02`.
+No further installs, fits, updates, responses or replay submissions occurred.
+Unused replay requires a NEW independently pinned source/runtime/input/resource
+freeze, current imported dependency/provenance validation and successful runtime
+qualification before any saved-checkpoint inference. Preserve both failed
+preparations and failed original replay; do not weaken guards or blind retry.
+
+Static upstream evidence explains a naming distinction to investigate in that
+new verifier: PyTorch2.9.1 defines a module named autograd_compiler but attaches it
+under compiled_autograd. See the authoritative
+[binding initialization](https://raw.githubusercontent.com/pytorch/pytorch/v2.9.1/torch/csrc/dynamo/init.cpp)
+and [module definition](https://raw.githubusercontent.com/pytorch/pytorch/v2.9.1/torch/csrc/dynamo/python_compiled_autograd.cpp).
+The installed compiled_autograd.pyi is consistent with that attribute name.
+This source evidence is not a successful live object-identity check; any derived
+alias handling must authenticate the actual native parent/backing bytes and
+reject substitutions. The older wrapper04 prototype also needs the independent
+review's live-import/search-path checks; it is unsubmitted and unqualified.
 
 ## Validated state at October 8, 16:10 UTC and subsequent diagnostics
 

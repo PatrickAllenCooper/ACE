@@ -963,3 +963,22 @@ numerical replay, current writing or anonymity/public readiness. Partial build02
 is retained. See delivery_runtime_preparation_review_2026-10-08.md and
 results/delivery_runtime_recovery_20261008. Prior component checks not repeated;
 original/descriptive B reporting and all integrated/human gates remain open.
+
+## October 8 public claims assessment and corrected preparation disposition
+
+New user-requested authored assessment in docs/ACE_evidence_and_public_claims_2026-10-08.md
+distinguishes historical acquisition-versus-random evidence from current delivery
+comparisons. Distinct read-only Volta review: zero required factual/statistical/
+public-scope fixes. Secondary random result, failed primary coverage gate, stronger
+value controls, unresolved scoring ablation and graph-family limits retained;
+no B performance claim. See reviews/ace_public_claims_review_2026-10-08.md.
+
+Direct approval allowed one corrected preparation33560677, submitted once and
+FAILED1:0 after169allocatedseconds. Installer/pipcheck completed; module closure
+rejected torch._C._dynamo.autograd_compiler after six dependency checks. No
+qualified runtime receipt/inventory or numerical replay. All15raw terminal
+objects verified in exclusive external custody; disposition6de8dc6c is in
+results/delivery_runtime_recovery_20261008/failed33560677. Reservation88.368333
+and known allocation33.13444444444445core-hours have different scopes. No further
+installation authorized; single further replay approved/unused, requiring new
+source/runtime/input/resource freeze and successful qualification before models.

@@ -2785,3 +2785,40 @@ Partial build02 is retained; no numerical replay, reports, manuscript/schedule/
 public changes. Evidence results/delivery_runtime_recovery_20261008; disposition
 SHA93d41f48080f3c654274925f96047634ba565555f46949968af42aa7c46ea0dc.
 See current recovery guidance and review. Await new decision; all final gates remain.
+
+## October 8 direct approval, preparation33560677 and public evidence assessment
+
+Patrick's direct “I approve all of the above” authorizes the proposed second
+isolated CPU preparation and the already-unused single further inference-only
+replay. Reservation88.368333core-hours remains below150; no third installation
+or additional replay is authorized. Reviewed proposal05 source was preserved in
+new approved06 freeze76b601ef; exclusive journals submitted33560677 once.
+
+Actual accountucb736_asc1/acpu/cpu-normal/1CPU/3GiB/30minutes/zeroGPU matched.
+Node canonicalization and base/executingELF SHA89ed4dcb match. The environment
+was created; bootstrap/install/pipcheck completed0. Qualification then failed
+on unexplained fileless module torch._C._dynamo.autograd_compiler. Captured
+qualifier control flow places this rejection after all six unique metadata/
+actual-import version/origin checks, but neither qualification nor inventory
+receipt was written. This is NOT successful runtime or numerical qualification.
+No model inference, fits, updates or new responses; further replay unsubmitted.
+
+All15 terminal objects, including installer report and full logs, independently
+hash-match exclusive external custody delivery-runtime-preparation-job33560677-
+failed-20261008-01. Repository failed33560677/failure_disposition.json SHA
+6de8dc6ccfe502b05cb9262a25e9fd5890c23610b02d676ef48e094f8ad52108
+records FAILED1:0,169allocatedCPU-seconds, SlurmTotalCPU65.454seconds,
+batchMaxRSS642936KiB, worker elapsed157.5941399930016seconds and reaped-child
+CPU65.195753seconds. Known original/pilots/failedreplay/two preparations total
+119284allocatedseconds=33.13444444444445core-hours; whole-sprintCPU unknown.
+Do not add overlapping fitCPU/wall or parent/batch/extern costs.
+
+The user separately requested an authored Markdown justification of “better
+than random” and the public tagline. docs/ACE_evidence_and_public_claims_2026-10-08.md
+compares recorded historical acquisition studies, stronger controls and current
+delivery evidence. Read-only extraction of80historical shift cells confirms
+published final means/19of20random wins/budgets/system parity; no hypothesis
+test or model replay repeated. Secondary random gain does not replace the failed
+primary coverage gate, identify the IVR formula, or establish external transfer.
+Distinct Volta static evidence review finds zero required fixes. No prospective
+B performance used, manuscript/package/schedules unchanged. All final gates open.

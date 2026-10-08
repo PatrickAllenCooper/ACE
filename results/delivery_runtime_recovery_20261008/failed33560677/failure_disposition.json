@@ -1,0 +1,179 @@
+{
+  "schema": "ace.delivery.runtime-preparation-failure-disposition.v1",
+  "at": "2026-10-08T19:23:52.354382+00:00",
+  "job_id": "33560677",
+  "status": "failed",
+  "state_exit": "FAILED/1:0",
+  "custody_root": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-runtime-preparation-job33560677-failed-20261008-01",
+  "remote_output": "/scratch/alpine/paco0228/ACE/results/delivery_runtime_preparation_20261008_02",
+  "remote_inventory_sha256": "77cbb14ccaf43cc7e302753ab0ef5a5a0f1f7e04fd2c6c504780234b3aabe17d",
+  "verified_objects": 15,
+  "files": [
+    {
+      "path": "bootstrap_failure.json",
+      "bytes": 231,
+      "sha256": "52d70b7ad26baf5a5be5d1036c6e8d30f91dec6d2f7d3508a0352a09b80b5106"
+    },
+    {
+      "path": "freeze.json",
+      "bytes": 3647,
+      "sha256": "76b601ef875b9ae9316385225d3eb77c6230fadd42b97088fed5d810e5dc768c"
+    },
+    {
+      "path": "install_report.json",
+      "bytes": 376239,
+      "sha256": "5b5b29f0b8d6e4e40d0b446582e667e3ac513eddd43aacc8c884990e4e1233c9"
+    },
+    {
+      "path": "output_claim.json",
+      "bytes": 445,
+      "sha256": "09cfb32f46fae39778a3f85a62b0cd8410d2e367be23b9b05a176801a7aef605"
+    },
+    {
+      "path": "preparation.log",
+      "bytes": 29457,
+      "sha256": "8d40ebd3438929b5e38e5fcbad13a1757d51b09fa8c9c720ff3dee2a07343d38"
+    },
+    {
+      "path": "preparation_execution.json",
+      "bytes": 31492,
+      "sha256": "09084821fddd6cb10d85ee9708c8a705745621a21a0edcc20474cf63e93436fb"
+    },
+    {
+      "path": "preparation_started.json",
+      "bytes": 238,
+      "sha256": "d347ca5a4f531b7b4c7b6e34729f49fb1567af2298b9b0a6c63bb0c7839e8486"
+    },
+    {
+      "path": "prepare.sbatch",
+      "bytes": 2909,
+      "sha256": "d5950db281ca2893f062b908733bbe7999ce5bc1a476bfd1a19893602b4f4f43"
+    },
+    {
+      "path": "prepare_environment.py",
+      "bytes": 13381,
+      "sha256": "859659f079f2de2c69ee85ef02e2de63b70ea8fb02104dd071a21ec9618d9008"
+    },
+    {
+      "path": "qualify_runtime.py",
+      "bytes": 9068,
+      "sha256": "1ceac66d9b9aad764a04d91a0c1f50e01638e7793ccdae5de22ddb1c64714bba"
+    },
+    {
+      "path": "seed/pip-24.0-py3-none-any.whl",
+      "bytes": 2110226,
+      "sha256": "ba0d021a166865d2265246961bec0152ff124de910c5cc39f1156ce3fa7c69dc"
+    },
+    {
+      "path": "seed/setuptools-79.0.1-py3-none-any.whl",
+      "bytes": 1256281,
+      "sha256": "e147c0549f27767ba362f9da434eab9c5dc0045d5304feb602a0af001089fc51"
+    },
+    {
+      "path": "slurm-33560677.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "submission_result.json",
+      "bytes": 1372,
+      "sha256": "548d5ea0f37d60d7ce81a4a0103e51b1cb590e105f214ec1a0d20bceb70fe29e"
+    },
+    {
+      "path": "submission_started.json",
+      "bytes": 1243,
+      "sha256": "8134d8539a32821913452a6b90dbbe3542dc194d77fabfadcd52db6c597b4db3"
+    }
+  ],
+  "scheduler_rows": "33560677|33560677|ace_delB_env|FAILED|1:0|ucb736_asc1|acpu|1|169|169|01:05.454||3G|00:30:00|cpu=1,mem=3G,node=1\n33560677.batch|33560677.batch|batch|FAILED|1:0|ucb736_asc1||1|169|169|01:05.453|642936K|||cpu=1,mem=3G,node=1\n33560677.extern|33560677.extern|extern|COMPLETED|0:0|ucb736_asc1||1|169|169|00:00.001|288K|||cpu=1,mem=3G,node=1\n",
+  "freeze_sha256": "76b601ef875b9ae9316385225d3eb77c6230fadd42b97088fed5d810e5dc768c",
+  "actual_allocation": {
+    "JobId": "33560677",
+    "Account": "ucb736_asc1",
+    "Partition": "acpu",
+    "QOS": "cpu-normal",
+    "NumNodes": "1",
+    "NumCPUs": "1",
+    "NumTasks": "1",
+    "CPUs/Task": "1",
+    "TimeLimit": "00:30:00",
+    "MinMemoryNode": "3G",
+    "AllocTRES": "cpu=1,mem=3G,node=1",
+    "TresPerNode": null,
+    "TresPerTask": "cpu=1",
+    "Gres": null
+  },
+  "base_identity": {
+    "node": "c3cpu-e2-u9",
+    "requested_path": "/scratch/alpine/paco0228/ACE/envs/neuronbench_py311/bin/python",
+    "frozen_resolved_path": "/scratch/alpine/paco0228/ACE/envs/neuronbench_py311/bin/python3.11",
+    "node_resolved_requested": "/gpfs/alpine1/scratch/paco0228/ACE/envs/neuronbench_py311/bin/python3.11",
+    "node_resolved_expected": "/gpfs/alpine1/scratch/paco0228/ACE/envs/neuronbench_py311/bin/python3.11",
+    "actual_sha256": "89ed4dcb070e52f6023682e0295a0e8a402ecce708ebda33c9c6e91b8ab2b060",
+    "frozen_sha256": "89ed4dcb070e52f6023682e0295a0e8a402ecce708ebda33c9c6e91b8ab2b060",
+    "running_elf_sha256": "89ed4dcb070e52f6023682e0295a0e8a402ecce708ebda33c9c6e91b8ab2b060",
+    "python_version": [
+      3,
+      11
+    ],
+    "path_matches": true,
+    "byte_match": true,
+    "running_byte_match": true
+  },
+  "commands": [
+    {
+      "step": 1,
+      "at": "2026-10-08T19:08:17.474200+00:00",
+      "finished_at": "2026-10-08T19:08:18.840402+00:00",
+      "exit_code": 0,
+      "argv_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "step": 2,
+      "at": "2026-10-08T19:08:19.164525+00:00",
+      "finished_at": "2026-10-08T19:08:25.940676+00:00",
+      "exit_code": 0,
+      "argv_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "step": 3,
+      "at": "2026-10-08T19:08:25.940814+00:00",
+      "finished_at": "2026-10-08T19:10:39.873177+00:00",
+      "exit_code": 0,
+      "argv_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "step": 4,
+      "at": "2026-10-08T19:10:39.873265+00:00",
+      "finished_at": "2026-10-08T19:10:40.715272+00:00",
+      "exit_code": 0,
+      "argv_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "step": 5,
+      "at": "2026-10-08T19:10:40.734140+00:00",
+      "finished_at": "2026-10-08T19:10:54.920391+00:00",
+      "exit_code": 1,
+      "argv_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    }
+  ],
+  "failure": "unexplained fileless module: torch._C._dynamo.autograd_compiler",
+  "interpretation": "venv/bootstrap/install/pip-check completed; unique metadata/imported six-dependency checks precede fileless-module closure rejection in captured qualifier. No successful qualification/inventory or numerical replay.",
+  "install_report_sha256": "5b5b29f0b8d6e4e40d0b446582e667e3ac513eddd43aacc8c884990e4e1233c9",
+  "allocated_cpu_seconds": 169,
+  "slurm_total_cpu_seconds": 65.454,
+  "batch_maxrss_KiB": 642936,
+  "worker_elapsed_seconds": 157.5941399930016,
+  "reaped_child_cpu_seconds": 65.195753,
+  "peak_reaped_child_rss_KiB": 542232,
+  "known_original_pilots_failed_replay_preparations_allocated_seconds": 119284,
+  "known_allocated_core_hours": 33.13444444444445,
+  "reservation_core_hours": 88.368333,
+  "whole_sprint_process_cpu": "unknown; scopes overlap and are not additive",
+  "new_fits": 0,
+  "new_responses": 0,
+  "runtime_qualified": false,
+  "numerical_replay_qualified": false,
+  "further_installations_authorized": false,
+  "single_further_replay": "approved and unused; new source/runtime/input/resource freeze required before execution"
+}
