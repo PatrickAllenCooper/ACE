@@ -2307,7 +2307,7 @@ white\_255 & 0.85 [0.16, 3.55] & 2.92 [0.54, 6.83] & 8.57 [1.65, 15.65]\\
 \label{tab:physical-ci}
 \end{table}
 \end{filecontents*}
-% delivery_theory.tex: SHA256 3822fdaf7455747c1e61f4963f6a160c86788a47dbb31854b29a155d684eef6a
+% delivery_theory.tex: SHA256 0125d36d1ca33e18415ac46b21988cbb8de1a98b4ff2fd4d1b97d9c07aa0679c
 \begin{filecontents*}[overwrite]{delivery_theory.tex}
 \section{Conditions and limits of delivery}
 \label{sec:theory}
@@ -2445,6 +2445,32 @@ scorer instead extends the lattice past both endpoints. The same argument uses
 the complete set of boundaries of that extended quantizer; at a recorded true
 level, its nearest boundary distance remains half the adjacent gap. The
 empirical evaluation measure is uniform over the archived grid.
+
+\begin{proposition}[Squared error and snapping risk]
+Under a specified deployment probability measure, let
+$R=\mathbb E[(\hat Y-Y)^2]<\infty$ and use the same quantizer and margin
+$M$ as above. For every $\tau>0$,
+\[
+ \Pr(Q(\hat Y)\ne Q(Y))
+ \leq \min\{1,\Pr(M(Y)\leq\tau)+R/\tau^2\}.
+\]
+If $M(Y)\geq m>0$ almost surely, the sharper bound is
+$\Pr(Q(\hat Y)\ne Q(Y))\leq\min\{1,R/m^2\}$.
+\end{proposition}
+\begin{proof}
+A snapping error requires $|\hat Y-Y|\geq M(Y)$. Its event is therefore
+contained in the union of $\{M(Y)\leq\tau\}$ and
+$\{|\hat Y-Y|>\tau\}$. Apply the union bound and Markov's inequality to
+the squared error. Under the positive-margin assumption the error event instead
+requires $(\hat Y-Y)^2\geq m^2$, giving the second bound directly.
+\end{proof}
+For a uniformly spaced lattice with gap $\Delta$ and true responses on its
+levels, $m=\Delta/2$. The second inequality also applies to a finite evaluation
+grid by taking its empirical measure and continuous MSE; it may be vacuous.
+It is a consequence of evaluated error and quantizer geometry, not a guarantee
+on new actions. For continuously valued targets, concentration near decision
+boundaries can make even small squared error compatible with frequent snapping
+errors. Neither bound orders two models by snapped error from their MSE alone.
 
 \paragraph{Counterexamples.}
 For a constant predictor and test response zero, fitting a single training

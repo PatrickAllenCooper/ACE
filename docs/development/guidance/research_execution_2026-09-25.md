@@ -2378,3 +2378,42 @@ for bounded readiness, remote package and03input authentication, coordinator
 reconciliation and one exclusive inference-only submission. Registered/descriptive
 claim integration and final evidence/visual/human reviews remain gated. Routine
 writing progress and unchanged reconnect state do not warrant another notification.
+
+## October 8 06:01 wakeup — analytic MSE-to-snapping relationship
+
+Shared CURC master still fails locally with the socket absent. No fresh scheduler
+claim, repeat reconnect request, replay submission or remote mutation is made.
+Original B acceptance and custody remain the last validated evidence; active03
+replay/source/package/resource pins are unchanged and it remains unsubmitted.
+
+Independent theory work adds a squared-error/snapping-risk proposition under a
+specified probability measure. The union/Markov bound separates near-boundary
+mass from large prediction error; a uniformly positive margin gives a direct
+MSE/margin-squared bound. The proof covers boundary ties. Its empirical-grid
+application is explicitly limited to that grid, can be vacuous, and neither
+certifies a fitted network nor orders models from MSE alone. No experimental
+number, performance inference, estimand, test or selection rule changes.
+
+A distinct narrow mathematical/static reviewer found zero required fixes and
+suggested a nonvacuous general-bound fixture. Main implemented that suggestion;
+five new analytic methods pass (nonuniform measures, both terms needed, sharp
+boundary ties, extended-lattice endpoint crossing and reversed MSE/snapping
+ordering). No old component review or study replay was repeated. These finite
+fixtures test constructed cases, not population support assumptions.
+
+The SAME manuscript's ten companions synchronize and native compilation passes.
+Existing35empirical macros, attribution/history/physical tables and method figure
+are byte-unchanged from97dce1c9; only the theory companion and its embedded copy
+change. Page-level visual and final integrated scientific/proof reviews remain
+open. No model load, fit, optimizer update, response, B export, install or Slurm
+allocation occurs. Local preparation overhead is unmetered and is not added to
+the experimental cost totals. Evidence quantization_risk_preparation_20261008.json
+SHA516cb38d768eacaeb73ce95f4e3b2f2e39d34c2382bb76eb666b38564a5de0e6
+and reviews/delivery_quantization_risk_review_2026-10-08.md.
+
+Next: restore shared transport, validate all remote package/job03 bytes and
+readiness, reconcile coordinators and submit once, then qualify actual exact-
+runtime inference replay before original-plus-descriptive prospective reporting.
+Final integrated evidence/prose/tables/visual, accounting, anonymity and human
+approval remain mandatory. Routine analytic preparation and the unchanged
+reconnect state do not warrant a new notification.

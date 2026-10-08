@@ -741,3 +741,20 @@ CURC shared master remains unavailable; prior reconnect request is pending. No
 repeat request, new submission, fitted study, response, replay or completed
 component review is made. Supplemental exact-runtime replay and integrated B
 reporting remain the critical gates. See method_diagram_preparation_20261008.json.
+
+## October 8 squared-error/snapping-risk addition
+
+One new bounded mathematical/static review of the new proposition found zero
+required fixes. An optional nonvacuous general-bound fixture is implemented;
+all five new analytic methods pass. The addition separates decision-margin mass
+from large errors and preserves tie, finite clipping and extended-lattice cases.
+It gives an empirical-grid inequality only, with no new-action certification,
+performance result or model ranking inferred from MSE. Existing empirical claims
+and tables are unchanged; the SAME ten-companion manuscript compiles. This is
+not the final integrated B/proof/visual review. See reviews/delivery_quantization
+_risk_review_2026-10-08.md and quantization_risk_preparation_20261008.json.
+
+SSH remains unavailable; prior private reconnect request stands. Active03 is
+unsubmitted, no original study or accepted replay is repeated, and no new fit
+is required. Exact-runtime prospective replay and full integrated reporting/
+scientific/visual/human gates remain open.
