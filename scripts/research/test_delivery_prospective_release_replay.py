@@ -44,6 +44,28 @@ def fixture(root):
 
 
 class ReplayTests(unittest.TestCase):
+    def test_python_floor_precedes_any_artifact_access(self):
+        with patch.object(r.sys, 'version_info', (3, 10, 19)), \
+                patch.object(r, 'captured', side_effect=AssertionError('unsupported interpreter opened artifact')):
+            with self.assertRaisesRegex(ValueError, 'Python >=3.11'):
+                r.replay(Path('absent'), 'a' * 64)
+        # At the supported boundary the normal manifest-pin barrier is reached.
+        with patch.object(r.sys, 'version_info', (3, 11, 0)), \
+                patch.object(r, 'captured', side_effect=RuntimeError('manifest barrier reached')):
+            with self.assertRaisesRegex(RuntimeError, 'manifest barrier reached'):
+                r.replay(Path('absent'), 'a' * 64)
+
+    def test_dependency_mismatch_reports_actual_import(self):
+        module = SimpleNamespace(__version__='2.2.5', __file__='/fixture/numpy/__init__.py')
+        dist = SimpleNamespace(version='2.2.6', locate_file=lambda name: module.__file__)
+        with patch.dict(r.DEPENDENCIES, {'numpy': '2.2.6'}, clear=True), \
+                patch.object(r.importlib.metadata, 'distribution', return_value=dist), \
+                patch.object(r, '__import__', return_value=module, create=True):
+            with self.assertRaisesRegex(ValueError, 'required=2.2.6, metadata=2.2.6, imported=2.2.5'):
+                r.dependency_modules()
+            module.__version__ = '2.2.6'
+            r.dependency_modules()
+
     def test_imported_dependency_origin_is_checked(self):
         import numpy as np
         dist = SimpleNamespace(version=np.__version__, locate_file=lambda name: np.__file__)

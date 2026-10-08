@@ -1,7 +1,7 @@
 # ACE delivery study handoff
 
-Prepared 7 October 2026; current resume state updated 8 October 2026 at
-11:03 UTC for the next researcher or implementation agent. The
+Prepared 7 October 2026; current resume state updated after the 8 October 2026
+restored-transport replay failure for the next researcher or implementation agent. The
 publication target is **Transactions on Machine Learning Research (TMLR)**.
 The active question is how retaining and refitting a completed experimental
 history changes the delivered causal surrogate. Historical foundation-model
@@ -12,8 +12,13 @@ matched histories, explicit eligibility and deployment semantics, strong simpler
 controls, and independent receipts. It does not establish a new architecture,
 foundation-model benefit, acquisition superiority or unrestricted identification.
 The original independent-system experiment and audit are complete and accepted;
-prospective performance reporting awaits one separately supervised exact-runtime
-saved-checkpoint replay. No result direction is asserted in this handoff.
+prospective performance reporting awaits successful supplemental exact-runtime
+qualification. Launch03 was submitted once as33539781 and failed a real NumPy
+module/metadata mismatch. Python3.10 is also below the verifier requirement.
+Original acceptance remains separate; no result direction is asserted.
+See delivery_replay_runtime_recovery_2026-10-08.md for verified custody, costs and
+the explicit pending runtime/additional-attempt decision. Earlier unsubmitted03
+and missing-transport states below are historical; never retry failed03.
 
 ## Start here
 

@@ -1,0 +1,149 @@
+{
+  "schema": "delivery-replay-failure-disposition-v1",
+  "at": "2026-10-08T16:20:45.114631+00:00",
+  "job_id": "33539781",
+  "status": "failed-runtime-gate",
+  "qualified": false,
+  "new_fits": 0,
+  "new_responses": 0,
+  "checkpoint_loading_reached": false,
+  "scientific_replay_reached": false,
+  "reports_generated": false,
+  "original_acceptance_unchanged": true,
+  "manifest_sha256": "f5415e24cdb1eaf353c8e8fb3bb0f3510b3b2d476174bbc1dd8c7d3655a1c2da",
+  "freeze_sha256": "41bf3ba3627b644667cdb20adabe93d36021cd804165be7af9e15e4457884a6f",
+  "raw_custody": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-job33539781-failed-20261008-01",
+  "raw_custody_inventory_sha256": "2a2e419269451928ee332e6e2a5811044481584e37788bfeb05b501feb1f3fd4",
+  "remote_terminal_inventory_sha256": "4d5917fd32525851aa31f19aa56957d9ec25aa3a15114dc49824f361322819d3",
+  "scheduler_final_sha256": "01e4ad34bc5db9cb5e9da8ebffa59d09e013bdd0bb4a72eb3f5906007bb3c51f",
+  "runtime_diagnostic_sha256": "0186215b1e86e287394b63e33754e4ab6a562620c46ee07c98e824cbf33a5edc",
+  "other_ACE_environment_metadata_sha256": "887cb0a4a669d623b973b9672ed8a8cc8ade4ccb36eec87e05bd8af10af48383",
+  "sampled_peak_tree_rss_bytes": 674197504,
+  "wrapper_elapsed_seconds": 174.70584732400312,
+  "allocated_cpu_seconds": 182,
+  "allocated_core_hours": 0.050555555555555555,
+  "slurm_reported_TotalCPU_seconds": 47.64,
+  "slurm_batch_MaxRSS_KiB": 826396,
+  "original_plus_actual_pilots_plus_failed_replay_allocated_seconds": 119107,
+  "original_plus_actual_pilots_plus_failed_replay_allocated_core_hours": 33.085277777777776,
+  "reserved_core_hours_including_failed_attempt": 87.118333,
+  "cost_scope": "Original-chain allocation plus actual pilots plus one failed replay allocation; no whole-sprint/processCPU total. Actual failure is within its existing .25 reservation, not an additional reservation. Slurm TotalCPU and RSS have distinct scopes from wrapper sampling and fit telemetry.",
+  "cause": {
+    "required_numpy": "2.2.6",
+    "distribution_metadata_numpy": "2.2.6",
+    "imported_numpy": "2.2.5",
+    "duplicate_numpy_metadata_versions": [
+      "2.2.6",
+      "2.2.5"
+    ],
+    "python_version": "3.10.19",
+    "minimum_for_supplemental_verifier": "3.11",
+    "historical_original_imported_version": "unknown; current diagnostics do not establish historical module bytes"
+  },
+  "new_development_changes": {
+    "early_python_floor": "function-entry check before replay artifact reads; verifier source import precedes this check",
+    "expanded_dependency_mismatch_diagnostic": true,
+    "source_sha256": "7ef3ef6f0702b4e9f836fcce00ac866703160d5e41bd657375cd543248ab08bc",
+    "two_new_synthetic_guard_tests_sha256": "bebbbb226075ef036c327360f46238a8ea32b5c145b5b305c7423c1b3cd62c6b",
+    "tests_returncode": 0,
+    "frozen_failed_package_changed": false
+  },
+  "recovery_status": "requires explicit environment/install and one additional submission decision; not submitted",
+  "proposed_runtime": {
+    "python": "3.11",
+    "dependencies": {
+      "torch": "2.9.1",
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "sympy": "1.14.0",
+      "PyYAML": "6.0.3"
+    },
+    "scope": "new isolated ACE-only environment; no shared environment repairs; installation not authorized"
+  },
+  "proposed_additional_replay": {
+    "cpus": 1,
+    "memory_GiB": 3,
+    "wall_minutes": 15,
+    "account": "ucb736_asc1",
+    "partition": "acpu",
+    "qos": "cpu-normal",
+    "new_fits": 0,
+    "new_responses": 0,
+    "reserved_core_hours": 0.25,
+    "prior_plus_proposed_replay_reservation": 87.368333,
+    "submitted": false
+  },
+  "environment_preparation_resources": "separate CPU-only bounded installation plan must be frozen and approved before installing; not represented by inference-only .25 reservation",
+  "reconciliation_failures_preserved": [
+    "preflight01 rejected standard manifest.sha256 sidecar; corrected external checker02 (package unchanged)",
+    "first status command used system Python3.6 text= argument and failed; corrected monitoring used designated interpreter",
+    "later scontrol job purged; zero-byte terminal inventory prototype retained; final02 captures returncode/stdout/stderr and matches nine raw artifacts"
+  ],
+  "evidence": [
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-01/local_preflight.json",
+      "sha256": "6ee51873087e9b124e8da52b44123d2118053dd29befcfe98cf0d080001a225a"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/remote_preflight.json",
+      "sha256": "ee47b044101bd1a952af4f5d47899e2ce79da3041adbdae72c6dbb740031ea31"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/remote_preflight.py",
+      "sha256": "6fbfb6d06e802ca48bb81924ffabf0faf4cb57d1d27d24b9cb4428158812724d"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/remote_launch_inputs.json",
+      "sha256": "7566b5976cedab10746d860e11d8c9dd05ad729ad6d09cc4d3b3c768f91d3c59"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/submission_started.json",
+      "sha256": "4b2510965503556ebdeb0f6fd4bb1381020d91df43a17ea16127b99391e8a99d"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/submission_result.json",
+      "sha256": "9631f98ec20be640e84215aebc4e2f1a4eb45921a0cd748aab13d55ae1d00503"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/scheduler_first.txt",
+      "sha256": "24af8fa97d8eb23162913f56ff4224611fc9f014fe848637f85623560b0de369"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/replay_status_01.json",
+      "sha256": "68a57dd1c68a47fb9ba99f3424aa283ddc12b03588adae832e33e0960b0d59a8"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/replay_status_02.json",
+      "sha256": "eab5058fad7b6c89fb14dd8ccbb2cada344d565c5f2d01abd001f4d2f921ebd3"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/runtime_diagnostic.py",
+      "sha256": "9069a93c2e296ff51bfd2f992656044e09c3f9d7259b23763d11ac9988ca1cb2"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/ace_runtime_diagnostic.json",
+      "sha256": "0186215b1e86e287394b63e33754e4ab6a562620c46ee07c98e824cbf33a5edc"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/ace_neuronbench_runtime_diagnostic.json",
+      "sha256": "887cb0a4a669d623b973b9672ed8a8cc8ade4ccb36eec87e05bd8af10af48383"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/scheduler_final.txt",
+      "sha256": "01e4ad34bc5db9cb5e9da8ebffa59d09e013bdd0bb4a72eb3f5906007bb3c51f"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/remote_terminal_inventory02.json",
+      "sha256": "4d5917fd32525851aa31f19aa56957d9ec25aa3a15114dc49824f361322819d3"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/new_runtime_guard_tests.json",
+      "sha256": "17c23d0b23262dd21400dd7f8ae17d52c63a8d2f6d886cddd2d97722d57c3c91"
+    },
+    {
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-replay-resume-20261008-02/new_runtime_guard_tests.log",
+      "sha256": "bebbbb226075ef036c327360f46238a8ea32b5c145b5b305c7423c1b3cd62c6b"
+    }
+  ]
+}

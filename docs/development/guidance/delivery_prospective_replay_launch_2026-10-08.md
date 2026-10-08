@@ -1,6 +1,9 @@
 # Original B completion and supplemental replay launch
 
-**Active launch preparation is job03, unsubmitted and not yet transferred.**
+**Current state: launch03 was submitted once as job33539781 and FAILED its actual runtime gate. Never retry03.**
+See delivery_replay_runtime_recovery_2026-10-08.md for validated failure/custody,
+development fixes and the explicit unapproved environment/additional-replay proposal.
+All unsubmitted/unverified/missing-transport descriptions below are historical.
 The job01 preparation described below is historical and must never be submitted;
 job02 is also preserved and superseded. Use the final correction section.
 

@@ -20,10 +20,12 @@ delivery_prospective_replay_launch_2026-10-08.md.
 
 The actual candidate manifest/source/input/resource contract is frozen, and
 original audit timing/RSS support the bounded exact-runtime supplemental replay.
-Active launch03 requests one CPU, 3 GiB and fifteen minutes. It is not transferred,
-submitted or qualified while the shared SSH master is unavailable. Preparations
-01/02 are preserved and superseded; never submit them. Remote package bytes
-remain unverified despite the earlier successful transfer exit.
+Launch03 was authenticated and submitted once as33539781 after restored transport
+and scratch/remote-byte verification. Its one-CPU/3-GiB/fifteen-minute allocation
+failed the imported NumPy gate; it is unqualified and must never be retried.
+Preparations01/02 remain preserved/superseded, never submitted. A matching runtime
+and one additional frozen attempt require a concrete decision; see
+delivery_replay_runtime_recovery_2026-10-08.md.
 Keep the existing 150-core-hour ceiling and no-install rule. Qualify all saved
 checkpoints and registered analyses without fitting or new responses. Then use
 accepted receipt exporters and synchronize the same open manuscript. Original

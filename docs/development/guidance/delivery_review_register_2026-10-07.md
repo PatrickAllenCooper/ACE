@@ -916,3 +916,27 @@ single exact-runtime03 replay after reconnect, final B reporting/lineage and
 integrated science/proof/prose/page visuals/accounting/anonymity/human gates remain.
 Do not repeat this completed source check/review as busywork. The prior private
 reconnect request remains pending; no repeated notice is needed.
+
+## October 8 supplemental runtime failure disposition
+
+Shared access is live. Single authorized launch03 became job33539781 and failed
+its actual NumPy gate before checkpoint replay: module2.2.5 versus metadata/pin
+2.2.6. Python3.10.19 is a separate unsupported verifier runtime. No B reporting,
+fit/update/response, original source/acceptance or manuscript change. Nine remote
+terminal objects verified in exclusive local failed custody; no qualifying receipt.
+
+Distinct bounded reviewer Wegener found0required fixes in failure interpretation
+and two development fixes (function-entry Pythonfloor, detailed version/origin
+error). Two NEW fabricated guard methods pass; no earlier component checks repeat.
+Review delivery_replay_runtime_failure_review_2026-10-08.md and disposition
+failed33539781/failure_disposition.json (1b51319a72736476f6a713b91a0cb9baba3e4c296fcf8452baed67df827a7513).
+Current diagnostics do not establish original historical imported NumPy bytes.
+Original full acceptance remains separate from unqualified supplemental runtime.
+
+182CPU-allocated seconds=.050555556core-hours counted once; original+actualpilots+
+failedreplay=33.085277778allocatedcore-hours, not whole-sprintCPU. Runtime recovery
+requires an explicit no-install exception/existing matching environment and one
+additional frozen submission decision. Proposed caps total87.868333reservedcore-
+hours within150; unapproved/unsubmitted. Failed03/manifest preserved unchanged.
+Reporting/source-successor, integrated evidence/proofs/prose/page visuals/final
+accounting/anonymity/redistribution/human submission remain open.

@@ -2715,3 +2715,40 @@ fit/update/allocation, manuscript or frozen-package mutation occurred. Exact
 runtime03, both report interfaces, final lineage/integrated science/proofs/prose/
 page visuals/accounting/anonymity/human approval remain mandatory. Routine
 preparation and unchanged pending reconnect warrant no notification.
+
+## October 8 restored transport — single launch03 failure and runtime decision
+
+Restored shared CURC transport supersedes earlier missing-socket snapshots.
+Exclusive ACE controller lock acquired; no prior replay/controller submission
+found. Readiness and all3890remote artifact hashes/independent manifest pin passed.
+Three unchanged03inputs transferred/authenticated; exactly one sbatch submitted
+33539781 at16:06UTC. FAILED1:0 after182allocated seconds; actual1CPU/3GiB/15min,
+ucb736_asc1/acpu/cpu-normal/zeroGPU matched freeze. All nine terminal artifacts
+match exclusive local failed custody; no successful replay receipt/model loading/
+scientific inference or B reports. Original accepted640fits/48000responses remain.
+
+Actual NumPy module2.2.5 disagrees with selected2.2.6metadata; both dist-info
+versions exist. Python3.10.19 also lacks verifier's Python3.11 tomllib requirement.
+Current diagnostics cannot prove original historical module bytes. Existing ACE
+Python3.11 environment does not meet target dependencies. No installs/envchanges.
+Two new development guard checks pass: early Pythonfloor at replay() entry and
+expanded version/origin diagnostic. Frozen failedpackage/03/originalsource and
+SAMEmanuscript unchanged. Distinct bounded read-only failure review0required;
+prior tests/reviews not repeated. No schedules/publication changes.
+
+Originalallocation+actualpilots+failedreplay totals119107CPU-allocated seconds,
+33.085277778core-hours, not whole-sprint processCPU. Failedjob SlurmTotalCPU47.640
+seconds, sampledRSS674197504bytes, batchMaxRSS826396KiB have distinct scopes.
+Existing87.118333reservation already includes this failure's.25reservation.
+Metadata/control prototype failures remain preserved without extra allocation.
+Receipt failed33539781/failure_disposition.json SHA
+1b51319a72736476f6a713b91a0cb9baba3e4c296fcf8452baed67df827a7513.
+
+A genuine runtime decision is now required under existing no-install and single
+replay authority. See delivery_replay_runtime_recovery_2026-10-08.md: proposed
+NEW isolated Python3.11/exact-six-dependency environment, capped1CPU/3GiB/30min
+CPU-only preparation plus ONE additional1CPU/3GiB/15min inference-only replay.
+Combined prospective reservation87.868333<150; neither installation nor retry is
+approved/submitted. An existing verified matching interpreter is an alternative.
+Never relax original/runtime pins, retry03, refit or silently omit this failure.
+Qualified replay, both exporters/new lineage and all final integrated gates remain.

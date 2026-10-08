@@ -169,7 +169,9 @@ def dependency_modules():
         origin = Path(module.__file__).resolve()
         expected = Path(dist.locate_file(name+'/__init__.py')).resolve()
         if (dist.version != version or module.__version__.split('+', 1)[0] != version or origin != expected):
-            raise ValueError('imported dependency version/origin differs: '+name)
+            raise ValueError(f'imported dependency version/origin differs: {name}; '
+                             f'required={version}, metadata={dist.version}, '
+                             f'imported={module.__version__}, origin={origin}, expected_origin={expected}')
 
 
 class LearnerSnapshots(importlib.abc.MetaPathFinder, importlib.abc.Loader):
@@ -252,6 +254,10 @@ def metric_from_cached(evaluation, training, predictions, models, arm, torch):
 
 
 def replay(root, expected):
+    # The authenticated verifier parses TOML with the Python 3.11 stdlib tomllib.
+    # Reject unsupported interpreters before opening any package artifact.
+    if sys.version_info < (3, 11):
+        raise ValueError('Python >=3.11 required for supplemental verification (tomllib)')
     root = Path(root).resolve()
     if not isinstance(expected, str) or re.fullmatch('[0-9a-f]{64}', expected) is None:
         raise ValueError('independently supplied SHA256 manifest pin required')
