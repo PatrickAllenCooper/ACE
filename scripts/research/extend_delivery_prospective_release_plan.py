@@ -33,6 +33,7 @@ from pathlib import Path
 import shutil
 
 import prepare_delivery_prospective_release_core as core
+import delivery_prospective_source_contract as source_contracts
 from build_delivery_release import write
 from verify_delivery_release import identifying_bytes, relative, sha
 
@@ -128,7 +129,8 @@ def execution(value, reg, wall_key, account=True):
 
 def extend(plan_file, prospective, inventory, source_inventory, source_root,
            core_file, core_contract, expected_core_contract_sha256, private_dir, out,
-           replay=None, expected_registration=core.REGISTRATION_SHA):
+           replay=None, expected_registration=core.REGISTRATION_SHA,
+           expected_source_contract_sha256=source_contracts.PREDECESSOR_SHA):
     # This MUST be the first operation. No plan/inventory/core/score reads precede it.
     gate = core.accepted_before_scores(prospective, expected_registration)
     prospective = Path(prospective)
@@ -311,6 +313,18 @@ def extend(plan_file, prospective, inventory, source_inventory, source_root,
         safe_execution[folder+'/execution.json'] = {'attempts': safe_attempts}
     # Inventory, source/core contracts, every copy and every membership above
     # are verified before this first score decode. Use one captured snapshot.
+    plan, plan_hash, plan_raw = snapshot(plan_file)
+    plan = copy.deepcopy(plan); indexed = {e['path']: e for e in plan['files']}
+    require(len(indexed) == len(plan['files']), 'duplicate inherited plan entry')
+    prepared_sources = source_contracts.preflight(plan, snapshot, expected_source_contract_sha256)
+    require(prepared_sources is None or replay is not None,
+            'inherited source contract requires an explicit B replay interface')
+    source_contracts.validate_before_scores(plan, prepared_sources, frozen, cc, checked_copies)
+    replay_entry = None
+    if replay is not None:
+        replay_entry = {'path': 'replay_delivery_prospective_release.py',
+                        'sources': [str(Path(replay).absolute())], 'sha256': sha(replay)}
+        checked_copies(replay_entry['sources'], replay_entry['sha256'])
     scores = metadata('B/scores.json', gate['scores_sha256'])
     require(set(scores) == set(SCORE_KEYS) and set(scores['cells']) == {str(i) for i in range(640)} and
             scores['fit_seal_sha256'] == bound('B/fit_seal.json')['sha256'] and scores['scope'] == reg['scope'] and
@@ -329,9 +343,6 @@ def extend(plan_file, prospective, inventory, source_inventory, source_root,
     require(set(acceptance) == core.ACCEPTANCE_FIELDS and
             project(acceptance, accepted.keys()) == accepted, 'captured acceptance metadata differs')
     # All output paths and collision checks precede the first output write.
-    plan, plan_hash, plan_raw = snapshot(plan_file)
-    plan = copy.deepcopy(plan); indexed = {e['path']: e for e in plan['files']}
-    require(len(indexed) == len(plan['files']), 'duplicate inherited plan entry')
     for name in indexed:
         relative(Path('/'), name)
     require(not any(n.startswith('B/') or n == 'delivery_prospective_replay_core.py' or
@@ -352,11 +363,6 @@ def extend(plan_file, prospective, inventory, source_inventory, source_root,
             require(e.get('transform', {'kind': 'identity'}) == {'kind': 'identity'} and e['original_sha256'] == h,
                     'inherited learner conflict')
             checked_copies(e['sources'], h)
-    replay_entry = None
-    if replay is not None:
-        replay_entry = {'path': 'replay_delivery_prospective_release.py',
-                        'sources': [str(Path(replay).absolute())], 'sha256': sha(replay)}
-        checked_copies(replay_entry['sources'], replay_entry['sha256'])
     private_dir.mkdir(parents=True, exist_ok=False)
     (private_dir/'original').mkdir(); (private_dir/'derived').mkdir()
     for name, raw in [('input_plan.json', plan_raw), ('composite_inventory.json', inv_raw),
@@ -492,18 +498,22 @@ def extend(plan_file, prospective, inventory, source_inventory, source_root,
     bind('/helper_hashes/delivery_prospective_design.py', 'delivery_prospective_design.py')
     for n in reg['source_hashes']:
         bind('/learner_hashes/'+escape(n), 'source/runner/'+n)
+    source_transition = source_contracts.transition(plan, indexed, prepared_sources, private_dir,
+        plan_hash, frozen, cc, contract, sha(target), replay_entry)
     plan['status'] = 'private accepted B relative-artifact preparation; target-runtime replay and public approval pending'
     write(private_dir/'derivation.json', {'inherited_plan_sha256': plan_hash,
           'composite_inventory_sha256': inv_hash, 'source_inventory_sha256': src_inv_hash,
           'core_contract_sha256': cc_hash, 'original_artifacts': {n: {'sources': e['sources'],
            'sha256': e['sha256'], 'private_snapshot': str(preserved[n])} for n, e in entries.items()},
-          'metadata_projections': provenance, 'B_outcomes_decoded_after_full_acceptance': True,
+          'metadata_projections': provenance, 'source_contract_transition': source_transition,
+          'B_outcomes_decoded_after_full_acceptance': True,
           'new_fits': 0, 'new_responses': 0})
     write(out, plan)
     return {'plan_sha256': sha(out), 'replay_contract_sha256': sha(target),
             'files': len(plan['files']), 'fits': 640, 'worlds': 40, 'training_bundles': 80,
             'evaluation_bundles': 40, 'predictions': 640, 'preparation_only': True,
-            'replay_adapter_included': replay is not None, 'new_fits': 0, 'new_responses': 0}
+            'replay_adapter_included': replay is not None, 'source_contract_transition': source_transition,
+            'new_fits': 0, 'new_responses': 0}
 
 
 if __name__ == '__main__':
@@ -512,6 +522,7 @@ if __name__ == '__main__':
                  'core-file', 'core-contract', 'private-dir', 'out'):
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--expected-core-contract-sha256', required=True)
+    parser.add_argument('--expected-source-contract-sha256', default=source_contracts.PREDECESSOR_SHA)
     parser.add_argument('--replay', type=Path)
     args = parser.parse_args()
     print(json.dumps(extend(**vars(args)), indent=2))

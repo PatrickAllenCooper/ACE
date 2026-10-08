@@ -1944,3 +1944,66 @@ hostname channel succeeded (login-ci4). CPU scheduler capacity, not access or
 licensing, is the current external wait. Preserve the original chain; no ETA is
 established and no duplicate/rescue is authorized. Parent cadence ownership and
 hourly development/theory/writing/analysis work continue.
+
+## October 8 00:03–00:19 UTC — original queue resumes; source successor prepared
+
+Fresh bounded CURC reconciliation records562/640 verified fits and35/40 completed
+worlds. Original thirty-node indices15/16 now run;17–19 wait on JobArrayTaskLimit.
+Evaluation/audit remain dependency-pending. All39 source bindings,18workers,
+19learners,23committed source files,40world/action pairs and target dependencies
+are unchanged. No failed attempt, stop flag, full fit seal, evaluation or accepted
+scientific outcome exists. Preserve the original six jobs and frozen45ebeb89.
+
+Two newly completed checkpoints (matrix560 and576) and their receipts were pulled
+to exclusive external snapshot fit-new-20261008T000356Z; all four local hashes
+match remote audited bytes. Prior560 remote receipt/model fingerprints remain
+unchanged. Full metadata audit binds all562 fits,400paid/50calibration rows,
+unchanged arm/init/source/input/optimizer counts and zero fit queries or heldout
+access. No checkpoint was deserialized. Receipts under
+results/delivery_prospective_preparation_20261006:
+full_queue_check_20261008T000152Z.json,
+full_milestone_20261008T000356Z.json,
+full_source_accounting_20261008T000339Z.json and
+full_milestone_custody_20261008T000356Z.json.
+
+At00:03:39UTC original completed allocations are88102CPU-seconds; two running
+allocations have accrued3144. Including observed126failed+119successful pilot
+seconds gives25.414167 partial allocated core-hours. This is not processCPU or
+final cost. Original reserved86.868333 remains below150; no new submission.
+
+Local R7 preparation implements the A/C/F-to-B source-contract successor in
+delivery_prospective_source_contract.py and the accepted B planner. It preserves
+the old contract bytes and every original digest binding under an explicitly
+historical path, retains all24 original source identities, records the identity
+design helper, derived core lineage and sixth replay interface, and leaves
+numerical/anonymous/training/public qualification false. Actual candidate16 is
+unchanged. Owner licensing remains resolved.
+
+A distinct bounded reviewer found two defects: source checks after score decoding
+and unvalidated inherited interface/runtime drift. Both are fixed by pure
+predecode validation, including projected package-runtime digests and explicit
+adapter custody. Final static recheck has no remaining required fix in scope.
+Five focused checks including seven negative subcases pass from/tmp. Fabricated
+full640-cell positive integration builds/relocates/verifies all inherited and
+successor digest edges. Actual candidate16 prevalidation passes all24 source
+edges,20B edges,five interfaces,four runtime records,two notices. Real prelaunch
+custody rejects at missingcomplete.json before other inputs/outputs. No real B
+successor package, numerical replay, outcome access, original-worker execution,
+fit, optimizer update, response, install, manuscript edit or public upload occurs.
+
+Single final test run30.728969childCPU-seconds/30.803681elapsed/72122368peakRSS;
+earlier tests/probes, implementation, review and monitoring excluded. Initial
+development path/regex failures and first incomplete-snapshot probe summaries
+remain in exclusive custody. Evidence prospective_source_transition_preparation.json
+SHA0aa4d32743f9be0672fdb204cc51d7df1b8c28d4bb9119fa658328f61d66769c;
+guide delivery_prospective_source_transition_2026-10-08.md and review
+reviews/delivery_prospective_source_transition_review_2026-10-08.md.
+
+Next: await unchanged original640fit/40world seal,16000evaluation responses,
+independent acceptance and successful audit supervisor. Then pull full raw/source
+closure, construct complete conflict-rejecting custody, extend candidate16 with
+the successor, freeze inference-only target replay after measured resource
+validation within150core-hours, and integrate registered claims into the SAME
+open manuscript after replay gates. Full accounting, anonymity, scientific/proof/
+prose/visual and human submission reviews remain. No additional fitted study is
+currently required. No reliable completion ETA is established.

@@ -541,3 +541,28 @@ and submission review remain. No additional fitted study is presently needed.
 Fresh23:07UTC CURC remains560/640fits,35/40worlds, five pending30-node worlds,
 with no source drift/seal/evaluation/complete/stop. Remote SSH channel also works.
 Do not duplicate the original chain or repeat completed A/C/F numerical checks.
+
+## October 8 source-transition disposition and live progress
+
+The original queue resumed:562/640 fit receipts and35/40 completed worlds at
+00:03:56UTC, with thirty-node15/16 running and17–19 awaiting the original array's
+concurrency limit. Two new model/receipt pairs are locally hash-verified; prior560
+fingerprints are unchanged. No failure, stop, seal, evaluation or source drift.
+Evaluation/audit retain their dependencies. Observed partial Slurm allocation
+including pilots is25.414167core-hours, distinct from processCPU/final cost.
+
+R7 source-successor implementation is prepared and reviewed. Two new bounded
+implementation findings (late source preflight and inherited interface/runtime
+drift) are fixed. Five focused checks with seven negative subcases pass; fabricated
+full matrix planning/build/relocation checks every inherited and successor digest
+edge. Actual candidate16 source prevalidation passes, but no actual B successor
+package or numerical replay is qualified. Predecessor bytes/source identities,
+notice attribution and original acceptance-first guards are preserved. Numerical,
+training, anonymity and public approval remain false; all prior accepted artifacts
+and candidate16 are unchanged. No scientific rescue or additional fit is needed.
+
+Evidence: delivery_prospective_source_transition_2026-10-08.md,
+reviews/delivery_prospective_source_transition_review_2026-10-08.md and
+results/delivery_release_preparation_20261007/prospective_source_transition_preparation.json.
+Original B completion/acceptance, full custody, exact-runtime replay, integrated
+claims/manuscript, complete accounting and human final reviews remain open.
