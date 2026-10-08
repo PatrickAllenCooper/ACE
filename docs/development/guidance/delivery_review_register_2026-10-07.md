@@ -624,3 +624,35 @@ Partial Slurm allocation including pilots is29.287500core-hours at01:59:51UTC.
 Separately checked scontrol identities bind the two new raw array IDs; final
 accounting needs an updated independently pinned map. Original chain, source,
 A/C/F accepted artifacts and private candidate16 remain unchanged.
+
+
+## October 8 complete prospective descriptive reporting review
+
+The new reporting interface closes the implementation gap for all per-history
+absolute errors, system log ratios, short-fit ablation, history summaries and
+floor activations. A distinct bounded review found one destination-path issue;
+canonical containment and ancestor-symlink rejection plus regression checks close
+it. Final reviewer recheck found no remaining required code fixes. Six fabricated
+checks pass; input inventory and interrupted/failed journal bytes are preserved.
+The positive fixture substitutes original upstream metadata acceptance and does
+not qualify actual B source, numerical replay, runtime, freeze or anonymity.
+The actual candidate16 negative probe rejects absent B inclusion before scores.
+
+See delivery_prospective_supplement_2026-10-08.md,
+reviews/delivery_prospective_supplement_review_2026-10-08.md and
+prospective_supplement_preparation_final_20261008.json in release preparation.
+The original exporter/inferential rules/worker/manuscript are unchanged. The new
+interface remains separately authored; actual accepted B export, source/manifest
+disposition, native compile and integrated scientific/visual review remain open.
+Do not repeat this bounded review or fabricated tests as routine work.
+
+Fresh02:58:49UTC custody verifies617/640 pairs across38/40 completed systems;
+23 new pairs are local and prior594 fingerprints unchanged. Thirty-node18/19
+run; evaluation/audit depend on full closure. No failures or heldout access.
+31.255277777777778partial allocated core-hours includes actual pilots; it is not
+process CPU/final cost. A new independently validated44-pair identity-map-v3
+preserves predecessor and separately checked17/18/19 identities, with corrected
+commit-origin labels and prototype lineage. Final all-phase accounting is open.
+Original640fit/40journal seal,16000heldout responses, successful full audit,
+complete conflict-rejecting custody and exact-runtime supplemental replay remain
+the critical gates before accepted-outcome reporting. No additional fits required.

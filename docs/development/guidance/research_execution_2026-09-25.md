@@ -2131,3 +2131,69 @@ source-successor assembly and exact-runtime bounded inference-only replay within
 final phase accounting, anonymity/redistribution and human submission approval.
 No additional fitted study is currently required. Candidate16 and historical
 A/C/F gates are unchanged; no reliable completion ETA is established.
+
+
+## October 8 02:58–03:12 UTC — 617 fits and reviewed full reporting interface
+
+Fresh original-chain evidence at02:58:49UTC records617/640 fit receipts and38/40
+completed worlds. Thirty-node17 completed;18/19 run. Evaluation/audit remain
+Dependency, with no failure, stop, full seal, evaluation, completion or acceptance.
+32000 training responses,80 histories,39 source bindings and23 committed project
+files remain unchanged. Twenty-three new checkpoint/receipt pairs (46 files)
+are verified in exclusive fit-new-20261008T025849Z; prior594 remote fingerprints
+are unchanged. Composite local custody verifies all617 pairs without model
+loading. Custody receipt SHA825844bd412cec3151fe0c6518f271708b3710b892d40b4b6da04a7c028deb38.
+See full_milestone/full_milestone_custody_20261008T025849Z.json and
+full_source_accounting_20261008T025853Z.json in prospective preparation.
+Original chain accrued112274 allocated CPU-seconds, including107269 completed
+allocation seconds. Actual126failed+119successful pilot seconds give
+31.255277777777778 partial allocated core-hours at02:58:53UTC; these are not
+process CPU, final cost or a whole-sprint total. No new submission or study.
+
+The new prepare_delivery_prospective_supplement.py supplies outcome-independent
+complete descriptive reporting after the original acceptance and separately
+qualified full numerical replay. It requires independently pinned manifest/replay
+bytes, unchanged upstream closure, full640/240/48000 replay counters and exact
+runtime metadata, then byte integrity before scientific score decoding. These
+checks do not establish execution simply by reading a receipt. Actual supervised
+runtime qualification, source/input/resource freezes and custody remain required.
+Outputs retain640 cells,320 fixed-init0 arm/history errors across80 shared histories,
+80 system log ratios,8 history summaries,2 short-fit summaries,4 floor summaries
+and8absolute/7descriptive LaTeX tables. Two history log ratios are averaged per
+system; unfloored MSE/NMSE includes zeros. No new tests of superiority or model
+selection are introduced; the original primary/init exporter remains required.
+
+A distinct bounded review identified one destination-path issue, now fixed with
+canonical containment and ancestor-symlink rejection. Six fabricated checks pass
+from/tmp, including complete membership, malformed inputs, gate ordering, zero/
+floor retention, journal preservation and input/output separation. The positive
+fixture substitutes original upstream metadata acceptance; it does not execute
+models or qualify a real B package/runtime. The actual candidate16 negative probe
+reads only manifest.json and rejects missing B inclusion before scores or outputs.
+Final single test-run cost0.538639childCPU-seconds,0.683523elapsedseconds and
+104792064peak childRSS bytes excludes earlier attempts, implementation/review and
+monitoring. Development failures and summaries are retained in exclusive
+supplement-preparation custody; no A/C/F replays are repeated.
+
+Evidence: delivery_prospective_supplement_2026-10-08.md and its distinct review;
+prospective_supplement_preparation_final_20261008.json SHA
+2cde94a92486bdf962f77b5e37ee1c78423edad7aed25958a18d74f4cff93fa4.
+Prototype receipt remains unchanged. Final44-pair scheduler identity-map-v3 SHA
+ed637fa698f4d05e4cd9cac2ecfe60ca20a7b5797bbcd70d723054af906764b0
+preserves the prior separately committed map and independently checked raw/display
+relationships for17/18/19. Final task identity is retained in
+full_scheduler_final_task_identity_20261008T0310Z.json. An ambiguous bare-parent
+probe was rejected; explicit task19 supplied the accepted one-row identity.
+Prototypev2 copied an earlier commit label onto newly captured evidence;v3 retains
+that label only for its predecessor and leaves current-receipt commit status
+unasserted at preparation. All44 pairs and reservation bindings are unchanged.
+This is mapping preparation, not final all-phase accounting.
+
+Original workers, exporter, manuscript, candidate16 and accepted A/C/F artifacts
+remain unchanged. Actual B outcomes/export/assembly/replay remain unopened and
+unqualified. After original640fit seal,16000 evaluation responses and successful
+full audit, complete custody and exact-runtime supplemental replay precede real
+report integration. Record this separately authored reporting interface and its
+derived outputs in final source/manifest dispositions. Then complete registered
+claims, integrated proof/prose/table/visual review, phase accounting, anonymity/
+redistribution and human approval. No additional fitted study is currently needed.
