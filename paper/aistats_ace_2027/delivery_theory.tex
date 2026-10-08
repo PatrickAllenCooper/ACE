@@ -26,12 +26,14 @@ data, optimization and extrapolation guarantees require further assumptions.
 \end{proposition}
 \end{samepage}
 \begin{proof}
-In an acyclic graph, a node's parents depend only on earlier exogenous noises
-and the chosen action. The current $U_i$ is independent of those noises and of
-past experiments. Since the policy precedes the current realization, and the
-stated retention condition preserves conditional mean zero. Taking the further
-conditional expectation over action and history yields the assertion after
-substitution of the structural equation.
+In an acyclic graph, a node's parents depend only on exogenous noises of
+preceding nodes in topological order and the chosen action. The current $U_i$
+is independent of those noises and of past experiments. The policy precedes
+the current realization, and the stated retention condition preserves
+conditional mean zero. Substituting the structural equation therefore gives
+$\mathbb E[V_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1]
+=f_i(V_{\mathrm{Pa}(i)})$. Taking the further conditional expectation over
+action and history yields the assertion.
 The conditional expectation minimizes population squared loss on the retained
 support. No statement outside that support follows.
 \end{proof}

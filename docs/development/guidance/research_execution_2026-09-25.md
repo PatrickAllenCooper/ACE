@@ -2271,3 +2271,83 @@ exact-runtime inference-only replay once. After supervised qualification, genera
 original registered and supplemental descriptive reports, integrate the SAME
 manuscript and compile; finish integrated proofs/prose/tables/layout, phase costs,
 anonymity/redistribution and human approval. No favorable rescues or extra fits.
+
+## October 8 actual B assembly, replay freeze and transport interruption
+
+Actual accepted B successor plan/build passes from complete raw/source custody:
+3890 files,5065 bindings; manifest
+f5415e24cdb1eaf353c8e8fb3bb0f3510b3b2d476174bbc1dd8c7d3655a1c2da.
+Plan4c156956 and new seven-interface source-contract990ec8aa preserve predecessor
+9f476621, originals/required notices and all A/C/F artifacts. The planner decoded
+accepted score metadata AFTER original upstream acceptance. Numerical target
+replay and actual report generation remain unqualified; no prospective performance
+claim has been made. Evidence prospective_actual_assembly_20261008.json.
+
+One inference-only replay is frozen at1CPU/3GiB/900seconds, accountucb736_asc1,
+acpu/cpu-normal. Original successful audit20.427793seconds/766464000peak treeRSS
+supports this resource request; combined original+supplemental reservation
+87.118333core-hours remains under150. Wrapper/freezing/script are hash-bound in
+exclusive delivery-prospective-replay-job-20261008-01 custody, with separately
+authored wrapper provenance rather than an invented Git binding. Both rsync
+commands exited0 into a new dedicated scratch root. The shared CURC master then
+expired before remote bytes could be verified or sbatch attempted. No new job,
+submission journal or replay execution exists from this turn. Patrick was asked
+to reconnect privately through curc-access. Do not confuse successful transfer
+with integrity, create fresh source in that frozen candidate or duplicate work.
+Prelaunch static wrapper review is distinct from completed component reviews.
+
+New final ORIGINAL B cost reconstruction reads only640 sealed fit receipts,
+40journals and4phase supervisor records, not predictions/scientific score values.
+All640distinct fit attempts are complete. Recorded fit processCPU110802.107301787
+seconds and summed fit wall113596.44237109905seconds overlap original Slurm
+allocation, not additive costs. Max fit process-tree RSS1400913920bytes. Original
+44allocations plus actual126+119pilot seconds give33.03472222222222allocated
+core-hours. Whole-sprint CPU and supplemental replay cost remain unknown/pending.
+External reconstruction/receipt are hash-bound in launch preparation; this does
+not repeat accepted A/C/F replays or claim unmeasured prep overhead.
+
+The SAME open manuscript now accurately reports original B experiment/audit
+completion, with supplemental reproduction and prospective integration pending.
+Eligibility proof removes a grammatical fragment and writes the explicit
+conditional expectation, with unchanged assumptions/propositions. Nine companion
+files/style hashes synchronize; native compilation succeeds. No new performance
+numbers, source guards, experimental artifacts or initialization choices changed.
+
+Next: restored transport, bounded readiness and remote3890file/job-input byte
+verification; exclusive single submission and exact-runtime inference replay.
+Then original-plus-descriptive claim export, receipt/source-bound tables/index,
+SAME manuscript integration/compile and scientific/proof/prose/layout reviews,
+final accounting, anonymity/redistribution and human submission approval. See
+ delivery_prospective_replay_launch_2026-10-08.md and
+prospective_replay_launch_preparation_20261008.json. No extra fitted study needed.
+
+### Final prelaunch corrections supersede job01/02 preparation
+
+A distinct static review of the new launcher identified4required defects.
+Job02 fixes explicit authentication before execution, actual account/resource
+reconciliation and failure custody; its remaining missing allocated-resource
+field issue is fixed in NEW job03. All4findings are now closed with zero remaining
+required fixes in scope. Original01/02 source/freezes remain unchanged/unsubmitted.
+Six fabricated methods pass on02; actual authenticated verifier import through
+captured bootstrap passes with fabricated CLI. One focused03scheduler check
+passes15negative subcases. No real replay/model/numerical inference or scheduler
+request ran in these checks; no completed scientific component review repeated.
+
+Active03output is delivery_prospective_replay_20261008_03; package input remains
+unverified delivery_prospective_replay_20261008_01/package. ActivefreezeSHA
+41bf3ba3627b644667cdb20adabe93d36021cd804165be7af9e15e4457884a6f;
+wrapperSHAd7067a563c42a1a315f0156901adc4149d0e32f367d2d5cc8c5667732ce47466;
+scriptSHA7eddb0b2dbb38ac86b7b576ad52a192d8575b8b435292bc7d25c386c8d55acbf.
+Source snapshots and launch_preparation_03.json bind the corrected inputs and
+review. New03files have NOT been transferred or submitted. Never submit old01/02.
+Once transport is restored, revalidate readiness and all3890remote package bytes,
+transfer/authenticate03inputs, reconcile any queued/started coordinator work,
+then make one exclusive submission. The single intended .25core-hour reservation
+is unchanged; the three unsubmitted preparations are not three paid executions.
+
+Source authentication now uses captured executable bytes, requires complete
+actual AllocTRES evidence before child work, and writes explicit terminal failure
+for catchable exceptions and invalid/missing child receipt. Uncatchable scheduler
+termination must be reconciled against logs/accounting, never classified as success
+or blindly retried. Static/fabricated checks do not establish target numerical
+qualification, historical freeze or final reviewer anonymity.

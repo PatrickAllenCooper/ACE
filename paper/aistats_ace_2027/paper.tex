@@ -2307,7 +2307,7 @@ white\_255 & 0.85 [0.16, 3.55] & 2.92 [0.54, 6.83] & 8.57 [1.65, 15.65]\\
 \label{tab:physical-ci}
 \end{table}
 \end{filecontents*}
-% delivery_theory.tex: SHA256 5a176b4f0d979a15dfec8cb947f115bd90ae17dbf96c2179d64fda8c3d693250
+% delivery_theory.tex: SHA256 3822fdaf7455747c1e61f4963f6a160c86788a47dbb31854b29a155d684eef6a
 \begin{filecontents*}[overwrite]{delivery_theory.tex}
 \section{Conditions and limits of delivery}
 \label{sec:theory}
@@ -2337,12 +2337,14 @@ data, optimization and extrapolation guarantees require further assumptions.
 \end{proposition}
 \end{samepage}
 \begin{proof}
-In an acyclic graph, a node's parents depend only on earlier exogenous noises
-and the chosen action. The current $U_i$ is independent of those noises and of
-past experiments. Since the policy precedes the current realization, and the
-stated retention condition preserves conditional mean zero. Taking the further
-conditional expectation over action and history yields the assertion after
-substitution of the structural equation.
+In an acyclic graph, a node's parents depend only on exogenous noises of
+preceding nodes in topological order and the chosen action. The current $U_i$
+is independent of those noises and of past experiments. The policy precedes
+the current realization, and the stated retention condition preserves
+conditional mean zero. Substituting the structural equation therefore gives
+$\mathbb E[V_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1]
+=f_i(V_{\mathrm{Pa}(i)})$. Taking the further conditional expectation over
+action and history yields the assertion.
 The conditional expectation minimizes population squared loss on the retained
 support. No statement outside that support follows.
 \end{proof}
@@ -2468,14 +2470,16 @@ The human authors are responsible for the final scientific assessment,
 verification and submission.}}
 \author{\name Anonymous authors}
 \newif\ifdeliverydraft
-\deliverydrafttrue % Remove the working notice only after prospective acceptance.
+\deliverydrafttrue % Keep until reproduction, integrated evidence and final review pass.
 \hypersetup{pdftitle={From Experimental Histories to Causal Surrogates},pdfauthor={Anonymous authors}}
 \begin{document}
 \maketitle
 \ifdeliverydraft
-\noindent\textbf{Working manuscript, 7 October 2026.} Archived attribution and
-physical validation are complete. The frozen independent-system study is in
-progress; its results and final scientific review remain pending.
+\noindent\textbf{Working manuscript, 8 October 2026.} Archived attribution and
+physical validation are complete. The frozen independent-system experiment and
+its original independent audit are complete. Supplemental reproduction
+qualification, prospective result integration and final scientific review
+remain pending.
 \fi
 \begin{abstract}
 A sequential experimental learner need not be the best model delivered after
@@ -2496,8 +2500,9 @@ mechanism eligibility, deterministic error propagation and quantization
 sensitivity, with explicit counterexamples to monotonic improvement.
 An archived physical case study retains all eleven conditions: delivery beats
 rolling learning in \CRollingWins{} conditions but Fourier regression in
-\CFourierWins{}. A frozen independent-system comparison is in progress and its results remain
-pending. The present evidence supports a scoped
+\CFourierWins{}. The frozen independent-system comparison has completed its
+original audit; its results await supplemental reproduction qualification
+and are not reported in this version. The present evidence supports a scoped
 post-collection delivery finding, without an acquisition or foundation-model
 claim.
 \end{abstract}
@@ -2543,7 +2548,9 @@ empirical estimand and its limits; they are not new general causal-identificatio
 theorems. Third, we report an archived physical prediction study with domain
 controls and all conditions retained, including unfavorable results. A frozen
 prospective study tests the selected recipe on independent parameterizations
-and reserved action blocks; its outcomes remain pending in this working version.
+and reserved action blocks. Its original audit is complete; prospective results
+remain unreported here pending supplemental reproduction qualification and
+integrated evidence review.
 
 Within the scratch-fit matrix, long fits on retained histories outperform
 final-buffer fits and 100-update fits; adding unused paid rows changes aggregate
@@ -2779,9 +2786,11 @@ rescue or selecting a different scored initialization.
 
 \section{Frozen prospective evaluation}
 \label{sec:prospective}
-\textbf{Results pending.} This section describes the released protocol, frozen
-before collecting responses or opening held-out outcomes. It supplies no
-prospective performance claim. The recipe, simpler control and short-fit
+\textbf{Result integration pending.} The experiment and its original independent
+audit are complete. This section describes the released protocol, frozen
+before collecting responses or opening held-out outcomes. Supplemental
+reproduction qualification and integrated reporting remain outstanding, so
+this version supplies no prospective performance claim. The recipe, simpler control and short-fit
 ablation were selected at the completed attribution gate and are unchanged.
 
 \subsection{Systems, histories and estimand}
@@ -2962,8 +2971,9 @@ favorable against the selected simpler refits on the exposed grid, while a
 physical prediction study shows a clear boundary against domain-informed
 controls. The theoretical analysis explains why eligible-row fitting, joint
 support and free-running error must be considered separately. The frozen
-prospective comparison remains the outstanding test of independent-system
-prediction; until its outcomes are validated, the empirical conclusion is
+prospective comparison has completed its original independent audit; supplemental
+reproduction qualification and integration remain outstanding. Until those
+reporting gates pass, the empirical conclusion in this version is
 restricted to the completed archived studies.
 
 \bibliographystyle{tmlr}

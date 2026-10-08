@@ -13,7 +13,12 @@ reproducible submission with every material concern resolved or explicitly scope
   attribution gate; no new simulator responses or favorable reruns.
 - **Stage C — accepted.** Preserve all eleven physical conditions and all controls,
   including the Fourier advantage. No new physical responses or rescue tuning.
-- **Stage B — released, acceptance pending.** Frozen revision `45ebeb89`, original
+- **Stage B — original audit accepted October 8; supplemental replay pending.**
+  All 640 fits, forty world journals, 32,000 training and 16,000 evaluation
+  responses have complete local custody. The original audit/supervisor and
+  scheduler exits pass. See `delivery_prospective_replay_launch_2026-10-08.md`;
+  prospective result integration remains gated on the exact-runtime supplemental
+  replay. Historical October 7 queue snapshot follows. Frozen revision `45ebeb89`, original
   chain `33507418`–`33507423`, output
   `/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006`.
   Last receipt audit: 560/640 fits, 35/40 worlds, 32,000 training responses.
@@ -683,3 +688,41 @@ Next required gates are actual accepted B source-successor assembly, independent
 pinned source/manifest/resource freeze and bounded exact-runtime supplemental
 inference replay; original-plus-descriptive reporting, integrated scientific/proof/
 prose/table/visual review, phase accounting and human submission approval follow.
+
+## October 8 actual accepted package and pending replay launch
+
+R7 actual assembly now verifies3890files/5065bindings and its seven-interface
+successor, including the reporter. Original B audit and all raw/source custody
+are accepted; numerical supplemental qualification, generated report lineage,
+integrated scientific review and final public readiness remain open. All earlier
+component reviews/qualified A/C/F replays remain evidence and are not repeated.
+
+The inference-only1CPU/3GiB/15minute job is frozen within the existing ceiling;
+rsync exited0 but SSH expired before remote byte checks or submission. Main
+asked Patrick to reconnect privately. No supplemental job launched. A distinct
+static prelaunch wrapper review is pending; its purpose is checking this new
+supervision/resource/custody interface, not redoing numerical component reviews.
+
+Final original-stage cost metadata checks all640complete attempts and4phase
+supervisors; processCPU, summed fit elapsed, peakRSS and Slurm allocation remain
+separate. Same manuscript status/proof prose is corrected and native compile
+passes. New scientific result reporting remains gated on actual replay; no
+additional fits are required. See delivery_prospective_replay_launch_2026-10-08.md
+and compact assembly/launch preparation receipts.
+
+### New launcher review closed; job03 is the active unsubmitted successor
+
+The distinct prelaunch review found4required defects; all4are closed in job03
+with0remaining required static fixes. Explicit captured-byte authentication,
+complete actual allocation evidence and terminal failure custody are corrected.
+Six fabricated methods on02 and one focused03allocation method pass; actual
+verifier import with a fabricated CLI checks capture compatibility only. These
+are not numerical or remote qualification. Preserve earlier reports/sources;
+never submit01/02. Job03has not been transferred/submitted because SSH expired.
+
+See reviews/delivery_replay_job_review_2026-10-08.md, updated
+ delivery_prospective_replay_launch_2026-10-08.md and
+results/delivery_prospective_replay_preparation_20261008/launch_preparation_03.json.
+Original B/A/C/F evidence and manuscript scientific claims remain unchanged.
+Transport restoration, complete remote bytes and actual inference-only replay
+are still required before prospective reporting and integrated evidence review.
