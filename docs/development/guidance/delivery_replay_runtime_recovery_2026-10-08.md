@@ -1,5 +1,11 @@
 # Supplemental replay failure and runtime recovery proposal
 
+**Current state at October 8, 18:49 UTC:** Patrick approved the bounded search,
+one isolated preparation and one further replay. Preparation33556219 failed
+before any installer or environment creation. The further replay is unsubmitted;
+a second preparation requires a new decision. See the current section below.
+Earlier unapproved-proposal wording records the historical state.
+
 ## Validated state at October 8, 16:10 UTC and subsequent diagnostics
 
 CURC transport was restored. The ACE controller acquired the exclusive external
@@ -80,7 +86,7 @@ Preflight01's manifest.sha256 sidecar omission, a system-Python3.6 monitor error
 and the purged-terminal scontrol prototype were metadata/control failures only.
 They are preserved, with no additional allocation, fitted model or response.
 
-## Concrete decision required; nothing below is authorized or submitted
+## Historical proposal before Patrick's bounded recovery authorization
 
 Recommended recovery is a NEW isolated ACE-only Python3.11 environment with:
 torch2.9.1, NumPy2.2.6, SciPy1.15.3, pandas2.3.3, SymPy1.14.0 and PyYAML6.0.3.
@@ -113,3 +119,75 @@ sync/compile the SAME manuscript and finish integrated scientific/proof/prose/
 tables/page visuals/accounting/anonymity/redistribution/human approval. Those
 scientific and submission gates remain open. No prospective performance claim
 was generated in this resumption. No schedule or public artifact was changed.
+
+## Current authorized recovery and failed preparation — October 8, 18:49 UTC
+
+The coordinator verified Patrick's direct approval in thread
+01a11c39-0c89-7152-8a56-432adf15402d, human turn
+01a11c8f-d5ce-7172-a1ec-f4f1c136129c: “You may message the seven eligible project
+agents and carry out the bounded recovery steps I approved in Jasper’s chat.”
+The delivered ACE scope permits a bounded read-only search, one isolated CPU
+preparation capped at 1 CPU/3 GiB/30 minutes, and one further inference-only
+replay capped at 1 CPU/3 GiB/15 minutes. It does not permit retries after failure,
+shared repairs, GPU, fits, responses, schedules or publication.
+
+The search checked metadata in ten known conda prefixes and narrow Python3.11/
+PyTorch2.9.1 module listings. None matched Python>=3.11 and all six pins; target
+libraries were not imported in those shared prefixes. This is not a universal
+CURC environment search. An existing ACE Python3.11.16 base and bundled seed
+wheels were pinned. Source prototypes01–03 were preserved and never submitted.
+The final preparation04 static review had zero required fixes.
+
+An exclusive controller/output claim, fresh scratch stat/free-space/write-read-
+cleanup, empty ACE queue and independently authenticated remote input/base/seed
+bytes preceded exactly one sbatch. Job33556219 was submitted at18:45:18UTC with
+1 CPU/3 GiB/30 minutes, ucb736_asc1/acpu/cpu-normal and zero GPU. Freeze SHA:
+142bea17f79b8580302b3a1f10fa4fd186f3a6bed16562bd9dea31fc197aeb1f.
+It FAILED1:0 at “base interpreter differs” before prefix creation or any command:
+commands=[], environment absent, no installer, qualification or further replay.
+All eleven terminal objects match exclusive local failed custody at
+`/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-runtime-preparation-job33556219-failed-20261008-01`.
+Disposition SHA93d41f48080f3c654274925f96047634ba565555f46949968af42aa7c46ea0dc.
+
+The guard compared a node-resolved path to an unre-resolved login spelling.
+Login bytes/path still match, but actual compute-node values were not recorded.
+An alias mismatch is plausible; a byte mismatch cannot be excluded. Do not
+assert a verified root cause or matching compute-node runtime.
+
+Proposal05 canonicalizes BOTH paths on the execution node, records observed
+paths/hashes, retains exact frozen binary plus running ELF hashes, and requires
+Python3.11 before prefix creation. Qualification retains those guards. One NEW
+focused diagnostic fixture passes; the distinct narrow review has zero required
+fixes. This source is UNAUTHORIZED/UNSUBMITTED, not runtime qualification.
+
+A NEW second preparation needs Patrick's decision. The concrete proposal uses
+new output/environment02 and the same 1 CPU/3 GiB/30 minute cap, account and
+unchanged six pins. An additional0.5 reservation yields88.368333 within150;
+the already authorized further fifteen-minute replay remains unused. Proposal
+SHA6c6c1b92a5b126cf492add23bd20cb3d9f3a27b01c7d75f9f47c73c1673d48cb.
+Do not reinterpret a single-attempt cap as a cost-only limit or submit without
+this new decision. Failure or runtime mismatch remains terminal.
+
+Job33556219 adds eight allocated CPU-seconds, .002222222 core-hours. Parent
+SlurmTotalCPU0.111 seconds, batchMaxRSS19312KiB, worker childCPU0.007215 seconds
+and elapsed0.020526814 seconds have distinct scopes. Known original plus actual
+pilots plus failed replay plus preparation allocation is119115 seconds,
+33.0875 core-hours, not whole-sprint processCPU. Current87.868333 reservation
+already includes the failed preparation and unused replay; actual costs are
+not added to that reservation.
+
+Private successor candidate03 passes byte/digest verification:3893 files,
+5068 bindings, manifestb30e7b5f0f26f1e7f803c47e5cb1cbd22bbcb24ddac999e1f7e07cfc10c454a9,
+source contract269bbc3f0f8d614177a3e181beb3ebd6e2eaa3fcc40026dba20b0048b998fe65.
+It binds the failed-input predecessor manifest/source contract and updated
+replay interface while preserving original models/responses. Build02 rejected
+five changed mutable writing sources; build03 explicitly uses authenticated
+inherited candidate01 bytes, with a source-resolution receipt and retained
+partial build02. It is not current-writing or numerical-runtime qualification;
+nothing transferred remotely or replayed, and no B reports were produced.
+
+Evidence: results/delivery_runtime_recovery_20261008 and
+reviews/delivery_runtime_preparation_review_2026-10-08.md. SAME manuscript,
+accepted studies, failed33539781, schedules and public artifacts are unchanged.
+Both reports, final source/report/writing lineage, integrated science/proofs/
+prose/tables/page visuals/accounting/anonymity and human approval remain gated.

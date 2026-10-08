@@ -2752,3 +2752,36 @@ Combined prospective reservation87.868333<150; neither installation nor retry is
 approved/submitted. An existing verified matching interpreter is an alternative.
 Never relax original/runtime pins, retry03, refit or silently omit this failure.
 Qualified replay, both exporters/new lineage and all final integrated gates remain.
+
+## October 8 authorized runtime recovery — preparation33556219 failure
+
+Patrick's verified direct approval supersedes the historical unapproved recovery
+proposal: bounded existing-runtime search, one isolated CPU preparation, one
+further inference-only replay. No metadata match among ten known conda prefixes
+and narrow modules; no shared environment imports/changes. Scoped worker/custody/
+import findings were fixed, preserving unsubmitted source prototypes01–03.
+Exactly one authenticated preparation04 submitted33556219 at18:45:18UTC.
+
+JobFAILED1:0 after8allocated seconds at the base interpreter guard, before any
+prefix, installer or command. Eleven terminal files are verified locally;
+commands=[], environment absent. Actual1CPU/3GiB/30minutes, account/queue and
+zeroGPU matched freeze142bea17. Login path/bytes still match; missing compute-node
+observations limit diagnosis. An alias mismatch is plausible, not proven.
+No further replay or preparation retry was submitted.
+
+Prepared proposal05 strictly canonicalizes both paths on node, retains frozen
+base and executing ELF hashes/Python3.11, and records observations. One NEW
+focused diagnostic fixture passes; narrow review zero required fixes. It is not
+authorized or submitted. A second1CPU/3GiB/30minute preparation requires a new
+human decision; its additional.5 reservation would yield88.368333 within150,
+including the already-unused authorized replay. Current reservation87.868333.
+
+Known original/pilots/failed33539781/preparation allocation=119115CPU-seconds,
+33.0875core-hours, not whole-sprintCPU. SlurmTotalCPU.111seconds and batchRSS
+19312KiB have separate scopes. Original640fits/48000responses and A/C/F are intact.
+Private successor03 verified3893files/5068bindings, manifestb30e7b5f/sourcecontract
+269bbc3f, with failed-input lineage/newCLI and explicit writing-source resolution.
+Partial build02 is retained; no numerical replay, reports, manuscript/schedule/
+public changes. Evidence results/delivery_runtime_recovery_20261008; disposition
+SHA93d41f48080f3c654274925f96047634ba565555f46949968af42aa7c46ea0dc.
+See current recovery guidance and review. Await new decision; all final gates remain.

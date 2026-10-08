@@ -1,8 +1,9 @@
 # Original B completion and supplemental replay launch
 
-**Current state: launch03 was submitted once as job33539781 and FAILED its actual runtime gate. Never retry03.**
+**Current state: launch03 failed as33539781; the subsequently authorized single
+runtime preparation failed as33556219 before installation. Neither may be retried.**
 See delivery_replay_runtime_recovery_2026-10-08.md for validated failure/custody,
-development fixes and the explicit unapproved environment/additional-replay proposal.
+the approved recovery scope, failed preparation and a new pending decision.
 All unsubmitted/unverified/missing-transport descriptions below are historical.
 The job01 preparation described below is historical and must never be submitted;
 job02 is also preserved and superseded. Use the final correction section.

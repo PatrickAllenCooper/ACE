@@ -940,3 +940,26 @@ additional frozen submission decision. Proposed caps total87.868333reservedcore-
 hours within150; unapproved/unsubmitted. Failed03/manifest preserved unchanged.
 Reporting/source-successor, integrated evidence/proofs/prose/page visuals/final
 accounting/anonymity/redistribution/human submission remain open.
+
+## October 8 preparation review and actual failure
+
+Volta's scoped installer/custody/import findings were fixed across preserved
+source predecessors01–03 and submitted04; final static review zero required fixes.
+Focused checks establish source guards only. Actual33556219 failed before prefix/
+installer/qualification at base identity; eleven terminal files and actual Slurm
+resources reconcile. Eight allocated seconds counted once; known allocation
+33.0875core-hours, whole-sprintCPU unknown. No scientific replay or reports.
+
+Distinct failure/proposal05 review confirms missing compute-node observations
+limit diagnosis. Proposed strict binary/executingELF checks and both-path node
+canonicalization retain source guards; one NEW focused diagnostic fixture passes,
+review zero required fixes. Proposal05 needs new approval; another1CPU/3GiB/30min
+preparation adds.5 to88.368333 prospective reservation. Current87.868333 includes
+the failed preparation and unused further replay. No retry was submitted.
+
+Private successor03 byte verification3893files/5068bindings preserves failed-input
+lineage and explicit inherited-writing source resolution. It does not qualify
+numerical replay, current writing or anonymity/public readiness. Partial build02
+is retained. See delivery_runtime_preparation_review_2026-10-08.md and
+results/delivery_runtime_recovery_20261008. Prior component checks not repeated;
+original/descriptive B reporting and all integrated/human gates remain open.

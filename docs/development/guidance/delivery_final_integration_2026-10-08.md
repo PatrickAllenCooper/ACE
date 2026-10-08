@@ -23,10 +23,12 @@ original audit timing/RSS support the bounded exact-runtime supplemental replay.
 Launch03 was authenticated and submitted once as33539781 after restored transport
 and scratch/remote-byte verification. Its one-CPU/3-GiB/fifteen-minute allocation
 failed the imported NumPy gate; it is unqualified and must never be retried.
-Preparations01/02 remain preserved/superseded, never submitted. A matching runtime
-and one additional frozen attempt require a concrete decision; see
+Preparations01/02 remain preserved/superseded, never submitted. Patrick subsequently
+authorized one isolated CPU preparation and one further inference-only replay.
+Preparation33556219 failed before installation; the further replay is unsubmitted.
+A second preparation requires a new concrete decision; see
 delivery_replay_runtime_recovery_2026-10-08.md.
-Keep the existing 150-core-hour ceiling and no-install rule. Qualify all saved
+Keep the existing 150-core-hour ceiling and bounded exception to the no-install rule. Qualify all saved
 checkpoints and registered analyses without fitting or new responses. Then use
 accepted receipt exporters and synchronize the same open manuscript. Original
 workers are not edited to change paths or digest guards.
@@ -35,7 +37,8 @@ The internal delivery_reviewer_commands_2026-10-08.md supplies future independen
 reader templates and stage-specific environment requirements. It is outside the
 existing candidate manifest and must receive a new release binding if included.
 Static command checks are not another numerical replay or original training
-reproduction. Current project qualification still uses supervised launch03.
+reproduction. Failed launch03 cannot qualify the project; a new supervised
+successor requires a verified matching runtime.
 
 ## Evidence to report, independent of direction
 

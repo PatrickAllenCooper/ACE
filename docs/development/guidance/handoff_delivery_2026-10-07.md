@@ -17,7 +17,9 @@ qualification. Launch03 was submitted once as33539781 and failed a real NumPy
 module/metadata mismatch. Python3.10 is also below the verifier requirement.
 Original acceptance remains separate; no result direction is asserted.
 See delivery_replay_runtime_recovery_2026-10-08.md for verified custody, costs and
-the explicit pending runtime/additional-attempt decision. Earlier unsubmitted03
+the explicit pending decision after the approved runtime preparation also failed
+as33556219 before installation. Its one further authorized replay is unused.
+Earlier unsubmitted03
 and missing-transport states below are historical; never retry failed03.
 
 ## Start here
