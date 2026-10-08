@@ -2591,3 +2591,39 @@ completed source check as busywork. Restore transport and authenticate remote
 package/job03 bytes before the once-only supervised replay, then complete the
 already prepared original/descriptive reporting and final submission gates.
 Routine writing preparation and unchanged reconnect status warrant no notice.
+
+## October 8 11:03 wakeup — current technical handoff
+
+Shared SSH master remains absent; prior private reconnect request still stands.
+No fresh remote/scheduler claim, submission or mutation of active03/package.
+The original study remains accepted; the single exact-runtime inference-only
+replay remains unsubmitted and precedes prospective performance integration.
+
+Updated the requested technical handoff in place. Its old560-fit resume section
+is replaced by complete original custody, the sole pending03 compute gate,
+both required reporting interfaces and final manuscript/submission gates.
+Retained October7 follow-ups are now explicitly historical, so prior live-access,
+licensing and partial-package statements cannot be confused with current state.
+The handoff consolidates import/runtime failures, one-snapshot authentication,
+relative-source lineage, synthetic versus actual qualification, numeric/caption/
+compile scope and overlapping attempt/compute accounting. Eleven-companion
+instructions and corrected classical-import timer scope are current. No new
+scientific result or extra experiment is proposed.
+
+A distinct bounded read-only reviewer found zero required fixes in the new
+handoff diff against current launch/integration/reporting/compute records. Main
+checked four cited metadata hashes and35 local link occurrences; no scientific
+artifact was decoded and no old replay/test/review repeated. Exclusive evidence
+is delivery-handoff-refresh-20261008-01; compact receipt
+handoff_refresh_preparation_20261008.json SHA
+83478fcd1d3c965f2a6455f534a8105de0df013c6c23464d0e4c8e4156374808
+and reviews/delivery_handoff_refresh_review_2026-10-08.md. Writing/metadata/review
+overhead remains unmetered, not inferred as sprint cost. Manuscript and active03
+source/input bytes match predecessor6a48d1ac; no source edit or compile needed.
+
+This documentation work does not qualify remote bytes, target replay, final
+anonymity, page layout or public readiness. Restore transport, authenticate
+remote package/launch03 and reconcile exclusive submission state before one
+supervised replay; then integrate original/descriptive reports and final
+scientific/proof/prose/visual/accounting/anonymity/human review. Routine handoff
+preparation and unchanged pending reconnect warrant no notification.

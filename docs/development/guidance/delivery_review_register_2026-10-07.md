@@ -844,3 +844,23 @@ evaluation_design_preparation_20261008.json. Do not repeat this completed narrow
 check. Actual B replay/report integration and final scientific/proof/prose/page
 layout/accounting/anonymity/human submission review remain open; the prior
 reconnect request remains pending without a repeated notice.
+
+## October 8 current-state handoff refresh
+
+The requested technical handoff now describes original B completion and the
+sole unsubmitted inference-only03 gate, complete custody, both reporting
+interfaces, eleven manuscript companions and final submission boundaries.
+Historical queue/access/licensing follow-ups are labeled as past snapshots.
+Practical stack findings include import/runtime failures, captured-byte
+authentication, original/derived source lineage, verification scope and
+non-additive cost/attempt accounting. No new outcome claim or fit is introduced.
+
+One new bounded read-only handoff consistency review reports zero required fixes.
+Four critical local metadata pins and35 file-link occurrences match; no scientific
+score, checkpoint or response was decoded. Manuscript and launch03 bytes remain
+unchanged. See reviews/delivery_handoff_refresh_review_2026-10-08.md and
+handoff_refresh_preparation_20261008.json. This is documentation preparation,
+not repeat numerical qualification or completion of final integrated review.
+Exact-runtime replay, final reporting/manifest lineage, science/proofs/prose/
+page visuals/accounting/anonymity and human approval remain open. The prior
+private reconnect request remains pending; no new submission or notice.

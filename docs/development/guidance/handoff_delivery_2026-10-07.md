@@ -1,6 +1,7 @@
 # ACE delivery study handoff
 
-Prepared 7 October 2026 for the next researcher or implementation agent. The
+Prepared 7 October 2026; current resume state updated 8 October 2026 at
+11:03 UTC for the next researcher or implementation agent. The
 publication target is **Transactions on Machine Learning Research (TMLR)**.
 The active question is how retaining and refitting a completed experimental
 history changes the delivered causal surrogate. Historical foundation-model
@@ -10,7 +11,9 @@ The credible result comes from data retention and fitting effort, assessed with
 matched histories, explicit eligibility and deployment semantics, strong simpler
 controls, and independent receipts. It does not establish a new architecture,
 foundation-model benefit, acquisition superiority or unrestricted identification.
-Prospective independent-system scores remain pending.
+The original independent-system experiment and audit are complete and accepted;
+prospective performance reporting awaits one separately supervised exact-runtime
+saved-checkpoint replay. No result direction is asserted in this handoff.
 
 ## Start here
 
@@ -25,7 +28,10 @@ Use these records in this order:
 4. [Active manuscript](/Users/pat/code/ACE/paper/aistats_ace_2027/paper.tex),
    [claim index](/Users/pat/code/ACE/paper/aistats_ace_2027/claim_index.json),
    and this handoff. The directory name remains historical; the target is TMLR.
-5. [Review and completion register](/Users/pat/code/ACE/docs/development/guidance/delivery_review_register_2026-10-07.md),
+5. [Active launch03 and original completion](/Users/pat/code/ACE/docs/development/guidance/delivery_prospective_replay_launch_2026-10-08.md)
+   and [final integration contract](/Users/pat/code/ACE/docs/development/guidance/delivery_final_integration_2026-10-08.md).
+   These supersede historical queue and preparation states below.
+6. [Review and completion register](/Users/pat/code/ACE/docs/development/guidance/delivery_review_register_2026-10-07.md),
    which tracks independent review findings and the remaining submission gates.
 
 No new experiment, environment installation or resource expansion is authorized
@@ -87,7 +93,9 @@ does not feed the scored target.
 The selected prospective recipe is **SCM / all paid / 30,000 / init 0**; the
 simpler control is **flat / all paid / 30,000 / init 0**; the decisive ablation is
 **SCM / all paid / 100 / init 0**. Keep the selection gate immutable.
-The full matrix used **10.87 fit CPU-core-hours**, excluding startup and evaluation.
+The full matrix used **10.87 fit CPU-core-hours**, excluding startup, evaluation
+and imports completed before the fit timer. Classical-library imports inside
+that timer are included; do not subtract them from recorded costs.
 
 Evidence: [immutable gate](/Users/pat/code/ACE/results/delivery_paper_implementation_20261006/attribution_gate.json),
 [attribution summary](/Users/pat/code/ACE/results/delivery_attribution_20261006/summary.json),
@@ -222,7 +230,7 @@ the twelve histories. Equal epochs and matched process CPU are separately
 labeled comparisons; neither matches intermediate supervision.
 
 One CPU is sufficient for the current small MLP workload. GPU allocation is
-unnecessary. Count fit process CPU, full supervised wall time, imports, peak
+unnecessary. Count fit process CPU, full supervised wall time, import scope, peak
 process-tree memory, and Slurm allocated CPU-seconds separately. A resource
 reservation is a ceiling, not measured scientific cost.
 
@@ -323,58 +331,113 @@ limits. The two world arrays permit two concurrent tasks each. No Azure,
 closed-source API or GPU is part of this campaign. Never modify or cancel
 unrelated mono-s2s, foundation, DeFAb, ANI or other jobs and environments.
 
-## Stage B resume checkpoint
+## Current resume checkpoint — 8 October 2026, 11:03 UTC
 
-This is the last committed observation at **7 October 2026, 07:49 MDT
-(13:49 UTC)**, not a promise about the live queue when this handoff is read.
+The **original study is complete**; all forty worlds have finished.
+This is a custody-backed completion state, not a fresh scheduler observation.
+The shared SSH master is absent at this wakeup; Patrick's prior private reconnect
+request remains pending. Recheck `curc-access` before any remote claim or action.
 
 - Frozen source: `45ebeb89d2c76daa97a55f07728239245e0c4f60`.
 - Registration SHA256:
   `e9fb12aa807010388f2cb4701304f61fc7cd2092a459e9aab393b3aff49a65f5`.
-- Remote output:
+- Original output:
   `/scratch/alpine/paco0228/ACE/results/delivery_prospective_full_20261006`.
-- Qualification **33507418** and collection **33507419** completed.
-- Five-node array **33507420** completed all twenty systems.
-- Thirty-node array **33507421** completed fifteen systems; indices 15–19
-  remained pending under the maintenance reservation.
-- Evaluation **33507422** and audit **33507423** remained dependency-pending.
-- **560/640 fits and 35/40 worlds** completed, with no failed attempts, stop flag,
-  source drift or target dependency drift in that observation.
-- All **32,000 training responses** and the completed model/receipt pairs are
-  locally hash-verified. No full fit seal or held-out score existed.
-- Accrued chain plus both pilots: **24.540833 allocated CPU-core-hours**.
-  Rounded total reservation **86.868333** remains within the **150** ceiling.
+- Original jobs **33507418–33507423** completed with exit `0:0`.
+  Forty world journals and all **640 fits** sealed before **16,000 held-out
+  responses**; training plus evaluation totals **48,000 shared responses**.
+- Independent original acceptance and audit supervisor succeeded at **04:12 UTC**.
+  Acceptance SHA256:
+  `dda7a9a4414524ed74e6e8955718c4be93177e452f68dcc961984a521060a3cb`;
+  audit supervisor SHA256:
+  `e74911f3cfd662981ee9a62d8cf29ab2480d4910f4ad0da0d90bc91d50f2ca04`.
+  No failed/replaced fit, source drift or stop flag was observed in that closure.
 
-Evidence: [milestone](/Users/pat/code/ACE/results/delivery_prospective_preparation_20261006/full_milestone_20261007T134904Z.json),
-[source and accounting](/Users/pat/code/ACE/results/delivery_prospective_preparation_20261006/full_source_accounting_20261007T134926Z.json),
-and [custody](/Users/pat/code/ACE/results/delivery_prospective_preparation_20261006/full_milestone_custody_20261007T134904Z.json).
+All external paths below share the private root
+`/Users/pat/ACE_Study_Results/2026-10-peter-baseline`:
 
-Raw local custody root:
-`/Users/pat/ACE_Study_Results/2026-10-peter-baseline`.
-The full prospective folder is `delivery-prospective-full-20261006`; fit custody
-currently combines `fit-snapshot-20261006T235619Z` with
-`fit-new-20261007T134904Z`. Do not incorrectly assume all models are in the
-top-level full-study folder. Reconcile snapshot manifests before materializing
-a complete local audit tree; never overwrite a conflicting artifact.
+- `delivery-prospective-accepted-raw-20261008T0414Z`: complete original artifacts.
+- `delivery-prospective-frozen-closure-20261008T0408Z`: exact 24 project and
+  19 learner source closure.
+- `delivery-prospective-complete-custody-20261008T0417Z/composite-inventory.json`:
+  complete conflict-rejecting inventory, SHA256
+  `f6e04175638f608d541cfc3035ca4a76b6ffd147c85120b307ec20a4a2bc6a13`.
+  All previously staged checkpoint/receipt copies match the original seal.
+  Old partial snapshots are retained evidence, not substitutes for this inventory.
+- `delivery-anonymous-B-candidate-20261008-01`: private derived package,
+  **3,890 files / 5,065 bindings**, byte/digest/relocation verified.
+  Manifest SHA256:
+  `f5415e24cdb1eaf353c8e8fb3bb0f3510b3b2d476174bbc1dd8c7d3655a1c2da`.
+  Its seven separately authored saved-artifact interfaces have explicit original
+  and derived source lineage. This package is not public release readiness or
+  qualified anonymous original collection/training execution.
 
-Next steps, in order:
+### Exactly what compute remains
 
-1. Reconcile the six existing jobs and receipts through shared SSH. Leave valid
-   maintenance-pending work queued. Do not alter frozen source or submit again.
-2. Require all forty world journals and 640 model receipts, then the fit seal.
-3. Let the existing evaluator generate 16,000 **shared** held-out responses,
-   bringing the full charged collection/evaluation total to 48,000.
-4. Require independent checkpoint/score/statistical recomputation and successful
-   audit execution; pull important raw artifacts to exclusive local custody.
-5. Apply the four frozen tests: delivery versus online and flat within each
-   graph-size stratum. Average the two history log ratios within each system.
-   Each stratum has twenty independent systems. Holm covers all four tests.
-   A superiority claim requires ratio ≤0.8, upper marginal 95% t interval <1,
-   and adjusted p<0.05. Report numerical-floor activations and failures.
-6. Export prospective claims only after complete acceptance. Report init 1/2
-   sensitivity and the short-fit ablation separately; select no scored model.
-7. Integrate results into the TMLR draft and narrow the conclusion if controls
-   erase the distinction. No favorable follow-up sweep is authorized.
+One **inference-only** supplemental replay: **one CPU, 3 GiB, fifteen minutes**,
+account `ucb736_asc1`, `acpu/cpu-normal`, job name `ace_delB_replay`.
+It loads the saved 640 checkpoints and reconstructs metrics/statistics; it
+performs no fitting, optimizer updates or new response collection. Original
+audit timing/RSS support this request. The 0.25-core-hour reservation plus the
+original 86.868333 reservation totals 87.118333 within the 150 ceiling.
+
+Active launch preparation is **03**, exclusively under
+`delivery-prospective-replay-job-20261008-03`, with a matching repository snapshot
+at `results/delivery_prospective_replay_preparation_20261008/launch03`.
+Preparations01/02 remain preserved and must never be submitted. Active03 is
+**untransferred and unsubmitted** in the last reconciled state.
+
+The earlier transfer to
+`/scratch/alpine/paco0228/ACE/results/delivery_prospective_replay_20261008_01/package`
+exited zero, but **remote bytes remain unverified**. Active03's output is
+`/scratch/alpine/paco0228/ACE/results/delivery_prospective_replay_20261008_03`.
+The source/input pins and once-only submission procedure are in the active launch
+record linked above; use its final03 section, not historical01 instructions.
+
+After shared transport returns, verify bounded scratch readiness, all 3,890
+package objects and manifest, and the three independently pinned03 inputs.
+Reconcile any concurrent coordinator, scheduler entries and submission journals
+before one exclusive submission. Do not retry ambiguous `sbatch` output blindly.
+Require actual allocation evidence, authenticated source/input bytes, successful
+supervision, exact target versions, **640 checkpoint replays / 240 primary cells /
+48,000 cached responses**, and **zero new updates/responses**. Pull receipts and
+logs into exclusive local custody before qualification. No installs or new fit.
+
+### Reporting after that gate
+
+Run the original `export_delivery_prospective_claims.py` **and** the separately
+reviewed `prepare_delivery_prospective_supplement.py`. The exporter alone does
+not close absolute-error, ablation and history reporting. Include all four
+contrasts, eighty system log ratios, 320 fixed-init0 arm/history MSE/NMSE records
+across eighty shared histories, initialization sensitivity and floor activations.
+The independently sampled unit is the system: average the two history log ratios
+within each system, twenty systems per graph stratum, four-test Holm. Superiority
+requires ratio at most 0.8, upper marginal 95% interval below 1 and adjusted p below
+0.05. Failed superiority is not equivalence or confidence of a 20% population gain.
+
+Bind newly generated reports/source/receipt lineage in a successor manifest;
+the qualified input manifest authenticates its own bytes, not later additions.
+Preserve every system and negative result. Integrate and compile the same TMLR
+manuscript, then complete integrated scientific/proof/prose/table/page-layout
+review, final accounting, anonymity/redistribution and human submission approval.
+No further fitted study is currently required by the completed reviews.
+
+### Cost and attempt scopes
+
+Original B scheduler allocation is **118,680 CPU-seconds**, plus actual failed
+and successful pilots **126 + 119 seconds**: **33.034722 allocated core-hours**.
+The 640 fit receipts record **110,802.107302 process CPU seconds** and
+**113,596.442371 summed fit elapsed seconds**, with maximum fit process-tree RSS
+**1,400,913,920 bytes**. These overlap scheduler allocation and must not be added.
+Supplemental replay accounting is pending; reservation is not observed cost.
+
+Original confirmation accounting is **60,962 charged attempts = 57,636 persisted
+complete responses + 3,326 interrupted charged reservations** across thirteen
+distinct journals. The interrupted attempt's returned response count is unknown.
+The authorized same-seed continuation before whole-matrix scoring is disclosed.
+Historical confirmation process CPU and unrecorded preparation overhead remain
+unknown; summed refit elapsed time, stage elapsed time and cumulative wall
+reservations overlap. Do not invent a whole-sprint CPU total.
 
 ## Manuscript preparation and editor integration
 
@@ -382,7 +445,9 @@ The same open `paper.tex` now uses the official anonymous TMLR style, a revised
 introduction and related work, explicit delivery objective and endpoints,
 completed attribution and physical findings, the frozen prospective analysis,
 full theory, and implementation/system/split/provenance appendices. A visible
-working notice states that prospective results remain pending. AI assistance
+working notice states that original prospective execution/audit are complete,
+while supplemental reproduction and performance integration remain pending.
+AI assistance
 is disclosed in a first-page title footnote. Human scientific review remains
 required; no submission has occurred.
 
@@ -404,11 +469,13 @@ cd /Users/pat/code/ACE
 /Users/pat/code/ACE-Runner/.venv311/bin/python scripts/research/sync_delivery_manuscript.py --check
 ```
 
-The check verifies all nine embedded files, including the receipt-generated
-per-history attribution table, and official style hashes.
+The check verifies all eleven embedded files, including the receipt-generated
+per-history attribution table, method schematic and evaluation-design map,
+and official style hashes.
 Use `generate_delivery_claims.py` for accepted A/C claims; do not hand-edit
 numeric macros or generated tables. Use `export_delivery_prospective_claims.py`
-only with fully accepted B custody and an exclusive destination, then extend
+only after original B acceptance AND qualified supervised supplemental replay,
+with accepted custody and an exclusive destination, then extend
 the companion list and insert the generated B tables into the same document.
 Do not overwrite the current A/C claim index with a B-only index.
 
@@ -418,13 +485,13 @@ open; do not create or open a replacement document or separately compile a PDF.
 Successful native compilation verifies LaTeX, not scientific readiness or a
 completed visual page-by-page review.
 
-Remaining publication work is prospective result acceptance and integration,
-receipt-backed figures and full compute/failure reporting, independent scientific
-review, and an anonymized reproducibility bundle. Author names, affiliations,
+Remaining publication work is supplemental exact-runtime replay and prospective
+report integration, receipt-backed figures and full compute/failure reporting,
+integrated scientific review, and an anonymized reproducibility bundle.
+Original Stage B acceptance is already complete. Author names, affiliations,
 funding, conflicts and final approval must be supplied or verified by the human
-authors. A two-to-three-week submission target remains conditional on those
-gates. Do not fill pending results with projections or describe queue completion
-as guaranteed.
+authors. Submission timing remains conditional on those gates. Do not fill pending
+performance reports with projections or promise venue acceptance.
 
 ## Boundaries for the next session
 
@@ -440,6 +507,69 @@ during bounded connector and CLI checks. The archive drive is mounted; both
 CLI `stat` and FTS-only search exceeded fifteen-second diagnostic deadlines.
 The cause is unconfirmed. No archive process was stopped or database modified.
 The findings above are grounded in the linked committed project records.
+
+## Reproduction lessons from the release work
+
+**A relocated program needs explicit import roots and authenticated dependency
+origins.** Testing from the repository working directory hid the original CURC
+pilot's missing project import root. Later adapters also encountered import-cache
+and NumPy scalar-promotion differences. Keep failed attempts and run actual
+saved-artifact interfaces from an unrelated directory in their documented runtime.
+A local import test or recorded version string does not qualify the target job.
+
+**Saved-checkpoint replay and original-worker reproduction are distinct.** A/C/F
+reconstruction already qualifies saved predictions/statistics within its recorded
+scope: A's 480 cells matched numerically, C's neural/linear predictions matched,
+and confirmation's maximum discrepancy was 5.551115123125783e-17. This last value
+is roundoff, not exact zero. Preserve original source/guard receipts privately;
+relative-path projections and extracted numerical cores get new hashes and
+explicit lineage. Never replace personal paths inside hash-bound originals or
+turn off their source, charging, held-out-access or resource guards to relocate
+an experiment. Anonymous collection/training interfaces still require their own
+location/import/fixture contracts and qualification.
+
+**Authenticate before executing or decoding scientific artifacts.** Capture one
+byte snapshot for hashing and parsing, reject duplicates and malformed telemetry,
+and separate metadata projection from accepted score access. All matrix IDs,
+response bundles, world journals, descriptors, barriers and upstream acceptance
+must close. A pinned receipt supplies provenance; it is not proof that execution
+occurred. Full resource evidence, supervised logs and custody supply that check.
+
+**Synthetic integration checks answer an interface question.** The fabricated
+640-cell assembly verifies path membership, routing, preservation, relocation and
+corruption rejection. It does not load the real 640 models, qualify the numerical
+runtime or demonstrate anonymous original training. Keep the explicit distinction
+when describing the release; no need to repeat these completed fixtures.
+
+**Generation, display and scientific checks have separate scope.** All 35 current
+empirical macros reconstruct from accepted A/C/F metadata. Four A/C result tables
+have 263 independently checked displayed numeric fields. Caption review then
+corrected eligibility and timer wording without changing those data. Native
+LaTeX compilation verifies syntax, and page-level visual review remains required.
+New captions, claim-generator digest, table verifier, reviewer command guide,
+theory/method/design companions and manuscript need new final release bindings;
+leave the frozen replay input package unchanged.
+
+**Keep required notices alongside derived source.** Patrick's Runner ownership
+and MIT notice are resolved. Retain the Chambers CC BY4.0 data attribution and
+MIT software/generator notices. A text-screen pass does not establish anonymity;
+source metadata, archives, required attribution and manuscript must receive a
+deliberate final review. Private candidates have not been approved for upload.
+
+Source-specific evidence and limitations are recorded in the
+[anonymous release guidance](/Users/pat/code/ACE/docs/development/guidance/delivery_anonymous_release_2026-10-07.md),
+[source transition](/Users/pat/code/ACE/docs/development/guidance/delivery_prospective_source_transition_2026-10-08.md),
+[reporting lineage](/Users/pat/code/ACE/docs/development/guidance/delivery_reporting_source_integration_2026-10-08.md),
+and [reviewer command guide](/Users/pat/code/ACE/docs/development/guidance/delivery_reviewer_commands_2026-10-08.md).
+These are internal handoff records, not a released anonymous supplement.
+
+## Historical October 7 follow-ups
+
+The dated follow-ups below preserve prior observations, prototypes and review
+dispositions. Their queue, access, licensing, candidate and companion-count
+statements describe those dates, not the current resume state. The October 8
+checkpoint above supersedes them; licensing ownership is resolved, the original
+B chain is accepted, and active03 remains the sole unsubmitted replay preparation.
 
 ## Resumed hourly execution and independent review
 
