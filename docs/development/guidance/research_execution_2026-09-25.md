@@ -2822,3 +2822,21 @@ test or model replay repeated. Secondary random gain does not replace the failed
 primary coverage gate, identify the IVR formula, or establish external transfer.
 Distinct Volta static evidence review finds zero required fixes. No prospective
 B performance used, manuscript/package/schedules unchanged. All final gates open.
+
+## October8/9 narrow qualified replay preparation
+
+The already-unused authorized replay remains unsubmitted. New derived qualifier,
+checkpoint guard, canonical bootstrap and descendant supervisor address five
+required independent review findings; residual recheck has zero required fixes.
+29 focused fabricated/temporary-descriptor checks pass from unrelated cwd; these
+are not target-runtime/Linux/numerical qualification. Remote candidate03 all3893
+files/1042525718bytes match independently pinned b30e7b5f; exact3895 membership
+includes the manifest and sidecar. Original sampler bytes independently match.
+New exclusive output05 claimed; controller lock held. No installation, models,
+fits, optimizer updates, responses or submission occurred. Failed33539781/
+33556219/33560677 and predecessor sources are preserved. Reservation88.368333
+includes one unused1CPU3GiB15minute replay; known prior allocated119284seconds
+is not whole-sprintCPU. See results/delivery_qualified_replay_preparation_20261008
+and reviews/delivery_qualified_replay_review_2026-10-08.md. Actual once-only
+supervised exact runtime then full640/240/48000 replay remain required before
+both reporting interfaces and final integrated gates.

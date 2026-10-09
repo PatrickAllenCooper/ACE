@@ -982,3 +982,13 @@ results/delivery_runtime_recovery_20261008/failed33560677. Reservation88.368333
 and known allocation33.13444444444445core-hours have different scopes. No further
 installation authorized; single further replay approved/unused, requiring new
 source/runtime/input/resource freeze and successful qualification before models.
+
+## October8/9 qualified replay prelaunch implementation
+
+Distinct Volta review: five findings closed, residual descriptor/cleanup recheck
+zero required. 29 focused methods pass; mock/emulated and actual temporary-file
+scopes explicit. New source remains derived, not an unchanged historical worker.
+Actual runtime, Linux custody and numerical qualification remain open. Report:
+reviews/delivery_qualified_replay_review_2026-10-08.md; preparation evidence:
+results/delivery_qualified_replay_preparation_20261008/preparation.json. No
+completed scientific/component review repeated; no additional fit needed.
