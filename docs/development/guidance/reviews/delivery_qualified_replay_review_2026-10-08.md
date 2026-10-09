@@ -20,3 +20,13 @@ Residual recheck found three descriptor issues and two cleanup issues under find
 Official PyTorch2.9.1 sources corroborate the naming distinction: [native parent attaches compiled_autograd](https://raw.githubusercontent.com/pytorch/pytorch/v2.9.1/torch/csrc/dynamo/init.cpp) and [implementation module name is autograd_compiler](https://raw.githubusercontent.com/pytorch/pytorch/v2.9.1/torch/csrc/dynamo/python_compiled_autograd.cpp). Installed identity still requires the exact native parent/attribute object plus independently pinned _C and libtorch_python backing bytes. Unknown/substituted fileless modules remain rejected.
 
 Qualification and replay share only the already authorized single 1CPU/3GiB/15minute allocation. No additional preparation, installation, fits, optimizer updates, new responses, rescue or retry. Actual supervised runtime and scientific replay remain untested at this prelaunch review.
+
+## Launcher/freeze integration follow-up
+
+A further exact symlink allowance canonicalizes the approved base interpreter
+spelling on the execution node as well as the observed target; the frozen ELF
+hash remains required. Narrow static review accepts this correction.
+
+Final-01 is preserved/unsubmitted. Launcher review requests explicit post-trust
+failure custody before worker handoff and authenticated remote claim presence.
+Those are packet preparation gates, not permission to submit yet.

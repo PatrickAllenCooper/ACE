@@ -195,7 +195,7 @@ def main():
  files=[]
  for f in sorted(prefix.rglob('*')):
   if f.is_symlink():
-   target=f.resolve(strict=True);assert target.is_relative_to(prefix) or target==Path(reg['base_python_resolved']),'unexpected external environment symlink'
+   target=f.resolve(strict=True);assert target.is_relative_to(prefix) or target==Path(reg['base_python_resolved']).resolve(strict=True),'unexpected external environment symlink'
    files.append({'path':str(f.relative_to(prefix)),'kind':'symlink','link':os.readlink(f),'resolved':str(target),'target_sha256':sha(target) if target.is_file() else None})
   elif f.is_file():files.append({'path':str(f.relative_to(prefix)),'kind':'file','bytes':f.stat().st_size,'sha256':sha(f)})
   else:assert f.is_dir(),'nonregular environment object'
