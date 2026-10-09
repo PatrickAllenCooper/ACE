@@ -1,0 +1,73 @@
+{
+  "created_utc": "2026-10-09T19:48:21.728143+00:00",
+  "kind": "reviewed_pure_prototype_and_unexecuted_design",
+  "source_files": [
+    {
+      "path": "scripts/research/foundation_reliability_selection.py",
+      "sha256": "796eb9923419ae701e58d16616981fb2b08f58c3f7e93ab1f190837864d03bbc",
+      "bytes": 5060
+    },
+    {
+      "path": "scripts/research/test_foundation_reliability_selection.py",
+      "sha256": "dde8c99fe2d496ab18cfe3c08eed72875e0eec5c2cf0254062b327d90b421f05",
+      "bytes": 3926
+    },
+    {
+      "path": "docs/development/guidance/ace_foundation_selection_reliability_2026-10-09.md",
+      "sha256": "df36d704ff509fad56f2027843ccd262b362e7657aaf16d440e34e619c2123ce",
+      "bytes": 16995
+    },
+    {
+      "path": "docs/development/guidance/reviews/ace_foundation_selection_reliability_review_2026-10-09.md",
+      "sha256": "090a3bc2ddd2a213d5c4ed45761133d0454c7c47d0d901df256843a9c73003dd",
+      "bytes": 9202
+    },
+    {
+      "path": "docs/development/guidance/reviews/ace_foundation_reliability_selection_implementation_review_2026-10-09.md",
+      "sha256": "16f18eb736e0a586f5de41ad97eae33d4688381f4ee2316bc0212be1eef6094a",
+      "bytes": 5508
+    }
+  ],
+  "observed_command": "cd /tmp; PYTHONPATH=/Users/pat/code/ACE/scripts/research python3 -m unittest test_foundation_reliability_selection -v",
+  "observed_exit_code": 0,
+  "test_methods": 9,
+  "unittest_reported_seconds": 0.011,
+  "cost_scope": "unmetered preparation/test/review, not model-attempt CPU",
+  "scientific_runs": 0,
+  "model_loads": 0,
+  "fits": 0,
+  "responses": 0,
+  "gpu": 0,
+  "review_status": "two distinct reviews zero required; two optional theoretical clarifications closed by scoped delta review",
+  "analytic_epsilon": {
+    "8": 1.4054365026560627,
+    "32": 0.7027182513280313,
+    "128": 0.35135912566401567
+  },
+  "predecessor_receipt_sha256": "da9edbecb4dd22ec641a0225e2f0379e31d1ad5f7f9a5018b44600e9ff57a7ee",
+  "checks_not_repeated": true,
+  "model_attempt_cpu_unchanged": 90.044439,
+  "supervisor_cpu_unchanged": 0.108012,
+  "conservative_reserved_seconds_unchanged": 7920,
+  "scientific_source_freeze": false,
+  "new_allocation": false,
+  "statistical_guarantee_scope": "conditional bounded-loss theorem only; does not qualify previous empirical results or future runner",
+  "sources": [
+    {
+      "url": "https://www.jmlr.org/papers/v11/cawley10a.html",
+      "role": "selection-criterion overfitting"
+    },
+    {
+      "url": "https://arxiv.org/abs/2110.01052",
+      "role": "risk control through multiple testing"
+    },
+    {
+      "url": "https://doi.org/10.1080/01621459.1963.10500830",
+      "role": "bounded independent-variable concentration; formula independently derived"
+    },
+    {
+      "url": "https://proceedings.mlr.press/v267/zecchin25a.html",
+      "role": "future sequential testing connection, not implemented"
+    }
+  ]
+}
