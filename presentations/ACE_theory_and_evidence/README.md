@@ -1,3 +1,23 @@
+# ACE — current presentation: v6
+
+The 10-slide marketing presentation opens with a new compressor concept rendering and uses larger directional SCM arrows. Slides 1–4 introduce the theory; slides 5–7 show exact inputs, scores, observations and updates; slides 8–10 show the archived graph and recorded comparisons.
+
+- **Editable deck:** [ACE_mechanisms_and_evidence_v6.pptx](ACE_mechanisms_and_evidence_v6.pptx)
+- **Viewing PDF:** [ACE_mechanisms_and_evidence_v6.pdf](ACE_mechanisms_and_evidence_v6.pdf) (raster copy of final deck renders)
+- **10-minute read-aloud script:** [ACE_10_minute_read_aloud.md](ACE_10_minute_read_aloud.md)
+- **Technical notes:** [ACE_mechanisms_speaker_notes.md](ACE_mechanisms_speaker_notes.md)
+- **Compressor illustration:** [ACE_compressor_concept.png](ACE_compressor_concept.png) — newly generated conceptual illustration, not the experimental apparatus or recovered original image.
+
+## Comparisons
+
+The empirical comparison retains SCM learners in both arms and changes the intervention policy. It supports the 65% lower final mean mechanism error and 19/20 wins. The 64% fewer intervention batches is a retrospective first-crossing comparison of group mean curves, not a prospectively validated stopping rule or actual campaign resources saved.
+
+Slide 4 separately illustrates SCM-free exhaustive lookup and uniform random joint-grid coverage. Ten five-valued inputs produce 9,765,625 joint entries; uniform draws with replacement take 29,255,197 draws for 95% expected coverage. Nine two-parent five-valued local mechanism tables contain 225 entries. This is an analytic coverage/representation illustration under explicit access assumptions, not a measured ACE advantage against a new associative algorithm. Exact definitions and arithmetic are in [SCM_free_grid_comparison.json](SCM_free_grid_comparison.json).
+
+Prior versions below remain historical.
+
+---
+
 # ACE presentation
 
 Current deck: **ACE_mechanisms_and_evidence_v4.pptx** (ten editable slides).

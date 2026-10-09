@@ -1,6 +1,6 @@
 # Slide 1
 
-Slides1–4 introduce SCMs and experiment selection. Slides5–7 are an illustrative three-node calculation, with the same covariance-score structure but simplified fixed candidates and linear heads. Slide8 is an archived action selected without performance screening. Slide9 distinguishes separate historical studies. Slide10 is a research proposal. Implementation: baselines.py, EnsembleStudentSCM / EnsembleLearner / PropagatedVariancePolicy, and scripts/research/persistent_scm.py. Historical PEV uses known graphs, independently initialized neural heads, model-only candidate contexts and covariance-based integrated variance reduction summed over descendant mechanisms. It does not identify the graph or optimize the proposed terminal-risk objective. Noise proxy is residual error, not a certified aleatoric estimate.
+ACE selects interventions using an assumed causal graph and uncertainty about local mechanisms. Compressor visual is a newly generated conceptual engineering illustration, not the apparatus used in the reported synthetic experiments. Slides1–4 introduce the theory; slides5–7 give precise illustrative inputs, scores and outputs; slide8 shows an archived graph; slides9–10 show historical evidence. Implementation: baselines.py, EnsembleStudentSCM / EnsembleLearner / PropagatedVariancePolicy, and scripts/research/persistent_scm.py. Historical PEV uses known graphs, independently initialized neural heads, model-only candidate contexts and covariance-based integrated variance reduction summed over descendant mechanisms. It does not identify the graph or optimize the proposed terminal-risk objective. Noise proxy is residual error, not a certified aleatoric estimate.
 
 Sources
 /Users/pat/code/ACE/docs/development/guidance/ace_theoretical_ideation_2026-10-08.md
@@ -30,6 +30,7 @@ Analytic representation-size illustration, not an ACE benchmark. Define a determ
 Sources
 /Users/pat/code/ACE/docs/development/guidance/ace_theoretical_ideation_2026-10-08.md
 /Users/pat/code/ACE/presentations/ACE_theory_and_evidence/mechanistic_demonstration_2026-10-09.json
+Uniform random sampling baseline: independently draw one of N=5^10 joint configurations, with replacement and no SCM. Expected distinct fraction after n draws is 1−(1−1/N)^n. The smallest n for95% expected coverage is29,255,197. This is expected grid coverage, not a95% probability of complete coverage or a prediction-error target. The exhaustive/local entry ratio is43,402.78; do not present the random/local ratio as experimental intervention savings. Local access and determinism assumptions stated above remain required.
 
 # Slide 5
 
