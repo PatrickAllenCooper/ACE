@@ -30,3 +30,12 @@ hash remains required. Narrow static review accepts this correction.
 Final-01 is preserved/unsubmitted. Launcher review requests explicit post-trust
 failure custody before worker handoff and authenticated remote claim presence.
 Those are packet preparation gates, not permission to submit yet.
+
+Final-02 launcher follow-up: zero required defects. Four fabricated failure cases
+verify post-trust worker execution failure custody, preservation of existing
+worker terminal, stderr-only untrusted claim failure, and separate custody-write
+failure without replacing the primary exception. Remote claim SHA4ad4b2cb
+explicitly authenticated; readiness02 independently pinned dad9e485. Final
+freeze8ad2294f/scriptd19da45c match transferred source and resources. Old
+final01/prelaunch01 remain preserved/unsubmitted. Actual Slurm/runtime/numerical
+qualification is still required; synthetic launcher fixtures establish none.

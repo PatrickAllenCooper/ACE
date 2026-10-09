@@ -16,11 +16,7 @@ prospective performance reporting awaits successful supplemental exact-runtime
 qualification. Launch03 was submitted once as33539781 and failed a real NumPy
 module/metadata mismatch. Python3.10 is also below the verifier requirement.
 Original acceptance remains separate; no result direction is asserted.
-See delivery_replay_runtime_recovery_2026-10-08.md for verified custody, costs and
-the explicit pending decision after the approved runtime preparation also failed
-as33556219 before installation. Its one further authorized replay is unused.
-Earlier unsubmitted03
-and missing-transport states below are historical; never retry failed03.
+Current recovery supersedes prior unused-replay statements: corrected preparation33560677 failed its provenance guard after installation; approved replay33625983 then FAILED before child creation at PopenE2BIG. Its authorization is consumed. OriginalB remains accepted but supplemental runtime/numerical qualification is NOT passed. No further allocation is authorized. Read delivery_descriptor_replay_proposal_2026-10-09.md and latest ledger before resuming: reviewed descriptor correction is ready for Patrick's new decision on one1CPU3GiB15minute replay, no installation/fits/responses. Proposal total88.618333/150 onlyifapproved. All originals and failedattempts preserved; both reporting and final integration stay gated. Earlier unused/missingtransport statements below are historical.
 
 ## Start here
 

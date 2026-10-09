@@ -67,7 +67,7 @@ class ChildOrder(unittest.TestCase):
                 (package / name).write_bytes(raw)
             (root / 'qualify_runtime.py').write_text(QUALIFIER)
             manifest = json.dumps({'files': [{'path': name, 'sha256': w.digest(raw)}
-                                            for name, raw in source.items()]}).encode()
+                                            for name, raw in source.items()], 'fabricated_padding': 'x'*3000000 if case=='large_payload' else ''}).encode()
             (package / 'manifest.json').write_bytes(manifest)
             reg = {'output': str(root), 'output_inode': root.stat().st_ino,
                    'environment': str(Path(td) / 'fabricated_env'),
@@ -88,15 +88,18 @@ class ChildOrder(unittest.TestCase):
             fd=os.open(root,os.O_RDONLY)
             projection=projection.replace(repr('FD'),repr(str(fd)))
             loader=projection+"import base64,hashlib,sys; source,path,*args=sys.argv[1:]; raw=base64.b64decode(source); context=vars(sys.modules['__main__']); context.update(__name__='__main__',__file__=path,__executed_source_sha256__=hashlib.sha256(raw).hexdigest()); sys.argv=[path,*args];exec(compile(raw,path,'exec'),context)"
+            payload=json.dumps({'arguments':[str(package),w.digest(manifest),str(fd),enc(CLI.encode()),enc(source['verify_delivery_release.py']),enc(QUALIFIER.encode()),enc(guard),enc(manifest),w.digest(freeze)]}).encode()
+            (root/'fabricated_payload.json').write_bytes(payload)
+            payload_fd=os.open(root/'fabricated_payload.json',os.O_RDONLY)
+            # Linux memfd sealing is mocked; actual descriptor transport and
+            # captured digest/size validation execute on Darwin.
+            seals="import fcntl; fcntl.F_SEAL_WRITE=8;fcntl.F_SEAL_GROW=4;fcntl.F_SEAL_SHRINK=2;fcntl.F_SEAL_SEAL=1;fcntl.F_GET_SEALS=1034;fcntl.fcntl=lambda *args:15; "
+            if case=='payload_unsealed':seals=seals.replace('lambda *args:15','lambda *args:0')
+            command=[sys.executable,'-I','-B','-c',seals+loader,enc(w.CHILD_BOOTSTRAP.encode()),str(root/'child_bootstrap.py'),str(payload_fd),('0'*64 if case=='payload_digest_changed' else w.digest(payload))]
+            self.assertLess(max(len(x.encode()) for x in command),131072)
             try:
-                result = subprocess.run([
-                    sys.executable, '-I', '-B', '-c', loader,
-                    enc(w.CHILD_BOOTSTRAP.encode()), str(root/'child_bootstrap.py'),
-                    str(package), w.digest(manifest), str(fd), enc(CLI.encode()),
-                    enc(source['verify_delivery_release.py']), enc(QUALIFIER.encode()),
-                    enc(guard), enc(manifest), w.digest(freeze)],
-                    capture_output=True,text=True,timeout=15,pass_fds=(fd,))
-            finally:os.close(fd)
+                result=subprocess.run(command,capture_output=True,text=True,timeout=15,pass_fds=(fd,payload_fd))
+            finally:os.close(fd);os.close(payload_fd)
             return result.returncode, result.stderr, {f.name for f in root.iterdir()}
 
     def test_qualification_and_live_guard_before_loader(self):
@@ -105,6 +108,25 @@ class ChildOrder(unittest.TestCase):
         self.assertTrue({'runtime_inventory.json', 'runtime_qualification.json',
                          'pre_checkpoint_runtime.json', 'model_load_attempt.json',
                          'replay_receipt.json'} <= names)
+
+    def test_large_captured_manifest_avoids_argument_limit(self):
+        code,err,names=self.run_case('large_payload')
+        self.assertEqual(code,0,err)
+        self.assertIn('model_load_attempt.json',names)
+
+    def test_payload_digest_failure_prevents_qualification(self):
+        code,err,names=self.run_case('payload_digest_changed')
+        self.assertNotEqual(code,0)
+        self.assertIn('captured payload differs',err)
+        self.assertNotIn('qualification_finished.json',names)
+        self.assertNotIn('model_load_attempt.json',names)
+
+    def test_unsealed_payload_prevents_qualification(self):
+        code,err,names=self.run_case('payload_unsealed')
+        self.assertNotEqual(code,0)
+        self.assertIn('immutable payload seals required',err)
+        self.assertNotIn('qualification_finished.json',names)
+        self.assertNotIn('model_load_attempt.json',names)
 
     def test_qualification_failure_prevents_loader(self):
         code, err, names = self.run_case('qualification_failure')

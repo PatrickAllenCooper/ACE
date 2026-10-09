@@ -1,0 +1,25 @@
+{
+  "scope": "four fabricated launcher failure cases; no real worker/runtime/Slurm/science",
+  "results": [
+    {
+      "case": "worker_error",
+      "passed": true,
+      "stderr": "{\"status\": \"launcher_failure\", \"job_id\": null, \"freeze_sha256\": \"8a545b53254de693aecc9bf83654778e283c90edb110291ce6608131562eae28\", \"output_trusted\": true, \"primary_type\": \"ValueError\", \"primary_reason\": \"fixture worker failure\", \"new_fits\": 0, \"new_responses\": 0}\n"
+    },
+    {
+      "case": "worker_terminal",
+      "passed": true,
+      "stderr": "{\"status\": \"launcher_failure\", \"job_id\": null, \"freeze_sha256\": \"de209325bea58f4bcabec959b44194e6f0c51aeeec24be9ace7c8bd334b4617a\", \"output_trusted\": true, \"primary_type\": \"SystemExit\", \"primary_reason\": \"1\", \"new_fits\": 0, \"new_responses\": 0, \"preserved_worker_terminal_sha256\": \"bb24564f9f1ee5c72b6df463abe34b9347a4d6f4974a8d0b913bcc40943edc87\"}\n"
+    },
+    {
+      "case": "untrusted_claim",
+      "passed": true,
+      "stderr": "{\"status\": \"launcher_failure\", \"job_id\": null, \"freeze_sha256\": \"e68c0874ecf5482ba3083d6c051b540ede9a1ec6fb4290e709f1d2a773c8aca3\", \"output_trusted\": false, \"primary_type\": \"ValueError\", \"primary_reason\": \"launcher claim differs\", \"new_fits\": 0, \"new_responses\": 0}\n"
+    },
+    {
+      "case": "custody_error",
+      "passed": true,
+      "stderr": "{\"status\": \"launcher_failure\", \"job_id\": null, \"freeze_sha256\": \"0ac91699edd87262d77b6b2c81268437fc3746e4c38a0daaf1b8e83639488f94\", \"output_trusted\": true, \"primary_type\": \"ValueError\", \"primary_reason\": \"fixture worker failure\", \"new_fits\": 0, \"new_responses\": 0, \"custody_failure\": {\"type\": \"FileExistsError\", \"reason\": \"[Errno 17] File exists: 'launcher_failure.json'\"}}\n"
+    }
+  ]
+}

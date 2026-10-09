@@ -992,3 +992,11 @@ Actual runtime, Linux custody and numerical qualification remain open. Report:
 reviews/delivery_qualified_replay_review_2026-10-08.md; preparation evidence:
 results/delivery_qualified_replay_preparation_20261008/preparation.json. No
 completed scientific/component review repeated; no additional fit needed.
+
+## October9 post-E2BIG descriptor review
+
+Distinct Volta transport/single-attempt check0required;18affected focused
+methods pass, no realLinux/targetruntime/science qualification. Previousfive
+sourcefinding dispositions preserved. New allocation requiresPatrick decision;
+failed33625983 evidence and source retained. No claim/manuscript/public changes.
+See reviews/delivery_descriptor_transport_review_2026-10-09.md.

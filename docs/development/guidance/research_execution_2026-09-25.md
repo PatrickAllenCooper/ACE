@@ -2840,3 +2840,41 @@ is not whole-sprintCPU. See results/delivery_qualified_replay_preparation_202610
 and reviews/delivery_qualified_replay_review_2026-10-08.md. Actual once-only
 supervised exact runtime then full640/240/48000 replay remain required before
 both reporting interfaces and final integrated gates.
+
+## October9UTC once-only qualified replay submission33625983
+
+Authenticated remote3893file candidate03, exact seven launcher inputs, preserved
+unsubmittedprelaunch01, explicit claim and fresh scratch write/read/cleanup,
+empty ACE queue, controller lock and exclusive local/remote submission journals
+preceded ONE sbatch. Job33625983 submitted00:28:04UTC with1CPU/3GiB/15minutes
+ucb736_asc1/acpu/cpu-normal/zeroGPU; first snapshotPENDING/Priority. Freeze
+8ad2294f207c5ce560fe712ccb24f659df91926cab2e3507af1ea63d6d4d1e0e,
+scriptd19da45c5bfa706fa68d00d18b8badb8407e7e46a86dd70853fa0198c38b986c,
+source9d3535dc. Qualification/full replay share allocation; no installation,
+fits, updates or new responses. Reservation88.368333 unchanged; prior known
+allocated119284seconds remains historical, not final or whole-sprintCPU.
+Unused single replay authorization is now consumed. No blind retry or further
+preparation/replay is authorized. Actual supervised exact runtime/Linux child
+custody/numerical success remain unqualified; reports/manuscript/public state
+unchanged. Evidence results/delivery_qualified_replay_preparation_20261008/launch05.
+
+## October9UTC replay33625983 terminal failure and reviewed descriptor proposal
+
+FAILED1:0/60allocatedCPU-seconds, verifiedrequested1CPU3GiB15min allocation.
+PopenE2BIG before anychild; realmanifest2628435bytes was passed asbase64argv.
+No targetimport/checkpoint/inference/fit/update/response. All18terminalobjects
+hashmatch exclusive delivery-qualified-replay-job33625983-failed-20261009-01;
+terminalinventory474c4907, wrapper88959283. Knownallocated119344seconds
+33.15111111111111core-hours; totalCPU.214sec and wall/RSS scopes notadditive,
+whole-sprintCPU unknown. Requeue disabled andRestarts0 verified for onlyACEjob.
+Approved attempt consumed;88.368333reservation unchanged. No automatic retry.
+
+Local sealed-descriptor correction reviewed0required;18 focused methods pass
+with3MBfabricatedmanifest, digest/seal negatives andactualdescriptortransport.
+Linuxseals mocked onDarwin, exactruntime/scientificreplay stillunqualified.
+Unsubmitted unauthorized proposal ONE1CPU3GiB15min savedartifactreplay without
+install/fits/updates/responses; adds.25reservation to88.618333/150 ONLYIFPatrick
+approves. Newoutput06 unclaimed; source/pin/resource proposal in
+results/delivery_descriptor_replay_proposal_20261009. Read
+delivery_descriptor_replay_proposal_2026-10-09.md before anyresume. Existing
+automation alreadyabsent/not_found; no furtherallocation orclaimsexport.

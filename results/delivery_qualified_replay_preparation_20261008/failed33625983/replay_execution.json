@@ -1,0 +1,46 @@
+{
+  "status": "wrapper_failure",
+  "exit_code": 1,
+  "job_id": "33625983",
+  "freeze_sha256": "8ad2294f207c5ce560fe712ccb24f659df91926cab2e3507af1ea63d6d4d1e0e",
+  "stage": "supervised_runtime_then_replay",
+  "manifest_sha256": "b30e7b5f0f26f1e7f803c47e5cb1cbd22bbcb24ddac999e1f7e07cfc10c454a9",
+  "verified_allocation": {
+    "raw_scontrol": "JobId=33625983 JobName=ace_delB_replay UserId=paco0228(348288) GroupId=paco0228pgrp(348288) MCS_label=N/A Priority=17217 Nice=0 Account=ucb736_asc1 QOS=cpu-normal JobState=RUNNING Reason=None Dependency=(null) Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:50 TimeLimit=00:15:00 TimeMin=N/A SubmitTime=2026-10-08T18:28:04 EligibleTime=2026-10-08T18:28:04 AccrueTime=2026-10-08T18:28:04 StartTime=2026-10-08T18:28:23 EndTime=2026-10-08T18:43:23 Deadline=N/A PreemptEligibleTime=2026-10-08T18:28:23 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-10-08T18:28:23 Scheduler=Backfill Partition=acpu AllocNode:Sid=login-ci4:3185982 ReqNodeList=(null) ExcNodeList=(null) NodeList=c3cpu-e2-u6 BatchHost=c3cpu-e2-u6 NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=1,mem=3G,node=1 AllocTRES=cpu=1,mem=3G,node=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=1 MinMemoryNode=3G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null) Command=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261008_05/run.sbatch WorkDir=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261008_05 StdErr=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261008_05/slurm-33625983.err StdIn=/dev/null StdOut=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261008_05/slurm-33625983.out Switches=1@7-00:00:00 TresPerTask=cpu=1 \n",
+    "raw_scontrol_sha256": "3755ddf0d98708b19001ce0805950c45132d460977b69eb7082ae168af16412a",
+    "verified_fields": {
+      "JobId": "33625983",
+      "Account": "ucb736_asc1",
+      "Partition": "acpu",
+      "QOS": "cpu-normal",
+      "NumNodes": "1",
+      "NumCPUs": "1",
+      "NumTasks": "1",
+      "CPUs/Task": "1",
+      "TimeLimit": "00:15:00",
+      "MinMemoryNode": "3G",
+      "AllocTRES": "cpu=1,mem=3G,node=1",
+      "TresPerNode": null,
+      "TresPerTask": "cpu=1",
+      "Gres": null
+    }
+  },
+  "child_execution": {
+    "status": "cleanup_failure",
+    "exit_code": null,
+    "samples": [],
+    "owned_child_pid": null,
+    "primary_failure": {
+      "type": "OSError",
+      "reason": "[Errno 7] Argument list too long: '/scratch/alpine/paco0228/ACE/envs/delivery_replay_py311_20261008_02/bin/python'"
+    },
+    "secondary_failures": [],
+    "cleanup": null
+  },
+  "failure_type": "ValueError",
+  "failure_reason": "child qualification/replay/cleanup failed",
+  "finished_at": "2026-10-09T00:29:20.479397+00:00",
+  "wrapper_elapsed_seconds": 7.455784966994543,
+  "new_fits": 0,
+  "new_responses": 0
+}

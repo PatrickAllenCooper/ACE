@@ -53,7 +53,7 @@ def cleanup_owned(child, deadline):
         time.sleep(.02)
 
 
-def supervise(command, deadline, rss_limit, fd, log_name, env, sampler, input_fds=()):
+def supervise(command, deadline, rss_limit, fd, log_name, env, sampler):
     if time.monotonic() >= deadline:
         return {'status': 'time_limit', 'exit_code': None, 'samples': []}
     if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
@@ -79,7 +79,7 @@ def supervise(command, deadline, rss_limit, fd, log_name, env, sampler, input_fd
     with os.fdopen(handle, 'w') as stream:
         try:
             child = subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT,
-                                     start_new_session=True, env=env, pass_fds=(fd,*input_fds))
+                                     start_new_session=True, env=env, pass_fds=(fd,))
             if os.getpgid(child.pid) != child.pid:
                 raise RuntimeError('owned process-group identity differs')
 

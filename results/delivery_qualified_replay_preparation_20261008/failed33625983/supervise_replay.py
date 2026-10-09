@@ -1,5 +1,5 @@
 """One derived descriptor-bound supervised qualification/replay; no installs."""
-import argparse,base64,fcntl,hashlib,json,os,re,stat,subprocess,sys,time,types
+import argparse,base64,hashlib,json,os,re,stat,subprocess,sys,time,types
 from datetime import datetime,timezone
 from pathlib import Path
 
@@ -30,7 +30,7 @@ def allocation(job,reg):
     raw=subprocess.check_output(['scontrol','show','job',job,'-o'],text=True,timeout=10)
     fields=dict(re.findall(r'(?:^|\s)([A-Za-z][A-Za-z0-9_/:]*)=(\S+)',raw))
     require(fields.get('JobId')==job,'scheduler identity mismatch')
-    for key,want in [('Account',reg['account']),('Partition',reg['partition']),('QOS',reg['qos']),('NumNodes','1'),('NumCPUs','1'),('NumTasks','1'),('CPUs/Task','1'),('Requeue','0'),('Restarts','0')]:
+    for key,want in [('Account',reg['account']),('Partition',reg['partition']),('QOS',reg['qos']),('NumNodes','1'),('NumCPUs','1'),('NumTasks','1'),('CPUs/Task','1')]:
         require(fields.get(key)==want,'allocated '+key+' differs')
     require(fields.get('TimeLimit')=='00:15:00','allocated wall limit differs')
     require(mem_bytes(fields.get('MinMemoryNode',''))==reg['rss_bytes'],'allocated node memory differs')
@@ -49,16 +49,9 @@ def allocation(job,reg):
     require(fields.get('JobState')=='RUNNING','allocation not running')
     return {'raw_scontrol':raw,'raw_scontrol_sha256':digest(raw.encode()),'verified_fields':{k:fields.get(k) for k in ('JobId','Account','Partition','QOS','NumNodes','NumCPUs','NumTasks','CPUs/Task','TimeLimit','MinMemoryNode','AllocTRES','TresPerNode','TresPerTask','Gres')}}
 
-CHILD_BOOTSTRAP=r"""import base64,fcntl,hashlib,json,os,stat,sys,types
+CHILD_BOOTSTRAP=r"""import base64,hashlib,json,os,stat,sys,types
 from pathlib import Path
-payload_fd,payload_pin=sys.argv[1:];payload_fd=int(payload_fd)
-if not stat.S_ISREG(os.fstat(payload_fd).st_mode) or os.fstat(payload_fd).st_size>16*2**20:raise ValueError('bounded regular payload required')
-required_seals=fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL
-if fcntl.fcntl(payload_fd,fcntl.F_GET_SEALS)&required_seals!=required_seals:raise ValueError('immutable payload seals required')
-with os.fdopen(os.dup(payload_fd),'rb') as payload_stream:payload_raw=payload_stream.read(16*2**20+1)
-if len(payload_raw)>16*2**20 or hashlib.sha256(payload_raw).hexdigest()!=payload_pin:raise ValueError('captured payload differs')
-package,pin,fdtext,cli64,verifier64,qual64,guard64,manifest64,freeze_pin=json.loads(payload_raw)['arguments']
-os.close(payload_fd)
+package,pin,fdtext,cli64,verifier64,qual64,guard64,manifest64,freeze_pin=sys.argv[1:]
 fd=int(fdtext);root=Path('/proc/self/fd/'+str(fd))
 def read_leaf(name):
  handle=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=fd)
@@ -127,20 +120,6 @@ def validate_qualification(fd,reg,pin):
  require(pre['passed'] is True and pre['runtime_qualification_sha256']==digest(raw) and pre['runtime_inventory_sha256']==digest(invraw),'current pre-checkpoint runtime closure required')
  return {'runtime_qualification_sha256':digest(raw),'runtime_inventory_sha256':digest(invraw),'pre_checkpoint_runtime_sha256':digest(preraw),'environment_objects_verified':q['objects'],'python_sha256':q['python_sha256']}
 
-def sealed_payload(raw):
- require(len(raw)<=16*2**20,'captured payload exceeds bound')
- h=os.memfd_create('ACE-captured-replay-inputs',os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
- try:
-  with os.fdopen(os.dup(h),'wb') as stream:stream.write(raw);stream.flush()
-  require(os.fstat(h).st_size==len(raw),'captured payload length differs')
-  seals=fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL
-  fcntl.fcntl(h,fcntl.F_ADD_SEALS,seals)
-  require(fcntl.fcntl(h,fcntl.F_GET_SEALS)&seals==seals,'payload sealing failed')
-  os.lseek(h,0,os.SEEK_SET)
-  return h
- except BaseException:
-  os.close(h);raise
-
 def main():
  p=argparse.ArgumentParser();p.add_argument('--freeze',required=True);p.add_argument('--freeze-sha256',required=True);a=p.parse_args()
  started=time.monotonic();trusted=False;fd=globals().get('__output_dir_fd__');job=os.environ.get('SLURM_JOB_ID','')
@@ -180,14 +159,9 @@ def main():
   exec(compile(captures['owned_supervision.py'],supervision.__file__,'exec',dont_inherit=True),supervision.__dict__)
   loader="import base64,hashlib,sys;source,path,*args=sys.argv[1:];raw=base64.b64decode(source);context=vars(sys.modules['__main__']);context.update(__name__='__main__',__file__=path,__executed_source_sha256__=hashlib.sha256(raw).hexdigest());sys.argv=[path,*args];exec(compile(raw,path,'exec',dont_inherit=True),context)"
   encode=lambda b:base64.b64encode(b).decode()
-  payload_raw=json.dumps({'arguments':[str(package),reg['manifest_sha256'],str(fd),encode(cli),encode(verifier),encode(captures['qualify_runtime.py']),encode(captures['checkpoint_guard.py']),encode(manifest_raw),a.freeze_sha256]},separators=(',',':')).encode()
-  payload_fd=sealed_payload(payload_raw)
-  command=[sys.executable,'-I','-B','-c',loader,encode(captures['child_bootstrap.py']),str(root/'child_bootstrap.py'),str(payload_fd),digest(payload_raw)]
-  result['captured_payload']={'bytes':len(payload_raw),'sha256':digest(payload_raw),'transport':'Linux sealed anonymous descriptor','largest_argument_bytes':max(len(x.encode()) for x in command)}
+  command=[sys.executable,'-I','-B','-c',loader,encode(captures['child_bootstrap.py']),str(root/'child_bootstrap.py'),str(package),reg['manifest_sha256'],str(fd),encode(cli),encode(verifier),encode(captures['qualify_runtime.py']),encode(captures['checkpoint_guard.py']),encode(manifest_raw),a.freeze_sha256]
   result['stage']='supervised_runtime_then_replay'
-  try:
-   child=supervision.supervise(command,started+850,reg['rss_bytes'],fd,'replay.log',dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1',CUDA_VISIBLE_DEVICES='',PYTHONDONTWRITEBYTECODE='1'),sampler.process_rss,input_fds=(payload_fd,))
-  finally:os.close(payload_fd)
+  child=supervision.supervise(command,started+850,reg['rss_bytes'],fd,'replay.log',dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1',CUDA_VISIBLE_DEVICES='',PYTHONDONTWRITEBYTECODE='1'),sampler.process_rss)
   result['child_execution']=child
   require(child['status']=='complete' and child['exit_code']==0 and child['cleanup']['complete'] is True,'child qualification/replay/cleanup failed')
   result['stage']='receipt_authentication'
