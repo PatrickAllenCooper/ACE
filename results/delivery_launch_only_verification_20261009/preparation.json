@@ -1,0 +1,127 @@
+{
+  "scope": "actual manifest/shared production command constructor, Darwin launch-only platform and qualifier substitutions",
+  "destination": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-full-manifest-launch-only-20261009-04",
+  "receipt_sha256": "d89ac529df252fe91cd831b2bd2ab00991699d602d2c470b45e0d5ea4cedd2c7",
+  "actual_capture_sha256": "84e96ece1040a08b5043829eaa0ed6f135429210a259fdfc5f6c56401a14c6b4",
+  "manifest_sha256": "b30e7b5f0f26f1e7f803c47e5cb1cbd22bbcb24ddac999e1f7e07cfc10c454a9",
+  "manifest_bytes": 2628435,
+  "actual_capture": {
+    "bytes": 3579289,
+    "sha256": "8f8ae9a0f6ba1e4e0487eafeb251ddecad22b7ddef5eaf7a070b7d038b665859",
+    "transport": "Linux sealed anonymous descriptor",
+    "largest_argument_bytes": 5068,
+    "argv_bytes_with_nuls": 5537,
+    "environment_bytes_with_nuls": 2490,
+    "environment_entries": 51,
+    "largest_environment_entry_bytes": 909,
+    "pointer_bytes": 496,
+    "platform_arg_max": 1048576,
+    "safety_margin_bytes": 4096,
+    "input_source_sha256": {
+      "cli": "7ef3ef6f0702b4e9f836fcce00ac866703160d5e41bd657375cd543248ab08bc",
+      "verifier": "9f80286faeb3266c53bba70a7cf2abc26c4129c61a56c265c263cb09a8f00d52",
+      "qualifier": "5fd8cebce7f50264c8ad48d0f7aef97ce45523ed752285e12c6e8accc76a8b9f",
+      "guard": "2fde39310b9eac837efcfd60238deb0a094d366a5306ed333cef561e385b2f49",
+      "bootstrap": "e2ddf8fe650de97f54278eb8f5f1253e11251c44dc9403af215f1888dc6be739",
+      "manifest": "b30e7b5f0f26f1e7f803c47e5cb1cbd22bbcb24ddac999e1f7e07cfc10c454a9"
+    },
+    "actual_transport": "Darwin anonymous unlinked regular file; Linux seals mocked",
+    "executed": false,
+    "loader_sha256": "49b5e20250a0afee7d670e1285733b973a73266e9d1f934b3eed8018df88421e",
+    "argv_entries": 9,
+    "descriptor_inode": 63419098
+  },
+  "cases": [
+    {
+      "mode": "success",
+      "status": "complete",
+      "exit_code": 0,
+      "cleanup_complete": true,
+      "parent_payload_closed": true,
+      "elapsed_seconds": 0.19410312499894644
+    },
+    {
+      "mode": "child_error",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": true,
+      "parent_payload_closed": true,
+      "elapsed_seconds": 0.1942263750024722
+    },
+    {
+      "mode": "payload_changed",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": true,
+      "parent_payload_closed": true,
+      "elapsed_seconds": 0.20241679099854082
+    },
+    {
+      "mode": "unsealed",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": true,
+      "parent_payload_closed": true,
+      "elapsed_seconds": 0.19015883300016867
+    },
+    {
+      "mode": "missing_payload_fd",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": true,
+      "parent_payload_closed": true,
+      "elapsed_seconds": 0.18500562500048545
+    },
+    {
+      "mode": "freeze_changed",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": true,
+      "parent_payload_closed": true,
+      "elapsed_seconds": 0.1888587079993158
+    },
+    {
+      "mode": "descendant",
+      "status": "complete",
+      "exit_code": 0,
+      "cleanup_complete": true,
+      "parent_payload_closed": true,
+      "elapsed_seconds": 0.33929491600065376
+    }
+  ],
+  "source_pins": {
+    "supervise_delivery_qualified_replay.py": "3e09f8e40cf3613a5f5642fcd8275039e048724bcc3441108634dce56610cf44",
+    "delivery_replay_supervision.py": "8e8e93bf920241169b5ab728ef28c8ae93b6978923d53b31e4f63f31cec5dd63",
+    "qualify_delivery_replay_runtime.py": "5fd8cebce7f50264c8ad48d0f7aef97ce45523ed752285e12c6e8accc76a8b9f",
+    "delivery_replay_checkpoint_guard.py": "2fde39310b9eac837efcfd60238deb0a094d366a5306ed333cef561e385b2f49",
+    "verify_delivery_launch_only.py": "4d9ff463f96a427304020f24c81a4a37d5246c09a89216d2589e44f78a489c0f"
+  },
+  "substitutions": [
+    "Linux memfd/seals -> real anonymous unlinked file, mocked seal results",
+    "Linux prctl -> mock; directchildren/RSS -> actual Darwin ps",
+    "/proc outputpathname -> explicit Darwin projection",
+    "qualifier -> safe launch-only stub exiting before dependencies/guard/verifier/CLI",
+    "bootstrap -> declared platform preamble plus unchanged production body"
+  ],
+  "remaining_unqualified": [
+    "actual Linux seals/subreaping/proc",
+    "Slurm/interpreter/allocation gates",
+    "six dependencies/native module origins",
+    "checkpoint/statistical replay and final scientific receipt acceptance"
+  ],
+  "prior_attempts": [
+    "delivery-full-manifest-launch-only-20261009-01",
+    "delivery-full-manifest-launch-only-20261009-02",
+    "delivery-full-manifest-launch-only-20261009-03"
+  ],
+  "new_allocation": false,
+  "new_fits": 0,
+  "new_optimizer_updates": 0,
+  "new_responses": 0,
+  "actual_runtime_qualified": false,
+  "no_new_allocation_authorized": true,
+  "total_preparation_process_cpu": "unknown; not metered",
+  "failed_original_job": 33625983,
+  "failed_terminal_inventory_sha256": "474c4907b3a15b1e7dc771e41de76ceef9d7aeb9a376f759dac819d85bbd97f1",
+  "review": "distinct static Volta review one owned ps cleanup finding fixed; residual recheck zero required"
+}

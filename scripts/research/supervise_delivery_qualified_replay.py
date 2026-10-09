@@ -141,6 +141,30 @@ def sealed_payload(raw):
  except BaseException:
   os.close(h);raise
 
+CHILD_LOADER="import base64,hashlib,sys;source,path,*args=sys.argv[1:];raw=base64.b64decode(source);context=vars(sys.modules['__main__']);context.update(__name__='__main__',__file__=path,__executed_source_sha256__=hashlib.sha256(raw).hexdigest());sys.argv=[path,*args];exec(compile(raw,path,'exec',dont_inherit=True),context)"
+
+def child_environment():
+ return dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1',CUDA_VISIBLE_DEVICES='',PYTHONDONTWRITEBYTECODE='1')
+
+def build_child_launch(package,manifest_pin,fd,captures,cli,verifier,manifest_raw,freeze_pin,environment):
+ """Shared production constructor; scientific source bytes are captured, not run."""
+ encode=lambda b:base64.b64encode(b).decode()
+ payload_raw=json.dumps({'arguments':[str(package),manifest_pin,str(fd),encode(cli),encode(verifier),encode(captures['qualify_runtime.py']),encode(captures['checkpoint_guard.py']),encode(manifest_raw),freeze_pin]},separators=(',',':')).encode()
+ payload_fd=sealed_payload(payload_raw)
+ try:
+  command=[sys.executable,'-I','-B','-c',CHILD_LOADER,encode(captures['child_bootstrap.py']),str(Path('/proc/self/fd/'+str(fd))/'child_bootstrap.py'),str(payload_fd),digest(payload_raw)]
+  argv_bytes=sum(len(os.fsencode(x))+1 for x in command)
+  environment_sizes=[len(os.fsencode(k))+len(os.fsencode(v))+2 for k,v in environment.items()]
+  environment_bytes=sum(environment_sizes);largest_environment_entry=max(environment_sizes,default=0)
+  pointer_bytes=(len(command)+len(environment)+2)*__import__('struct').calcsize('P')
+  arg_max=os.sysconf('SC_ARG_MAX');largest=max(len(os.fsencode(x)) for x in command)
+  require(largest<65536,'conservative individual argument cap exceeded')
+  require(largest_environment_entry<65536,'conservative individual environment cap exceeded')
+  require(argv_bytes+environment_bytes+pointer_bytes+4096<arg_max,'combined platform argv/environment bound exceeded')
+  return command,payload_fd,{'bytes':len(payload_raw),'sha256':digest(payload_raw),'transport':'Linux sealed anonymous descriptor','largest_argument_bytes':largest,'argv_bytes_with_nuls':argv_bytes,'environment_bytes_with_nuls':environment_bytes,'environment_entries':len(environment),'largest_environment_entry_bytes':largest_environment_entry,'pointer_bytes':pointer_bytes,'platform_arg_max':arg_max,'safety_margin_bytes':4096,'input_source_sha256':{'cli':digest(cli),'verifier':digest(verifier),'qualifier':digest(captures['qualify_runtime.py']),'guard':digest(captures['checkpoint_guard.py']),'bootstrap':digest(captures['child_bootstrap.py']),'manifest':digest(manifest_raw)}}
+ except BaseException:
+  os.close(payload_fd);raise
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--freeze',required=True);p.add_argument('--freeze-sha256',required=True);a=p.parse_args()
  started=time.monotonic();trusted=False;fd=globals().get('__output_dir_fd__');job=os.environ.get('SLURM_JOB_ID','')
@@ -178,15 +202,12 @@ def main():
   exec(compile(original,sampler.__file__,'exec',dont_inherit=True),sampler.__dict__)
   supervision=types.ModuleType('derived_owned_supervision');supervision.__file__=str(root/'owned_supervision.py')
   exec(compile(captures['owned_supervision.py'],supervision.__file__,'exec',dont_inherit=True),supervision.__dict__)
-  loader="import base64,hashlib,sys;source,path,*args=sys.argv[1:];raw=base64.b64decode(source);context=vars(sys.modules['__main__']);context.update(__name__='__main__',__file__=path,__executed_source_sha256__=hashlib.sha256(raw).hexdigest());sys.argv=[path,*args];exec(compile(raw,path,'exec',dont_inherit=True),context)"
-  encode=lambda b:base64.b64encode(b).decode()
-  payload_raw=json.dumps({'arguments':[str(package),reg['manifest_sha256'],str(fd),encode(cli),encode(verifier),encode(captures['qualify_runtime.py']),encode(captures['checkpoint_guard.py']),encode(manifest_raw),a.freeze_sha256]},separators=(',',':')).encode()
-  payload_fd=sealed_payload(payload_raw)
-  command=[sys.executable,'-I','-B','-c',loader,encode(captures['child_bootstrap.py']),str(root/'child_bootstrap.py'),str(payload_fd),digest(payload_raw)]
-  result['captured_payload']={'bytes':len(payload_raw),'sha256':digest(payload_raw),'transport':'Linux sealed anonymous descriptor','largest_argument_bytes':max(len(x.encode()) for x in command)}
+  environment=child_environment()
+  command,payload_fd,payload_info=build_child_launch(package,reg['manifest_sha256'],fd,captures,cli,verifier,manifest_raw,a.freeze_sha256,environment)
+  result['captured_payload']=payload_info
   result['stage']='supervised_runtime_then_replay'
   try:
-   child=supervision.supervise(command,started+850,reg['rss_bytes'],fd,'replay.log',dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1',CUDA_VISIBLE_DEVICES='',PYTHONDONTWRITEBYTECODE='1'),sampler.process_rss,input_fds=(payload_fd,))
+   child=supervision.supervise(command,started+850,reg['rss_bytes'],fd,'replay.log',environment,sampler.process_rss,input_fds=(payload_fd,))
   finally:os.close(payload_fd)
   result['child_execution']=child
   require(child['status']=='complete' and child['exit_code']==0 and child['cleanup']['complete'] is True,'child qualification/replay/cleanup failed')
