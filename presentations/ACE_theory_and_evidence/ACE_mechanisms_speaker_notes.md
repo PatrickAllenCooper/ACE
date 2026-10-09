@@ -25,12 +25,11 @@ Sources
 
 # Slide 4
 
-Implementation: baselines.py, EnsembleStudentSCM / EnsembleLearner / PropagatedVariancePolicy, and scripts/research/persistent_scm.py. Historical PEV uses known graphs, independently initialized neural heads, model-only candidate contexts and covariance-based integrated variance reduction summed over descendant mechanisms. It does not identify the graph or optimize the proposed terminal-risk objective. Noise proxy is residual error, not a certified aleatoric estimate. For descendant head j and simulated parent context x, the implemented contribution averages Cov_k(f_k(x),f_k(r))²/[Var_k(f_k(x))+noise_proxy_j] across reference contexts r and simulated contexts. Scores sum over descendants, not necessarily the final target alone. Candidates can be jittered and epsilon exploration can select a random candidate. Linear Gaussian conditioning motivates the covariance formula but does not certify neural ensemble calibration or optimal experimental design. A target-specific version and protection from wrong transferred priors are proposed work.
+Analytic representation-size illustration, not an ACE benchmark. Define a deterministic discrete SCM with10independently controllable five-valued input nodes and9two-parent mechanism nodes arranged as a binary reduction tree. Every endogenous output also has5values. A naive associative lookup table for the final response over the full joint input grid requires5^10=9,765,625entries. With the graph supplied, nine local mechanism tables require9*5^2=225entries, a43,402.78fold representation-count difference. This is not a measured intervention-count reduction. Learning local tables assumes each required parent configuration is accessible with the child mechanism intact and allvariablesobserved; without internal interventions, reachability can fail. Sharedparentsettings may reveal several labels. Noncausal regressors can exploit smoothness/sparsity and need not enumerate a grid; the comparator is specifically exhaustive lookup, not allassociativelearning. No empirical superiority over this new baseline has been measured. Current PEV scores candidates by descendant ensemble covariance reduction; details retained in the worked calculation.
 
 Sources
 /Users/pat/code/ACE/docs/development/guidance/ace_theoretical_ideation_2026-10-08.md
 /Users/pat/code/ACE/presentations/ACE_theory_and_evidence/mechanistic_demonstration_2026-10-09.json
-https://papers.nips.cc/paper/1011-active-learning-with-statistical-models.pdf
 
 # Slide 5
 
@@ -56,30 +55,26 @@ Sources
 
 # Slide 8
 
-Historical shifted-mechanism study, PEV arm, seed5000, first chronological row; selected by smallest study seed, not outcome. First targetX7,value3.857086181640625,cumulative samples50. Next rowX9,value5,cumulative100. Complete journal32interventioncalls1600responses plus10observationalcalls400responses,total42calls2000responses. Archived system.json supplies graph identity. Per-step raw response rows, candidate scores and ensembleweights are absent from this trace, so this slide does not fabricate them. This is a historical action illustration, not a new run or the toy state on slides5–7.
+Exact archived DAG for smallest seed5000, not chosen for favorable performance. Edges point parent to child. HighlightX7 first chosen intervention and its descendant edges. FirstactiondoX7=3.857086181640625 buys50responses. Eachrow supplieseligible natural-mechanism labels using observedparents. Fullcampaign32interventionbatches1600responses plus400observationalresponses. All20DAGs in thecomparison shareonefive-layergenerator, not20independentgraphfamilies. Rawrows/candidatescores notretained for thisaction.
 
 Sources
+results/research_pev_shift30_mean_confirmation/shift30/pev/seed_5000/system.json
 results/research_pev_shift30_mean_confirmation/shift30/pev/seed_5000/trajectory.csv
-results/research_pev_shift30_mean_confirmation/shift30/pev/seed_5000/query_budget.json
-/Users/pat/code/ACE/docs/development/guidance/protocol_pev_shift30_mean_confirmation.json
-/Users/pat/code/ACE/docs/development/guidance/erratum_shift_graph_provenance_2026-09-27.md
+/Users/pat/code/ACE/results/research_pev_shift30_mean_confirmation/README.md
+/Users/pat/code/ACE/presentations/ACE_theory_and_evidence/recorded_curves_2026-10-09.json
 
 # Slide 9
 
-Keep separate studies separate. Primary persistent confirmation:40 systems20eachhomogeneous/heterogeneous,PEV vscoverage paired differences−.01360 CI[−.02151,−.00569] Holm.00384 and−.10919 CI[−.18856,−.02981] Holm.00961.20/20 and16/20 wins. Shift30:20systems,PEVarithmeticmean.0154302049vsrandom.0438980071,19/20wins,descriptive64.85%lowergroupmean,secondaryp.00750;primarycoveragep.05108fails,scoringablationp.62176unresolved. Delivery12historiesoneemulatorgeometricexactlevelratio.183CI[.102,.327],11/12wins;exposedgrid,median3scoredinitializations,unequalfittingcompute. Retainedworsening124753321ratio2.015177. Physical7/11rolling3/11physics0/11Fourier,conditionsoneapparatus. No Stage B performance pending supplemental qualification. Numbers are historical accepted summaries, no recomputation of tests.
+All20shift30systemsseeds5000–5019. Arithmeticmean noise-free feasible nonroot mechanism MSE, measured-parent prediction. Full32checkpoints shown atleft; samecurves4–32zoomatright. FinalACE.0154302049,random.0438980071,64.85%lowerratioofmeans,19/20pairedwins. Secondarycontrastp.00750. Prespecifiedcoveragecontrastfails p.05108 andnaivevariancescoringunresolved p.62176. Earlyrandomadvantage remains visible. No Bresults,confidenceband,newfit ornewhypothesis.
 
 Sources
-/Users/pat/code/ACE/docs/ACE_evidence_and_public_claims_2026-10-08.md
-/Users/pat/code/ACE/paper/aistats_ace_2027/claim_index.json
 /Users/pat/code/ACE/results/research_pev_shift30_mean_confirmation/README.md
-/Users/pat/code/ACE/results/research_persistent_confirmation_v1/README.md
+/Users/pat/code/ACE/presentations/ACE_theory_and_evidence/recorded_curves_2026-10-09.json
 
 # Slide 10
 
-Research proposal, not current demonstrated ACE advantage. Numerical foundation model such asTabPFNv2 provides reusable prediction priors. Language model proposes typed mechanism forms or constraints, whose parameters and plausibility trustednumericalcode evaluates. SCM enforces interventionsemantics/eligibleupdates, numerical experimentselector evaluates candidatevalue/cost. Retain broad data-onlyalternative andtestwrongpriorrecovery/protection ofunchangedmechanisms. MDA alreadycombines LLMproposals,numericalBayesianinferenceanddesign,includingtask-awareVoI discussion. LLM-SR providesprogramstructureproposalswithnumericalparametersearch. Neither genericcomposition nortarget-riskformulaalone establishes novelty. Proposedclaimtest must isolatefoundationcomponent from estimator/acquisition/finalfitchanges. No universaladvantage or causalidentificationfrompredictionalone.
+New descriptivepost-hocdisplayonly. TargetdefinedasrandomfinalgroupmeanMSE .043898007078491626. Firstobservedgroupmeancrossing,nointerpolation:ACEbatch10,500interventionresponses+120obs=620total,mean.04007927;randombatch28,1400interventionresponses+360obs=1760total,mean.04216014. 1−10/28=64.2857%fewerbatches/interventionresponses;1−620/1760=64.7727%fewertotalresponses. Randomcrossesbackabove atbatch31. Bothoriginalcampaignsactuallyran32batches2000totalresponses;thesearedescriptiveprefixcomparisons,notactualsavedcompute/measurements,norvalidatedprospectivestoppingrule. Groupmeanfirstcrossingnotmeanofindividualfirstcrossings. Noone-systemorpopulationguarantee. Originalstudiesshowfixedbudgetpredictionadvantage;prospectivesample-efficiencyconfirmationremainsfuture.
 
 Sources
-/Users/pat/code/ACE/docs/development/guidance/ace_theoretical_ideation_2026-10-08.md
-https://arxiv.org/html/2608.09696
-https://github.com/deep-symbolic-mathematics/LLM-SR
-https://www.nature.com/articles/s41586-024-08328-6
+/Users/pat/code/ACE/presentations/ACE_theory_and_evidence/recorded_curves_2026-10-09.json
+/Users/pat/code/ACE/results/research_pev_shift30_mean_confirmation/README.md

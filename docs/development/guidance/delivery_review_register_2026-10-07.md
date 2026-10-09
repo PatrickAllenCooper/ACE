@@ -1000,3 +1000,9 @@ methods pass, no realLinux/targetruntime/science qualification. Previousfive
 sourcefinding dispositions preserved. New allocation requiresPatrick decision;
 failed33625983 evidence and source retained. No claim/manuscript/public changes.
 See reviews/delivery_descriptor_transport_review_2026-10-09.md.
+
+## October9 descriptor06 packet and terminal follow-up
+
+Independent narrow launchpacket review0required: freeze/outputinode/pins/manifest/resources/authorization agree. Actual job33640933 then failedruntime provenance on fileless torch._VF; sealedpayload transport and childcleanup succeeded. Savedartifactnumericalreplay remainsunqualified; nochange tooriginalacceptance. Oneapprovedattemptconsumed; preservefailure, noautorerun. Newfoundationcomponentcode is a separate approved exploration, not accepted deliverysource.
+
+Marketingv5 numericalreview independentlychecked40trajectories,20pairedsystems and firstrecordedthresholdcrossings:10vs28batches,620vs1760totalresponses. Allretrospectivescope and originalnegativecomparisons remainnotes/context. Separate discreteSCMrepresentation-size review0required. Reports/source in docs/presentations/ACE_marketing_visuals_2026-10-09.md. These reviews do not close finalpaperintegration/publicationgates.

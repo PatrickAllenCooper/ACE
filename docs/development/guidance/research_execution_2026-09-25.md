@@ -2878,3 +2878,9 @@ approves. Newoutput06 unclaimed; source/pin/resource proposal in
 results/delivery_descriptor_replay_proposal_20261009. Read
 delivery_descriptor_replay_proposal_2026-10-09.md before anyresume. Existing
 automation alreadyabsent/not_found; no furtherallocation orclaimsexport.
+
+## October9 14:15UTC authorized descriptor replay06 terminal failure
+
+Patrick explicitly approved one corrected replay and said Proceed. After remote readiness/authentication of3893package objects, exactmanifest b30e7b5f, exclusivecontroller/output/input pins, and independent packet review0required, job33640933 submitted once. FAILED1:0 after69allocatedCPU seconds with actual1CPU/3GiB/15minute/no-requeueallocation. Sealed descriptor transport worked for3579277payloadbytes and shortargv; runtime qualification then rejected filelessmodule torch._VF. Childcleanupcomplete, no scientific replayqualification/newfits/responses. Originalstudyacceptance unchanged. Allterminalartifacts copied to exclusive delivery-descriptor-replay-terminal-20261009-06; repositoryresults/delivery_descriptor_replay_20261009/terminal06. Knownallocated119413seconds=33.1702777778corehours, notwhole-sprintCPU. Reservation88.618333/150; singleattempt consumed; noautomaticretry.
+
+User separately reopened FM+SCM development with isolateddependencies and boundedpilots. See ace_foundation_synthesis_execution_2026-10-09.md; this is distinct from frozen originalstudies. Newmarketingpresentationv5 adds exactSCMgraphs, all20systemlearningcurves and descriptivepost-hoc crossingcomparison. 64.3% fewerbatches is retrospectivegroupmeanthreshold, notactualsavedresources orprospectivestoppingresult. Grid5^10vs9*25 countsrepresentationentries, not empiricalscience. NoStageBclaimsexported. Prototypecomponentpilotnotfrozen/scored yet; preflight/reviewremaining.
