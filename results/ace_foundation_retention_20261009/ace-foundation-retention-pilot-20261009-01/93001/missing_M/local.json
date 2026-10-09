@@ -1,0 +1,68 @@
+{
+  "seed": 93001,
+  "variant": "missing_M",
+  "method": "local",
+  "status": "complete",
+  "metrics": {
+    "M_local": {
+      "mse": 0.0006481486277648997,
+      "nmse": 0.0013783663774704375,
+      "training_variance": 0.4702295691181722,
+      "floor_active": false
+    },
+    "Y_local": {
+      "mse": 6.872812449519305e-05,
+      "nmse": 0.00021234557732844662,
+      "training_variance": 0.3236616715067603,
+      "floor_active": false
+    },
+    "Y_composed": {
+      "mse": 0.0005761741923684519,
+      "nmse": 0.0017801743088273504,
+      "training_variance": 0.3236616715067603,
+      "floor_active": false
+    }
+  },
+  "diagnostics": {
+    "intervals": [
+      {
+        "lower": -1.0,
+        "upper": 1.0
+      },
+      {
+        "lower": -1.4401826485869862,
+        "upper": 1.0
+      }
+    ],
+    "local": {
+      "M_local": {
+        "inside": {
+          "count": 256,
+          "mse": 0.0006481486277648997
+        },
+        "outside": {
+          "count": 0,
+          "mse": null
+        }
+      },
+      "Y_local": {
+        "inside": {
+          "count": 169,
+          "mse": 4.8613326379920605e-05
+        },
+        "outside": {
+          "count": 87,
+          "mse": 0.00010780169784554988
+        }
+      }
+    },
+    "composed_Y_parent_inside": 256,
+    "composed_Y_parent_outside": 0,
+    "composed_Y_parent_inside_rate": 1.0,
+    "interval_gating_enabled": false
+  },
+  "parent_sha256": "15ffcbab47eb4ea73a653e096042faaafb22c6bc92abae968ca583fd2b6a3bfa",
+  "prediction_sha256": "f78b9ebcb5d8740ad86a790971ea87ddee1727915638fb6a5570e35cf12fc9a0",
+  "evaluation_elapsed_s": 0.0013203330017859116,
+  "evaluation_process_cpu_s": 0.0013179999999994862
+}

@@ -1,0 +1,71 @@
+{
+  "status": "complete",
+  "error": null,
+  "nodes": [
+    {
+      "node": "M",
+      "fit_rows": 15,
+      "status": "complete",
+      "head": {
+        "fit_count": 1,
+        "fit_rows": 15,
+        "prediction_calls": 4,
+        "prediction_rows": 15,
+        "family": "quadratic",
+        "coefficients": [
+          -0.28048115588015765,
+          1.0536159953220312,
+          0.5648061721969163
+        ],
+        "pointwise_check": {
+          "parents": [
+            -2.0,
+            -1.0,
+            -0.5,
+            1.0,
+            2.0
+          ],
+          "repeat_exact": true,
+          "partition_max_abs_difference": 0.0,
+          "rtol": 1e-06,
+          "atol": 1e-06,
+          "scope": "five fit-derived inputs only; finite numerical check, not universal pointwise proof"
+        },
+        "rbf_normalization": null
+      }
+    },
+    {
+      "node": "Y",
+      "fit_rows": 24,
+      "status": "complete",
+      "head": {
+        "fit_count": 1,
+        "fit_rows": 24,
+        "prediction_calls": 4,
+        "prediction_rows": 15,
+        "family": "tanh",
+        "coefficients": [
+          -0.13420736422752713,
+          1.055087948963148
+        ],
+        "pointwise_check": {
+          "parents": [
+            -2.0,
+            -1.0,
+            -0.5,
+            1.382522115390817,
+            2.3825221153908167
+          ],
+          "repeat_exact": true,
+          "partition_max_abs_difference": 0.0,
+          "rtol": 1e-06,
+          "atol": 1e-06,
+          "scope": "five fit-derived inputs only; finite numerical check, not universal pointwise proof"
+        },
+        "rbf_normalization": null
+      }
+    }
+  ],
+  "elapsed_s": 0.0002487500023562461,
+  "process_cpu_s": 0.000248000000000026
+}
