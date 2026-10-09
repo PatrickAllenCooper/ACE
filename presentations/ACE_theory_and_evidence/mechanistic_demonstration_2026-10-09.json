@@ -1,0 +1,385 @@
+{
+  "schema": "ace-mechanistic-demonstration-v1",
+  "scope": "Illustrative exact arithmetic, not a fitted study or production replay",
+  "graph": [
+    [
+      "X",
+      "M"
+    ],
+    [
+      "M",
+      "Y"
+    ]
+  ],
+  "true_rules": {
+    "M": "2.5*X",
+    "Y": "3*M",
+    "noise": 0
+  },
+  "ensemble_before": {
+    "M_slopes": [
+      {
+        "exact": "1",
+        "decimal": 1.0
+      },
+      {
+        "exact": "2",
+        "decimal": 2.0
+      },
+      {
+        "exact": "3",
+        "decimal": 3.0
+      }
+    ],
+    "Y_slopes": [
+      {
+        "exact": "2",
+        "decimal": 2.0
+      },
+      {
+        "exact": "3",
+        "decimal": 3.0
+      },
+      {
+        "exact": "4",
+        "decimal": 4.0
+      }
+    ]
+  },
+  "score_configuration": {
+    "references": [
+      {
+        "exact": "-1",
+        "decimal": -1.0
+      },
+      {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      {
+        "exact": "1",
+        "decimal": 1.0
+      }
+    ],
+    "noise_proxy": {
+      "exact": "1/20",
+      "decimal": 0.05
+    },
+    "candidate_jitter": false,
+    "epsilon_exploration": 0,
+    "tie_rule": "first maximum in listed order",
+    "uncertainty": "population ensemble covariance"
+  },
+  "candidates": [
+    {
+      "node": "X",
+      "value": {
+        "exact": "-1",
+        "decimal": -1.0
+      },
+      "predicted_M": {
+        "exact": "-2",
+        "decimal": -2.0
+      },
+      "predicted_Y": {
+        "exact": "-6",
+        "decimal": -6.0
+      },
+      "score_M": {
+        "exact": "160/387",
+        "decimal": 0.4134366925064599
+      },
+      "score_Y": {
+        "exact": "640/1467",
+        "decimal": 0.43626448534423995
+      },
+      "score": {
+        "exact": "53600/63081",
+        "decimal": 0.8497011778506999
+      }
+    },
+    {
+      "node": "X",
+      "value": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "predicted_M": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "predicted_Y": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "score_M": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "score_Y": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "score": {
+        "exact": "0",
+        "decimal": 0.0
+      }
+    },
+    {
+      "node": "X",
+      "value": {
+        "exact": "1",
+        "decimal": 1.0
+      },
+      "predicted_M": {
+        "exact": "2",
+        "decimal": 2.0
+      },
+      "predicted_Y": {
+        "exact": "6",
+        "decimal": 6.0
+      },
+      "score_M": {
+        "exact": "160/387",
+        "decimal": 0.4134366925064599
+      },
+      "score_Y": {
+        "exact": "640/1467",
+        "decimal": 0.43626448534423995
+      },
+      "score": {
+        "exact": "53600/63081",
+        "decimal": 0.8497011778506999
+      }
+    },
+    {
+      "node": "M",
+      "value": {
+        "exact": "-1",
+        "decimal": -1.0
+      },
+      "predicted_M": {
+        "exact": "-1",
+        "decimal": -1.0
+      },
+      "predicted_Y": {
+        "exact": "-3",
+        "decimal": -3.0
+      },
+      "score_M": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "score_Y": {
+        "exact": "160/387",
+        "decimal": 0.4134366925064599
+      },
+      "score": {
+        "exact": "160/387",
+        "decimal": 0.4134366925064599
+      }
+    },
+    {
+      "node": "M",
+      "value": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "predicted_M": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "predicted_Y": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "score_M": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "score_Y": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "score": {
+        "exact": "0",
+        "decimal": 0.0
+      }
+    },
+    {
+      "node": "M",
+      "value": {
+        "exact": "1",
+        "decimal": 1.0
+      },
+      "predicted_M": {
+        "exact": "1",
+        "decimal": 1.0
+      },
+      "predicted_Y": {
+        "exact": "3",
+        "decimal": 3.0
+      },
+      "score_M": {
+        "exact": "0",
+        "decimal": 0.0
+      },
+      "score_Y": {
+        "exact": "160/387",
+        "decimal": 0.4134366925064599
+      },
+      "score": {
+        "exact": "160/387",
+        "decimal": 0.4134366925064599
+      }
+    }
+  ],
+  "selected": {
+    "node": "X",
+    "value": {
+      "exact": "-1",
+      "decimal": -1.0
+    },
+    "predicted_M": {
+      "exact": "-2",
+      "decimal": -2.0
+    },
+    "predicted_Y": {
+      "exact": "-6",
+      "decimal": -6.0
+    },
+    "score_M": {
+      "exact": "160/387",
+      "decimal": 0.4134366925064599
+    },
+    "score_Y": {
+      "exact": "640/1467",
+      "decimal": 0.43626448534423995
+    },
+    "score": {
+      "exact": "53600/63081",
+      "decimal": 0.8497011778506999
+    }
+  },
+  "illustrative_response": {
+    "X": {
+      "exact": "-1",
+      "decimal": -1.0
+    },
+    "M": {
+      "exact": "-5/2",
+      "decimal": -2.5
+    },
+    "Y": {
+      "exact": "-15/2",
+      "decimal": -7.5
+    }
+  },
+  "eligible_training_pairs": {
+    "M": [
+      {
+        "exact": "-1",
+        "decimal": -1.0
+      },
+      {
+        "exact": "-5/2",
+        "decimal": -2.5
+      }
+    ],
+    "Y": [
+      {
+        "exact": "-5/2",
+        "decimal": -2.5
+      },
+      {
+        "exact": "-15/2",
+        "decimal": -7.5
+      }
+    ]
+  },
+  "excluded_label": "X is clamped; do not update its natural distribution from this row",
+  "illustrative_update": {
+    "loss": "half squared error per head/member",
+    "M_step_size": {
+      "exact": "1/2",
+      "decimal": 0.5
+    },
+    "Y_step_size": {
+      "exact": "2/25",
+      "decimal": 0.08
+    },
+    "M_slopes_after": [
+      {
+        "exact": "7/4",
+        "decimal": 1.75
+      },
+      {
+        "exact": "9/4",
+        "decimal": 2.25
+      },
+      {
+        "exact": "11/4",
+        "decimal": 2.75
+      }
+    ],
+    "Y_slopes_after": [
+      {
+        "exact": "5/2",
+        "decimal": 2.5
+      },
+      {
+        "exact": "3",
+        "decimal": 3.0
+      },
+      {
+        "exact": "7/2",
+        "decimal": 3.5
+      }
+    ],
+    "predicted_M_after": {
+      "exact": "-9/4",
+      "decimal": -2.25
+    },
+    "predicted_Y_after": {
+      "exact": "-27/4",
+      "decimal": -6.75
+    },
+    "production_difference": "Production uses neural heads, Adam and member-specific batch masks; this update is explanatory only"
+  },
+  "recorded_trace": {
+    "path": "results/research_pev_shift30_mean_confirmation/shift30/pev/seed_5000",
+    "trajectory_sha256": "80beb37f68ea4374b890a1c4cda2f03b5fc42fda6e98204cced287a8a7be2081",
+    "selection_rule": "first step of smallest study seed 5000",
+    "first_action": {
+      "step": "0",
+      "target": "X7",
+      "value": "3.857086181640625",
+      "query_samples": "50"
+    },
+    "budget": {
+      "executed": {
+        "calls": 32,
+        "samples": 1600
+      },
+      "observational": {
+        "calls": 10,
+        "samples": 400
+      },
+      "total": {
+        "calls": 42,
+        "samples": 2000
+      }
+    },
+    "unavailable": [
+      "candidate scores",
+      "raw response rows",
+      "per-step ensemble weights"
+    ]
+  },
+  "production_sources": [
+    "baselines.py:PropagatedVariancePolicy",
+    "scripts/research/persistent_scm.py:campaign"
+  ],
+  "environmental_responses_collected": 0,
+  "accepted_artifacts_refitted": 0
+}

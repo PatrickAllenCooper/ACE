@@ -1,3 +1,9 @@
+# Current revision: October9
+
+The approved mechanistic revision is complete in `ACE_mechanisms_and_evidence_v4.pptx`. It supersedes the historical slide sequence below. Current order: SCM purpose and I/O; SCM equations; intervention replacement and eligible labels; numerical acquisition; exact toy inputs; candidate scores/action; response/update; archived seed5000 action; qualified evidence and boundaries; proposed foundation-model synthesis. See `ACE_mechanistic_revision_review_2026-10-09.md` for source and review scope.
+
+---
+
 # ACE: theory, an intuitive example and evidence
 
 Date: October 8, 2026. Prepared by Codex for Patrick.
