@@ -43,3 +43,17 @@ The empirical statement is only that the fixed TabPFN adapter was worse than the
 ## Review
 
 An independent bounded mathematical review found zero required corrections to the identity, derivative, constrained optimum, exact counterexample or limitations. The rational counterexample was checked without model execution:169/256>16/25. This review does not revalidate empirical pilot claims; those have a separate saved results review.
+
+## Coherent model averaging preserves dependence between mechanisms
+
+Hoeting, Madigan, Raftery and Volinsky's [Bayesian Model Averaging tutorial](https://www.stat.colostate.edu/~jah/papers/statsci.pdf), equation1, averages model-specific predictive distributions using posterior model probabilities. This gives a useful existing framework for the proposed synthesis; validation-selected mixture weights in our prototype are not posterior model probabilities.
+
+The following is our application of that framework, not a claim established for the pilot. Suppose a finite collection of complete SCMs has an explicitly specified posterior over model index Z after history D. For a fixed intervention a selected from D, without observing its outcome, the interventional predictive distribution is
+
+`p(y | do(a),D) = Σz p(z | D) pz(y | do(a),D)`.
+
+This requires coherent within-model intervention semantics and any parameter/noise integration; a root prediction alone does not supply them. A predictive sample first chooses one complete model index and then propagates through that model. It does not independently replace each head by its mean across models. This preserves any dependence between head parameters encoded by the model collection. It is a conditional model-based construction, not identification from arbitrary observational data or a guarantee that the collection contains truth.
+
+For linear two-head maps M=aX and Y=bM, the distinction is exact: model averaging gives `E[ab]X`, while composing the averaged heads gives `E[a]E[b]X`. Their difference is `Cov(a,b)X`. At X=1 with equal weight on the two complete predictors above, `E[ab]=1.4`, `E[a]E[b]=1.8125`, and `Cov(a,b)=−0.4125`. Independent head means discard precisely that cross-head dependence. In a general nonlinear SCM, even this covariance correction is insufficient; one must propagate the complete model or joint parameter sample.
+
+A prospective ACE approach could retain a small set of complete, intervention-consistent models assembled from numerical and pretrained proposals, and score candidate experiments against their joint predictive disagreement. Model weights and update rules would need an explicit likelihood or a separately declared calibration rule. TabPFN marginal predictive uncertainty does not by itself define this joint SCM posterior; the current finite calibration grid is a predictive selector only. Neither this derivation nor the first pilot establishes an acquisition advantage. The proposed mismatch screen remains the next bounded empirical check before developing such acquisition machinery.
