@@ -1,0 +1,26 @@
+# Retention runner: distinct bounded static review
+
+Date: 2026-10-09. Disposition: **no required corrections found in the reviewed bytes**. This is source review before technical qualification, not approval or evidence of a successful model-runtime fixture or scientific run.
+
+## Exact sources and scope
+
+- `scripts/research/foundation_retention_pilot.py`: SHA-256 `9e366046160011e724ce6c932a503ab57d9e12814a681ae892bf3e99c269fcc2`.
+- `scripts/research/test_foundation_retention_runner.py`: SHA-256 `6e7e5a8b34f3f36000a1349859e71db3d10792ad620cf7f44ba0320d39b4606d`.
+- `docs/development/guidance/ace_foundation_retention_design_2026-10-09.md`: SHA-256 `881219ded6bec8a365555371e17ded5fa7e99a741faa21a27b9df0e58e0aa855`.
+
+Reviewed model information and private-evaluation boundaries, fit/calibration eligibility, retention gates, response/resource accounting, and error dispositions. Read the four runner tests statically; did not execute them, import the worker/models, generate worlds, or edit implementation/design. Read only the relevant inherited interfaces and referenced protocol definitions needed to resolve this new runner's behavior; no repeated old test suite or broad prior-pipeline review. The separately implemented supervisor's metadata-only tests are a different deliverable.
+
+Source snapshots and the complete supporting-source SHA-256 manifest are preserved in `/Users/pat/ACE_Study_Results/2026-10-peter-baseline/retention-development/runner-review-20261009T182415Z/`.
+
+## Checked conclusions
+
+- **Authentication and learner information:** `initialize` checks exact package versions, interpreter and actual checkpoint digest against the declared fixed digest before loading authenticated helper bytes. The inherited component helper sets offline flags and rejects Python process spawning. Fitting/selection receives returned training rows, fixed configuration and prehistory heads; variant identity, equations and private targets are evaluator inputs. The durable selection seal precedes private-response reservation/generation. This is the documented in-process information boundary, not adversarial isolation.
+- **Rows and fixed candidates:** the inherited split supplies 15 natural-M and 24 Y fit labels, with five natural-M calibration rows for local M/composed Y and all eight measured-parent rows for local Y. The new RBF and PFN standalone controls use the same eligible fit rows. Grammar32 intentionally uses 20/32 labels. Prehistory Grammar24 is fitted once per base seed and reused across variants; no post-selection refit was found. RBF normalization uses eligible fit rows only.
+- **Selection/support semantics:** intervals use post-change fit parents, including measured M for Y. The selected gated heads are reused for local and composed predictions; composed Y receives predicted M. The selector applies strict local improvement, retained feasibility and the declared exact tie order. Saved local partitions and composed predicted-parent counts use the frozen intervals; empty partitions have null MSE. A coverage count is not mislabeled as an actual replacement count. The design correctly disclaims outside-M benefit in this screen.
+- **Finite compatibility check:** five fit-derived inputs are checked for exact repeated output and 2+3 partition agreement at absolute/relative tolerance 1e-6. The revised design accurately describes this as a finite numerical diagnostic. It does not establish exact pointwise identities at all later inputs or universal immutability. Those remain assumptions of the elementary guarantees. No universal-proof claim or private-probe-driven repair was found.
+- **Streams, counts and errors:** the inherited history/endpoint streams and order match the referenced protocol, with fresh scientific seeds 93000–93005 and fixed artificial seed 223456. The four variants and nine methods produce 36 fixture / 216 pilot cells. Shared totals are 160/960 training and 3,072/18,432 private responses, respectively. Reservation/return journals surround persistence; interrupted blocks remain reconcilable rather than silently free. Normalizers use the common full post-change eligible-label variance. Expert failure invalidates every dependent selector; the independently declared no-PFN arm can survive PFN failure. Per-method errors persist, and supervisor reconciliation supplies the full planned ledger after process-level failure. Shared and cumulative timing/call counters are explicitly overlapping scopes.
+- **New reporting interface:** saved endpoint arrays, composed-parent arrays, hashes, support diagnostics and selection seals provide the declared inputs for independent private-metric reconstruction. The design now accurately limits calibration checking to eligibility/tie consistency against saved scores, without claiming independent candidate replay. Reporter implementation and numerical reconstruction were not reviewed here.
+
+## Required findings versus optional comments
+
+Required findings: none. Optional changes: none requested. The four artificial runner tests provide focused interface coverage on inspection; their user-reported pass result was not independently rerun. Actual pinned-runtime qualification, complete source freeze and downstream reporter review remain separate gates.

@@ -1,0 +1,42 @@
+{
+  "schema": "ace-retention-freeze-v1",
+  "environment": "ACE_RETENTION_SUPERVISED=1",
+  "source_closure_entries": 9,
+  "fixture_seed": 223456,
+  "pilot_seeds": [
+    93000,
+    93001,
+    93002,
+    93003,
+    93004,
+    93005
+  ],
+  "planned_cells": {
+    "fixture": 36,
+    "pilot": 216
+  },
+  "completion_fields": [
+    "mode",
+    "cells",
+    "planned_cells",
+    "completed_cells",
+    "training_responses_total",
+    "private_responses_total"
+  ],
+  "fixture_response_totals": {
+    "training": 160,
+    "private": 3072
+  },
+  "pilot_response_totals": {
+    "training": 960,
+    "private": 18432
+  },
+  "fixture_binding_fields": [
+    "terminal_path",
+    "terminal_sha256",
+    "freeze_path",
+    "freeze_sha256"
+  ],
+  "path_binding": "freeze output and lock must equal resolved absolute paths",
+  "scope": "Metadata-only boundary test evidence, not runtime qualification. Prior failed test run preserved in sibling supervisor-20261009T182314Z; test packet paths were then canonicalized for macOS."
+}

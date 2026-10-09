@@ -1,6 +1,6 @@
 # Retain or adapt: a prospective mechanism-selection design
 
-Status: execution and reporting code prepared and reviewed; **no scientific freeze or execution**. Authored after the completed mismatch screen. This is an explicitly adaptive research progression using fresh future systems, not a preregistration predating earlier results. Accepted studies and both completed foundation pilots remain unchanged.
+Status: method prototype and proposed next screen; **no scientific freeze or execution**. Authored after the completed mismatch screen. This is an explicitly adaptive research progression using fresh future systems, not a preregistration predating earlier results. Accepted studies and both completed foundation pilots remain unchanged.
 
 ## Scientific motivation and literature
 
@@ -66,7 +66,7 @@ The key next-experiment decision is whether an observed target gain survives com
 
 ## Execution boundary
 
-The pure selector, fixed numerical control, new runner/supervisor/reporter and artificial boundary fixtures are prepared with review dispositions. A source/model/runtime/response/resource freeze and actual-runtime artificial qualification are still required. Proposed caps remain120seconds for one actual-runtime artificial qualification and900seconds for one scientific attempt, CPU only, within the22:00UTC cycle. These are **unallocated proposals**, not measured requirements or submission records. Existing6900second conservative reservations would become7920seconds if both were admitted within the28800second ceiling. Measure and check the artificial fixture before scientific admission; no retry or scaling just to consume budget. Preserve all preparations and failed attempts. No accepted artifact is refitted and no delivery replay is authorized by this design.
+The current deliverable is the pure selector, fixed numerical control, artificial contract fixtures and reviewed design. A new runner/supervisor/reporter and source/model/runtime/response/resource freeze are still required. Proposed caps remain120seconds for one actual-runtime artificial qualification and900seconds for one scientific attempt, CPU only, within the22:00UTC cycle. These are **unallocated proposals**, not measured requirements or submission records. Existing6900second conservative reservations would become7920seconds if both were admitted within the28800second ceiling. Measure and check the artificial fixture before scientific admission; no retry or scaling just to consume budget. Preserve all preparations and failed attempts. No accepted artifact is refitted and no delivery replay is authorized by this design.
 
 ## New execution interface specification (before freeze)
 
