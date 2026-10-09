@@ -11,6 +11,7 @@ from pathlib import Path
 import resource
 import time
 import traceback
+import sys
 
 for key in ('OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'NUMEXPR_NUM_THREADS'):
     os.environ[key] = '1'
@@ -18,6 +19,11 @@ os.environ['HF_HUB_OFFLINE'] = '1'
 os.environ['TRANSFORMERS_OFFLINE'] = '1'
 os.environ['TABPFN_DISABLE_TELEMETRY'] = '1'
 
+def reject_process_spawn(event, args):
+    if event in ('subprocess.Popen', 'os.fork', 'os.forkpty', 'os.posix_spawn', 'os.system'):
+        raise RuntimeError('component worker permits one process only: '+event)
+
+sys.addaudithook(reject_process_spawn)
 import numpy as np
 
 FAMILIES = ('linear', 'quadratic', 'tanh')
@@ -31,8 +37,12 @@ def digest(path):
 
 
 def write(path, value):
-    with Path(path).open('x') as f:
-        json.dump(value, f, indent=2, allow_nan=False)
+    raw = (json.dumps(value, indent=2, allow_nan=False)+'\n').encode()
+    tmp = Path(str(path)+'.pending')
+    with tmp.open('xb') as f:
+        f.write(raw); f.flush(); os.fsync(f.fileno())
+    os.link(tmp, path)
+    tmp.unlink()
 
 
 def basis(x, family):
@@ -174,6 +184,8 @@ def evaluate(models, test, data):
         if not np.isfinite(pred).all():
             raise ValueError('nonfinite predictions')
         mse = float(np.mean((pred-target)**2))
+        if not np.isfinite([mse, variance, mse/max(variance, 1e-12)]).all():
+            raise ValueError('nonfinite metric or normalization')
         out[name] = {'mse': mse, 'nmse': mse/max(variance, 1e-12),
                      'training_variance': variance, 'floor_active': variance < 1e-12}
     return out, np.column_stack(predictions)
@@ -185,23 +197,69 @@ def main():
     parser.add_argument('--checkpoint', type=Path, required=True)
     parser.add_argument('--language-model', type=Path, required=True)
     parser.add_argument('--freeze', type=Path, required=True)
+    parser.add_argument('--mode', choices=('pilot','tabpfn-smoke','language-smoke'), required=True)
+    parser.add_argument('--freeze-sha256',required=True)
     args = parser.parse_args()
-    freeze = json.loads(args.freeze.read_text())
-    assert digest(__file__) == freeze['source_sha256']
-    assert digest(args.checkpoint) == WEIGHT_PIN == freeze['checkpoint_sha256']
+    if os.environ.get('ACE_COMPONENT_SUPERVISED') != '1' or not (args.output/'plan.json').is_file():
+        raise RuntimeError('required supervisor and prior durable plan absent')
+    freeze_bytes=args.freeze.read_bytes()
+    if hashlib.sha256(freeze_bytes).hexdigest()!=args.freeze_sha256:
+        raise ValueError('worker captured freeze pin mismatch')
+    freeze = json.loads(freeze_bytes)
+    if args.mode not in freeze.get('allowed_modes',[]):
+        raise ValueError('mode not in frozen stage')
+    if freeze.get('stage') != ('pilot' if args.mode=='pilot' else 'compatibility'):
+        raise ValueError('wrong frozen stage')
+    required = {'numpy','torch','transformers','tabpfn','scikit-learn','scipy','safetensors','tokenizers','huggingface-hub'}
+    if freeze.get('schema') != 'ace-component-freeze-v1' or not required.issubset(freeze['dependencies']):
+        raise ValueError('required freeze/dependency schema')
+    if digest(__file__) != freeze['source_sha256'] or digest(freeze['protocol_path']) != freeze['protocol_sha256']:
+        raise ValueError('source/protocol mismatch')
+    if digest(args.checkpoint) != WEIGHT_PIN or freeze['checkpoint_sha256'] != WEIGHT_PIN:
+        raise ValueError('checkpoint mismatch')
+    if freeze['tabpfn_revision'] != '4972a65a1b30806315c6f92499959ffbfc69a673':
+        raise ValueError('TabPFN provenance revision')
+    if freeze['language_revision'] != 'c1899de289a04d12100db370d81485cdf75e47ca':
+        raise ValueError('language provenance revision')
+    if args.language_model.name != freeze['language_revision']:
+        raise ValueError('language cache revision directory mismatch')
+    required_files = {'config.json','generation_config.json','model.safetensors','tokenizer.json','tokenizer_config.json','merges.txt','vocab.json'}
+    actual_files = {str(f.relative_to(args.language_model)) for f in args.language_model.rglob('*') if f.is_file()}
+    if actual_files != required_files or set(freeze['language_files']) != actual_files:
+        raise ValueError('incomplete or unexpected language load closure')
     for name, pin in freeze['language_files'].items():
-        assert digest(args.language_model/name) == pin
-    for name, version in freeze['dependencies'].items():
-        assert importlib.metadata.version(name) == version, name
-    args.output.mkdir(exist_ok=False)
-    resource.setrlimit(resource.RLIMIT_CPU, (1800, 1801))
+        if digest(args.language_model/name) != pin:
+            raise ValueError('language file mismatch: '+name)
+    actual = {n: importlib.metadata.version(n) for n in required}
+    if any(actual[n] != freeze['dependencies'][n] for n in required):
+        raise ValueError('runtime mismatch')
+    write(args.output/'preflight.json', {'actual_dependencies': actual, 'language_files':freeze['language_files'],
+          'protocol_sha256':freeze['protocol_sha256'],'python':sys.version,'at_unix':time.time(),
+          'configuration':freeze['configuration']})
     import torch
     torch.set_num_threads(1)
     torch.set_num_interop_threads(1)
     torch.manual_seed(0)
     start, cpu = time.monotonic(), time.process_time()
-    write(args.output/'started.json', {'freeze_sha256': digest(args.freeze), 'pid': os.getpid(),
+    write(args.output/'started.json', {'freeze_sha256': args.freeze_sha256, 'pid': os.getpid(),
           'at_unix': time.time(), 'planned_cells': 30, 'cpu_threads': 1, 'gpu': False})
+    if args.mode != 'pilot':
+        d=args.output/'smoke'; d.mkdir()
+        write(d/(args.mode+'.started.json'), {'at_unix':time.time()})
+        if args.mode == 'tabpfn-smoke':
+            x=np.linspace(-1,1,16)[:,None]; y=2*x[:,0]+.3
+            model=make_model('tabpfn_v2',args.checkpoint).fit(x,y)
+            pred=np.asarray(model.predict(np.array([[-.25],[.25]])))
+            if pred.shape != (2,) or not np.isfinite(pred).all():
+                raise ValueError('smoke output invalid')
+            result={'status':'complete','kind':'API compatibility only','predictions':pred.tolist()}
+        else:
+            proposer=LanguageProposer(str(args.language_model))
+            raw,tokens=proposer('Return only a JSON object with keys M and Y, each set to linear.')
+            result={'status':'complete','kind':'API compatibility only','raw':raw,'tokens':tokens}
+        write(d/(args.mode+'.json'),result)
+        write(args.output/'smoke.json',result)
+        return
     proposer, language_error = None, None
     try:
         proposer = LanguageProposer(str(args.language_model))
@@ -219,6 +277,7 @@ def main():
         for method in METHODS:
             if time.monotonic()-start > 1800:
                 raise TimeoutError('pilot wall limit')
+            write(d/(method+'.started.json'), {'seed':seed,'method':method,'at_unix':time.time()})
             before, pcpu = time.monotonic(), time.process_time()
             row = {'seed': seed, 'method': method, 'eligible_counts': [len(y) for _, y in data],
                    'training_responses': 32, 'status': 'failed'}
@@ -257,7 +316,8 @@ def main():
     write(args.output/'complete.json', {'cells': rows, 'planned_cells': 30,
           'completed_cells': sum(r['status']=='complete' for r in rows),
           'elapsed_s': time.monotonic()-start, 'process_cpu_s': time.process_time()-cpu,
-          'maxrss_native': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+          'peak_rss_bytes': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*(1 if sys.platform=='darwin' else 1024),
+          'resource_scope':'worker phase after preflight; terminal receipt covers whole process',
           'training_responses_total': 192, 'test_actions_total': 1536,
           'scope': 'synthetic development; fixed shared histories; no acquisition inference'})
 
