@@ -1,3 +1,20 @@
+# ACE — current presentation: v7
+
+Twelve slides. Two visual explanations have been added to v6, and its closing comparison has been expanded.
+
+- **Editable deck:** [ACE_mechanisms_and_evidence_v7.pptx](ACE_mechanisms_and_evidence_v7.pptx)
+- **Viewing PDF:** [ACE_mechanisms_and_evidence_v7.pdf](ACE_mechanisms_and_evidence_v7.pdf), a raster copy of final slide renders
+- **Updated ten-minute script:** [ACE_10_minute_read_aloud_v7.md](ACE_10_minute_read_aloud_v7.md)
+- **Technical speaker notes:** [ACE_mechanisms_speaker_notes_v7.md](ACE_mechanisms_speaker_notes_v7.md)
+
+Slide4 visualizes local parent-to-child tables versus one joint input-to-output table. Slide6 shows the proposed foundation-model candidate branch connected to the SCM experiment loop, with the worked example's six legal clamp actions, predictions, observations and updates. Slide12 retains the random/ACE intervention bars and adds a separate SCM-free joint-table figure. The latter has different units and is an analytic illustration, not a third measured arm. The foundation-model acquisition extension remains proposed; measured curves use the historical neural SCM learners.
+
+The old slide3 remains3; old4–9 become5,7,8,9,10,11. The old closing slide10 becomes12. The compressor cover and eight other retained slide bodies are unchanged, apart from page numbering. Native editable tables, diagrams and charts are retained. All three original chart XML parts and workbook bytes are preserved exactly. No scientific result or experiment has changed.
+
+The v7 editing source imports v6, inserts the two new slides and recomposes the closing slide. It uses the existing bundled artifact runtime. The accompanying source-workbook restoration helper preserves the original chart data after import/export. Prior versions and their scripts remain historical below.
+
+---
+
 # ACE — current presentation: v6
 
 The 10-slide marketing presentation opens with a new compressor concept rendering and uses larger directional SCM arrows. Slides 1–4 introduce the theory; slides 5–7 show exact inputs, scores, observations and updates; slides 8–10 show the archived graph and recorded comparisons.
