@@ -1,4 +1,25 @@
-# Active Causal Experimentalism — current presentation: v8
+# Active Causal Experimentalism — current presentation: v9
+
+Twelve white slides, with the existing compressor title and examples preserved.
+
+- **Editable deck:** [ACE_mechanisms_and_evidence_v9.pptx](ACE_mechanisms_and_evidence_v9.pptx)
+- **Viewing PDF:** [ACE_mechanisms_and_evidence_v9.pdf](ACE_mechanisms_and_evidence_v9.pdf), raster viewing copy
+- **Verbatim ten-minute script:** [ACE_10_minute_read_aloud_v9.md](ACE_10_minute_read_aloud_v9.md), 1,392 spoken words, about ten minutes at 139 words per minute, twelve prose blocks without asides
+- **Technical notes:** [ACE_mechanisms_speaker_notes_v9.md](ACE_mechanisms_speaker_notes_v9.md)
+- **Loop preview:** [ACE_overall_mechanism_v9.png](ACE_overall_mechanism_v9.png)
+- **Closing comparison:** [ACE_policy_grid_comparison_v9.png](ACE_policy_grid_comparison_v9.png)
+
+Slide4 gives the SCM more room. Slide6 uses round nodes and continuous arrows, describes pretrained/SFT/preference training in the separate implemented LLM policy, and labels its proposed interface to the SCM scorer. The recorded performance comes from PEV without that LLM. Slides8–9 state their teaching messages directly, and intervention terminology is consistent.
+
+Slide12 has three editable bars: 500 and 1,400 intervention responses at the retrospective matched-error crossing, and 29,255,197 analytic grid draws for 95% expected coverage. The grid is a different task, not a measured third policy or empirical ACE/grid speedup. The random baseline genuinely samples eligible targets and uniform values using the same SCM ensemble learner; the direct SCM-scored policy is ACE/PEV. Both actual campaigns ran their full response budgets.
+
+All five remaining table contents and both original curve chart XML/workbook sources are unchanged. The new closing chart has a materialized native workbook. All twelve final renders match the reviewed draft; PDF images match final renders. The deck was not checked in the PowerPoint application. No model execution, scientific rerun, allocation or new outcome was involved.
+
+Version9 imports version8. Editing, exact curve-source preservation and finalization sources are retained beside the outputs. Verification is in `marketing_visuals_v9_verification_2026-10-10.json`. Earlier versions remain historical.
+
+---
+
+# Active Causal Experimentalism — historical presentation: v8
 
 Twelve slides with a white background, compressor teaching examples, and the title **Active Causal Experimentalism** with **Every experiment counts**.
 
