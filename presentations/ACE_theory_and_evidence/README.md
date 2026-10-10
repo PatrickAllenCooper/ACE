@@ -1,3 +1,21 @@
+# Active Causal Experimentalism — current presentation: v8
+
+Twelve slides with a white background, compressor teaching examples, and the title **Active Causal Experimentalism** with **Every experiment counts**.
+
+- **Editable deck:** [ACE_mechanisms_and_evidence_v8.pptx](ACE_mechanisms_and_evidence_v8.pptx)
+- **Viewing PDF:** [ACE_mechanisms_and_evidence_v8.pdf](ACE_mechanisms_and_evidence_v8.pdf), a raster viewing copy
+- **Verbatim ten-minute script:** [ACE_10_minute_read_aloud_v8.md](ACE_10_minute_read_aloud_v8.md), 1,341 spoken words, approximately ten minutes at 134 words per minute. Twelve prose blocks follow slide order, without stage directions or asides.
+- **Technical notes:** [ACE_mechanisms_speaker_notes_v8.md](ACE_mechanisms_speaker_notes_v8.md)
+- **Title preview:** [ACE_title_card_v8.png](ACE_title_card_v8.png)
+
+The cover uses a new white compressor concept with SCMs in the background. Slides2–3 explain a simplified compressor test rig: drive command X affects shaft speed M, which affects pressure rise Y. The same interpretation continues through the six-action worked example. Values are normalized deviations, not physical RPM or calibrated compressor measurements. Holding speed assumes an approved independent test-rig controller.
+
+The proposed foundation-model branch, local/joint-table explanation, and separate joint-table figure on the closing slide remain. Historical acquisition comparisons and all native table values, chart XML, and workbooks are unchanged. Source and limitations remain in technical notes. No scientific computation or new experiment occurred.
+
+Version8 imports and restyles version7. `edit_mechanisms_deck_v8.mjs` writes the draft, `restore_chart_sources_v8.py` retains chart sources, and `finalize_mechanisms_deck_v8.mjs` validates and exports the editable deck. Original and new cover assets plus the exact built-in image-generation prompt are retained. Previous versions below remain historical.
+
+---
+
 # ACE — current presentation: v7
 
 Twelve slides. Two visual explanations have been added to v6, and its closing comparison has been expanded.
