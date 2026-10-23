@@ -61,3 +61,7 @@ Patrick now instructed “Fix and retry”. The reviewed backend-wrapper correct
 ## Current boundary after replay09
 
 The new backend-wrapper validation passed in actual runtime, but34835547failed before models on two further fileless compatibility modules:cython_runtime/six.moves. Full18objectcustody and accounting are preserved. The one-attempt retry is consumed. Prepare the remaining source/identity correction before any concrete new attempt request; no automaticretry or B reporting. See delivery_backend_replay09_execution_2026-10-23.md.
+
+## Reviewed next compatibility proposal
+
+The remaining six.moves/cython_runtime correction is prepared and independently reviewed, with all required findings closed. Replay10 is a concrete proposed same-cap1CPU/3GiB/30minute attempt requiring a new explicit decision; no new allocation or remoteoutputclaim exists. See delivery_compatibility_replay_proposal_2026-10-23.md. Current reservation89.868333/150, proposed90.368333 only if approved. All finalpublicationgates remain open.

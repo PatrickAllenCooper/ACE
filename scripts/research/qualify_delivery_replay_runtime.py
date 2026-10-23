@@ -1,9 +1,10 @@
 """Derived replay-only runtime qualifier; exact native alias; no installs/models."""
-import argparse,hashlib,importlib,importlib.metadata,json,sys,os,datetime,re,_imp,importlib.machinery,types,stat,builtins
+import dis,ast,argparse,hashlib,importlib,importlib.metadata,json,sys,os,datetime,re,_imp,importlib.machinery,types,stat,builtins
 from pathlib import Path
 _VF_BUILTINS={'getattr':getattr,'super':super}
 _VF_IMPORT_BINDING=None
 _BACKEND_BINDINGS=None
+_COMPAT_BINDINGS=None
 _BACKEND_CLASSES={
  'torch.backends':'GenericModule', 'torch.backends.cudnn':'CudnnModule',
  'torch.backends.miopen':'MiopenModule', 'torch.backends.mkldnn':'MkldnnModule',
@@ -320,12 +321,119 @@ def torch_backend_proxy(name,module,prefix,pins):
   'object_binding_scope':'captured wrapper/delegate identities and Python creator methods; source-byte integrity',
   'native_execution_attested':False,'backend_flag_behavior_attested':False}
 
-def loaded_module_records(prefix,base,native_pins,allowed_sources=None,synthetic_pins=None,backend_pins=None):
+def compatibility_source_pin(prefix,pins):
+ source=prefix.resolve(strict=True)/'lib/python3.11/site-packages/six.py'
+ canonical=canonical_backing_pins(pins,prefix,'compatibility')
+ if set(canonical)!={str(source)} or sha(source)!=canonical[str(source)]:
+  raise ValueError('exact six source pin/bytes required')
+ return source,canonical[str(source)]
+
+def six_moves_shape(module,prefix,pins):
+ source,pin=compatibility_source_pin(prefix,pins)
+ six=sys.modules.get('six');ctx=vars(six) if type(six) is types.ModuleType else {}
+ if ctx.get('__version__')!='1.17.0' or Path(ctx.get('__file__','')).resolve(strict=True)!=source or ctx.get('moves') is not module:
+  raise ValueError('six creator source/version/object differs')
+ importer=ctx.get('_importer');klass=ctx.get('_MovedItems');base=ctx.get('_LazyModule')
+ if type(klass) is not type or type(base) is not type or klass.__bases__!=(base,) or base.__bases__!=(types.ModuleType,) or type(module) is not klass:
+  raise ValueError('six moved-module class differs')
+ if type(importer) is not ctx.get('_SixMetaPathImporter') or vars(importer).get('name')!='six' or type(vars(importer).get('known_modules')) is not dict or vars(importer)['known_modules'].get('six.moves') is not module or sum(x is importer for x in sys.meta_path)!=1:
+  raise ValueError('six importer registration differs')
+ if set(vars(importer))!={'name','known_modules'}:raise ValueError('six importer instance override')
+ attrs=vars(module)
+ items=vars(klass).get('_moved_attributes')
+ if type(items) is not list or any(type(item) not in (ctx['MovedModule'],ctx['MovedAttribute']) or type(vars(item).get('name')) is not str for item in items):raise ValueError('six move descriptor metadata differs')
+ cache_names={vars(item)['name'] for item in items}
+ child_names={k[len('six.moves.'):] for k in vars(importer)['known_modules'] if k.startswith('six.moves.') and '.' not in k[len('six.moves.'):]}
+ metadata={'__name__','__doc__','__package__','__loader__','__spec__'}
+ if any(k not in metadata and (k.startswith('__') or k not in cache_names|child_names) for k in attrs):raise ValueError('six moved-module behavior override')
+ if sys.modules.get('six.moves') is not module or attrs.get('__name__')!='six.moves' or attrs.get('__loader__') is not importer or '__file__' in attrs or '__path__' in attrs or vars(klass).get('__path__')!=[]:
+  raise ValueError('six moved-module metadata differs')
+ spec=attrs.get('__spec__')
+ if spec is not None and (type(spec) is not importlib.machinery.ModuleSpec or spec.name!='six.moves' or spec.loader is not importer or spec.submodule_search_locations!=[] or spec.origin is not None):
+  raise ValueError('six moved-module spec differs')
+ if attrs.get('__package__') not in (None,'six.moves'):raise ValueError('six moved-module package differs')
+ names=('_LazyDescr','MovedModule','MovedAttribute','_LazyModule','_MovedItems','_SixMetaPathImporter')
+ tree=ast.parse(source.read_bytes(),filename=str(source));compiled=compile(source.read_bytes(),str(source),'exec',dont_inherit=True,optimize=0)
+ blocks={c.co_name:c for c in compiled.co_consts if type(c) is types.CodeType}
+ definitions={n.name:n for n in tree.body if isinstance(n,(ast.ClassDef,ast.FunctionDef))}
+ functions=[]
+ for name in names:
+  cls=ctx.get(name)
+  if type(cls) is not type or cls.__module__!='six' or cls.__name__!=name:raise ValueError('six source class differs')
+  codes={c.co_name:c for c in blocks[name].co_consts if type(c) is types.CodeType}
+  mangle=lambda n:'_'+name.lstrip('_')+n if n.startswith('__') and not n.endswith('__') else n
+  defs={mangle(n.name):n for n in definitions[name].body if isinstance(n,ast.FunctionDef)}
+  expected={mangle(n):code for n,code in codes.items()}
+  # The original importer intentionally aliases get_source = get_code.
+  for node in definitions[name].body:
+   if isinstance(node,ast.Assign) and isinstance(node.value,ast.Name) and mangle(node.value.id) in expected:
+    for target in node.targets:
+     if isinstance(target,ast.Name):
+      expected[mangle(target.id)]=expected[mangle(node.value.id)]
+      defs[mangle(target.id)]=defs[mangle(node.value.id)]
+  actual={n:f for n,f in vars(cls).items() if type(f) is types.FunctionType}
+  if set(actual)!=set(expected):raise ValueError('six method membership differs')
+  functions.extend((f,expected[n],defs[n]) for n,f in actual.items())
+ helper=ctx.get('_import_module')
+ functions.append((helper,blocks['_import_module'],definitions['_import_module']))
+ for function,code,definition in functions:
+  defaults=tuple(ast.literal_eval(x) for x in definition.args.defaults) or None
+  if type(function) is not types.FunctionType or function.__code__!=code or function.__globals__ is not ctx or function.__builtins__ is not vars(builtins) or function.__defaults__!=defaults or function.__kwdefaults__:
+   raise ValueError('six effective method differs: '+str(getattr(function,'__qualname__',None)))
+  cells=function.__closure__ or ()
+  if function.__code__.co_freevars==('__class__',):
+   if len(cells)!=1 or cells[0].cell_contents is not ctx.get(function.__qualname__.split('.')[0]):raise ValueError('six class closure differs')
+  elif function.__code__.co_freevars or cells:raise ValueError('six unexpected closure')
+  origin=Path(function.__code__.co_filename)
+  if not origin.is_absolute() or origin.is_symlink() or origin.resolve(strict=True)!=source:raise ValueError('six method source differs')
+  for name in {i.argval for i in dis.get_instructions(function) if i.opname=='LOAD_GLOBAL'}:
+   if name in vars(builtins) and name in ctx and ctx[name] is not vars(builtins)[name]:raise ValueError('six builtin shadow')
+ if ctx.get('sys') is not sys or ctx.get('types') is not types or ctx.get('__builtins__') is not vars(builtins) or ctx.get('PY3') is not True or ctx.get('spec_from_loader') is not importlib.util.spec_from_loader:
+  raise ValueError('six effective infrastructure differs')
+ return (six,module,importer,*[ctx[n] for n in names],helper),{'module':'six.moves','kind':'six_lazy_package','backing_file':str(source),'sha256':pin,'scope':'pinned Python creator, registered lazy module/importer and fresh reference continuity; not arbitrary same-process attestation'}
+
+def cython_runtime_shape(module):
+ if type(module) is not types.ModuleType or sys.modules.get('cython_runtime') is not module:
+  raise ValueError('Cython runtime object differs')
+ attrs=vars(module);required={'__name__','__doc__','__package__','__loader__','__spec__'}
+ if not required.issubset(attrs) or set(attrs)-required-{'cline_in_traceback'} or attrs['__name__']!='cython_runtime' or any(attrs[k] is not None for k in required-{'__name__'}):
+  raise ValueError('Cython runtime inert metadata differs')
+ if 'cline_in_traceback' in attrs and type(attrs['cline_in_traceback']) is not bool:
+  raise ValueError('Cython traceback flag must be Boolean')
+ return module
+
+def capture_compatibility_bindings(prefix,pins):
+ global _COMPAT_BINDINGS
+ if _COMPAT_BINDINGS is not None:raise ValueError('compatibility references already captured')
+ six_refs,_=six_moves_shape(sys.modules.get('six.moves'),prefix,pins)
+ cython=cython_runtime_shape(sys.modules.get('cython_runtime'))
+ _COMPAT_BINDINGS=(six_refs,cython)
+
+def compatibility_record(name,module,prefix,pins):
+ if _COMPAT_BINDINGS is None:raise ValueError('fresh compatibility references missing')
+ if name=='six.moves':
+  refs,record=six_moves_shape(module,prefix,pins)
+  if any(x is not y for x,y in zip(refs,_COMPAT_BINDINGS[0])):raise ValueError('six fresh identity changed')
+  return record
+ if name=='cython_runtime':
+  if cython_runtime_shape(module) is not _COMPAT_BINDINGS[1]:raise ValueError('Cython fresh identity changed')
+  # Inert interpreter module: no import paths, loader or executable contents.
+  # Its C creator is not exposed as a Python reference; do not claim native
+  # creation attestation. Loaded ABI extension witnesses are checked separately.
+  return {'module':name,'kind':'inert_cython_runtime','interpreter_sha256':sha(sys.executable),
+          'cline_in_traceback':vars(module).get('cline_in_traceback'),
+          'scope':'fresh dependency-import object continuity; strict inert metadata/Boolean diagnostic flag',
+          'native_creation_attested':False}
+ raise ValueError('unknown compatibility module')
+
+def loaded_module_records(prefix,base,native_pins,allowed_sources=None,synthetic_pins=None,backend_pins=None,compatibility_pins=None):
  allowed_sources=allowed_sources or {}
  synthetic_pins=synthetic_pins or {}
  loaded=[];unexplained=[]
  for name,module in list(sys.modules.items()):
   if module is None:continue
+  if name in ('six.moves','cython_runtime'):
+   loaded.append(compatibility_record(name,module,prefix,compatibility_pins or {}));continue
   if name=='torch._VF':
    loaded.append(torch_vf_proxy(module,prefix,native_pins,synthetic_pins));continue
   if name in _BACKEND_CLASSES:
@@ -457,6 +565,8 @@ def main():
  vf_source_pin(prefix,reg.get('synthetic_backing_pins',{}))
  canonical_backing_pins(reg['native_backing_pins'],prefix,'VF native')
  backend_source_pins(prefix,reg.get('backend_backing_pins',{}))
+ compatibility_source_pin(prefix,reg.get('compatibility_backing_pins',{}))
+ if any(n in sys.modules for n in ('six','six.moves','cython_runtime')):raise ValueError('fresh compatibility imports required')
  records=dependency_records(reg)
  capture_vf_import_binding()
  capture_backend_import_bindings(prefix,reg['backend_backing_pins'])
@@ -467,10 +577,12 @@ def main():
   attrs=vars(module);delegate=attrs.get('m')
   shapes.append({'module':name,'type':type(module).__module__+'.'+type(module).__name__,
                  'file':attrs.get('__file__') if type(attrs.get('__file__')) is str else None,
-                 'delegate_file':vars(delegate).get('__file__') if type(delegate) is types.ModuleType else None})
+                 'delegate_file':vars(delegate).get('__file__') if type(delegate) is types.ModuleType else None,
+                 'compatibility_attribute_types':{k:type(v).__module__+'.'+type(v).__name__ for k,v in attrs.items()} if name in ('six.moves','cython_runtime') else None})
  write_buffer(fd,'runtime_module_shapes.json',(json.dumps({'qualified':False,'scope':'diagnostic module shapes only','modules':shapes},indent=2)+'\n').encode())
+ capture_compatibility_bindings(prefix,reg['compatibility_backing_pins'])
  allowed_sources={str((out/name).resolve()):pin for name,pin in reg['execution_source_pins'].items()}
- loaded=loaded_module_records(prefix,base,reg['native_backing_pins'],allowed_sources,reg.get('synthetic_backing_pins',{}),reg['backend_backing_pins'])
+ loaded=loaded_module_records(prefix,base,reg['native_backing_pins'],allowed_sources,reg.get('synthetic_backing_pins',{}),reg['backend_backing_pins'],reg['compatibility_backing_pins'])
  files=[]
  for f in sorted(prefix.rglob('*')):
   if f.is_symlink():
