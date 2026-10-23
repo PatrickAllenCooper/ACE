@@ -22,7 +22,7 @@ The first local action is a narrowly checked PyTorch VF proxy correction, with a
 
 The last recorded delivery reservation is88.618333CPU-core-hours within150. A proposed single new1CPU/3GiB/15minute inference-only attempt would add.25 to88.868333, with accountucb736_asc1, acpu/cpu-normal, zero accelerators and no requeue. This is sizing continuity, not a submitted allocation. Revalidate live environment/storage and current accounting before freezing or submitting; no installs or new fits are implied. Any larger/new environment requirement needs a concrete revised decision.
 
-The shared connection check currently fails because `/tmp/defab-curc.sock` is absent. Patrick reported a successful masterPID38137 in his terminal, but that PID/socket is not visible to this process. The discrepancy must be resolved before any remote claim. No scheduler/job/process liveness is inferred from old records or a lock file. Both local controller locks were available when checked and released without launch. No schedule was resumed.
+Patrick restored the shared connection. Fresh remote channel and installed VF/native hashes are verified. At16:23:57UTC all3893package objects/exact3895file membership and original sampler authenticated; scratch stat/df/dedicated write-read-cleanup passed, ACE queue was empty and proposed output07 absent. Both controller locks were held/released and prior submission/terminal journals reconciled. The source/configuration proposal for ONE new1CPU/3GiB/15minute attempt is in delivery_vf_replay_proposal_2026-10-23.md; prior06approval remains consumed. No runtime import, new allocation, source transfer or submission occurred. No schedule was resumed.
 
 ## Authoritative sources
 
