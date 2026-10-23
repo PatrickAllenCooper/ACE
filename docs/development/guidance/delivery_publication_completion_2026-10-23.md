@@ -41,3 +41,7 @@ October23 rendered-page layout work is complete for the current pre-B draft:16pa
 ## Current execution boundary after replay07
 
 The approved single attempt34821094 failed before checkpoints on the compute-node directory alias. Full terminal custody and accounting are preserved. The reviewed correction and concrete oneCPU/3GiB/30minute proposal are in delivery_vf_alias_recovery_2026-10-23.md. New approval is required; current reservation remains88.868333/150, proposed89.368333 only if approved. No actual B reporting or integrated results exist yet. The current16page pre-B manuscript layout review remains valid for its recorded bytes; the failure does not change original study acceptance.
+
+## Independent fixture-layout progress
+
+The new private source-only fixture layout and cached-module/source-lookup preflight are implemented, independently reviewed and exercised on the pinned43originalsource objects. See delivery_fixture_layout_2026-10-23.md. This supplies an explicit layout and current lookup check; it does not install a later enforcing importguard or execute originalfixtures. Those execution/runtime/authorization and finalanonymoussource-notice bindings remain open. It changes neither the pending08decision nor the required B reporting sequence.

@@ -1038,3 +1038,7 @@ Exclusive local/remote submissionjournals preceded ONEsbatch at16:54:40UTC; acce
 ## October23 compute-mount alias and proposed runtime allowance
 
 Distinct Galileo source/resource review closed one required missing-path exception-contract regression. Final static delta0required. New alias fixtures reproduce frozen07failure and verify canonical identity plus unchanged bytecode/hash/global/reference restrictions; separate30minuteallocationparser cases and one review-delta pair pass. No prior scientific/source suite repeated, actualruntime remainsunqualified. See reviews/delivery_vf_alias_review_2026-10-23.md and finalpreparation4a93142cfaaa14f3cc7cd502cfa9e306639922a7a98c1f6938dbfdf31c5b9d6f. Original07FAILED34821094/548allocatedseconds retained; no newapproval/submission or B reporting.
+
+## October23 fixture source-layout/import-preflight review
+
+Curie's distinct bounded source/scope review reports0requiredfindings for the new layoutpreparer, sixfabricatedtests andguidance. Actualsource-only50filelayout and explicit41module/1namespace lookup subsequentlypass fromunrelatedcwd, with independent43original/4priorbyteoracle. Staticreview is separate fromactualmetadataexecution and neitherqualifiesnumericalruntime or originalfixtures. Receipt58712048d33f3ed421726d7423de968030e834d23beaa52c0cc95207ea381699; see reviews/delivery_fixture_layout_review_2026-10-23.md. No completedcomponent review/test repeated. R7enforcedexecution/finalanonymousbindings andcriticalBreplay remainopen.
