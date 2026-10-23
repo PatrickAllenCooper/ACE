@@ -1042,3 +1042,7 @@ Distinct Galileo source/resource review closed one required missing-path excepti
 ## October23 fixture source-layout/import-preflight review
 
 Curie's distinct bounded source/scope review reports0requiredfindings for the new layoutpreparer, sixfabricatedtests andguidance. Actualsource-only50filelayout and explicit41module/1namespace lookup subsequentlypass fromunrelatedcwd, with independent43original/4priorbyteoracle. Staticreview is separate fromactualmetadataexecution and neitherqualifiesnumericalruntime or originalfixtures. Receipt58712048d33f3ed421726d7423de968030e834d23beaa52c0cc95207ea381699; see reviews/delivery_fixture_layout_review_2026-10-23.md. No completedcomponent review/test repeated. R7enforcedexecution/finalanonymousbindings andcriticalBreplay remainopen.
+
+## October23 approved replay08 packet
+
+Patrick approved ONE1CPU/3GiB/30minute replay. Fresh17:40:13UTC package/installedpins/scratch/journals authenticate; ACEqueueempty. Bothcontrollersheld; output08 inode384996661 exclusivelyclaimed. Freeze c22109e41253d2b60c7e35da46c36292fc12bcad0c4bf04a2f235f96b7c20bd6; all9remoteinputsreadbackmatch. Distinct Zeno finalpacket review0required. No implementationtest/modelreplay repeated. Currentreservation89.368333/150includesauthorized.5; knownpriorallocated119961secondsseparate. No submission atthisentry; exclusivejournals thenONESbatch required. See delivery_vf_replay08_execution_2026-10-23.md and results/delivery_vf_replay_20261023/launch08. Originalfailed07preserved; actualruntime/numerical/report/publicationgates remainopen.

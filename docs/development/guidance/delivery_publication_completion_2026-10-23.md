@@ -45,3 +45,7 @@ The approved single attempt34821094 failed before checkpoints on the compute-nod
 ## Independent fixture-layout progress
 
 The new private source-only fixture layout and cached-module/source-lookup preflight are implemented, independently reviewed and exercised on the pinned43originalsource objects. See delivery_fixture_layout_2026-10-23.md. This supplies an explicit layout and current lookup check; it does not install a later enforcing importguard or execute originalfixtures. Those execution/runtime/authorization and finalanonymoussource-notice bindings remain open. It changes neither the pending08decision nor the required B reporting sequence.
+
+## New explicit replay08 authorization
+
+Patrick approved ONE1CPU/3GiB/30minute replay. The prior pending decision is resolved; new execution is tracked in delivery_vf_replay08_execution_2026-10-23.md. Failed07 remains immutable. No automatic retry follows this new attempt. Actual qualification and both reporters remain required before manuscript result integration.
