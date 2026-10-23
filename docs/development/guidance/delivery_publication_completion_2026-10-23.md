@@ -33,3 +33,7 @@ Patrick restored the shared connection. Fresh remote channel and installed VF/na
 - `ace_foundation_cycle_closeout_2026-10-09.md`, expired exploration, retained failures and limits.
 
 This plan records required work. None of its uncompleted items is acceptance evidence.
+
+## Current page review and new per-attempt decision
+
+October23 rendered-page layout work is complete for the current pre-B draft:16pages inspected, table collision/equation overflow fixed and interval-table type enlarged with scientific content unchanged. Native compilation succeeds; see delivery_page_layout_2026-10-23.md. This does not close the later integrated B page/scientific review. Patrick explicitly approved ONE corrected replay capped at1CPU/3GiB/15minutes. Refresh livecontroller/journals/readiness and freeze the reviewed packet before its single submission; no automatic retry.

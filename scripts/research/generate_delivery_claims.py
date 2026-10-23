@@ -138,7 +138,7 @@ if physical.exists():
     lines+=['\\bottomrule','\\end{tabular}',
             '\\caption{Continuous held-out MSE divided by the training variance for all eleven evaluation conditions, excluding development condition \\texttt{white\\_64}. Lower is better. These conditions are readings of one apparatus, not independent systems.}',
             '\\label{tab:physical}','\\end{table}',
-            '\\begin{table}[ht]','\\centering\\scriptsize','\\begin{tabular}{lrrr}',
+            '\\begin{table}[ht]','\\centering\\small','\\begin{tabular}{lrrr}',
             '\\toprule','Condition & Delivery/Rolling & Delivery/Physics & Delivery/Fourier\\\\','\\midrule']
     for condition,v in scored['conditions'].items():
         cells=[]

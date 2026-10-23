@@ -2259,7 +2259,7 @@ History & Online NMSE & SCM NMSE & Flat NMSE & SCM/admitted & SCM snap\\
 \label{tab:attribution-histories}
 \end{table}
 \end{filecontents*}
-% delivery_physical_table.tex: SHA256 32e6e6c65980169bfb2e79f5e474f24bb67d0ae9f7c915463746ed7b214c95de
+% delivery_physical_table.tex: SHA256 eb7135ef4ba9fb5267c8f9c18ea1011d5a8d51b492f0cd951e4f9bc4fdabe950
 \begin{filecontents*}[overwrite]{delivery_physical_table.tex}
 % Generated from the fully accepted eleven-condition physical receipt.
 \begin{table}[ht]
@@ -2285,7 +2285,7 @@ white\_255 & 0.020 & 0.023 & 0.006 & 0.002\\
 \label{tab:physical}
 \end{table}
 \begin{table}[ht]
-\centering\scriptsize
+\centering\small
 \begin{tabular}{lrrr}
 \toprule
 Condition & Delivery/Rolling & Delivery/Physics & Delivery/Fourier\\
@@ -2534,13 +2534,13 @@ extrapolation, identification or error-bound certification.}
 \label{fig:delivery-procedure}
 \end{figure}
 \end{filecontents*}
-% delivery_evaluation_design.tex: SHA256 63b47344c77ff7891b250db15f2ab2f322a76ddf0e1eecd72292a6f7c17d4736
+% delivery_evaluation_design.tex: SHA256 307d8377030d87d5251e89b67cbd3d1b5e0db35802065b5becc82ef9e87031a4
 \begin{filecontents*}[overwrite]{delivery_evaluation_design.tex}
 % Design summary only; no prospective performance values.
 \begin{table}[ht]
 \centering\small
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{p{0.10\linewidth}p{0.23\linewidth}p{0.34\linewidth}p{0.25\linewidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.14\linewidth}>{\raggedright\arraybackslash}p{0.22\linewidth}>{\raggedright\arraybackslash}p{0.32\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}}
 \toprule
 Study & Reporting unit & Evaluation and scale & Initialization summary\\
 \midrule
@@ -2557,7 +2557,7 @@ Physical (C) & Condition-specific assessment of one apparatus; no independent-wo
 % END EDITOR COMPANION BUNDLE
 \documentclass[10pt]{article}
 \usepackage{tmlr}
-\usepackage{amsmath,amssymb,amsthm,booktabs,hyperref}
+\usepackage{amsmath,amssymb,amsthm,array,booktabs,hyperref}
 \newtheorem{proposition}{Proposition}[section]
 \input{delivery_claims}
 \title{From Experimental Histories to Causal Surrogates:\\Data Reuse, Optimization, and Error Propagation\thanks{AI-assisted tools
@@ -2567,7 +2567,7 @@ verification and submission.}}
 \author{\name Anonymous authors}
 \newif\ifdeliverydraft
 \deliverydrafttrue % Keep until reproduction, integrated evidence and final review pass.
-\hypersetup{pdftitle={From Experimental Histories to Causal Surrogates},pdfauthor={Anonymous authors}}
+\hypersetup{hidelinks,pdftitle={From Experimental Histories to Causal Surrogates},pdfauthor={Anonymous authors}}
 \begin{document}
 \maketitle
 \ifdeliverydraft
@@ -3115,10 +3115,10 @@ and power for the second, and shared jamming. Their five-level supports are
 \end{align*}
 Let $s(z)=\min(1,\max(0,z))$ and $d=D/N$. The fixed mechanisms are
 \begin{align*}
- L={}&s\left(0.35s\left(\frac{N+0.3D-100}{600}\right)
- +0.25s\left(1-\frac{|h-350|}{300}\right)
- +0.40s\left(\frac{p(1+0.15d)-0.8}{1.2}\right)
- -0.30s(J(1-0.6d))\right),\\
+ L={}&s\Biggl(0.35s\left(\frac{N+0.3D-100}{600}\right)
+ +0.25s\left(1-\frac{|h-350|}{300}\right)\\
+ &\qquad+0.40s\left(\frac{p(1+0.15d)-0.8}{1.2}\right)
+ -0.30s(J(1-0.6d))\Biggr),\\
  M={}&s\left(0.25s\left(\frac{N_M-5}{20}\right)
  +0.30s\left(1-\frac{|h_M-8000|}{4000}\right)
  +0.45s\left(\frac{p_M-0.8}{1.2}\right)-0.25s(0.85J)\right),\\
