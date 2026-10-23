@@ -1046,3 +1046,7 @@ Curie's distinct bounded source/scope review reports0requiredfindings for the ne
 ## October23 approved replay08 packet
 
 Patrick approved ONE1CPU/3GiB/30minute replay. Fresh17:40:13UTC package/installedpins/scratch/journals authenticate; ACEqueueempty. Bothcontrollersheld; output08 inode384996661 exclusivelyclaimed. Freeze c22109e41253d2b60c7e35da46c36292fc12bcad0c4bf04a2f235f96b7c20bd6; all9remoteinputsreadbackmatch. Distinct Zeno finalpacket review0required. No implementationtest/modelreplay repeated. Currentreservation89.368333/150includesauthorized.5; knownpriorallocated119961secondsseparate. No submission atthisentry; exclusivejournals thenONESbatch required. See delivery_vf_replay08_execution_2026-10-23.md and results/delivery_vf_replay_20261023/launch08. Originalfailed07preserved; actualruntime/numerical/report/publicationgates remainopen.
+
+## October23 replay08 submitted once
+
+Job34824953 accepted17:43:09UTC under explicit one-attempt30minute authorization, packetcommitf0c21e66. Exclusive local/remote submission journals followed all9inputpins/readiness/finalpacket review. Accountucb736_asc1,acpu/cpu-normal,1CPU/3GiB/30min,zeroGPU/no-requeue. Approval now consumed; no automaticretry. Bothlocalcontrollerlocks released after successfulsubmission. Reservation89.368333/150; prior119961allocatedseconds exclude thisjob. Actualqualified640/240/48000replay, cleanup/scheduler/custody andbothreporters remainpending. Evidence results/delivery_vf_replay_20261023/submission08.
