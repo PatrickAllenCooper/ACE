@@ -1068,3 +1068,7 @@ Fresh22:40:18UTC CURC authentication passes3893objects/exact3895membership,11ins
 ## October23 replay09 final packet ready
 
 Freeze5825290ce5cb061baadfa8ff2a24f6038bcc8cb6f1cce64dc451fcc9d31909ca binds reviewed source08598f7c and current authorization. All9remoteinputs independentlyreadbackmatch; newoutputinode1554896029. Distinct Parfit finalpacketreview0required. Launcher9559bf0595d2cbc6db94fac487618d2fefc3a62ececab54eccfba878e91f7411 retainscapturedsource/claim and30mincap. Exclusive local/remote submissionjournals andONESbatch remainnext; no submissionatthisentry. Packet results/delivery_backend_replay_20261023/launch09.
+
+## October23 corrected replay09 submitted once
+
+Job34835547 accepted22:49:20UTC under Patrick's “Fix and retry” instruction, same1CPU/3GiB/30minute cap. Packetcommitdf963b54, freeze5825290c; exclusive local/remote submissionjournals and9inputreadbacks passed. Accountucb736_asc1/acpu/cpu-normal,zeroGPU/no-requeue. Bothcontrollerlocks released afteracceptedsubmission. This singleattemptauthorization is now consumed; failure/ambiguity neverpermitsautomaticretry. Reserved89.868333/150corehours; knownpriorallocated120260seconds excludescurrentjob. Actualruntime, full640/240/48000savedreplay, cleanup/scheduler/custody andbothreporters remainpending. Evidence results/delivery_backend_replay_20261023/submission09.
