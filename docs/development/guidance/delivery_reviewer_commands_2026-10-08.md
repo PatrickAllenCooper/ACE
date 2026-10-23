@@ -111,9 +111,12 @@ not a successful receipt. No accepted scores are overwritten by these interfaces
 ## Replay prospective checkpoints and prepare descriptive reporting
 
 These are future independent-reader commands. Current project qualification must
-use the frozen, supervised `ace_delB_replay` launch03 under the existing resource
-authorization. Directly running the CLI or inspecting a pinned receipt does not
-replace that supervisor, allocation and custody gate.
+use the latest explicitly approved, frozen supervised launch recorded in
+`delivery_publication_completion_2026-10-23.md`. The approved07 attempt failed;
+the reviewed08 proposal in `delivery_vf_alias_recovery_2026-10-23.md` awaits a new
+single-attempt decision. Earlier launch03 instructions and approvals are
+historical. Directly running the CLI or inspecting a pinned receipt does not
+replace the supervisor, allocation and custody gate.
 
 ```bash
 "$B_PYTHON" -B "$PACKAGE_ROOT/replay_delivery_prospective_release.py" \
