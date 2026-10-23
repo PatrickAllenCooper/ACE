@@ -49,3 +49,7 @@ The new private source-only fixture layout and cached-module/source-lookup prefl
 ## New explicit replay08 authorization
 
 Patrick approved ONE1CPU/3GiB/30minute replay. The prior pending decision is resolved; new execution is tracked in delivery_vf_replay08_execution_2026-10-23.md. Failed07 remains immutable. No automatic retry follows this new attempt. Actual qualification and both reporters remain required before manuscript result integration.
+
+## Current boundary after replay08
+
+Approved job34824953 failed before models on the standard torch.backends.cudnn delegated module wrapper. Complete terminal custody and accounting are retained in delivery_vf_replay08_execution_2026-10-23.md. The one-attempt authorization is consumed. A full local compatibility correction must precede any new proposal; no successor allocation is currently authorized or prepared. Actual B replay qualification, both reporters and final integration remain open. Original acceptance remains valid.
