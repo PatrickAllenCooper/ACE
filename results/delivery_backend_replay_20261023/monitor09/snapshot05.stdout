@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-23T22:54:44.856567+00:00",
+  "scontrol": "JobId=34835547 JobName=ace_delB_replay\n   UserId=paco0228(348288) GroupId=paco0228pgrp(348288) MCS_label=N/A\n   Priority=17265 Nice=0 Account=ucb736_asc1 QOS=cpu-normal\n   JobState=FAILED Reason=NonZeroExitCode Dependency=(null)\n   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=1:0\n   RunTime=00:04:59 TimeLimit=00:30:00 TimeMin=N/A\n   SubmitTime=2026-10-23T16:49:20 EligibleTime=2026-10-23T16:49:20\n   AccrueTime=2026-10-23T16:49:20\n   StartTime=2026-10-23T16:49:39 EndTime=2026-10-23T16:54:38 Deadline=N/A\n   PreemptEligibleTime=2026-10-23T16:49:39 PreemptTime=None\n   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-10-23T16:49:39 Scheduler=Backfill\n   Partition=acpu AllocNode:Sid=login-ci5:614667\n   ReqNodeList=(null) ExcNodeList=(null)\n   NodeList=c3cpu-e2-u7\n   BatchHost=c3cpu-e2-u7\n   NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:*\n   ReqTRES=cpu=1,mem=3G,node=1\n   AllocTRES=cpu=1,mem=3G,node=1\n   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*\n   MinCPUsNode=1 MinMemoryNode=3G MinTmpDiskNode=0\n   Features=(null) DelayBoot=00:00:00\n   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)\n   Command=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09/run.sbatch\n   WorkDir=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09\n   StdErr=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09/slurm-34835547.err\n   StdIn=/dev/null\n   StdOut=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09/slurm-34835547.out\n   Switches=1@7-00:00:00\n   TresPerTask=cpu=1\n   \n\n",
+  "files": {
+    "freeze.json": 8463,
+    "replay.log": 858,
+    "owned_supervision.py": 5127,
+    "submission_result.json": 156,
+    "launcher_failure.json": 374,
+    "slurm-34835547.err": 354,
+    "slurm-34835547.out": 0,
+    "replay_started.json": 158,
+    "qualify_runtime.py": 34545,
+    "output_claim.json": 355,
+    "checkpoint_guard.py": 3352,
+    "child_bootstrap.py": 3799,
+    "run.sbatch": 3812,
+    "authorization.json": 786,
+    "submission_started.json": 1408,
+    "supervise_replay.py": 18226,
+    "replay_execution.json": 165664,
+    "runtime_module_shapes.json": 480670
+  },
+  "replay_execution.json": {
+    "status": "wrapper_failure",
+    "stage": "supervised_runtime_then_replay",
+    "exit_code": 1,
+    "failure_type": "ValueError",
+    "failure_reason": "child qualification/replay/cleanup failed",
+    "finished_at": "2026-10-23T22:54:35.977230+00:00",
+    "new_fits": 0,
+    "new_responses": 0
+  },
+  "launcher_failure.json": {
+    "status": "launcher_failure",
+    "stage": null,
+    "exit_code": null,
+    "failure_type": null,
+    "failure_reason": null,
+    "finished_at": null,
+    "new_fits": 0,
+    "new_responses": 0
+  }
+}

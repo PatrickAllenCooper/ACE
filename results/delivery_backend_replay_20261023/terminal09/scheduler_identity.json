@@ -1,0 +1,21 @@
+{
+  "job_raw": "34835547",
+  "job_display": "34835547",
+  "parent_only": true,
+  "allocated_cpu_seconds": 299,
+  "scontrol_sha256": "449cedee56512f6118cc3eaf7bbe1158111e80371485ab89ee267b9d4aaf76e7",
+  "sacct": {
+    "argv": [
+      "sacct",
+      "-j",
+      "34835547",
+      "--noheader",
+      "--parsable2",
+      "--format=JobIDRaw,JobID,State,ExitCode,Start,End,ElapsedRaw,CPUTimeRAW,TotalCPU,AllocCPUS,ReqMem,MaxRSS,AllocTRES,Account,Partition,QOS,NodeList"
+    ],
+    "returncode": 0,
+    "stdout": "34835547|34835547|FAILED|1:0|2026-10-23T16:49:39|2026-10-23T16:54:38|299|299|01:24.858|1|3G||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|c3cpu-e2-u7\n34835547.batch|34835547.batch|FAILED|1:0|2026-10-23T16:49:39|2026-10-23T16:54:38|299|299|01:24.857|1||609996K|cpu=1,mem=3G,node=1|ucb736_asc1|||c3cpu-e2-u7\n34835547.extern|34835547.extern|COMPLETED|0:0|2026-10-23T16:49:39|2026-10-23T16:54:38|299|299|00:00.001|1||288K|cpu=1,mem=3G,node=1|ucb736_asc1|||c3cpu-e2-u7\n",
+    "stderr": ""
+  },
+  "scope": "new independent replay09 identity; no child-step addition"
+}

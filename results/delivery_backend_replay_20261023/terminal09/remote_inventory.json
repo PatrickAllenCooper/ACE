@@ -1,0 +1,138 @@
+{
+  "at": "2026-10-23T22:55:40.329167+00:00",
+  "root": "/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09",
+  "files": [
+    {
+      "path": "authorization.json",
+      "bytes": 786,
+      "sha256": "192dab9c468f6ccb0b23c45cbf606085a5a21a5a5f4e7b5f2158b09246066f82"
+    },
+    {
+      "path": "checkpoint_guard.py",
+      "bytes": 3352,
+      "sha256": "d797aceb25fa66a2d781f3da052f699ac60abdeadc5b7dea1f82ebb43e21ab80"
+    },
+    {
+      "path": "child_bootstrap.py",
+      "bytes": 3799,
+      "sha256": "e2ddf8fe650de97f54278eb8f5f1253e11251c44dc9403af215f1888dc6be739"
+    },
+    {
+      "path": "freeze.json",
+      "bytes": 8463,
+      "sha256": "5825290ce5cb061baadfa8ff2a24f6038bcc8cb6f1cce64dc451fcc9d31909ca"
+    },
+    {
+      "path": "launcher_failure.json",
+      "bytes": 374,
+      "sha256": "b449decfa741c3eda1f8d76774f4883bc2390b53d46040ef76f116d9272ce867"
+    },
+    {
+      "path": "output_claim.json",
+      "bytes": 355,
+      "sha256": "05e3eaa14e96d5719d9013dac4f143895516a881dd1e7f72e6718136b73262ef"
+    },
+    {
+      "path": "owned_supervision.py",
+      "bytes": 5127,
+      "sha256": "8e8e93bf920241169b5ab728ef28c8ae93b6978923d53b31e4f63f31cec5dd63"
+    },
+    {
+      "path": "qualify_runtime.py",
+      "bytes": 34545,
+      "sha256": "e1bfc6ef06a892461b8310975a2b7e5a0ad323256c8d8e402480ac914ffb5318"
+    },
+    {
+      "path": "replay.log",
+      "bytes": 858,
+      "sha256": "277fe8d645790e11872bf162ab1f1cdd6c6f0577eac3b28bda8f6c0f8eba2ba4"
+    },
+    {
+      "path": "replay_execution.json",
+      "bytes": 165664,
+      "sha256": "e52500ebe61b9d9f0a56f48116a7937ae9c798a2a5cb7c9aaca3262be999018b"
+    },
+    {
+      "path": "replay_started.json",
+      "bytes": 158,
+      "sha256": "ee0e36f9c9ab53cff21d220c1a777d02fa3cb4eabd23349c6478f2ae3d55c75b"
+    },
+    {
+      "path": "run.sbatch",
+      "bytes": 3812,
+      "sha256": "9559bf0595d2cbc6db94fac487618d2fefc3a62ececab54eccfba878e91f7411"
+    },
+    {
+      "path": "runtime_module_shapes.json",
+      "bytes": 480670,
+      "sha256": "d35f84c4b2c5b0aa1383542e0bf2b2bdf42646b034d9f119ea878aefa37bb8a7"
+    },
+    {
+      "path": "slurm-34835547.err",
+      "bytes": 354,
+      "sha256": "0985e135fdfca21c053d30c918aeedb5bd168383588581512db1c90c983c9473"
+    },
+    {
+      "path": "slurm-34835547.out",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "submission_result.json",
+      "bytes": 156,
+      "sha256": "637b747557a933114d308ea5f8e0c2102d08741b6bb30a285da1fcc3a8f3f8dc"
+    },
+    {
+      "path": "submission_started.json",
+      "bytes": 1408,
+      "sha256": "9f7e32235c4543cfe4928d66b6e0b8d84eba99c1a2ab1a8f85f7d6065c0278ee"
+    },
+    {
+      "path": "supervise_replay.py",
+      "bytes": 18226,
+      "sha256": "fce27521fdb17bb94384263663c40807ccd1e3e0a988e0081605ea138ea075dc"
+    }
+  ],
+  "file_count": 18,
+  "bytes": 728107,
+  "commands": {
+    "sacct": {
+      "argv": [
+        "sacct",
+        "-j",
+        "34835547",
+        "--noheader",
+        "--parsable2",
+        "--format=JobIDRaw,JobID,State,ExitCode,Start,End,ElapsedRaw,CPUTimeRAW,TotalCPU,AllocCPUS,ReqMem,MaxRSS,AllocTRES,Account,Partition,QOS,NodeList"
+      ],
+      "returncode": 0,
+      "stdout": "34835547|34835547|FAILED|1:0|2026-10-23T16:49:39|2026-10-23T16:54:38|299|299|01:24.858|1|3G||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|c3cpu-e2-u7\n34835547.batch|34835547.batch|FAILED|1:0|2026-10-23T16:49:39|2026-10-23T16:54:38|299|299|01:24.857|1||609996K|cpu=1,mem=3G,node=1|ucb736_asc1|||c3cpu-e2-u7\n34835547.extern|34835547.extern|COMPLETED|0:0|2026-10-23T16:49:39|2026-10-23T16:54:38|299|299|00:00.001|1||288K|cpu=1,mem=3G,node=1|ucb736_asc1|||c3cpu-e2-u7\n",
+      "stderr": ""
+    },
+    "scontrol": {
+      "argv": [
+        "scontrol",
+        "show",
+        "job",
+        "34835547",
+        "-o"
+      ],
+      "returncode": 0,
+      "stdout": "JobId=34835547 JobName=ace_delB_replay UserId=paco0228(348288) GroupId=paco0228pgrp(348288) MCS_label=N/A Priority=17265 Nice=0 Account=ucb736_asc1 QOS=cpu-normal JobState=FAILED Reason=NonZeroExitCode Dependency=(null) Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=1:0 RunTime=00:04:59 TimeLimit=00:30:00 TimeMin=N/A SubmitTime=2026-10-23T16:49:20 EligibleTime=2026-10-23T16:49:20 AccrueTime=2026-10-23T16:49:20 StartTime=2026-10-23T16:49:39 EndTime=2026-10-23T16:54:38 Deadline=N/A PreemptEligibleTime=2026-10-23T16:49:39 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-10-23T16:49:39 Scheduler=Backfill Partition=acpu AllocNode:Sid=login-ci5:614667 ReqNodeList=(null) ExcNodeList=(null) NodeList=c3cpu-e2-u7 BatchHost=c3cpu-e2-u7 NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=1,mem=3G,node=1 AllocTRES=cpu=1,mem=3G,node=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=1 MinMemoryNode=3G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null) Command=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09/run.sbatch WorkDir=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09 StdErr=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09/slurm-34835547.err StdIn=/dev/null StdOut=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261023_09/slurm-34835547.out Switches=1@7-00:00:00 TresPerTask=cpu=1 \n",
+      "stderr": ""
+    },
+    "squeue": {
+      "argv": [
+        "squeue",
+        "-h",
+        "-j",
+        "34835547",
+        "-o",
+        "%i|%j|%T|%R"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  }
+}

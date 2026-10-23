@@ -57,3 +57,7 @@ Approved job34824953 failed before models on the standard torch.backends.cudnn d
 ## Explicit backend replay09 resumption
 
 Patrick now instructed “Fix and retry”. The reviewed backend-wrapper correction and one same-cap1CPU/3GiB/30minute attempt are tracked in delivery_backend_replay09_execution_2026-10-23.md. This supersedes the prior unapproved-successor status; the failed08attempt is preserved. Actual runtime/numerical replay and both reporters remain gated.
+
+## Current boundary after replay09
+
+The new backend-wrapper validation passed in actual runtime, but34835547failed before models on two further fileless compatibility modules:cython_runtime/six.moves. Full18objectcustody and accounting are preserved. The one-attempt retry is consumed. Prepare the remaining source/identity correction before any concrete new attempt request; no automaticretry or B reporting. See delivery_backend_replay09_execution_2026-10-23.md.
