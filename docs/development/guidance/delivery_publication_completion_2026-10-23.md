@@ -1,0 +1,35 @@
+# ACE publication completion: active execution plan, October 23, 2026
+
+The user set the active goal: “Let us design and do precisely what is required to get us to our final results and publication-ready status.” This resumes concrete publication preparation. It does not relabel a failed attempt, qualify an unexecuted replay, submit a paper, or roll the expired foundation exploration budget forward.
+
+## Current scientific boundary
+
+Finish the existing anonymous TMLR delivery/SCM recipe and accounting manuscript in `paper/aistats_ace_2027/paper.tex`. Keep all accepted A/B/C/F studies, unfavorable conditions and original worker/receipt bytes. The original Stage B audit accepted all640fits,40worlds and48000shared responses. The last supplemental replay, job33640933 onOctober9, failed before checkpoints at the fileless `torch._VF` provenance gate. Original acceptance and supplemental reproducibility have different scopes.
+
+No currently identified scientific review finding requires another fitted study for this paper. The foundation-model pilot results support conditional predictive benefits and expose selection/local-harm failures. They do not establish intervention efficiency. They remain a separate closed exploratory cycle. Do not introduce an LLM/pretraining efficiency claim into the paper to match the marketing deck.
+
+## Required sequence and completion evidence
+
+1. **Qualify the saved-artifact B replay.** Correct the concrete runtime failure, review the change, independently authenticate installed source/native bytes, freeze a new attempt's complete source/input/resource packet, reconcile live scheduler and exclusive controller/submission journals, and verify scratch readiness. A successful scheduler exit alone is insufficient: require actual exact dependency/runtime qualification, unchanged full input manifest, first-checkpoint live inventory,640checkpoints,240primary cells,48000cached responses, zero new optimizer updates/responses, and successful supervised cleanup. Preserve every failed predecessor. The consumed06approval cannot authorize an automatic retry. Prepare the new reviewable packet before requesting any required new per-attempt decision.
+2. **Generate and assemble all B reporting.** After qualified replay and exclusive local custody, run the original registered exporter AND descriptive reporter against independent manifest/replay pins. Preserve four registered contrasts,80system-log-ratio rows,320fixed-init0 arm/history errors, initialization sensitivity, short-fit ablation, histories, floors and all640machine-readable cells. Add five prospective LaTeX companions and separate prospective primary/descriptive indexes; never overwrite the existing A/C/F `claim_index.json`. The manuscript sync and publication snapshot currently enumerate11companions, so expand them with explicit, authenticated B membership before integrated capture. Do not create real outcome reports or fill numerical placeholders before replay qualification.
+3. **Complete scientific integration and accounting.** Revise the abstract, contribution, prospective results, discussion, conclusion and provenance to agree with all registered outcomes. Apply the original superiority gates without new testing or selection. Retain the worsening history and physical Fourier boundary. Reconcile original studies, pilots, interrupted attempts, runtime preparations and every replay. Keep process CPU, elapsed time, allocated CPU and reservations distinct; confirmation whole-process CPU and unmetered overhead remain unknown. Complete independent integrated evidence/proof/prose/table review against the original9scientific/8reproducibility findings. Component reviews remain prior evidence, not grounds to repeat work.
+4. **Build the final reproducible submission package.** Create a new writing/report/source successor with explicit predecessor lineage, preserving the replay-qualified input manifest. Bind both report indexes, final companions, source, runtime, commands and notices. Verify offline from an unrelated directory; distinguish saved-artifact replay from original collection/training execution. Complete the remaining derived import/location/guard contracts to the extent required by the release's claimed executable scope. Preserve required attribution while deliberately reviewing anonymity and redistribution. Compile the same manuscript with the native compiler and inspect every final page.
+5. **Obtain human submission approval.** Present the concrete final manuscript, supplement, reproducibility package, scoped claims and unresolved limitations for human review. Publication-ready does not mean venue acceptance. Do not submit or publish automatically.
+
+## Immediate work and resource boundary
+
+The first local action is a narrowly checked PyTorch VF proxy correction, with artificial positive/substitution tests and separate review. The implementation now checks Python creator code and effective bindings, exact instance metadata, fresh-import reference continuity and independently pinned backing-file integrity. It explicitly does not attest native execution from those files. Three required review findings were corrected; the bounded static recheck has zero remaining required issues. Actual target runtime remains unqualified until a supervised execution succeeds.
+
+The last recorded delivery reservation is88.618333CPU-core-hours within150. A proposed single new1CPU/3GiB/15minute inference-only attempt would add.25 to88.868333, with accountucb736_asc1, acpu/cpu-normal, zero accelerators and no requeue. This is sizing continuity, not a submitted allocation. Revalidate live environment/storage and current accounting before freezing or submitting; no installs or new fits are implied. Any larger/new environment requirement needs a concrete revised decision.
+
+The shared connection check currently fails because `/tmp/defab-curc.sock` is absent. Patrick reported a successful masterPID38137 in his terminal, but that PID/socket is not visible to this process. The discrepancy must be resolved before any remote claim. No scheduler/job/process liveness is inferred from old records or a lock file. Both local controller locks were available when checked and released without launch. No schedule was resumed.
+
+## Authoritative sources
+
+- `research_execution_2026-09-25.md` and `delivery_review_register_2026-10-07.md`, latestOctober9entries.
+- `delivery_final_integration_2026-10-08.md`, reporting and final-review requirements; its historical launch statuses are superseded by terminal06.
+- `delivery_prospective_supplement_2026-10-08.md`, `delivery_reporting_source_integration_2026-10-08.md`, `delivery_publication_snapshot_2026-10-08.md` and `delivery_reviewer_commands_2026-10-08.md`.
+- `results/delivery_descriptor_replay_20261009/terminal06/receipt.json` and frozenlaunch06predecessor.
+- `ace_foundation_cycle_closeout_2026-10-09.md`, expired exploration, retained failures and limits.
+
+This plan records required work. None of its uncompleted items is acceptance evidence.

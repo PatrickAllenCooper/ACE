@@ -1,6 +1,17 @@
 """Derived replay-only runtime qualifier; exact native alias; no installs/models."""
-import argparse,hashlib,importlib,importlib.metadata,json,sys,os,datetime,re,_imp,importlib.machinery,types,stat
+import argparse,hashlib,importlib,importlib.metadata,json,sys,os,datetime,re,_imp,importlib.machinery,types,stat,builtins
 from pathlib import Path
+_VF_BUILTINS={'getattr':getattr,'super':super}
+_VF_IMPORT_BINDING=None
+
+def capture_vf_import_binding():
+ """Retain fresh-import references; this is not native execution attestation."""
+ global _VF_IMPORT_BINDING
+ if _VF_IMPORT_BINDING is not None:raise ValueError('VF import binding already captured')
+ torch=sys.modules.get('torch');parent=sys.modules.get('torch._C');proxy=sys.modules.get('torch._VF')
+ if type(torch) is not types.ModuleType or type(parent) is not types.ModuleType or proxy is None:
+  raise ValueError('VF fresh import modules missing')
+ _VF_IMPORT_BINDING=(torch,parent,proxy,type(proxy),vars(parent).get('_VariableFunctions'))
 def sha(p):
  h=hashlib.sha256()
  with Path(p).open('rb') as f:
@@ -63,11 +74,85 @@ def dependency_records(reg,reject_cached=True):
  search_path_check(prefix,base)
  return records
 
-def loaded_module_records(prefix,base,native_pins,allowed_sources=None):
+def torch_vf_proxy(module,prefix,native_pins,synthetic_pins):
+ """Authenticate the exact PyTorch VF proxy, not a name-only exception.
+
+ PyTorch 2.9.1 _VF.py replaces its import module with a VFModule instance.
+ The original globals survive on the class methods. Match those live methods
+ to compiled, independently pinned source without executing that source again.
+ Fresh-import reference continuity and both backing-file pins remain required.
+ These checks do not attest execution of a native object from those files or
+ defend against arbitrary modification of this checker in the same process.
+ """
+ prefix=prefix.resolve();torch=sys.modules.get('torch');parent=sys.modules.get('torch._C')
+ if type(torch) is not types.ModuleType or type(parent) is not types.ModuleType or vars(torch).get('_C') is not parent:
+  raise ValueError('VF native parent identity differs')
+ klass=type(module)
+ observed=(torch,parent,module,klass,vars(parent).get('_VariableFunctions'))
+ if _VF_IMPORT_BINDING is None or any(a is not b for a,b in zip(observed,_VF_IMPORT_BINDING)):
+  raise ValueError('VF fresh-import reference identity changed or missing')
+ if type(klass) is not type or klass.__bases__!=(types.ModuleType,) or klass.__name__!='VFModule' or klass.__module__!='torch._VF':
+  raise ValueError('VF proxy class/object differs')
+ if set(vars(klass))-{'__module__','__doc__','__annotations__','__init__','__getattr__'}:
+  raise ValueError('VF class has extra behavior')
+ attrs=vars(module)
+ if set(attrs)!={'__name__','__doc__','__package__','__loader__','__spec__','vf'} or any(attrs[name] is not None for name in ('__doc__','__package__','__loader__','__spec__')):
+  raise ValueError('VF instance metadata/behavior differs')
+ if attrs.get('__name__')!='torch._VF' or attrs.get('__file__'):raise ValueError('VF proxy class/object differs')
+ if sys.modules.get('torch._VF') is not module or vars(torch).get('_VF') is not module or attrs.get('vf') is not vars(parent).get('_VariableFunctions') or attrs.get('vf') is None:
+  raise ValueError('VF proxy/native function identity differs')
+ source=prefix/'lib/python3.11/site-packages/torch/_VF.py'
+ if set(synthetic_pins)!={str(source)}:
+  raise ValueError('exact VF source pin required')
+ backing=Path(vars(parent).get('__file__',''))
+ implementation=prefix/'lib/python3.11/site-packages/torch/lib/libtorch_python.so'
+ if not any(str(backing).endswith(ext) for ext in importlib.machinery.EXTENSION_SUFFIXES) or set(native_pins)!={str(backing),str(implementation)}:
+  raise ValueError('exact VF native backing pin set required')
+ witnesses=[];raw_source=None
+ for path,pin in [(source,synthetic_pins[str(source)]),*( (Path(p),v) for p,v in native_pins.items())]:
+  if not path.is_absolute() or path.is_symlink() or not path.resolve(strict=True).is_relative_to(prefix) or not path.is_file() or not re.fullmatch('[0-9a-f]{64}',pin):
+   raise ValueError('VF backing origin/pin differs')
+  if path==source:
+   raw_source=path.read_bytes();observed=hashlib.sha256(raw_source).hexdigest()
+  else:observed=sha(path)
+  if observed!=pin:raise ValueError('VF backing bytes differ')
+  witnesses.append({'creator':'torch._VF' if path==source else 'torch._C','backing_file':str(path.resolve()),'sha256':pin})
+ compiled=compile(raw_source,str(source),'exec',dont_inherit=True,optimize=0)
+ classes=[c for c in compiled.co_consts if type(c) is types.CodeType and c.co_name=='VFModule']
+ if len(classes)!=1:raise ValueError('VF source class differs')
+ expected={c.co_name:c for c in classes[0].co_consts if type(c) is types.CodeType}
+ if set(expected)!={'__init__','__getattr__'}:raise ValueError('VF source methods differ')
+ original_globals=None
+ for name in ('__init__','__getattr__'):
+  method=vars(klass).get(name)
+  if type(method) is not types.FunctionType or method.__code__!=expected[name] or method.__code__.co_filename!=str(source) or method.__defaults__ or method.__kwdefaults__:
+   raise ValueError('VF live method differs from pinned source')
+  cells=method.__closure__ or ()
+  if method.__code__.co_freevars==('__class__',):
+   if len(cells)!=1 or cells[0].cell_contents is not klass:raise ValueError('VF class closure differs')
+  elif method.__code__.co_freevars or cells:raise ValueError('VF unexpected closure')
+  context=method.__globals__
+  if context.get('__name__')!='torch._VF' or context.get('VFModule') is not klass or context.get('torch') is not torch or context.get('types') is not types or context.get('sys') is not sys:
+   raise ValueError('VF creator globals differ')
+  if method.__builtins__ is not vars(builtins) or context.get('__builtins__') is not vars(builtins):
+   raise ValueError('VF captured builtins differ')
+  for binding,original in _VF_BUILTINS.items():
+   if binding in context or method.__builtins__.get(binding) is not original:
+    raise ValueError('VF effective global/builtin binding differs: '+binding)
+  if original_globals is not None and context is not original_globals:raise ValueError('VF creator globals split')
+  original_globals=context
+ return {'module':'torch._VF','kind':'python_native_proxy','attribute_path':'torch._C._VariableFunctions','witnesses':witnesses,
+         'object_binding_scope':'fresh-import reference continuity; Python creator code and backing-file integrity',
+         'native_execution_attested':False}
+
+def loaded_module_records(prefix,base,native_pins,allowed_sources=None,synthetic_pins=None):
  allowed_sources=allowed_sources or {}
+ synthetic_pins=synthetic_pins or {}
  loaded=[]
  for name,module in list(sys.modules.items()):
   if module is None:continue
+  if name=='torch._VF':
+   loaded.append(torch_vf_proxy(module,prefix,native_pins,synthetic_pins));continue
   attrs=vars(module)
   if name=='torch._C._dynamo.autograd_compiler':
    loaded.append(native_autograd_alias(name,module,prefix,native_pins));continue
@@ -190,8 +275,9 @@ def main():
  assert Path(reg['base_python']).resolve(strict=True)==Path(reg['base_python_resolved']).resolve(strict=True) and sha(reg['base_python'])==reg['base_python_sha256'] and sha('/proc/self/exe')==reg['base_python_sha256']
  base=Path(reg['approved_base_prefix']).resolve();assert Path(sys.base_prefix).resolve()==base
  records=dependency_records(reg)
+ capture_vf_import_binding()
  allowed_sources={str((out/name).resolve()):pin for name,pin in reg['execution_source_pins'].items()}
- loaded=loaded_module_records(prefix,base,reg['native_backing_pins'],allowed_sources)
+ loaded=loaded_module_records(prefix,base,reg['native_backing_pins'],allowed_sources,reg.get('synthetic_backing_pins',{}))
  files=[]
  for f in sorted(prefix.rglob('*')):
   if f.is_symlink():

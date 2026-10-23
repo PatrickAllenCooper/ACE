@@ -52,7 +52,8 @@ def install(qualifier, reg, fd, manifest, package, source_pins):
             prefix, base = Path(reg['environment']).resolve(), Path(reg['approved_base_prefix']).resolve()
             qualifier.search_path_check(prefix, base)
             entries = qualifier.verify_environment_inventory(prefix, inventory)
-            loaded = qualifier.loaded_module_records(prefix, base, reg['native_backing_pins'], allowed)
+            loaded = qualifier.loaded_module_records(prefix, base, reg['native_backing_pins'], allowed,
+                                                     reg.get('synthetic_backing_pins', {}))
             qualifier.bind_loaded_inventory(loaded, prefix, entries)
             if hashlib.sha256(read_fd(fd, 'runtime_qualification.json')).hexdigest()!=qpin or hashlib.sha256(read_fd(fd, 'runtime_inventory.json')).hexdigest()!=invpin:
                 raise ValueError('qualification receipt changed')
