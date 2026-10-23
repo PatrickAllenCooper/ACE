@@ -3,6 +3,12 @@ import argparse,hashlib,importlib,importlib.metadata,json,sys,os,datetime,re,_im
 from pathlib import Path
 _VF_BUILTINS={'getattr':getattr,'super':super}
 _VF_IMPORT_BINDING=None
+_BACKEND_BINDINGS=None
+_BACKEND_CLASSES={
+ 'torch.backends':'GenericModule', 'torch.backends.cudnn':'CudnnModule',
+ 'torch.backends.miopen':'MiopenModule', 'torch.backends.mkldnn':'MkldnnModule',
+ 'torch.backends.opt_einsum':'OptEinsumModule',
+ 'torch.backends.quantized':'QuantizedEngine', 'torch.backends.xnnpack':'XNNPACKEngine'}
 
 def capture_vf_import_binding():
  """Retain fresh-import references; this is not native execution attestation."""
@@ -179,14 +185,151 @@ def torch_vf_proxy(module,prefix,native_pins,synthetic_pins):
          'object_binding_scope':'fresh-import reference continuity; Python creator code and backing-file integrity',
          'native_execution_attested':False}
 
-def loaded_module_records(prefix,base,native_pins,allowed_sources=None,synthetic_pins=None):
+def backend_source_pins(prefix,pins):
+ """The seven installed 2.9.1 creators, independently pinned before import."""
+ prefix=prefix.resolve(strict=True)
+ canonical=canonical_backing_pins(pins,prefix,'backend')
+ paths={n:prefix/'lib/python3.11/site-packages'/Path(*n.split('.'))/'__init__.py'
+        for n in _BACKEND_CLASSES}
+ if set(canonical)!={str(p) for p in paths.values()}:raise ValueError('exact backend creator pins required')
+ for p in paths.values():
+  if sha(p)!=canonical[str(p)]:raise ValueError('backend creator bytes differ')
+ return paths,canonical
+
+def backend_shape(name,module,paths):
+ """Inspect dictionaries only; do not invoke proxy or flag descriptors."""
+ if name not in _BACKEND_CLASSES or sys.modules.get(name) is not module:
+  raise ValueError('backend module identity differs')
+ attrs=vars(module);original=attrs.get('m');klass=type(module)
+ if type(original) is not types.ModuleType or vars(original).get('__name__')!=name:
+  raise ValueError('backend delegated module differs')
+ context=vars(original);origin=context.get('__file__')
+ if (type(origin) is not str or not Path(origin).is_absolute() or Path(origin).is_symlink()
+     or Path(origin).resolve(strict=True)!=paths[name]):raise ValueError('backend delegated origin differs')
+ locations=context.get('__path__')
+ if type(locations) not in (list,tuple) or len(locations)!=1 or type(locations[0]) is not str or not Path(locations[0]).is_absolute() or Path(locations[0]).resolve(strict=True)!=paths[name].parent:
+  raise ValueError('backend delegated package path differs')
+ if '__getattribute__' in context:raise ValueError('backend delegated lookup override')
+ if type(klass) is not type or klass.__module__!=name or klass.__name__!=_BACKEND_CLASSES[name] or context.get(klass.__name__) is not klass:
+  raise ValueError('backend creator class differs')
+ if attrs.get('__name__')!=name or any(attrs.get(n) is not None for n in ('__doc__','__package__','__loader__','__spec__')):
+  raise ValueError('backend proxy metadata differs')
+ expected={'__name__','__doc__','__package__','__loader__','__spec__','m'}
+ # Import machinery can set authenticated child bindings on every package.
+ if not expected.issubset(attrs):raise ValueError('backend instance metadata missing')
+ for key,value in attrs.items():
+  if key not in expected and ('.' in key or name+'.'+key not in sys.modules or not isinstance(value,types.ModuleType) or sys.modules[name+'.'+key] is not value):
+   raise ValueError('backend instance override')
+ parent_name,leaf=name.rsplit('.',1);parent=sys.modules.get(parent_name)
+ if parent is None or vars(parent).get(leaf) is not module:
+  raise ValueError('backend parent binding differs')
+ baseproxy=sys.modules.get('torch.backends');baseoriginal=vars(baseproxy).get('m') if baseproxy is not None else None
+ if type(baseoriginal) is not types.ModuleType:raise ValueError('backend base creator missing')
+ prop=vars(baseoriginal).get('PropModule')
+ direct=name in ('torch.backends.quantized','torch.backends.xnnpack')
+ if klass.__bases__!=((types.ModuleType,) if direct else (prop,)):
+  raise ValueError('backend class bases differ')
+ if not direct and (type(prop) is not type or prop.__bases__!=(types.ModuleType,) or prop.__module__!='torch.backends'):
+  raise ValueError('backend PropModule differs')
+ return original,klass,prop,parent
+
+def check_backend_methods(klass,context,source):
+ """Match Python methods to pinned source without executing its module body.
+
+ This checks creator/delegation code and its module globals identity. It does
+ not attest native kernels, flag values, or arbitrary same-process tampering.
+ """
+ compiled=compile(source.read_bytes(),str(source),'exec',dont_inherit=True,optimize=0)
+ blocks=[c for c in compiled.co_consts if type(c) is types.CodeType and c.co_name==klass.__name__]
+ if len(blocks)!=1:raise ValueError('backend source class missing')
+ expected={c.co_name:c for c in blocks[0].co_consts if type(c) is types.CodeType}
+ actual={n:f for n,f in vars(klass).items() if type(f) is types.FunctionType}
+ if set(actual)!=set(expected):raise ValueError('backend Python method membership differs')
+ for n,method in actual.items():
+  if method.__code__!=expected[n] or method.__globals__ is not context or method.__builtins__ is not vars(builtins):
+   raise ValueError('backend Python method differs')
+  origin=Path(method.__code__.co_filename)
+  if not origin.is_absolute() or origin.is_symlink() or origin.resolve(strict=True)!=source:
+   raise ValueError('backend method origin differs')
+  if method.__defaults__ or method.__kwdefaults__:raise ValueError('backend method defaults differ')
+  cells=method.__closure__ or ()
+  if method.__code__.co_freevars==('__class__',):
+   if len(cells)!=1 or cells[0].cell_contents is not klass:raise ValueError('backend class closure differs')
+  elif method.__code__.co_freevars or cells:raise ValueError('backend unexpected method closure')
+ if context.get('__builtins__') is not vars(builtins) or context.get('types',types) is not types or context.get('sys') is not sys:
+  raise ValueError('backend creator globals differ')
+ if 'super' in context or vars(builtins).get('super') is not _VF_BUILTINS['super']:
+  raise ValueError('backend effective super differs')
+
+def backend_effective_bindings(name,context,source):
+ bindings={}
+ if name!='torch.backends.opt_einsum':
+  torch=sys.modules.get('torch');native=sys.modules.get('torch._C')
+  if type(torch) is not types.ModuleType or type(native) is not types.ModuleType or context.get('torch') is not torch or vars(torch).get('_C') is not native:
+   raise ValueError('backend effective torch/native binding differs')
+  bindings.update(torch=torch,native=native)
+ if name=='torch.backends.mkldnn':
+  helper=context.get('is_available')
+  compiled=compile(source.read_bytes(),str(source),'exec',dont_inherit=True,optimize=0)
+  expected=[c for c in compiled.co_consts if type(c) is types.CodeType and c.co_name=='is_available']
+  if len(expected)!=1 or type(helper) is not types.FunctionType or helper.__code__!=expected[0] or helper.__globals__ is not context or helper.__builtins__ is not vars(builtins) or helper.__defaults__ or helper.__kwdefaults__ or helper.__closure__:
+   raise ValueError('backend availability helper differs')
+  origin=Path(helper.__code__.co_filename)
+  if not origin.is_absolute() or origin.is_symlink() or origin.resolve(strict=True)!=source:
+   raise ValueError('backend availability helper origin differs')
+  native_flag=vars(native).get('_has_mkldnn')
+  if type(native_flag) is not bool:raise ValueError('backend native availability flag differs')
+  bindings.update(helper=helper,native_availability=native_flag)
+ return bindings
+
+def capture_backend_import_bindings(prefix,pins):
+ global _BACKEND_BINDINGS
+ if _BACKEND_BINDINGS is not None:raise ValueError('backend references already captured')
+ paths,_=backend_source_pins(prefix,pins)
+ # These are configuration modules, not model or accelerator operations.
+ for name in _BACKEND_CLASSES:importlib.import_module(name)
+ captures={}
+ for name in _BACKEND_CLASSES:
+  module=sys.modules[name];original,klass,prop,parent=backend_shape(name,module,paths)
+  check_backend_methods(klass,vars(original),paths[name])
+  if name not in ('torch.backends.quantized','torch.backends.xnnpack'):
+   check_backend_methods(prop,vars(vars(sys.modules['torch.backends'])['m']),paths['torch.backends'])
+  captures[name]=(module,original,klass,prop,parent,dict(vars(klass)),dict(vars(module)),dict(vars(prop)),backend_effective_bindings(name,vars(original),paths[name]))
+ _BACKEND_BINDINGS=captures
+
+def torch_backend_proxy(name,module,prefix,pins):
+ paths,canonical=backend_source_pins(prefix,pins)
+ original,klass,prop,parent=backend_shape(name,module,paths)
+ captured=(_BACKEND_BINDINGS or {}).get(name)
+ if captured is None or any(a is not b for a,b in zip((module,original,klass,prop,parent),captured[:5])):
+  raise ValueError('backend fresh-import identity differs')
+ # Children may be imported later; each must have an exact sys.modules binding.
+ for current,old in [(vars(klass),captured[5]),(vars(module),captured[6])]:
+  if any(current.get(k) is not v for k,v in old.items()):raise ValueError('backend captured binding changed')
+ if set(vars(klass))!=set(captured[5]):raise ValueError('backend class override')
+ if set(vars(prop))!=set(captured[7]) or any(vars(prop).get(k) is not v for k,v in captured[7].items()):raise ValueError('backend base class binding changed')
+ effective=backend_effective_bindings(name,vars(original),paths[name])
+ if set(effective)!=set(captured[8]) or any(effective[k] is not v for k,v in captured[8].items()):raise ValueError('backend effective binding changed')
+ check_backend_methods(klass,vars(original),paths[name])
+ creators={paths[name]}
+ if name not in ('torch.backends.quantized','torch.backends.xnnpack'):
+  check_backend_methods(prop,vars(vars(sys.modules['torch.backends'])['m']),paths['torch.backends'])
+  creators.add(paths['torch.backends'])
+ return {'module':name,'kind':'python_delegated_backend','witnesses':[
+  {'backing_file':str(p),'sha256':canonical[str(p)]} for p in sorted(creators)],
+  'object_binding_scope':'captured wrapper/delegate identities and Python creator methods; source-byte integrity',
+  'native_execution_attested':False,'backend_flag_behavior_attested':False}
+
+def loaded_module_records(prefix,base,native_pins,allowed_sources=None,synthetic_pins=None,backend_pins=None):
  allowed_sources=allowed_sources or {}
  synthetic_pins=synthetic_pins or {}
- loaded=[]
+ loaded=[];unexplained=[]
  for name,module in list(sys.modules.items()):
   if module is None:continue
   if name=='torch._VF':
    loaded.append(torch_vf_proxy(module,prefix,native_pins,synthetic_pins));continue
+  if name in _BACKEND_CLASSES:
+   loaded.append(torch_backend_proxy(name,module,prefix,backend_pins or {}));continue
   attrs=vars(module)
   if name=='torch._C._dynamo.autograd_compiler':
    loaded.append(native_autograd_alias(name,module,prefix,native_pins));continue
@@ -244,7 +387,7 @@ def loaded_module_records(prefix,base,native_pins,allowed_sources=None,synthetic
      witnesses.append({'creator':creator_name,'backing_file':str(backing),'sha256':sha(backing)})
     assert witnesses,('unexplained Cython ABI module',name)
     loaded.append({'module':name,'kind':'cython_abi','witnesses':witnesses});continue
-   raise ValueError('unexplained fileless module: '+name)
+   unexplained.append(name);continue
 
   origin=Path(f).resolve()
   if str(origin) in allowed_sources:
@@ -252,6 +395,7 @@ def loaded_module_records(prefix,base,native_pins,allowed_sources=None,synthetic
    loaded.append({'module':name,'path':str(origin),'sha256':allowed_sources[str(origin)]});continue
   assert origin.is_file() and (origin.is_relative_to(prefix) or origin.is_relative_to(base/'lib/python3.11') and not origin.is_relative_to(base/'lib/python3.11/site-packages') or origin==Path(__file__).resolve()),('external loaded module',name,str(origin))
   loaded.append({'module':name,'path':str(origin),'sha256':sha(origin)})
+ if unexplained:raise ValueError('unexplained fileless modules: '+', '.join(unexplained))
  return loaded
 
 def verify_environment_inventory(prefix,inventory):
@@ -312,10 +456,21 @@ def main():
  # Compute nodes may resolve /scratch/alpine through /gpfs/alpine1/scratch.
  vf_source_pin(prefix,reg.get('synthetic_backing_pins',{}))
  canonical_backing_pins(reg['native_backing_pins'],prefix,'VF native')
+ backend_source_pins(prefix,reg.get('backend_backing_pins',{}))
  records=dependency_records(reg)
  capture_vf_import_binding()
+ capture_backend_import_bindings(prefix,reg['backend_backing_pins'])
+ # Diagnostic only: never a qualification or an alternative acceptance path.
+ shapes=[]
+ for name,module in list(sys.modules.items()):
+  if module is None:continue
+  attrs=vars(module);delegate=attrs.get('m')
+  shapes.append({'module':name,'type':type(module).__module__+'.'+type(module).__name__,
+                 'file':attrs.get('__file__') if type(attrs.get('__file__')) is str else None,
+                 'delegate_file':vars(delegate).get('__file__') if type(delegate) is types.ModuleType else None})
+ write_buffer(fd,'runtime_module_shapes.json',(json.dumps({'qualified':False,'scope':'diagnostic module shapes only','modules':shapes},indent=2)+'\n').encode())
  allowed_sources={str((out/name).resolve()):pin for name,pin in reg['execution_source_pins'].items()}
- loaded=loaded_module_records(prefix,base,reg['native_backing_pins'],allowed_sources,reg.get('synthetic_backing_pins',{}))
+ loaded=loaded_module_records(prefix,base,reg['native_backing_pins'],allowed_sources,reg.get('synthetic_backing_pins',{}),reg['backend_backing_pins'])
  files=[]
  for f in sorted(prefix.rglob('*')):
   if f.is_symlink():

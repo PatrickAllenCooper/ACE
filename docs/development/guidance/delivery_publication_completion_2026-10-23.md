@@ -53,3 +53,7 @@ Patrick approved ONE1CPU/3GiB/30minute replay. The prior pending decision is res
 ## Current boundary after replay08
 
 Approved job34824953 failed before models on the standard torch.backends.cudnn delegated module wrapper. Complete terminal custody and accounting are retained in delivery_vf_replay08_execution_2026-10-23.md. The one-attempt authorization is consumed. A full local compatibility correction must precede any new proposal; no successor allocation is currently authorized or prepared. Actual B replay qualification, both reporters and final integration remain open. Original acceptance remains valid.
+
+## Explicit backend replay09 resumption
+
+Patrick now instructed “Fix and retry”. The reviewed backend-wrapper correction and one same-cap1CPU/3GiB/30minute attempt are tracked in delivery_backend_replay09_execution_2026-10-23.md. This supersedes the prior unapproved-successor status; the failed08attempt is preserved. Actual runtime/numerical replay and both reporters remain gated.

@@ -148,7 +148,7 @@ class VFProxy(unittest.TestCase):
         qualifier.verify_environment_inventory.return_value={}
         qualifier.loaded_module_records.side_effect=ValueError('fixture VF changed')
         self.torch.load=Mock()
-        reg={'environment':str(self.prefix),'approved_base_prefix':str(self.root/'base'),'native_backing_pins':self.native,'synthetic_backing_pins':self.synthetic}
+        reg={'environment':str(self.prefix),'approved_base_prefix':str(self.root/'base'),'native_backing_pins':self.native,'synthetic_backing_pins':self.synthetic,'backend_backing_pins':{'fixture-backend':'abc'}}
         fd=os.open(out,os.O_RDONLY)
         try:
             with patch.dict(sys.modules,{'torch':self.torch}):
@@ -156,7 +156,8 @@ class VFProxy(unittest.TestCase):
                 g.install(qualifier,reg,fd,{'files':[]},out,{})
                 with self.assertRaisesRegex(ValueError,'fixture VF changed'):self.torch.load(None)
                 original.assert_not_called()
-                self.assertEqual(qualifier.loaded_module_records.call_args.args[-1],self.synthetic)
+                self.assertEqual(qualifier.loaded_module_records.call_args.args[-2],self.synthetic)
+                self.assertEqual(qualifier.loaded_module_records.call_args.args[-1],reg['backend_backing_pins'])
         finally:os.close(fd)
 
     def test_review_global_shadows_and_captured_builtins_rejected(self):
