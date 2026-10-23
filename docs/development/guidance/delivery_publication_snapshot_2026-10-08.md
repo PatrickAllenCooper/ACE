@@ -86,3 +86,15 @@ Actual pinned publication capture and its hashes/limits are recorded in
 review and disposition are in `reviews/delivery_publication_snapshot_review_2026-10-08.md`.
 This capture does not qualify B runtime/results, anonymous original training,
 final page layout or public submission readiness.
+
+## October23 source implementation update
+
+The preceding20file capture and its review describe the preserved October8
+version. The current implementation additionally captures the new reporting
+helper, so base capture has21files and still11companions. An explicit
+`--prospective-bundle-sha256` mode is prepared for accepted B reporting:42files,
+16companions, distinct primary/descriptive indexes, complete descriptive data
+and pinned replay metadata. The actual successful replay/report packet is still
+unavailable; no new real publication capture or scientific qualification is
+claimed. See `delivery_publication_reporting_2026-10-23.md` for the required
+ordering, new input pins and verification limits. Earlier snapshots stay unchanged.

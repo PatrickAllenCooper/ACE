@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import delivery_prospective_publication as prospective
 
 ROOT = Path(__file__).resolve().parents[2] / 'paper/aistats_ace_2027'
 BEGIN = '% BEGIN EDITOR COMPANION BUNDLE (generated; edit companion files)'
@@ -19,11 +20,18 @@ FILES = ('tmlr.sty', 'fancyhdr.sty', 'tmlr.bst', 'delivery_references.bib',
          'delivery_method_diagram.tex', 'delivery_evaluation_design.tex')
 
 
-def bundled():
+def bundled(prospective_pin=None):
+    files = FILES
+    prospective_raw = {}
+    if prospective_pin is not None:
+        prospective_raw = prospective.capture_bundle(ROOT, prospective_pin)
+        files += prospective.COMPANIONS
+    elif any((ROOT/n).exists() for n in prospective.FILES):
+        raise ValueError('prospective files require explicit --prospective-bundle-sha256')
     provenance = json.loads((ROOT / 'tmlr_style_provenance.json').read_text())
     chunks = [BEGIN]
-    for name in FILES:
-        raw = (ROOT / name).read_bytes()
+    for name in files:
+        raw = prospective_raw[name] if name in prospective_raw else (ROOT / name).read_bytes()
         digest = hashlib.sha256(raw).hexdigest()
         if name in provenance['files'] and digest != provenance['files'][name]['sha256']:
             raise ValueError('official TMLR file changed: ' + name)
@@ -41,18 +49,20 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--write', action='store_true')
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--prospective-bundle-sha256', help='Independent pin after actual replay/report acceptance')
     args = parser.parse_args()
     path = ROOT / 'paper.tex'
     text = path.read_text()
     if text.count(BEGIN) != 1 or text.count(END) != 1:
         raise ValueError('exactly one companion bundle is required')
     start, stop = text.index(BEGIN), text.index(END) + len(END)
-    refreshed = text[:start] + bundled() + text[stop:]
+    refreshed = text[:start] + bundled(args.prospective_bundle_sha256) + text[stop:]
     if args.write:
         path.write_text(refreshed)
     elif text != refreshed:
         raise ValueError('manuscript companions changed; run --write')
-    print(f'Manuscript companion bundle matches all {len(FILES)} files; official style hashes verified.')
+    count = len(FILES) + (len(prospective.COMPANIONS) if args.prospective_bundle_sha256 else 0)
+    print(f'Manuscript companion bundle matches all {count} files; official style hashes verified.')
 
 
 if __name__ == '__main__':

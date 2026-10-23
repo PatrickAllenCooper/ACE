@@ -1,8 +1,9 @@
 """Capture a private, revision-pinned manuscript/source snapshot for later release.
 
 No experiments, claim generation, source execution or package mutation. This
-snapshot is outside the frozen replay package. It binds current writing bytes;
-final B reports, numerical acceptance, anonymity and submission remain separate.
+snapshot is outside the frozen replay package. It binds current writing and
+optionally accepted B report bytes; numerical acceptance, anonymity and human
+submission approval remain separate.
 """
 import argparse
 import ast
@@ -16,6 +17,7 @@ import re
 import stat
 import subprocess
 import sys
+import delivery_prospective_publication as prospective
 
 PAPER = 'paper/aistats_ace_2027/'
 COMPANIONS = ('tmlr.sty', 'fancyhdr.sty', 'tmlr.bst', 'delivery_references.bib',
@@ -26,10 +28,13 @@ COMPANIONS = ('tmlr.sty', 'fancyhdr.sty', 'tmlr.bst', 'delivery_references.bib',
 SOURCES = ('scripts/research/sync_delivery_manuscript.py',
            'scripts/research/generate_delivery_claims.py',
            'scripts/research/verify_delivery_table_data.py',
-           'docs/development/guidance/delivery_reviewer_commands_2026-10-08.md')
+           'docs/development/guidance/delivery_reviewer_commands_2026-10-08.md',
+           'scripts/research/delivery_prospective_publication.py')
 FILES = tuple(PAPER + n for n in ('paper.tex', *COMPANIONS,
                                  'claim_index.json', 'tmlr_style_provenance.json',
                                  'TMLR_STYLE_LICENSE', 'archive/tmlr_official_template.tex')) + SOURCES
+PROSPECTIVE_SOURCES = ('scripts/research/export_delivery_prospective_claims.py',
+                       'scripts/research/prepare_delivery_prospective_supplement.py')
 BEGIN = '% BEGIN EDITOR COMPANION BUNDLE (generated; edit companion files)'
 END = '% END EDITOR COMPANION BUNDLE'
 
@@ -50,7 +55,7 @@ def plain_path(path):
     return path
 
 
-def capture(repo, revision):
+def capture(repo, revision, prospective_pin=None):
     """Read immutable Git blobs, never import a source or read working-tree bytes."""
     if not re.fullmatch(r'[0-9a-f]{40}', revision):
         raise ValueError('independent full commit pin required')
@@ -81,7 +86,8 @@ def capture(repo, revision):
         trees[object_id] = table
         return table
     captured, blobs = {}, {}
-    for name in FILES:
+    files = FILES + (tuple(PAPER+n for n in prospective.FILES) + PROSPECTIVE_SOURCES if prospective_pin is not None else ())
+    for name in files:
         current = root_tree
         parts = name.split('/')
         for index, part in enumerate(parts):
@@ -104,21 +110,39 @@ def capture(repo, revision):
         if hashlib.sha1(b'blob ' + str(size).encode() + b'\0' + raw).hexdigest() != blob:
             raise ValueError('captured bytes differ from Git blob identity')
         captured[name], blobs[name] = raw, blob
+    if prospective_pin is None:
+        paper_tree = root_tree
+        for part in PAPER.strip('/').split('/'):
+            paper_tree = entries(paper_tree)[part.encode()][1]
+        if any(n.encode() in entries(paper_tree) for n in prospective.FILES):
+            raise ValueError('committed prospective files require explicit bundle pin')
     return captured, blobs
 
 
-def check_bundle(raw):
+def check_bundle(raw, prospective_pin=None):
     """Check captured companion membership and bytes without executing sync code."""
+    helper_raw = Path(prospective.__file__).read_bytes()
+    if digest(helper_raw) != prospective.SOURCE_SHA256 or raw[SOURCES[-1]] != helper_raw:
+        raise ValueError('captured reporting helper differs from current parser source')
     tree = ast.parse(raw[SOURCES[0]])
     assignments = [n for n in tree.body if isinstance(n, ast.Assign) and
                    any(isinstance(t, ast.Name) and t.id == 'FILES' for t in n.targets)]
     if len(assignments) != 1 or ast.literal_eval(assignments[0].value) != COMPANIONS:
         raise ValueError('publication companion membership changed; update reviewed inventory')
+    companions = COMPANIONS
+    if prospective_pin is not None:
+        contract = prospective.validate({n: raw[PAPER+n] for n in prospective.FILES}, prospective_pin)
+        if (digest(raw[PROSPECTIVE_SOURCES[0]]) != contract['expected']['exporter'] or
+                digest(raw[PROSPECTIVE_SOURCES[1]]) != contract['expected']['reporter']):
+            raise ValueError('captured prospective reporter source differs')
+        companions += prospective.COMPANIONS
+    elif any(PAPER+n in raw for n in prospective.FILES):
+        raise ValueError('prospective capture requires explicit bundle pin')
     text = raw[PAPER + 'paper.tex'].decode()
     if text.count(BEGIN) != 1 or text.count(END) != 1 or text.index(BEGIN) >= text.index(END):
         raise ValueError('single ordered editor bundle required')
     chunks = [BEGIN]
-    for name in COMPANIONS:
+    for name in companions:
         content = raw[PAPER + name]
         decoded = content.decode()
         if '\\end{filecontents*}' in decoded:
@@ -280,21 +304,26 @@ def seal_directory(directory):
     os.fchmod(directory, 0o500)
 
 
-def prepare(repo, revision, destination):
+def prepare(repo, revision, destination, prospective_pin=None):
     repo, destination = plain_path(repo), plain_path(destination)
     repo_root = Path(git(repo, 'rev-parse', '--show-toplevel').decode().strip())
     if repo_root != repo.resolve():
         raise ValueError('explicit repository root required')
     if destination.resolve().is_relative_to(repo_root) or destination.exists():
         raise ValueError('new exclusive external snapshot required')
-    raw, blobs = capture(repo, revision)
-    check_bundle(raw)
+    raw, blobs = capture(repo, revision, prospective_pin)
+    check_bundle(raw, prospective_pin)
+    files = tuple(raw)
+    companions = COMPANIONS + (prospective.COMPANIONS if prospective_pin is not None else ())
     records = [{'path': name, 'sha256': digest(raw[name]), 'bytes': len(raw[name]),
-                'git_blob': blobs[name]} for name in FILES]
+                'git_blob': blobs[name]} for name in files]
     inventory = {
         'schema': 'delivery-publication-source-snapshot-v1', 'revision': revision,
         'scope': 'private writing/source bytes; not empirical or release qualification',
-        'files': records, 'companions': list(COMPANIONS),
+        'files': records, 'companions': list(companions),
+        'prospective_bundle_sha256': prospective_pin,
+        'prospective_metadata_consistency_checked': prospective_pin is not None,
+        'derived_prospective_reports_included': prospective_pin is not None,
         'scientific_inputs_included': False, 'entry_points_executed': False,
         'prospective_report_qualification_performed': False, 'anonymous_release_approved': False,
         'submission_approved': False,
@@ -302,7 +331,7 @@ def prepare(repo, revision, destination):
     encoded = (json.dumps(inventory, indent=2, sort_keys=True) + '\n').encode()
     directory = exclusive_directory(destination)
     try:
-        for name in FILES:
+        for name in files:
             store(directory, 'source/' + name, raw[name])
         store(directory, 'inventory.json', encoded)
         seal_directory(directory)
@@ -313,7 +342,7 @@ def prepare(repo, revision, destination):
     finally:
         os.close(directory)
     return {'inventory_sha256': digest(encoded), 'revision': revision,
-            'files': len(records), 'companions': len(COMPANIONS),
+            'files': len(records), 'companions': len(companions),
             'destination': str(destination), 'release_qualified': False}
 
 
@@ -322,5 +351,6 @@ if __name__ == '__main__':
     parser.add_argument('--repo', type=Path, required=True)
     parser.add_argument('--revision', required=True, help='Independently pinned full commit SHA')
     parser.add_argument('--destination', type=Path, required=True)
+    parser.add_argument('--prospective-bundle-sha256', help='Independent pin after actual replay/report acceptance')
     args = parser.parse_args()
-    print(json.dumps(prepare(args.repo, args.revision, args.destination), indent=2))
+    print(json.dumps(prepare(args.repo, args.revision, args.destination, args.prospective_bundle_sha256), indent=2))

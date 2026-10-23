@@ -22,6 +22,7 @@ class SnapshotTests(unittest.TestCase):
         self.run_git('config', 'user.name', 'Fixture')
         self.run_git('config', 'user.email', 'fixture@example.invalid')
         self.raw = {n: ('fixture ' + n + '\n').encode() for n in snapshot.FILES}
+        self.raw[snapshot.SOURCES[-1]] = Path(snapshot.prospective.__file__).read_bytes()
         self.raw[snapshot.SOURCES[0]] = ('FILES = ' + repr(snapshot.COMPANIONS) + '\n').encode()
         styles = ('tmlr.sty', 'fancyhdr.sty', 'tmlr.bst', 'TMLR_STYLE_LICENSE',
                   'archive/tmlr_official_template.tex')
@@ -69,9 +70,10 @@ class SnapshotTests(unittest.TestCase):
             'scripts/research/sync_delivery_manuscript.py',
             'scripts/research/generate_delivery_claims.py',
             'scripts/research/verify_delivery_table_data.py',
+            'scripts/research/delivery_prospective_publication.py',
             'docs/development/guidance/delivery_reviewer_commands_2026-10-08.md'}
         self.assertEqual({f['path'] for f in inventory['files']}, expected)
-        self.assertEqual(len(inventory['files']), 20)
+        self.assertEqual(len(inventory['files']), 21)
         self.assertEqual(receipt['inventory_sha256'], snapshot.digest((out/'inventory.json').read_bytes()))
         for row in inventory['files']:
             raw = (out/'source'/row['path']).read_bytes()
