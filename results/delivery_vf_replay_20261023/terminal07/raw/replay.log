@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/proc/self/fd/3/child_bootstrap.py", line 28, in <module>
+    q.main()
+  File "/proc/self/fd/3/qualify_runtime.py", line 280, in main
+    loaded=loaded_module_records(prefix,base,reg['native_backing_pins'],allowed_sources,reg.get('synthetic_backing_pins',{}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/proc/self/fd/3/qualify_runtime.py", line 155, in loaded_module_records
+    loaded.append(torch_vf_proxy(module,prefix,native_pins,synthetic_pins));continue
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/proc/self/fd/3/qualify_runtime.py", line 106, in torch_vf_proxy
+    raise ValueError('exact VF source pin required')
+ValueError: exact VF source pin required

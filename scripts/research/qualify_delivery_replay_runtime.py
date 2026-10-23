@@ -74,6 +74,36 @@ def dependency_records(reg,reject_cached=True):
  search_path_check(prefix,base)
  return records
 
+def canonical_backing_pins(pins,prefix,label):
+ """Resolve site directory aliases; retain exact files, pins and membership.
+
+ A directory alias is permitted only when its resolved regular leaf remains
+ inside the approved resolved environment. Symlink leaves and two spellings
+ of the same object in one pin map still reject. This does not prevent a
+ same-user/root filesystem race or attest native execution.
+ """
+ if type(pins) is not dict:raise ValueError(label+' pin mapping required')
+ prefix=prefix.resolve(strict=True);canonical={}
+ for name,pin in pins.items():
+  if type(name) is not str or type(pin) is not str or not re.fullmatch('[0-9a-f]{64}',pin):
+   raise ValueError(label+' invalid backing pin')
+  path=Path(name)
+  if not path.is_absolute() or path.is_symlink():raise ValueError(label+' backing origin differs')
+  try:resolved=path.resolve(strict=True)
+  except (OSError,RuntimeError) as exc:raise ValueError(label+' backing path unavailable') from exc
+  if not resolved.is_relative_to(prefix) or not resolved.is_file():raise ValueError(label+' backing origin differs')
+  key=str(resolved)
+  if key in canonical:raise ValueError(label+' duplicate canonical backing pin')
+  canonical[key]=pin
+ return canonical
+
+def vf_source_pin(prefix,synthetic_pins):
+ prefix=prefix.resolve(strict=True)
+ source=prefix/'lib/python3.11/site-packages/torch/_VF.py'
+ pins=canonical_backing_pins(synthetic_pins,prefix,'VF source')
+ if set(pins)!={str(source)}:raise ValueError('exact VF source pin required')
+ return source,pins
+
 def torch_vf_proxy(module,prefix,native_pins,synthetic_pins):
  """Authenticate the exact PyTorch VF proxy, not a name-only exception.
 
@@ -101,10 +131,11 @@ def torch_vf_proxy(module,prefix,native_pins,synthetic_pins):
  if attrs.get('__name__')!='torch._VF' or attrs.get('__file__'):raise ValueError('VF proxy class/object differs')
  if sys.modules.get('torch._VF') is not module or vars(torch).get('_VF') is not module or attrs.get('vf') is not vars(parent).get('_VariableFunctions') or attrs.get('vf') is None:
   raise ValueError('VF proxy/native function identity differs')
- source=prefix/'lib/python3.11/site-packages/torch/_VF.py'
- if set(synthetic_pins)!={str(source)}:
-  raise ValueError('exact VF source pin required')
- backing=Path(vars(parent).get('__file__',''))
+ source,synthetic_pins=vf_source_pin(prefix,synthetic_pins)
+ native_pins=canonical_backing_pins(native_pins,prefix,'VF native')
+ backing_origin=Path(vars(parent).get('__file__',''))
+ if not backing_origin.is_absolute() or backing_origin.is_symlink():raise ValueError('VF native backing origin differs')
+ backing=backing_origin.resolve(strict=True)
  implementation=prefix/'lib/python3.11/site-packages/torch/lib/libtorch_python.so'
  if not any(str(backing).endswith(ext) for ext in importlib.machinery.EXTENSION_SUFFIXES) or set(native_pins)!={str(backing),str(implementation)}:
   raise ValueError('exact VF native backing pin set required')
@@ -125,8 +156,11 @@ def torch_vf_proxy(module,prefix,native_pins,synthetic_pins):
  original_globals=None
  for name in ('__init__','__getattr__'):
   method=vars(klass).get(name)
-  if type(method) is not types.FunctionType or method.__code__!=expected[name] or method.__code__.co_filename!=str(source) or method.__defaults__ or method.__kwdefaults__:
+  if type(method) is not types.FunctionType or method.__code__!=expected[name] or method.__defaults__ or method.__kwdefaults__:
    raise ValueError('VF live method differs from pinned source')
+  code_origin=Path(method.__code__.co_filename)
+  if not code_origin.is_absolute() or code_origin.is_symlink() or code_origin.resolve(strict=True)!=source:
+   raise ValueError('VF live method source origin differs')
   cells=method.__closure__ or ()
   if method.__code__.co_freevars==('__class__',):
    if len(cells)!=1 or cells[0].cell_contents is not klass:raise ValueError('VF class closure differs')
@@ -270,10 +304,14 @@ def main():
  raw=read_fd(fd,'freeze.json');assert hashlib.sha256(raw).hexdigest()==a.freeze_sha256
  reg=json.loads(raw);assert globals().get('__executed_source_sha256__')==reg['qualification_worker_sha256'], 'captured qualifier source differs'
  assert reg['exact_dependencies']=={'torch':'2.9.1','numpy':'2.2.6','scipy':'1.15.3','pandas':'2.3.3','sympy':'1.14.0','PyYAML':'6.0.3'}
- assert reg['rss_bytes']==3*2**30 and reg['wall_seconds']==900 and reg['slurm_wall_limit']=='00:15:00'
+ assert reg['rss_bytes']==3*2**30 and reg['wall_seconds']==1800 and reg['slurm_wall_limit']=='00:30:00'
  prefix=Path(reg['environment']).resolve();fd=globals().get('__output_dir_fd__');assert type(fd) is int and os.fstat(fd).st_ino==reg['output_inode'];out=Path('/proc/self/fd/'+str(fd));assert Path(sys.prefix).resolve()==prefix and sys.version_info[:2]==(3,11)
  assert Path(reg['base_python']).resolve(strict=True)==Path(reg['base_python_resolved']).resolve(strict=True) and sha(reg['base_python'])==reg['base_python_sha256'] and sha('/proc/self/exe')==reg['base_python_sha256']
  base=Path(reg['approved_base_prefix']).resolve();assert Path(sys.base_prefix).resolve()==base
+ # Cheap configuration/origin checks precede dependency imports and hashing.
+ # Compute nodes may resolve /scratch/alpine through /gpfs/alpine1/scratch.
+ vf_source_pin(prefix,reg.get('synthetic_backing_pins',{}))
+ canonical_backing_pins(reg['native_backing_pins'],prefix,'VF native')
  records=dependency_records(reg)
  capture_vf_import_binding()
  allowed_sources={str((out/name).resolve()):pin for name,pin in reg['execution_source_pins'].items()}

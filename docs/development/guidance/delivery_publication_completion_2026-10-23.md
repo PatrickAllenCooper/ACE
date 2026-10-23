@@ -37,3 +37,7 @@ This plan records required work. None of its uncompleted items is acceptance evi
 ## Current page review and new per-attempt decision
 
 October23 rendered-page layout work is complete for the current pre-B draft:16pages inspected, table collision/equation overflow fixed and interval-table type enlarged with scientific content unchanged. Native compilation succeeds; see delivery_page_layout_2026-10-23.md. This does not close the later integrated B page/scientific review. Patrick explicitly approved ONE corrected replay capped at1CPU/3GiB/15minutes. Refresh livecontroller/journals/readiness and freeze the reviewed packet before its single submission; no automatic retry.
+
+## Current execution boundary after replay07
+
+The approved single attempt34821094 failed before checkpoints on the compute-node directory alias. Full terminal custody and accounting are preserved. The reviewed correction and concrete oneCPU/3GiB/30minute proposal are in delivery_vf_alias_recovery_2026-10-23.md. New approval is required; current reservation remains88.868333/150, proposed89.368333 only if approved. No actual B reporting or integrated results exist yet. The current16page pre-B manuscript layout review remains valid for its recorded bytes; the failure does not change original study acceptance.

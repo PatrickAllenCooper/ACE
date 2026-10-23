@@ -1,0 +1,1 @@
+import sys,unittest;sys.path.insert(0,'/Users/pat/code/ACE/scripts/research');import test_delivery_vf_proxy as t;r=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(t.VFProxy(n) for n in ['test_site_alias_missing_pin_is_validation_failure','test_missing_extra_or_changed_pins_rejected']));sys.exit(not r.wasSuccessful())

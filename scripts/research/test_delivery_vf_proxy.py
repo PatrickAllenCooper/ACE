@@ -204,5 +204,75 @@ class VFProxy(unittest.TestCase):
             q.capture_vf_import_binding()
             self.assertFalse(self.check()['native_execution_attested'])
 
+    def alias_fixture(self):
+        alias=self.root/'scratch-alias'
+        alias.symlink_to(self.prefix,target_is_directory=True)
+        source=alias/self.source.relative_to(self.prefix)
+        context={'__name__':'torch._VF','__file__':str(source)}
+        with patch.dict(sys.modules,self.modules):
+            exec(compile(SOURCE,str(source),'exec',dont_inherit=True),context)
+            self.proxy=sys.modules['torch._VF']
+        self.torch._VF=self.proxy;self.modules['torch._VF']=self.proxy
+        self.context=context
+        self.parent.__file__=str(alias/self.backing.relative_to(self.prefix))
+        self.native={str(alias/Path(p).relative_to(self.prefix)):pin for p,pin in self.native.items()}
+        self.synthetic={str(source):q.sha(self.source)}
+        q._VF_IMPORT_BINDING=None
+        with patch.dict(sys.modules,self.modules):q.capture_vf_import_binding()
+        return alias
+
+    def test_site_alias_accepts_same_source_native_and_live_filename(self):
+        alias=self.alias_fixture()
+        record=self.check()
+        self.assertEqual({w['backing_file'] for w in record['witnesses']},
+                         {str(self.source),str(self.backing),str(self.impl)})
+        self.assertFalse(record['native_execution_attested'])
+        with patch.dict(sys.modules,self.modules):
+            self.assertEqual(q.torch_vf_proxy(self.proxy,alias,self.native,self.synthetic),record)
+
+    def test_site_alias_duplicate_wrong_digest_and_external_rejected(self):
+        self.alias_fixture();original=dict(self.synthetic)
+        extra=self.root/'external.py';extra.write_text(SOURCE)
+        alternatives=[{**original,str(self.source):q.sha(self.source)},
+                      {next(iter(original)):'0'*64},{str(extra):q.sha(extra)}]
+        for pins in alternatives:
+            with self.subTest(pins=pins):
+                self.synthetic=pins
+                with self.assertRaises(ValueError):self.check()
+        self.synthetic=original
+        self.native[str(self.backing)]=q.sha(self.backing)
+        with self.assertRaisesRegex(ValueError,'duplicate canonical'):self.check()
+
+    def test_site_alias_rejects_leaf_symlink_and_false_live_filename(self):
+        self.alias_fixture()
+        method=self.context['VFModule'].__getattr__
+        alternate=self.prefix/'other.py';alternate.write_text(SOURCE)
+        self.context['VFModule'].__getattr__=types.FunctionType(
+            method.__code__.replace(co_filename=str(alternate)),self.context)
+        with self.assertRaisesRegex(ValueError,'source origin'):self.check()
+        self.context['VFModule'].__getattr__=method
+        original_bytes=self.source.read_bytes();self.source.unlink()
+        self.source.symlink_to(alternate)
+        with self.assertRaisesRegex(ValueError,'origin'):self.check()
+        self.source.unlink();self.source.write_bytes(original_bytes)
+        self.check()
+
+    def test_site_alias_early_pin_check_needs_no_dependency_import(self):
+        self.alias_fixture()
+        with patch.object(q,'dependency_records',side_effect=AssertionError('imports forbidden')):
+            source,pins=q.vf_source_pin(self.prefix,self.synthetic)
+            self.assertEqual(source,self.source)
+            self.assertEqual(pins,{str(self.source):q.sha(self.source)})
+            for invalid in ({},[],{str(self.source):'invalid'}, {'relative.py':'0'*64}):
+                with self.subTest(invalid=invalid),self.assertRaises(ValueError):
+                    q.vf_source_pin(self.prefix,invalid)
+
+    def test_site_alias_missing_pin_is_validation_failure(self):
+        self.alias_fixture()
+        missing=str(self.prefix/'missing.py')
+        for pins in ({missing:'0'*64},{**self.synthetic,missing:'0'*64}):
+            with self.subTest(pins=pins),self.assertRaisesRegex(ValueError,'backing path unavailable'):
+                q.vf_source_pin(self.prefix,pins)
+
 
 if __name__=='__main__':unittest.main(verbosity=2)

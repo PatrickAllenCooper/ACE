@@ -32,7 +32,7 @@ def allocation(job,reg):
     require(fields.get('JobId')==job,'scheduler identity mismatch')
     for key,want in [('Account',reg['account']),('Partition',reg['partition']),('QOS',reg['qos']),('NumNodes','1'),('NumCPUs','1'),('NumTasks','1'),('CPUs/Task','1'),('Requeue','0'),('Restarts','0')]:
         require(fields.get(key)==want,'allocated '+key+' differs')
-    require(fields.get('TimeLimit')=='00:15:00','allocated wall limit differs')
+    require(fields.get('TimeLimit')=='00:30:00','allocated wall limit differs')
     require(mem_bytes(fields.get('MinMemoryNode',''))==reg['rss_bytes'],'allocated node memory differs')
     tres_raw=fields.get('AllocTRES','')
     require(bool(tres_raw) and tres_raw not in ('(null)','N/A','Unknown'),'complete allocated-resource evidence required')
@@ -177,7 +177,7 @@ def main():
   trusted=True
   require(not sys.flags.optimize and job.isdigit(),'unoptimized Slurm execution required')
   require(globals().get('__executed_source_sha256__')==reg['supervision_worker_sha256'],'captured wrapper bytes differ')
-  require(reg['account']=='ucb736_asc1' and reg['partition']=='acpu' and reg['qos']=='cpu-normal' and reg['cpus']==1 and reg['rss_bytes']==3*2**30 and reg['wall_seconds']==900 and reg['slurm_wall_limit']=='00:15:00','resource freeze differs')
+  require(reg['account']=='ucb736_asc1' and reg['partition']=='acpu' and reg['qos']=='cpu-normal' and reg['cpus']==1 and reg['rss_bytes']==3*2**30 and reg['wall_seconds']==1800 and reg['slurm_wall_limit']=='00:30:00','resource freeze differs')
   require(reg['new_fits']==reg['new_responses']==0,'inference-only freeze required')
   root=Path('/proc/self/fd/'+str(fd))
   for name in ('replay_started.json','replay_execution.json','replay_receipt.json','replay.log','runtime_inventory.json','runtime_qualification.json','pre_checkpoint_runtime.json'):
@@ -207,7 +207,7 @@ def main():
   result['captured_payload']=payload_info
   result['stage']='supervised_runtime_then_replay'
   try:
-   child=supervision.supervise(command,started+850,reg['rss_bytes'],fd,'replay.log',environment,sampler.process_rss,input_fds=(payload_fd,))
+   child=supervision.supervise(command,started+1750,reg['rss_bytes'],fd,'replay.log',environment,sampler.process_rss,input_fds=(payload_fd,))
   finally:os.close(payload_fd)
   result['child_execution']=child
   require(child['status']=='complete' and child['exit_code']==0 and child['cleanup']['complete'] is True,'child qualification/replay/cleanup failed')
