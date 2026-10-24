@@ -17,6 +17,9 @@ spec.loader.exec_module(w)
 QUALIFIER = r'''
 import hashlib,json,sys,types
 from pathlib import Path
+def start_diagnostics(fd):pass
+def stop_diagnostics():pass
+def diagnostic_phase(fd,phase,**details):pass
 def main():
  reg=json.loads(Path(sys.argv[sys.argv.index('--freeze')+1]).read_bytes())
  root=Path(reg['output'])

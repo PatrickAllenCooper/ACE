@@ -47,16 +47,22 @@ def install(qualifier, reg, fd, manifest, package, source_pins):
 
     def guarded_load(*args, **kwargs):
         if first[0]:
+            qualifier.diagnostic_phase(fd,'first_checkpoint_entered')
             if qualifier.dependency_records(reg, reject_cached=False) != qualified['dependencies']:
                 raise ValueError('live dependencies changed')
+            qualifier.diagnostic_phase(fd,'live_dependencies_complete')
             prefix, base = Path(reg['environment']).resolve(), Path(reg['approved_base_prefix']).resolve()
             qualifier.search_path_check(prefix, base)
+            qualifier.diagnostic_phase(fd,'live_inventory_start')
             entries = qualifier.verify_environment_inventory(prefix, inventory)
+            qualifier.diagnostic_phase(fd,'live_inventory_complete',objects=len(entries))
+            qualifier.diagnostic_phase(fd,'live_module_binding_start')
             loaded = qualifier.loaded_module_records(prefix, base, reg['native_backing_pins'], allowed,
                                                      reg.get('synthetic_backing_pins', {}),
                                                      reg.get('backend_backing_pins', {}),
                                                      reg.get('compatibility_backing_pins', {}))
             qualifier.bind_loaded_inventory(loaded, prefix, entries)
+            qualifier.diagnostic_phase(fd,'live_module_binding_complete',modules=len(loaded))
             if hashlib.sha256(read_fd(fd, 'runtime_qualification.json')).hexdigest()!=qpin or hashlib.sha256(read_fd(fd, 'runtime_inventory.json')).hexdigest()!=invpin:
                 raise ValueError('qualification receipt changed')
             write_fd(fd, 'pre_checkpoint_runtime.json', {
@@ -64,6 +70,7 @@ def install(qualifier, reg, fd, manifest, package, source_pins):
                 'runtime_inventory_sha256': invpin, 'sys_path': sys.path,
                 'loaded_modules': loaded, 'environment_objects_revalidated': len(entries),
                 'new_fits': 0, 'new_responses': 0})
+            qualifier.diagnostic_phase(fd,'first_checkpoint_authorized')
             first[0] = False
         return original_load(*args, **kwargs)
 

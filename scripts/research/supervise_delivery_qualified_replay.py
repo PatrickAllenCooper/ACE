@@ -26,10 +26,10 @@ def mem_bytes(v):
     return int(m[1])*2**(20 if m[2]=='M' else 30)
 
 def wall_time_policy(reg):
-    """Exact frozen caps only; each actual attempt still needs human approval."""
+    """Exact frozen caps only; each attempt needs a reconciled frozen authorization."""
     seconds=reg.get('wall_seconds');label=reg.get('slurm_wall_limit')
     require(type(seconds) is int and type(label) is str and
-            {1800:'00:30:00',3600:'01:00:00'}.get(seconds)==label,
+            {1800:'00:30:00',3600:'01:00:00',5400:'01:30:00'}.get(seconds)==label,
             'unsupported or inconsistent frozen wall limit')
     return seconds-50
 
@@ -85,7 +85,9 @@ q=types.ModuleType('ace_qualified_runtime');q.__file__=qpath;sys.modules[q.__nam
 q.__dict__.update(__executed_source_sha256__=hashlib.sha256(qraw).hexdigest(),__output_dir_fd__=fd)
 exec(compile(qraw,qpath,'exec',dont_inherit=True),q.__dict__)
 sys.argv=[qpath,'--freeze',str(root/'freeze.json'),'--freeze-sha256',freeze_pin]
+q.start_diagnostics(fd)
 q.main()
+q.diagnostic_phase(fd,'replay_adapter_start')
 qualified=json.loads(read_leaf('runtime_qualification.json'))
 if qualified['qualified'] is not True or qualified['freeze_sha256']!=freeze_pin:raise ValueError('runtime not qualified')
 manifest_raw=base64.b64decode(manifest64)
@@ -96,15 +98,20 @@ if hashlib.sha256(graw).hexdigest()!=reg['execution_source_pins']['checkpoint_gu
 g=types.ModuleType('ace_runtime_checkpoint_guard');g.__file__=gpath;sys.modules[g.__name__]=g
 exec(compile(graw,gpath,'exec',dont_inherit=True),g.__dict__)
 g.state=g.install(q,reg,fd,manifest,package,reg['execution_source_pins'])
+q.diagnostic_phase(fd,'checkpoint_guard_installed')
 verifier_path=str(Path(package)/'verify_delivery_release.py')
 v=types.ModuleType('verify_delivery_release');v.__file__=verifier_path;sys.modules[v.__name__]=v
 exec(compile(base64.b64decode(verifier64),verifier_path,'exec',dont_inherit=True),v.__dict__)
+q.diagnostic_phase(fd,'verifier_source_loaded')
 cli_raw=base64.b64decode(cli64);cli_path=str(Path(package)/'replay_delivery_prospective_release.py')
 main_context=vars(sys.modules['__main__'])
 main_context.update(__name__='__main__',__file__=cli_path,__executed_source_sha256__=hashlib.sha256(cli_raw).hexdigest())
 sys.argv=[cli_path,'--root',package,'--expected-manifest-sha256',pin,'--receipt',str(root/'replay_receipt.json')]
+q.diagnostic_phase(fd,'replay_cli_start')
 exec(compile(cli_raw,cli_path,'exec',dont_inherit=True),main_context)
+sys.modules['ace_qualified_runtime'].diagnostic_phase(fd,'replay_cli_complete')
 if sys.modules['ace_runtime_checkpoint_guard'].state[0]:raise ValueError('checkpoint runtime guard never executed')
+sys.modules['ace_qualified_runtime'].stop_diagnostics()
 """
 
 def validate_receipt(raw,reg):

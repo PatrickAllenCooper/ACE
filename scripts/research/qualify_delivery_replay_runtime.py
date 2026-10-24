@@ -1,5 +1,5 @@
 """Derived replay-only runtime qualifier; exact native alias; no installs/models."""
-import dis,ast,argparse,hashlib,importlib,importlib.metadata,json,sys,os,datetime,re,_imp,importlib.machinery,types,stat,builtins
+import dis,ast,argparse,hashlib,importlib,importlib.metadata,json,sys,os,datetime,re,_imp,importlib.machinery,types,stat,builtins,time,faulthandler
 from pathlib import Path
 _VF_BUILTINS={'getattr':getattr,'super':super}
 _VF_IMPORT_BINDING=None
@@ -549,10 +549,48 @@ def write_buffer(fd,name,raw):
  h=os.open(name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=fd)
  with os.fdopen(h,'wb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
 
+_PHASE_COUNTER = 0
+_PHASE_STARTED = None
+_DIAGNOSTIC_STREAM = None
+
+
+def diagnostic_phase(fd, phase, **details):
+ """Exclusive progress evidence only; never an acceptance alternative."""
+ global _PHASE_COUNTER, _PHASE_STARTED
+ if not re.fullmatch('[a-z][a-z0-9_]{0,79}',phase):raise ValueError('invalid phase label')
+ if _PHASE_STARTED is None:_PHASE_STARTED=time.monotonic()
+ value={'schema':'ace-runtime-phase-v1','phase':phase,'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        'monotonic':time.monotonic(),'elapsed_since_diagnostics':time.monotonic()-_PHASE_STARTED,
+        'process_cpu_seconds':time.process_time(),'diagnostic_only':True,'details':details}
+ raw=(json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+ write_buffer(fd,f'runtime_phase_{_PHASE_COUNTER:03d}.json',raw)
+ _PHASE_COUNTER+=1
+
+
+def start_diagnostics(fd):
+ """Record only owned-child Python stacks; watchdog never exits the process."""
+ global _DIAGNOSTIC_STREAM
+ if _DIAGNOSTIC_STREAM is not None:raise ValueError('diagnostics already started')
+ h=os.open('runtime_stacks.log',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=fd)
+ stream=os.fdopen(h,'w')
+ try:
+  faulthandler.dump_traceback_later(120,repeat=True,file=stream,exit=False)
+  _DIAGNOSTIC_STREAM=stream
+  diagnostic_phase(fd,'diagnostics_started',stack_interval_seconds=120)
+ except BaseException:
+  faulthandler.cancel_dump_traceback_later();_DIAGNOSTIC_STREAM=None;stream.close();raise
+
+
+def stop_diagnostics():
+ global _DIAGNOSTIC_STREAM
+ faulthandler.cancel_dump_traceback_later()
+ if _DIAGNOSTIC_STREAM is not None:_DIAGNOSTIC_STREAM.close();_DIAGNOSTIC_STREAM=None
+
+
 def wall_time_policy(reg):
  seconds=reg.get('wall_seconds');label=reg.get('slurm_wall_limit')
  if not (type(seconds) is int and type(label) is str and
-         {1800:'00:30:00',3600:'01:00:00'}.get(seconds)==label):
+         {1800:'00:30:00',3600:'01:00:00',5400:'01:30:00'}.get(seconds)==label):
   raise ValueError('unsupported or inconsistent frozen wall limit')
  return seconds-50
 
@@ -575,7 +613,9 @@ def main():
  backend_source_pins(prefix,reg.get('backend_backing_pins',{}))
  compatibility_source_pin(prefix,reg.get('compatibility_backing_pins',{}))
  if any(n in sys.modules for n in ('six','six.moves','cython_runtime')):raise ValueError('fresh compatibility imports required')
+ diagnostic_phase(fd,'dependency_imports_start')
  records=dependency_records(reg)
+ diagnostic_phase(fd,'dependency_imports_complete')
  capture_vf_import_binding()
  capture_backend_import_bindings(prefix,reg['backend_backing_pins'])
  # Diagnostic only: never a qualification or an alternative acceptance path.
@@ -590,7 +630,10 @@ def main():
  write_buffer(fd,'runtime_module_shapes.json',(json.dumps({'qualified':False,'scope':'diagnostic module shapes only','modules':shapes},indent=2)+'\n').encode())
  capture_compatibility_bindings(prefix,reg['compatibility_backing_pins'])
  allowed_sources={str((out/name).resolve()):pin for name,pin in reg['execution_source_pins'].items()}
+ diagnostic_phase(fd,'initial_module_binding_start')
  loaded=loaded_module_records(prefix,base,reg['native_backing_pins'],allowed_sources,reg.get('synthetic_backing_pins',{}),reg['backend_backing_pins'],reg['compatibility_backing_pins'])
+ diagnostic_phase(fd,'initial_module_binding_complete',modules=len(loaded))
+ diagnostic_phase(fd,'initial_inventory_start')
  files=[]
  for f in sorted(prefix.rglob('*')):
   if f.is_symlink():
@@ -598,8 +641,10 @@ def main():
    files.append({'path':str(f.relative_to(prefix)),'kind':'symlink','link':os.readlink(f),'resolved':str(target),'target_sha256':sha(target) if target.is_file() else None})
   elif f.is_file():files.append({'path':str(f.relative_to(prefix)),'kind':'file','bytes':f.stat().st_size,'sha256':sha(f)})
   else:assert f.is_dir(),'nonregular environment object'
+ diagnostic_phase(fd,'initial_inventory_complete',objects=len(files),file_bytes=sum(e.get('bytes',0) for e in files))
  inventory_raw=(json.dumps({'prefix':str(prefix),'files':files},indent=2,allow_nan=False)+'\n').encode()
  write_buffer(fd,'runtime_inventory.json',inventory_raw)
  result={'qualified':True,'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'python':sys.executable,'python_version':sys.version,'python_sha256':sha(sys.executable),'base_python':reg['base_python'],'base_python_sha256':reg['base_python_sha256'],'base_prefix':sys.base_prefix,'sys_path':sys.path,'dependencies':records,'loaded_modules':loaded,'executed_source_sha256':__executed_source_sha256__,'runtime_inventory_sha256':hashlib.sha256(inventory_raw).hexdigest(),'objects':len(files),'freeze_sha256':a.freeze_sha256,'new_fits':0,'new_responses':0}
  write_buffer(fd,'runtime_qualification.json',(json.dumps(result,indent=2,allow_nan=False)+'\n').encode())
+ diagnostic_phase(fd,'initial_qualification_complete')
 if __name__=='__main__':main()
