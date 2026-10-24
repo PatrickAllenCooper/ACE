@@ -1,6 +1,6 @@
 # Final manuscript/package anonymity and redistribution review — October 24, 2026
 
-Status: **final distinct review of candidate01; one required publication-status correction (P1), plus the explicit final human handling decision below.** This is a distinct read-only review. It does not repeat scientific, numerical, model, exporter, generic-verifier or package-builder work. It is not legal certification or authorization to publish.
+Status: **final candidate02 delta accepted; P1 CLOSED; zero required technical corrections. Human venue handling of the attribution-bearing archive and final submission/publication approval remain pending.** The candidate01 findings and earlier cutoffs below are preserved historical evidence; the final candidate02 disposition at the end supersedes their open-P1 status. This is a distinct read-only review. It does not repeat scientific, numerical, model, exporter, generic-verifier or package-builder work. It is not legal certification or authorization to publish.
 
 ## Reviewed artifacts and evidence
 
@@ -70,3 +70,41 @@ Human handling of the attribution-bearing archive and final publication/submissi
 The supplied author README02 at SHA `d1708f43aaf7ffa9e6b1f347ed1d94433e24bcff1431be228edb1740bd1419d3` has **zero required wording fixes**. Its explicit named-attribution handling, resolved ownership, no automatic publication, historical notice supersession, old-input numerical replay/new-package verification distinction, negative findings and cost limits satisfy the semantic expectation. See [README02_wording_review.json](../../../../results/delivery_publication_integration_20261024/package_review/README02_wording_review.json).
 
 This is prospective final-delivery prose while actual02 construction and verification remain pending. It does not itself establish that the corrected contract or final records exist. Those concrete pins and the final archive/README/record coherence must be checked before P1 closes or packet02 is delivered. Candidate01 evidence remains preserved; none of the earlier 175 checks was repeated.
+
+## Final candidate02 disposition — P1 closed
+
+The actual corrected successor and complete author packet02 were inspected at the independently supplied pins. **All 56 focused delta/coherence checks passed, with zero required fixes. P1 is CLOSED.** This final disposition supersedes the candidate01 open-P1 and candidate02 preparation-only statuses above without erasing their evidence.
+
+- Candidate02 root: `/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-publication-candidate-20261024-02`.
+- Manifest: `dc034b705391d4a26eade8e2b863136bcae4a749d829d765c5922bd00a092e00`.
+- Authoritative source contract: `0ffe94be8bc1dae770346bac6160d5aad134476bfa6fb6e57deafe6723423596`.
+- Public checker: `f5c753caf846606018365b2011b209b9d3f369df1f89011a203d18cbc08b4be0`.
+- Final reproduction archive: `eeeca48f7621d9196a843cd5fb3b66e6397040d4c1b3bd85ac90ef9e590f9e9a`, 361,670,105 bytes and 3,942 members.
+- Final author artifact record: `29e1e87af6a103803fc9d1f4cf1ee3e5abddb16432b253f51ddbf0ed2ef57235`.
+- Author README: `d1708f43aaf7ffa9e6b1f347ed1d94433e24bcff1431be228edb1740bd1419d3`, unchanged from the separate zero-finding wording review.
+- Packaging measurements: `4315a00becb503af7d7f7ecb54efb5788e8b54ac76f35e186f18a952f1376936`.
+- Focused witness: [P1_actual02_witness.json](../../../../results/delivery_publication_integration_20261024/package_review/P1_actual02_witness.json), SHA `bf1b44bfc8c707e92f6895c82d1d66594c87c55f4a506985a71885c7e0f381d2`.
+
+### Exact correction and preservation
+
+Payload membership remains 3,940 files. Relative to candidate01, only `publication/source_contract.json` and `verify_delivery_publication_release.py` have changed manifest entries; the other 3,938 entries are identical. All prior 5,117 bindings are preserved, with exactly four new explicit pointer edges for the historical provenance notice, Runner MIT notice, Runner scope notice and inherited B acceptance, giving 5,121 bindings. The parent’s complete offline verification confirms the 3,893-file/5,068-binding scientific predecessor remains intact. No scientific, report, writing, style, notice, data or checkpoint change is introduced by this correction.
+
+The new authoritative `notice_status` identifies `notices/provenance.json` SHA `f366135e1e65246630355b3784e1f85b0f89a0b8d5f08a2a88a348a18e5c9463`, marks `/remaining` historical and limits supersession to current status. The MIT/scope records match their prior independently pinned hashes and actual bytes. The required attribution still names Patrick Cooper. No old notice or license term is rewritten, and owner authority remains resolved.
+
+Original B’s inherited projected acceptance remains bound by its own digest; it is not relabeled as the complete private original receipt. Saved-checkpoint replay remains explicitly accepted only against candidate03 manifest `b30e7b5f...c454a9` and private acceptance `57da98e2...e3232`, not the final manifest. Both reports bind private acceptance `86abaf25...02c10`. Reviewed accounting binds `51865d9d...7985`, with identified-allocation cutoff and explicit unknowns rather than a whole-project cost claim. Anonymous original-training qualification, strict package anonymity, human venue handling and release/submission approval are all explicitly false. The named-attribution reason and concrete human action now appear in the bound contract itself.
+
+Apart from `notice_status`, the contract changes only the checker artifact digest and private planner/request provenance digests. The separate Dewey code review, SHA `9d5bd081dd6aac8aed38fffab431207658ce14b66d5ac954a16ece6087ce3016`, reports zero required fixes and is bound by correction lineage at source commit `4bd4d09cc7d417dce832082cc3e191b533339ffb`. This review does not repeat that code review or its tests.
+
+### Actual verification and author-packet coherence
+
+The parent’s candidate02 build and isolated `-I -S -B` offline checker both completed successfully at the current manifest. The offline result verifies 3,940 files, 5,121 bindings, 16 companions, 13 report outputs and accounting disclosure; it explicitly returns historical-notice supersession true, strict anonymity false and human handling/public approval false. Its execution receipt is `043fa78eca307b4c6e74ee12a0da4f9aa18032e20286cc41ea519e5b55a072ac`; its result is `a11dee0ff18edefd063316a774e401c62edbc374462e37faeb30ceb624923d4b`. These are parent execution evidence read here, not a repeated check. The archive receipt `fb6be817980327a8a86041b6101c55637df8e3206e29c06a7c0db0405fa418e2` records all 3,942 members stream-hashed against the manifest and two sidecars. This review confirms the delivered archive’s full digest/size, but does not rescan its members.
+
+The author packet02 has exactly the six files listed by `artifact_record.json` plus that record. Every delivered file’s digest and size matches. The PDF, 29-member source ZIP and source membership retain their earlier reviewed pins, so prior identity, notice, visual and scientific evidence remains applicable without repetition. The README is byte-identical to the separately reviewed wording. Its current-contract/final-verification statements now have concrete actual02 evidence, and its listed artifact and measurement records exist. The artifact record carries the actual final manifest/checker/contract pins and false submission/strict-anonymity/human-handling approvals.
+
+All nine local packaging-measurement entries match their respective original receipt hashes and values: five preserved publication01 stages (capture once), and four corrected publication02 stages. The disclosure retains the cumulative-child-peak distinction, excludes unmetered overhead and keeps the remote 132,995 allocated CPU-second cutoff separate. No whole-project CPU total is inferred.
+
+### Remaining human decision and review limits
+
+**The technical P1 correction and final packet coherence are complete.** The full reproduction archive is still not strictly anonymous because required attribution names the rights holder. Patrick must approve venue-appropriate handling of that archive and final submission/publication of the concrete paper/source/archive. Ownership is resolved; this is not another license-permission request. The anonymous manuscript screen remains scoped evidence, not a guarantee against linkage through public provenance.
+
+The prior 175 packet/archive checks, scientific/numerical reviews and full verifier executions were not repeated. This reviewer ran no models, exporters, package builders/checkers, remote commands, scientific tests or Git mutations, and edited only the assigned review/evidence paths. Candidate01 and its archive remain preserved. No release, submission or upload is authorized by this review; no legal or venue certification is implied.
