@@ -549,6 +549,13 @@ def write_buffer(fd,name,raw):
  h=os.open(name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=fd)
  with os.fdopen(h,'wb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
 
+def wall_time_policy(reg):
+ seconds=reg.get('wall_seconds');label=reg.get('slurm_wall_limit')
+ if not (type(seconds) is int and type(label) is str and
+         {1800:'00:30:00',3600:'01:00:00'}.get(seconds)==label):
+  raise ValueError('unsupported or inconsistent frozen wall limit')
+ return seconds-50
+
 def main():
  if sys.flags.optimize:raise ValueError('optimized qualification forbidden')
  p=argparse.ArgumentParser();p.add_argument('--freeze',required=True);p.add_argument('--freeze-sha256',required=True);a=p.parse_args()
@@ -556,7 +563,8 @@ def main():
  raw=read_fd(fd,'freeze.json');assert hashlib.sha256(raw).hexdigest()==a.freeze_sha256
  reg=json.loads(raw);assert globals().get('__executed_source_sha256__')==reg['qualification_worker_sha256'], 'captured qualifier source differs'
  assert reg['exact_dependencies']=={'torch':'2.9.1','numpy':'2.2.6','scipy':'1.15.3','pandas':'2.3.3','sympy':'1.14.0','PyYAML':'6.0.3'}
- assert reg['rss_bytes']==3*2**30 and reg['wall_seconds']==1800 and reg['slurm_wall_limit']=='00:30:00'
+ assert reg['rss_bytes']==3*2**30
+ wall_time_policy(reg)
  prefix=Path(reg['environment']).resolve();fd=globals().get('__output_dir_fd__');assert type(fd) is int and os.fstat(fd).st_ino==reg['output_inode'];out=Path('/proc/self/fd/'+str(fd));assert Path(sys.prefix).resolve()==prefix and sys.version_info[:2]==(3,11)
  assert Path(reg['base_python']).resolve(strict=True)==Path(reg['base_python_resolved']).resolve(strict=True) and sha(reg['base_python'])==reg['base_python_sha256'] and sha('/proc/self/exe')==reg['base_python_sha256']
  base=Path(reg['approved_base_prefix']).resolve();assert Path(sys.base_prefix).resolve()==base

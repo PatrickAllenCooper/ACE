@@ -1090,3 +1090,7 @@ ConcreteunsubmittedONE1CPU3GiB30minuteproposal, sameexistingruntime/input,noinst
 ## October23 replay10 final packet review
 
 Distinct Kepler read-only review verifies9inputhashes/readback, source/preparation/runtime/backingpins, exclusiveoutput, once-onlyjournals, freshauthorization andfailed09lineage. Zero required findings. No tests/imports/remotecommands/submission by reviewer; actualruntime/numerical acceptance remainsopen. See reviews/delivery_compatibility_packet10_review_2026-10-23.md.
+
+## October23 measured duration and terminal10 review
+
+Distinct Godel read-only review reports0required on the new exactwall-cap/childdeadline/actualallocation policy and terminal10custody/runtime/failure/accounting boundary. Four new artificial methods pass; oldscientific/componenttests not repeated. No new allocation or numericalqualification follows. See reviews/delivery_runtime_duration_review_2026-10-23.md and delivery_runtime_duration_proposal_2026-10-23.md.

@@ -19,7 +19,7 @@ class Allocation30(unittest.TestCase):
              'TimeLimit='+limit+' MinMemoryNode=3G AllocTRES=cpu=1,mem=3G,node=1 '
              'JobState=RUNNING')
         reg={'account':'ucb736_asc1','partition':'acpu','qos':'cpu-normal',
-             'rss_bytes':3*2**30}
+             'rss_bytes':3*2**30,'wall_seconds':1800,'slurm_wall_limit':'00:30:00'}
         env={'SLURM_CPUS_PER_TASK':'1','SLURM_NTASKS':'1','SLURM_JOB_NUM_NODES':'1'}
         with patch.dict(os.environ,env),patch.object(supervisor.subprocess,'check_output',return_value=raw):
             return supervisor.allocation('123',reg)
