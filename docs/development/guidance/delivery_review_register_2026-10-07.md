@@ -1110,3 +1110,11 @@ Nineinputpins/remote readback match; distinct Ptolemy finalwiringreview0required
 ## October24 actual replay12 acceptance
 
 Distinct Epicurus review:0required. Full42object terminalcustody,3893packagefiles/5068bindings, exactruntime/firstcheckpoint/full640-240-48000receipt, supervisorcleanup and Slurm34863006COMPLETED0:0 accepted. See reviews/delivery_replay12_acceptance_review_2026-10-24.md and terminal12/replay_acceptance.json. No effect-size inspection or reporter execution in this review. Both report generation and all final integration gates remain separate. Do not repeat this closed review.
+
+## Report-only launch01 submitted once
+
+Job34864950 submitted20:44:10UTC2026-10-24 after packetcommitf2ec4f9d05776dd4c99658c1639bb2b7014dc367 was pushed/independentlymatched. Freeze256887bcbcbd989e0bab93655b68f371c0615d648a83d816ffeddac1f0a65686, sourcec59e322725f88972592ce44b98b5a0467336acb4,17remoteinputsreadbackmatch. Distinct Huygens implementation and finalpacketreviews0required after3lineageissues corrected. Fournewfabricatedmethods plusonefocusedlineagemethod/25reviewerdeltacases pass; no repeatedlegacytest/modelwork.
+
+Fresh20:44:23UTC scontrol/sacct confirm34864950/34864950RUNNING,c3cpu-c13-u1-2,1CPU/1task/1node/3GiB/30min,accountucb736_asc1,acpu/cpu-normal,zeroGPU,Requeue0/Restarts0. Bothcontrollerlocks released after confirmedsubmission. Exclusive local/remotejournals preserved in delivery-prospective-reporting-launch-20261024-01 and results/delivery_prospective_reporting_20261024/launch01. Currentreservation93.368333/150; known128690allocatedCPUseconds excludesrunningreport andisnotwhole-sprintCPU. Neverduplicateorblindretry.
+
+This runs BOTH unchangedreporters only after acceptedreplay12, usingexactstatisticsversions andfullacceptedruntimeinventory. Fullreportterminal/custody/independentoutputacceptance ispending; noactualpaperoutcomeintegrationyet. Nocheckpointreplay/fits/updates/newresponses/install/GPU. Then19fileassembly withREPLAY12freeze/execution/replaypins, bothreportindexes andseparatereportsource/executionlineage, SAMEpaper integration/nativecompile andfinalintegratedreviews/source-successor/anonymity/humanapproval. Hourlypublicationautomation updated; expiredfoundationautomationunchanged.
