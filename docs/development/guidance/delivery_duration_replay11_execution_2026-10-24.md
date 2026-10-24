@@ -21,3 +21,9 @@ After final packet review, commit/push and submit exactly once from the exclusiv
 ## Final packet review
 
 Distinct Carver review checks the actual9input packet and remote readback, current reviewedsource, resources/deadline/authorization/predecessors. Requiredfindingsremaining0. Review is static metadata/source wiring only, not fresh runtime qualification. Packet receiptSHA`7d0ef32af22f45f688a5978c43372565a4a0fb7bbce5335d45da1200cd1c7bf0`; reviewSHA`a118c3089c7b8941e44396566fa2d47f8d62cc92a92917ad1bf15dcb46c621c9`. Source/code artificial tests remain prior evidence and were not repeated.
+
+## Submitted and running under blanket continuation approval
+
+ONE submission returned job34861753 at18:19:16UTC,packetcommitafa70fdcafa86b06faa3ee6a7fd2eaddeb3250c2 (pushed and independently matched before submission). Fresh18:19:40UTC scontrol/sacct independently identify34861753/34861753 RUNNING on c3cpu-e2-u1 with1CPU/1task/1node/3GiB/01:00:00,accountucb736_asc1,acpu/cpu-normal,zeroGPU,Requeue0,Restarts0. Actualallocationmatchesfreeze. Both localcontrollerlocks released after confirmedsubmission. This is startup/allocation evidence, not runtime/numerical qualification or terminal success.
+
+The former hourly delivery automation no longer exists; the separate expired foundation automation remainsPAUSED. Authorized hourly delivery follow-up is active as ace-publication-progress with current blanketapproval, this once-submittedjob, no-duplicate journals,150corehourlimit and all reporting/publicationgates. It staysquiet on unchanged/nonactionablestates. No reporter/manuscript/model/outcome work occurred. Next capture terminal and fullcustody, qualify successful execution or diagnose failure before a separately frozen bounded correction under existingapproval.

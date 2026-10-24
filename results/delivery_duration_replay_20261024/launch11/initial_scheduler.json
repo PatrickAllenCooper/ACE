@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-24T18:19:40.242299+00:00",
+  "job_id": 34861753,
+  "commands": {
+    "scontrol": {
+      "returncode": 0,
+      "stdout": "JobId=34861753 JobName=ace_delB_replay UserId=paco0228(348288) GroupId=paco0228pgrp(348288) MCS_label=N/A Priority=17263 Nice=0 Account=ucb736_asc1 QOS=cpu-normal JobState=RUNNING Reason=None Dependency=(null) Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:13 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-10-24T12:19:15 EligibleTime=2026-10-24T12:19:15 AccrueTime=2026-10-24T12:19:15 StartTime=2026-10-24T12:19:27 EndTime=2026-10-24T13:19:27 Deadline=N/A PreemptEligibleTime=2026-10-24T12:19:27 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-10-24T12:19:27 Scheduler=Backfill Partition=acpu AllocNode:Sid=login-ci5:2492373 ReqNodeList=(null) ExcNodeList=(null) NodeList=c3cpu-e2-u1 BatchHost=c3cpu-e2-u1 NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=1,mem=3G,node=1 AllocTRES=cpu=1,mem=3G,node=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=1 MinMemoryNode=3G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null) Command=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261024_11/run.sbatch WorkDir=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261024_11 StdErr=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261024_11/slurm-34861753.err StdIn=/dev/null StdOut=/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261024_11/slurm-34861753.out Switches=1@7-00:00:00 TresPerTask=cpu=1 \n",
+      "stderr": ""
+    },
+    "squeue": {
+      "returncode": 0,
+      "stdout": "34861753|ace_delB_replay|RUNNING|c3cpu-e2-u1\n",
+      "stderr": ""
+    },
+    "sacct": {
+      "returncode": 0,
+      "stdout": "34861753|34861753|RUNNING|0:0|1|3G|cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|01:00:00|12|12\n34861753.batch|34861753.batch|RUNNING|0:0|1||cpu=1,mem=3G,node=1|ucb736_asc1||||12|12\n34861753.extern|34861753.extern|RUNNING|0:0|1||cpu=1,mem=3G,node=1|ucb736_asc1||||12|12\n",
+      "stderr": ""
+    }
+  },
+  "files": {
+    "slurm-34861753.out": 0,
+    "freeze.json": 9102,
+    "owned_supervision.py": 5127,
+    "submission_result.json": 156,
+    "qualify_runtime.py": 43760,
+    "output_claim.json": 445,
+    "slurm-34861753.err": 0,
+    "checkpoint_guard.py": 3448,
+    "child_bootstrap.py": 3799,
+    "run.sbatch": 3812,
+    "authorization.json": 1148,
+    "submission_started.json": 1408,
+    "supervise_replay.py": 18632
+  }
+}
