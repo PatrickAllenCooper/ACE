@@ -1094,3 +1094,7 @@ Distinct Kepler read-only review verifies9inputhashes/readback, source/preparati
 ## October23 measured duration and terminal10 review
 
 Distinct Godel read-only review reports0required on the new exactwall-cap/childdeadline/actualallocation policy and terminal10custody/runtime/failure/accounting boundary. Four new artificial methods pass; oldscientific/componenttests not repeated. No new allocation or numericalqualification follows. See reviews/delivery_runtime_duration_review_2026-10-23.md and delivery_runtime_duration_proposal_2026-10-23.md.
+
+## October24 duration replay11 packet and blanket continuation
+
+Human blanketapproval recorded at9e55d326 supersedes routine per-attemptpermission gates within150corehours. New60minute/1CPU/3GiB attempt is frozen atb7cf9a84a17c76cb96cb3b7341093f494cfc14d6603e5ee2594847347f803973;9remoteinputpins match, all3893packagefiles and3895membership authenticate,7priorjournaldirectories reconciled,queueempty,scratchreadinesspassed. Distinct Carver finalpacketreview0required; no repeated code/tests/model/sciencework. Reservation91.368333/150; knownpriorallocated122325seconds distinct. Still unsubmitted at this entry. See delivery_duration_replay11_execution_2026-10-24.md and results/delivery_duration_replay_20261024/launch11. No reporting/manuscript/outcomes qualified.

@@ -1,0 +1,23 @@
+# Delivery duration replay11 — October24,2026
+
+## Current state
+
+The latest human blanket continuation approval supersedes routine per-attempt approval requests within the existing150CPU-core-hour delivery ceiling. This attempt is prepared and remote bytes verified; submission has not occurred. Preserve exclusive journals and never duplicate a queued/running job or blindly retry an ambiguous submission. The expired foundation cycle remains stopped and final human publication approval remains required.
+
+The separately reviewed duration correction retains all source/runtime/model/response/resource gates. The reviewed proposal adds1CPU/3GiB/60minutes with a3550second supervised child deadline, accountucb736_asc1,acpu/cpu-normal,noGPU/no-requeue. Replay10initial qualification took1412.833795seconds after wrapperstart and the1750second child deadline expired before first-checkpoint receipt. Twice that initial interval plus remaining allowance motivates the new cap; it is not a measured completion prediction.
+
+## Frozen launch and prior custody
+
+Source revision `9e55d326641218a04129fa499b29568dacc8fa69`; freezeSHA`b7cf9a84a17c76cb96cb3b7341093f494cfc14d6603e5ee2594847347f803973`; scriptSHA`ff2ed0966a1ff9cc5dda4a030a18288deb3b3a6380260ae639cc698d5c1906b7`; supervisorSHA`c7cda2e10865e258dc09c63bae0e50225f0f0cbd4112c45ff494ab12ffb389da`; qualifierSHA`92b9e71cddf5bf48ec52f37a77547728f49c9a7608993108d2da698f2ee2541c`. Remote output `/scratch/alpine/paco0228/ACE/results/delivery_qualified_replay_20261024_11` inode685040896. Exclusive local launch `/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-duration-replay-launch-20261024-11`. Inputpins cover9files and match remote readback. Package manifest remains`b30e7b5f0f26f1e7f803c47e5cb1cbd22bbcb24ddac999e1f7e07cfc10c454a9`.
+
+Fresh remote preflight at18:15:07UTC authenticated3893packageobjects/exact3895membership,12installedpins and originalsampler. Scratch stat/df/write-read-cleanup passed. Six earlier journal directories are byte-unchanged and new replay10journal matches its complete local terminal custody; all checked predecessor jobs are FAILED1:0, ACEqueueempty. Both shared local controller locks were acquired before these checks.
+
+Total reservation including this frozen attempt91.368333/150CPU-core-hours. Known prior allocated122325CPU-seconds is distinct from overlapping processCPU, elapsedtime and reservations. No whole-sprintCPU total is inferred. All accepted studies and all failure attempts remain unchanged.
+
+## Required next evidence
+
+After final packet review, commit/push and submit exactly once from the exclusive local/remote journal. Record exact scheduleridentity and actual allocation, then preserve complete terminal source/log/receipt custody. A successful exit alone cannot qualify results: require exactruntime, unchanged fullinput/source, first-checkpoint liveclosure,640checkpoints/240primarycells/48000cachedresponses, zero newupdates/responses and successful supervision/cleanup. Only then run both originalregistered and complete descriptive reporters, assemble their separately pinned outputs, integrate the same open manuscript and finish scientific/proof/prose/page/accounting/anonymity/source-lineage review. No newfittedstudy, modelrepair, install or publication is authorized by this routine recovery.
+
+## Final packet review
+
+Distinct Carver review checks the actual9input packet and remote readback, current reviewedsource, resources/deadline/authorization/predecessors. Requiredfindingsremaining0. Review is static metadata/source wiring only, not fresh runtime qualification. Packet receiptSHA`7d0ef32af22f45f688a5978c43372565a4a0fb7bbce5335d45da1200cd1c7bf0`; reviewSHA`a118c3089c7b8941e44396566fa2d47f8d62cc92a92917ad1bf15dcb46c621c9`. Source/code artificial tests remain prior evidence and were not repeated.
