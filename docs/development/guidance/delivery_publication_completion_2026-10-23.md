@@ -79,3 +79,7 @@ All20rawobjects/9090171bytes independentlymatch exclusive terminal10 and9frozeni
 ## Reviewed measured-duration proposal
 
 Replay10passed initial exact-runtime qualification but reached its supervised deadline before model loading/full replay. The now-reviewed60minute proposal keeps1CPU/3GiB and all existing checks; it requires a new explicitone-attemptdecision. No package/model/manuscript changes or new allocation occurred. See delivery_runtime_duration_proposal_2026-10-23.md; all fullreplay/reporting/publication gates remain open.
+
+## October24 blanket continuation authorization
+
+Patrick grants blanket approval to proceed and stop asking for every small step. Historical per-attempt permission gates are superseded for routine diagnosed/reviewed delivery recovery within150CPU-core-hours. Preserve once-onlysubmission journals and neverblindlyretry/duplicate runningwork; current source/input/scientific/resource guards and finalhumanpublicationapproval remain. Next reviewed1CPU3GiB60minute replay11 reserves91.368333/150; knownpriorallocated122325seconds distinct. New intendedoutput20261024_11 andexclusive localjournal are prepared; livechecks/claim/freeze/submission remainpending. See delivery_continuation_authorization_2026-10-24.md. No expiredfoundationcycle restart or newfittedstudy is implied.
