@@ -1,33 +1,41 @@
-# Delivery artifact reproduction commands
+# Delivery artifact reviewer commands
 
-Internal preparation for the anonymous review release. These instructions cover
-saved-checkpoint inference and cached analysis, with no optimization or response
-collection. The original prospective study is accepted; its separate target
-runtime replay and final release approval are still pending. Do not distribute
-the private candidate or execute these templates as another preparation replay.
+Updated October 24, 2026. The original B study is accepted. Supervised replay12
+qualified saved-artifact inference against **candidate03**, whose manifest is
+`b30e7b5f0f26f1e7f803c47e5cb1cbd22bbcb24ddac999e1f7e07cfc10c454a9`.
+Report02 then completed both the registered and descriptive reports; its accepted
+record is `86abaf25f19e62ed5088311288b4ad8c6ea854863ce683488f7b333cb5102c10`.
+The 19-file assembly is integrated into the same manuscript with 16 companions;
+native compilation passed. The final publication successor has a distinct
+manifest and source contract. This accepted history does not claim numerical
+replay of that final manifest, original training execution or public approval.
+Final human release/submission approval remains pending.
+
+The commands below operate on the final publication package. They cover
+saved-checkpoint inference and cached analysis, without optimization or response
+collection. Do not repeat completed project replays to update this guide.
 
 ## Authenticate the release and choose the environment
 
-Obtain the final manifest digest and verifier digest from the approved release
-record, independently of the extracted package. Authenticate the verifier before
-executing it, then use its manifest check to authenticate the other entry points
-and artifacts. A checksum from the same untrusted download does not establish
-that independent origin. Keep the extracted package read-only, use a fresh Python
-process for each command, and write receipts in a new directory outside it.
+Obtain `MANIFEST_SHA256` (the **final publication** manifest) and `CHECKER_SHA256`
+(the final `verify_delivery_publication_release.py`) from an authenticated release
+record through a trusted channel independent of the package being checked.
+Neither variable is supplied here; candidate03's digest above is historical and
+must not be used as the final pin. An adjacent checksum, helper self-hash or
+unverified download does not establish that origin.
 
-The examples use absolute paths chosen by the reader. No author directory,
-cluster account, network connection or credentials are needed for saved-artifact
-inference. `PACKAGE_ROOT` is the extracted package and `RECEIPT_ROOT` is an
-already created, empty directory outside it. `MANIFEST_SHA256` comes from the
-final approved release, rather than the current private preparation manifest.
-`AC_PYTHON`, `F_PYTHON` and `B_PYTHON` name existing Python executables in the
-corresponding environments. `CHECK_PYTHON`, `AC_PYTHON`, `F_PYTHON` and
-`B_PYTHON` must each be Python 3.11 or newer:
-the verifier uses the standard-library `tomllib` module, including when called
-by a replay interface. The byte verifier uses `CHECK_PYTHON`, which needs
-no third-party packages. The version requirements below are those checked by
-the interfaces; the archived runtime records also preserve broader environment
-metadata. No environment installation is authorized by this guide.
+Choose absolute reader-local paths: `PACKAGE_ROOT` is the extracted package;
+`RECEIPT_ROOT` is an already created, empty directory outside it. Keep the package
+read-only and unchanged after authentication. Use a fresh trusted Python process
+for every command and the same Bash session for these snippets. No author path,
+cluster account, network connection or credentials are needed.
+
+`CHECK_PYTHON`, `AC_PYTHON`, `F_PYTHON` and `B_PYTHON` must each name an existing
+**Python 3.11 or newer** executable: verification uses standard-library `tomllib`,
+including through replay interfaces. `CHECK_PYTHON` needs only the standard
+library. The other environments must have these exact interface-checked versions;
+archived runtime records preserve broader metadata. This guide authorizes no
+installation.
 
 - A: torch 2.5.1, NumPy 2.4.6, SciPy 1.17.1, pandas 3.0.6 and
   scikit-learn 1.9.1, as recorded in `A/protocol.json`.
@@ -45,32 +53,76 @@ for the F saved-checkpoint interface. The interface loads the archived learner
 source shipped under `source/runner`; installing a different learner release is
 not a substitute for those authenticated bytes.
 
-## Verify bytes and current archived claim macros
+## Authenticate first, then verify the shipped publication
 
-After independently authenticating the verifier, run from any working directory:
-use the same Bash session for the snippets below. Stop on the first error and
-preserve stderr alongside the receipt; a failed attempt is never acceptance.
+Before executing any package code, including `--help`, authenticate the checker
+with trusted checksum code. This inline code uses only the trusted Python
+standard library. Stop on any error and preserve stdout/stderr outside the
+package; a failed attempt is never acceptance.
 
 ```bash
 set -euo pipefail
 set -o noclobber
-"$CHECK_PYTHON" -B "$PACKAGE_ROOT/verify_delivery_release.py" \
+: "${CHECK_PYTHON:?Set a trusted Python 3.11+ executable}"
+: "${PACKAGE_ROOT:?Set the extracted final package path}"
+: "${RECEIPT_ROOT:?Set an empty external receipt directory}"
+: "${CHECKER_SHA256:?Obtain the final checker pin independently}"
+: "${MANIFEST_SHA256:?Obtain the final manifest pin independently}"
+"$CHECK_PYTHON" -I -S -B - \
+  "$PACKAGE_ROOT/verify_delivery_publication_release.py" "$CHECKER_SHA256" \
+  > "$RECEIPT_ROOT/checker-authentication.json" \
+  2> "$RECEIPT_ROOT/checker-authentication.stderr" <<'PY'
+import hashlib, json, re, sys
+from pathlib import Path
+if sys.version_info < (3, 11):
+    raise SystemExit("Python 3.11+ required")
+path, expected = Path(sys.argv[1]), sys.argv[2]
+if not re.fullmatch(r"[0-9a-f]{64}", expected) or path.is_symlink():
+    raise SystemExit("Invalid independent pin or checker symlink")
+actual = hashlib.sha256(path.read_bytes()).hexdigest()
+if actual != expected:
+    raise SystemExit("Checker authentication failed")
+print(json.dumps({"authenticated": True, "sha256": actual}))
+PY
+"$CHECK_PYTHON" -I -S -B "$PACKAGE_ROOT/verify_delivery_publication_release.py" \
   --root "$PACKAGE_ROOT" \
   --expected-manifest-sha256 "$MANIFEST_SHA256" \
-  > "$RECEIPT_ROOT/integrity.json" 2> "$RECEIPT_ROOT/integrity.stderr"
+  > "$RECEIPT_ROOT/publication.json" 2> "$RECEIPT_ROOT/publication.stderr"
+```
 
+The authenticated checker captures and authenticates **both** local dependencies
+against embedded pins **before executing either**, including on `--help`:
+
+- `delivery_prospective_publication.py`:
+  `598e9071d5fdb5bebff81679b59578e1b5f16487f1c0584dc417ee6606998db9`.
+- `verify_delivery_release.py`:
+  `9f80286faeb3266c53bba70a7cf2abc26c4129c61a56c265c263cb09a8f00d52`.
+
+It executes those captured standard-library-only sources, bypassing cached local
+imports. Only then does the generic verifier authenticate the final manifest
+against `MANIFEST_SHA256` and check package membership/bytes/bindings. Changed
+helper pins require a reviewed checker and a new independently trusted checker
+pin. All later commands depend on this successful bootstrap and integrity check.
+
+The offline publication check verifies preserved candidate03 lineage, the new
+source contract, both accepted report indexes and all 13 outputs, manuscript/16
+companion/style/PDF byte bindings, and the reviewed accounting artifact's scope.
+It does not rerun models, regenerate statistics, revalidate private execution,
+prove original freeze timing, inspect page layout or grant publication approval.
+The shipped registered reports can be verified this way without another replay.
+The original exporter is included for provenance only: no public original-exporter
+command is supported for projected final-package inputs.
+
+The separate archived-macro check remains limited to the 35 A/C/F empirical
+macros and their generated LaTeX bytes, including confirmation journal accounting;
+it does not reconstruct the new B manuscript claims:
+
+```bash
 "$CHECK_PYTHON" -B "$PACKAGE_ROOT/verify_delivery_claims_release.py" \
   --root "$PACKAGE_ROOT" \
   --expected-manifest-sha256 "$MANIFEST_SHA256" \
   > "$RECEIPT_ROOT/archived-macros.json" 2> "$RECEIPT_ROOT/archived-macros.stderr"
 ```
-
-Check exit codes as well as the JSON results. Byte verification checks artifact
-membership, digests and relocation bindings. The macro interface reconstructs
-the current 35 A/C/F empirical macros and their generated LaTeX bytes, including
-disjoint confirmation journal accounting. Neither command replays checkpoints,
-refits models, proves historical freeze timing, reviews anonymity, verifies every
-prose/table statement or reconstructs final B manuscript claims.
 
 ## Replay archived attribution, physical prediction and confirmation
 
@@ -110,13 +162,17 @@ not a successful receipt. No accepted scores are overwritten by these interfaces
 
 ## Replay prospective checkpoints and prepare descriptive reporting
 
-These are future independent-reader commands. Current project qualification must
-use the latest explicitly approved, frozen supervised launch recorded in
-`delivery_publication_completion_2026-10-23.md`. The approved08 attempt failed before models;
-its complete disposition is in `delivery_vf_replay08_execution_2026-10-23.md`.
-No successor allocation is authorized. Earlier launch03 instructions and
-per-attempt approvals are historical. Directly running the CLI or inspecting a pinned receipt does not
-replace the supervisor, allocation and custody gate.
+Replay12 is accepted for candidate03; report02 and the integrated reports retain
+that lineage. The final package preserves the old manifest at
+`publication/replay_input_manifest.json` and adds its own root manifest and
+`publication/source_contract.json`. Do not relabel the old replay receipt as final
+package execution, or pass the old manifest pin to verification of the new root.
+
+**Descriptive regeneration requires a fresh, qualified full B replay against the
+final `MANIFEST_SHA256`.** Replay12's receipt cannot be reused. The following
+reader replay is optional for verifying shipped reports, but mandatory before
+running the descriptive reporter below. A pinned receipt or CLI exit alone does
+not establish supervised runtime, resource, cleanup and custody qualification.
 
 ```bash
 "$B_PYTHON" -B "$PACKAGE_ROOT/replay_delivery_prospective_release.py" \
@@ -135,8 +191,10 @@ and primary statistics then use the original cached predictions. A new
 exclusive receipt outside the package is required; existence of a JSON file is
 not evidence that its execution qualified.
 
-After qualifying and independently recording the replay receipt digest as
-`REPLAY_SHA256`, create a new report directory through the reporter:
+After independently qualifying that fresh execution, record its full receipt
+digest as `REPLAY_SHA256` in the external execution/acceptance record. Do not take
+this pin from the package or substitute a projected historical receipt. Create a
+new report directory through the reporter:
 
 ```bash
 "$CHECK_PYTHON" -B "$PACKAGE_ROOT/prepare_delivery_prospective_supplement.py" \
@@ -156,24 +214,28 @@ qualification. Its JSON/CSV outputs retain all 640 cells, 320 fixed-init0 arm/hi
 errors across 80 histories, 80 system log ratios, ablation/history summaries and
 floor counts. Two generated LaTeX files contain fifteen descriptive tables.
 `output_index.json` binds the generated objects and their source/input lineage.
-These outputs contain no new superiority tests. The original registered claim
-exporter and its primary/initialization tables are still separately required for
-manuscript integration; the macro checker above does not cover them.
+These outputs contain no new superiority tests. Fresh outputs remain outside the
+package; its manifest does not authenticate added files. The accepted registered
+primary/initialization tables are already shipped and verified by the offline
+publication checker, separately from descriptive regeneration.
 
-## Evidence still required for submission
+## Qualification and release boundaries
 
-Actual target-runtime supplemental execution, new report/source bindings and
-final integrated claim/proof/prose/table/visual review remain open. The release
-must incorporate this guide as a newly hashed artifact and provide final approved
-pins; this repository document is not authenticated by the existing candidate
-manifest. Exact commands have been checked statically against the entry-point
-schemas, not executed as new study replays.
+Authenticate this guide through the final publication successor's manifest and
+source contract, using the authenticated external release record for the final
+manifest/checker pins. Historical candidate manifests do not authenticate this
+version. Final integrated scientific/proof/prose/table/page review,
+anonymity/redistribution and human release/submission approval remain separate
+gates. Offline accounting verification preserves disclosed failures,
+measurement scopes and unknowns; it does not establish a whole-sprint CPU total.
 
 Saved-artifact reproduction does not reproduce response collection, optimizer
-trajectories or the original complete audit execution. Historical worker/source
-custody is preserved privately with explicit original/derived relationships.
-Anonymous executable collection/training interfaces, if claimed, require their
-own location/import/fixture/resource contracts and verification; the commands
-above do not supply that evidence. Preserve all failed and interrupted attempts,
-unknown telemetry and required source/data attribution. Final anonymity,
-redistribution and human submission approval remain separate gates.
+trajectories or the original complete audit execution. Original worker/source
+custody and original/derived relationships remain explicit. No anonymous original
+collection/training execution is qualified here; such interfaces need their own
+location/import/fixture/resource contracts and verification. Preserve all failed
+and interrupted attempts, unknown telemetry and required attribution/notices.
+
+The seven saved-artifact interface component review remains closed. This update
+uses only static parsing and source/CLI matching of new or changed command blocks;
+no model, replay, reporter, package checker or old test suite was executed.

@@ -2534,7 +2534,7 @@ extrapolation, identification or error-bound certification.}
 \label{fig:delivery-procedure}
 \end{figure}
 \end{filecontents*}
-% delivery_evaluation_design.tex: SHA256 307d8377030d87d5251e89b67cbd3d1b5e0db35802065b5becc82ef9e87031a4
+% delivery_evaluation_design.tex: SHA256 4334cee6bf7b05ff756cb78b6c0c7101d1b901a6f5e392b0bbfc42b92c37973c
 \begin{filecontents*}[overwrite]{delivery_evaluation_design.tex}
 % Design summary only; no prospective performance values.
 \begin{table}[ht]
@@ -2550,8 +2550,492 @@ Prospective (B) & Independent system within each specified family; two histories
 Physical (C) & Condition-specific assessment of one apparatus; no independent-world tests & Held-out joint angle blocks; continuous NMSE using each condition's training target variance & Initialization zero for neural fits; fixed linear controls\\
 \bottomrule
 \end{tabular}
-\caption{The studies assess different endpoints, evaluation supports and reporting units. Scored initialization summaries are not deployable selection rules. Conditions, rows and repeated initializations do not supply additional independent systems. Prospective performance remains unreported pending supplemental reproduction qualification.}
+\caption{The studies assess different endpoints, evaluation supports and reporting units. Scored initialization summaries are not deployable selection rules. Conditions, rows and repeated initializations do not supply additional independent systems. Prospective results use the complete fixed-initialization matrix after independent checkpoint reproduction.}
 \label{tab:evaluation-design}
+\end{table}
+\end{filecontents*}
+% delivery_prospective_claims.tex: SHA256 e89e8a6271837d1e764fc77ef164a7ad3f03308d4879c274df8f37fad380acdb
+\begin{filecontents*}[overwrite]{delivery_prospective_claims.tex}
+% Generated only after full independent acceptance.
+\newcommand{\BSystemsPerStratum}{20}
+\newcommand{\BScoredFits}{640}
+\newcommand{\BFiveOnlineRatio}{2.45956}
+\newcommand{\BFiveOnlineCILow}{1.78782}
+\newcommand{\BFiveOnlineCIHigh}{3.38368}
+\newcommand{\BFiveOnlineHolmP}{3.29547e-05}
+\newcommand{\BFiveOnlineGate}{not met}
+\newcommand{\BFiveFlatRatio}{0.356194}
+\newcommand{\BFiveFlatCILow}{0.282389}
+\newcommand{\BFiveFlatCIHigh}{0.449288}
+\newcommand{\BFiveFlatHolmP}{6.62773e-08}
+\newcommand{\BFiveFlatGate}{met}
+\newcommand{\BThirtyOnlineRatio}{0.274321}
+\newcommand{\BThirtyOnlineCILow}{0.158409}
+\newcommand{\BThirtyOnlineCIHigh}{0.47505}
+\newcommand{\BThirtyOnlineHolmP}{0.000185887}
+\newcommand{\BThirtyOnlineGate}{met}
+\newcommand{\BThirtyFlatRatio}{0.391027}
+\newcommand{\BThirtyFlatCILow}{0.254548}
+\newcommand{\BThirtyFlatCIHigh}{0.600681}
+\newcommand{\BThirtyFlatHolmP}{0.000205416}
+\newcommand{\BThirtyFlatGate}{met}
+\end{filecontents*}
+% delivery_prospective_primary_table.tex: SHA256 552f5344d2d721e645ce2b0ce27cd7ffa63f069274da47a265b1ea6d4c40a36e
+\begin{filecontents*}[overwrite]{delivery_prospective_primary_table.tex}
+% Generated from an independently accepted full640fit receipt.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rlrrrl}
+\toprule
+Nodes & Control & Ratio & Marginal95\% CI & Holm $p$ & Registered gate\\
+\midrule
+5 & online & 2.45956 & [1.78782, 3.38368] & 3.29547e-05 & not met\\
+5 & simpler & 0.356194 & [0.282389, 0.449288] & 6.62773e-08 & met\\
+30 & online & 0.274321 & [0.158409, 0.47505] & 0.000185887 & met\\
+30 & simpler & 0.391027 & [0.254548, 0.600681] & 0.000205416 & met\\
+\bottomrule
+\end{tabular}
+\caption{Fixed-initialization-zero delivery/control ratios across twenty independently parameterized systems per stratum. The two history log ratios are averaged within each system. Intervals are marginal; Holm adjusts all four tests. The registered gate requires ratio $\leq0.8$, upper interval $<1$, and adjusted $p<0.05$. Every registered system is required; a failed or missing fit blocks export. These are noise-disabled root-action recipe comparisons with differing supervision and compute.}
+\label{tab:prospective-primary}
+\end{table}
+\end{filecontents*}
+% delivery_prospective_sensitivity_table.tex: SHA256 78ee2ef4ae9d754096d73dded29f72ebae2e2105c2f07f95672dfdaf5a064364
+\begin{filecontents*}[overwrite]{delivery_prospective_sensitivity_table.tex}
+% Descriptive initialization sensitivity; no scored model selection.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rlrrr}
+\toprule
+Nodes & Arm & Init & Geometric NMSE & Ratio/init0\\
+\midrule
+5 & delivery & 0 & 0.000427764 & 1\\
+5 & delivery & 1 & 0.000395052 & 0.923527\\
+5 & delivery & 2 & 0.000253096 & 0.591671\\
+5 & simpler & 0 & 0.00120093 & 1\\
+5 & simpler & 1 & 0.00242763 & 2.02146\\
+5 & simpler & 2 & 0.00134551 & 1.12039\\
+30 & delivery & 0 & 2.7302e-05 & 1\\
+30 & delivery & 1 & 2.80113e-05 & 1.02598\\
+30 & delivery & 2 & 2.18951e-05 & 0.80196\\
+30 & simpler & 0 & 6.98213e-05 & 1\\
+30 & simpler & 1 & 7.78361e-05 & 1.11479\\
+30 & simpler & 2 & 8.30776e-05 & 1.18986\\
+\bottomrule
+\end{tabular}
+\caption{Descriptive sensitivity across all registered initializations. Initialization zero remains the deployment model; no best or median scored model is selected. History log errors are averaged within each system, then across twenty systems per stratum. A fixed $10^{-12}$ floor is used, with activations retained in the receipt. These repeats are not independent systems or additional superiority tests.}
+\label{tab:prospective-init}
+\end{table}
+\end{filecontents*}
+% delivery_prospective_absolute_table.tex: SHA256 971ce8da8c389304c1cfe67f211ac979eeda325f35fcc3774ff2d9e248bbb44f
+\begin{filecontents*}[overwrite]{delivery_prospective_absolute_table.tex}
+% Descriptive fixed-init0 absolute errors; all systems/histories retained.
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Online & Flat & Short fit\\
+\midrule
+5:00 & 0.00811662 & 0.00372435 & 0.0203903 & 0.518745\\
+5:01 & 0.0143796 & 0.00459728 & 0.0123382 & 0.320656\\
+5:02 & 0.0100981 & 0.00496115 & 0.0242827 & 0.451724\\
+5:03 & 0.0104221 & 0.0128792 & 0.0111626 & 0.277034\\
+5:04 & 0.0102836 & 0.0102983 & 0.0120368 & 0.430476\\
+5:05 & 0.00516613 & 0.00406067 & 0.00538112 & 0.31878\\
+5:06 & 0.0108197 & 0.00602774 & 0.0140241 & 0.344182\\
+5:07 & 0.0122708 & 0.00350435 & 0.0121823 & 0.416485\\
+5:08 & 0.00726161 & 0.003554 & 0.0102866 & 0.552569\\
+5:09 & 0.00599328 & 0.00276124 & 0.00561614 & 0.253016\\
+5:10 & 0.0083897 & 0.0303289 & 0.0288076 & 0.617773\\
+5:11 & 0.0122751 & 0.00965853 & 0.0125501 & 0.349059\\
+5:12 & 0.00553886 & 0.00716968 & 0.00834404 & 0.493725\\
+5:13 & 0.0108573 & 0.00789486 & 0.0132155 & 0.293155\\
+5:14 & 0.00499631 & 0.0026144 & 0.00801687 & 0.376134\\
+5:15 & 0.00787178 & 0.00436535 & 0.00978878 & 0.481869\\
+5:16 & 0.00466151 & 0.00222436 & 0.00461075 & 0.267282\\
+5:17 & 0.00968272 & 0.00385613 & 0.00791665 & 0.455791\\
+5:18 & 0.00655044 & 0.0023356 & 0.00640906 & 0.327654\\
+5:19 & 0.00814445 & 0.00427084 & 0.00721169 & 0.596268\\
+\bottomrule
+\end{tabular}
+\caption{5-node family, balanced\_varied\_value, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems; histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Online & Flat & Short fit\\
+\midrule
+5:00 & 0.000778679 & 0.000357301 & 0.00195617 & 0.0497665\\
+5:01 & 0.00213894 & 0.000683838 & 0.00183529 & 0.0476971\\
+5:02 & 0.00139469 & 0.000685205 & 0.00335378 & 0.0623894\\
+5:03 & 0.000645968 & 0.000798256 & 0.000691864 & 0.0171707\\
+5:04 & 0.000973393 & 0.000974782 & 0.00113934 & 0.0407467\\
+5:05 & 0.000385661 & 0.000303136 & 0.00040171 & 0.0237974\\
+5:06 & 0.00117375 & 0.000653904 & 0.00152137 & 0.0373378\\
+5:07 & 0.00215228 & 0.000614656 & 0.00213676 & 0.0730507\\
+5:08 & 0.000556269 & 0.000272251 & 0.000787994 & 0.0423291\\
+5:09 & 0.000868489 & 0.000400133 & 0.000813838 & 0.0366647\\
+5:10 & 0.00160804 & 0.00581308 & 0.0055215 & 0.118407\\
+5:11 & 0.000842378 & 0.000662816 & 0.000861253 & 0.0239541\\
+5:12 & 0.000392274 & 0.000507772 & 0.000590942 & 0.0349666\\
+5:13 & 0.000806543 & 0.000586478 & 0.000981728 & 0.0217773\\
+5:14 & 0.000506276 & 0.000264917 & 0.000812349 & 0.0381137\\
+5:15 & 0.000853367 & 0.000473241 & 0.00106119 & 0.0522386\\
+5:16 & 0.000661845 & 0.000315817 & 0.000654638 & 0.037949\\
+5:17 & 0.00151968 & 0.000605212 & 0.0012425 & 0.0715355\\
+5:18 & 0.00108512 & 0.000386906 & 0.0010617 & 0.0542778\\
+5:19 & 0.000756876 & 0.000396896 & 0.000670193 & 0.0554121\\
+\bottomrule
+\end{tabular}
+\caption{5-node family, balanced\_varied\_value, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems; histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Online & Flat & Short fit\\
+\midrule
+5:00 & 0.000708539 & 0.000205677 & 0.0104851 & 0.609355\\
+5:01 & 0.00136021 & 0.000703703 & 0.0101894 & 0.426431\\
+5:02 & 0.0014389 & 0.000707204 & 0.0180498 & 0.487219\\
+5:03 & 0.0056272 & 0.00138786 & 0.0141817 & 0.374221\\
+5:04 & 0.000889682 & 0.000689842 & 0.0269127 & 0.568784\\
+5:05 & 0.00360282 & 9.77828e-05 & 0.00557415 & 0.448063\\
+5:06 & 0.00784253 & 0.000510237 & 0.0161602 & 0.431061\\
+5:07 & 0.000799895 & 0.00140719 & 0.0116814 & 0.493433\\
+5:08 & 0.0012372 & 0.000266891 & 0.0146961 & 0.654552\\
+5:09 & 0.000856627 & 0.000447254 & 0.00564655 & 0.307583\\
+5:10 & 0.00066166 & 0.000321162 & 0.00479765 & 0.768916\\
+5:11 & 0.00370258 & 0.000433531 & 0.0159946 & 0.467546\\
+5:12 & 0.00201614 & 0.00243164 & 0.00789587 & 0.69502\\
+5:13 & 0.00542511 & 0.00576745 & 0.0130104 & 0.379987\\
+5:14 & 0.00378936 & 0.000133043 & 0.00349277 & 0.47392\\
+5:15 & 0.00585062 & 0.000991977 & 0.0270719 & 0.60163\\
+5:16 & 0.000991035 & 0.000547164 & 0.0108767 & 0.328058\\
+5:17 & 0.000665641 & 0.000259475 & 0.0116786 & 0.512188\\
+5:18 & 0.000506533 & 0.000108114 & 0.00641956 & 0.46709\\
+5:19 & 0.00163321 & 5.54846e-05 & 0.011357 & 0.72678\\
+\bottomrule
+\end{tabular}
+\caption{5-node family, matched\_random, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems; histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Online & Flat & Short fit\\
+\midrule
+5:00 & 8.00849e-05 & 2.32474e-05 & 0.00118512 & 0.0688744\\
+5:01 & 0.000217301 & 0.00011242 & 0.00162781 & 0.0681247\\
+5:02 & 0.000204552 & 0.000100535 & 0.00256592 & 0.0692621\\
+5:03 & 0.000387919 & 9.56742e-05 & 0.000977632 & 0.0257974\\
+5:04 & 9.85775e-05 & 7.64351e-05 & 0.00298195 & 0.0630217\\
+5:05 & 0.000283448 & 7.69297e-06 & 0.000438541 & 0.0352509\\
+5:06 & 0.000855537 & 5.56614e-05 & 0.00176291 & 0.0470241\\
+5:07 & 0.000151976 & 0.000267359 & 0.00221941 & 0.0937499\\
+5:08 & 0.000105895 & 2.28439e-05 & 0.00125788 & 0.0560247\\
+5:09 & 0.000143403 & 7.48724e-05 & 0.000945259 & 0.0514908\\
+5:10 & 0.000147066 & 7.13842e-05 & 0.00106637 & 0.170906\\
+5:11 & 0.000265707 & 3.11113e-05 & 0.00114781 & 0.0335524\\
+5:12 & 0.00015724 & 0.000189644 & 0.000615802 & 0.0542049\\
+5:13 & 0.000443613 & 0.000471606 & 0.00106386 & 0.0310716\\
+5:14 & 0.000422361 & 1.48289e-05 & 0.000389304 & 0.052823\\
+5:15 & 0.000711755 & 0.000120679 & 0.00329343 & 0.073191\\
+5:16 & 0.000156192 & 8.62359e-05 & 0.00171423 & 0.0517037\\
+5:17 & 0.000111885 & 4.3614e-05 & 0.00196301 & 0.0860916\\
+5:18 & 9.0191e-05 & 1.92503e-05 & 0.00114304 & 0.0831679\\
+5:19 & 0.000171165 & 5.81491e-06 & 0.00119023 & 0.0761682\\
+\bottomrule
+\end{tabular}
+\caption{5-node family, matched\_random, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems; histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Online & Flat & Short fit\\
+\midrule
+30:00 & 5.29388e-06 & 2.75974e-05 & 1.40168e-05 & 0.00143869\\
+30:01 & 1.94508e-05 & 6.64071e-06 & 1.7717e-05 & 0.00076315\\
+30:02 & 1.55282e-05 & 8.4582e-05 & 3.49923e-05 & 0.00051716\\
+30:03 & 1.88036e-05 & 3.26891e-05 & 1.03312e-05 & 0.000988502\\
+30:04 & 6.53831e-06 & 6.67173e-06 & 3.61344e-06 & 7.32737e-05\\
+30:05 & 8.76078e-06 & 6.57288e-06 & 8.02934e-06 & 0.000185469\\
+30:06 & 2.20917e-06 & 2.28064e-06 & 8.35874e-06 & 0.000136408\\
+30:07 & 3.09149e-06 & 2.5979e-06 & 5.23728e-06 & 0.000130963\\
+30:08 & 1.94946e-05 & 7.58093e-06 & 1.87531e-05 & 0.000690553\\
+30:09 & 3.91397e-06 & 5.61616e-06 & 2.58247e-06 & 0.00102255\\
+30:10 & 1.06867e-05 & 2.73965e-06 & 1.5882e-06 & 3.61305e-05\\
+30:11 & 3.71989e-06 & 2.29018e-05 & 5.53813e-05 & 0.00109498\\
+30:12 & 1.01411e-05 & 2.19549e-05 & 1.37305e-05 & 0.000404836\\
+30:13 & 1.5194e-05 & 0.00016681 & 1.94059e-05 & 0.00066355\\
+30:14 & 0.000132932 & 6.31015e-06 & 1.71837e-05 & 0.00063953\\
+30:15 & 9.03914e-06 & 0.0002276 & 2.68972e-05 & 0.000406741\\
+30:16 & 3.57099e-06 & 2.68772e-06 & 2.8191e-06 & 9.54245e-05\\
+30:17 & 3.97963e-06 & 4.22296e-05 & 5.29181e-06 & 0.000129346\\
+30:18 & 8.34418e-06 & 6.47997e-05 & 1.66594e-05 & 0.00033419\\
+30:19 & 4.45553e-06 & 3.70912e-07 & 1.47332e-06 & 2.38399e-05\\
+\bottomrule
+\end{tabular}
+\caption{30-node family, balanced\_varied\_value, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems; histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Online & Flat & Short fit\\
+\midrule
+30:00 & 6.32501e-06 & 3.29728e-05 & 1.6747e-05 & 0.00171892\\
+30:01 & 8.78694e-05 & 2.99996e-05 & 8.00369e-05 & 0.00344756\\
+30:02 & 3.91302e-05 & 0.000213142 & 8.81785e-05 & 0.00130321\\
+30:03 & 2.86027e-05 & 4.97245e-05 & 1.5715e-05 & 0.00150364\\
+30:04 & 8.04675e-05 & 8.21095e-05 & 4.44709e-05 & 0.000901786\\
+30:05 & 4.94633e-05 & 3.71104e-05 & 4.53336e-05 & 0.00104716\\
+30:06 & 2.93002e-05 & 3.02482e-05 & 0.000110862 & 0.00180917\\
+30:07 & 2.87392e-05 & 2.41507e-05 & 4.8687e-05 & 0.00121746\\
+30:08 & 3.99492e-05 & 1.55352e-05 & 3.84298e-05 & 0.00141512\\
+30:09 & 8.77764e-06 & 1.2595e-05 & 5.79157e-06 & 0.00229322\\
+30:10 & 0.000247062 & 6.33371e-05 & 3.67171e-05 & 0.000835288\\
+30:11 & 5.98646e-06 & 3.68561e-05 & 8.91257e-05 & 0.00176216\\
+30:12 & 1.9384e-05 & 4.19649e-05 & 2.62447e-05 & 0.000773812\\
+30:13 & 1.58013e-05 & 0.000173478 & 2.01816e-05 & 0.000690072\\
+30:14 & 0.000247099 & 1.17296e-05 & 3.19417e-05 & 0.00118879\\
+30:15 & 4.01564e-05 & 0.00101112 & 0.000119491 & 0.00180695\\
+30:16 & 5.09991e-05 & 3.83847e-05 & 4.0261e-05 & 0.0013628\\
+30:17 & 3.33762e-05 & 0.000354168 & 4.4381e-05 & 0.00108479\\
+30:18 & 4.30566e-05 & 0.000334372 & 8.59638e-05 & 0.00172445\\
+30:19 & 0.000224583 & 1.8696e-05 & 7.42635e-05 & 0.00120166\\
+\bottomrule
+\end{tabular}
+\caption{30-node family, balanced\_varied\_value, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems; histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Online & Flat & Short fit\\
+\midrule
+30:00 & 4.04399e-05 & 0.00045911 & 5.53792e-05 & 0.00123635\\
+30:01 & 2.41414e-06 & 5.17623e-06 & 4.54117e-05 & 0.000699688\\
+30:02 & 9.82878e-06 & 0.000238393 & 0.000116332 & 0.000737994\\
+30:03 & 3.04197e-06 & 0.00028577 & 2.50775e-05 & 0.000828535\\
+30:04 & 7.39674e-07 & 8.21744e-05 & 8.86338e-06 & 6.00367e-05\\
+30:05 & 3.69235e-06 & 0.000216314 & 1.66296e-05 & 0.00023302\\
+30:06 & 1.47372e-05 & 2.37927e-05 & 3.10444e-06 & 0.000149223\\
+30:07 & 1.2378e-06 & 1.71484e-06 & 2.00721e-05 & 0.000103049\\
+30:08 & 1.07198e-05 & 0.000156965 & 1.89493e-05 & 0.00120276\\
+30:09 & 5.98364e-05 & 2.27623e-05 & 8.17201e-05 & 0.000883554\\
+30:10 & 1.53136e-07 & 2.02384e-06 & 4.40878e-06 & 2.24843e-05\\
+30:11 & 2.37817e-06 & 0.000205675 & 0.00018105 & 0.000900513\\
+30:12 & 1.77706e-06 & 1.73054e-05 & 9.10894e-05 & 0.000483862\\
+30:13 & 5.60575e-06 & 1.96897e-05 & 5.76735e-05 & 0.000951051\\
+30:14 & 2.76961e-06 & 0.000123442 & 3.30715e-05 & 0.000851251\\
+30:15 & 3.59459e-05 & 3.82432e-05 & 2.36837e-05 & 0.000419156\\
+30:16 & 8.01801e-07 & 6.65759e-06 & 6.3252e-06 & 8.63031e-05\\
+30:17 & 3.08855e-06 & 1.52787e-05 & 6.92192e-06 & 0.000120888\\
+30:18 & 1.01212e-06 & 4.12581e-05 & 1.70288e-05 & 0.00044163\\
+30:19 & 1.7994e-06 & 2.62841e-06 & 1.94226e-06 & 1.6142e-05\\
+\bottomrule
+\end{tabular}
+\caption{30-node family, matched\_random, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems; histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Online & Flat & Short fit\\
+\midrule
+30:00 & 5.61478e-05 & 0.00063744 & 7.68899e-05 & 0.00171658\\
+30:01 & 1.3092e-05 & 2.8071e-05 & 0.00024627 & 0.00379444\\
+30:02 & 2.78494e-05 & 0.000675475 & 0.000329622 & 0.00209107\\
+30:03 & 5.64098e-06 & 0.000529927 & 4.65035e-05 & 0.00153642\\
+30:04 & 1.127e-05 & 0.00125204 & 0.000135046 & 0.000914743\\
+30:05 & 2.45037e-05 & 0.00143554 & 0.00011036 & 0.0015464\\
+30:06 & 0.00021396 & 0.000345432 & 4.50715e-05 & 0.00216647\\
+30:07 & 1.30312e-05 & 1.80533e-05 & 0.000211314 & 0.00108487\\
+30:08 & 2.68148e-05 & 0.000392636 & 4.74001e-05 & 0.00300861\\
+30:09 & 0.000162376 & 6.17692e-05 & 0.00022176 & 0.00239767\\
+30:10 & 4.18661e-06 & 5.53302e-05 & 0.000120532 & 0.000614702\\
+30:11 & 4.92799e-06 & 0.000426194 & 0.000375167 & 0.00186602\\
+30:12 & 4.02432e-06 & 3.91896e-05 & 0.00020628 & 0.00109575\\
+30:13 & 6.26031e-06 & 2.19887e-05 & 6.44078e-05 & 0.0010621\\
+30:14 & 5.61903e-06 & 0.000250442 & 6.7096e-05 & 0.00172703\\
+30:15 & 0.000202435 & 0.000215373 & 0.000133379 & 0.00236055\\
+30:16 & 1.24934e-05 & 0.000103737 & 9.85573e-05 & 0.00134475\\
+30:17 & 2.70192e-05 & 0.00013366 & 6.05542e-05 & 0.00105755\\
+30:18 & 6.13798e-06 & 0.00025021 & 0.000103271 & 0.00267826\\
+30:19 & 0.000109308 & 0.000159667 & 0.000117986 & 0.000980575\\
+\bottomrule
+\end{tabular}
+\caption{30-node family, matched\_random, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems; histories and arms are paired, not additional independent samples.}
+\end{table}
+\end{filecontents*}
+% delivery_prospective_descriptive_table.tex: SHA256 14c7fb649b57728c2e694d0ccc7a0bd745c55df1cad2d269c2c45463748758dc
+\begin{filecontents*}[overwrite]{delivery_prospective_descriptive_table.tex}
+% Descriptive paired reporting; no additional superiority tests.
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrr}
+\toprule
+System & Mean history log ratio & Ratio\\
+\midrule
+5:00 & 1.00796 & 2.74\\
+5:01 & 0.899692 & 2.45885\\
+5:02 & 0.710513 & 2.03504\\
+5:03 & 0.594084 & 1.81137\\
+5:04 & 0.126488 & 1.13484\\
+5:05 & 1.92375 & 6.84658\\
+5:06 & 1.65872 & 5.25259\\
+5:07 & 0.344176 & 1.41083\\
+5:08 & 1.12415 & 3.07758\\
+5:09 & 0.712417 & 2.03891\\
+5:10 & -0.281145 & 0.754919\\
+5:11 & 1.19228 & 3.29458\\
+5:12 & -0.222725 & 0.800335\\
+5:13 & 0.128714 & 1.13737\\
+5:14 & 1.99847 & 7.37778\\
+5:15 & 1.18209 & 3.2612\\
+5:16 & 0.666936 & 1.94826\\
+5:17 & 0.931385 & 2.53802\\
+5:18 & 1.28783 & 3.62492\\
+5:19 & 2.01386 & 7.4922\\
+\bottomrule
+\end{tabular}
+\caption{5-node delivery/online, initialization zero. The two history log NMSE ratios are averaged within each system using the registered floor; the final column exponentiates that mean. Every system is shown in fixed ID order, including worsening systems. These rows are the paired units of the original registered contrast, not extra tests.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrr}
+\toprule
+System & Mean history log ratio & Ratio\\
+\midrule
+5:00 & -1.80783 & 0.16401\\
+5:01 & -0.930298 & 0.394436\\
+5:02 & -1.70333 & 0.182076\\
+5:03 & -0.496488 & 0.608664\\
+5:04 & -1.78345 & 0.168057\\
+5:05 & -0.238597 & 0.787732\\
+5:06 & -0.491199 & 0.611893\\
+5:07 & -1.33702 & 0.262628\\
+5:08 & -1.41149 & 0.243781\\
+5:09 & -0.910402 & 0.402363\\
+5:10 & -1.60738 & 0.200412\\
+5:11 & -0.742689 & 0.475833\\
+5:12 & -0.887456 & 0.411702\\
+5:13 & -0.535634 & 0.585298\\
+5:14 & -0.195674 & 0.822281\\
+5:15 & -0.874951 & 0.416883\\
+5:16 & -1.19234 & 0.30351\\
+5:17 & -1.3317 & 0.264029\\
+5:18 & -1.25885 & 0.283981\\
+5:19 & -0.908823 & 0.402998\\
+\bottomrule
+\end{tabular}
+\caption{5-node delivery/simpler, initialization zero. The two history log NMSE ratios are averaged within each system using the registered floor; the final column exponentiates that mean. Every system is shown in fixed ID order, including worsening systems. These rows are the paired units of the original registered contrast, not extra tests.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrr}
+\toprule
+System & Mean history log ratio & Ratio\\
+\midrule
+30:00 & -2.04032 & 0.129987\\
+30:01 & 0.155966 & 1.16879\\
+30:02 & -2.44183 & 0.0870012\\
+30:03 & -2.54784 & 0.0782506\\
+30:04 & -2.36529 & 0.0939216\\
+30:05 & -1.89157 & 0.150835\\
+30:06 & -0.255424 & 0.774588\\
+30:07 & -0.0760152 & 0.926802\\
+30:08 & -0.869715 & 0.419071\\
+30:09 & 0.302706 & 1.35352\\
+30:10 & -0.61013 & 0.54328\\
+30:11 & -3.13874 & 0.0433372\\
+30:12 & -1.52422 & 0.21779\\
+30:13 & -1.82613 & 0.161036\\
+30:14 & -0.374697 & 0.687498\\
+30:15 & -1.64399 & 0.193208\\
+30:16 & -0.916252 & 0.400016\\
+30:17 & -1.98034 & 0.138022\\
+30:18 & -2.87877 & 0.0562038\\
+30:19 & 1.0535 & 2.86768\\
+\bottomrule
+\end{tabular}
+\caption{30-node delivery/online, initialization zero. The two history log NMSE ratios are averaged within each system using the registered floor; the final column exponentiates that mean. Every system is shown in fixed ID order, including worsening systems. These rows are the paired units of the original registered contrast, not extra tests.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrr}
+\toprule
+System & Mean history log ratio & Ratio\\
+\midrule
+30:00 & -0.644046 & 0.525163\\
+30:01 & -1.42053 & 0.241586\\
+30:02 & -1.6418 & 0.193631\\
+30:03 & -0.755293 & 0.469873\\
+30:04 & -0.945228 & 0.388591\\
+30:05 & -0.708869 & 0.492201\\
+30:06 & 0.113424 & 1.12011\\
+30:07 & -1.65657 & 0.190792\\
+30:08 & -0.265447 & 0.766863\\
+30:09 & 0.0520597 & 1.05344\\
+30:10 & -0.726816 & 0.483446\\
+30:11 & -3.51649 & 0.0297034\\
+30:12 & -2.11995 & 0.120038\\
+30:13 & -1.28784 & 0.275866\\
+30:14 & -0.217045 & 0.804894\\
+30:15 & -0.336616 & 0.714183\\
+30:16 & -0.914506 & 0.400714\\
+30:17 & -0.545981 & 0.579273\\
+30:18 & -1.75714 & 0.172538\\
+30:19 & 0.515112 & 1.67383\\
+\bottomrule
+\end{tabular}
+\caption{30-node delivery/simpler, initialization zero. The two history log NMSE ratios are averaged within each system using the registered floor; the final column exponentiates that mean. Every system is shown in fixed ID order, including worsening systems. These rows are the paired units of the original registered contrast, not extra tests.}
+\end{table}
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rllr}
+\toprule
+Nodes & History & Control & Delivery/control\\
+\midrule
+5 & balanced\_varied\_value & online & 1.61407\\
+5 & matched\_random & online & 3.74793\\
+5 & balanced\_varied\_value & simpler & 0.792755\\
+5 & matched\_random & simpler & 0.160042\\
+30 & balanced\_varied\_value & online & 0.695011\\
+30 & matched\_random & online & 0.108275\\
+30 & balanced\_varied\_value & simpler & 0.912254\\
+30 & matched\_random & simpler & 0.167609\\
+\bottomrule
+\end{tabular}
+\caption{Descriptive history-specific geometric ratios across twenty systems in each stratum, at initialization zero. No collection-strategy superiority or additional significance test is asserted.}
+\end{table}
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rr}
+\toprule
+Nodes & Delivery/short fit\\
+\midrule
+5 & 0.00855424\\
+30 & 0.0186544\\
+\bottomrule
+\end{tabular}
+\caption{Descriptive delivery versus the registered short-fit ablation. History log ratios are averaged within each system before averaging across twenty systems; both arms use initialization zero. No added significance test.}
+\end{table}
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rlrr}
+\toprule
+Nodes & Control & Delivery floor hits & Control floor hits\\
+\midrule
+5 & online & 0 & 0\\
+5 & simpler & 0 & 0\\
+30 & online & 0 & 0\\
+30 & simpler & 0 & 0\\
+\bottomrule
+\end{tabular}
+\caption{Counts of initialization-zero arm/history errors strictly below the registered floor, per primary contrast. The same delivery error appears in two contrasts and is counted there twice, not as extra independent data. All-cell floor flags remain in the machine-readable supplement.}
 \end{table}
 \end{filecontents*}
 % END EDITOR COMPANION BUNDLE
@@ -2560,6 +3044,7 @@ Physical (C) & Condition-specific assessment of one apparatus; no independent-wo
 \usepackage{amsmath,amssymb,amsthm,array,booktabs,hyperref}
 \newtheorem{proposition}{Proposition}[section]
 \input{delivery_claims}
+\input{delivery_prospective_claims}
 \title{From Experimental Histories to Causal Surrogates:\\Data Reuse, Optimization, and Error Propagation\thanks{AI-assisted tools
 supported research planning, code development, analysis and manuscript drafting.
 The human authors are responsible for the final scientific assessment,
@@ -2571,37 +3056,31 @@ verification and submission.}}
 \begin{document}
 \maketitle
 \ifdeliverydraft
-\noindent\textbf{Working manuscript, 8 October 2026.} Archived attribution and
-physical validation are complete. The frozen independent-system experiment and
-its original independent audit are complete. Supplemental reproduction
-qualification, prospective result integration and final scientific review
-remain pending.
 \fi
 \begin{abstract}
-A sequential experimental learner need not be the best model delivered after
-collection ends. We investigate whether retaining and refitting a completed
-experimental history improves the resulting causal surrogate, and which parts
-of the delivery procedure account for that change. A completed confirmation on
-one fixed deterministic emulator covers \DeliveryN{} acquisition histories:
-the median snapped exact-level error over three scored refit initializations
-on all eligible paid observations is \DeliveryRatio{} times the online learner's
-error in geometric mean across histories
-(95\% interval \DeliveryCILow{}--\DeliveryCIHigh{}), with
-\DeliveryWins{} histories improving. This comparison combines data reuse and
-additional optimization; it does not identify an architecture effect or an
-advantage at equal fitting compute. An exploratory attribution study on the
-same exposed grid gives continuous-error ratios of \AFlatRatio{} versus a
-development-selected flat refit and \AMatchedRatio{} versus a matched-CPU flat
-fit, using fixed initialization zero. We give conditional statements for
-mechanism eligibility, deterministic error propagation and quantization
-sensitivity, with explicit counterexamples to monotonic improvement.
+A sequential experimental learner need not be the best predictor delivered after
+collection ends. We assess post-collection refitting of structural causal model
+(SCM) surrogates with known graphs and measured intermediates. On one fixed
+emulator, a completed confirmation across \DeliveryN{} histories gives a
+geometric delivery/online snapped-error ratio of \DeliveryRatio{}
+(95\% interval \DeliveryCILow{}--\DeliveryCIHigh{}), using the median of three
+scored refit initializations; \DeliveryWins{} histories improve. An exploratory
+attribution on the same exposed grid favors long fits on retained histories,
+with continuous-error ratios \AFlatRatio{} and \AMatchedRatio{} against selected
+and CPU-budgeted flat refits. A frozen prospective study then evaluates fixed
+initialization zero on held-out root actions in twenty independent systems per
+family. Delivery/rolling NMSE ratios are \BFiveOnlineRatio{} in the five-node
+family and \BThirtyOnlineRatio{} in the thirty-node family; delivery/flat ratios
+are \BFiveFlatRatio{} and \BThirtyFlatRatio{}, respectively. Both flat contrasts
+and the thirty-node rolling contrast meet the registered superiority rule;
+the five-node rolling comparison instead favors the rolling learner.
 An archived physical case study retains all eleven conditions: delivery beats
-rolling learning in \CRollingWins{} conditions but Fourier regression in
-\CFourierWins{}. The frozen independent-system comparison has completed its
-original audit; its results await supplemental reproduction qualification
-and are not reported in this version. The present evidence supports a scoped
-post-collection delivery finding, without an acquisition or foundation-model
-claim.
+rolling learning in \CRollingWins{} but Fourier regression in \CFourierWins{}.
+Conditional eligibility, propagation and quantization results explain why local
+fit, joint support and downstream prediction must be distinguished. The evidence
+supports family- and comparator-dependent delivery benefits, with differing
+supervision and fitting compute; it establishes neither an architecture effect
+nor an acquisition or foundation-model advantage.
 \end{abstract}
 
 \section{Introduction}
@@ -2645,9 +3124,9 @@ empirical estimand and its limits; they are not new general causal-identificatio
 theorems. Third, we report an archived physical prediction study with domain
 controls and all conditions retained, including unfavorable results. A frozen
 prospective study tests the selected recipe on independent parameterizations
-and reserved action blocks. Its original audit is complete; prospective results
-remain unreported here pending supplemental reproduction qualification and
-integrated evidence review.
+and reserved action blocks. It favors delivery over the selected flat refit in
+both families, but reverses the delivery-versus-rolling comparison between the
+two families. All four registered contrasts and every system are retained.
 
 Within the scratch-fit matrix, long fits on retained histories outperform
 final-buffer fits and 100-update fits; adding unused paid rows changes aggregate
@@ -2893,12 +3372,11 @@ rescue or selecting a different scored initialization.
 
 \section{Frozen prospective evaluation}
 \label{sec:prospective}
-\textbf{Result integration pending.} The experiment and its original independent
-audit are complete. This section describes the released protocol, frozen
-before collecting responses or opening held-out outcomes. Supplemental
-reproduction qualification and integrated reporting remain outstanding, so
-this version supplies no prospective performance claim. The recipe, simpler control and short-fit
-ablation were selected at the completed attribution gate and are unchanged.
+The protocol was frozen before collecting responses or opening held-out
+outcomes. The original audit, independent saved-checkpoint reproduction and
+both registered and descriptive report exports are complete. The recipe,
+flat control and short-fit ablation were selected at the attribution gate and
+remain unchanged. The full matrix includes every registered system and fit.
 
 \subsection{Systems, histories and estimand}
 We use 20 independently parameterized systems in each of two graph-size strata.
@@ -2936,10 +3414,12 @@ rolling update kernel, the selected flat refit and the 100-update SCM ablation.
 Initialization one and two fits of delivery and flat measure optimization
 sensitivity separately; no scored initialization is selected for deployment.
 There are eight fits per history, totaling 640 fits across the frozen systems.
-All model states, optimizer accounting, inputs and attempt receipts must be
-sealed before the evaluator generates any held-out response. Failed or
-interrupted attempts remain in custody and block acceptance; they are not
-replaced by favorable worlds or removed from the analysis.
+All model states, optimizer accounting, inputs and attempt receipts were
+sealed before the evaluator generated any held-out response. All 640 original
+fits and forty world journals completed without replacement or filtering.
+The protocol retains failed or interrupted attempts and blocks acceptance of
+an incomplete matrix. Later reproduction failures are retained separately;
+they did not replace scientific fits or systems.
 
 Joint root interventions leave every nonroot mechanism eligible. Nevertheless,
 SCM and flat learners differ in intermediate supervision and total fitting
@@ -2970,6 +3450,34 @@ sensitivity, history-specific summaries and failure diagnostics are reported
 separately. No grid rows, histories or optimization
 repeats are counted as independent systems. No result is accepted from an
 incomplete primary matrix.
+
+\subsection{Prospective results and boundaries}
+Table~\ref{tab:prospective-primary} reports all four registered contrasts.
+The table's \texttt{simpler} arm is the selected flat refit. Delivery is worse
+than rolling in the five-node family: the ratio is \BFiveOnlineRatio{}, with
+marginal interval [\BFiveOnlineCILow{}, \BFiveOnlineCIHigh{}] entirely above one.
+In the thirty-node family it is better than rolling, with ratio
+\BThirtyOnlineRatio{} and interval [\BThirtyOnlineCILow{}, \BThirtyOnlineCIHigh{}].
+Against flat, ratios are \BFiveFlatRatio{} and \BThirtyFlatRatio{} in the two
+families. These two flat contrasts and the thirty-node rolling contrast meet
+all three registered criteria. Failure of the remaining superiority gate is
+not equivalence; here the estimated effect favors the control. The $0.8$
+point-estimate criterion is not 95\% assurance of a 20\% population gain.
+
+\input{delivery_prospective_primary_table}
+
+The history-specific ratios show that the aggregate does not describe every
+collection regime equally. The descriptive delivery/flat ratio in the
+thirty-node family is about 0.912 for balanced histories and 0.168 for matched
+random histories; neither summary is an additional hypothesis test or evidence
+that one acquisition strategy is superior. Longer fitting substantially
+outperforms the registered 100-update SCM in both strata, while it still loses
+to rolling in the five-node family. Thus more optimization helps relative to
+that short-fit recipe without making delivery universally preferable.
+Appendix~\ref{app:prospective-complete} retains all absolute errors, system log
+ratios, history summaries, initialization sensitivity, short-fit comparisons
+and floor counts. No primary floor is activated. Initialization zero remains
+the deployed model regardless of the sensitivity results.
 
 \section{Archived physical prediction}
 \label{sec:physical}
@@ -3041,7 +3549,7 @@ Intermediate-intervention measurements may constrain mechanisms that a
 root-only predictor cannot learn from those inputs, but no pure factorization
 advantage follows from a comparison with unequal usable supervision. The
 prospective protocol deliberately tests prediction of root-interventional maps;
-its results will not resolve the internal-action ambiguity.
+its results do not resolve the internal-action ambiguity.
 
 \paragraph{External boundary and reporting units.}
 The physical task is a single mechanism in one apparatus. Neural delivery wins
@@ -3059,8 +3567,10 @@ The archived evaluation grid was previously exposed and includes acquired
 inputs. Attribution on that grid is exploratory, even though its configurations
 were fixed before the new fits. The confirmation's median of three scored
 initializations describes sensitivity and must not be read as a deployable
-model-selection rule. The prospective fixed-initialization protocol is needed
-to test the selected recipe on unused action blocks. Compute totals distinguish
+model-selection rule. The prospective fixed-initialization study tests the
+selected recipe on unused action blocks and finds comparator- and
+family-dependent benefits, including worse delivery error against rolling in
+the five-node family. Compute totals distinguish
 fitting process time from full execution and requested allocations; an
 equal-epoch neural comparison is not an equal-compute comparison. The eligibility
 and propagation propositions require measured parents, invariance, noise and
@@ -3078,10 +3588,10 @@ favorable against the selected simpler refits on the exposed grid, while a
 physical prediction study shows a clear boundary against domain-informed
 controls. The theoretical analysis explains why eligible-row fitting, joint
 support and free-running error must be considered separately. The frozen
-prospective comparison has completed its original independent audit; supplemental
-reproduction qualification and integration remain outstanding. Until those
-reporting gates pass, the empirical conclusion in this version is
-restricted to the completed archived studies.
+prospective comparison favors delivery against the selected flat refit in both
+families and against rolling in the thirty-node family, but favors rolling in
+the five-node family. These results support a conditional delivery recipe,
+not a universal benefit from refitting or causal factorization.
 
 \bibliographystyle{tmlr}
 \bibliography{delivery_references}
@@ -3283,12 +3793,31 @@ Stage A records \AFitCPU{} fit CPU-core-hours and the physical study
 \CCPU{} fit/evaluation CPU-core-hours. These measurements exclude startup
 and imports completed before the respective timers; classical-library imports
 inside the attribution fit timers remain included.
-The prospective qualification failure charged 126 allocated CPU-seconds;
-the successful replacement charged 119. Both remain in the final allocation
-accounting. Requested reservation, process CPU and supervised elapsed time are
-different quantities. Final prospective costs remain pending and will be
-reported with the completed matrix and audit, rather than inferred from the
-reserved allocation or a partial checkpoint.
+The failed prospective pilot used 126 allocated CPU-seconds and its successful
+replacement used 119; both remain in custody. The original qualification,
+collection, forty world tasks, evaluation and audit used 118,680 allocated
+CPU-seconds, or 118,925 with those pilots. Subsequent environment preparation,
+failed and successful checkpoint reproductions, and both report-only attempts
+bring the identified chain to 132,995 allocated CPU-seconds (36.9431 allocated
+core-hours) across 59 allocations. The unsuccessful report attempt contributes
+1,792 seconds and the successful report attempt 2,513; neither adds fits or
+simulator responses. All these allocations used one CPU and no GPU.
+
+The 640 original fits separately recorded 110,802.1073 process CPU-seconds,
+113,596.4424 summed elapsed seconds and a maximum sampled process-tree RSS of
+1,400,913,920 bytes. The successful report child records 15.2265 process
+CPU-seconds and 2,472.1656 elapsed seconds after context validation; its
+wrapper elapsed time is 2,481.1657 seconds and its scheduler TotalCPU is
+753.777 seconds, covering a different process scope. Its sampled process-tree
+peak is 133,644,288 bytes; scheduler batch MaxRSS is 168,396 KiB. These measures
+overlap and are not added to allocation or to one another. Recorded reservations
+are 94.3683 of the 150 CPU-core-hour ceiling, including unused limits and failure
+allowances; they are not actual cost. A failed reproduction has a recorded
+scheduler TotalCPU of zero despite documented runtime work, so that observation
+is retained with measurement uncertainty. Complete confirmation and project
+process CPU, and complete preparation, transfer, monitoring and review overhead,
+remain unknown. The release accounting retains every identified failed attempt
+and the cutoff through the successful reporting job.
 
 \section{Verification and evidence provenance}
 \label{app:provenance}
@@ -3299,8 +3828,12 @@ immutable selection gate, full matrix and eligibility audit; physical results
 are linked to the fit seal and eleven-condition acceptance. The prospective
 registration freezes world descriptors, actions, dependencies, initialization,
 normalization, primary contrasts and resource ceilings before responses.
-Release requires independent recomputation of the completed result custody and
-all declared primary contrasts. No prospective score is included in this version.
+Independent reproduction verified all 640 saved checkpoints, 240 primary
+cells and 48,000 cached training/evaluation responses in the frozen runtime,
+with no new fits, optimizer updates or simulator responses. Separate registered
+and descriptive exporters bind the manuscript's prospective claims and full
+reports to that accepted replay; the archived A/C/F claim index remains separate.
+The derived final release requires separate source and report bindings.
 
 Executable analytical checks cover chains, forks, colliders, clamped nodes,
 root-support ambiguity, quantization margins and the nonlinear conditional-mean
@@ -3332,17 +3865,43 @@ three delivery initializations, the paired log-error statistics, and disjoint
 charged-attempt versus persisted-response counts, retaining the interrupted journal.
 These adapters run without optimization or response acquisition. Their receipts
 and code digests are recorded separately from the original frozen workers and
-acceptance records. A separate metadata checker reconstructs every current
-empirical macro and compares the generated LaTeX values with the bound claim
-index; this does not verify every prose statement or table. A distinct read-only
+acceptance records. A separate metadata checker reconstructs the 35
+A/C/confirmation empirical macros and compares their generated LaTeX values
+with the archived claim index. The 22 prospective macros and the registered
+and descriptive tables are covered by the separately accepted reporting
+outputs and their indexes. Neither check alone verifies all prose or rendered
+pages. A distinct read-only
 table checker compares the attribution, per-history and physical tables' headers,
 row membership and displayed values with independently pinned accepted receipts,
 preserving the distinction between row-weighted errors and block-weighted ratios.
 This check excludes captions, prose and prospective results. Supplemental
 reconstruction does not establish model refitting, historical freeze timing
 or final reviewer anonymity.
-Prospective acceptance requires all 640 checkpoint replays.
+Prospective checkpoint reproduction is complete for all 640 registered fits.
 Python audit hooks restrict trusted worker access; they are not an operating-system
 sandbox. The physical fit process loads the archive and uses only its registered
 training indices for objectives and scales before sealing predictions and scoring.
+\section{Complete prospective reporting}
+\label{app:prospective-complete}
+The following tables retain all registered initialization summaries, the MSE
+and training-variance-normalized NMSE of all four fixed-initialization-zero
+arms on each of eighty shared histories, and all eighty system log ratios
+underlying the four primary contrasts. Twenty systems, not forty histories,
+are the independent units in each contrast. Unfloored absolute errors are
+preserved; only logarithmic summaries apply the registered numerical floor.
+The \texttt{simpler} label denotes the flat refit, and the short fit denotes the
+100-update SCM. These descriptive tables add no significance tests, scored
+initialization choice or acquisition-superiority claim.
+% Keep the full table supplement top-aligned without altering generated tables.
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{20pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+\input{delivery_prospective_sensitivity_table}
+\clearpage
+\input{delivery_prospective_absolute_table}
+\clearpage
+\input{delivery_prospective_descriptive_table}
+\clearpage
 \end{document}
