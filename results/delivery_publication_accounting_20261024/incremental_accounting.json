@@ -1,0 +1,1713 @@
+{
+  "schema": "ace-publication-incremental-accounting-review-v1",
+  "created_at": "2026-10-24T20:45:52.760419+00:00",
+  "scope": "New local evidence integration through accepted replay12; preserves previous accounting/acceptance without rerunning implementation/tests/scientific audits/models. No remote operations.",
+  "cutoff": {
+    "last_included_job": "34863006",
+    "last_included_attempt": "replay12",
+    "terminal_utc": "2026-10-24T20:18:31+00:00",
+    "known_allocated_cpu_seconds": 128690,
+    "does_not_include_report01": true
+  },
+  "method": "Read preserved parent/task sacct rows; count each distinct allocation once; exclude batch/extern and cumulative snapshots; check original44 row identities/costs against final receipt. Add only disjoint allocation CPU-seconds. No cross-scope CPU/elapsed/allocation/reservation sum.",
+  "original": {
+    "allocation_receipt": "results/delivery_prospective_preparation_20261006/full_allocation_and_replay_proposal_20261008.json",
+    "raw_scheduler_source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt",
+    "final_fit_accounting_source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-original-compute-final-20261008-01/accounting.json",
+    "original_chain_allocated_cpu_seconds": 118680,
+    "failed_pilot_allocated_cpu_seconds": 126,
+    "successful_pilot_allocated_cpu_seconds": 119,
+    "chain_and_pilots_allocated_cpu_seconds": 118925,
+    "allocation_rows": [
+      {
+        "job_id_raw": "33505661",
+        "job_id_display": "33505661",
+        "phase": "pilot",
+        "state": "FAILED",
+        "exit_code": "1:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 126,
+        "allocated_cpu_seconds": 126,
+        "slurm_total_cpu_raw": "00:06.137",
+        "raw_parent_row": "33505661|33505661|ace_delB_pilot|ucb736_asc1|FAILED|1|126|00:06.137||1:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507335",
+        "job_id_display": "33507335",
+        "phase": "pilot",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 119,
+        "allocated_cpu_seconds": 119,
+        "slurm_total_cpu_raw": "01:02.215",
+        "raw_parent_row": "33507335|33507335|ace_delB_pilot_fix|ucb736_asc1|COMPLETED|1|119|01:02.215||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507418",
+        "job_id_display": "33507418",
+        "phase": "qualification",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 35,
+        "allocated_cpu_seconds": 35,
+        "slurm_total_cpu_raw": "00:04.486",
+        "raw_parent_row": "33507418|33507418|ace_delB_qualification|ucb736_asc1|COMPLETED|1|35|00:04.486||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507419",
+        "job_id_display": "33507419",
+        "phase": "collection",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 10,
+        "allocated_cpu_seconds": 10,
+        "slurm_total_cpu_raw": "00:03.166",
+        "raw_parent_row": "33507419|33507419|ace_delB_collect|ucb736_asc1|COMPLETED|1|10|00:03.166||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507422",
+        "job_id_display": "33507422",
+        "phase": "evaluation",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 132,
+        "allocated_cpu_seconds": 132,
+        "slurm_total_cpu_raw": "00:25.865",
+        "raw_parent_row": "33507422|33507422|ace_delB_evaluate|ucb736_asc1|COMPLETED|1|132|00:25.865||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507423",
+        "job_id_display": "33507423",
+        "phase": "audit",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 24,
+        "allocated_cpu_seconds": 24,
+        "slurm_total_cpu_raw": "00:16.991",
+        "raw_parent_row": "33507423|33507423|ace_delB_audit|ucb736_asc1|COMPLETED|1|24|00:16.991||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507428",
+        "job_id_display": "33507420_0",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 685,
+        "allocated_cpu_seconds": 685,
+        "slurm_total_cpu_raw": "10:43.977",
+        "raw_parent_row": "33507428|33507420_0|ace_delB_fit5|ucb736_asc1|COMPLETED|1|685|10:43.977||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507429",
+        "job_id_display": "33507420_1",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 685,
+        "allocated_cpu_seconds": 685,
+        "slurm_total_cpu_raw": "10:39.068",
+        "raw_parent_row": "33507429|33507420_1|ace_delB_fit5|ucb736_asc1|COMPLETED|1|685|10:39.068||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507497",
+        "job_id_display": "33507420_2",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 799,
+        "allocated_cpu_seconds": 799,
+        "slurm_total_cpu_raw": "12:17.782",
+        "raw_parent_row": "33507497|33507420_2|ace_delB_fit5|ucb736_asc1|COMPLETED|1|799|12:17.782||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507498",
+        "job_id_display": "33507420_3",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 799,
+        "allocated_cpu_seconds": 799,
+        "slurm_total_cpu_raw": "12:19.717",
+        "raw_parent_row": "33507498|33507420_3|ace_delB_fit5|ucb736_asc1|COMPLETED|1|799|12:19.717||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507594",
+        "job_id_display": "33507420_4",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 787,
+        "allocated_cpu_seconds": 787,
+        "slurm_total_cpu_raw": "12:15.361",
+        "raw_parent_row": "33507594|33507420_4|ace_delB_fit5|ucb736_asc1|COMPLETED|1|787|12:15.361||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507595",
+        "job_id_display": "33507420_5",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 780,
+        "allocated_cpu_seconds": 780,
+        "slurm_total_cpu_raw": "12:11.104",
+        "raw_parent_row": "33507595|33507420_5|ace_delB_fit5|ucb736_asc1|COMPLETED|1|780|12:11.104||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507722",
+        "job_id_display": "33507420_6",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 688,
+        "allocated_cpu_seconds": 688,
+        "slurm_total_cpu_raw": "10:41.180",
+        "raw_parent_row": "33507722|33507420_6|ace_delB_fit5|ucb736_asc1|COMPLETED|1|688|10:41.180||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507724",
+        "job_id_display": "33507420_7",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 681,
+        "allocated_cpu_seconds": 681,
+        "slurm_total_cpu_raw": "10:37.405",
+        "raw_parent_row": "33507724|33507420_7|ace_delB_fit5|ucb736_asc1|COMPLETED|1|681|10:37.405||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507789",
+        "job_id_display": "33507420_8",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 707,
+        "allocated_cpu_seconds": 707,
+        "slurm_total_cpu_raw": "10:47.575",
+        "raw_parent_row": "33507789|33507420_8|ace_delB_fit5|ucb736_asc1|COMPLETED|1|707|10:47.575||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507790",
+        "job_id_display": "33507420_9",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 706,
+        "allocated_cpu_seconds": 706,
+        "slurm_total_cpu_raw": "10:47.889",
+        "raw_parent_row": "33507790|33507420_9|ace_delB_fit5|ucb736_asc1|COMPLETED|1|706|10:47.889||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508013",
+        "job_id_display": "33507420_10",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 690,
+        "allocated_cpu_seconds": 690,
+        "slurm_total_cpu_raw": "10:40.531",
+        "raw_parent_row": "33508013|33507420_10|ace_delB_fit5|ucb736_asc1|COMPLETED|1|690|10:40.531||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508014",
+        "job_id_display": "33507420_11",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 1005,
+        "allocated_cpu_seconds": 1005,
+        "slurm_total_cpu_raw": "15:45.236",
+        "raw_parent_row": "33508014|33507420_11|ace_delB_fit5|ucb736_asc1|COMPLETED|1|1005|15:45.236||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508139",
+        "job_id_display": "33507420_12",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 678,
+        "allocated_cpu_seconds": 678,
+        "slurm_total_cpu_raw": "10:36.666",
+        "raw_parent_row": "33508139|33507420_12|ace_delB_fit5|ucb736_asc1|COMPLETED|1|678|10:36.666||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508153",
+        "job_id_display": "33507420_13",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 686,
+        "allocated_cpu_seconds": 686,
+        "slurm_total_cpu_raw": "10:36.302",
+        "raw_parent_row": "33508153|33507420_13|ace_delB_fit5|ucb736_asc1|COMPLETED|1|686|10:36.302||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508191",
+        "job_id_display": "33507420_14",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 703,
+        "allocated_cpu_seconds": 703,
+        "slurm_total_cpu_raw": "10:47.666",
+        "raw_parent_row": "33508191|33507420_14|ace_delB_fit5|ucb736_asc1|COMPLETED|1|703|10:47.666||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508245",
+        "job_id_display": "33507420_15",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 716,
+        "allocated_cpu_seconds": 716,
+        "slurm_total_cpu_raw": "10:41.090",
+        "raw_parent_row": "33508245|33507420_15|ace_delB_fit5|ucb736_asc1|COMPLETED|1|716|10:41.090||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508341",
+        "job_id_display": "33507420_16",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 791,
+        "allocated_cpu_seconds": 791,
+        "slurm_total_cpu_raw": "11:11.735",
+        "raw_parent_row": "33508341|33507420_16|ace_delB_fit5|ucb736_asc1|COMPLETED|1|791|11:11.735||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508390",
+        "job_id_display": "33507420_17",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 727,
+        "allocated_cpu_seconds": 727,
+        "slurm_total_cpu_raw": "10:42.167",
+        "raw_parent_row": "33508390|33507420_17|ace_delB_fit5|ucb736_asc1|COMPLETED|1|727|10:42.167||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508443",
+        "job_id_display": "33507420_18",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 730,
+        "allocated_cpu_seconds": 730,
+        "slurm_total_cpu_raw": "10:56.585",
+        "raw_parent_row": "33508443|33507420_18|ace_delB_fit5|ucb736_asc1|COMPLETED|1|730|10:56.585||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507420",
+        "job_id_display": "33507420_19",
+        "phase": "fit_5",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 708,
+        "allocated_cpu_seconds": 708,
+        "slurm_total_cpu_raw": "10:44.897",
+        "raw_parent_row": "33507420|33507420_19|ace_delB_fit5|ucb736_asc1|COMPLETED|1|708|10:44.897||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507430",
+        "job_id_display": "33507421_0",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 6420,
+        "allocated_cpu_seconds": 6420,
+        "slurm_total_cpu_raw": "01:45:20",
+        "raw_parent_row": "33507430|33507421_0|ace_delB_fit30|ucb736_asc1|COMPLETED|1|6420|01:45:20||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507431",
+        "job_id_display": "33507421_1",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 6430,
+        "allocated_cpu_seconds": 6430,
+        "slurm_total_cpu_raw": "01:45:31",
+        "raw_parent_row": "33507431|33507421_1|ace_delB_fit30|ucb736_asc1|COMPLETED|1|6430|01:45:31||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508397",
+        "job_id_display": "33507421_2",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4351,
+        "allocated_cpu_seconds": 4351,
+        "slurm_total_cpu_raw": "01:10:19",
+        "raw_parent_row": "33508397|33507421_2|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4351|01:10:19||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33508401",
+        "job_id_display": "33507421_3",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4341,
+        "allocated_cpu_seconds": 4341,
+        "slurm_total_cpu_raw": "01:10:07",
+        "raw_parent_row": "33508401|33507421_3|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4341|01:10:07||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33509862",
+        "job_id_display": "33507421_4",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4514,
+        "allocated_cpu_seconds": 4514,
+        "slurm_total_cpu_raw": "01:12:52",
+        "raw_parent_row": "33509862|33507421_4|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4514|01:12:52||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33509863",
+        "job_id_display": "33507421_5",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4505,
+        "allocated_cpu_seconds": 4505,
+        "slurm_total_cpu_raw": "01:12:35",
+        "raw_parent_row": "33509863|33507421_5|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4505|01:12:35||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33510448",
+        "job_id_display": "33507421_6",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 7607,
+        "allocated_cpu_seconds": 7607,
+        "slurm_total_cpu_raw": "02:03:28",
+        "raw_parent_row": "33510448|33507421_6|ace_delB_fit30|ucb736_asc1|COMPLETED|1|7607|02:03:28||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33510451",
+        "job_id_display": "33507421_7",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4408,
+        "allocated_cpu_seconds": 4408,
+        "slurm_total_cpu_raw": "01:12:19",
+        "raw_parent_row": "33510451|33507421_7|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4408|01:12:19||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33511108",
+        "job_id_display": "33507421_8",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4337,
+        "allocated_cpu_seconds": 4337,
+        "slurm_total_cpu_raw": "01:11:17",
+        "raw_parent_row": "33511108|33507421_8|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4337|01:11:17||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33511303",
+        "job_id_display": "33507421_9",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4295,
+        "allocated_cpu_seconds": 4295,
+        "slurm_total_cpu_raw": "01:10:37",
+        "raw_parent_row": "33511303|33507421_9|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4295|01:10:37||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33511391",
+        "job_id_display": "33507421_10",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4267,
+        "allocated_cpu_seconds": 4267,
+        "slurm_total_cpu_raw": "01:09:59",
+        "raw_parent_row": "33511391|33507421_10|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4267|01:09:59||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33511491",
+        "job_id_display": "33507421_11",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4399,
+        "allocated_cpu_seconds": 4399,
+        "slurm_total_cpu_raw": "01:12:19",
+        "raw_parent_row": "33511491|33507421_11|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4399|01:12:19||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33511584",
+        "job_id_display": "33507421_12",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4510,
+        "allocated_cpu_seconds": 4510,
+        "slurm_total_cpu_raw": "01:14:03",
+        "raw_parent_row": "33511584|33507421_12|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4510|01:14:03||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33511717",
+        "job_id_display": "33507421_13",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4476,
+        "allocated_cpu_seconds": 4476,
+        "slurm_total_cpu_raw": "01:13:28",
+        "raw_parent_row": "33511717|33507421_13|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4476|01:13:28||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33511745",
+        "job_id_display": "33507421_14",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4446,
+        "allocated_cpu_seconds": 4446,
+        "slurm_total_cpu_raw": "01:12:50",
+        "raw_parent_row": "33511745|33507421_14|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4446|01:12:50||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33513116",
+        "job_id_display": "33507421_15",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 7322,
+        "allocated_cpu_seconds": 7322,
+        "slurm_total_cpu_raw": "01:55:22",
+        "raw_parent_row": "33513116|33507421_15|ace_delB_fit30|ucb736_asc1|COMPLETED|1|7322|01:55:22||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33513117",
+        "job_id_display": "33507421_16",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 7299,
+        "allocated_cpu_seconds": 7299,
+        "slurm_total_cpu_raw": "01:55:11",
+        "raw_parent_row": "33513117|33507421_16|ace_delB_fit30|ucb736_asc1|COMPLETED|1|7299|01:55:11||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33516270",
+        "job_id_display": "33507421_17",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4546,
+        "allocated_cpu_seconds": 4546,
+        "slurm_total_cpu_raw": "01:12:56",
+        "raw_parent_row": "33516270|33507421_17|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4546|01:12:56||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33516271",
+        "job_id_display": "33507421_18",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 6804,
+        "allocated_cpu_seconds": 6804,
+        "slurm_total_cpu_raw": "01:51:29",
+        "raw_parent_row": "33516271|33507421_18|ace_delB_fit30|ucb736_asc1|COMPLETED|1|6804|01:51:29||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      },
+      {
+        "job_id_raw": "33507421",
+        "job_id_display": "33507421_19",
+        "phase": "fit_30",
+        "state": "COMPLETED",
+        "exit_code": "0:0",
+        "allocated_cpus": 1,
+        "elapsed_seconds": 4451,
+        "allocated_cpu_seconds": 4451,
+        "slurm_total_cpu_raw": "01:12:46",
+        "raw_parent_row": "33507421|33507421_19|ace_delB_fit30|ucb736_asc1|COMPLETED|1|4451|01:12:46||0:0",
+        "source": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt"
+      }
+    ],
+    "inherited_final_fit_scope": {
+      "completed_fit_receipts": 640,
+      "completed_world_journals": 40,
+      "distinct_fit_attempts": 640,
+      "failed_fit_attempts": 0,
+      "fit_process_CPU_seconds": 110802.107301787,
+      "summed_fit_elapsed_seconds": 113596.44237109905,
+      "max_fit_process_tree_RSS_bytes": 1400913920,
+      "phase_supervision": [
+        {
+          "phase": "qualification",
+          "path": "qualification_execution.json",
+          "sha256": "bd370a0274cba2d14da04b9958391af541e380a1ae582e7dcd8c2b3056789f02",
+          "job_id": "33507418",
+          "supervised_elapsed_seconds": 28.13344652700016,
+          "peak_process_tree_RSS_bytes": 749678592,
+          "process_CPU_seconds": null,
+          "unknown_CPU_reason": "supervisor records elapsed time/RSS, not process CPU for the whole child"
+        },
+        {
+          "phase": "collect",
+          "path": "collect_execution.json",
+          "sha256": "ed3d0fb8983c41043b7d15d50a397f37bad75902a8b7f2395bada1a1b80f3fba",
+          "job_id": "33507419",
+          "supervised_elapsed_seconds": 4.31139282499953,
+          "peak_process_tree_RSS_bytes": 73662464,
+          "process_CPU_seconds": null,
+          "unknown_CPU_reason": "supervisor records elapsed time/RSS, not process CPU for the whole child"
+        },
+        {
+          "phase": "evaluate",
+          "path": "evaluate_execution.json",
+          "sha256": "3beb8964fb71d78a48472ad8790a3155a84cd085b91e22ca681bcc8a5e56d70a",
+          "job_id": "33507422",
+          "supervised_elapsed_seconds": 127.55527335900115,
+          "peak_process_tree_RSS_bytes": 711499776,
+          "process_CPU_seconds": null,
+          "unknown_CPU_reason": "supervisor records elapsed time/RSS, not process CPU for the whole child"
+        },
+        {
+          "phase": "audit",
+          "path": "audit_execution.json",
+          "sha256": "e74911f3cfd662981ee9a62d8cf29ab2480d4910f4ad0da0d90bc91d50f2ca04",
+          "job_id": "33507423",
+          "supervised_elapsed_seconds": 20.427792918002524,
+          "peak_process_tree_RSS_bytes": 766464000,
+          "process_CPU_seconds": null,
+          "unknown_CPU_reason": "supervisor records elapsed time/RSS, not process CPU for the whole child"
+        }
+      ],
+      "full_sprint_process_CPU_seconds": null,
+      "limitations": [
+        "Fit intervals exclude imports/startup; per-head costs are already included in per-fit CPU.",
+        "Fit process CPU and elapsed intervals overlap Slurm allocation and phase supervision; do not add them.",
+        "Original supervisor measurements are not a whole-campaign process CPU measurement.",
+        "No supplemental replay, package preparation, review or historical A/C/F cost is included."
+      ]
+    }
+  },
+  "incremental_attempts": [
+    {
+      "attempt": "replay03",
+      "job_id": "33539781",
+      "kind": "replay",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 900,
+      "elapsed_allocation_seconds": 182,
+      "allocated_cpu_seconds": 182,
+      "slurm_total_cpu_seconds_as_recorded": 47.64,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "wrapper_elapsed_seconds": 174.70584732400312,
+      "disposition": "Failed before checkpoint loading: imported NumPy 2.2.5 differs from required 2.2.6; Python 3.10.19 below supplemental minimum 3.11.",
+      "raw_scheduler_source": "results/delivery_prospective_replay_preparation_20261008/failed33539781/scheduler_final.txt",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "JobName",
+        "State",
+        "ExitCode",
+        "AllocCPUS",
+        "ElapsedRaw",
+        "Account",
+        "Partition",
+        "AllocTRES",
+        "TotalCPU",
+        "MaxRSS"
+      ],
+      "raw_parent_row": "33539781|33539781|ace_delB_replay|FAILED|1:0|1|182|ucb736_asc1|acpu|cpu=1,mem=3G,node=1|00:47.640|",
+      "receipt_source": "results/delivery_prospective_replay_preparation_20261008/failed33539781/failure_disposition.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "cumulative_known_allocated_cpu_seconds": 119107
+    },
+    {
+      "attempt": "environment_preparation01",
+      "job_id": "33556219",
+      "kind": "runtime_preparation",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 1800,
+      "elapsed_allocation_seconds": 8,
+      "allocated_cpu_seconds": 8,
+      "slurm_total_cpu_seconds_as_recorded": 0.111,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "disposition": "Failed base-interpreter path guard before installation; zero preparation commands and no environment created.",
+      "raw_scheduler_source": "results/delivery_runtime_recovery_20261008/delivery-runtime-preparation-job33556219-failed-20261008-01/terminal_inventory.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "JobName",
+        "Account",
+        "Partition",
+        "QOS",
+        "State",
+        "ExitCode",
+        "ElapsedRaw",
+        "AllocCPUS",
+        "ReqMem",
+        "TotalCPU",
+        "MaxRSS",
+        "AllocTRES"
+      ],
+      "raw_parent_row": "33556219|33556219|ace_delB_env|ucb736_asc1|acpu|cpu-normal|FAILED|1:0|8|1|3G|00:00.111||cpu=1,mem=3G,node=1",
+      "receipt_source": "results/delivery_runtime_recovery_20261008/delivery-runtime-preparation-job33556219-failed-20261008-01/failure_disposition.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "cumulative_known_allocated_cpu_seconds": 119115,
+      "preparation_worker_elapsed_seconds": 0.02052681399800349,
+      "worker_reaped_child_cpu_seconds": 0.007214999999999999
+    },
+    {
+      "attempt": "environment_preparation02",
+      "job_id": "33560677",
+      "kind": "runtime_preparation",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 1800,
+      "elapsed_allocation_seconds": 169,
+      "allocated_cpu_seconds": 169,
+      "slurm_total_cpu_seconds_as_recorded": 65.454,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "disposition": "Installation/pip-check completed; qualifier rejected fileless torch._C._dynamo.autograd_compiler; runtime/replay unqualified.",
+      "raw_scheduler_source": "results/delivery_runtime_recovery_20261008/failed33560677/failure_disposition.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "JobName",
+        "State",
+        "ExitCode",
+        "Account",
+        "Partition",
+        "AllocCPUS",
+        "ElapsedRaw",
+        "CPUTimeRAW",
+        "TotalCPU",
+        "MaxRSS",
+        "ReqMem",
+        "Timelimit",
+        "AllocTRES"
+      ],
+      "raw_parent_row": "33560677|33560677|ace_delB_env|FAILED|1:0|ucb736_asc1|acpu|1|169|169|01:05.454||3G|00:30:00|cpu=1,mem=3G,node=1",
+      "receipt_source": "results/delivery_runtime_recovery_20261008/failed33560677/failure_disposition.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "cumulative_known_allocated_cpu_seconds": 119284,
+      "preparation_worker_elapsed_seconds": 157.5941399930016,
+      "worker_reaped_child_cpu_seconds": 65.195753
+    },
+    {
+      "attempt": "replay05",
+      "job_id": "33625983",
+      "kind": "replay",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 900,
+      "elapsed_allocation_seconds": 60,
+      "allocated_cpu_seconds": 60,
+      "slurm_total_cpu_seconds_as_recorded": 0.214,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "wrapper_elapsed_seconds": 7.455784966994543,
+      "disposition": "Popen E2BIG before child creation; no target imports or model replay.",
+      "raw_scheduler_source": "results/delivery_qualified_replay_preparation_20261008/failed33625983/terminal_custody_inventory.json",
+      "raw_scheduler_columns": [
+        "JobID",
+        "JobName",
+        "State",
+        "ExitCode",
+        "ElapsedRaw",
+        "AllocCPUS",
+        "Account",
+        "Partition",
+        "TotalCPU",
+        "MaxRSS"
+      ],
+      "raw_parent_row": "33625983|ace_delB_replay|FAILED|1:0|60|1|ucb736_asc1|acpu|00:00.214|",
+      "receipt_source": "results/delivery_qualified_replay_preparation_20261008/failed33625983/failure_disposition.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "cumulative_known_allocated_cpu_seconds": 119344
+    },
+    {
+      "attempt": "replay06",
+      "job_id": "33640933",
+      "kind": "replay",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 900,
+      "elapsed_allocation_seconds": 69,
+      "allocated_cpu_seconds": 69,
+      "slurm_total_cpu_seconds_as_recorded": 0.0,
+      "slurm_total_cpu_reliability": "unresolved zero; not proof of no process work",
+      "wrapper_elapsed_seconds": 63.42798160898383,
+      "disposition": "Failed at torch._VF fileless-module provenance gate before checkpoints; allocation corroborated by October 23 capture.",
+      "raw_scheduler_source": "results/delivery_vf_remote_preparation_20261023/remote01/failed06.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "JobName",
+        "State",
+        "ExitCode",
+        "Account",
+        "Partition",
+        "AllocCPUS",
+        "ElapsedRaw",
+        "CPUTimeRAW",
+        "TotalCPU",
+        "ReqMem",
+        "AllocTRES"
+      ],
+      "raw_parent_row": "33640933|33640933|ace_delB_replay|FAILED|1:0|ucb736_asc1|acpu|1|69|69|00:00:00|3G|cpu=1,mem=3G,node=1",
+      "receipt_source": "results/delivery_descriptor_replay_20261009/terminal06/receipt.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "cumulative_known_allocated_cpu_seconds": 119413
+    },
+    {
+      "attempt": "replay07",
+      "job_id": "34821094",
+      "kind": "replay",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 900,
+      "elapsed_allocation_seconds": 548,
+      "allocated_cpu_seconds": 548,
+      "slurm_total_cpu_seconds_as_recorded": 141.01,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "wrapper_elapsed_seconds": 520.5542791729968,
+      "disposition": "Failed on compute-node directory alias/source-pin path comparison before checkpoints.",
+      "raw_scheduler_source": "results/delivery_vf_replay_20261023/terminal07/remote_inventory.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "State",
+        "ExitCode",
+        "Start",
+        "End",
+        "ElapsedRaw",
+        "CPUTimeRAW",
+        "TotalCPU",
+        "AllocCPUS",
+        "ReqMem",
+        "MaxRSS",
+        "AllocTRES",
+        "Account",
+        "Partition",
+        "QOS",
+        "NodeList"
+      ],
+      "raw_parent_row": "34821094|34821094|FAILED|1:0|2026-10-23T10:54:42|2026-10-23T11:03:50|548|548|02:21.010|1|3G||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|c3cpu-e2-u1",
+      "receipt_source": "results/delivery_vf_replay_20261023/terminal07/disposition.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "scheduler_start_raw": "2026-10-23T10:54:42",
+      "scheduler_end_raw": "2026-10-23T11:03:50",
+      "scheduler_time_note": "Unzoned scheduler display retained verbatim; UTC phase receipts are separate.",
+      "execution_source": "results/delivery_vf_replay_20261023/terminal07/raw/replay_execution.json",
+      "cumulative_known_allocated_cpu_seconds": 119961
+    },
+    {
+      "attempt": "replay08",
+      "job_id": "34824953",
+      "kind": "replay",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 1800,
+      "elapsed_allocation_seconds": 299,
+      "allocated_cpu_seconds": 299,
+      "slurm_total_cpu_seconds_as_recorded": 60.102,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "wrapper_elapsed_seconds": 286.7648762410972,
+      "disposition": "Failed on torch.backends.cudnn delegated-module provenance before full inventory/checkpoints.",
+      "raw_scheduler_source": "results/delivery_vf_replay_20261023/terminal08/remote_inventory.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "State",
+        "ExitCode",
+        "Start",
+        "End",
+        "ElapsedRaw",
+        "CPUTimeRAW",
+        "TotalCPU",
+        "AllocCPUS",
+        "ReqMem",
+        "MaxRSS",
+        "AllocTRES",
+        "Account",
+        "Partition",
+        "QOS",
+        "NodeList"
+      ],
+      "raw_parent_row": "34824953|34824953|FAILED|1:0|2026-10-23T11:43:32|2026-10-23T11:48:31|299|299|01:00.102|1|3G||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|c3cpu-c15-u1-1",
+      "receipt_source": "results/delivery_vf_replay_20261023/terminal08/disposition.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "scheduler_start_raw": "2026-10-23T11:43:32",
+      "scheduler_end_raw": "2026-10-23T11:48:31",
+      "scheduler_time_note": "Unzoned scheduler display retained verbatim; UTC phase receipts are separate.",
+      "execution_source": "results/delivery_vf_replay_20261023/terminal08/raw/replay_execution.json",
+      "cumulative_known_allocated_cpu_seconds": 120260
+    },
+    {
+      "attempt": "replay09",
+      "job_id": "34835547",
+      "kind": "replay",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 1800,
+      "elapsed_allocation_seconds": 299,
+      "allocated_cpu_seconds": 299,
+      "slurm_total_cpu_seconds_as_recorded": 84.858,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "wrapper_elapsed_seconds": 281.66581084695645,
+      "disposition": "Backend-wrapper validation passed; rejected cython_runtime/six.moves before full runtime qualification/checkpoints.",
+      "raw_scheduler_source": "results/delivery_backend_replay_20261023/terminal09/remote_inventory.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "State",
+        "ExitCode",
+        "Start",
+        "End",
+        "ElapsedRaw",
+        "CPUTimeRAW",
+        "TotalCPU",
+        "AllocCPUS",
+        "ReqMem",
+        "MaxRSS",
+        "AllocTRES",
+        "Account",
+        "Partition",
+        "QOS",
+        "NodeList"
+      ],
+      "raw_parent_row": "34835547|34835547|FAILED|1:0|2026-10-23T16:49:39|2026-10-23T16:54:38|299|299|01:24.858|1|3G||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|c3cpu-e2-u7",
+      "receipt_source": "results/delivery_backend_replay_20261023/terminal09/disposition.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "scheduler_start_raw": "2026-10-23T16:49:39",
+      "scheduler_end_raw": "2026-10-23T16:54:38",
+      "scheduler_time_note": "Unzoned scheduler display retained verbatim; UTC phase receipts are separate.",
+      "execution_source": "results/delivery_backend_replay_20261023/terminal09/raw/replay_execution.json",
+      "cumulative_known_allocated_cpu_seconds": 120559
+    },
+    {
+      "attempt": "replay10",
+      "job_id": "34837216",
+      "kind": "replay",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 1800,
+      "elapsed_allocation_seconds": 1766,
+      "allocated_cpu_seconds": 1766,
+      "slurm_total_cpu_seconds_as_recorded": 413.88,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "wrapper_elapsed_seconds": 1750.4271589941345,
+      "disposition": "Initial exact-runtime qualification passed; supervised deadline, child -9, cleanup complete; no first-checkpoint/full-replay receipt. Exact interrupted subphase unknown.",
+      "raw_scheduler_source": "results/delivery_compatibility_replay_20261023/terminal10/remote_inventory.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "State",
+        "ExitCode",
+        "Start",
+        "End",
+        "ElapsedRaw",
+        "CPUTimeRAW",
+        "TotalCPU",
+        "AllocCPUS",
+        "ReqMem",
+        "MaxRSS",
+        "AllocTRES",
+        "Account",
+        "Partition",
+        "QOS",
+        "NodeList"
+      ],
+      "raw_parent_row": "34837216|34837216|FAILED|1:0|2026-10-23T18:49:34|2026-10-23T19:19:00|1766|1766|06:53.880|1|3G||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|c3cpu-c15-u3-3",
+      "receipt_source": "results/delivery_compatibility_replay_20261023/terminal10/disposition.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "scheduler_start_raw": "2026-10-23T18:49:34",
+      "scheduler_end_raw": "2026-10-23T19:19:00",
+      "scheduler_time_note": "Unzoned scheduler display retained verbatim; UTC phase receipts are separate.",
+      "execution_source": "results/delivery_compatibility_replay_20261023/terminal10/raw/replay_execution.json",
+      "exact_interrupted_subphase": null,
+      "cumulative_known_allocated_cpu_seconds": 122325
+    },
+    {
+      "attempt": "replay11",
+      "job_id": "34861753",
+      "kind": "replay",
+      "state": "FAILED",
+      "exit_code": "1:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 3600,
+      "elapsed_allocation_seconds": 3576,
+      "allocated_cpu_seconds": 3576,
+      "slurm_total_cpu_seconds_as_recorded": 1047.626,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "wrapper_elapsed_seconds": 3552.005448287993,
+      "disposition": "Initial exact-runtime qualification passed; supervised deadline, child -9, cleanup complete; no first-checkpoint/full-replay receipt. Exact interrupted subphase unknown.",
+      "raw_scheduler_source": "results/delivery_duration_replay_20261024/terminal11/remote_inventory.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "State",
+        "ExitCode",
+        "Start",
+        "End",
+        "ElapsedRaw",
+        "CPUTimeRAW",
+        "TotalCPU",
+        "AllocCPUS",
+        "ReqMem",
+        "MaxRSS",
+        "AllocTRES",
+        "Account",
+        "Partition",
+        "QOS",
+        "NodeList"
+      ],
+      "raw_parent_row": "34861753|34861753|FAILED|1:0|2026-10-24T12:19:27|2026-10-24T13:19:03|3576|3576|17:27.626|1|3G||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|c3cpu-e2-u1",
+      "receipt_source": "results/delivery_duration_replay_20261024/terminal11/terminal_accounting.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "scheduler_start_raw": "2026-10-24T12:19:27",
+      "scheduler_end_raw": "2026-10-24T13:19:03",
+      "scheduler_time_note": "Unzoned scheduler display retained verbatim; UTC phase receipts are separate.",
+      "execution_source": "results/delivery_duration_replay_20261024/terminal11/raw/replay_execution.json",
+      "exact_interrupted_subphase": null,
+      "cumulative_known_allocated_cpu_seconds": 125901
+    },
+    {
+      "attempt": "replay12",
+      "job_id": "34863006",
+      "kind": "replay",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "allocated_cpus": 1,
+      "memory_gib": 3,
+      "gpus": 0,
+      "wall_cap_seconds": 5400,
+      "elapsed_allocation_seconds": 2789,
+      "allocated_cpu_seconds": 2789,
+      "slurm_total_cpu_seconds_as_recorded": 852.158,
+      "slurm_total_cpu_reliability": "preserved scheduler measure; distinct from child/function CPU",
+      "wrapper_elapsed_seconds": 2770.269434673013,
+      "disposition": "Accepted saved-artifact replay: 640 checkpoints, 240 primary cells, 48000 cached responses; zero new fits/updates/responses, complete cleanup.",
+      "raw_scheduler_source": "results/delivery_diagnostic_replay_20261024/terminal12/remote_inventory.json",
+      "raw_scheduler_columns": [
+        "JobIDRaw",
+        "JobID",
+        "State",
+        "ExitCode",
+        "Start",
+        "End",
+        "ElapsedRaw",
+        "CPUTimeRAW",
+        "TotalCPU",
+        "AllocCPUS",
+        "ReqMem",
+        "MaxRSS",
+        "AllocTRES",
+        "Account",
+        "Partition",
+        "QOS",
+        "NodeList"
+      ],
+      "raw_parent_row": "34863006|34863006|COMPLETED|0:0|2026-10-24T13:32:02|2026-10-24T14:18:31|2789|2789|14:12.158|1|3G||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal|c3cpu-e2-u1",
+      "receipt_source": "results/delivery_diagnostic_replay_20261024/terminal12/accounting_and_phases.json",
+      "new_fits": 0,
+      "new_responses": 0,
+      "scheduler_start_raw": "2026-10-24T13:32:02",
+      "scheduler_end_raw": "2026-10-24T14:18:31",
+      "scheduler_time_note": "Unzoned scheduler display retained verbatim; UTC phase receipts are separate.",
+      "execution_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/replay_execution.json",
+      "slurm_batch_maxrss_kib": 617620,
+      "supervisor_peak_tree_rss_bytes": 739577856,
+      "replay_function_cpu_seconds": 110.613683783,
+      "replay_function_elapsed_seconds": 1460.476566117024,
+      "diagnostic_child_cumulative_cpu_seconds": 123.578901723,
+      "cumulative_known_allocated_cpu_seconds": 128690
+    }
+  ],
+  "reconciliation": {
+    "original_allocation_count": 44,
+    "pilot_allocation_count": 2,
+    "later_allocation_count": 11,
+    "total_distinct_allocations": 57,
+    "later_runtime_preparation_allocated_cpu_seconds": 177,
+    "later_failed_replay_allocated_cpu_seconds": 6799,
+    "accepted_replay12_allocated_cpu_seconds": 2789,
+    "incremental_through_replay11_allocated_cpu_seconds": 6976,
+    "incremental_through_replay12_allocated_cpu_seconds": 9765,
+    "incremental_through_replay12_allocated_core_hours": 2.7125,
+    "cumulative_through_replay11_allocated_cpu_seconds": 125901,
+    "cumulative_through_replay12_allocated_cpu_seconds": 128690,
+    "cumulative_through_replay12_allocated_core_hours": 35.74722222222222,
+    "arithmetic": "118680 + 126 + 119 + 182 + 8 + 169 + 60 + 69 + 548 + 299 + 299 + 1766 + 3576 + 2789 = 128690",
+    "allocation_discrepancy_seconds": 0
+  },
+  "reservation_separate": {
+    "original_core_hours": 86.86833333333334,
+    "later_caps_core_hours": 6.0,
+    "through_replay12_core_hours": 92.86833333333334,
+    "after_report01_submission_core_hours": 93.368333,
+    "ceiling_core_hours": 150,
+    "is_actual_allocation_or_process_cpu": false
+  },
+  "report01_separate_pending": {
+    "job_id": "34864950",
+    "submitted_at_utc": "2026-10-24T20:44:10+00:00",
+    "status": "submitted once; actual cost pending at review cutoff",
+    "cpus": 1,
+    "memory_gib": 3,
+    "wall_cap_seconds": 1800,
+    "reservation_increment_core_hours": 0.5,
+    "actual_allocated_cpu_seconds": null,
+    "included_in_frozen_actual_total": false,
+    "provenance": "Direct human update in this chat; no additional remote query. Local reporting-preparation document separately referenced.",
+    "outcome": "pending; no reporting acceptance asserted"
+  },
+  "replay12_acceptance_inherited": {
+    "source": "results/delivery_diagnostic_replay_20261024/terminal12/replay_acceptance.json",
+    "accepted": true,
+    "scheduler": "COMPLETED 0:0",
+    "checkpoints_replayed": 640,
+    "primary_cells": 240,
+    "cached_responses": 48000,
+    "new_fits": 0,
+    "new_optimizer_updates": 0,
+    "new_responses": 0,
+    "full_reporting_and_publication_accepted": false
+  },
+  "replay12_diagnostic_intervals": [
+    {
+      "start_phase": "initial_inventory_start",
+      "end_phase": "initial_inventory_complete",
+      "start_utc": "2026-10-24T19:35:08.024340+00:00",
+      "end_utc": "2026-10-24T19:46:37.560798+00:00",
+      "elapsed_seconds": 689.5364793080371,
+      "child_process_cpu_seconds": 7.762626536999999,
+      "start_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_005.json",
+      "end_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_006.json",
+      "scope": "diagnostic interval, not complete phase attribution or acceptance evidence"
+    },
+    {
+      "start_phase": "replay_cli_start",
+      "end_phase": "first_checkpoint_entered",
+      "start_utc": "2026-10-24T19:46:42.299784+00:00",
+      "end_utc": "2026-10-24T20:00:43.628811+00:00",
+      "elapsed_seconds": 841.3290410980117,
+      "child_process_cpu_seconds": 94.55477749500001,
+      "start_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_011.json",
+      "end_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_012.json",
+      "scope": "diagnostic interval, not complete phase attribution or acceptance evidence"
+    },
+    {
+      "start_phase": "live_inventory_start",
+      "end_phase": "live_inventory_complete",
+      "start_utc": "2026-10-24T20:00:43.723835+00:00",
+      "end_utc": "2026-10-24T20:12:29.382505+00:00",
+      "elapsed_seconds": 705.6586907780147,
+      "child_process_cpu_seconds": 8.685513119000007,
+      "start_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_014.json",
+      "end_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_015.json",
+      "scope": "diagnostic interval, not complete phase attribution or acceptance evidence"
+    },
+    {
+      "start_phase": "first_checkpoint_authorized",
+      "end_phase": "replay_cli_complete",
+      "start_utc": "2026-10-24T20:13:10.044929+00:00",
+      "end_utc": "2026-10-24T20:17:49.913667+00:00",
+      "elapsed_seconds": 279.86873231397476,
+      "child_process_cpu_seconds": 8.137152893999996,
+      "start_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_018.json",
+      "end_source": "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_019.json",
+      "scope": "diagnostic interval, not complete phase attribution or acceptance evidence"
+    }
+  ],
+  "local_preparation_subsets_not_additive": [
+    {
+      "source": "results/delivery_prospective_replay_preparation_20261008/failed33539781/new_runtime_guard_tests.json",
+      "cpu_seconds": null,
+      "elapsed_seconds": 0.070648583,
+      "scope": "only two new fabricated runtime guard methods; no B artifacts/imported target packages/numerical replay",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_qualified_replay_preparation_20261008/focused-final-01/receipt.json",
+      "cpu_seconds": 0.322943,
+      "elapsed_seconds": 0.467788207999547,
+      "scope": "29 focused fabricated/temporary-descriptor tests only; no exact runtime or numerical qualification",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "earlier tests, prototypes, implementation, review, transfer and monitoring",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_descriptor_replay_proposal_20261009/tests.json",
+      "cpu_seconds": 0.353608,
+      "elapsed_seconds": 0.47311829200043576,
+      "scope": "18 focused transport/bootstrap/cleanup tests; fabricated3MBmanifest, actual descriptor transport; Linux seals mocked onDarwin; no real target runtime/science",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "earlier tests/prototypes/preparation/review/monitoring",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_vf_proxy_preparation_20261023/preparation.json",
+      "cpu_seconds": 0.068168,
+      "elapsed_seconds": 0.07117650000145659,
+      "scope": "four new review regressions and two changed-boundary integrations; fabricated modules, no actual Torch or models",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "final six-check subprocess measurement only; earlier attempts, source edits, reviews, custody, monitoring and other preparation are unmetered and not a whole-sprint total",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_vf_alias_preparation_20261023/preparation01/receipt.json",
+      "cpu_seconds": 0.081343,
+      "elapsed_seconds": 0.08607279200805351,
+      "scope": "four new artificial alias methods, one affected bytecode regression, frozen07 artificial failure reproduction; no Torch/model imports or remote execution",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_vf_alias_preparation_20261023/preparation02/receipt.json",
+      "cpu_seconds": 0.048068,
+      "elapsed_seconds": 0.059187999984715134,
+      "scope": "two new allocation-parser methods; 30-minute positive and three mismatched/over-cap negatives; mocked scheduler, no actual allocation/runtime qualification",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_vf_alias_preparation_20261023/preparation03/receipt.json",
+      "cpu_seconds": 0.07161999999999999,
+      "elapsed_seconds": 0.08485512499464676,
+      "scope": "one new missing-pin exception regression (two negatives) and one existing rejection method affected by review finding; no models/remote execution",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_vf_alias_preparation_20261023/preparation04/preparation.json",
+      "cpu_seconds": null,
+      "elapsed_seconds": null,
+      "scope": "reviewed alias/resource preparation; no actual replay qualification or allocation",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_backend_proxy_preparation_20261023/final02/preparation.json",
+      "cpu_seconds": null,
+      "elapsed_seconds": null,
+      "scope": "corrected backend wrapper source/preparation only; actual target runtime pending",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_compatibility_preparation_20261023/final03/preparation.json",
+      "cpu_seconds": null,
+      "elapsed_seconds": null,
+      "scope": "local compatibility preparation; not actual target runtime/numerical qualification",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_runtime_duration_preparation_20261023/preparation01/tests.json",
+      "cpu_seconds": 0.059025999999999995,
+      "elapsed_seconds": 0.063659834,
+      "scope": "four new wall-policy methods with fabricated Slurm; excludes implementation/review/monitoring; no actual runtime/model imports",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_runtime_diagnostics_preparation_20261024/preparation01/test_execution.json",
+      "cpu_seconds": 0.07892,
+      "elapsed_seconds": 0.08312604099046439,
+      "scope": "new pure diagnostics/90min artificial methods; excludes implementation/review/oldtests",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    },
+    {
+      "source": "results/delivery_runtime_diagnostics_preparation_20261024/preparation01/affected_test_execution.json",
+      "cpu_seconds": 0.069881,
+      "elapsed_seconds": 0.08563937502913177,
+      "scope": "four affected fabricated bootstrap/guard methods only, no actual runtime/models",
+      "whole_preparation_cpu_seconds": null,
+      "exclusions": "Development, reviews, transfers, monitoring and earlier runs are not completely metered.",
+      "executed_by_this_review": false
+    }
+  ],
+  "inherited_other_stage_scopes": {
+    "A_C": {
+      "A_development_pilot": {
+        "distinct_complete_attempts": 8,
+        "fit_cpu_seconds": 600.5367299999999,
+        "scope": "eight receipt fit CPU only; no imports/supervision/evaluation or full study overlap"
+      },
+      "A_full": {
+        "charged_responses": 0,
+        "distinct_complete_attempts": 480,
+        "fit_cpu_core_hours": 10.871620539999997,
+        "fit_cpu_seconds": 39137.83394399999,
+        "max_per_worker_reported_peak_rss_bytes": 471171072,
+        "original_journal_complete_field": false,
+        "scope": "summed worker FIT CPU; excludes imports, evaluation, supervision, packaging and reviews; worker walls are not whole study elapsed; per-worker RSS not tree RSS",
+        "sum_per_worker_wall_seconds": 6785.035718576342,
+        "terminal_marker": "complete.json; independent acceptance unchanged"
+      },
+      "C_development_pilot": {
+        "cpu_core_hours": 0.0004219627777777778,
+        "scope": "pilot function process CPU/wall after imports; separate from full C",
+        "wall_seconds": 1.567586749966722
+      },
+      "C_full": {
+        "evaluation_function_cpu_core_hours": 6.218166666666775e-05,
+        "evaluation_process_tree_peak_rss_bytes": 4784128,
+        "fit_and_evaluation_function_cpu_core_hours": 0.05285206888888889,
+        "fit_function_cpu_core_hours": 0.05278988722222222,
+        "fit_process_tree_peak_rss_bytes": 307740672,
+        "scope": "function process CPU/wall after imports; not supervisor total; no rescore or predictions loaded",
+        "sum_function_wall_seconds": 190.45769108401146
+      }
+    },
+    "F_confirmation": {
+      "elapsed_wall_by_distinct_stage": {
+        "authorized_final_same_seed_continuation": 939.3819708750234,
+        "first_history_timing_gate": 536.4484190829971,
+        "retained_history_stage_with_interruption": 7500.278414333996
+      },
+      "final_nested_charged_reserved_wall_seconds": 11943.253199500017,
+      "process_cpu_seconds": null,
+      "refit_wall_seconds_sum": 6123.02453570388,
+      "saved_refits": 36,
+      "scope": "monotonic elapsed and reserved accounting, not CPU; refit walls overlap stage walls; stage walls exclude preparation/approval gaps; nested aggregates are not additive"
+    }
+  },
+  "gaps": [
+    "Whole-sprint process CPU, confirmation whole-process CPU, complete preparation/review/test/transfer/monitoring cost remain unknown. Isolated measured local test subsets cannot close them.",
+    "Original fit CPU and phase-supervision elapsed overlap allocation; original phase whole-child process CPU is null in the final original receipt.",
+    "Replay06 TotalCPU remains 00:00:00 in both preserved October9 and October23 records despite observed child imports/provenance failure. Keep raw zero with uncertainty; do not claim zero work or a complete incremental process-CPU total.",
+    "Replay10/11 exact interrupted subphases are uninstrumented; replay12 diagnostics do not retroactively identify them.",
+    "Replay12 CLI-to-first-checkpoint entry and authorized-checkpoint-to-CLI completion are mixed intervals; do not label them pure package verification or pure model inference.",
+    "Replay12 terminal scontrol expired; terminal state/allocation comes from captured sacct, with allocation/requeue guards from earlier preserved execution and acceptance.",
+    "Final original fit-accounting receipt and original raw sacct are local external-custody files, not embedded in this review; references and hashes are provided for later release binding.",
+    "Report01 actual cost and outcome are pending outside the frozen cutoff; future final publication accounting must append its terminal evidence without substituting its cap."
+  ],
+  "sources": {
+    "results/delivery_prospective_preparation_20261006/full_allocation_and_replay_proposal_20261008.json": {
+      "sha256": "b199598793e8aceb0887e34357320a6ead10c18f5ada0feac6144780e6456dac",
+      "bytes": 8220
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-complete-custody-20261008T0417Z/final-sacct.txt": {
+      "sha256": "91fd2b333b077446eff5e79a4225b1564c4a08caf6709ad751cac6feba5489fc",
+      "bytes": 11711
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-original-compute-final-20261008-01/accounting.json": {
+      "sha256": "ba3427cd5866df063d61ed577124e510ce1988c47e55c0ab4776baecd1a4e5c3",
+      "bytes": 266511
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/delivery-prospective-supplement-preparation-20261008T0305Z/scheduler-identity-map-v3.json": {
+      "sha256": "ed637fa698f4d05e4cd9cac2ecfe60ca20a7b5797bbcd70d723054af906764b0",
+      "bytes": 4947
+    },
+    "results/delivery_prospective_replay_preparation_20261008/failed33539781/failure_disposition.json": {
+      "sha256": "1b51319a72736476f6a713b91a0cb9baba3e4c296fcf8452baed67df827a7513",
+      "bytes": 7879
+    },
+    "results/delivery_prospective_replay_preparation_20261008/failed33539781/scheduler_final.txt": {
+      "sha256": "01e4ad34bc5db9cb5e9da8ebffa59d09e013bdd0bb4a72eb3f5906007bb3c51f",
+      "bytes": 310
+    },
+    "results/delivery_runtime_recovery_20261008/delivery-runtime-preparation-job33556219-failed-20261008-01/failure_disposition.json": {
+      "sha256": "93d41f48080f3c654274925f96047634ba565555f46949968af42aa7c46ea0dc",
+      "bytes": 1397
+    },
+    "results/delivery_runtime_recovery_20261008/delivery-runtime-preparation-job33556219-failed-20261008-01/terminal_inventory.json": {
+      "sha256": "22616f41fab68ea6513b94dd4bea7bf91c3629c89577781cb9ddbf5303dc403f",
+      "bytes": 3593
+    },
+    "results/delivery_runtime_recovery_20261008/failed33560677/failure_disposition.json": {
+      "sha256": "6de8dc6ccfe502b05cb9262a25e9fd5890c23610b02d676ef48e094f8ad52108",
+      "bytes": 7008
+    },
+    "results/delivery_qualified_replay_preparation_20261008/failed33625983/failure_disposition.json": {
+      "sha256": "1b740d33bd9f9c29a5cda54b5cf4b51463be17896cee4d0619578fa044d99a00",
+      "bytes": 1140
+    },
+    "results/delivery_qualified_replay_preparation_20261008/failed33625983/terminal_custody_inventory.json": {
+      "sha256": "474c4907b3a15b1e7dc771e41de76ceef9d7aeb9a376f759dac819d85bbd97f1",
+      "bytes": 4604
+    },
+    "results/delivery_descriptor_replay_20261009/terminal06/receipt.json": {
+      "sha256": "928e9290086e7bc01f8b481b72b867017f10e8851a32c0269eedb96727f47820",
+      "bytes": 1062
+    },
+    "results/delivery_descriptor_replay_20261009/terminal06/replay_execution.json": {
+      "sha256": "6939db35e4f8d76cd38f78271d7c60f218464df4683111b6a8aa8f34a4d0eb1a",
+      "bytes": 42457
+    },
+    "results/delivery_vf_remote_preparation_20261023/remote01/failed06.json": {
+      "sha256": "a1e9d544ca0304389b990613e53e40aa296d23b24b7b69d0230db0999d74aa82",
+      "bytes": 405
+    },
+    "results/delivery_descriptor_replay_20261009/terminal06/sacct.txt": {
+      "sha256": "f1be49d95de9b3172221025a1e237a7875bfce6a440f6e6a3f3ad833f509b73b",
+      "bytes": 103
+    },
+    "results/delivery_vf_replay_20261023/terminal07/disposition.json": {
+      "sha256": "3d685031c18688929899ae46a9935ac7ddafe84006c435f4efd70c4ca3936f04",
+      "bytes": 1162
+    },
+    "results/delivery_vf_replay_20261023/terminal07/remote_inventory.json": {
+      "sha256": "27549464a8cd4f931f634bd0fb3e093529b46c89c3ae4f138fc2aca352fd419e",
+      "bytes": 5550
+    },
+    "results/delivery_vf_replay_20261023/terminal07/raw/replay_execution.json": {
+      "sha256": "77660cba1330d42a01875b5711d36d4bc912c01dc20fb0221797e2efcdf6a1cc",
+      "bytes": 312174
+    },
+    "results/delivery_vf_replay_20261023/terminal08/disposition.json": {
+      "sha256": "84755cd2a9d29763d187a9bfdc719e61ed69e5954c9dc3e8d17013699df5c311",
+      "bytes": 1782
+    },
+    "results/delivery_vf_replay_20261023/terminal08/remote_inventory.json": {
+      "sha256": "38f41f694ad25e7797d373414b73a650a030cadfec91cab260f5fe21a871dc91",
+      "bytes": 5567
+    },
+    "results/delivery_vf_replay_20261023/terminal08/raw/replay_execution.json": {
+      "sha256": "44e901b7c35548d4078c803553dfcfe189fcfdd8baae041f04c45a63b892e004",
+      "bytes": 190286
+    },
+    "results/delivery_backend_replay_20261023/terminal09/disposition.json": {
+      "sha256": "4ba2ba0b1578028ab3890bf71b9454a7622f1913ef2234d8a4c4b5f38846845a",
+      "bytes": 1267
+    },
+    "results/delivery_backend_replay_20261023/terminal09/remote_inventory.json": {
+      "sha256": "d65f8720ed7882df2afac6ea3247ceb806722126d55fc62f254d1c46d9b846e9",
+      "bytes": 5714
+    },
+    "results/delivery_backend_replay_20261023/terminal09/raw/replay_execution.json": {
+      "sha256": "e52500ebe61b9d9f0a56f48116a7937ae9c798a2a5cb7c9aaca3262be999018b",
+      "bytes": 165664
+    },
+    "results/delivery_compatibility_replay_20261023/terminal10/disposition.json": {
+      "sha256": "97625f04c5a522c57888bc5b9fb337d58ad5d1ec26ccd6f4cbe946a41a9a4cd3",
+      "bytes": 1800
+    },
+    "results/delivery_compatibility_replay_20261023/terminal10/remote_inventory.json": {
+      "sha256": "76d27978fe7b22ab2a80156b9f54ff023361d8f5736b21fe42bb074f362a3e5a",
+      "bytes": 6055
+    },
+    "results/delivery_compatibility_replay_20261023/terminal10/raw/replay_execution.json": {
+      "sha256": "ddc34b71c54c8347e6793ee48e69612d23956fa38d7734974ec240c9ab21798d",
+      "bytes": 1173192
+    },
+    "results/delivery_duration_replay_20261024/terminal11/terminal_accounting.json": {
+      "sha256": "6d1a6b35247cf418c7cb5919f4dca350fdd3cc8e0d21aaedecff406abd8ba191",
+      "bytes": 1317
+    },
+    "results/delivery_duration_replay_20261024/terminal11/remote_inventory.json": {
+      "sha256": "9d9a6157c32702289e478d175e4539ec41d9375f9be0502028ebb2a511cfed4c",
+      "bytes": 6046
+    },
+    "results/delivery_duration_replay_20261024/terminal11/raw/replay_execution.json": {
+      "sha256": "8ac4c09cf5738224e29e5deef8ac5151db2b07faae800d84aa6fcb871dcfe9ea",
+      "bytes": 2215965
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/accounting_and_phases.json": {
+      "sha256": "00af2e69e6f121aa63dda97c51a8dbaaabb33f80c571dec2245a4938d26660c4",
+      "bytes": 1337
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/remote_inventory.json": {
+      "sha256": "ceab5744a78f14a7edda9bdc9ee22e3893ca3a5f8ddf4f4e2f2dd18d37cf8444",
+      "bytes": 8070
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/replay_execution.json": {
+      "sha256": "931e607187cd0e5cc9ae8372d2d702b21dea864b054e447bf963b4be25027e72",
+      "bytes": 1716713
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/replay_acceptance.json": {
+      "sha256": "57da98e2bbce82faad642442daa491b2cf3722df7524bfd4c881a188a36e3232",
+      "bytes": 1751
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_000.json": {
+      "sha256": "63a7c4fd1983dfed540ab7085c953e82ca2a4873d2a6f9552b84ecb217dc038c",
+      "bytes": 324
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_001.json": {
+      "sha256": "0803f111aee340d5b12f3026253b5de94bd48cfe47f0d9af2e5fe4ee315eb4b1",
+      "bytes": 287
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_002.json": {
+      "sha256": "7fab5a51add02621d2fc79ca5be2274a95ffb520a615924f5000fe6d054d97c1",
+      "bytes": 291
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_003.json": {
+      "sha256": "eaa844ac54dcfc220339525546465755f5e9533ed4e6f46934aaf2f736f6ead9",
+      "bytes": 292
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_004.json": {
+      "sha256": "5a1222f3e8e44ca54efc18fe2026a5bede9fdab80853d943d0646822f524e91e",
+      "bytes": 317
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_005.json": {
+      "sha256": "bea9d80d216c227983407f9fe5d3d579c78fadc0a4f4262d2f2ebe8b60056042",
+      "bytes": 286
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_006.json": {
+      "sha256": "9b80fd9431abe8dcabca8c68ae8160741b52d9a771fc65bfa843544d7fa507c7",
+      "bytes": 341
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_007.json": {
+      "sha256": "4a5423b793ae1b2abe54f8b37a77064c01c8e57d9bf4ee04237ed67a77b0f93a",
+      "bytes": 294
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_008.json": {
+      "sha256": "78e0059e08e03cabe0d40abcb048cd891ce6fc1a36dc8b766cd14f7facca8440",
+      "bytes": 284
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_009.json": {
+      "sha256": "222ad77e2c50a4f41d2767e06a46bf81a23345936a967ad964cacb8a475124b1",
+      "bytes": 290
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_010.json": {
+      "sha256": "219c3ae08d3b88c5a3023de374a54b690c2919708e14e0861840efdd72663d38",
+      "bytes": 285
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_011.json": {
+      "sha256": "3847104ed24074f516fdba96a60bccb1b7c4ad8c11e448ccf5c7802e68b9e674",
+      "bytes": 280
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_012.json": {
+      "sha256": "ece3aed37c0445b6ef03faa12782e4e62d33c9407f3d5ca300968c7dc3ac4e19",
+      "bytes": 289
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_013.json": {
+      "sha256": "47d496561d1ab6bbdd4bdfe0b8575c384be344607c105d3048c056d49df32b42",
+      "bytes": 292
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_014.json": {
+      "sha256": "b39cda8b3eb7b951d3d31c6fa2b60a3e098bb5b582f10fe3cd4a7994171500f9",
+      "bytes": 285
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_015.json": {
+      "sha256": "3444d037660ccef536eef8c87579d16f7766df013404c723f0d47443b7d653f6",
+      "bytes": 312
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_016.json": {
+      "sha256": "3dddd316e9b2cdcf3b3b21e648348f255eeb6f6b78b4a028f24b80717d55040c",
+      "bytes": 291
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_017.json": {
+      "sha256": "e303e104c24ec7b6782bd4366c09dcf197ed6b6b8a1280cdfa87823777de6c99",
+      "bytes": 316
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_018.json": {
+      "sha256": "d6fe88b511070777db83a711ac2406fb8ecf05ccfd64f1a7db89496802725f79",
+      "bytes": 291
+    },
+    "results/delivery_diagnostic_replay_20261024/terminal12/raw/runtime_phase_019.json": {
+      "sha256": "5df8c88fec0c8ab91e3ef3aad765c284f165b8e492a77e8b7e3c99be9f0c9d54",
+      "bytes": 284
+    },
+    "results/delivery_prospective_replay_preparation_20261008/failed33539781/new_runtime_guard_tests.json": {
+      "sha256": "17c23d0b23262dd21400dd7f8ae17d52c63a8d2f6d886cddd2d97722d57c3c91",
+      "bytes": 603
+    },
+    "results/delivery_qualified_replay_preparation_20261008/focused-final-01/receipt.json": {
+      "sha256": "4c1423331927afbe2f0047395caa9e62fb01006f23b0dd40c6e6e1dd95cb19bb",
+      "bytes": 711
+    },
+    "results/delivery_descriptor_replay_proposal_20261009/tests.json": {
+      "sha256": "28b46f543e7e057c64eafb60c9e65da66ec238108a22f5589a6e9bf019642917",
+      "bytes": 400
+    },
+    "results/delivery_vf_proxy_preparation_20261023/preparation.json": {
+      "sha256": "d406157c688a60db09b14dbcd217b5a700517bf9be8491a9ed2cf7f0277b0c31",
+      "bytes": 7833
+    },
+    "results/delivery_vf_alias_preparation_20261023/preparation01/receipt.json": {
+      "sha256": "7f5f06e367e88200e285703d538dca2855e583a77f8cf33cdc0dd221240eba75",
+      "bytes": 574
+    },
+    "results/delivery_vf_alias_preparation_20261023/preparation02/receipt.json": {
+      "sha256": "5c8b4458086398bf7e881dcc96ab9a819bea3c65ed9bd6bd1fbfd16c8fb6912a",
+      "bytes": 864
+    },
+    "results/delivery_vf_alias_preparation_20261023/preparation03/receipt.json": {
+      "sha256": "66efedb01f1053149a4dfdc5dff3f1f4ee9e2bc59ff3f5da282bb232ed2186c0",
+      "bytes": 864
+    },
+    "results/delivery_vf_alias_preparation_20261023/preparation04/preparation.json": {
+      "sha256": "4a93142cfaaa14f3cc7cd502cfa9e306639922a7a98c1f6938dbfdf31c5b9d6f",
+      "bytes": 3108
+    },
+    "results/delivery_backend_proxy_preparation_20261023/final02/preparation.json": {
+      "sha256": "85aaec0ab938a1f7169184181f6d4c9f967a4fb717150fe4d6a55f3947590dd6",
+      "bytes": 1599
+    },
+    "results/delivery_compatibility_preparation_20261023/final03/preparation.json": {
+      "sha256": "95b4a1b3508438f0bc6acefcf09929a6260df507f6acb575679a99a7e3d3c31c",
+      "bytes": 1589
+    },
+    "results/delivery_runtime_duration_preparation_20261023/preparation01/tests.json": {
+      "sha256": "26f56950d2e8e094ad5c86e2ddc9dbe9f81668fc9849772f085092c31e400322",
+      "bytes": 970
+    },
+    "results/delivery_runtime_diagnostics_preparation_20261024/preparation01/test_execution.json": {
+      "sha256": "9c3ea3a124638d8f17dade8e3fab12d74f94331f4d59ef295d7436c493041781",
+      "bytes": 375
+    },
+    "results/delivery_runtime_diagnostics_preparation_20261024/preparation01/affected_test_execution.json": {
+      "sha256": "199ddcfd5f4c3b0bd844f390fb4cc117dc24c76a42685103fb4b32c1278cf235",
+      "bytes": 204
+    },
+    "results/delivery_release_preparation_20261007/compute_accounting_preparation_20261008.json": {
+      "sha256": "8be132b6b0fd8cdd300bedefddc5949edea0d97f9879262d25e832a09a6b5baf",
+      "bytes": 15392
+    },
+    "docs/development/guidance/research_execution_2026-09-25.md": {
+      "sha256": "122f86a8007a075088dd25b4600147a03a5ca94cc69260091de2c59465124aa4",
+      "bytes": 344479
+    },
+    "docs/development/guidance/delivery_publication_completion_2026-10-23.md": {
+      "sha256": "8341870ba80f992aee352f2af854fa465ee383732c70799fa2181a3f87ff3108",
+      "bytes": 20953
+    },
+    "docs/development/guidance/delivery_prospective_reporting_execution_2026-10-24.md": {
+      "sha256": "02d2b94b9af39dbcff7d99b93324101abe98f6d941ab4c8487ea4287ce30a4be",
+      "bytes": 5855
+    }
+  }
+}
