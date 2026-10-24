@@ -65,3 +65,7 @@ The new backend-wrapper validation passed in actual runtime, but34835547failed b
 ## Reviewed next compatibility proposal
 
 The remaining six.moves/cython_runtime correction is prepared and independently reviewed, with all required findings closed. Replay10 is a concrete proposed same-cap1CPU/3GiB/30minute attempt requiring a new explicit decision; no new allocation or remoteoutputclaim exists. See delivery_compatibility_replay_proposal_2026-10-23.md. Current reservation89.868333/150, proposed90.368333 only if approved. All finalpublicationgates remain open.
+
+## Explicit compatibility replay10 authorization
+
+Patrick approved ONE further1CPU/3GiB/30minute corrected replay. This resolves the preceding pending decision; failed09 remains preserved. Fresh preflight and new frozenpacket are tracked in delivery_compatibility_replay10_execution_2026-10-23.md. Full runtime/numerical/scheduler/custody acceptance still precedes bothreporters and manuscript integration. No further retry is implied.

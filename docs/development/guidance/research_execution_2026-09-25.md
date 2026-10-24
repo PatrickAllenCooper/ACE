@@ -2984,3 +2984,11 @@ Afterfailed09, read-onlyinstalledsix1.17.0sourcepin c51c91f7 andactualdiagnostic
 Twofailedlocalsetup prototypesretained; corrected7newpure-six/artificialCythonmethods+affectedforwarding pass. DistinctMencius review found2requiredPythonbindingissues, fixed;2newfocusedregressionspass, finalstaticrecheck0required. Preparationreceipt95b4a1b3508438f0bc6acefcf09929a6260df507f6acb575679a99a7e3d3c31c; proposala6b8924a43ec6cc57fbd511c0e3078b8f8e4ca885d03e2e6d6020d8170855688 in results/delivery_compatibility_preparation_20261023/final03. Prepoverheadunmetered, noextraallocation. Noactualruntime/numericalqualification orBreporting.
 
 ConcreteunsubmittedONE1CPU3GiB30minuteproposal, sameexistingruntime/input,noinstalls/fits/updates/responses/GPU/requeue. Wouldadd.5reservation to90.368333/150; current89.868333andknownallocated120559seconds unchanged. Futureoutput10unclaimed/untransferred/unsubmitted. Prior09oneattemptconsumed; askexplicitnewdecisionafterthisreviewedpreparation, thenfreshcontroller/journals/readiness/pins/freeze/readback/packetreviewbeforeONEsbatch. See delivery_compatibility_replay_proposal_2026-10-23.md. Manuscript/presentation/frozenoriginals unchanged.
+
+## October23 explicit replay10 approval and fresh preflight
+
+Patrick approved ONE further1CPU3GiB30minute replay. Source88147ccb, compatibilityprep95b4a1b3; failed09preserved. Fresh00:46:03UTCOct24 authenticates3893objects/exact3895membership,12installedpins, sampler and allpreviousjournals; ACEqueueempty, scratchreadinesspasses. Bothcontrollerlocksheld; exclusive10outputinode1552757822. Freeze831cebd8/launcher57d165c8; finalreadback/review thenexclusiveONESbatch stillrequired. Reservation90.368333/150; priorknownallocated120559seconds distinct. No fits/updates/newresponses/install/GPU. See delivery_compatibility_replay10_execution_2026-10-23.md.
+
+## Replay10 final packet ready
+
+All9remoteinputs match frozen local pins; distinct Kepler review0required. Freeze831cebd8, source88147ccb, authorizationcall_d21a9fb784674a0dbcbf726659a0aa36. Packet receipt and full source/control records preserved in results/delivery_compatibility_replay_20261023/launch10 plus exclusive originals; encodedtransfer bound externally. No submission at this entry; next is onejournaled sbatch.
