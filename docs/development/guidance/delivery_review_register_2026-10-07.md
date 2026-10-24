@@ -1106,3 +1106,7 @@ Newexclusivephasejournal/120secondownedchildstackdiagnostics plus exact90min/535
 ## Replay12 finalpacket ready
 
 Nineinputpins/remote readback match; distinct Ptolemy finalwiringreview0required. Freeze3ada98c1af9645b21b1e19bb09e8f8efd1450b12243c649a9851d122b53dd667, sourceb0e3a111,packetreceiptSHAef44245a9c0b2f09f3002991431f3da70b379367be20ada046ee24b401feb9b2. Exact90minute/5350childcap/1CPU3GiB,noGPU;92.868333/150reservation,125901knownpriorallocatedseconds. Freshscratch/package/12installedpins/eightpriorjournals reconciled andcontrollerlocksheld. Next ONEjournaledsubmission underblanketapproval. No runtime/model/Breportingqualified bypreparation.
+
+## October24 actual replay12 acceptance
+
+Distinct Epicurus review:0required. Full42object terminalcustody,3893packagefiles/5068bindings, exactruntime/firstcheckpoint/full640-240-48000receipt, supervisorcleanup and Slurm34863006COMPLETED0:0 accepted. See reviews/delivery_replay12_acceptance_review_2026-10-24.md and terminal12/replay_acceptance.json. No effect-size inspection or reporter execution in this review. Both report generation and all final integration gates remain separate. Do not repeat this closed review.
