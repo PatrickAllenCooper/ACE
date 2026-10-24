@@ -13,11 +13,16 @@ import json
 import os
 from pathlib import Path
 import resource
+import re
 import stat
 import sys
 import time
 import types
 from datetime import datetime, timezone
+
+WALL_SECONDS = 3600
+CHILD_SECONDS = 3550
+SLURM_WALL = '01:00:00'
 
 ORIGINAL_INPUTS = {'registration.json', 'acceptance.json', 'scores.json',
                    'complete.json', 'fit_seal.json', 'audit_execution.json'}
@@ -60,6 +65,13 @@ def module(root, name, sources):
     return obj
 
 
+def resource_contract(reg):
+    require(type(reg['wall_seconds']) is int and reg['wall_seconds'] == WALL_SECONDS and reg['rss_bytes'] == 3*2**30
+            and reg['cpus'] == 1 and reg['account'] == 'ucb736_asc1'
+            and reg['partition'] == 'acpu' and reg['qos'] == 'cpu-normal'
+            and reg['slurm_wall_limit'] == SLURM_WALL, 'bounded resource contract differs')
+
+
 def context(root, pin):
     root = Path(root).resolve(strict=True)
     reg = json.loads(capture(root/'report_freeze.json', pin))
@@ -71,10 +83,7 @@ def context(root, pin):
             and Path(sys.prefix).resolve() == Path(reg['environment']).resolve(), 'interpreter differs')
     require(reg['new_fits'] == reg['new_responses'] == reg['new_optimizer_updates'] == 0,
             'report-only contract required')
-    require(reg['wall_seconds'] == 1800 and reg['rss_bytes'] == 3*2**30
-            and reg['cpus'] == 1 and reg['account'] == 'ucb736_asc1'
-            and reg['partition'] == 'acpu' and reg['qos'] == 'cpu-normal'
-            and reg['slurm_wall_limit'] == '00:30:00', 'bounded resource contract differs')
+    resource_contract(reg)
     sources = {name: capture(root/name, value) for name, value in reg['source_pins'].items()}
     require(sha(Path(__file__).read_bytes()) == reg['source_pins'][Path(__file__).name], 'runner source changed')
     for name, value in reg['metadata_pins'].items():
@@ -115,6 +124,34 @@ def original_lineage(root, reg, replay_module):
     return original
 
 
+def statistics_runtime(root, prefix, inventory, qualifier):
+    """Same inventory/import checks, with phase/owned-stack diagnostics only."""
+    fd = os.open(root, os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    try:
+        qualifier.start_diagnostics(fd)
+        qualifier.diagnostic_phase(fd, 'report_inventory_started')
+        entries = qualifier.verify_environment_inventory(prefix, inventory)
+        qualifier.diagnostic_phase(fd, 'report_inventory_verified', objects=len(entries))
+        write(root, 'report_inventory_verified.json', {'at': utc(), 'environment_objects': len(entries),
+              'diagnostic_only': True})
+        dependencies = {}
+        for name, version in {'numpy': '2.2.6', 'scipy': '1.15.3'}.items():
+            qualifier.diagnostic_phase(fd, 'report_'+name+'_import_started')
+            require(name not in sys.modules, 'fresh statistics import required')
+            value = importlib.import_module(name); dist = importlib.metadata.distribution(name)
+            origin = Path(value.__file__).resolve()
+            require(value.__version__ == dist.version == version and origin.is_relative_to(prefix)
+                    and origin == Path(dist.locate_file(name+'/__init__.py')).resolve(), 'statistics runtime mismatch')
+            dependencies[name] = {'version': version, 'origin': str(origin), 'sha256': sha(origin.read_bytes())}
+            qualifier.diagnostic_phase(fd, 'report_'+name+'_import_verified')
+        return entries, dependencies
+    finally:
+        try:
+            qualifier.stop_diagnostics()
+        finally:
+            os.close(fd)
+
+
 def child(root, pin):
     root, reg, sources = context(root, pin)
     cpu0, wall0 = time.process_time(), time.monotonic()
@@ -130,15 +167,7 @@ def child(root, pin):
     qualifier.search_path_check(prefix, base)
     write(root, 'report_runtime_started.json', {'at': utc(), 'freeze_sha256': pin})
     inventory = json.loads(capture(root/'runtime_inventory.json', reg['metadata_pins']['runtime_inventory.json']))
-    entries = qualifier.verify_environment_inventory(prefix, inventory)
-    dependencies = {}
-    for name, version in {'numpy': '2.2.6', 'scipy': '1.15.3'}.items():
-        require(name not in sys.modules, 'fresh statistics import required')
-        value = importlib.import_module(name); dist = importlib.metadata.distribution(name)
-        origin = Path(value.__file__).resolve()
-        require(value.__version__ == dist.version == version and origin.is_relative_to(prefix)
-                and origin == Path(dist.locate_file(name+'/__init__.py')).resolve(), 'statistics runtime mismatch')
-        dependencies[name] = {'version': version, 'origin': str(origin), 'sha256': sha(origin.read_bytes())}
+    entries, dependencies = statistics_runtime(root, prefix, inventory, qualifier)
     write(root, 'report_runtime_verified.json', {'at': utc(), 'environment_objects': len(entries),
         'inventory_sha256': reg['metadata_pins']['runtime_inventory.json'], 'dependencies': dependencies,
         'elapsed_seconds': time.monotonic()-wall0, 'process_cpu_seconds': time.process_time()-cpu0})
@@ -198,6 +227,27 @@ exec(compile(raw,str(p),'exec',dont_inherit=True),{'__name__':'__main__','__file
 """
 
 
+def scheduler_child_deadline(started, query_started, allocation, reg, now):
+    """Bound the child against Slurm time already consumed, not wrapper time only."""
+    matches = re.findall(r'(?:^|\s)RunTime=([^\s]+)', allocation['raw_scontrol'])
+    require(len(matches) == 1, 'one authoritative Slurm RunTime required')
+    match = re.fullmatch(r'(?:(\d+)-)?(\d+):([0-5]\d):([0-5]\d)', matches[0])
+    require(match is not None, 'invalid Slurm RunTime')
+    days, hours, minutes, seconds = (int(v or 0) for v in match.groups())
+    elapsed = days*86400 + hours*3600 + minutes*60 + seconds
+    require(0 <= elapsed < reg['wall_seconds'], 'scheduler wall budget exhausted')
+    # scontrol RunTime has whole-second precision. Two extra seconds cover
+    # rounding; anchoring at query start also charges the full query latency.
+    scheduler_deadline = query_started + reg['wall_seconds'] - elapsed - 52
+    deadline = min(started + CHILD_SECONDS, scheduler_deadline)
+    require(deadline > now, 'no safe child budget remains before scheduler cleanup reserve')
+    return deadline, {'scheduler_runtime_seconds': elapsed,
+        'cleanup_reserve_seconds': 50, 'rounding_reserve_seconds': 2,
+        'query_started_monotonic': query_started, 'child_deadline_monotonic': deadline,
+        'remaining_child_seconds_at_check': deadline-now,
+        'maximum_wrapper_relative_child_seconds': CHILD_SECONDS}
+
+
 def parent(root, pin):
     root, reg, sources = context(root, pin)
     started = time.monotonic(); job = os.environ.get('SLURM_JOB_ID', '')
@@ -206,6 +256,7 @@ def parent(root, pin):
     fd = os.open(root, os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     try:
         gate = module(root, 'supervise_delivery_qualified_replay', sources)
+        allocation_query_started = time.monotonic()
         out['allocation'] = gate.allocation(job, reg)
         supervisor = module(root, 'delivery_replay_supervision', sources)
         sampler = module(root, 'runner_delivery_confirmation', sources)
@@ -216,7 +267,9 @@ def parent(root, pin):
                    OPENBLAS_NUM_THREADS='1', NUMEXPR_NUM_THREADS='1', CUDA_VISIBLE_DEVICES='')
         command = [sys.executable, '-I', '-B', '-c', BOOT, str(root), pin,
                    reg['source_pins']['run_delivery_prospective_reporting.py'], '--child']
-        out['child'] = supervisor.supervise(command, started+1750, reg['rss_bytes'], fd,
+        deadline, out['deadline_policy'] = scheduler_child_deadline(
+            started, allocation_query_started, out['allocation'], reg, time.monotonic())
+        out['child'] = supervisor.supervise(command, deadline, reg['rss_bytes'], fd,
                                            'report.log', env, sampler.process_rss)
         require(out['child']['status'] == 'complete' and out['child']['exit_code'] == 0
                 and out['child']['cleanup']['complete'] is True, 'report child failed')

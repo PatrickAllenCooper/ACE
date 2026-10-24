@@ -15,9 +15,9 @@ class ReportingCustody(unittest.TestCase):
         receipt = {'status': 'complete', 'freeze_sha256': 'freeze',
                    'outputs': {'primary/test.tex': runner.sha(b'wrong' if bad_output else b'fabricated')}}
         (root/'report_receipt.json').write_text(json.dumps(receipt))
-        reg = {'rss_bytes': 3*2**30, 'source_pins': {'run_delivery_prospective_reporting.py': 'source'}}
+        reg = {'wall_seconds': 3600, 'rss_bytes': 3*2**30, 'source_pins': {'run_delivery_prospective_reporting.py': 'source'}}
         modules = {
-            'supervise_delivery_qualified_replay': types.SimpleNamespace(allocation=lambda *a: {'fabricated': True}),
+            'supervise_delivery_qualified_replay': types.SimpleNamespace(allocation=lambda *a: {'fabricated': True, 'raw_scontrol': 'RunTime=00:00:00'}),
             'delivery_replay_supervision': types.SimpleNamespace(supervise=lambda *a: result),
             'runner_delivery_confirmation': types.SimpleNamespace(process_rss=lambda *a: 0)}
         with patch.object(runner, 'context', return_value=(root, reg, {})), \
