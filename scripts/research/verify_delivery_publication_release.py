@@ -579,13 +579,58 @@ def _report_and_writing(raw, old, projections, p, primary, descriptive, suppleme
     require(raw[PAPER+'paper.pdf'].startswith(b'%PDF-'), 'compiled PDF required')
 
 
+def notice_status(before, private_pins):
+    """Current status of unchanged required notices, never a new license grant.
+
+    before is already authenticated as candidate03. Private acceptance digests
+    come from the independently accepted request, not these public statements.
+    """
+    def record(path):
+        return {'path': path, 'sha256': pin(before[path]['sha256'])}
+    return {
+        'historical_notice': {**record('notices/provenance.json'),
+            'remaining_selector': '/remaining', 'remaining_is_historical': True},
+        'retained_attribution': [record('notices/ACE_RUNNER_MIT.txt'),
+                                 record('notices/RUNNER_LICENSE_SCOPE.md')],
+        'supersession_scope': 'Current status supersedes only the historical remaining list; all notice bytes and license terms are unchanged.',
+        'owner_authority': 'resolved; not reopened by anonymous-review handling',
+        'original_B': {**record('B/acceptance.json'), 'status': 'accepted'},
+        'saved_checkpoint_replay': {
+            'status': 'accepted privately against candidate03; not a numerical replay of this final manifest',
+            'manifest_sha256': CANDIDATE_SHA,
+            'private_acceptance_sha256': pin(private_pins['replay_acceptance'])},
+        'reports': {'status': 'both registered and descriptive outputs accepted privately',
+            'private_acceptance_sha256': pin(private_pins['report_acceptance'])},
+        'accounting': {'path': ACCOUNTING, 'sha256': pin(private_pins['accounting']),
+            'status': 'reviewed identified-allocation cutoff and explicit unknowns; not measured whole-project CPU'},
+        'anonymous_original_training_qualified': False,
+        'strictly_anonymous': False,
+        'anonymity_reason': 'Mandatory attribution names the rights holder; source hashes and provenance may also permit linkage.',
+        'human_anonymity_handling_approved': False,
+        'human_action': 'Approve how the venue receives the attribution-bearing full reproduction package; retain all required notices.',
+        'human_release_submission_approved': False,
+    }
+
+
+def validate_notice_status(value, before, private_pins):
+    require(encoded(value) == encoded(notice_status(before, private_pins)),
+            'current notice/status/attribution disposition differs')
+
+
 def publication_bindings(contract):
     def escape(name):
         return name.replace('~', '~0').replace('/', '~1')
     return [{'record': CONTRACT, 'pointer': '/artifacts/'+escape(n), 'artifact': n, 'digest': 'sha256'}
             for n in sorted(contract['artifacts'])] + [
         {'record': CONTRACT, 'pointer': '/predecessor/source_contract_sha256',
-         'artifact': 'reproduction/source_contract.json', 'digest': 'sha256'}]
+         'artifact': 'reproduction/source_contract.json', 'digest': 'sha256'},
+        {'record': CONTRACT, 'pointer': '/notice_status/historical_notice/sha256',
+         'artifact': contract['notice_status']['historical_notice']['path'], 'digest': 'sha256'},
+        *[{'record': CONTRACT, 'pointer': '/notice_status/retained_attribution/'+str(i)+'/sha256',
+           'artifact': entry['path'], 'digest': 'sha256'}
+          for i, entry in enumerate(contract['notice_status']['retained_attribution'])],
+        {'record': CONTRACT, 'pointer': '/notice_status/original_B/sha256',
+         'artifact': contract['notice_status']['original_B']['path'], 'digest': 'sha256'}]
 
 
 def validate_publication(manifest, old_raw, contract, raw):
@@ -593,7 +638,7 @@ def validate_publication(manifest, old_raw, contract, raw):
     old = decode(old_raw); before, after = inheritance(old, manifest)
     require(set(contract) == {'schema', 'authoritative_path', 'predecessor', 'private_evidence',
         'execution_evidence', 'snapshot_members', 'projections', 'artifacts', 'original_source_bindings',
-        'source_usage', 'report_source_dispositions', 'accounting_disclosure', *FALSE_FLAGS},
+        'source_usage', 'report_source_dispositions', 'accounting_disclosure', 'notice_status', *FALSE_FLAGS},
         'publication contract fields differ')
     require(contract['schema'] == 'delivery-publication-source-dispositions-v1' and
             contract['authoritative_path'] == CONTRACT, 'authoritative publication contract required')
@@ -611,6 +656,7 @@ def validate_publication(manifest, old_raw, contract, raw):
         pin(record['sha256'])
     require(private['plan']['sha256'] == PLAN_SHA and private['replay_acceptance']['sha256'] == REPLAY_ACCEPTANCE_SHA,
             'private predecessor acceptance differs')
+    validate_notice_status(contract['notice_status'], before, {k: v['sha256'] for k, v in private.items()})
     snapshots = contract['snapshot_members']
     require(set(snapshots) == set(SNAPSHOT_MAP) and len(snapshots) == 42, 'complete 42-file disposition required')
     for name, target in SNAPSHOT_MAP.items():
@@ -674,7 +720,8 @@ def validate_publication(manifest, old_raw, contract, raw):
         decode(raw['B/replay_contract.json']))
     return {'inherited_files': OLD_FILES, 'inherited_bindings': OLD_BINDINGS, 'companions': 16,
         'report_outputs': 13, 'private_execution_revalidated': False, 'public_release_approved': False,
-        'accounting_disclosure_complete': True,
+        'accounting_disclosure_complete': True, 'historical_notice_status_superseded': True,
+        'strictly_anonymous': False, 'human_anonymity_handling_approved': False,
         'scope': 'offline byte, projection-schema and publication-lineage consistency only'}
 
 

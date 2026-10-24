@@ -421,6 +421,7 @@ def publication_payload(snapshot_raw, old_raw, old_contract_raw, evidence_raw, p
             public.projection(decode(additions[projections['report_receipt']['path']]),
                               'report_receipt')['/source_pins'], private_pins['report_custody']),
         'accounting_disclosure': disclosure,
+        'notice_status': public.notice_status(public.index(old['files']), private_pins),
         **{k: False for k in public.FALSE_FLAGS}}
     additions[public.CONTRACT] = encoded(contract)
     manifest = copy.deepcopy(old)
