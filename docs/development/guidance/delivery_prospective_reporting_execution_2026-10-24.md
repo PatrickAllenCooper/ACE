@@ -1,0 +1,21 @@
+# Accepted Stage B reporting execution — October24,2026
+
+Replay12 job34863006 is fully accepted after actual execution, terminal accounting, complete exclusive custody and distinct independent review. Its acceptance receipt is `results/delivery_diagnostic_replay_20261024/terminal12/replay_acceptance.json`, SHA57da98e2bbce82faad642442daa491b2cf3722df7524bfd4c881a188a36e3232. This prerequisite is distinct from the following report-only run.
+
+## Scope and resource justification
+
+Run the unchanged original registered exporter and descriptive reporter from captured, independently pinned source bytes. Authenticate all six historical input files against the accepted manifest-bound replay contract before either export. Historical hashes and projected package hashes remain distinct. Preserve both original output directories/indexes; later assemble a separate19file manuscript bundle. No new hypothesis tests, selections, fits, checkpoint replay or simulator responses. Keep every registered contrast,320fixed-init0arm/history errors,80system log ratios,8history summaries,2ablation summaries,4floor summaries and all640cells.
+
+The existing exact target runtime remains unchanged. Local SciPy1.16.2 differs from recorded1.15.3, so use the existing CURC Python3.11 environment without installation. This reporting stage reauthenticates the entire accepted28577object environment inventory once, imports only NumPy2.2.6/SciPy1.15.3 for the original statistical routines, and records loaded statistics backing files. No Torch/model import is allowed. Source/input hashes and report output hashes are checked before successful completion. This does not redo the640-checkpoint replay or qualify any newly fitted artifact.
+
+A1CPU/3GiB/30minute allocation (1750second owned-child deadline) is bounded by the measured replay12 single-inventory passes689.54/705.66seconds plus package byte integrity and small statistical exports. Actual replay12 required two inventories, semantic package preflight and checkpoint replay; this job retains the reporting checks without repeating those numerical operations. Accountucb736_asc1,acpu/cpu-normal,zeroGPU,no-requeue. Reportcap.5corehour would raise92.868333 to93.368333 of150 on submission. Known128690allocatedCPU-seconds before this job are separate; whole-sprintCPU remains unknown.
+
+## Preparation and review
+
+The new runner is `run_delivery_prospective_reporting.py`; its project import closure is captured explicitly, with unchanged original reporters/auditor/sampler and reused runtime inventory/owned supervision/allocation helpers. Shared delivery/foundation controller locks are held during preparation/submission. Fresh20:34UTC remote readiness authenticated3893packageobjects/exact3895membership,12installedpins and9priorjournal directories; queue empty, scratch stat/df/write-read-cleanup passed. Proposed output was absent. An exclusive output claim was then created at `/scratch/alpine/paco0228/ACE/results/delivery_prospective_reporting_20261024_01`, inode685172495,mode0700. This claim is not a submission.
+
+Four new fabricated orchestration methods pass. Independent implementation review identified missing complete-original-input membership and missing historical/projected-study linkage, plus the required accepted-inventory relationship. All three are now explicit in code. One new lineage method exercises the positive and two negative cases; the first run's Mac temporary-directory alias assertion failure is retained, corrected fixture passes, prior four methods not rerun. No real outcomes/models were used in those checks. Final review disposition and packet/source/input pins precede any submission. No old scientific/component test is repeated.
+
+## Completion boundary
+
+Scheduler completion, supervised cleanup, all13original generated files and complete exclusive report custody must pass independent reporting review before19file assembly or manuscript integration. A mutually consistent metadata fixture is not execution proof. Preserve failed/interrupted outputs; never blindly retry ambiguous submissions. Human publication approval remains separate. The original replay manifest, accepted studies and dirty presentation file stay unchanged.
