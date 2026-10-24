@@ -1,0 +1,53 @@
+{
+  "at": "2026-10-24T21:32:34.594035+00:00",
+  "job_id": 34867191,
+  "partial_live_snapshot_not_terminal_custody": true,
+  "commands": {
+    "scontrol": {
+      "returncode": 0,
+      "stdout": "JobId=34867191 JobName=ace_delB_report UserId=paco0228(348288) GroupId=paco0228pgrp(348288) MCS_label=N/A Priority=17263 Nice=0 Account=ucb736_asc1 QOS=cpu-normal JobState=RUNNING Reason=None Dependency=(null) Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:05:00 TimeLimit=01:00:00 TimeMin=N/A SubmitTime=2026-10-24T15:27:25 EligibleTime=2026-10-24T15:27:25 AccrueTime=2026-10-24T15:27:25 StartTime=2026-10-24T15:27:34 EndTime=2026-10-24T16:27:34 Deadline=N/A PreemptEligibleTime=2026-10-24T15:27:34 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-10-24T15:27:34 Scheduler=Backfill Partition=acpu AllocNode:Sid=login-ci5:2767867 ReqNodeList=(null) ExcNodeList=(null) NodeList=c3cpu-e2-u7 BatchHost=c3cpu-e2-u7 NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=1,mem=3G,node=1 AllocTRES=cpu=1,mem=3G,node=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=1 MinMemoryNode=3G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null) Command=/scratch/alpine/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/run.sbatch WorkDir=/scratch/alpine/paco0228/ACE/results/delivery_prospective_reporting_20261024_02 StdErr=/scratch/alpine/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/slurm-34867191.err StdIn=/dev/null StdOut=/scratch/alpine/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/slurm-34867191.out Switches=1@7-00:00:00 TresPerTask=cpu=1 \n",
+      "stderr": ""
+    },
+    "sacct": {
+      "returncode": 0,
+      "stdout": "34867191|34867191|RUNNING|0:0|300|300|00:00:00||cpu=1,mem=3G,node=1|ucb736_asc1|acpu|cpu-normal\n34867191.batch|34867191.batch|RUNNING|0:0|300|300|00:00:00||cpu=1,mem=3G,node=1|ucb736_asc1||\n34867191.extern|34867191.extern|RUNNING|0:0|300|300|00:00:00||cpu=1,mem=3G,node=1|ucb736_asc1||\n",
+      "stderr": ""
+    }
+  },
+  "stages": {
+    "report_started.json": {
+      "at": "2026-10-24T21:28:03.660507+00:00",
+      "job_id": "34867191",
+      "freeze_sha256": "00975b8ee41b5eca0cfb23a263bfdb4cdbe874eee24b68ac476ab662f92b2ca8"
+    },
+    "report_runtime_started.json": {
+      "at": "2026-10-24T21:28:10.375318+00:00",
+      "freeze_sha256": "00975b8ee41b5eca0cfb23a263bfdb4cdbe874eee24b68ac476ab662f92b2ca8"
+    }
+  },
+  "phases": {
+    "runtime_phase_000.json": {
+      "schema": "ace-runtime-phase-v1",
+      "phase": "diagnostics_started",
+      "at": "2026-10-24T21:28:10.407122+00:00",
+      "monotonic": 1492653.728181719,
+      "elapsed_since_diagnostics": 1.6411067917943e-05,
+      "process_cpu_seconds": 0.12153823,
+      "diagnostic_only": true,
+      "details": {
+        "stack_interval_seconds": 120
+      }
+    },
+    "runtime_phase_001.json": {
+      "schema": "ace-runtime-phase-v1",
+      "phase": "report_inventory_started",
+      "at": "2026-10-24T21:28:10.409898+00:00",
+      "monotonic": 1492653.730950925,
+      "elapsed_since_diagnostics": 0.0027854270301759243,
+      "process_cpu_seconds": 0.121865017,
+      "diagnostic_only": true,
+      "details": {}
+    }
+  },
+  "stack_tail": "Timeout (0:02:00)!\nThread 0x00001474afd0c400 (most recent call first):\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/qualify_delivery_replay_runtime.py\", line 25 in <lambda>\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/qualify_delivery_replay_runtime.py\", line 25 in sha\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/qualify_delivery_replay_runtime.py\", line 523 in verify_environment_inventory\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/run_delivery_prospective_reporting.py\", line 133 in statistics_runtime\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/run_delivery_prospective_reporting.py\", line 170 in child\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/run_delivery_prospective_reporting.py\", line 294 in <module>\n  File \"<string>\", line 7 in <module>\nTimeout (0:02:00)!\nThread 0x00001474afd0c400 (most recent call first):\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/qualify_delivery_replay_runtime.py\", line 25 in <lambda>\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/qualify_delivery_replay_runtime.py\", line 25 in sha\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/qualify_delivery_replay_runtime.py\", line 523 in verify_environment_inventory\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/run_delivery_prospective_reporting.py\", line 133 in statistics_runtime\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/run_delivery_prospective_reporting.py\", line 170 in child\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/delivery_prospective_reporting_20261024_02/run_delivery_prospective_reporting.py\", line 294 in <module>\n  File \"<string>\", line 7 in <module>\n"
+}
