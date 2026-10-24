@@ -11,3 +11,7 @@ Freeze831cebd8dce8d127d90b713343643b5ab6fd107c8198d2311dd867cf80481b2b and launc
 Approved reservation90.368333/150CPUcore-hours includes this.5core-hour cap. Prior known allocated120559seconds=33.48861111111111core-hours excludes this job; full-sprint processCPU unknown. Preparation/Git/review overhead unmetered. Scopes overlap and must not be added. No GPU requested.
 
 Required completion: successful exact-runtime/full-inventory/first-checkpoint qualification,640checkpoints/240primarycells/48000cachedresponses, zero newupdates/responses, supervisorcleanup, schedulerCOMPLETED0:0 and complete independent custody. Only then both original and descriptive reporters and same-manuscript integration; final scientific/proof/prose/table/page/accounting/anonymity and human submission approval remain open.
+
+## Replay10 submitted once
+
+Job34837216 accepted00:49:12UTCOct24 under Patrick's explicitone-attemptapproval. Packetcommitcc934a244346a7032d834ae744bdfef53a815446; freeze831cebd8, source88147ccb. Exclusive local/remotejournals and9inputpins accepted; bothcontrollerlocks released.1CPU/3GiB/30min,ucb736_asc1/acpu/cpu-normal,zeroGPU/no-requeue. Reservation90.368333/150; priorallocated120559seconds excludescurrentjob. Fullruntime/firstcheckpoint/numerical640/240/48000, cleanup/scheduler/custody andbothreporters remainpending. Thissingleattemptauthorizationconsumed; noautomaticretry. Evidence results/delivery_compatibility_replay_20261023/submission10.

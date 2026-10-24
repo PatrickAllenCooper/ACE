@@ -2992,3 +2992,7 @@ Patrick approved ONE further1CPU3GiB30minute replay. Source88147ccb, compatibili
 ## Replay10 final packet ready
 
 All9remoteinputs match frozen local pins; distinct Kepler review0required. Freeze831cebd8, source88147ccb, authorizationcall_d21a9fb784674a0dbcbf726659a0aa36. Packet receipt and full source/control records preserved in results/delivery_compatibility_replay_20261023/launch10 plus exclusive originals; encodedtransfer bound externally. No submission at this entry; next is onejournaled sbatch.
+
+## Replay10 submitted once
+
+Job34837216 accepted00:49:12UTCOct24 under Patrick's explicitone-attemptapproval. Packetcommitcc934a244346a7032d834ae744bdfef53a815446; freeze831cebd8, source88147ccb. Exclusive local/remotejournals and9inputpins accepted; bothcontrollerlocks released.1CPU/3GiB/30min,ucb736_asc1/acpu/cpu-normal,zeroGPU/no-requeue. Reservation90.368333/150; priorallocated120559seconds excludescurrentjob. Fullruntime/firstcheckpoint/numerical640/240/48000, cleanup/scheduler/custody andbothreporters remainpending. Thissingleattemptauthorizationconsumed; noautomaticretry. Evidence results/delivery_compatibility_replay_20261023/submission10.
