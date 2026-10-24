@@ -1,0 +1,127 @@
+{
+  "schema": "delivery-final-release-historical-test-outcomes-v1",
+  "provenance": "Transcribed from earlier conversation tool results and the implementation note; these are retained outcome excerpts, not newly executed commands or original raw stdout/stderr files.",
+  "limitations": [
+    "Original stream split and full raw historical output were not saved to files.",
+    "Intermediate source hashes were not captured; null is unknown, not qualification of current source."
+  ],
+  "initial_failure_disposition": "Shared mutable source-role map allowed a negative mutation check to pass. Constructor now copies that map; projection rules also copied. Initial failure retained; not relabeled as success.",
+  "runs": [
+    {
+      "id": "initial-failure",
+      "command": [
+        "/opt/homebrew/bin/python3.11",
+        "-B",
+        "/Users/pat/code/ACE/scripts/research/test_delivery_final_release.py",
+        "-v"
+      ],
+      "cwd": "/tmp",
+      "exit_code": 1,
+      "tests": 9,
+      "reported_test_elapsed_seconds": 1.346,
+      "terminal_output_excerpt": "FAIL: test_private_source_scope_and_authoritative_contract\nAssertionError: ValueError not raised\nRan 9 tests in 1.346s\nFAILED (failures=1)",
+      "source_revision_sha256": null
+    },
+    {
+      "id": "source-map-correction",
+      "command": [
+        "/opt/homebrew/bin/python3.11",
+        "-B",
+        "/Users/pat/code/ACE/scripts/research/test_delivery_final_release.py",
+        "FinalReleaseTests.test_private_source_scope_and_authoritative_contract",
+        "FinalReleaseTests.test_complete_downstream_contract_with_private_evidence",
+        "FinalReleaseTests.test_nested_projection_rules_and_types_reject_leaks",
+        "-v"
+      ],
+      "cwd": "/tmp",
+      "exit_code": 0,
+      "tests": 3,
+      "reported_test_elapsed_seconds": 0.416,
+      "terminal_output_excerpt": "Ran 3 tests in 0.416s\nOK",
+      "source_revision_sha256": null
+    },
+    {
+      "id": "nine-test-followup",
+      "command": [
+        "/opt/homebrew/bin/python3.11",
+        "-B",
+        "/Users/pat/code/ACE/scripts/research/test_delivery_final_release.py",
+        "-v"
+      ],
+      "cwd": "/Users/pat/code/ACE",
+      "exit_code": 0,
+      "tests": 9,
+      "reported_test_elapsed_seconds": 1.347,
+      "terminal_output_excerpt": "Ran 9 tests in 1.347s\nOK",
+      "source_revision_sha256": null
+    },
+    {
+      "id": "tolerance-correction",
+      "command": [
+        "/opt/homebrew/bin/python3.11",
+        "-B",
+        "/Users/pat/code/ACE/scripts/research/test_delivery_final_release.py",
+        "FinalReleaseTests.test_recorded_analysis_uses_frozen_tolerance_and_schema",
+        "FinalReleaseTests.test_complete_downstream_contract_with_private_evidence",
+        "-v"
+      ],
+      "cwd": "/tmp",
+      "exit_code": 0,
+      "tests": 2,
+      "reported_test_elapsed_seconds": 0.219,
+      "terminal_output_excerpt": "Ran 2 tests in 0.219s\nOK",
+      "source_revision_sha256": null
+    },
+    {
+      "id": "pre-report01-update-ten-tests",
+      "command": [
+        "/opt/homebrew/bin/python3.11",
+        "-B",
+        "/Users/pat/code/ACE/scripts/research/test_delivery_final_release.py",
+        "-v"
+      ],
+      "cwd": "/tmp",
+      "exit_code": 0,
+      "tests": 10,
+      "reported_test_elapsed_seconds": 1.533,
+      "terminal_output_excerpt": "Ran 10 tests in 1.533s\nOK",
+      "source_revision_sha256": null,
+      "recorded_source_sha256": {
+        "scripts/research/prepare_delivery_final_release_plan.py": "8f441ea47622ff1a2e15586e951a66ec5b649a722bcd42fbacb9e5fa962c27e5",
+        "scripts/research/verify_delivery_publication_release.py": "afa6eceb15bceb5431a12e12fa3c2801da02e45aaea600a97c3a965f0bc7bec6",
+        "scripts/research/test_delivery_final_release.py": "b3246238e0b611682fc8e1cb455ccfdcd348320dc75bce9559a3b3e6ed28d554"
+      }
+    }
+  ],
+  "cli_help": [
+    {
+      "command": [
+        "/opt/homebrew/bin/python3.11",
+        "-B",
+        "/Users/pat/code/ACE/scripts/research/prepare_delivery_final_release_plan.py",
+        "--help"
+      ],
+      "cwd": "/tmp",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "/opt/homebrew/bin/python3.11",
+        "-B",
+        "/Users/pat/code/ACE/scripts/research/verify_delivery_publication_release.py",
+        "--help"
+      ],
+      "cwd": "/tmp",
+      "exit_code": 0
+    }
+  ],
+  "pre_update_file_hashes": {
+    "scripts/research/prepare_delivery_final_release_plan.py": "8f441ea47622ff1a2e15586e951a66ec5b649a722bcd42fbacb9e5fa962c27e5",
+    "scripts/research/verify_delivery_publication_release.py": "afa6eceb15bceb5431a12e12fa3c2801da02e45aaea600a97c3a965f0bc7bec6",
+    "scripts/research/test_delivery_final_release.py": "b3246238e0b611682fc8e1cb455ccfdcd348320dc75bce9559a3b3e6ed28d554",
+    "docs/development/guidance/delivery_final_release_schema_2026-10-24.md": "82a97d14154d9908aaaa1562ad5b4727f05934d4d8dd0aa518d9dfb4b88ae627"
+  },
+  "new_fits": 0,
+  "new_responses": 0,
+  "actual_package_built": false
+}

@@ -1,0 +1,35 @@
+bootstrap case: None exit: 0
+usage: verify_delivery_publication_release.py [-h] --root ROOT
+                                              --expected-manifest-sha256
+                                              EXPECTED_MANIFEST_SHA256
+
+Offline successor checks; private execution evidence is referenced, not
+proved. First authenticate this checker against an independently trusted
+source digest. Run with a trusted Python 3.11+ standard library using -I -S
+-B. Before executing either local dependency, this checker authenticates BOTH
+against BOOTSTRAP_PINS embedded in these trusted bytes, then executes only the
+captured source bytes. Only then does the generic verifier check the
+independently supplied final manifest pin. This order also applies to --help;
+adjacent checksums are not trust. No model, statistical recomputation, network
+or private custody access.
+
+options:
+  -h, --help            show this help message and exit
+  --root ROOT
+  --expected-manifest-sha256 EXPECTED_MANIFEST_SHA256
+bootstrap case: delivery_prospective_publication.py exit: 1
+Traceback (most recent call last):
+  File "/var/folders/rp/5fry8hzd6r79lbs65w92n8b00000gn/T/tmp0ig6k7x8/verify_delivery_publication_release.py", line 49, in <module>
+    _dependencies = authenticated_dependencies()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/folders/rp/5fry8hzd6r79lbs65w92n8b00000gn/T/tmp0ig6k7x8/verify_delivery_publication_release.py", line 37, in authenticated_dependencies
+    raise ValueError('bootstrap dependency digest differs: '+name)
+ValueError: bootstrap dependency digest differs: delivery_prospective_publication.py
+bootstrap case: verify_delivery_release.py exit: 1
+Traceback (most recent call last):
+  File "/var/folders/rp/5fry8hzd6r79lbs65w92n8b00000gn/T/tmp0ig6k7x8/verify_delivery_publication_release.py", line 49, in <module>
+    _dependencies = authenticated_dependencies()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/folders/rp/5fry8hzd6r79lbs65w92n8b00000gn/T/tmp0ig6k7x8/verify_delivery_publication_release.py", line 37, in authenticated_dependencies
+    raise ValueError('bootstrap dependency digest differs: '+name)
+ValueError: bootstrap dependency digest differs: verify_delivery_release.py

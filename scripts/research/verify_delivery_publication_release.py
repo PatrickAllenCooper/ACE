@@ -16,6 +16,7 @@ import math
 from pathlib import Path, PurePosixPath
 import re
 import types
+from datetime import datetime
 
 # These dependencies import only the trusted standard library. Pin changes need
 # source review and a new independently authenticated checker, never packet input.
@@ -112,7 +113,9 @@ REPORT_OUTPUTS = {**{'primary/'+n: PAPER+n for n in reports.PRIMARY},
     **{'descriptive/'+n: PAPER+'delivery_prospective_'+n for n in reports.DATA},
     'descriptive/output_index.json': PAPER+reports.DESCRIPTIVE_INDEX}
 PRIVATE_KEYS = ('request', 'planner', 'plan', 'bundle', 'snapshot_inventory', 'replay_acceptance',
-                'report_acceptance', 'report_custody')
+                'report_acceptance', 'report_custody', 'report_review', 'report_review_witness', 'execution_verification',
+                'runtime_inventory', 'remote_inventory', 'report_input_pins',
+                'accounting', 'accounting_source', 'failed_report_inventory', 'accounting_review', 'accounting_review_witness')
 FALSE_FLAGS = ('training_reproduction_available', 'anonymous_execution_qualified',
                'anonymity_review_complete', 'public_release_approved', 'submission_approved')
 SOURCE_USAGE = {target: 'provenance-only; not an original-worker execution interface' for target in SOURCES.values()}
@@ -230,16 +233,138 @@ for _kind, _fields in RESOURCE_FIELDS.items():
         SPECS[_kind][_selector] = {'type': 'quantity', 'numeric': _numeric,
                                   'unit': _unit, 'scope': _scope, 'basis': _basis}
 
-DISCLOSURE_REQUIREMENT = {
-    'status': 'required-before-release', 'reporting_cutoff': None,
-    'whole_sprint_process_cpu': {'status': 'unknown', 'value': None,
-        'unit': 'CPU-second', 'scope': 'whole sprint', 'basis': 'observed'},
-    'failed_report_jobs': {'34864950': 'FAILED; permanently ineligible as success'},
-    'requirements': ['bind a separately reviewed public failure/accounting artifact',
-        'state an explicit reporting cutoff and preserve every failed attempt through it',
-        'distinguish requested allocations, observed usage and genuinely unknown totals',
-        'retain private scheduler/resource evidence and disclose missing measurements'],
-}
+ACCOUNTING = 'publication/accounting.json'
+ACCOUNTING_SCHEMA = 'ace-delivery-publication-accounting-v1'
+ACCOUNTING_SCOPE = ('identified Stage B, pilots, environment preparation, replay and report allocations '
+                    'through completed report02; not whole-project process CPU')
+REPORT_MEASUREMENT_SCOPE = ('separately measured report-only allocation, wrapper, child and memory scopes; not additive')
+ACCOUNTING_CAVEATS = (
+    'Replay06 Slurm TotalCPU is recorded as zero despite documented child runtime work; its reliability is uncertain and zero work is not inferred.',
+    'Runtime-prefix, child, wrapper, fit, Slurm TotalCPU and allocation scopes overlap and must not be added.',
+    'Null requested wall times in original-row projections are unavailable here, not unlimited allocations; the original reservation remains separately recorded.',
+    'Replay10 and replay11 exact interrupted subphases were not recorded; later replay12 diagnostics do not identify those earlier phases.',
+    'Unsubmitted preparation packets and duplicated custody copies are not allocations.',
+    'Report child CPU and elapsed measurements begin after context validation; preparation, review, transfer and monitoring overhead are not a complete measured total.',
+)
+
+
+def nonnegative(value, integer=False, nullable=False):
+    if value is None and nullable:
+        return
+    require(type(value) in ((int,) if integer else (int, float)) and value >= 0 and
+            (type(value) is int or math.isfinite(value)), 'finite nonnegative number required (no bool)')
+
+
+def timestamp(value):
+    require(type(value) is str, 'timestamp required')
+    parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    require(parsed.tzinfo is not None, 'timestamp timezone required')
+    return parsed
+
+
+def slurm_seconds(value):
+    require(type(value) is str and re.fullmatch(r'(?:[0-9]+-)?(?:[0-9]+:)?[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?', value),
+            'Slurm CPU duration differs')
+    days, rest = value.split('-', 1) if '-' in value else ('0', value)
+    parts = [float(v) for v in rest.split(':')]
+    return int(days)*86400 + sum(v*60**i for i, v in enumerate(reversed(parts)))
+
+
+def validate_accounting(value):
+    """Validate the public, separately reviewed disclosure; no private I/O."""
+    require(set(value) == {'schema', 'scope', 'cutoff', 'attempts', 'reservation', 'original_fit_measurements',
+        'report_measurements', 'unknowns', 'response_accounting', 'measurement_scopes_overlap',
+        'source_receipt_sha256s', 'publication_approved', 'measurement_caveats'} and
+        value['schema'] == ACCOUNTING_SCHEMA and value['scope'] == ACCOUNTING_SCOPE,
+        'accounting schema/scope differs')
+    require(encoded(value['cutoff']) == encoded({'attempt': 'report02',
+        'terminal_utc': '2026-10-24T22:09:27Z', 'allocation_count': 59, 'allocated_cpu_seconds': 132995}),
+        'accounting cutoff differs')
+    timestamp(value['cutoff']['terminal_utc'])
+    require(type(value['attempts']) is list and len(value['attempts']) == 59, '59 identified allocations required')
+    attempts = {}
+    row_keys = {'attempt_id', 'kind', 'state', 'exit_code', 'allocated_cpus', 'allocated_cpu_seconds',
+        'elapsed_allocation_seconds', 'requested_wall_seconds', 'slurm_total_cpu_seconds',
+        'wrapper_elapsed_seconds', 'raw_scheduler_row_sha256'}
+    for row in value['attempts']:
+        require(set(row) == row_keys, 'accounting attempt fields differ')
+        name = row['attempt_id']
+        require(type(name) is str and re.fullmatch(r'[a-z0-9_]+', name) and name not in attempts,
+                'unique canonical allocation identity required')
+        require(type(row['kind']) is str and re.fullmatch(r'[a-z0-9_-]+', row['kind']), 'allocation kind required')
+        require(row['state'] in {'COMPLETED', 'FAILED', 'TIMEOUT', 'OUT_OF_MEMORY', 'CANCELLED', 'NODE_FAIL', 'PREEMPTED'} and
+                type(row['exit_code']) is str and re.fullmatch(r'[0-9]+:[0-9]+', row['exit_code']),
+                'terminal allocation state/exit required')
+        if row['state'] == 'COMPLETED':
+            require(row['exit_code'] == '0:0', 'successful allocation exit differs')
+        for key in ('allocated_cpus', 'allocated_cpu_seconds', 'elapsed_allocation_seconds'):
+            nonnegative(row[key], integer=True)
+        require(row['allocated_cpus'] > 0 and row['allocated_cpu_seconds'] ==
+                row['allocated_cpus']*row['elapsed_allocation_seconds'], 'allocation CPU arithmetic differs')
+        nonnegative(row['requested_wall_seconds'], integer=True, nullable=True)
+        for key in ('slurm_total_cpu_seconds', 'wrapper_elapsed_seconds'):
+            nonnegative(row[key], nullable=True)
+        pin(row['raw_scheduler_row_sha256']); attempts[name] = row
+    originals = {'original_'+str(i).zfill(2) for i in range(1, 47)}
+    require(originals <= set(attempts) and all(attempts[n]['requested_wall_seconds'] is None for n in originals),
+            'unavailable original requested wall limits must stay unknown')
+    require(sum(v['allocated_cpu_seconds'] for v in attempts.values()) == 132995 and
+            sum(v['allocated_cpu_seconds'] for n, v in attempts.items() if n not in {'report01', 'report02'}) == 128690,
+            '59 allocation total differs')
+    for name, state, exit_, seconds, limit in (('report01', 'FAILED', '1:0', 1792, 1800),
+                                             ('report02', 'COMPLETED', '0:0', 2513, 3600)):
+        row = attempts[name]
+        require(row['kind'] == 'reporting' and row['state'] == state and row['exit_code'] == exit_ and
+                row['allocated_cpus'] == 1 and row['allocated_cpu_seconds'] == seconds and
+                row['requested_wall_seconds'] == limit, 'report attempt disposition differs: '+name)
+    require(encoded(value['reservation']) == encoded({'unit': 'CPU-core-hour',
+        'scope': 'delivery study and reproduction/reporting caps', 'reserved': 94.36833333333334,
+        'ceiling': 150, 'basis': 'requested'}), 'reservation units/scope/ceiling differ')
+    require(encoded(value['original_fit_measurements']) == encoded({'process_cpu_seconds': 110802.107301787,
+        'summed_elapsed_seconds': 113596.44237109905, 'peak_tree_rss_bytes': 1400913920,
+        'scope': '640 original completed fits'}), 'original fit measurement scope differs')
+    require(value['unknowns'] == dict.fromkeys(('whole_sprint_process_cpu_seconds', 'confirmation_process_cpu_seconds',
+        'complete_preparation_process_cpu_seconds', 'interrupted_returned_responses')), 'unknown totals must stay null')
+    require(encoded(value['response_accounting']) == encoded({'charged': 60962, 'persisted': 57636,
+        'interrupted_reserved': 3326, 'scope': 'inherited confirmation charge/reservation accounting; not Stage B totals'}),
+        'inherited response scope differs')
+    require(value['measurement_scopes_overlap'] is True and value['publication_approved'] is False,
+            'overlapping scopes/approval distinction required')
+    require(value['measurement_caveats'] == list(ACCOUNTING_CAVEATS), 'measurement uncertainties changed')
+    sources = value['source_receipt_sha256s']
+    require(type(sources) is list and len(sources) == len(set(sources)) == 3, 'three distinct accounting sources required')
+    for source in sources:
+        pin(source)
+    measurements = value['report_measurements']
+    require(set(measurements) == {'report01', 'report02'}, 'both report measurement scopes required')
+    number_keys = {'allocated_cpu_seconds', 'slurm_total_cpu_seconds', 'wrapper_elapsed_seconds',
+        'child_process_cpu_seconds', 'child_elapsed_seconds', 'child_peak_self_rss_kib',
+        'supervised_peak_tree_rss_bytes', 'slurm_batch_max_rss_kib', 'requested_cpus', 'requested_memory_bytes',
+        'requested_wall_seconds', 'observed_allocated_cpus', 'observed_allocated_memory_bytes', 'observed_gpus'}
+    for name, row in measurements.items():
+        require(set(row) == number_keys | {'state', 'scope'} and row['scope'] == REPORT_MEASUREMENT_SCOPE,
+                'typed report measurement fields/scope differ')
+        for key in number_keys:
+            nonnegative(row[key], integer=key.endswith(('_bytes', '_kib', '_cpus', '_gpus')) or
+                        key in {'allocated_cpu_seconds', 'requested_wall_seconds'},
+                        nullable=name == 'report01' and key.startswith('child_'))
+        for key in ('state', 'allocated_cpu_seconds', 'slurm_total_cpu_seconds', 'wrapper_elapsed_seconds', 'requested_wall_seconds'):
+            require(row[key] == attempts[name][key], 'report attempt/measurement differs')
+        require(row['requested_cpus'] == row['observed_allocated_cpus'] == 1 and
+                row['requested_memory_bytes'] == row['observed_allocated_memory_bytes'] == 3*2**30 and
+                row['observed_gpus'] == 0, 'report allocation measurements differ')
+    require(all(measurements['report01'][k] is None for k in
+                ('child_process_cpu_seconds', 'child_elapsed_seconds', 'child_peak_self_rss_kib')),
+            'failed report missing child measurements must stay unknown')
+    return attempts
+
+
+def accounting_disclosure(raw, private):
+    validate_accounting(decode(raw))
+    require(digest(raw) == private['accounting'], 'independently pinned accounting differs')
+    return {'status': 'reviewed-artifact-bound', 'path': ACCOUNTING, 'sha256': digest(raw),
+            'review_sha256': pin(private['accounting_review']),
+            'review_witness_sha256': pin(private['accounting_review_witness'])}
 
 
 def quantity(value, rule):
@@ -510,14 +635,26 @@ def validate_publication(manifest, old_raw, contract, raw):
     for name, target in PUBLIC_REPORT_SOURCES.items():
         require(digest(raw[target]) == p['report_receipt']['/source_pins'][name],
                 'public report source bytes differ')
-    require(contract['accounting_disclosure'] == DISCLOSURE_REQUIREMENT,
-            'pending failure/accounting disclosure requirement changed')
+    require(contract['accounting_disclosure'] == accounting_disclosure(raw[ACCOUNTING],
+            {k: v['sha256'] for k, v in private.items()}), 'reviewed accounting artifact binding differs')
+    accounting = decode(raw[ACCOUNTING])
+    require(set(accounting['source_receipt_sha256s']) == {private[k]['sha256'] for k in
+            ('accounting_source', 'failed_report_inventory', 'remote_inventory')}, 'public accounting source binding differs')
+    measured = accounting['report_measurements']['report02']
+    for name, selector in (('child_process_cpu_seconds', '/process_cpu_seconds'),
+                           ('child_elapsed_seconds', '/elapsed_seconds'), ('child_peak_self_rss_kib', '/peak_self_rss_kib')):
+        require(measured[name] == p['report_receipt'][selector]['value'], 'public report accounting measurement differs')
+    require(measured['wrapper_elapsed_seconds'] == p['report_execution']['/elapsed_seconds']['value'] and
+            p['report_execution']['/job_id'] == '34867191', 'public report accounting execution differs')
+    for name, selector in (('requested_cpus', '/cpus'), ('requested_memory_bytes', '/rss_bytes'),
+                           ('requested_wall_seconds', '/wall_seconds')):
+        require(measured[name] == p['report_freeze'][selector]['value'], 'public report resource limit differs')
     for name, kind in (('freeze', 'replay_freeze'), ('execution', 'replay_execution'), ('replay', 'replay')):
         require(snapshots[PAPER+reports.PROOFS[name]]['sha256'] == projections[kind]['original_sha256'],
                 'private snapshot replay proof differs')
     require(snapshots[PAPER+reports.BUNDLE]['sha256'] == private['bundle']['sha256'], 'assembly snapshot differs')
     artifacts = contract['artifacts']
-    required = (set(v for v in SNAPSHOT_MAP.values() if v) | {PAPER+'paper.pdf', CHECKER} |
+    required = (set(v for v in SNAPSHOT_MAP.values() if v) | {PAPER+'paper.pdf', CHECKER, ACCOUNTING} |
                 {r['path'] for r in contract['projections'].values()})
     require(set(artifacts) == required, 'complete publication artifact set required')
     for name, value in artifacts.items():
@@ -537,7 +674,7 @@ def validate_publication(manifest, old_raw, contract, raw):
         decode(raw['B/replay_contract.json']))
     return {'inherited_files': OLD_FILES, 'inherited_bindings': OLD_BINDINGS, 'companions': 16,
         'report_outputs': 13, 'private_execution_revalidated': False, 'public_release_approved': False,
-        'accounting_disclosure_complete': False,
+        'accounting_disclosure_complete': True,
         'scope': 'offline byte, projection-schema and publication-lineage consistency only'}
 
 

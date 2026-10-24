@@ -1,0 +1,47 @@
+{
+  "request_schema": "delivery-final-release-inputs-v1",
+  "input_keys": [
+    "accounting",
+    "accounting_review",
+    "accounting_review_witness",
+    "accounting_source",
+    "bundle",
+    "checker",
+    "execution_verification",
+    "failed_report_inventory",
+    "manifest",
+    "pdf",
+    "plan",
+    "planner",
+    "remote_inventory",
+    "replay_acceptance",
+    "report_acceptance",
+    "report_custody",
+    "report_execution",
+    "report_freeze",
+    "report_input_pins",
+    "report_receipt",
+    "report_review",
+    "report_review_witness",
+    "report_runtime",
+    "runtime_inventory",
+    "snapshot_inventory"
+  ],
+  "input_entry_keys": [
+    "path",
+    "sha256"
+  ],
+  "cli_required": [
+    "--request",
+    "--request-sha256",
+    "--report-acceptance-sha256",
+    "--accounting-sha256",
+    "--destination"
+  ],
+  "report_acceptance_schema": "ace-delivery-report-acceptance-v1",
+  "report_review_witness_schema": "ace-report02-independent-review-witness-v1",
+  "accounting_schema": "ace-delivery-publication-accounting-v1",
+  "accounting_review_witness_schema": "ace-final-accounting-delta-review-witness-v1",
+  "public_accounting_path": "publication/accounting.json",
+  "actual_execution_invoked": false
+}

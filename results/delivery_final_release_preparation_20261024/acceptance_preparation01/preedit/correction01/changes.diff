@@ -1,0 +1,613 @@
+--- original/scripts/research/prepare_delivery_final_release_plan.py
++++ corrected/scripts/research/prepare_delivery_final_release_plan.py
+@@ -36,6 +36,11 @@
+     Required validation: the actually successful successor job bound across
+     acceptance/execution/custody/scheduler, cleanup, every evidence digest,
+     source/runtime lineage, both output indexes and complete membership.
++    Couple acceptance to public.REPORT_SOURCES / REPORT_METADATA, all loaded
++    statistics paths/digests against the accepted inventory, and every explicit
++    public-artifact/private-custody source disposition. Independently review and
++    bind a public failure/accounting disclosure with cutoff, requested/observed
++    quantities, units/scopes and unknown totals; never infer unrecorded usage.
+     Failed report01 is permanently ineligible; no report02 success is assumed.
+     Tests of downstream pure functions do not implement this missing acceptance.
+     """
+@@ -158,6 +163,10 @@
+         'artifacts': {n: digest(raw) for n, raw in additions.items()},
+         'original_source_bindings': old_source['bindings'],
+         'source_usage': copy.deepcopy(public.SOURCE_USAGE),
++        'report_source_dispositions': public.report_source_dispositions(
++            public.projection(decode(additions[projections['report_receipt']['path']]),
++                              'report_receipt')['/source_pins'], private_pins['report_custody']),
++        'accounting_disclosure': copy.deepcopy(public.DISCLOSURE_REQUIREMENT),
+         **{k: False for k in public.FALSE_FLAGS}}
+     additions[public.CONTRACT] = encoded(contract)
+     manifest = copy.deepcopy(old)
+--- original/scripts/research/verify_delivery_publication_release.py
++++ corrected/scripts/research/verify_delivery_publication_release.py
+@@ -1,16 +1,55 @@
+ """Offline successor checks; private execution evidence is referenced, not proved.
+ 
+-Authenticate this file and the generic verifier independently before execution.
++First authenticate this checker against an independently trusted source digest.
++Run with a trusted Python 3.11+ standard library using -I -S -B. Before executing
++either local dependency, this checker authenticates BOTH against BOOTSTRAP_PINS
++embedded in these trusted bytes, then executes only the captured source bytes.
++Only then does the generic verifier check the independently supplied final
++manifest pin. This order also applies to --help; adjacent checksums are not trust.
+ No model, statistical recomputation, network or private custody access.
+ """
+ import argparse
+ import copy
++import hashlib
+ import json
+-from pathlib import Path
++import math
++from pathlib import Path, PurePosixPath
+ import re
+-
+-import delivery_prospective_publication as reports
+-from verify_delivery_release import relative, pointer, verify
++import types
++
++# These dependencies import only the trusted standard library. Pin changes need
++# source review and a new independently authenticated checker, never packet input.
++BOOTSTRAP_PINS = {
++    'delivery_prospective_publication.py': '598e9071d5fdb5bebff81679b59578e1b5f16487f1c0584dc417ee6606998db9',
++    'verify_delivery_release.py': '9f80286faeb3266c53bba70a7cf2abc26c4129c61a56c265c263cb09a8f00d52',
++}
++
++
++def authenticated_dependencies():
++    root = Path(__file__).resolve().parent
++    captured = {}
++    for name, expected in BOOTSTRAP_PINS.items():
++        path = root/name
++        if path.is_symlink():
++            raise ValueError('bootstrap dependency symlink: '+name)
++        raw = path.read_bytes()
++        if hashlib.sha256(raw).hexdigest() != expected:
++            raise ValueError('bootstrap dependency digest differs: '+name)
++        captured[name] = raw
++    modules = {}
++    for name, raw in captured.items():
++        module = types.ModuleType(name.removesuffix('.py'))
++        module.__file__ = str(root/name)
++        # Never consult sys.path, sys.modules, pyc files or a second source read.
++        exec(compile(raw, module.__file__, 'exec', dont_inherit=True), module.__dict__)
++        modules[name] = module
++    return modules
++
++
++_dependencies = authenticated_dependencies()
++reports = _dependencies['delivery_prospective_publication.py']
++_generic = _dependencies['verify_delivery_release.py']
++relative, pointer, verify = _generic.relative, _generic.pointer, _generic.verify
+ 
+ require, digest, decode, pin = reports.require, reports.digest, reports.decode, reports.pin
+ CANDIDATE_SHA = 'b30e7b5f0f26f1e7f803c47e5cb1cbd22bbcb24ddac999e1f7e07cfc10c454a9'
+@@ -53,6 +92,18 @@
+                               reports.PROOFS['replay'], reports.BUNDLE)}}
+ ORIGINAL_INPUTS = ('registration.json', 'acceptance.json', 'scores.json',
+                    'complete.json', 'fit_seal.json', 'audit_execution.json')
++# Membership only, from the known reporting freeze. No successful report pin or
++# job is inferred. The future acceptance/custody adapter must bind all ten bytes.
++REPORT_SOURCES = (
++    'run_delivery_prospective_reporting.py', 'qualify_delivery_replay_runtime.py',
++    'supervise_delivery_qualified_replay.py', 'delivery_replay_supervision.py',
++    'runner_delivery_confirmation.py', 'audit_delivery_prospective_results.py',
++    'verify_delivery_release.py', 'replay_delivery_prospective_release.py',
++    'export_delivery_prospective_claims.py', 'prepare_delivery_prospective_supplement.py',
++)
++REPORT_METADATA = ('runtime_inventory.json', 'replay_receipt.json', 'replay_acceptance.json')
++PUBLIC_REPORT_SOURCES = {name: SOURCES['scripts/research/'+name] for name in
++                        ('export_delivery_prospective_claims.py', 'prepare_delivery_prospective_supplement.py')}
+ COUNTS = {'cells': 640, 'fixed_init0': 320, 'system_log_ratios': 80,
+           'history_specific_ratios': 8, 'short_fit_ablation': 2, 'primary_floor_counts': 4}
+ REPORT_OUTPUTS = {**{'primary/'+n: PAPER+n for n in reports.PRIMARY},
+@@ -90,8 +141,8 @@
+     return before, after
+ 
+ 
+-# Only these selectors cross the public boundary. Hash maps have constrained
+-# basename keys; runtime dictionaries and commands are never copied wholesale.
++# Only these selectors cross the public boundary. Digest maps have exact
++# memberships; runtime dictionaries and commands are never copied wholesale.
+ # The two scientific trees must match the authenticated acceptance tree's exact
+ # structure/strings and frozen numerical tolerance in _report_and_writing.
+ SPECS = {
+@@ -116,6 +167,7 @@
+         '/child/cleanup/complete': 'true', '/new_fits': 'int', '/new_responses': 'int'},
+     'report_receipt': {'/status': 'complete', '/freeze_sha256': 'hash', '/source_pins': 'sources',
+         '/metadata_pins': 'metadata', '/original_input_pins': 'originals', '/outputs': 'outputs',
++        '/loaded_statistics_files': 'statistics-files',
+         '/new_fits': 'int', '/new_optimizer_updates': 'int', '/new_responses': 'int'},
+     'report_runtime': {'/inventory_sha256': 'hash', '/environment_objects': 'int'},
+ }
+@@ -133,8 +185,91 @@
+         SPECS[_kind][_prefix+_name+'/sha256'] = 'hash'
+ 
+ 
++# Each raw scalar becomes an explicitly scoped quantity. Missing/null facts stay
++# unknown, never zero; the future private adapter must account for missing data.
++RESOURCE_FIELDS = {
++    'replay_freeze': {
++        '/cpus': ('int', 'CPU', 'replay allocation', 'requested'),
++        '/rss_bytes': ('int', 'byte', 'replay process tree RSS limit', 'requested'),
++        '/wall_seconds': ('number', 'second', 'replay allocation wall limit', 'requested'),
++        '/child_deadline_seconds': ('number', 'second', 'replay child deadline', 'requested'),
++        '/accelerators': ('int', 'GPU', 'replay allocation', 'requested'),
++        '/reserved_core_hours': ('number', 'CPU-hour', 'replay allocation reservation', 'requested'),
++        '/total_reserved_core_hours_including_authorized_retry':
++            ('number', 'CPU-hour', 'frozen reservation total including authorized retry', 'requested'),
++        '/known_prior_allocated_seconds':
++            ('number', 'second', 'known prior allocations at replay freeze cutoff', 'observed'),
++    },
++    'replay_execution': {
++        '/wrapper_elapsed_seconds': ('number', 'second', 'replay wrapper wall time', 'observed'),
++    },
++    'replay': {
++        '/replay_cpu_seconds': ('number', 'CPU-second', 'replay process CPU time', 'observed'),
++        '/replay_wall_seconds': ('number', 'second', 'replay process wall time', 'observed'),
++    },
++    'report_freeze': {
++        '/cpus': ('int', 'CPU', 'report allocation', 'requested'),
++        '/rss_bytes': ('int', 'byte', 'report process tree RSS limit', 'requested'),
++        '/wall_seconds': ('number', 'second', 'report allocation wall limit', 'requested'),
++    },
++    'report_execution': {
++        '/elapsed_seconds': ('number', 'second', 'report wrapper wall time', 'observed'),
++    },
++    'report_receipt': {
++        '/process_cpu_seconds': ('number', 'CPU-second', 'report child since context validation', 'observed'),
++        '/elapsed_seconds': ('number', 'second', 'report child since context validation', 'observed'),
++        '/peak_self_rss_kib': ('int', 'KiB', 'report child lifetime peak self RSS on Linux', 'observed'),
++    },
++    'report_runtime': {
++        '/process_cpu_seconds': ('number', 'CPU-second', 'report child through runtime verification', 'observed'),
++        '/elapsed_seconds': ('number', 'second', 'report child through runtime verification', 'observed'),
++    },
++}
++for _kind, _fields in RESOURCE_FIELDS.items():
++    for _selector, (_numeric, _unit, _scope, _basis) in _fields.items():
++        SPECS[_kind][_selector] = {'type': 'quantity', 'numeric': _numeric,
++                                  'unit': _unit, 'scope': _scope, 'basis': _basis}
++
++DISCLOSURE_REQUIREMENT = {
++    'status': 'required-before-release', 'reporting_cutoff': None,
++    'whole_sprint_process_cpu': {'status': 'unknown', 'value': None,
++        'unit': 'CPU-second', 'scope': 'whole sprint', 'basis': 'observed'},
++    'failed_report_jobs': {'34864950': 'FAILED; permanently ineligible as success'},
++    'requirements': ['bind a separately reviewed public failure/accounting artifact',
++        'state an explicit reporting cutoff and preserve every failed attempt through it',
++        'distinguish requested allocations, observed usage and genuinely unknown totals',
++        'retain private scheduler/resource evidence and disclose missing measurements'],
++}
++
++
++def quantity(value, rule):
++    result = {k: rule[k] for k in ('unit', 'scope', 'basis')}
++    result.update(status='unknown' if value is None else 'recorded', value=value)
++    field(result, rule)
++    return result
++
++
++def report_source_dispositions(sources, custody):
++    field(sources, 'sources'); pin(custody)
++    return {name: {'sha256': sources[name], **(
++        {'disposition': 'public-artifact', 'path': PUBLIC_REPORT_SOURCES[name]}
++        if name in PUBLIC_REPORT_SOURCES else
++        {'disposition': 'private-custody', 'custody_sha256': custody})} for name in REPORT_SOURCES}
++
++
+ def field(value, kind):
+-    if kind == 'hash':
++    if type(kind) is dict:
++        require(type(value) is dict and set(value) == {'unit', 'scope', 'basis', 'status', 'value'} and
++                all(value[k] == kind[k] for k in ('unit', 'scope', 'basis')), 'quantity units/scope differ')
++        number = value['value']
++        if number is None:
++            require(value['status'] == 'unknown', 'unavailable quantity must stay unknown')
++        else:
++            types_ = (int,) if kind['numeric'] == 'int' else (int, float)
++            require(type(number) in types_ and number >= 0 and
++                    (type(number) is int or math.isfinite(number)), 'finite nonnegative quantity required (no bool)')
++            require(value['status'] == 'recorded', 'recorded quantity status differs')
++    elif kind == 'hash':
+         pin(value)
+     elif kind == 'analysis':
+         require(type(value) is dict, 'scientific analysis object required')
+@@ -149,16 +284,30 @@
+         require(value not in FAILED_REPORT_JOBS, 'failed report attempt cannot supply success evidence')
+     elif kind in ('sources', 'metadata', 'originals', 'outputs'):
+         require(type(value) is dict and value, 'nonempty digest map required')
+-        if kind == 'originals':
+-            require(set(value) == set(ORIGINAL_INPUTS), 'six original inputs required')
+-        elif kind == 'outputs':
+-            require(set(value) == set(REPORT_OUTPUTS), '13 report outputs required')
+-        else:
+-            suffix = 'py' if kind == 'sources' else 'json'
+-            require(all(re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*\.'+suffix, n) for n in value),
+-                    'only source/metadata basenames allowed')
++        members = {'sources': REPORT_SOURCES, 'metadata': REPORT_METADATA,
++                   'originals': ORIGINAL_INPUTS, 'outputs': REPORT_OUTPUTS}[kind]
++        require(set(value) == set(members), 'exact '+kind+' membership required')
+         for v in value.values():
+             pin(v)
++    elif kind == 'statistics-files':
++        require(type(value) is dict and {'numpy', 'scipy'} <= set(value), 'loaded statistics roots required')
++        paths = {}
++        for module, row in value.items():
++            require(type(module) is str and re.fullmatch(r'(numpy|scipy)(?:\.[A-Za-z_][A-Za-z_0-9]*)*', module),
++                    'statistics module identifier required')
++            require(type(row) is dict and set(row) == {'path', 'sha256'}, 'statistics file fields differ')
++            path = row['path']
++            require(type(path) is str and re.fullmatch(r'[A-Za-z0-9_./+-]+', path) and
++                    not PurePosixPath(path).is_absolute() and str(PurePosixPath(path)) == path and
++                    all(part not in ('.', '..') for part in path.split('/')),
++                    'canonical environment-relative statistics path required')
++            require(re.fullmatch(r'lib/python[0-9]+\.[0-9]+/site-packages/'+
++                                module.split('.')[0]+r'/.+', path),
++                    'statistics module/environment namespace differs')
++            # Aliased modules may share a file; conflicting digests may not.
++            pin(row['sha256'])
++            require(paths.get(path, row['sha256']) == row['sha256'], 'statistics file alias hash differs')
++            paths[path] = row['sha256']
+     else:
+         require(value == kind, 'completion field differs')
+ 
+@@ -167,7 +316,11 @@
+     original = decode(raw)
+     values = {}
+     for selector, rule in SPECS[kind].items():
+-        value = pointer(original, selector)
++        if type(rule) is dict:
++            # Resource selectors are explicit top-level fields in known records.
++            value = quantity(original.get(selector[1:]), rule)
++        else:
++            value = pointer(original, selector)
+         field(value, rule)
+         values[selector] = copy.deepcopy(value)
+     return {'schema': 'delivery-publication-evidence-projection-v1', 'kind': kind,
+@@ -234,6 +387,8 @@
+                 reports.DEPENDENCIES[name], 'report statistics versions differ')
+         require(rr['/statistics_dependencies/'+name+'/sha256'] == rt['/dependencies/'+name+'/sha256'],
+                 'report statistics backing hash differs')
++        require(rr['/loaded_statistics_files'][name]['sha256'] == rt['/dependencies/'+name+'/sha256'],
++                'loaded statistics root backing hash differs')
+     for name, count in COUNTS.items():
+         require(rr['/counts/'+name] == count, 'report cardinality differs')
+     return p
+@@ -313,7 +468,8 @@
+     old = decode(old_raw); before, after = inheritance(old, manifest)
+     require(set(contract) == {'schema', 'authoritative_path', 'predecessor', 'private_evidence',
+         'execution_evidence', 'snapshot_members', 'projections', 'artifacts', 'original_source_bindings',
+-        'source_usage', *FALSE_FLAGS}, 'publication contract fields differ')
++        'source_usage', 'report_source_dispositions', 'accounting_disclosure', *FALSE_FLAGS},
++        'publication contract fields differ')
+     require(contract['schema'] == 'delivery-publication-source-dispositions-v1' and
+             contract['authoritative_path'] == CONTRACT, 'authoritative publication contract required')
+     require(contract['predecessor'] == {'path': PREDECESSOR, 'sha256': CANDIDATE_SHA,
+@@ -348,6 +504,14 @@
+         projections[kind] = decode(raw[path])
+         require(projections[kind]['original_sha256'] == row['original_sha256'], 'projection original binding differs')
+     p = evidence(projections, decode(raw['B/replay_contract.json']), CANDIDATE_SHA)
++    require(contract['report_source_dispositions'] == report_source_dispositions(
++        p['report_receipt']['/source_pins'], private['report_custody']['sha256']),
++        'report source dispositions differ')
++    for name, target in PUBLIC_REPORT_SOURCES.items():
++        require(digest(raw[target]) == p['report_receipt']['/source_pins'][name],
++                'public report source bytes differ')
++    require(contract['accounting_disclosure'] == DISCLOSURE_REQUIREMENT,
++            'pending failure/accounting disclosure requirement changed')
+     for name, kind in (('freeze', 'replay_freeze'), ('execution', 'replay_execution'), ('replay', 'replay')):
+         require(snapshots[PAPER+reports.PROOFS[name]]['sha256'] == projections[kind]['original_sha256'],
+                 'private snapshot replay proof differs')
+@@ -373,6 +537,7 @@
+         decode(raw['B/replay_contract.json']))
+     return {'inherited_files': OLD_FILES, 'inherited_bindings': OLD_BINDINGS, 'companions': 16,
+         'report_outputs': 13, 'private_execution_revalidated': False, 'public_release_approved': False,
++        'accounting_disclosure_complete': False,
+         'scope': 'offline byte, projection-schema and publication-lineage consistency only'}
+ 
+ 
+@@ -384,7 +549,8 @@
+     names = set(contract['artifacts']) | {'B/acceptance.json', 'B/replay_contract.json', 'reproduction/source_contract.json'}
+     raw = {n: reports.read(relative(root, n)) for n in names}
+     require(digest(raw[CHECKER]) == digest(Path(__file__).read_bytes()), 'executing publication checker differs')
+-    require(digest(raw['delivery_prospective_publication.py']) == reports.SOURCE_SHA256, 'imported publication helper differs')
++    for name, expected in BOOTSTRAP_PINS.items():
++        require(digest(reports.read(relative(root, name))) == expected, 'packaged bootstrap dependency differs')
+     result = validate_publication(manifest, raw[PREDECESSOR], contract, raw)
+     return {**result, 'integrity': integrity}
+ 
+--- original/scripts/research/test_delivery_final_release.py
++++ corrected/scripts/research/test_delivery_final_release.py
+@@ -5,6 +5,7 @@
+ """
+ import copy
+ from pathlib import Path
++import subprocess
+ import sys
+ import tempfile
+ import unittest
+@@ -71,8 +72,10 @@
+         for kind, specs in public.SPECS.items():
+             value = {}
+             for selector, rule in specs.items():
+-                default = {'hash': H(b'pin'), 'analysis': {}, 'int': 0, 'true': True,
+-                    'version': '1.0', 'report-job': SYNTHETIC_REPORT_JOB, 'sources': {}, 'metadata': {}, 'outputs': {}, 'originals': {}}.get(rule, rule)
++                default = 0 if type(rule) is dict else {
++                    'hash': H(b'pin'), 'analysis': {}, 'int': 0, 'true': True,
++                    'version': '1.0', 'report-job': SYNTHETIC_REPORT_JOB, 'sources': {},
++                    'metadata': {}, 'outputs': {}, 'originals': {}, 'statistics-files': {}}.get(rule, rule)
+                 put(value, selector, default)
+             self.evidence[kind] = value
+         freeze = self.evidence['replay_freeze']
+@@ -116,6 +119,7 @@
+         self.writing[public.PAPER+'paper.tex'] = '\n'.join(chunks).encode()
+         report_freeze = self.evidence['report_freeze']
+         report_freeze.update(manifest_sha256=self.old_pin, source_pins={
++            **{name: H(('fabricated private source '+name).encode()) for name in public.REPORT_SOURCES},
+             'export_delivery_prospective_claims.py': exporter_sha,
+             'prepare_delivery_prospective_supplement.py': provenance['tool_sha256']},
+             original_input_pins=historical, metadata_pins={'replay_receipt.json': H(E(replay)),
+@@ -128,6 +132,16 @@
+         for name in ('numpy', 'scipy'):
+             receipt['statistics_dependencies'][name].update(version=public.reports.DEPENDENCIES[name], origin='/private/runtime/'+name)
+             runtime['dependencies'][name].update(version=public.reports.DEPENDENCIES[name], origin='/private/runtime/'+name)
++            receipt['loaded_statistics_files'][name] = {
++                'path': 'lib/python3.11/site-packages/'+name+'/__init__.py',
++                'sha256': runtime['dependencies'][name]['sha256']}
++        receipt['loaded_statistics_files']['numpy.fixture'] = {
++            'path': 'lib/python3.11/site-packages/numpy/fixture.py', 'sha256': H(b'fabricated module')}
++        # Artificial quantities only; these are never actual run measurements.
++        report_freeze.update(cpus=1, rss_bytes=3*2**30, wall_seconds=3600)
++        receipt.update(freeze_sha256=H(E(report_freeze)), process_cpu_seconds=12.5,
++                       elapsed_seconds=30.5, peak_self_rss_kib=123456)
++        runtime.update(process_cpu_seconds=2.5, elapsed_seconds=8.5)
+         report_execution = self.evidence['report_execution']
+         report_execution.update(freeze_sha256=H(E(report_freeze)), report_receipt_sha256=H(E(receipt)))
+         report_execution['child']['cleanup']['private_process'] = '/private/process'
+@@ -151,6 +165,131 @@
+ 
+ 
+ class FinalReleaseTests(unittest.TestCase):
++    def test_bootstrap_authenticates_before_dependency_execution(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp); checker = root/public.CHECKER
++            checker.write_bytes(Path(public.__file__).read_bytes())
++            sources = {name: (Path(public.__file__).parent/name).read_bytes() for name in public.BOOTSTRAP_PINS}
++            for changed in (None, *sources):
++                for name, raw in sources.items():
++                    if name == changed:
++                        raw = b"from pathlib import Path\nPath(__file__).with_name('EXECUTED').touch()\n"
++                    (root/name).write_bytes(raw)
++                result = subprocess.run([sys.executable, '-I', '-S', '-B', str(checker), '--help'],
++                                        cwd=root, capture_output=True, text=True)
++                # Retain every subprocess stream in the outer captured test log.
++                print('bootstrap case:', changed, 'exit:', result.returncode)
++                print(result.stdout, end=''); print(result.stderr, end='')
++                self.assertEqual(result.returncode, 0 if changed is None else 1)
++                self.assertFalse((root/'EXECUTED').exists())
++                if changed:
++                    self.assertIn('bootstrap dependency digest differs: '+changed, result.stderr)
++            # All hashes must pass before *either* captured dependency executes.
++            with patch.object(public, '__file__', str(checker)), patch('builtins.exec') as execute:
++                with self.assertRaisesRegex(ValueError, 'bootstrap dependency digest differs'):
++                    public.authenticated_dependencies()
++                execute.assert_not_called()
++        # An already-imported substitute cannot satisfy a pinned byte load.
++        with patch.dict(sys.modules, {'delivery_prospective_publication': object(),
++                                     'verify_delivery_release': object()}):
++            loaded = public.authenticated_dependencies()
++            self.assertEqual(loaded['delivery_prospective_publication.py'].digest(b'x'), H(b'x'))
++
++    def test_exact_report_source_and_metadata_memberships(self):
++        for kind in ('report_freeze', 'report_receipt'):
++            for key, name in (('source_pins', 'runner_delivery_confirmation.py'),
++                              ('metadata_pins', 'runtime_inventory.json')):
++                for operation in ('remove', 'add'):
++                    p = Packet(); row = p.evidence[kind][key]
++                    if operation == 'remove':
++                        del row[name]
++                    else:
++                        row['unreviewed_import.py' if key == 'source_pins' else 'unreviewed_evidence.json'] = H(b'unknown')
++                    with self.subTest(kind=kind, key=key, operation=operation), self.assertRaisesRegex(ValueError, 'exact .* membership'):
++                        p.construct()
++        p = Packet(); p.construct(); p.validate()
++        self.assertEqual(len(p.evidence['report_receipt']['source_pins']), 10)
++        self.assertEqual(len(p.evidence['report_receipt']['metadata_pins']), 3)
++
++    def test_loaded_statistics_paths_hashes_and_source_dispositions(self):
++        p = Packet(); p.construct(); p.validate()
++        projection = public.decode(p.raw['publication/evidence/report_receipt.json'])
++        self.assertEqual(projection['values']['/loaded_statistics_files'],
++                         p.evidence['report_receipt']['loaded_statistics_files'])
++        self.assertFalse(any(s.startswith('/loaded_statistics_files') for s in p.omissions['report_receipt']))
++        dispositions = p.contract['report_source_dispositions']
++        self.assertEqual(sum(row['disposition'] == 'public-artifact' for row in dispositions.values()), 2)
++        for name in set(public.REPORT_SOURCES)-set(public.PUBLIC_REPORT_SOURCES):
++            self.assertEqual(dispositions[name]['custody_sha256'], p.pins['report_custody'])
++        for mutate in (
++            lambda m: m.pop('scipy'),
++            lambda m: m.update({'other.fixture': m['numpy']}),
++            lambda m: m['numpy'].update(path='/private/numpy/__init__.py'),
++            lambda m: m['numpy'].update(path='../numpy/__init__.py'),
++            lambda m: m['numpy'].update(path='lib//numpy/__init__.py'),
++            lambda m: m['numpy'].update(path='lib/python3.11/site-packages/scipy/__init__.py'),
++            lambda m: m['numpy'].update(origin='/private/environment'),
++            lambda m: m['numpy'].update(sha256='0'*64),
++        ):
++            p = Packet(); mutate(p.evidence['report_receipt']['loaded_statistics_files'])
++            p.evidence['report_execution']['report_receipt_sha256'] = H(E(p.evidence['report_receipt']))
++            with self.subTest(mutate=mutate), self.assertRaises(ValueError):
++                p.construct(); p.validate()
++        for mutate in (
++            lambda p: p.contract['report_source_dispositions'].pop('runner_delivery_confirmation.py'),
++            lambda p: p.contract['report_source_dispositions']['runner_delivery_confirmation.py'].update(custody_sha256='0'*64),
++            lambda p: p.contract['report_source_dispositions']['export_delivery_prospective_claims.py'].update(path='unbound.py'),
++        ):
++            p = Packet(); p.construct(); mutate(p)
++            with self.subTest(mutate=mutate), self.assertRaisesRegex(ValueError, 'source dispositions'):
++                p.validate()
++
++    def test_resource_quantities_units_scopes_and_unknowns(self):
++        p = Packet(); p.construct(); p.validate()
++        for kind, fields in public.RESOURCE_FIELDS.items():
++            result = public.decode(p.raw['publication/evidence/'+kind+'.json'])
++            for selector, (_, unit, scope, basis) in fields.items():
++                with self.subTest(kind=kind, selector=selector):
++                    value = result['values'][selector]
++                    self.assertEqual(value, {'value': p.evidence[kind][selector[1:]], 'status': 'recorded',
++                                             'unit': unit, 'scope': scope, 'basis': basis})
++                    self.assertNotIn(selector, p.omissions[kind])
++                    for unknown in ('missing', None):
++                        raw = copy.deepcopy(p.evidence[kind])
++                        if unknown == 'missing': del raw[selector[1:]]
++                        else: raw[selector[1:]] = None
++                        derived = public.project(kind, E(raw))
++                        public.projection(derived, kind)
++                        self.assertEqual(derived['values'][selector]['status'], 'unknown')
++                        self.assertIsNone(derived['values'][selector]['value'])
++        disclosure = p.contract['accounting_disclosure']
++        self.assertIsNone(disclosure['whole_sprint_process_cpu']['value'])
++        self.assertIsNone(disclosure['reporting_cutoff'])
++        self.assertIn('34864950', disclosure['failed_report_jobs'])
++        self.assertFalse(p.validate()['accounting_disclosure_complete'])
++        disclosure['status'] = 'complete'
++        with self.assertRaisesRegex(ValueError, 'disclosure requirement'): p.validate()
++
++    def test_resource_quantities_reject_nonfinite_negative_bool_and_relabeling(self):
++        p = Packet()
++        for kind, fields in public.RESOURCE_FIELDS.items():
++            good = public.project(kind, E(p.evidence[kind]))
++            for selector, (numeric, *_) in fields.items():
++                for invalid in (True, False, -1, -0.5, float('inf'), float('nan'), '12.5', [], {}):
++                    bad = copy.deepcopy(good); bad['values'][selector]['value'] = invalid
++                    with self.subTest(kind=kind, selector=selector, invalid=invalid), self.assertRaises(ValueError):
++                        public.projection(bad, kind)
++                if numeric == 'int':
++                    bad = copy.deepcopy(good); bad['values'][selector]['value'] = 1.5
++                    with self.assertRaises(ValueError): public.projection(bad, kind)
++                for key, value in (('unit', 'hours'), ('scope', 'whole sprint'), ('basis', 'inferred'), ('status', 'unknown')):
++                    bad = copy.deepcopy(good); bad['values'][selector][key] = value
++                    with self.subTest(key=key), self.assertRaises(ValueError): public.projection(bad, kind)
++        # Malformed raw recorded values must fail at derivation too.
++        for value in (True, -1, '12.5'):
++            raw = copy.deepcopy(p.evidence['report_receipt']); raw['process_cpu_seconds'] = value
++            with self.assertRaises(ValueError): public.project('report_receipt', E(raw))
++
+     def test_report_job_identity_does_not_qualify_execution(self):
+         p = Packet(); p.evidence['report_execution']['job_id'] = '34864950'
+         # The otherwise complete fabricated packet must not relabel report01.
+--- original/docs/development/guidance/delivery_final_release_schema_2026-10-24.md
++++ corrected/docs/development/guidance/delivery_final_release_schema_2026-10-24.md
+@@ -18,7 +18,7 @@
+ - `pdf`: parent's final PDF bytes; this binds bytes, not a compiler execution claim. The parent retains source-to-PDF compilation/page-review evidence.
+ - `checker`, `planner`: independently pinned exact executing new source files.
+ 
+-The missing acceptance adapter must independently bind the **actually successful successor job** across the parent's acceptance, report execution, scheduler and complete custody records, then validate cleanup, every supplied report-evidence digest, accepted replay12/inventory lineage, original input/source/runtime bindings and both complete original output directories. No successful job ID is hard-coded. The public projection requires a canonical numeric job identity and rejects known-failed34864950; passing this syntax/exclusion check is not acceptance. The known runner schemas are already checked downstream; they cannot substitute for independent report acceptance. The report-custody schema and its link from the parent's acceptance must be implemented together, not inferred from a filename or status string.
++The missing acceptance adapter must independently bind the **actually successful successor job** across the parent's acceptance, report execution, scheduler and complete custody records, then validate cleanup, every supplied report-evidence digest, accepted replay12/inventory lineage, original input/source/runtime bindings and both complete original output directories. No successful job ID is hard-coded. The public projection requires a canonical numeric job identity and rejects known-failed34864950; passing this syntax/exclusion check is not acceptance. Only the explicit projected runner fields are checked downstream; this does not validate the complete runner, scheduler, acceptance or custody schemas. The future private adapter must enforce the exact ten-source/three-metadata memberships below against its independently accepted bytes, validate every loaded statistics file against the accepted runtime inventory, and close the public failure/accounting disclosure gate. The report-custody schema and its link from the parent's acceptance must be implemented together, not inferred from a filename or status string.
+ 
+ After that gate is implemented and reviewed, preparation writes only a new private directory: `plan.json`, `public/` staged additions and `private/` pinned inputs/projection originals/request/derivation. It reuses the reviewed snapshot writer and existing generic projection semantics. It never calls the package builder. The eventual public checker accepts `--root PACKAGE --expected-manifest-sha256 INDEPENDENT_PIN` and uses the unchanged generic verifier first.
+ 
+@@ -72,10 +72,53 @@
+ 
+ The retained exact command, stdout/stderr and source/note hashes are indexed by [preparation receipt](../../../results/delivery_final_release_preparation_20261024/receipt.json). `command01.json` records the five selected methods, cwd `/tmp`, timestamps and exit0; captured output reports `Ran 5 tests in 0.580s` and `OK`. `historical_test_outcomes.json` preserves the initial failure, corrections, prior test outcomes and pre-update hashes as explicitly labeled transcriptions from prior tool results. It does not pretend that original raw historical streams or unknown intermediate source hashes were captured.
+ 
+-Current SHA256:
++Historical pre-review SHA256 (superseded by correction01, retained):
+ 
+ - `prepare_delivery_final_release_plan.py`: `ecacb0ebf776d26ef5f94aaf97e24aa1721eee7fd046c19ba171a519cbb1d6bf`
+ - `verify_delivery_publication_release.py`: `3f783963563cec7e64e5c931c50ef9593d95562071b3e390daf1a846298fdc2f`
+ - `test_delivery_final_release.py`: `3d4c420e0435c52f6c036ba9735e1feb8846eaa131c97084184d1b774e0b2d69`
+ 
+ Status remains preparation only: real success schema/evidence unavailable, production gate closed, separate independent review required, no actual build or commit.
++
++
++## R1/R2/R3 correction01 — blocked preparation, awaiting Russell review
++
++The [new review](reviews/delivery_final_release_preparation_review_2026-10-24.md) is unchanged. Current originals, predecessor receipts/streams and the review were captured before edits under [correction01 originals](../../../results/delivery_final_release_preparation_20261024/correction01/originals.json). The [correction receipt](../../../results/delivery_final_release_preparation_20261024/correction01/receipt.json) supplies final source/document pins, exact commands, test streams and revision snapshots. Predecessor evidence is never overwritten. This section supersedes the earlier bootstrap, incomplete source-map fixture and resource-omission behavior; historical test results above remain historical.
++
++**R1 — complete public executable bootstrap.** The reader must first authenticate this checker using trusted code and an independently trusted checker digest. With a trusted Python 3.11+ installation/standard library, invoke it using `-I -S -B` to exclude path/environment imports, site startup and bytecode caches. Before executing either local dependency, the checker captures and checks both against fixed digests inside its authenticated source:
++
++- `delivery_prospective_publication.py`: `598e9071d5fdb5bebff81679b59578e1b5f16487f1c0584dc417ee6606998db9`.
++- `verify_delivery_release.py`: `9f80286faeb3266c53bba70a7cf2abc26c4129c61a56c265c263cb09a8f00d52`.
++
++These two dependencies import only the standard library. The loader executes the captured authenticated bytes, bypassing project import search, cached modules and bytecode. Then the generic verifier checks the independently supplied final manifest pin; the package copies must also match the bootstrap pins. This applies even to `--help`. A helper self-hash or adjacent checksum is not independent authentication. Changing dependencies requires source review and a new trusted checker digest. The future reader guide must state this exact order and all three executable source files. This is the public-checker bootstrap; private planner/capture/build tooling still requires trusted local source custody and is not advertised as a reader entry point.
++
++**R2 — complete known report membership and dispositions.** Both report freeze and receipt must have exactly these ten `source_pins` members, with no omissions or additions:
++
++- `run_delivery_prospective_reporting.py`
++- `qualify_delivery_replay_runtime.py`
++- `supervise_delivery_qualified_replay.py`
++- `delivery_replay_supervision.py`
++- `runner_delivery_confirmation.py`
++- `audit_delivery_prospective_results.py`
++- `verify_delivery_release.py`
++- `replay_delivery_prospective_release.py`
++- `export_delivery_prospective_claims.py`
++- `prepare_delivery_prospective_supplement.py`
++
++The exact three `metadata_pins` members are `runtime_inventory.json`, `replay_receipt.json` and `replay_acceptance.json`. The observed historical freeze supplies membership only: no report01 or report02 source digest is promoted to successful execution. The future acceptance adapter must use these same memberships and independently authenticate their actual accepted values; changing membership requires coordinated review of the adapter and public schema.
++
++`report_source_dispositions` binds the exporter and descriptive reporter to their hashed public artifacts. Each of the other eight **executed report versions** has an explicit digest plus `private-custody` disposition bound to the report custody digest. A similarly named historical file elsewhere in the package is not silently substituted for that executed version. Private custody remains externally accepted, not publicly revalidated.
++
++The complete recorded `loaded_statistics_files` map survives as module → `{path, sha256}`. Identifiers are limited to NumPy/SciPy dotted module names; paths must be canonical environment-relative `lib/pythonX.Y/site-packages/<numpy-or-scipy>/...` names, without traversal, absolute origins or extra fields. Both roots are required and their hashes must match the projected dependency hashes. Aliased modules sharing a file must agree on its digest. The future acceptance adapter, with private inventory access, must validate completeness and every module/path/hash relationship against the accepted runtime inventory. This public consistency check cannot establish loaded-code completeness from unavailable original custody.
++
++**R3 — recorded costs and limits retain type, units and scope.** Resource selectors now produce `{value, status, unit, scope, basis}` quantities. `basis` distinguishes requested limits/reservations from observed usage. Count/byte/KiB fields require nonnegative integers; durations/CPU reservations require finite nonnegative integers or floats. Booleans, numeric strings, negative values, NaN and infinity are rejected. Missing or null facts become `status: unknown, value: null`, never zero. Unit/scope/basis changes are rejected on public validation.
++
++Report projections retain frozen CPU count, RSS-byte limit and wall-second limit; wrapper elapsed seconds; runtime-verification CPU/wall seconds; and receipt `process_cpu_seconds`, `elapsed_seconds`, `peak_self_rss_kib`. CPU time is in CPU-seconds, wall time in seconds and Linux self peak RSS in KiB. Child timings start after context validation; runtime-verification timings are a prefix of the child receipt, so they must not be added together. Self peak RSS is not a process-tree peak or scheduler allocation.
++
++The accepted replay's actual metadata shape was read locally without model access. Its selected facts use their existing names: freeze CPU/RSS/wall/child-deadline/GPU limits, core-hour reservations and known prior allocated seconds; execution `wrapper_elapsed_seconds`; receipt `replay_cpu_seconds` and `replay_wall_seconds`. Reservation hours and known allocated elapsed seconds are not measured whole-sprint CPU time. No synthetic report fixture values are claims about a real job. Full scheduler records, sampled RSS, absolute origins, authorization and failed-attempt details remain in private original evidence for the eventual disclosure adapter.
++
++The manifest-bound contract now explicitly retains a **pending** `accounting_disclosure` requirement: a separately reviewed public failure/accounting artifact, an explicit reporting cutoff, every failure through that cutoff, requested-versus-observed distinctions and missing-measurement disclosure. Whole-sprint process CPU remains unknown, the actual disclosure cutoff remains null, and failed34864950 is permanently ineligible as success. The public result reports `accounting_disclosure_complete: false`; this requirement is not itself the finished disclosure artifact. Implementing/binding that artifact is future reviewed work, along with actual report/custody acceptance. Neither gate is waived by these tests.
++
++Focused correction regressions cover authenticated load order and substitution rejection (including expected failing subprocess streams), exact pin memberships, loaded statistics identifiers/digests, public/private source dispositions, resource preservation/unknowns, and invalid resource types/units/scopes. Only named new regressions and affected fabricated tests are run; commands, outputs, exit status and the precise tested source revisions are retained in correction01. Production acceptance remains unconditionally blocked, including when an `accepted: true` record or a different numeric job ID is supplied. No real package or report is created. Russell's distinct recheck is still pending.
++
++Retained correction test results: `run01` passed the five new and five affected fabricated methods (10 tests, 1.666s, exit0). After tightening isolated bootstrap startup, statistics path namespaces and replay reservation selectors, `run02` passed the same focused set on the final source revision (10 tests, 1.694s, exit0). No test failure occurred; expected substitution-rejection subprocesses exited1 and their complete tracebacks remain in each run's stdout. No old component suite was run.
+--- original/docs/development/guidance/delivery_final_release_integration_plan_2026-10-24.md
++++ corrected/docs/development/guidance/delivery_final_release_integration_plan_2026-10-24.md
+@@ -2,7 +2,7 @@
+ 
+ Use a **new flat successor package**, preserving candidate03's entire payload and adding the integrated manuscript, both accepted B reports and an authoritative publication/source contract. Do not rebuild the scientific studies, overwrite the replay-input manifest, or treat the private 19-file assembly as an anonymous release.
+ 
+-This is implementation preparation only. The newest [ledger tail](research_execution_2026-09-25.md) accepts replay12/job34863006 and records report-only job34864950 as running, with report custody/acceptance pending. The parent owns that acceptance, the SAME manuscript integration and final accounting. No new report outcomes were inspected here; no component tests/reviews, numerical replay, models, jobs, installs, package writes, commits or publication were performed. Older pending-replay statements in the reporting/snapshot/command documents are historical.
++**Historical cutoff superseded October 24, 2026:** the original plan described report01/job34864950 as running. It is now FAILED and permanently ineligible as success; the parent owns report02 freezing, all remote jobs and any eventual independent acceptance. Replay12/job34863006 remains accepted against candidate03. The two new interfaces now exist as blocked preparation, with R1/R2/R3 corrections recorded in [correction01](../../../results/delivery_final_release_preparation_20261024/correction01/receipt.json); separate Russell review remains pending. The parent owns SAME-manuscript integration and final accounting. This correction uses only local metadata and fabricated tests; it makes no actual package, report, model/runtime/science, remote, install, publication or commit action. Older pending-replay statements are historical.
+ 
+ The governing integration sequence is in [publication reporting](delivery_publication_reporting_2026-10-23.md), [publication completion](delivery_publication_completion_2026-10-23.md) and [report execution](delivery_prospective_reporting_execution_2026-10-24.md). This plan supplies their remaining package/source-successor step.
+ 
+@@ -25,7 +25,7 @@
+ 
+ 4. **Add one new authoritative contract** at `publication/source_contract.json` with a new schema, for example `delivery-publication-source-dispositions-v1`. Explicitly designate the retained v2 contract as historical and bind it, its A/C/F predecessor and recovery lineage. Retain all 24 original worker relationships and notices. Record any newly public original exporter as identity source included for provenance, with its released path/digest; inclusion alone never qualifies its imports/execution. Bind final writing, reports, helper sources, supported commands, runtime records and public evidence projections. State replay12 qualification **against candidate03**, report qualification against the parent's accepted report packet, and separate anonymous-execution/training/public-approval flags. Keep training reproduction unavailable and approval flags false until their actual gates close. Do not flip flags in old contracts or in `B/replay_contract.json`.
+ 
+-5. **Implement two small interfaces**, tentatively `prepare_delivery_final_release_plan.py` and `verify_delivery_publication_release.py`; neither exists yet. The private planner authenticates inputs before report decoding, produces explicit public projections/dispositions and extends the inherited plan. The public checker uses the existing byte verifier, then checks successor-specific lineage, report membership, selectors, source roles and manuscript bindings. Existing `delivery-anonymous-derived-v1` manifest support and JSON-pointer bindings are sufficient; no new generic build transform is needed. Nested projections should be derived into new private staging files and added as identity artifacts with explicit original/derived lineage, following the existing B planner pattern.
++5. **Complete independent review of the two implemented interfaces**, `prepare_delivery_final_release_plan.py` and `verify_delivery_publication_release.py`. Production report acceptance is unconditionally blocked pending an actual successful report/custody adapter, implemented and reviewed separately. The private planner authenticates inputs before report decoding, produces explicit public projections/dispositions and extends the inherited plan. The public checker uses the existing byte verifier, then checks successor-specific lineage, report membership, selectors, source roles and manuscript bindings. Existing `delivery-anonymous-derived-v1` manifest support and JSON-pointer bindings are sufficient; no new generic build transform is needed. Nested projections should be derived into new private staging files and added as identity artifacts with explicit original/derived lineage, following the existing B planner pattern.
+ 
+ The new contract should contain: predecessor manifest/source hashes; accepted replay and report evidence hashes; private assembly and committed snapshot inventory hashes; an explicit source-to-release path/digest map; both original report indexes and basename mappings; per-projection original hash, derived hash, schema and field selectors; final manuscript/16-companion/style/source/PDF membership; and scoped qualification/approval statements. Bind every included target using manifest JSON pointers. Hash-only references to private evidence must say `private-custody`, not imply those objects are shipped. Avoid self-referential manifest hashes: record the new root manifest digest in the external release receipt after construction.
+ 
+@@ -36,6 +36,8 @@
+ The current assembly's replay freeze includes `package`, `output`, interpreter/environment paths, account information, authorization text and absolute-path keys in backing-pin maps. Execution and reporting metadata also contain nested paths; `run_delivery_prospective_reporting.py` records statistics dependency origins and child execution. Selecting whole top-level dictionaries with `project-json` is insufficient. Use explicit nested field allowlists and reject unknown structures before producing new records. Preserve numerical analyses, counters, dependency versions/hashes, completion/cleanup facts, resource amounts/units and original receipt hashes. Replace necessary locations with declared package-relative paths or environment-relative module identifiers; retain the absolute mapping privately. Do not label projected records as original execution receipts.
+ 
+ At minimum, preserve replay freeze `manifest_sha256`, `package_files`, `package_bindings`, `exact_dependencies`, `base_python_sha256` and zero-work counters; execution `freeze_sha256`, `manifest_sha256`, `replay_receipt_sha256`, status/stage/exit, child status/exit/cleanup-complete and the individual authenticated-runtime hashes/count. Preserve full replay analyses and 640/240/48000 counters. For report evidence retain freeze/input/source/runtime/output digests, versions, completion/cleanup and complete output membership. Copy none of the enclosing dictionaries merely because those selected fields are safe. Record every omitted field and original-to-public selector mapping in the private derivation.
++
++Correction01 now enforces the exact ten `source_pins` and three `metadata_pins` members listed in the [schema note](delivery_final_release_schema_2026-10-24.md), retaining the complete recorded loaded-statistics module/environment-relative path/digest map. Each executed source has an explicit public-artifact or private-custody disposition. The future acceptance adapter must bind those memberships and all module digests to the independently accepted source/runtime custody; known freeze membership alone does not qualify a report. Resource projections preserve typed quantities with fixed units, scope and requested/observed labels, including report child/runtime costs and frozen limits. Missing facts remain unknown. The contract explicitly requires a future reviewed public failure/accounting artifact and reporting cutoff; it reports that disclosure incomplete and never infers whole-sprint CPU usage.
+ 
+ The new planner must separately authenticate the parent's **report** freeze, execution, report receipt, runtime evidence, custody inventory and independent acceptance. Check their lineage to accepted replay12, all six original reporting inputs, pinned exporter/reporter/import sources, statistics versions and all 13 generated files. [`run_delivery_prospective_reporting.py:181`](../../../scripts/research/run_delivery_prospective_reporting.py) defines the report receipt fields; these records are outside the current assembly's nine-pin schema. The public projection must retain the report source/runtime/output bindings and clearly state that private independent acceptance supplies execution evidence.
+ 
+@@ -58,7 +60,7 @@
+   --private-receipt NEW_EXTERNAL_DERIVATION_RECEIPT
+ ```
+ 
+-This is a future private command, not an instruction to execute during this subtask. The new planner/checker need explicit independent pins for candidate03, its plan, accepted replay/report evidence, the assembled bundle, final committed snapshot and adapter source. The final public guide must use reader-chosen paths and independently supplied final manifest/verifier pins.
++This is a future private command, not an instruction to execute during this subtask. The new planner/checker need explicit independent pins for candidate03, its plan, accepted replay/report evidence, the assembled bundle, final committed snapshot and adapter source. The final public guide must specify the complete bootstrap order: authenticate the checker bytes with trusted code and an independently obtained checker digest, then invoke the trusted Python 3.11+ runtime with `-I -S -B`. The checker authenticates both local executable dependencies against its embedded reviewed pins before executing either captured source: `delivery_prospective_publication.py` and `verify_delivery_release.py`. They use only the standard library. Only after this bootstrap may the generic verifier authenticate the final manifest against its separate independent pin. No adjacent checksum, cached import or helper self-hash supplies bootstrap trust. Reader-chosen paths remain required; the exact dependency pins and trust boundary are in the [schema note](delivery_final_release_schema_2026-10-24.md). The future guide must carry this order even for `--help`; no guide file is edited here.
+ 
+ Required checks, confined to new integration and packaging:
+ 
+@@ -68,4 +70,4 @@
+ - Preserve all existing A/C/F/B replay commands as future reader operations. A reader using the **final** manifest must obtain a fresh replay receipt for that manifest before invoking the existing descriptive reporter; it enforces exact manifest equality (`prepare_delivery_prospective_supplement.py:148–177`). Replay12's old-manifest receipt is historical evidence, not interchangeable input. Verifying the shipped reports through the new offline checker does not require another replay. Do not promise public execution of private sync/export/capture tools or original training/collection workers.
+ - Inspect final source, JSON strings/keys, archives, PDF metadata/content, bibliography, guide and required notices for identity leakage. The byte screen is limited; a public digest or source revision can also be identifying. If an immutable inherited artifact conflicts with the anonymity requirement, stop and record a concrete disposition; do not silently sanitize it. Preserve full private evidence and public failure/accounting disclosures with explicit cutoff/unknowns. Complete integrated scientific/proof/prose/page and anonymity/redistribution review, then obtain human approval of the concrete final artifacts before any submission/publication.
+ 
+-**Actionable blockers:** parent-accepted report outputs and report-job evidence; final integrated committed writing/bundle/PDF pins; the new final-plan/public-checker interfaces and public projection/source contract; refreshed authenticated reviewer instructions and final integrated/anonymity checks. Replay12 qualification and ownership are resolved. The source-layout preflight does not establish anonymous original training execution; that remains outside the minimal saved-artifact release scope and must not be claimed.
++**Actionable blockers:** parent-accepted report outputs and report-job evidence; final integrated committed writing/bundle/PDF pins; independent review of the implemented final-plan/public-checker interfaces and corrected public projection/source contract; a separately bound public failure/accounting disclosure with reporting cutoff; refreshed authenticated reviewer instructions and final integrated/anonymity checks. Replay12 qualification and ownership are resolved. The source-layout preflight does not establish anonymous original training execution; that remains outside the minimal saved-artifact release scope and must not be claimed.
