@@ -1,0 +1,24 @@
+% Descriptive initialization sensitivity; no scored model selection.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rlrrr}
+\toprule
+Nodes & Arm & Init & Geometric NMSE & Ratio/init0\\
+\midrule
+5 & delivery & 0 & 0.000427764 & 1\\
+5 & delivery & 1 & 0.000395052 & 0.923527\\
+5 & delivery & 2 & 0.000253096 & 0.591671\\
+5 & simpler & 0 & 0.00120093 & 1\\
+5 & simpler & 1 & 0.00242763 & 2.02146\\
+5 & simpler & 2 & 0.00134551 & 1.12039\\
+30 & delivery & 0 & 2.7302e-05 & 1\\
+30 & delivery & 1 & 2.80113e-05 & 1.02598\\
+30 & delivery & 2 & 2.18951e-05 & 0.80196\\
+30 & simpler & 0 & 6.98213e-05 & 1\\
+30 & simpler & 1 & 7.78361e-05 & 1.11479\\
+30 & simpler & 2 & 8.30776e-05 & 1.18986\\
+\bottomrule
+\end{tabular}
+\caption{Descriptive sensitivity across all registered initializations. Initialization zero remains the deployment model; no best or median scored model is selected. History log errors are averaged within each system, then across twenty systems per stratum. A fixed $10^{-12}$ floor is used, with activations retained in the receipt. These repeats are not independent systems or additional superiority tests.}
+\label{tab:prospective-init}
+\end{table}
