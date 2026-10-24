@@ -2,7 +2,7 @@
 
 ## Current state
 
-The latest human blanket continuation approval supersedes routine per-attempt approval requests within the existing150CPU-core-hour delivery ceiling. This attempt is prepared and remote bytes verified; submission has not occurred. Preserve exclusive journals and never duplicate a queued/running job or blindly retry an ambiguous submission. The expired foundation cycle remains stopped and final human publication approval remains required.
+The latest human blanket continuation approval supersedes routine per-attempt approval requests within the existing150CPU-core-hour delivery ceiling. This attempt was submitted once as34861753 and ended FAILED/time_limit before first-checkpoint/fullreplay receipts. Complete terminal custody is preserved; the later entries give the measured outcome. Preserve exclusive journals and never duplicate a queued/running job or blindly retry an ambiguous submission. The expired foundation cycle remains stopped and final human publication approval remains required.
 
 The separately reviewed duration correction retains all source/runtime/model/response/resource gates. The reviewed proposal adds1CPU/3GiB/60minutes with a3550second supervised child deadline, accountucb736_asc1,acpu/cpu-normal,noGPU/no-requeue. Replay10initial qualification took1412.833795seconds after wrapperstart and the1750second child deadline expired before first-checkpoint receipt. Twice that initial interval plus remaining allowance motivates the new cap; it is not a measured completion prediction.
 

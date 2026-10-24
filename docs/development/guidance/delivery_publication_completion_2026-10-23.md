@@ -97,3 +97,9 @@ The former hourly delivery automation no longer exists; the separate expired fou
 All20rawobjects/10134458bytes independentlymatchremoteinventory9d9a6157c32702289e478d175e4539ec41d9375f9be0502028ebb2a511cfed4c and9frozenlaunchinputs. Executionsha8ac4c09cf5738224e29e5deef8ac5151db2b07faae800d84aa6fcb871dcfe9ea. Completecustody results/delivery_duration_replay_20261024/terminal11 andexclusiveexternaloriginals. No savedcheckpointloading qualified, fits/updates/newresponses orBreporting; originalacceptedstudiesunchanged.
 
 DistinctMencius source/metadata diagnosis identifies mandatorypackagepreflight andfullsecondruntimeverification afterinitialgate, butnofinermeasuredhotspot. Newphase/ownedstackdiagnostics andbounded90mincap are inpreparationunderblanketapproval; do notskipchecks orblindlyrepeatoldpacket. See reviews/delivery_replay11_diagnostic_review_2026-10-24.md.
+
+## Replay12 submitted once and actual allocation verified
+
+Job34863006 submitted19:31:49UTC afterpacketcommitfc724aec60b6f259627a4f593f787f5e90af9152 was pushed/independentlymatched. Fresh19:32:17UTC scontrol/sacct identify34863006/34863006 RUNNING on c3cpu-e2-u1,1CPU/1task/1node/3GiB/01:30:00,ucb736_asc1/acpu/cpu-normal,zeroGPU,Requeue0/Restarts0. No submissionambiguity. Bothcontrollerlocks released afterconfirmation. Activehourlyace-publication-progress updated to thisjob/currentdiagnosticgates andexistingblanketapproval.
+
+Fullruntime/numerical/custody/reporting/integratedpublicationgates remainopen. Diagnosticphase/stackfiles mustnotbeusedasacceptance. Noadditionalfits/updates/responses ormanuscriptoutcomechanges. Currentreservation92.868333/150; knownpriorallocated125901seconds excludesrunning12. Futureprogress is livephase/stack/schedulercheck, then terminalcustody andqualification ordiagnosedcorrection.
