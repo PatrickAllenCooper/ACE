@@ -35,20 +35,29 @@ AI-assisted tools supported research planning, code development, analysis and ma
 
 This copies the first-page disclosure; it does not substitute for actual human verification or consent.
 
-## Author-only fields and declarations — pending
+## Author metadata supplied November 1
 
-- Final author names, order, affiliations, contact author, and each author's consent: **unconfirmed**.
-- OpenReview profile identifiers, current affiliations and conflict information: **unconfirmed**.
+1. **Patrick Cooper** — `patrick.cooper@colorado.edu` — University of Colorado Boulder.
+2. **Alvaro Velasquez** — `alvaro.velasquez@colorado.edu` — University of Colorado Boulder.
+
+Patrick supplied this author order, his email, the shared affiliation, and his advisor's first name with the same email format. The advisor's full name/email match the existing `paper/iclr_ace_2027/paper.tex` author block and [CU Boulder's faculty directory](https://www.colorado.edu/cs/alvaro-velasquez). This resolves the identity fields without inferring coauthor consent or final manuscript approval. Contact/corresponding-author designation and OpenReview profile identifiers remain to be finalized. The public directory is used only to verify identity/contact details; it does not establish funding or conflicts for this paper.
+
+Current private author-state record: `results/delivery_submission_audit_20261101/author_metadata_20261101_02.json`. The original `author_review_pending.json` remains preserved as the earlier snapshot bound by the completed preparation receipt. The new metadata does not alter the anonymous manuscript or reviewed packet.
+
+## Author-only declarations — still pending
+
+- Each author's consent and final approval of the paper: **unconfirmed**.
+- OpenReview profile identifiers and current conflict information: **unconfirmed**.
 - Funding, competing interests, and applicable human-subject/ethics declarations: **unconfirmed**; do not enter “none” by default.
 - Overlapping archival submission status and each author's eligibility under the current submission quota: **unconfirmed**.
 - Human verification of the methods, results, claims, references, and disclosed AI-assisted work: **pending**.
 - Final approval of this exact PDF, optional supplement, and public submission: **pending**.
 
-These facts cannot be established from a Git author name, an anonymous TeX author field, internal accept recommendations, or blanket approval for technical preparation. The earlier request for author details remains unanswered. The archive search did not return within a bounded search, so no archived author record was used to fill these fields.
+The author-identity question has been answered; the remaining declarations were requested separately. They cannot be established from an author listing, internal accept recommendations, or blanket approval for technical preparation. The brain archive again did not respond within the bounded check; no archive result was used. Identity support comes from Patrick's reply, the existing manuscript, and the official directory.
 
 ## Action-editor recommendation preparation
 
-Prepare names only after the final author list and conflicts are known. The current public submission instructions say authors receive an email requesting suitable action-editor recommendations after submission. No editor ranking or conflict-free status is asserted here.
+The author list is now recorded; prepare action-editor names only after the authors' conflicts are known. The current public submission instructions say authors receive an email requesting suitable action-editor recommendations after submission. No editor ranking or conflict-free status is asserted here.
 
 ## Final handoff sequence
 
