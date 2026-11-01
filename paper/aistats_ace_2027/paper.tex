@@ -1,4 +1,4 @@
-% TMLR working manuscript; prospective outcomes await independent validation.
+% TMLR manuscript; accepted prospective replay and both reports are integrated.
 % Editable narrative starts below the generated companion bundle.
 % Refresh companions: python scripts/research/sync_delivery_manuscript.py --write
 % Check companions: python scripts/research/sync_delivery_manuscript.py --check
@@ -2115,7 +2115,7 @@ FUNCTION {end.bib}
 
 EXECUTE {end.bib}
 \end{filecontents*}
-% delivery_references.bib: SHA256 000ee25428dc4e888e1e7f1df9dc0934372bcae0fcd196440a2503f15b8a106c
+% delivery_references.bib: SHA256 222d370a099bfde7186eb4923c0a27676b86d8c30188a36969068ca5608ff8c4
 \begin{filecontents*}[overwrite]{delivery_references.bib}
 @inproceedings{xia2021causal,
   title={The Causal-Neural Connection: Expressiveness, Learnability, and Inference},
@@ -2161,6 +2161,17 @@ EXECUTE {end.bib}
   author={Rolnick, David and Ahuja, Arun and Schwarz, Jonathan and Lillicrap, Timothy P. and Wayne, Greg},
   booktitle={Advances in Neural Information Processing Systems}, year={2019},
   url={https://arxiv.org/abs/1811.11682}}
+
+@inproceedings{sussex2023model,
+  title={Model-based Causal Bayesian Optimization},
+  author={Sussex, Scott and Makarova, Anastasiia and Krause, Andreas},
+  booktitle={International Conference on Learning Representations}, year={2023},
+  url={https://arxiv.org/abs/2211.10257}}
+@article{chao2024mechanisms,
+  title={Modeling Causal Mechanisms with Diffusion Models for Interventional and Counterfactual Queries},
+  author={Chao, Patrick and Bl{\"o}baum, Patrick and Patel, Sapan and Kasiviswanathan, Shiva Prasad},
+  journal={Transactions on Machine Learning Research}, year={2024},
+  url={https://openreview.net/forum?id=EDHQDsqiSe}}
 \end{filecontents*}
 % delivery_claims.tex: SHA256 fc3e8ce5853bc6203648cd341ddc8bc20352a19fd49b32d3c28da946cd854197
 \begin{filecontents*}[overwrite]{delivery_claims.tex}
@@ -3051,7 +3062,7 @@ The human authors are responsible for the final scientific assessment,
 verification and submission.}}
 \author{\name Anonymous authors}
 \newif\ifdeliverydraft
-\deliverydrafttrue % Keep until reproduction, integrated evidence and final review pass.
+\deliverydrafttrue % Final human author review pending; no visible draft notice.
 \hypersetup{hidelinks,pdftitle={From Experimental Histories to Causal Surrogates},pdfauthor={Anonymous authors}}
 \begin{document}
 \maketitle
@@ -3060,20 +3071,19 @@ verification and submission.}}
 \begin{abstract}
 A sequential experimental learner need not be the best predictor delivered after
 collection ends. We assess post-collection refitting of structural causal model
-(SCM) surrogates with known graphs and measured intermediates. On one fixed
-emulator, a completed confirmation across \DeliveryN{} histories gives a
-geometric delivery/online snapped-error ratio of \DeliveryRatio{}
-(95\% interval \DeliveryCILow{}--\DeliveryCIHigh{}), using the median of three
-scored refit initializations; \DeliveryWins{} histories improve. An exploratory
-attribution on the same exposed grid favors long fits on retained histories,
-with continuous-error ratios \AFlatRatio{} and \AMatchedRatio{} against selected
-and CPU-budgeted flat refits. A frozen prospective study then evaluates fixed
+(SCM) surrogates with known graphs and measured intermediates. A frozen
+prospective study evaluates fixed
 initialization zero on held-out root actions in twenty independent systems per
 family. Delivery/rolling NMSE ratios are \BFiveOnlineRatio{} in the five-node
 family and \BThirtyOnlineRatio{} in the thirty-node family; delivery/flat ratios
 are \BFiveFlatRatio{} and \BThirtyFlatRatio{}, respectively. Both flat contrasts
 and the thirty-node rolling contrast meet the registered superiority rule;
 the five-node rolling comparison instead favors the rolling learner.
+On one fixed emulator, a completed confirmation across \DeliveryN{} histories
+gives a geometric delivery/online snapped-error ratio of \DeliveryRatio{}
+(95\% interval \DeliveryCILow{}--\DeliveryCIHigh{}), using the median of three
+scored refit initializations; \DeliveryWins{} histories improve. Exploratory
+attribution on that exposed grid favors long fits on retained histories.
 An archived physical case study retains all eleven conditions: delivery beats
 rolling learning in \CRollingWins{} but Fourier regression in \CFourierWins{}.
 Conditional eligibility, propagation and quantization results explain why local
@@ -3138,6 +3148,12 @@ study supplies a complementary boundary: a domain-informed Fourier predictor
 outperforms neural delivery in every evaluated condition. Our contribution is
 therefore an assessment of delivery behavior and accounting, with its scope
 fixed by the controls and evaluation design.
+For practitioners, the actionable lesson is to evaluate the delivered refit
+separately from the online learner, retain a simple direct or domain-informed
+control, and score the composed predictor rather than only its local heads.
+The observed reversal between families makes an automatic switch to a long
+SCM refit unjustified; the study does not supply a rule that predicts that
+reversal before evaluation.
 
 \section{Setting and delivery procedure}
 \label{sec:setting}
@@ -3220,6 +3236,15 @@ structure selection or claim its confidence guarantees. Work on causal
 representation learning addresses learning causal variables and mechanisms
 from observations \citep{scholkopf2021representation}. We assume the variables
 are already measured, so representation discovery is outside the study.
+Model-based causal Bayesian optimization learns mechanism models on a known
+graph and propagates their uncertainty to select interventions
+\citep{sussex2023model}. Diffusion-based causal models learn nodewise mechanisms
+from observational data and a supplied graph for interventional and
+counterfactual queries \citep{chao2024mechanisms}. Our assessment instead fixes
+the histories and compares post-collection fitting recipes for deterministic
+structural-map prediction. Related Lipschitz propagation arguments appear in
+the regret analysis of \citet{sussex2023model}; our deterministic approximation
+bound does not inherit their calibrated-model or soft-intervention guarantees.
 
 \paragraph{Online learning and final prediction.}
 Obtaining a final predictor from sequential learning has a substantial
@@ -3474,6 +3499,12 @@ that one acquisition strategy is superior. Longer fitting substantially
 outperforms the registered 100-update SCM in both strata, while it still loses
 to rolling in the five-node family. Thus more optimization helps relative to
 that short-fit recipe without making delivery universally preferable.
+The relative gains also need their absolute scale: fixed-initialization
+geometric NMSE is approximately $4.28\times10^{-4}$ versus $1.20\times10^{-3}$
+for delivery and flat in the five-node family, and $2.73\times10^{-5}$ versus
+$6.98\times10^{-5}$ in the thirty-node family
+(Table~\ref{tab:prospective-init}). These already small prediction errors are
+not measurements of downstream decision value or saved interventions.
 Appendix~\ref{app:prospective-complete} retains all absolute errors, system log
 ratios, history summaries, initialization sensitivity, short-fit comparisons
 and floor counts. No primary floor is activated. Initialization zero remains
@@ -3576,6 +3607,17 @@ equal-epoch neural comparison is not an equal-compute comparison. The eligibilit
 and propagation propositions require measured parents, invariance, noise and
 support assumptions that fitted residuals cannot certify. Causal discovery,
 counterfactual identification and foundation-model capability are not tested.
+
+\paragraph{Broader impact.}
+Reusing existing observations may reduce the need to repeat measurements, but
+this study measures prediction error rather than a reduction in intervention
+cost. An inaccurate surrogate can mislead a later experimental decision,
+especially outside the observed joint support. The archived emulator includes
+communication-link and jamming variables; its hand-coded scores do not validate
+an operational communication or control system. Deployment would require
+application-specific validation, intervention limits and human oversight.
+Keeping the adverse comparisons and support counterexamples visible is intended
+to discourage treating a fitted causal graph as a safety certificate.
 
 \section{Conclusion}
 A completed experimental history can support a substantially different delivered
@@ -3841,16 +3883,17 @@ counterexample. Scientific checks also verify replay reconstruction,
 intervention masks, predicted-parent inference, action-block disjointness,
 initialization membership and system-level statistical calculations. Passing
 implementation checks verifies those constructed cases, not the assumptions
-of a general statistical guarantee. A reproducibility release must include
-frozen protocols, exact observation ledgers, model and optimizer receipts,
-interrupted-attempt records, compact outcomes and verification commands. Author
-paths and identifying metadata must be removed from the anonymous review copy;
-original custody artifacts remain unchanged. The derived anonymous release must
-use relative artifact locations and its own hashed manifest mapping to original
-immutable digests, rather than editing hash-bound source receipts. Its verification
-entry point must resolve local artifacts independently of author paths, include
-the archived learner source and reconcile split fit snapshots without replacing
-conflicts. An offline unrelated-directory verification remains a submission gate.
+of a general statistical guarantee. The anonymous review supplement contains
+the manuscript sources and complete descriptive reports; it is not the full
+executable reproduction archive. The complete archive separately retains frozen
+protocols, observation ledgers, checkpoints, optimizer receipts, interrupted
+attempts, source and verification commands. Its required copyright notices
+contain identifying attribution, so it is withheld from the anonymous upload.
+Its contents and notices remain unchanged; any later distribution requires an
+appropriate nonanonymous or venue-approved route. The relocated archive has a
+separate hashed manifest linked to original immutable digests, and its integrity
+and report/source bindings were verified offline from an unrelated directory.
+Those checks do not establish anonymous original collection or training execution.
 Archived attribution audits bind checkpoints to scores but do not independently
 replay every checkpoint; the physical audit independently recomputes sealed
 prediction errors and physics predictions, but does not replay its neural or
