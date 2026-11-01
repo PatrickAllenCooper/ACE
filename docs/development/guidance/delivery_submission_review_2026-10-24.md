@@ -1,5 +1,7 @@
 # ACE submission preparation — October 24, 2026
 
+**November1 update supersedes the upload-readiness assessment below.** A fresh venue audit found the full361.67MB attribution-bearing archive unsuitable for TMLR's100MB anonymous supplement. The manuscript and a new small, explicitly scoped source/report ZIP have been revised for the actual upload route. Independent scientific review recommends accept for the scoped contribution; literature positioning is cleared. See [current audit and new packet](ace_submission_audit_2026-11-01.md). The October24 packet remains immutable predecessor evidence; nothing has been submitted. Final human author details and approval remain open.
+
 Current task: submission preparation is complete for Patrick's final review. The final actual-package review closed with zero required findings; the focused notice correction passed56 checks while preserving the earlier175 checks. Nothing is submitted or published. Accepted original A/B/C/confirmation and every failed/interrupted reproduction attempt remain preserved. The expired foundation exploration and completed presentation are outside this task.
 
 ## Delivered author packet
