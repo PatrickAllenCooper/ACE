@@ -3158,3 +3158,8 @@ Prepared `delivery_submission_form_draft_2026-11-01.md`: exact reviewed title/ex
 ### November1 author identity update
 
 Patrick supplied the author order Patrick Cooper, then advisor Alvaro, both University of Colorado Boulder, with patrick.cooper@colorado.edu and the same email format for Alvaro. Existing project author block and official CU directory corroborate Alvaro Velasquez / alvaro.velasquez@colorado.edu. Private worksheet updated; `results/delivery_submission_audit_20261101/author_metadata_20261101_02.json` supersedes only the earlier unconfirmed identity fields, preserving the old receipt-bound snapshot. Consent, funding/conflicts, overlap/eligibility, human verification and final submission approval remain open; follow-up asks only the unanswered declarations. Anonymous manuscript, reviewed packet, studies and reviews unchanged. No compile, experiment, remote allocation, public submission or repeated technical review. Both controller locks held for this local administrative update.
+
+
+### November1 funding and coauthorship confirmation
+
+Patrick states no funding, confirms Alvaro Velasquez is the sole coauthor/final author and has agreed to coauthorship. Private worksheet and new `author_metadata_20261101_03.json` record those declarations with the prior02 snapshot preserved. Competing interests and overlapping submission remain unknown and were asked explicitly; agreement to coauthorship is not treated as final manuscript/submission approval. No scientific, manuscript, packet, review or allocation change. Local administrative update under both controller locks.

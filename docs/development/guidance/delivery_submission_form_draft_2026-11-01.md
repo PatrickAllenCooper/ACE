@@ -40,20 +40,26 @@ This copies the first-page disclosure; it does not substitute for actual human v
 1. **Patrick Cooper** — `patrick.cooper@colorado.edu` — University of Colorado Boulder.
 2. **Alvaro Velasquez** — `alvaro.velasquez@colorado.edu` — University of Colorado Boulder.
 
-Patrick supplied this author order, his email, the shared affiliation, and his advisor's first name with the same email format. The advisor's full name/email match the existing `paper/iclr_ace_2027/paper.tex` author block and [CU Boulder's faculty directory](https://www.colorado.edu/cs/alvaro-velasquez). This resolves the identity fields without inferring coauthor consent or final manuscript approval. Contact/corresponding-author designation and OpenReview profile identifiers remain to be finalized. The public directory is used only to verify identity/contact details; it does not establish funding or conflicts for this paper.
+Patrick supplied this author order, his email, the shared affiliation, and his advisor's first name with the same email format. The advisor's full name/email match the existing `paper/iclr_ace_2027/paper.tex` author block and [CU Boulder's faculty directory](https://www.colorado.edu/cs/alvaro-velasquez). Patrick has now explicitly confirmed that Alvaro is the only coauthor, is final author, and has agreed to coauthorship. This does not establish approval of the final manuscript version or submission. Contact/corresponding-author designation and OpenReview profile identifiers remain to be finalized. The public directory is used only to verify identity/contact details; it does not establish funding or conflicts for this paper.
 
-Current private author-state record: `results/delivery_submission_audit_20261101/author_metadata_20261101_02.json`. The original `author_review_pending.json` remains preserved as the earlier snapshot bound by the completed preparation receipt. The new metadata does not alter the anonymous manuscript or reviewed packet.
+Current private author-state record: `results/delivery_submission_audit_20261101/author_metadata_20261101_03.json`. The original `author_review_pending.json` remains preserved as the earlier snapshot bound by the completed preparation receipt. The new metadata does not alter the anonymous manuscript or reviewed packet.
+
+## Declarations supplied November 1
+
+- Funding for this paper: **none**, as stated by Patrick.
+- Coauthor arrangement: **Alvaro is the only coauthor and final author**.
+- Alvaro's agreement to coauthorship: **confirmed by Patrick**.
 
 ## Author-only declarations — still pending
 
-- Each author's consent and final approval of the paper: **unconfirmed**.
+- Approval of the final manuscript version by both authors: **unconfirmed**.
 - OpenReview profile identifiers and current conflict information: **unconfirmed**.
-- Funding, competing interests, and applicable human-subject/ethics declarations: **unconfirmed**; do not enter “none” by default.
+- Competing interests and applicable human-subject/ethics declarations: **unconfirmed**. The no-funding statement does not establish absence of competing interests.
 - Overlapping archival submission status and each author's eligibility under the current submission quota: **unconfirmed**.
 - Human verification of the methods, results, claims, references, and disclosed AI-assisted work: **pending**.
 - Final approval of this exact PDF, optional supplement, and public submission: **pending**.
 
-The author-identity question has been answered; the remaining declarations were requested separately. They cannot be established from an author listing, internal accept recommendations, or blanket approval for technical preparation. The brain archive again did not respond within the bounded check; no archive result was used. Identity support comes from Patrick's reply, the existing manuscript, and the official directory.
+The author identity, funding, author order and coauthorship-agreement questions have been answered. Competing interests and overlapping-submission status were requested separately because the reply did not address them. Final-version approval and submission approval remain distinct from agreement to coauthorship. Earlier identity support comes from Patrick's reply, the existing manuscript, and the official directory; no brain archive result was used.
 
 ## Action-editor recommendation preparation
 
