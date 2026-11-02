@@ -34,7 +34,7 @@ def save(path, value):
 
 
 def scheduler_fields(raw):
-    matches = list(re.finditer(r"(?:^|\s)([A-Za-z][A-Za-z0-9/:]*)=", raw))
+    matches = list(re.finditer(r"(?:^|\s)([A-Za-z][A-Za-z0-9_/:]*)=", raw))
     fields = {}
     for i, match in enumerate(matches):
         if match[1] in fields:
@@ -59,7 +59,7 @@ def authenticate_allocation(raw, job_id, resources):
     fields = scheduler_fields(raw)
     for name, wanted in {"JobId": job_id, "Account": "ucb736_asc1", "Partition": "aa100",
                          "QOS": "gpu-normal", "JobState": "RUNNING", "NumNodes": "1",
-                         "NumTasks": "1", "CPUs/Task": "4", "TimeLimit": "00:15:00"}.items():
+                         "NumTasks": "1", "TimeLimit": "00:15:00"}.items():
         if fields.get(name) != wanted:
             raise ValueError("scheduler allocation mismatch: " + name)
     if not fields.get("UserId", "").startswith("paco0228("):
@@ -76,9 +76,20 @@ def authenticate_allocation(raw, job_id, resources):
     if (tres.get("gres/gpu") != "1" or tres.get("gres/gpu:a100_3g.20gb") != "1"
             or tres.get("node") != "1" or not str(tres.get("cpu", "")).isdigit()
             or not 4 <= int(tres["cpu"]) <= 8 or fields.get("NumCPUs") != tres["cpu"]
+            or fields.get("CPUs/Task") != tres["cpu"]
             or memory_mib(tres.get("mem", "")) != 12288
             or any(k.startswith("gres/") and k not in {"gres/gpu", "gres/gpu:a100_3g.20gb"} for k in tres)):
         raise ValueError("actual CPU/memory/GPU allocation differs")
+    requested = {}
+    for pair in fields.get("ReqTRES", "").split(","):
+        if pair.count("=") != 1:
+            raise ValueError("invalid requested resource evidence")
+        key, value = pair.split("=")
+        if key in requested:
+            raise ValueError("duplicate requested resource")
+        requested[key] = value
+    if requested.get("cpu") != "4" or memory_mib(requested.get("mem", "")) != 12288:
+        raise ValueError("CPU/memory request differs from frozen request")
     return {"fields": fields, "allocated_resources": tres}
 
 

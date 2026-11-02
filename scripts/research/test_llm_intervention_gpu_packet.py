@@ -19,6 +19,7 @@ RESOURCES = {"account": "ucb736_asc1", "partition": "aa100", "qos": "gpu-normal"
              "wall_seconds": 900, "gpus": 1, "gpu_type": "a100_3g.20gb"}
 RAW = ("JobId=123 UserId=paco0228(100) Account=ucb736_asc1 Partition=aa100 QOS=gpu-normal "
        "JobState=RUNNING NumNodes=1 NumTasks=1 NumCPUs=4 CPUs/Task=4 ReqB:S:C:T=0:0:*:* TimeLimit=00:15:00 "
+       "ReqTRES=cpu=4,mem=12G,node=1,billing=28,gres/gpu=1,gres/gpu:a100_3g.20gb=1 "
        "AllocTRES=cpu=4,mem=12G,node=1,billing=28,gres/gpu=1,gres/gpu:a100_3g.20gb=1")
 
 
@@ -29,7 +30,8 @@ class PacketTests(unittest.TestCase):
         self.assertEqual(scheduler_fields(RAW)["CPUs/Task"], "4")
         self.assertEqual(scheduler_fields(RAW)["ReqB:S:C:T"], "0:0:*:*")
         authenticate_allocation(RAW.replace("mem=12G", "mem=12288M"), "123", RESOURCES)
-        authenticate_allocation(RAW.replace("NumCPUs=4", "NumCPUs=8").replace("cpu=4", "cpu=8"), "123", RESOURCES)
+        authenticate_allocation(RAW.replace("NumCPUs=4", "NumCPUs=8").replace("CPUs/Task=4", "CPUs/Task=8")
+                                .replace("AllocTRES=cpu=4", "AllocTRES=cpu=8"), "123", RESOURCES)
 
     def test_negative_allocation_variants(self):
         changes = [("JobId=123", "JobId=124"), ("paco0228(", "other("),
@@ -136,6 +138,7 @@ class PacketTests(unittest.TestCase):
         self.assertEqual(result["message"], "original")
         self.assertEqual(result["cleanup"], cleanup)
         self.assertIn("OSError", result["persistence_errors"][0])
+
 
 
 if __name__ == "__main__":
