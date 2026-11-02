@@ -2115,7 +2115,7 @@ FUNCTION {end.bib}
 
 EXECUTE {end.bib}
 \end{filecontents*}
-% delivery_references.bib: SHA256 222d370a099bfde7186eb4923c0a27676b86d8c30188a36969068ca5608ff8c4
+% delivery_references.bib: SHA256 330b008cbcf6856ccdf29afbcdd2728580e1bd4e84a2ec293073a2a0901c4a26
 \begin{filecontents*}[overwrite]{delivery_references.bib}
 @inproceedings{xia2021causal,
   title={The Causal-Neural Connection: Expressiveness, Learnability, and Inference},
@@ -2172,6 +2172,13 @@ EXECUTE {end.bib}
   author={Chao, Patrick and Bl{\"o}baum, Patrick and Patel, Sapan and Kasiviswanathan, Shiva Prasad},
   journal={Transactions on Machine Learning Research}, year={2024},
   url={https://openreview.net/forum?id=EDHQDsqiSe}}
+
+@inproceedings{ash2020warm,
+  title={On Warm-Starting Neural Network Training},
+  author={Ash, Jordan T. and Adams, Ryan P.},
+  booktitle={Advances in Neural Information Processing Systems},
+  volume={33}, year={2020},
+  url={https://papers.nips.cc/paper/2020/hash/288cd2567953f06e460a33951f55daaf-Abstract.html}}
 \end{filecontents*}
 % delivery_claims.tex: SHA256 fc3e8ce5853bc6203648cd341ddc8bc20352a19fd49b32d3c28da946cd854197
 \begin{filecontents*}[overwrite]{delivery_claims.tex}
@@ -2318,7 +2325,7 @@ white\_255 & 0.85 [0.16, 3.55] & 2.92 [0.54, 6.83] & 8.57 [1.65, 15.65]\\
 \label{tab:physical-ci}
 \end{table}
 \end{filecontents*}
-% delivery_theory.tex: SHA256 0125d36d1ca33e18415ac46b21988cbb8de1a98b4ff2fd4d1b97d9c07aa0679c
+% delivery_theory.tex: SHA256 32c324c43102a1fd66f01457f0b8773fe3dc341010d0b448e9d5db81c0cd2a88
 \begin{filecontents*}[overwrite]{delivery_theory.tex}
 \section{Conditions and limits of delivery}
 \label{sec:theory}
@@ -2330,29 +2337,29 @@ identification for arbitrary neural models or certify the fitted networks.
 \begin{proposition}[Mechanism eligibility]
 Let $V_i=f_i(V_{\mathrm{Pa}(i)})+U_i$ be an invariant additive-noise
 mechanism. In each experiment, suppose the current exogenous noises are
-independent across mechanisms and independent of all past experiments; $U_i$
-is integrable and has mean zero. An intervention policy may depend on previous
-experiments, but must choose its action before the current exogenous noises are
-realized. Retain a row only when the action does not replace mechanism $i$,
+independent across mechanisms and independent of all past experiments. $U_i$
+is integrable and has mean zero. The intervention policy is a function of previous experiments and auxiliary
+randomness independent of those experiments and the current noise vector.
+It chooses its action before the current exogenous noises are realized. Retain a row only when the action does not replace mechanism $i$,
 and let $S_i$ denote the final retained-row indicator, including any terminal
 selection. Require $\mathbb E[U_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1]=0$
-on the retained support, where $A$ is the current action and $H$ the preceding
+almost surely on the retained support, where $A$ is the current action and $H$ the preceding
 history. Conditional independence of $S_i$ and $U_i$ given parents, action and
 history is a sufficient retention condition. Then, in the retained mixture,
 \[
  \mathbb{E}[V_i\mid V_{\mathrm{Pa}(i)}=p,\text{retained}]=f_i(p).
 \]
 Thus squared-loss regression can target this mechanism on supported parent
-values, assuming finite second moments. This is an estimand statement; finite
+values, assuming finite second moments. This is an estimand statement. Finite
 data, optimization and extrapolation guarantees require further assumptions.
 \end{proposition}
 \end{samepage}
 \begin{proof}
 In an acyclic graph, a node's parents depend only on exogenous noises of
 preceding nodes in topological order and the chosen action. The current $U_i$
-is independent of those noises and of past experiments. The policy precedes
-the current realization, and the stated retention condition preserves
-conditional mean zero. Substituting the structural equation therefore gives
+is independent of those noises and of past experiments. The policy precedes the current realization. Hence
+$\mathbb E[U_i\mid V_{\mathrm{Pa}(i)},A,H]=0$ before terminal selection.
+The stated retention condition preserves this conditional mean zero. Substituting the structural equation therefore gives
 $\mathbb E[V_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1]
 =f_i(V_{\mathrm{Pa}(i)})$. Taking the further conditional expectation over
 action and history yields the assertion.
@@ -2366,7 +2373,7 @@ mechanism, and response-dependent retention can invalidate the premise. In
 particular, selecting the best probe using its measured response can change
 the noise distribution. All-paid reuse avoids discarding probes on that basis,
 but still requires invariant mechanisms and measured parents. The current
-confirmation uses a deterministic emulator; this distinction matters for
+confirmation uses a deterministic emulator. This distinction matters for
 any extension to noisy systems. Even within this additive-noise class,
 composing conditional means need not produce a
 downstream interventional mean through a nonlinear mechanism.
@@ -2400,7 +2407,7 @@ order.
 \end{proposition}
 \begin{proof}
 Add and subtract $\hat f_i(v_{\mathrm{Pa}(i)})$ and apply the triangle
-inequality. The local approximation bounds one term; the coordinate Lipschitz
+inequality. The local approximation bounds one term. The coordinate Lipschitz
 inequality bounds the other. Clamps are identical by assumption. Substitution
 in topological order gives the path sum. A strictly triangular $d\times d$
 matrix satisfies $L^d=0$, so the finite geometric sum is its inverse.
@@ -2427,77 +2434,23 @@ Both parent coefficients are nonzero for the stated choices of $K$.
 This failure need not leave a coordinate bounding box. For example, take
 $R=0.25$, $\delta=0.01$ and $K=1000$. Both true and predicted parent vectors
 are inside $[-1,1]^2$, but the prediction error is $10.01$. Observations
-covering the diagonal cannot constrain sensitivity normal to it; more root
+covering the diagonal cannot constrain sensitivity normal to it. More root
 observations alone do not remove that ambiguity. An internal intervention can
 distinguish these mechanisms. Our prospective root-only protocol assesses
 prediction under held-out root interventions, not unrestricted internal-action
 identification. This is an existence example, not a diagnosis of a measured
 failure or a verified bound for the fitted networks.
 
-\begin{proposition}[Quantization margin]
-For $m\geq2$ distinct ordered levels $\ell_1<\cdots<\ell_m$, let $Q$ assign the nearest
-level, with a fixed tie rule, and let
-$b_k=(\ell_k+\ell_{k+1})/2$. Define
-$M(y)=\min_k|y-b_k|$. If $|\hat y-y|<M(y)$ then
-$Q(\hat y)=Q(y)$. If a pointwise prediction bound $B(y)$ is valid,
-$\Pr(Q(\hat y)\ne Q(y))\leq\Pr(M(y)\leq B(y))$ under any specified deployment
-probability measure for which the bound holds almost surely.
-\end{proposition}
-\begin{proof}
-The open interval of radius $M(y)$ around $y$ crosses no decision boundary.
-Consequently both values occupy the same decision cell. The contrapositive
-implies that a quantization error requires $M(y)\leq|\hat y-y|\leq B(y)$.
-Strict inequality excludes boundary ties.
-\end{proof}
-Snapped error depends on the location of errors relative to decision boundaries;
-similar MSE alone need not imply similar exact-level accuracy.
-This finite-level example clips outside values to endpoint cells. The empirical
-scorer instead extends the lattice past both endpoints. The same argument uses
-the complete set of boundaries of that extended quantizer; at a recorded true
-level, its nearest boundary distance remains half the adjacent gap. The
-empirical evaluation measure is uniform over the archived grid.
-
-\begin{proposition}[Squared error and snapping risk]
-Under a specified deployment probability measure, let
-$R=\mathbb E[(\hat Y-Y)^2]<\infty$ and use the same quantizer and margin
-$M$ as above. For every $\tau>0$,
-\[
- \Pr(Q(\hat Y)\ne Q(Y))
- \leq \min\{1,\Pr(M(Y)\leq\tau)+R/\tau^2\}.
-\]
-If $M(Y)\geq m>0$ almost surely, the sharper bound is
-$\Pr(Q(\hat Y)\ne Q(Y))\leq\min\{1,R/m^2\}$.
-\end{proposition}
-\begin{proof}
-A snapping error requires $|\hat Y-Y|\geq M(Y)$. Its event is therefore
-contained in the union of $\{M(Y)\leq\tau\}$ and
-$\{|\hat Y-Y|>\tau\}$. Apply the union bound and Markov's inequality to
-the squared error. Under the positive-margin assumption the error event instead
-requires $(\hat Y-Y)^2\geq m^2$, giving the second bound directly.
-\end{proof}
-For a uniformly spaced lattice with gap $\Delta$ and true responses on its
-levels, $m=\Delta/2$. The second inequality also applies to a finite evaluation
-grid by taking its empirical measure and continuous MSE; it may be vacuous.
-It is a consequence of evaluated error and quantizer geometry, not a guarantee
-on new actions. For continuously valued targets, concentration near decision
-boundaries can make even small squared error compatible with frequent snapping
-errors. Neither bound orders two models by snapped error from their MSE alone.
-
-\paragraph{Counterexamples.}
-For a constant predictor and test response zero, fitting a single training
-response zero gives zero risk; adding a noisy response two makes its
-least-squares mean one and test risk one. With a noisy training target one,
-optimizing a constant from $0.1$ to one reduces training error but increases
-test error. For a two-stage chain, suppose the true parent and child are zero
-on the observed support, the learned parent predicts $0.1$, and the learned
-child is $\hat f(z)=100z$. The child has zero observed-parent error at zero,
-but its free-running prediction is ten. These are existence examples, not
-descriptions of the measured histories. Analytically solved chains, forks,
-colliders and clamps are checked by executable tests.
+\paragraph{Quantized targets.}
+Exact-level error depends on how close predictions fall to quantization
+boundaries. A small continuous error need not imply correct snapping, and MSE
+alone need not rank two models by exact-level accuracy. Appendix~\ref{app:quantization}
+gives the margin statements, proofs and counterexamples. Those results describe
+a specified evaluation distribution. They do not certify new actions.
 \end{filecontents*}
-% delivery_method_diagram.tex: SHA256 e03689feadd5dc50f4f19a5090902a67e2fe3a3c0d6c5aabdf3db812273b7d5c
+% delivery_method_diagram.tex: SHA256 233d3d0141cecb8469cf41aff64ab369c9c77825204f15ab03f1f524a5be5888
 \begin{filecontents*}[overwrite]{delivery_method_diagram.tex}
-% Qualitative method schematic; no empirical outcome is encoded here.
+% Qualitative method schematic. No empirical outcome is encoded here.
 \begin{figure}[t]
 \centering
 \begin{minipage}[t]{0.47\linewidth}
@@ -2515,7 +2468,7 @@ Label: measured $v_i$}}
 \fbox{\parbox{0.87\linewidth}{\centering
 Scratch initialization and optimizer\\
 Fit each eligible mechanism\\
-Save weights and fitting receipts}}
+Save weights and training records}}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.47\linewidth}
 \centering\small
@@ -2536,18 +2489,17 @@ Observed-parent loss is insufficient}}
 \end{minipage}
 \caption{The structured delivery procedure separates mechanism fitting from
 free-running deployment. Rows intervened on head $i$ are ineligible for that
-head; an empty eligible set cannot fit its mechanism. The prospective experiment
-clamps roots only and seals every fit before generating held-out responses.
+head. An empty eligible set cannot fit its mechanism. The prospective experiment
+clamps roots only and saves every fit before generating held-out responses.
 The flat control instead fits a direct root-to-target map on the same prospective
 history, without intermediate labels. Additional optimization and intermediate
-supervision therefore differ across recipes. This schematic supplies no
-extrapolation, identification or error-bound certification.}
+supervision therefore differ across recipes.}
 \label{fig:delivery-procedure}
 \end{figure}
 \end{filecontents*}
-% delivery_evaluation_design.tex: SHA256 4334cee6bf7b05ff756cb78b6c0c7101d1b901a6f5e392b0bbfc42b92c37973c
+% delivery_evaluation_design.tex: SHA256 c957978f6db2b7f89b7f3ba1de63ba8a072c3bad108eca604804a56816fc3ddb
 \begin{filecontents*}[overwrite]{delivery_evaluation_design.tex}
-% Design summary only; no prospective performance values.
+% Design summary only, no prospective performance values.
 \begin{table}[ht]
 \centering\small
 \setlength{\tabcolsep}{3pt}
@@ -2555,13 +2507,13 @@ extrapolation, identification or error-bound certification.}
 \toprule
 Study & Reporting unit & Evaluation and scale & Initialization summary\\
 \midrule
-Confirmation & Paired histories of one fixed emulator & Previously exposed discrete grid; snapped exact-level error & Median of three scored initializations; sensitivity summary\\[4pt]
-Attribution (A) & The same archived histories; exploratory contrasts & The same exposed grid; continuous NMSE using grid target variance & Initialization zero primary; one and two for sensitivity\\[4pt]
-Prospective (B) & Independent system within each specified family; two histories paired within system & Reserved joint root-action blocks; continuous NMSE using the corresponding training-history target variance & Initialization zero for deployment; one and two for sensitivity\\[4pt]
-Physical (C) & Condition-specific assessment of one apparatus; no independent-world tests & Held-out joint angle blocks; continuous NMSE using each condition's training target variance & Initialization zero for neural fits; fixed linear controls\\
+Confirmation & Paired histories of one fixed emulator & Previously exposed discrete grid, snapped exact-level error & Median of three scored initializations, sensitivity summary\\[4pt]
+Attribution (A) & The same archived histories, exploratory contrasts & The same exposed grid, continuous NMSE using grid target variance & Initialization zero primary, one and two for sensitivity\\[4pt]
+Prospective (B) & Independent system within each specified family, two histories paired within system & Reserved joint root-action blocks, continuous NMSE using the corresponding training-history target variance & Initialization zero for deployment, one and two for sensitivity\\[4pt]
+Physical (C) & Condition-specific assessment of one apparatus, no independent-world tests & Held-out joint angle blocks, continuous NMSE using each condition's training target variance & Initialization zero for neural fits, fixed linear controls\\
 \bottomrule
 \end{tabular}
-\caption{The studies assess different endpoints, evaluation supports and reporting units. Scored initialization summaries are not deployable selection rules. Conditions, rows and repeated initializations do not supply additional independent systems. Prospective results use the complete fixed-initialization matrix after independent checkpoint reproduction.}
+\caption{The studies assess different endpoints, evaluation supports and reporting units. Scored initialization summaries are not deployable selection rules. Conditions, rows and repeated initializations do not supply additional independent systems.}
 \label{tab:evaluation-design}
 \end{table}
 \end{filecontents*}
@@ -3069,28 +3021,26 @@ verification and submission.}}
 \ifdeliverydraft
 \fi
 \begin{abstract}
-A sequential experimental learner need not be the best predictor delivered after
-collection ends. We assess post-collection refitting of structural causal model
-(SCM) surrogates with known graphs and measured intermediates. A frozen
-prospective study evaluates fixed
-initialization zero on held-out root actions in twenty independent systems per
-family. Delivery/rolling NMSE ratios are \BFiveOnlineRatio{} in the five-node
-family and \BThirtyOnlineRatio{} in the thirty-node family; delivery/flat ratios
-are \BFiveFlatRatio{} and \BThirtyFlatRatio{}, respectively. Both flat contrasts
-and the thirty-node rolling contrast meet the registered superiority rule;
-the five-node rolling comparison instead favors the rolling learner.
-On one fixed emulator, a completed confirmation across \DeliveryN{} histories
-gives a geometric delivery/online snapped-error ratio of \DeliveryRatio{}
-(95\% interval \DeliveryCILow{}--\DeliveryCIHigh{}), using the median of three
-scored refit initializations; \DeliveryWins{} histories improve. Exploratory
-attribution on that exposed grid favors long fits on retained histories.
-An archived physical case study retains all eleven conditions: delivery beats
-rolling learning in \CRollingWins{} but Fourier regression in \CFourierWins{}.
-Conditional eligibility, propagation and quantization results explain why local
-fit, joint support and downstream prediction must be distinguished. The evidence
-supports family- and comparator-dependent delivery benefits, with differing
-supervision and fitting compute; it establishes neither an architecture effect
-nor an acquisition or foundation-model advantage.
+We assess post-collection refitting of structural causal model (SCM) surrogates
+with known graphs and measured intermediates. A prospective study uses twenty
+independent systems in each of two noise-disabled families, with five or thirty
+nodes. Its registered analysis weights balanced and matched-random collection
+histories equally within each system. At shared initialization zero, the pooled
+results favor delivery over a flat refit in both families and over rolling
+learning in the thirty-node family. Five-node delivery instead has 2.46 times
+the rolling error, a reversal whose cause remains undiagnosed. The flat comparison
+also depends strongly on collection history. For thirty-node balanced histories,
+the delivery/flat error ratio is 0.912 and delivery improves only 10 of 20 systems,
+compared with a ratio of 0.168 for matched-random histories. Across delivery, rolling and flat in the two families, median root-mean-square
+errors are about
+0.5\% to 3.4\% of the training target's standard deviation. Separate archived
+studies favor long fits on retained histories of one emulator but find that
+Fourier regression beats delivery in all eleven physical conditions. Conditional
+theory explains why eligible-row fitting, joint support and prediction through
+a learned chain must be considered separately. These results support evaluating
+a final refit against the rolling learner and simple controls, with explicit
+attention to collection history, initialization and unequal training budgets.
+
 \end{abstract}
 
 \section{Introduction}
@@ -3099,7 +3049,7 @@ An experimental learner has two jobs: maintain a useful model while observations
 arrive, and deliver a predictor after collection ends. These jobs can favor
 different uses of the same paid observations. A rolling buffer limits update
 cost, but it also forgets earlier parts of the experimental support. A completed
-history permits a fresh batch fit, whose extra computation is spent after the
+history permits a fresh batch fit, whose computation is spent after the
 experimental responses have already been obtained. Evaluating only the online
 learner can therefore understate the predictive value of the collected data.
 Conversely, an improvement after refitting can be wrongly credited to causal
@@ -3114,9 +3064,9 @@ estimate each mechanism, and the joint parent support determines where such
 estimates are constrained. These details matter even when every measured
 variable lies inside its training range.
 
-Our central question is empirical: \emph{what does a completed experimental
-history buy at delivery time, and what accounts for that benefit?} We investigate
-three explanations: retaining observations that a rolling buffer discards,
+Our central question is empirical: \emph{when does refitting a completed
+experimental history improve the delivered predictor?} In an archived task,
+we compare three changes: retaining observations that a rolling buffer discards,
 using paid observations that never entered a live update, and performing more
 optimization. A direct flat predictor and fixed classical regressors test
 whether a simpler refit can explain the result. We use ``delivery'' to denote
@@ -3124,36 +3074,28 @@ this post-collection fitting procedure, without implying a new optimization
 algorithm or a general identification guarantee.
 
 \paragraph{Contributions.}
-First, we document a completed comparison over repeated histories of one fixed
-emulator and an exploratory factorial attribution with unchanged original
-weights and explicit fitting costs. Second, we formalize the eligibility of
-interventional observations for mechanism regression and explain the distinction
-between observed-parent fit and free-running prediction through propagation
-bounds and support counterexamples. These elementary results clarify the
-empirical estimand and its limits; they are not new general causal-identification
-theorems. Third, we report an archived physical prediction study with domain
-controls and all conditions retained, including unfavorable results. A frozen
-prospective study tests the selected recipe on independent parameterizations
-and reserved action blocks. It favors delivery over the selected flat refit in
-both families, but reverses the delivery-versus-rolling comparison between the
-two families. All four registered contrasts and every system are retained.
+Our main evidence is a frozen prospective comparison across forty independently
+parameterized systems. The registered average over two collection histories
+favors delivery over the selected flat refit in both families, but the
+thirty-node balanced histories show mixed results. Delivery loses to rolling
+in the five-node family and wins in the thirty-node family. All four registered
+contrasts and every system are retained.
 
-Within the scratch-fit matrix, long fits on retained histories outperform
-final-buffer fits and 100-update fits; adding unused paid rows changes aggregate
-continuous error much less. These conditional recipe contrasts do not partition
-the original online-to-delivery gain. The matrix also favors the structured recipe against the selected flat
-controls on the exposed evaluation grid. Differences in usable rows,
-intermediate supervision and computation limit that interpretation. The physical
-study supplies a complementary boundary: a domain-informed Fourier predictor
-outperforms neural delivery in every evaluated condition. Our contribution is
-therefore an assessment of delivery behavior and accounting, with its scope
-fixed by the controls and evaluation design.
-For practitioners, the actionable lesson is to evaluate the delivered refit
-separately from the online learner, retain a simple direct or domain-informed
-control, and score the composed predictor rather than only its local heads.
-The observed reversal between families makes an automatic switch to a long
-SCM refit unjustified; the study does not supply a rule that predicts that
-reversal before evaluation.
+Two archived studies provide context. Repeated histories of one emulator and
+an exploratory scratch-fit matrix compare retained data, paid observations
+that never entered a live update, and fitting effort. Long fits on retained
+histories improve over final-buffer and short fits. Adding the unused paid rows
+has a smaller aggregate continuous-error effect. These contrasts do not explain
+the prospective five-node reversal or partition the original online-to-delivery
+gain. A separate physical case study finds that a domain-informed Fourier
+predictor beats neural delivery in every condition.
+
+Finally, elementary eligibility and propagation results clarify when a measured
+row can train a mechanism and why good local fits need not give good downstream
+predictions. They are not new identification theorems. The practical lesson is
+to evaluate the delivered refit separately from the rolling learner, keep a
+simple direct or domain-informed control, and score the complete prediction
+chain. The evidence does not justify an automatic switch to a long SCM refit.
 
 \section{Setting and delivery procedure}
 \label{sec:setting}
@@ -3174,12 +3116,12 @@ set $S$, the delivery head minimizes the empirical objective
  \bigl(\hat f_{i,\theta_i}(v_{t,\mathrm{Pa}(i)})-v_{t,i}\bigr)^2.
  \label{eq:local-objective}
 \end{equation}
-The objective requires $|S\cap E_i|>0$; an empty eligible set supplies no fitted
+The objective requires $|S\cap E_i|>0$. An empty eligible set supplies no fitted
 mechanism and blocks a delivery claim for that head. This objective uses measured parents during fitting. At deployment, each
-non-clamped node is evaluated in topological order at predicted parents;
-clamped nodes take their specified values. We call this \emph{free-running}
+non-clamped node is evaluated in topological order at predicted parents.
+Clamped nodes take their specified values. We call this \emph{free-running}
 prediction. For noisy systems, conditional-mean regression is justified only
-under the assumptions in Section~\ref{sec:theory}; recursively composing such
+under the assumptions in Section~\ref{sec:theory}. Recursively composing such
 means is not generally an interventional-mean estimator.
 
 \paragraph{Recipe and simpler control.}
@@ -3197,7 +3139,7 @@ still differ. These comparisons evaluate complete recipes rather than isolating
 architecture with identical supervision.
 
 Figure~\ref{fig:delivery-procedure} summarizes the fitting and deployment
-interfaces. Each head's training input is an observed parent vector; its deployed
+interfaces. Each head's training input is an observed parent vector. Its deployed
 input can differ because upstream nodes are predicted. Saving the completed
 history makes a new fit possible, but does not resolve that support mismatch.
 \input{delivery_method_diagram}
@@ -3208,17 +3150,17 @@ $|\mathcal A|^{-1}\sum_{a\in\mathcal A}(\hat y(a)-y(a))^2$.
 Prospective normalized MSE (NMSE) divides this quantity by the target variance
 in the corresponding training history, using no held-out responses to set the
 scale. Archived attribution instead normalizes by the population target variance
-of its exposed grid, shared across arms; physical errors use each condition's
+of its exposed grid, shared across arms. Physical errors use each condition's
 training target variance. Exact-level error is the fraction with
 $Q(\hat y)\ne Q(y)$ for the fixed archived quantizer. It extends the recorded
 level lattice beyond both endpoints using the adjacent end spacing and resolves
 midpoint ties downward, rather than clipping predictions to endpoint levels.
-Nonfinite predictions are invalid for scientific acceptance.
-It is secondary for genuinely quantized targets outside the archival confirmation;
-it is not interchangeable with continuous prediction error. We distinguish
+Nonfinite predictions invalidate the comparison.
+Exact-level error is secondary outside the archival confirmation and applies
+to genuinely quantized targets. It is not interchangeable with continuous error. We distinguish
 exposed-grid assessment, which includes acquired inputs, from action-block
 holdout evaluation. Table~\ref{tab:evaluation-design} summarizes the endpoints,
-reporting units and initialization rules; these distinctions prevent pooling
+reporting units and initialization rules. These distinctions prevent pooling
 histories, systems and physical conditions into a single evidence population.
 \input{delivery_evaluation_design}
 
@@ -3231,7 +3173,7 @@ identification \citep{xia2021causal}. Our setting supplies the graph and measure
 parents rather than recovering causal structure from unrestricted observations.
 Invariant prediction uses stable relationships across experimental settings
 for causal inference \citep{peters2016invariant}. Here invariance is an assumption
-supporting eligible-row regression; we do not perform invariant-prediction
+supporting eligible-row regression. We do not perform invariant-prediction
 structure selection or claim its confidence guarantees. Work on causal
 representation learning addresses learning causal variables and mechanisms
 from observations \citep{scholkopf2021representation}. We assume the variables
@@ -3243,30 +3185,28 @@ from observational data and a supplied graph for interventional and
 counterfactual queries \citep{chao2024mechanisms}. Our assessment instead fixes
 the histories and compares post-collection fitting recipes for deterministic
 structural-map prediction. Related Lipschitz propagation arguments appear in
-the regret analysis of \citet{sussex2023model}; our deterministic approximation
+the regret analysis of \citet{sussex2023model}. Our deterministic approximation
 bound does not inherit their calibrated-model or soft-intervention guarantees.
 
 \paragraph{Online learning and final prediction.}
-Obtaining a final predictor from sequential learning has a substantial
-literature. Online-to-batch results can extract predictors with risk bounds
-from online hypotheses under specified sampling assumptions
-\citep{cesabianchi2004generalization}. Our procedure instead fits anew on a
-retained interventional history and measures the data-use and compute changes.
-Its adaptive histories and neural optimization do not inherit those bounds.
-Batch refitting and replay are existing tools; the contribution here is the
-controlled account of which rows, fitting budgets and deployment semantics
-explain the observed delivery behavior.
-GDumb already stores streaming examples and trains from scratch at test time
-\citep{prabhu2020gdumb}; experience replay retains earlier samples during
-continual learning \citep{rolnick2019replay}. Thus separating collection from
-scratch fitting is established. Our specific assessment concerns intervention
-eligibility, the difference between measured-parent fitting and predicted-parent
-deployment, admitted-versus-paid response accounting, and constrained recipe
-comparisons, rather than a new temporal fitting principle.
+Online-to-batch results obtain predictors with risk bounds from online hypotheses
+under specified sampling assumptions \citep{cesabianchi2004generalization}.
+Our procedure instead fits anew on a retained interventional history and does
+not inherit those bounds. \citet{ash2020warm} show that warm-starting a neural
+network on growing data can generalize worse than training from scratch even
+when training losses are similar. That work is a close precedent for separating
+continued training from a fresh fit. We do not test their proposed remedy or
+attribute our five-node reversal to the same cause.
+GDumb also stores streaming examples and trains from scratch at test time
+\citep{prabhu2020gdumb}. Experience replay retains earlier samples during
+continual learning \citep{rolnick2019replay}. Our contribution is therefore not
+a new fitting principle. It is an assessment of intervention eligibility,
+measured-parent training versus predicted-parent deployment, and data-use and
+training-budget differences in specified SCM recipes.
 
 \paragraph{Prediction-dependent inputs and physical validation.}
-Sequential prediction can fail when an earlier prediction changes later inputs;
-imitation-learning reductions address this distribution mismatch
+Sequential prediction can fail when an earlier prediction changes later inputs.
+Imitation-learning reductions address this distribution mismatch
 \citep{ross2011reduction}. A DAG surrogate similarly receives predicted parents
 at deployment, but we do not apply that algorithm or transfer its regret
 results to our intervention setting. Our deterministic bound states the needed
@@ -3279,7 +3219,8 @@ experiment.
 \section{Completed delivery confirmation}
 \label{sec:confirmation}
 The comparison retains the originally registered \DeliveryN{} histories of a
-single deterministic emulator. The delivery procedure fits separate mechanism
+single deterministic emulator with eight roots and five measured mechanisms.
+The delivery procedure fits separate mechanism
 MLPs from all eligible paid rows using full-batch Adam and additional epochs.
 Original online weights remain unchanged. Evaluation runs the learned chain on
 the full previously exposed discrete grid using predicted intermediate values.
@@ -3289,7 +3230,7 @@ sample.
 The primary endpoint is exact-level error after mapping predictions to the
 nearest target level. For each history, the registered numerator is the median
 of three scored optimization initializations, and the denominator is the original
-online chain's error. That median summarizes sensitivity; it is not a deployable
+online chain's error. That median summarizes sensitivity. It is not a deployable
 rule for selecting a model without access to true test outcomes. Histories,
 not initialization repeats or grid rows, are the paired units.
 
@@ -3297,17 +3238,19 @@ The geometric mean paired ratio is \DeliveryRatio{}, with a log-scale
 $t$ interval of [\DeliveryCILow{}, \DeliveryCIHigh{}] and exhaustive two-sided
 sign-flip $p=\DeliveryP{}$. \DeliveryWins{} of \DeliveryN{} histories improve.
 The worsening history \WorseSeed{} changes from \WorseOnline{} online error
-to \WorseDelivery{} delivery median error (ratio \WorseRatio{}); it is retained
+to \WorseDelivery{} delivery median error (ratio \WorseRatio{}). It is retained
 without exclusion or rescue tuning. The registered numerical floor is below every observed paired error and does
-not alter these ratios. The interval is conditional on the history sampling
-for this fixed emulator; interpreting the sign-flip test requires symmetry
+not alter these ratios. An interrupted acquisition attempt for the final history
+was retained and continued under an explicit amendment before scoring, as
+detailed in Appendix~\ref{app:accounting}. The interval is conditional on the history sampling
+for this fixed emulator. Interpreting the sign-flip test requires symmetry
 of the paired log differences under its null. The generated values and source
 hashes are listed in \texttt{claim\_index.json}.
 
 This supports the bundled delivery procedure on repeated histories of that
 emulator. Paid histories are matched, but fitting compute is not. It establishes
-neither acquisition superiority, causal-factorization attribution, a foundation
-model benefit, nor generalization over independently parameterized systems.
+neither acquisition superiority, causal-factorization attribution, nor
+generalization over independently parameterized systems.
 
 \section{Exploratory attribution of the delivery benefit}
 \label{sec:protocol}
@@ -3321,13 +3264,13 @@ matched-CPU comparisons. Fixed ridge, polynomial and tree controls are
 configured on an earlier development history, with no configuration tuning on
 the twelve exposed histories.
 Input ranges are recomputed from each row set's eligible observations. Retention
-contrasts therefore change both rows and training-derived scaling; identical
+contrasts therefore change both rows and training-derived scaling. Identical
 parameter seeds need not give identical initial functions in physical coordinates.
 The all-paid 100/30,000 contrast holds the rows and scaling fixed.
 
 Replay reconstruction reveals additional differences from the online training
-path: the selected observation is duplicated in consolidation; per-node fast
-adaptation can include a directly intervened node; and the final observation
+path: the selected observation is duplicated in consolidation. Per-node fast
+adaptation can include a directly intervened node. And the final observation
 refresh enters the saved buffer after the last fit. These differences are
 recorded rather than silently attributed to data quantity. The scratch factorial
 controls masks among its cells but does not exactly replay the online objective.
@@ -3336,12 +3279,10 @@ histories, so that code-path limitation is not an observed explanation of their
 delivery improvement.
 Diagnostics retain support coverage, observed-parent residuals, propagated
 prediction shifts and decision margins, especially for the worsening history.
-No simulator responses are acquired in Stage A.
+The attribution study acquires no new simulator responses.
 
 \subsection{Results and interpretation}
-The full registered matrix completed and passed an independent audit of source,
-inputs, eligibility masks, original artifacts, fitted-model hashes and all score
-files. With initialization zero, all-paid SCM fitting for 30,000 epochs gives
+The full registered matrix completed. With initialization zero, all-paid SCM fitting for 30,000 epochs gives
 geometric mean continuous NMSE ratios of \AOnlineRatio{} versus unchanged
 online weights, \AFlatRatio{} versus the development-selected flat refit, and
 \AMatchedRatio{} versus the separately matched-CPU flat fit. These are
@@ -3367,23 +3308,54 @@ that a roots-only observational predictor cannot represent. Accordingly this
 comparison does not isolate a pure architecture effect with identical usable
 rows, nor prove general causal identifiability. Matched fit CPU includes every
 SCM head, including the communication-cost branch that does not feed the scored
-target. The complete matrix consumed \AFitCPU{} fit CPU-core-hours; this excludes
+target. The complete matrix consumed \AFitCPU{} fit CPU-core-hours. This excludes
 process startup, evaluation and imports completed before each head's timer.
 Classical-library imports within the timer remain included. Table~\ref{tab:attribution} retains all
-primary configurations; initialization sensitivity is preserved separately.
+primary configurations. Initialization sensitivity is preserved separately.
 SCM/flat continuous ratios for initializations one and two are
-\AFlatInitOneRatio{} and \AFlatInitTwoRatio{}; neither changes the primary
+\AFlatInitOneRatio{} and \AFlatInitTwoRatio{}. Neither changes the primary
 initialization-zero rule. The CPU-budgeted flat comparison tests that specified
 training schedule, not the best prediction attainable by an optimally allocated
-flat compute budget. Table~\ref{tab:attribution-histories} retains each history.
+flat compute budget. In fact, its online-relative NMSE ratio is 1.234, worse
+than 0.948 for the 30,000-update flat fit. Thus the matched-CPU comparison uses
+the weaker of these two flat schedules. Table~\ref{tab:attribution-histories} retains each history.
 
-\input{delivery_attribution_table}
+% BEGIN EDITORIAL TABLE delivery_attribution_table
+% Generated exploratory init0 matrix; no inference from exposed grid.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{llrrrr}
+\toprule
+Data & Learner & Epochs & NMSE/online & Snap/online & CPU h\\
+\midrule
+Final50 & SCM & 100 & 26.889 & 4.082 & 0.002\\
+Final50 & SCM & 30,000 & 5.466 & 2.593 & 0.390\\
+Final50 & flat & 100 & 29.230 & 4.126 & $<0.001$\\
+Final50 & flat & 30,000 & 29.158 & 4.103 & 0.078\\
+Admitted & SCM & 100 & 16.661 & 3.865 & 0.003\\
+Admitted & SCM & 30,000 & 0.533 & 0.435 & 0.783\\
+Admitted & flat & 100 & 13.198 & 3.695 & 0.001\\
+Admitted & flat & 30,000 & 2.395 & 1.949 & 0.159\\
+All paid & SCM & 100 & 15.448 & 3.846 & 0.006\\
+All paid & SCM & 30,000 & 0.522 & 0.204 & 1.455\\
+All paid & flat & 100 & 12.248 & 3.655 & 0.002\\
+All paid & flat & 30,000 & 0.948 & 0.950 & 0.270\\
+All paid & ridge & -- & 28.890 & 4.150 & 0.002\\
+All paid & polynomial & -- & 4.440 & 2.737 & 0.002\\
+All paid & tree & -- & 24.582 & 3.883 & 0.004\\
+All paid & flat & CPU & 1.234 & 1.206 & 1.455\\
+\bottomrule
+\end{tabular}
+\caption{Exploratory primary initialization 0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights. Lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding evaluation and imports performed before the fit timer. Classical-library imports inside the timer remain included. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}
+\label{tab:attribution}
+\end{table}
+% END EDITORIAL TABLE delivery_attribution_table
 
 \subsection{Retained failure and propagation}
 History \WorseSeed{} still worsens under the primary delivery fit, with snapped
 error \AWorseSnapped{}. Its target mechanism's observed-parent MSE is
-$\AWorseLocalMSE{}$, while free-running chain MSE is $\AWorseChainMSE{}$;
-the propagated prediction-shift MSE is $\AWorseShiftMSE{}$. Only
+$\AWorseLocalMSE{}$, while free-running chain MSE is $\AWorseChainMSE{}$.
+The propagated prediction-shift MSE is $\AWorseShiftMSE{}$. Only
 \AWorseOutsidePercent{}\% of true evaluation parent vectors lie outside the
 training bounding box. That summary establishes neither joint support nor
 coverage of deployed predicted-parent vectors. Writing
@@ -3397,28 +3369,30 @@ rescue or selecting a different scored initialization.
 
 \section{Frozen prospective evaluation}
 \label{sec:prospective}
-The protocol was frozen before collecting responses or opening held-out
-outcomes. The original audit, independent saved-checkpoint reproduction and
-both registered and descriptive report exports are complete. The recipe,
-flat control and short-fit ablation were selected at the attribution gate and
-remain unchanged. The full matrix includes every registered system and fit.
+We fixed the protocol before collecting responses or inspecting held-out
+outcomes. The delivery recipe, flat control and short-fit ablation were selected
+in the archived attribution study. No prospective result changed them. The
+complete study includes every registered system and fit. Section~\ref{sec:reproducibility}
+distinguishes our retained execution records from the evidence in the anonymous
+supplement.
 
 \subsection{Systems, histories and estimand}
-We use 20 independently parameterized systems in each of two graph-size strata.
-The five-node family is an explicit parameterized extension of the audited
-legacy equations, whose unparameterized base is fixed; varying collection seeds
-alone would not make independent systems. The thirty-node family reuses the
-audited graph and coefficient generator with both random states pinned.
-These are controlled extensions within the specified families, not an external
-benchmark or a representative sample of all SCMs. Appendix~\ref{app:systems}
-gives the mechanisms and action construction.
-The five-node target depends effectively on one root; its other branch is
-irrelevant to that target. The families differ in structure and functions as
-well as node count. Graph size labels strata and does not isolate a scaling effect.
+We use 20 independently parameterized systems in each of two families. The
+five-node family has two roots and three measured mechanisms. Independent
+coefficient perturbations vary an affine and sinusoidal target chain. Its target
+depends effectively on one root, while the other branch is irrelevant to that
+target. The thirty-node family has five layers, five roots and 25 mechanisms.
+Each mechanism is a weighted parent sum, with a sinusoidal term at selected
+nodes. Thirty-node graphs and coefficients vary across systems. Every system
+keeps its graph and coefficients fixed across responses. Appendix~\ref{app:systems} gives their distributions and equations.
+These are restricted generator families, not a representative sample of all
+SCMs. They differ in structure and functions as well as node count, so the
+family comparison does not isolate a scaling effect.
 
-Each system supplies two shared 400-response histories: balanced varied-value
-root interventions and matched random root interventions. Each also has one
-shared set of 400 held-out root actions. Complete joint-action blocks are
+Each system supplies two shared 400-response histories. Balanced collection
+favors the least-used of eleven levels at each root. Matched-random collection
+samples roots uniformly in $[-3,3]$ under the same response budget and training
+block exclusions. Each system also has 400 shared held-out root actions. Complete joint-action blocks are
 reserved before collection and cannot appear in either training history.
 All arms receive the same paid history. This design tests dependence on the
 collection strategy without establishing acquisition superiority. The target
@@ -3429,29 +3403,44 @@ structural map. This estimand does not substitute a composed conditional mean
 for the expected outcome of a noisy nonlinear SCM. The first 50 paid training
 responses provide a common, fixed input calibration for structured learners
 before their retrospective updates. Thus the rolling comparator reproduces
-the archived online update kernel after calibration; it is not a streaming
+the archived online update kernel after calibration. It is not a streaming
 algorithm that operates before those calibration observations are available.
 The primary NMSE denominator uses the full training-history target variance.
 
 \subsection{Comparators and separation of fitting from evaluation}
-The primary comparison uses initialization zero for delivery, the original
-rolling update kernel, the selected flat refit and the 100-update SCM ablation.
-Initialization one and two fits of delivery and flat measure optimization
-sensitivity separately; no scored initialization is selected for deployment.
-There are eight fits per history, totaling 640 fits across the frozen systems.
-All model states, optimizer accounting, inputs and attempt receipts were
-sealed before the evaluator generated any held-out response. All 640 original
-fits and forty world journals completed without replacement or filtering.
-The protocol retains failed or interrupted attempts and blocks acceptance of
-an incomplete matrix. Later reproduction failures are retained separately;
-they did not replace scientific fits or systems.
+Delivery and flat both use 30,000 full-batch updates per fitted head. Rolling
+processes all 400 arrivals after the shared calibration step, including the
+first 50 rows. Each arrival triggers 20 fast updates on the current observation
+and 100 consolidation updates on a buffer of up to 50 rows plus a second copy
+of the current observation. This gives $400(20+100)=48{,}000$ updates per head,
+with persistent Adam state. Rolling therefore receives more updates per head,
+but on smaller batches. Update counts alone are not compute equivalence.
 
-Joint root interventions leave every nonroot mechanism eligible. Nevertheless,
-SCM and flat learners differ in intermediate supervision and total fitting
-compute. The comparison therefore tests the selected recipe against a simpler
-predictor, not an architecture effect at equal supervision or compute. Root-only
-histories can leave parent support on a lower-dimensional manifold, so this
-study also does not establish identification for arbitrary internal interventions.
+The structured learners fit three heads in the five-node family and 25 in the
+thirty-node family. Flat fits one head. Thirty-node delivery therefore uses
+750,000 head-updates against flat's 30,000, and it receives intermediate labels
+that flat does not. The five-node parameter counts are 13,123 for the structured
+model and 4,417 for flat. The thirty-node structured model has 109,465--109,913
+parameters across its 25 heads, compared with 4,609 for flat.
+These are complete-recipe comparisons, not tests of architecture at matched
+supervision or computation. Across the forty initialization-zero fits per arm and family
+($20$ systems $\times$ $2$ histories),
+mean fit CPU seconds are 58.1, 77.9 and 20.1 for five-node delivery, rolling and
+flat, respectively. The thirty-node means are 556.7, 726.8 and 22.8 seconds.
+These timers cover the training loop and its bookkeeping, excluding initial
+runtime setup, model initialization, checkpoint writing and evaluation.
+Root-only histories also do not identify responses to arbitrary internal
+interventions.
+
+Initialization zero is fixed for the primary comparison. Head seeds depend on
+the initialization index and topological position, not the system identity.
+The same seed scheme is therefore shared across systems within each family.
+The primary intervals describe variation across systems conditional on that
+initialization. Delivery and flat also have fits at initializations one and two
+for descriptive sensitivity. Rolling and the 100-update SCM ablation each have
+one fit per history. No scored initialization is selected for deployment.
+All 640 fits were saved before any held-out response was generated. All forty
+systems completed without replacement or filtering.
 
 \subsection{Registered primary analysis}
 For system $s$, history $h$, and control $c$, define
@@ -3470,170 +3459,222 @@ in each of the two strata. An asserted superiority requires all three frozen
 conditions: ratio at most $0.8$, upper marginal interval below one, and
 Holm-adjusted $p<0.05$. The intervals themselves are not simultaneous intervals.
 These parametric intervals and tests rely on system-level log-ratio sampling
-assumptions; they are not distribution-free guarantees. Ablation, initialization
+assumptions. They are not distribution-free guarantees. Ablation, initialization
 sensitivity, history-specific summaries and failure diagnostics are reported
 separately. No grid rows, histories or optimization
-repeats are counted as independent systems. No result is accepted from an
-incomplete primary matrix.
+repeats are counted as independent systems. We report the complete registered primary matrix.
 
 \subsection{Prospective results and boundaries}
-Table~\ref{tab:prospective-primary} reports all four registered contrasts.
-The table's \texttt{simpler} arm is the selected flat refit. Delivery is worse
-than rolling in the five-node family: the ratio is \BFiveOnlineRatio{}, with
-marginal interval [\BFiveOnlineCILow{}, \BFiveOnlineCIHigh{}] entirely above one.
-In the thirty-node family it is better than rolling, with ratio
-\BThirtyOnlineRatio{} and interval [\BThirtyOnlineCILow{}, \BThirtyOnlineCIHigh{}].
-Against flat, ratios are \BFiveFlatRatio{} and \BThirtyFlatRatio{} in the two
-families. These two flat contrasts and the thirty-node rolling contrast meet
-all three registered criteria. Failure of the remaining superiority gate is
-not equivalence; here the estimated effect favors the control. The $0.8$
-point-estimate criterion is not 95\% assurance of a 20\% population gain.
+Table~\ref{tab:prospective-primary} reports the registered equal-weight average
+over the two history types. Delivery is worse than rolling in the five-node
+family, with ratio \BFiveOnlineRatio{} and marginal interval
+[\BFiveOnlineCILow{}, \BFiveOnlineCIHigh{}]. In the thirty-node family it is
+better, with ratio \BThirtyOnlineRatio{} and interval
+[\BThirtyOnlineCILow{}, \BThirtyOnlineCIHigh{}]. Against flat, the pooled ratios
+are \BFiveFlatRatio{} and \BThirtyFlatRatio{}. Both flat contrasts and the
+thirty-node rolling contrast meet the registered rule. The five-node result
+favors rolling, rather than establishing equivalence. The $0.8$ point-estimate
+criterion is not 95\% assurance of a 20\% population gain.
 
-\input{delivery_prospective_primary_table}
+% BEGIN EDITORIAL TABLE delivery_prospective_primary_table
+% Generated from an independently accepted full640fit receipt.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rlrrrl}
+\toprule
+Nodes & Control & Ratio & Marginal 95\% CI & Holm $p$ & Registered gate\\
+\midrule
+5 & rolling & 2.45956 & [1.78782, 3.38368] & 3.29547e-05 & not met\\
+5 & flat & 0.356194 & [0.282389, 0.449288] & 6.62773e-08 & met\\
+30 & rolling & 0.274321 & [0.158409, 0.47505] & 0.000185887 & met\\
+30 & flat & 0.391027 & [0.254548, 0.600681] & 0.000205416 & met\\
+\bottomrule
+\end{tabular}
+\caption{Registered delivery/control NMSE ratios at shared initialization zero. Each system weights balanced and matched-random history log ratios equally. Intervals are marginal 95\% intervals across twenty systems. Holm adjustment covers all four tests. The superiority rule requires ratio $\leq0.8$, upper interval $<1$, and adjusted $p<0.05$.}
+\label{tab:prospective-primary}
+\end{table}
+% END EDITORIAL TABLE delivery_prospective_primary_table
 
-The history-specific ratios show that the aggregate does not describe every
-collection regime equally. The descriptive delivery/flat ratio in the
-thirty-node family is about 0.912 for balanced histories and 0.168 for matched
-random histories; neither summary is an additional hypothesis test or evidence
-that one acquisition strategy is superior. Longer fitting substantially
-outperforms the registered 100-update SCM in both strata, while it still loses
-to rolling in the five-node family. Thus more optimization helps relative to
-that short-fit recipe without making delivery universally preferable.
-The relative gains also need their absolute scale: fixed-initialization
-geometric NMSE is approximately $4.28\times10^{-4}$ versus $1.20\times10^{-3}$
-for delivery and flat in the five-node family, and $2.73\times10^{-5}$ versus
-$6.98\times10^{-5}$ in the thirty-node family
-(Table~\ref{tab:prospective-init}). These already small prediction errors are
-not measurements of downstream decision value or saved interventions.
-Appendix~\ref{app:prospective-complete} retains all absolute errors, system log
-ratios, history summaries, initialization sensitivity, short-fit comparisons
-and floor counts. No primary floor is activated. Initialization zero remains
-the deployed model regardless of the sensitivity results.
+\paragraph{Collection history changes the comparison.}
+Against flat, delivery has balanced-history ratios of 0.793 and 0.912 in the
+five- and thirty-node families, with improvements in 13 and 10 of 20 systems.
+The matched-random ratios are 0.160 and 0.168, with improvements in 19 and 18
+systems. Most of the pooled flat advantage therefore occurs on matched-random
+histories. The thirty-node balanced result is mixed, not evidence of equivalence.
+Against rolling, the balanced-history ratios are 1.614 and 0.695, with 4 and
+12 of 20 systems improving. The matched-random ratios are 3.748 and 0.108, with
+3 and 19 improving. These are descriptive within-history comparisons, not tests
+of which collection strategy is better. Longer fitting beats the 100-update ablation in both
+families but does not remove the five-node loss to rolling. Its cause remains
+undiagnosed. The archived propagation diagnostic concerns a different task and
+cannot explain this prospective reversal.
+
+\paragraph{Absolute error and initialization matter.}
+At initialization zero, median RMSE as a percentage of the training target's
+standard deviation is about 2.2\%, 1.6\% and 3.4\% for delivery, rolling and flat
+in the five-node family. The corresponding thirty-node values are 0.53\%,
+0.85\% and 0.87\%. These medians use the forty system/history cells per arm
+and family. They describe prediction accuracy, not downstream decision value
+or saved interventions.
+
+The pooled comparisons keep the same direction at each registered delivery
+initialization and when log errors are averaged over the three initializations.
+This stability does not imply reliable behavior in every history. In system
+5:08 under matched-random collection, initialization one gives delivery NMSE
+about 0.0238, roughly 1,044 times the rolling error. Appendix~\ref{app:prospective-complete}
+reports the initialization contrasts and this failure alongside all original
+absolute errors, system ratios, history summaries and ablations. No primary
+floor is activated, and initialization zero remains the deployment rule.
 
 \section{Archived physical prediction}
 \label{sec:physical}
-We use the eleven previously unscored conditions of \texttt{lt\_malus\_v1};
-\texttt{white\_64} remains development only. Duplicate commands and joint action
-blocks are grouped before splitting. Compare delivery, rolling-buffer learning,
+We use eleven evaluation conditions of \texttt{lt\_malus\_v1}, each with
+1,000 archived readings. Depending on the condition, 772--815 rows train the
+models and 185--228 rows are held out. \texttt{white\_64} is development only. Duplicate commands and joint action
+blocks are grouped before splitting. We compare delivery, rolling-buffer learning,
 joint Fourier regression and the published relative-angle physics model, using
 continuous prediction error. The physics basis is an intercept and
-$\cos^2(\theta_1-\theta_2)$, with degree inputs converted to radians; the earlier
-product-form attenuation control is not retained. Conditions and repeated
+$\cos^2(\theta_1-\theta_2)$, with degree inputs converted to radians. Conditions and repeated
 readings from one apparatus are not independent physical worlds. All conditions
 and conditional uncertainty are reported in Tables~\ref{tab:physical} and
 \ref{tab:physical-ci}. At fixed initialization zero, delivery has lower
 row-weighted NMSE than rolling-buffer fitting in \CRollingWins{} conditions,
 than the physics fit in \CPhysicsWins{}, and than Fourier regression in
-\CFourierWins{}. These are descriptive counts, not independent-world tests.
+\CFourierWins{}. These are descriptive counts, not independent-world tests. Four neural
+condition/arm entries have NMSE above one. Ten of the eleven
+conditional delivery/rolling intervals include one. Fourier's basis contains
+the physics regressor, so this comparison also shows the value of an appropriate
+fixed function class.
 The study consumed \CCPU{} fit/evaluation CPU-core-hours, excluding startup
 and imports completed before the phase timers, and acquired no physical responses. All fits were sealed before
-held-out losses were computed. Fourier regression outperforming delivery in
-every condition rules out an external advantage over that control here; the
-fixed domain-informed control provides better predictions. This case contains one
+held-out losses were computed. Fourier regression has lower held-out error than delivery in every condition. This case contains one
 measured response mechanism, so it is not a test of DAG factorization. We retain
 the result without changing the recipe after scoring.
 
-\input{delivery_physical_table}
+% BEGIN EDITORIAL TABLE delivery_physical_table
+% Generated from the fully accepted eleven-condition physical receipt.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+Condition & Delivery & Rolling & Physics & Fourier\\
+\midrule
+blue\_128 & 0.359 & 0.156 & 0.058 & 0.049\\
+blue\_255 & 0.012 & 0.017 & 0.026 & $9.43\times10^{-4}$\\
+blue\_64 & 0.471 & 2.087 & 0.103 & 0.102\\
+green\_128 & 0.789 & 0.290 & 0.058 & 0.046\\
+green\_255 & 0.010 & 0.038 & 0.018 & 0.002\\
+green\_64 & 5.167 & 3.307 & 0.121 & 0.102\\
+red\_128 & 0.276 & 0.389 & 0.047 & 0.045\\
+red\_255 & 0.011 & 0.063 & 0.024 & 0.004\\
+red\_64 & 1.119 & 0.823 & 0.159 & 0.135\\
+white\_128 & 0.163 & 0.462 & 0.044 & 0.042\\
+white\_255 & 0.020 & 0.023 & 0.006 & 0.002\\
+\bottomrule
+\end{tabular}
+\caption{Continuous held-out MSE divided by the training variance for all eleven evaluation conditions, excluding development condition \texttt{white\_64}. Lower is better. These conditions are readings of one apparatus, not independent systems.}
+\label{tab:physical}
+\end{table}
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{lrrr}
+\toprule
+Condition & Delivery/Rolling & Delivery/Physics & Delivery/Fourier\\
+\midrule
+blue\_128 & 2.55 [0.50, 8.03] & 6.61 [0.97, 17.08] & 7.88 [1.40, 17.91]\\
+blue\_255 & 0.71 [0.24, 1.01] & 0.47 [0.10, 1.22] & 13.05 [2.29, 28.48]\\
+blue\_64 & 0.22 [0.07, 1.12] & 4.38 [1.56, 8.49] & 4.41 [1.56, 8.29]\\
+green\_128 & 2.58 [0.43, 4.38] & 12.96 [1.15, 38.54] & 16.22 [1.91, 46.75]\\
+green\_255 & 0.23 [0.06, 2.40] & 0.54 [0.10, 1.57] & 6.26 [1.41, 19.05]\\
+green\_64 & 1.56 [0.17, 1.78] & 43.05 [1.14, 125.29] & 51.08 [1.51, 136.39]\\
+red\_128 & 0.75 [0.08, 2.97] & 6.47 [1.04, 14.30] & 6.64 [1.21, 13.20]\\
+red\_255 & 0.18 [0.06, 0.60] & 0.52 [0.18, 1.36] & 2.74 [1.48, 4.21]\\
+red\_64 & 1.31 [0.19, 4.59] & 6.54 [1.40, 16.18] & 7.37 [1.73, 18.01]\\
+white\_128 & 0.36 [0.12, 1.12] & 3.86 [1.09, 7.31] & 3.95 [1.16, 7.86]\\
+white\_255 & 0.85 [0.16, 3.55] & 2.92 [0.54, 6.83] & 8.57 [1.65, 15.65]\\
+\bottomrule
+\end{tabular}
+\caption{Equal-action-block error ratios and conditional 95\% bootstrap intervals. Eight held-out blocks are resampled within each condition. These ratios weight blocks equally, whereas Table~\ref{tab:physical} weights held-out rows equally. Intervals describe uncertainty conditional on this apparatus and observed blocks. They are not independent-world confidence intervals or multiplicity-adjusted superiority tests.}
+\label{tab:physical-ci}
+\end{table}
+% END EDITORIAL TABLE delivery_physical_table
 
 \input{delivery_theory}
 
 \section{Reproducibility and compute accounting}
 \label{sec:reproducibility}
-Fitting and evaluation run in separate processes. Training inputs, row selections,
-source, dependency versions, optimizer configuration and outputs are hash-bound.
-Stage A fit workers are denied network access and evaluation arrays. The physical
-worker uses only registered training rows for fitting and normalization and
-seals predictions before computing held-out losses. Exclusive output
-paths preserve interrupted attempts and reject overwriting accepted artifacts.
-Historical confirmation continuation is disclosed below; prospective system
-replacement is forbidden. Supervisors enforce
-wall-time and memory ceilings. Eligible rows, parameters, optimizer updates and
-CPU time accompany fits. Archived attribution records fit timing/RSS;
-prospective fits add supervised attempt memory. Physical memory and elapsed
-telemetry are available at whole-process or phase granularity, rather than
-independently for each method. Original histories
-and weights are retained under local result custody. The claim generator binds
-every retained numerical result to its validated receipt. Experimental controls,
-analytic checks and the execution ledger are versioned with the manuscript.
-No closed-source API is needed for the critical path.
+The anonymous supplement contains the manuscript sources and complete saved
+prospective error reports. These let readers reconstruct the reported
+comparisons. We separately retain the protocols, response ledgers, checkpoints,
+source versions and failed attempts. Our claims about protocol timing, fit
+sealing and execution checks are based on those records. They are author-reported
+process evidence, not independently established by the anonymous supplement.
+Saved-checkpoint reproduction covered all 640 prospective fits without new
+optimization or responses. The full executable archive retains required named
+attribution and is withheld from anonymous upload.
+
+The identified prospective execution and reporting chain used 36.9431 allocated
+CPU-core-hours across 59 one-CPU allocations, including failures. Fit process
+time and scheduler allocation overlap and are not added. Complete historical
+confirmation CPU and whole-project preparation costs are unknown.
+Appendices~\ref{app:accounting} and~\ref{app:provenance} give the scope and
+reproduction details.
 
 \section{Discussion and limitations}
 \label{sec:discussion}
-\paragraph{Data retention and fitting effort.}
-The exploratory contrasts distinguish keeping a completed history from keeping
-only the final buffer, and a short scratch fit from a much longer fit. Both
-changes are consequential within the scratch-fit matrix. Retention also changes
-normalization, while the online comparator carries persistent weights and Adam
-states; this matrix does not isolate their separate causal effects.
-The all-paid versus admitted-row aggregate continuous contrast is small, but
-has marked history-level and endpoint heterogeneity. This distinction is useful for experimental
-systems: recording observations and budgeting a final fit can improve delivery
-without a change in acquisition. It does not imply that more data or more
-updates improve every system, as the retained failure and counterexamples show.
+\paragraph{What the comparisons establish.}
+A final refit should be evaluated as its own prediction procedure. In the
+archived scratch-fit matrix, retaining a completed history and fitting longer
+both matter. Retention also changes input scaling, while the online comparator
+carries persistent weights and optimizer state. These contrasts therefore do
+not isolate the causes of the online-to-delivery difference. The prospective
+study tests the selected recipes on new systems and held-out actions. Its
+five-node reversal remains unexplained, and its flat advantage is much larger
+on matched-random histories than on balanced histories.
 
-\paragraph{Structured prediction and support.}
-A known graph gives a decomposition and a rule for row eligibility. It also
-creates a deployment dependency: upstream error changes the inputs of later
-heads. A low observed-parent residual cannot by itself validate the deployed
-chain, and a coordinate bounding box cannot establish joint support.
-Intermediate-intervention measurements may constrain mechanisms that a
-root-only predictor cannot learn from those inputs, but no pure factorization
-advantage follows from a comparison with unequal usable supervision. The
-prospective protocol deliberately tests prediction of root-interventional maps;
-its results do not resolve the internal-action ambiguity.
+\paragraph{Why local fit is insufficient.}
+A known graph specifies which observations can train each mechanism, but also
+makes later predictions depend on earlier ones. A small error on measured
+parents does not validate the complete learned chain. Nor does a coordinate
+bounding box establish joint support. The theory states assumptions under
+which reuse and propagation can be analyzed. It does not certify fitted
+residuals, explain every empirical reversal, or identify arbitrary internal
+interventions from root-only observations.
 
-\paragraph{External boundary and reporting units.}
-The physical task is a single mechanism in one apparatus. Neural delivery wins
-some comparisons with a rolling learner, but loses every comparison with the
-joint Fourier predictor. This limits claims about a generally preferable
-neural recipe and gives a concrete example where domain structure is more
-useful. Condition-specific bootstrap intervals describe observed action blocks,
-not a population of independently built apparatuses. Similarly, the archived
-histories supply conditional evidence about one emulator, not twelve causal
-worlds. The prospective systems address variation within two generator
-families, with broader physical generalization still outside their scope.
-
-\paragraph{Remaining evidence and validity limits.}
-The archived evaluation grid was previously exposed and includes acquired
-inputs. Attribution on that grid is exploratory, even though its configurations
-were fixed before the new fits. The confirmation's median of three scored
-initializations describes sensitivity and must not be read as a deployable
-model-selection rule. The prospective fixed-initialization study tests the
-selected recipe on unused action blocks and finds comparator- and
-family-dependent benefits, including worse delivery error against rolling in
-the five-node family. Compute totals distinguish
-fitting process time from full execution and requested allocations; an
-equal-epoch neural comparison is not an equal-compute comparison. The eligibility
-and propagation propositions require measured parents, invariance, noise and
-support assumptions that fitted residuals cannot certify. Causal discovery,
-counterfactual identification and foundation-model capability are not tested.
+\paragraph{Scope of the evidence.}
+The prospective results are conditional on two restricted, noise-disabled
+generator families and a shared initialization scheme. Both archived studies
+use an exposed grid from one emulator. Confirmation summarizes three scored
+refits by their median, which is not a deployable selection rule. Attribution
+uses initialization zero for its primary comparisons. The physical study
+uses one mechanism in one apparatus, where Fourier regression beats delivery
+in every condition. Conditions and repeated readings are not independent
+physical systems. Unequal intermediate supervision, parameter counts and
+fitting work limit architecture claims. None of these studies measures
+interventions saved by changing an acquisition policy.
 
 \paragraph{Broader impact.}
-Reusing existing observations may reduce the need to repeat measurements, but
-this study measures prediction error rather than a reduction in intervention
-cost. An inaccurate surrogate can mislead a later experimental decision,
-especially outside the observed joint support. The archived emulator includes
-communication-link and jamming variables; its hand-coded scores do not validate
-an operational communication or control system. Deployment would require
-application-specific validation, intervention limits and human oversight.
-Keeping the adverse comparisons and support counterexamples visible is intended
-to discourage treating a fitted causal graph as a safety certificate.
+An inaccurate surrogate can mislead a later experimental decision, especially
+outside observed joint support. The archived emulator includes communication
+and jamming variables, but its hand-coded scores do not validate an operational
+system. Deployment would require application-specific validation, intervention
+limits and human oversight. The adverse comparisons and support counterexamples
+show why a fitted causal graph should not be treated as a safety certificate.
 
 \section{Conclusion}
-A completed experimental history can support a substantially different delivered
-predictor from the learner maintained during collection. Within the archived
-scratch-fit matrix, long fits on retained histories improve substantially over
-final-buffer and short fits, while unused paid rows have a smaller aggregate
-continuous effect with substantial heterogeneity. This is a conditional recipe
-comparison, rather than a partition of the online-to-delivery gain. Structured delivery remains
-favorable against the selected simpler refits on the exposed grid, while a
-physical prediction study shows a clear boundary against domain-informed
-controls. The theoretical analysis explains why eligible-row fitting, joint
-support and free-running error must be considered separately. The frozen
-prospective comparison favors delivery against the selected flat refit in both
-families and against rolling in the thirty-node family, but favors rolling in
-the five-node family. These results support a conditional delivery recipe,
-not a universal benefit from refitting or causal factorization.
+Post-collection refitting can improve a delivered predictor, but the result
+depends on the comparison. In the registered equal-weight average over balanced
+and matched-random histories, delivery beats flat in both prospective families.
+Most of that advantage occurs on matched-random histories. On thirty-node
+balanced histories, the ratio is 0.912 and only 10 of 20 systems improve.
+Delivery also beats rolling in the thirty-node family but loses in the five-node
+family, for an undiagnosed reason. Absolute errors are small, initialization
+can produce severe individual failures, and the training budgets differ.
+The archived studies add two lessons: retained histories can support better
+scratch fits, and a simple domain-informed model can beat neural delivery.
+Evaluate the final refit, the rolling learner and suitable simple controls on
+the same held-out task. Check the composed prediction rather than relying on
+local fit alone.
 
 \bibliographystyle{tmlr}
 \bibliography{delivery_references}
@@ -3644,11 +3685,11 @@ not a universal benefit from refitting or causal factorization.
 The neural architecture for an input dimension $d$ is
 $\mathrm{Linear}(d,64)$--ReLU--$\mathrm{Linear}(64,64)$--ReLU--
 $\mathrm{Linear}(64,1)$. Each head therefore has $64d+4289$ trainable
-parameters; structured-model totals sum the head counts rather than counting
+parameters. Structured-model totals sum the head counts rather than counting
 only the scored target head. The retrospective scratch fits use separate Adam
 optimizers with constant learning rate $0.002$, full batches and squared loss.
 Neural fit receipts include optimizer update count, row IDs, parameter count
-and CPU process time; memory is measured at fit/attempt or whole-process
+and CPU process time. Memory is measured at fit/attempt or whole-process
 granularity as specified above. An epoch denotes one full-batch update
 per fitted head, not an acquired observation.
 
@@ -3678,23 +3719,59 @@ Let $s(z)=\min(1,\max(0,z))$ and $d=D/N$. The fixed mechanisms are
  Y=\frac{\operatorname{round}_{\rm even}(30s((I-0.35)/0.50))}{30},
  \qquad C=N+0.75D.
 \end{align*}
-The shared $J$ is a fork and $I$ is a collider; $C$ never feeds the target.
-Response generation follows frozen Python rounding; scorer midpoint ties are
+The shared $J$ is a fork and $I$ is a collider. $C$ never feeds the target.
+Response generation follows frozen Python rounding. Scorer midpoint ties are
 separately defined above. The 31 target levels are $\{k/30:k=0,\ldots,30\}$.
 Every one of the $5^8=390{,}625$ root actions receives equal weight in the exposed
 grid. Its target variance normalizes archived continuous errors.
 
-Each independently seeded history runs 200 iterations with four random proposed
-probes per iteration and outcome-dependent mechanism selection, no model API
-or policy update. Frozen settings include three initial rows, 500 validation
-rows, 100 learner epochs, a 50-entry buffer and a 25-row observation refresh
-every five iterations. All paid calls, including unselected probes, are logged.
+Each independently seeded history includes three seed observations,
+500 observational validation responses, and 500 interventional validation
+responses for each of five mechanisms. These are acquisition-side validation
+probes, not the prospective study's held-out responses. The learner runs 200
+iterations with four proposed probes per iteration and chooses a mechanism
+using the observed outcomes. It adds a 25-row observation refresh every five
+iterations. The complete paid count is
+\[
+ 3+500+5(500)+200(4)+40(25)=4{,}803.
+\]
+Of the 800 proposed probes, 200 are selected for live updates and 600 are not.
+Selection and repeated use in fitting add no response. The admitted union has
+$3+200+39(25)=1{,}178$ unique rows because the last refresh occurs after the
+final fit. The saved final buffer holds 50 rows. Later all-paid refits reuse
+all eligible observations, including the acquisition-side validation probes.
+The learner uses 100 consolidation updates per head per iteration, with a
+50-entry buffer and persistent optimizer state.
 Case seeds derive from the first 32 SHA-256 bits of a fixed pre-outcome
-case-index string modulo $2^{31}-1$; the full seed rule and settings accompany
-the frozen protocol. Independence concerns these acquisition streams, not
-different mechanisms.
+case-index string modulo $2^{31}-1$. Independence concerns acquisition streams,
+not different mechanisms.
 
-\input{delivery_history_table}
+% BEGIN EDITORIAL TABLE delivery_history_table
+% Generated from accepted fixed-init0 attribution rows; no selection.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{lrrrrr}
+\toprule
+History & Online NMSE & SCM NMSE & Flat NMSE & SCM/admitted & SCM snap\\
+\midrule
+27424209 & 0.002492 & 0.001273 & 0.002948 & 0.959 & 0.023\\
+1726880744 & 0.003233 & 0.001782 & 0.002801 & 0.946 & 0.148\\
+735595885 & 0.002856 & 0.001306 & 0.002708 & 0.877 & 0.017\\
+983656467 & 0.003046 & 0.001319 & 0.002665 & 0.935 & 0.029\\
+124753321 & 0.002734 & 0.004567 & 0.002534 & 2.874 & 0.397\\
+921441405 & 0.002524 & 0.001342 & 0.002783 & 0.929 & 0.042\\
+934168586 & 0.003245 & 0.001304 & 0.002946 & 0.854 & 0.020\\
+546725957 & 0.002488 & 0.001339 & 0.002727 & 0.792 & 0.042\\
+520888668 & 0.002959 & 0.001585 & 0.002682 & 1.091 & 0.116\\
+1091699608 & 0.003617 & 0.001307 & 0.002751 & 0.644 & 0.019\\
+585254818 & 0.002309 & 0.001301 & 0.002742 & 0.884 & 0.018\\
+884825602 & 0.003601 & 0.001272 & 0.002688 & 0.939 & 0.020\\
+\bottomrule
+\end{tabular}
+\caption{Every archived history at fixed initialization zero. SCM and flat draw their respective eligible subsets from the same paid history and use 30,000 full-batch updates per SCM head and for the flat model. A mechanism head excludes rows that clamp that mechanism. The root-to-target flat fit excludes rows that clamp any nonroot node. Admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history 124753321 and are not prospective tests.}
+\label{tab:attribution-histories}
+\end{table}
+% END EDITORIAL TABLE delivery_history_table
 
 \paragraph{Archived attribution.}
 The row sets use unique paid query IDs, not unique action values. The admitted
@@ -3703,25 +3780,25 @@ training. Reconstruction accounts for the selected row's duplicated appearance
 in consolidation and for observation refreshes added after fitting. Intervention
 masking excludes a directly clamped response from its own mechanism fit.
 Inputs are normalized as $(x-\mathrm{lo})/(\mathrm{hi}-\mathrm{lo})$ using
-eligible training minima and maxima, without input clipping; a constant range
+eligible training minima and maxima, without input clipping. A constant range
 is given width one. The structured fit includes the
 communication-cost branch even though it does not feed the evaluated target.
 In every archived history, the final buffer supplies 50 unique paid rows per
 head and the admitted union 1,178. All-paid mechanism fits have 4,303 eligible
-rows for the two links and combined score, and 4,803 for the target and cost;
-the root-only flat fit has 3,803. Counts refer to query identities, not distinct
-commands. The five-head structured model has 22,341 parameters; the eight-input
+rows for the two links and combined score, and 4,803 for the target and cost.
+The root-only flat fit has 3,803. Counts refer to query identities, not distinct
+commands. The five-head structured model has 22,341 parameters. The eight-input
 flat model has 4,801. These unequal counts and supervision remain part of the
 recipe comparison.
 
-Ridge uses penalty $1$; polynomial regression uses degree-three features and
-ridge penalty $1$; the extra-trees control uses 256 trees, minimum leaf size two,
+Ridge uses penalty $1$. Polynomial regression uses degree-three features and
+ridge penalty $1$. The extra-trees control uses 256 trees, minimum leaf size two,
 random state zero and one worker. The flat MLP uses the same width and optimizer
 as a mechanism head. Configurations and the simpler-control selection were
 fixed using the earlier development history. The matched-CPU flat control
 receives the sum of the corresponding all-paid long SCM heads' fit process
-time, excluding evaluation and imports completed before each head's timer. Its update count varies and is retained;
-it is not presented as another 30,000-update cell. The full matrix contains
+time, excluding evaluation and imports completed before each head's timer. Its update count varies and is retained.
+It is not presented as another 30,000-update cell. The full matrix contains
 480 fits, including the two budgets, three row sets and initialization
 sensitivity cells, plus the fixed classical and matched-CPU controls.
 
@@ -3737,8 +3814,8 @@ After calibrating on the first 50 rows, retrospective online replay starts with
 an empty buffer and processes all 400 arrivals, including that prefix. Each
 arrival performs 20 fast and 100 consolidation updates per nonroot head, totaling
 48,000 per head. Consolidation uses up to 50 buffer entries plus the duplicated
-current row. Neural computation uses float32 and the recorded Adam defaults;
-stage-specific dependency and seed schemes accompany the release.
+current row. Neural computation uses float32 and the recorded Adam defaults.
+Stage-specific dependency and seed schemes accompany the release.
 
 \section{Prospective systems and action construction}
 \label{app:systems}
@@ -3753,12 +3830,12 @@ $(a,b,c,d,s,q)=(2,1,0.5,1,1,0.2)$ by independent uniform factors in
 $[0.8,1.2]$. The thirty-node family has five layers of sizes $(5,5,10,5,5)$ and edge
 coefficients drawn uniformly in $[0.3,0.7]$. Nodes in the second layer choose
 one or two roots uniformly without replacement. In the third layer, nodes
-whose one-based index is divisible by three choose two second-layer parents;
-other nodes choose one. Fourth-layer nodes choose two or three third-layer
+whose one-based index is divisible by three choose two second-layer parents.
+Other nodes choose one. Fourth-layer nodes choose two or three third-layer
 parents uniformly without replacement. Each final-layer node chooses one
 fourth-layer parent. Graph and coefficient random states are pinned by the
-system descriptor; no edge or coefficient is redrawn per response. For a nonroot
-$i$, write $u_i=\sum_{j\in\mathrm{Pa}(i)}w_{ij}X_j$; its structural response
+system descriptor. No edge or coefficient is redrawn per response. For a nonroot
+$i$, write $u_i=\sum_{j\in\mathrm{Pa}(i)}w_{ij}X_j$. Its structural response
 is $u_i+0.2\sin(u_i)$ when its one-based node index is divisible by five,
 and $u_i$ otherwise. Both families use zero exogenous noise in this study.
 All graph and coefficient descriptors precede response generation and are
@@ -3770,27 +3847,28 @@ of each block reserves approximately one fifth of blocks for evaluation.
 Random training and evaluation actions are uniform draws accepted only in
 their respective block partitions. Balanced training favors the least-used
 of eleven evenly spaced levels at each root, subject to the same block
-exclusion; the bounded tie and quota rules are frozen in the implementation.
+exclusion. The bounded tie and quota rules are frozen in the implementation.
 Duplicate commands remain charged observations. No observed outcome determines
 which action or world enters the frozen design.
 
-Mechanism input ranges are fixed from the first 50 paid training rows;
-root ranges use the declared $[-3,3]$ support. For initialization $r$, each
-nonroot head is seeded by $r$ plus its position in the topological order; the
-flat head uses $r$ plus the number of nodes. These deterministic offsets are
-shared across the corresponding structured arms. No outcome selects an offset,
-initialization or replacement world.
+Mechanism input ranges are fixed from the first 50 paid training rows.
+Root ranges use the declared $[-3,3]$ support. For initialization $r$, each
+nonroot head is seeded by $r$ plus its position in the topological order. The
+flat head uses $r$ plus the number of nodes. These offsets are shared across arms and systems within a family.
+Identical seeds do not imply identical functions when parent dimensions or
+training normalizers differ. No outcome selects an offset, initialization or
+replacement world.
 
 \section{Physical split and uncertainty}
 \label{app:physical}
 The archive task uses the two polarizer commands and the measured light response
 \texttt{vis\_3}. Angles are in $[-90,90)$ degrees. For command pair
 $(\theta_1,\theta_2)$, define $b_j=\lfloor(\theta_j+90)/30\rfloor$.
-A joint block is held out if $(b_1+2b_2)\bmod5=0$; identical commands and their
+A joint block is held out if $(b_1+2b_2)\bmod5=0$. Identical commands and their
 repeated readings always share a block. The development condition
 \texttt{white\_64} is excluded from the eleven-condition evaluation.
 Neural output centering and scaling use the training mean and standard
-deviation, and are inverted before scoring; neural angle inputs are divided by
+deviation, and are inverted before scoring. Neural angle inputs are divided by
 90. The neural delivery fit uses
 30,000 full-batch updates. Rolling fitting follows archive order, using the
 last 50 eligible training rows and 100 updates per arriving row with persistent
@@ -3800,130 +3878,83 @@ delivery and is not a strictly streaming normalization claim.
 Physics regression fits an intercept and $\cos^2(\theta_1-\theta_2)$ after
 conversion to radians. Fourier regression uses the 25 tensor-product features
 from $\{1,\sin(2\theta),\cos(2\theta),\sin(4\theta),\cos(4\theta)\}$ at each
-angle. Both fit linear coefficients on training rows only. Conditional intervals
+angle. The Fourier span contains the physics regressor because
+$\cos^2(\theta_1-\theta_2)=\{1+\cos(2\theta_1)\cos(2\theta_2)
++\sin(2\theta_1)\sin(2\theta_2)\}/2$.
+Both fit linear coefficients on training rows only. The train/test row counts
+are blue\_128: 790/210, blue\_255: 815/185, blue\_64: 793/207,
+green\_128: 794/206, green\_255: 789/211, green\_64: 775/225,
+red\_128: 783/217, red\_255: 772/228, red\_64: 774/226,
+white\_128: 787/213, and white\_255: 778/222. Conditional intervals
 use 2,000 paired bootstrap resamples of the eight held-out action blocks within
 each condition, with fixed bootstrap seed 620061. Resampling gives each block
-equal weight; the primary descriptive NMSE instead weights readings equally.
+equal weight. The primary descriptive NMSE instead weights readings equally.
 This difference explains why a block-weighted ratio need not equal a ratio
 computed from the row-weighted table. Neither bootstrap establishes uncertainty
 across independently constructed physical systems. The intervals are a conditional
-resampling assessment under block exchangeability; archive-order dependence or
+resampling assessment under block exchangeability. Archive-order dependence or
 unobserved action blocks can limit that interpretation.
 
 \section{Historical execution and release accounting}
-The confirmation's accepted terminal audit retains
-\ConfirmationChargedCalls{} aggregate charged emulator attempts. The twelve
-complete histories contain \PersistedConfirmationResponses{} persisted responses;
-\InterruptedConfirmationAttempts{} additional journal entries belong to an
-interrupted acquisition attempt without a persisted response history. Journals
-reserve a charge before invocation, so the returned-response count for that
-interrupted attempt is unknown. Retained copies are counted once, and delivery
-refits acquire no additional responses. An explicit execution amendment retained
-the first eleven completed histories and the interrupted final attempt, then
-ran a separately retained final attempt for that same registered history before
-scoring the complete matrix. This continuation was not chosen by scored performance. Stage A and the physical
-study acquire no new responses: they reuse frozen observations.
-The confirmation worker measures refit durations using a monotonic elapsed-time
-clock. These intervals overlap the containing acquisition stages; the nested
-charged/reserved wall budgets are cumulative accounting records, rather than
-additional executions. Historical process CPU for the complete confirmation
-campaign is unmeasured. We therefore report that quantity as unknown and do not
-infer a whole-project CPU total by adding elapsed time, reservations, fit process
-CPU and scheduler allocation. Replay, packaging and review measurements cover
-their identified runs only.
-Stage A records \AFitCPU{} fit CPU-core-hours and the physical study
-\CCPU{} fit/evaluation CPU-core-hours. These measurements exclude startup
-and imports completed before the respective timers; classical-library imports
-inside the attribution fit timers remain included.
-The failed prospective pilot used 126 allocated CPU-seconds and its successful
-replacement used 119; both remain in custody. The original qualification,
-collection, forty world tasks, evaluation and audit used 118,680 allocated
-CPU-seconds, or 118,925 with those pilots. Subsequent environment preparation,
-failed and successful checkpoint reproductions, and both report-only attempts
-bring the identified chain to 132,995 allocated CPU-seconds (36.9431 allocated
-core-hours) across 59 allocations. The unsuccessful report attempt contributes
-1,792 seconds and the successful report attempt 2,513; neither adds fits or
-simulator responses. All these allocations used one CPU and no GPU.
+\label{app:accounting}
+The confirmation campaign records \ConfirmationChargedCalls{} charged emulator
+attempts. Its twelve complete histories contain
+\PersistedConfirmationResponses{} responses, or $12\times4{,}803$.
+The remaining \InterruptedConfirmationAttempts{} entries belong to an
+interrupted attempt. Charges were reserved before invocation, so its returned
+response count is unknown. An explicit amendment retained the first eleven
+histories and the interrupted attempt, then completed the same final registered
+history before scoring. No scored outcome determined this continuation.
+Neither the attribution fits nor the physical study acquired new responses.
 
-The 640 original fits separately recorded 110,802.1073 process CPU-seconds,
-113,596.4424 summed elapsed seconds and a maximum sampled process-tree RSS of
-1,400,913,920 bytes. The successful report child records 15.2265 process
-CPU-seconds and 2,472.1656 elapsed seconds after context validation; its
-wrapper elapsed time is 2,481.1657 seconds and its scheduler TotalCPU is
-753.777 seconds, covering a different process scope. Its sampled process-tree
-peak is 133,644,288 bytes; scheduler batch MaxRSS is 168,396 KiB. These measures
-overlap and are not added to allocation or to one another. Recorded reservations
-are 94.3683 of the 150 CPU-core-hour ceiling, including unused limits and failure
-allowances; they are not actual cost. A failed reproduction has a recorded
-scheduler TotalCPU of zero despite documented runtime work, so that observation
-is retained with measurement uncertainty. Complete confirmation and project
-process CPU, and complete preparation, transfer, monitoring and review overhead,
-remain unknown. The release accounting retains every identified failed attempt
-and the cutoff through the successful reporting job.
+Archived attribution records \AFitCPU{} fit CPU-core-hours. The physical study
+records \CCPU{} fit/evaluation CPU-core-hours. Their timers exclude process
+startup and imports completed before timing. Imports inside the attribution
+fit timer remain included. Confirmation refit timings are elapsed intervals
+that overlap the containing acquisition stages. Historical confirmation process
+CPU is unknown.
+
+The identified prospective chain, including pilots, failed and successful
+checkpoint reproductions, and reporting, used 132,995 allocated CPU-seconds
+(36.9431 core-hours) across 59 one-CPU allocations. No GPU was used. Reserved
+limits total 94.3683 of the 150 CPU-core-hour ceiling and include unused time.
+The 640 original fits separately record about 110,802 process CPU-seconds and
+113,596 summed elapsed seconds. These scopes overlap scheduler allocation and
+must not be added to it. Detailed timing, memory and failed-attempt records are
+retained separately. Complete project CPU and preparation, transfer, monitoring
+and review overhead remain unknown.
 
 \section{Verification and evidence provenance}
 \label{app:provenance}
-The retained claim index maps each empirical macro to a validated score receipt,
-source hashes and acceptance record. The archived confirmation is linked to its
-independently recomputed paired statistics; attribution is linked to its
-immutable selection gate, full matrix and eligibility audit; physical results
-are linked to the fit seal and eleven-condition acceptance. The prospective
-registration freezes world descriptors, actions, dependencies, initialization,
-normalization, primary contrasts and resource ceilings before responses.
-Independent reproduction verified all 640 saved checkpoints, 240 primary
-cells and 48,000 cached training/evaluation responses in the frozen runtime,
-with no new fits, optimizer updates or simulator responses. Separate registered
-and descriptive exporters bind the manuscript's prospective claims and full
-reports to that accepted replay; the archived A/C/F claim index remains separate.
-The derived final release requires separate source and report bindings.
+The anonymous supplement provides all 640 prospective scored cells, the 320
+initialization-zero arm/history errors, eighty system log ratios, history
+summaries and floor counts. It also includes the manuscript sources and empirical
+claim indexes. The published historical index retains empirical mappings but
+omits obsolete agenda annotations. Its projection record identifies the original
+index, whose pending and removed claim history remains preserved separately.
+The prospective index states the scope of the current comparisons. These files
+support checks of the reported numbers. They do not
+by themselves establish when the protocol was fixed or when model states were
+sealed.
 
-Executable analytical checks cover chains, forks, colliders, clamped nodes,
-root-support ambiguity, quantization margins and the nonlinear conditional-mean
-counterexample. Scientific checks also verify replay reconstruction,
-intervention masks, predicted-parent inference, action-block disjointness,
-initialization membership and system-level statistical calculations. Passing
-implementation checks verifies those constructed cases, not the assumptions
-of a general statistical guarantee. The anonymous review supplement contains
-the manuscript sources and complete descriptive reports; it is not the full
-executable reproduction archive. The complete archive separately retains frozen
-protocols, observation ledgers, checkpoints, optimizer receipts, interrupted
-attempts, source and verification commands. Its required copyright notices
-contain identifying attribution, so it is withheld from the anonymous upload.
-Its contents and notices remain unchanged; any later distribution requires an
-appropriate nonanonymous or venue-approved route. The relocated archive has a
-separate hashed manifest linked to original immutable digests, and its integrity
-and report/source bindings were verified offline from an unrelated directory.
-Those checks do not establish anonymous original collection or training execution.
-Archived attribution audits bind checkpoints to scores but do not independently
-replay every checkpoint; the physical audit independently recomputes sealed
-prediction errors and physics predictions, but does not replay its neural or
-Fourier models. A subsequent, separately hashed release adapter reconstructs
-the retained physical neural checkpoint and linear coefficient predictions,
-continuous errors and conditional bootstrap statistics from relocated artifacts.
-A distinct attribution adapter reconstructs every retained factorial and control
-checkpoint's scores, mechanism diagnostics and quantization margins, including
-the worsening history, from the archived learner, paid rows and exposed grid.
-A confirmation adapter additionally reconstructs the original online models and
-three delivery initializations, the paired log-error statistics, and disjoint
-charged-attempt versus persisted-response counts, retaining the interrupted journal.
-These adapters run without optimization or response acquisition. Their receipts
-and code digests are recorded separately from the original frozen workers and
-acceptance records. A separate metadata checker reconstructs the 35
-A/C/confirmation empirical macros and compares their generated LaTeX values
-with the archived claim index. The 22 prospective macros and the registered
-and descriptive tables are covered by the separately accepted reporting
-outputs and their indexes. Neither check alone verifies all prose or rendered
-pages. A distinct read-only
-table checker compares the attribution, per-history and physical tables' headers,
-row membership and displayed values with independently pinned accepted receipts,
-preserving the distinction between row-weighted errors and block-weighted ratios.
-This check excludes captions, prose and prospective results. Supplemental
-reconstruction does not establish model refitting, historical freeze timing
-or final reviewer anonymity.
-Prospective checkpoint reproduction is complete for all 640 registered fits.
-Python audit hooks restrict trusted worker access; they are not an operating-system
-sandbox. The physical fit process loads the archive and uses only its registered
-training indices for objectives and scales before sealing predictions and scoring.
+Our separate execution records connect protocols, responses, source versions,
+model states and outputs through file digests. Saved-artifact checks reproduced
+the prospective predictions and statistics using all 640 checkpoints and 48,000
+cached responses. Separate adapters checked the archived confirmation,
+attribution and physical predictions without optimization or new responses.
+These later checks do not reproduce original collection or training, and they
+do not establish the chronology of the original protocol freeze.
+
+Analytical fixtures cover chains, forks, colliders, clamping, support ambiguity
+and quantization. They check those constructed examples, not whether fitted
+models satisfy the assumptions of the theory. The complete executable archive
+also retains interrupted attempts, source, dependencies and verification commands.
+Its mandatory copyright notices contain named attribution, so it remains
+outside the anonymous upload. Later distribution needs an appropriate
+nonanonymous or venue-approved route. Original artifacts and notices are
+preserved. Editorial table labels and captions in this manuscript are display
+versions of the retained numerical tables, with unchanged numeric entries.
+
 \section{Complete prospective reporting}
 \label{app:prospective-complete}
 The following tables retain all registered initialization summaries, the MSE
@@ -3931,9 +3962,9 @@ and training-variance-normalized NMSE of all four fixed-initialization-zero
 arms on each of eighty shared histories, and all eighty system log ratios
 underlying the four primary contrasts. Twenty systems, not forty histories,
 are the independent units in each contrast. Unfloored absolute errors are
-preserved; only logarithmic summaries apply the registered numerical floor.
-The \texttt{simpler} label denotes the flat refit, and the short fit denotes the
-100-update SCM. These descriptive tables add no significance tests, scored
+preserved. Only logarithmic summaries apply the registered numerical floor.
+The short fit denotes the 100-update SCM. Machine-readable files retain the
+original arm identifiers \texttt{online} for rolling and \texttt{simpler} for flat. These descriptive tables add no significance tests, scored
 initialization choice or acquisition-superiority claim.
 % Keep the full table supplement top-aligned without altering generated tables.
 \makeatletter
@@ -3941,10 +3972,545 @@ initialization choice or acquisition-superiority claim.
 \setlength{\@fpsep}{20pt}
 \setlength{\@fpbot}{0pt plus 1fil}
 \makeatother
-\input{delivery_prospective_sensitivity_table}
+% BEGIN EDITORIAL TABLE delivery_prospective_sensitivity_table
+% Descriptive initialization sensitivity; no scored model selection.
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rlrrr}
+\toprule
+Nodes & Arm & Init & Geometric NMSE & Ratio/init 0\\
+\midrule
+5 & delivery & 0 & 0.000427764 & 1\\
+5 & delivery & 1 & 0.000395052 & 0.923527\\
+5 & delivery & 2 & 0.000253096 & 0.591671\\
+5 & flat & 0 & 0.00120093 & 1\\
+5 & flat & 1 & 0.00242763 & 2.02146\\
+5 & flat & 2 & 0.00134551 & 1.12039\\
+30 & delivery & 0 & 2.7302e-05 & 1\\
+30 & delivery & 1 & 2.80113e-05 & 1.02598\\
+30 & delivery & 2 & 2.18951e-05 & 0.80196\\
+30 & flat & 0 & 6.98213e-05 & 1\\
+30 & flat & 1 & 7.78361e-05 & 1.11479\\
+30 & flat & 2 & 8.30776e-05 & 1.18986\\
+\bottomrule
+\end{tabular}
+\caption{Descriptive sensitivity across all registered initializations. Initialization zero remains the deployment model. No best or median scored model is selected. History log errors are averaged within each system, then across twenty systems per stratum. A fixed $10^{-12}$ floor is used, with activations retained in the receipt. These repeats are not independent systems or additional superiority tests.}
+\label{tab:prospective-init}
+\end{table}
+% END EDITORIAL TABLE delivery_prospective_sensitivity_table
+
 \clearpage
-\input{delivery_prospective_absolute_table}
+\paragraph{Additional descriptive initialization summaries.}
+Table~\ref{tab:initialization-contrasts} summarizes the saved fits without
+changing the registered initialization-zero analysis. The seed-averaged ratio
+first averages each arm's log NMSE over its three registered initializations
+within a system and history. Rolling retains its single fit. Each comparison
+then averages the two histories and the twenty systems with equal weight.
+It subtracts the control log mean from the delivery log mean and exponentiates
+the averaged contrast. This is a score summary, not a prediction ensemble or a
+seed-selection rule. It adds no significance test or confidence interval.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rlrrrr}
+\toprule
+Nodes & Control & Init 0 & Init 1 & Init 2 & Seed-averaged ratio\\
+\midrule
+5 & rolling & 2.460 & 2.271 & 1.455 & 2.011\\
+5 & flat & 0.356 & 0.163 & 0.188 & 0.222\\
+30 & rolling & 0.274 & 0.281 & 0.220 & 0.257\\
+30 & flat & 0.391 & 0.360 & 0.264 & 0.333\\
+\bottomrule
+\end{tabular}
+\caption{Descriptive delivery/control NMSE ratios from the recorded fits.
+Delivery and flat use matching initialization indices. Every rolling comparison
+uses its one recorded initialization-zero fit. All four directions persist,
+but these averages do not describe the worst individual history.}
+\label{tab:initialization-contrasts}
+\end{table}
+
+Within a history, the ratio of the worst to best delivery NMSE across the three
+initializations has median 2.02 in the five-node family and 5.23 in the thirty-node
+family. System 5:08 under matched-random collection is a severe case:
+initialization-one delivery NMSE is 0.02384, flat NMSE is 0.04815, and the
+single rolling fit has NMSE $2.2844\times10^{-5}$. Delivery/rolling is 1043.55.
+The complete CSV retains this cell. Neither the primary fit nor the history
+was replaced.
+
 \clearpage
-\input{delivery_prospective_descriptive_table}
+% BEGIN EDITORIAL TABLE delivery_prospective_absolute_table
+% Descriptive fixed-init0 absolute errors; all systems/histories retained.
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Rolling & Flat & Short fit\\
+\midrule
+5:00 & 0.00811662 & 0.00372435 & 0.0203903 & 0.518745\\
+5:01 & 0.0143796 & 0.00459728 & 0.0123382 & 0.320656\\
+5:02 & 0.0100981 & 0.00496115 & 0.0242827 & 0.451724\\
+5:03 & 0.0104221 & 0.0128792 & 0.0111626 & 0.277034\\
+5:04 & 0.0102836 & 0.0102983 & 0.0120368 & 0.430476\\
+5:05 & 0.00516613 & 0.00406067 & 0.00538112 & 0.31878\\
+5:06 & 0.0108197 & 0.00602774 & 0.0140241 & 0.344182\\
+5:07 & 0.0122708 & 0.00350435 & 0.0121823 & 0.416485\\
+5:08 & 0.00726161 & 0.003554 & 0.0102866 & 0.552569\\
+5:09 & 0.00599328 & 0.00276124 & 0.00561614 & 0.253016\\
+5:10 & 0.0083897 & 0.0303289 & 0.0288076 & 0.617773\\
+5:11 & 0.0122751 & 0.00965853 & 0.0125501 & 0.349059\\
+5:12 & 0.00553886 & 0.00716968 & 0.00834404 & 0.493725\\
+5:13 & 0.0108573 & 0.00789486 & 0.0132155 & 0.293155\\
+5:14 & 0.00499631 & 0.0026144 & 0.00801687 & 0.376134\\
+5:15 & 0.00787178 & 0.00436535 & 0.00978878 & 0.481869\\
+5:16 & 0.00466151 & 0.00222436 & 0.00461075 & 0.267282\\
+5:17 & 0.00968272 & 0.00385613 & 0.00791665 & 0.455791\\
+5:18 & 0.00655044 & 0.0023356 & 0.00640906 & 0.327654\\
+5:19 & 0.00814445 & 0.00427084 & 0.00721169 & 0.596268\\
+\bottomrule
+\end{tabular}
+\caption{5-node family, balanced\_varied\_value, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Rolling & Flat & Short fit\\
+\midrule
+5:00 & 0.000778679 & 0.000357301 & 0.00195617 & 0.0497665\\
+5:01 & 0.00213894 & 0.000683838 & 0.00183529 & 0.0476971\\
+5:02 & 0.00139469 & 0.000685205 & 0.00335378 & 0.0623894\\
+5:03 & 0.000645968 & 0.000798256 & 0.000691864 & 0.0171707\\
+5:04 & 0.000973393 & 0.000974782 & 0.00113934 & 0.0407467\\
+5:05 & 0.000385661 & 0.000303136 & 0.00040171 & 0.0237974\\
+5:06 & 0.00117375 & 0.000653904 & 0.00152137 & 0.0373378\\
+5:07 & 0.00215228 & 0.000614656 & 0.00213676 & 0.0730507\\
+5:08 & 0.000556269 & 0.000272251 & 0.000787994 & 0.0423291\\
+5:09 & 0.000868489 & 0.000400133 & 0.000813838 & 0.0366647\\
+5:10 & 0.00160804 & 0.00581308 & 0.0055215 & 0.118407\\
+5:11 & 0.000842378 & 0.000662816 & 0.000861253 & 0.0239541\\
+5:12 & 0.000392274 & 0.000507772 & 0.000590942 & 0.0349666\\
+5:13 & 0.000806543 & 0.000586478 & 0.000981728 & 0.0217773\\
+5:14 & 0.000506276 & 0.000264917 & 0.000812349 & 0.0381137\\
+5:15 & 0.000853367 & 0.000473241 & 0.00106119 & 0.0522386\\
+5:16 & 0.000661845 & 0.000315817 & 0.000654638 & 0.037949\\
+5:17 & 0.00151968 & 0.000605212 & 0.0012425 & 0.0715355\\
+5:18 & 0.00108512 & 0.000386906 & 0.0010617 & 0.0542778\\
+5:19 & 0.000756876 & 0.000396896 & 0.000670193 & 0.0554121\\
+\bottomrule
+\end{tabular}
+\caption{5-node family, balanced\_varied\_value, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Rolling & Flat & Short fit\\
+\midrule
+5:00 & 0.000708539 & 0.000205677 & 0.0104851 & 0.609355\\
+5:01 & 0.00136021 & 0.000703703 & 0.0101894 & 0.426431\\
+5:02 & 0.0014389 & 0.000707204 & 0.0180498 & 0.487219\\
+5:03 & 0.0056272 & 0.00138786 & 0.0141817 & 0.374221\\
+5:04 & 0.000889682 & 0.000689842 & 0.0269127 & 0.568784\\
+5:05 & 0.00360282 & 9.77828e-05 & 0.00557415 & 0.448063\\
+5:06 & 0.00784253 & 0.000510237 & 0.0161602 & 0.431061\\
+5:07 & 0.000799895 & 0.00140719 & 0.0116814 & 0.493433\\
+5:08 & 0.0012372 & 0.000266891 & 0.0146961 & 0.654552\\
+5:09 & 0.000856627 & 0.000447254 & 0.00564655 & 0.307583\\
+5:10 & 0.00066166 & 0.000321162 & 0.00479765 & 0.768916\\
+5:11 & 0.00370258 & 0.000433531 & 0.0159946 & 0.467546\\
+5:12 & 0.00201614 & 0.00243164 & 0.00789587 & 0.69502\\
+5:13 & 0.00542511 & 0.00576745 & 0.0130104 & 0.379987\\
+5:14 & 0.00378936 & 0.000133043 & 0.00349277 & 0.47392\\
+5:15 & 0.00585062 & 0.000991977 & 0.0270719 & 0.60163\\
+5:16 & 0.000991035 & 0.000547164 & 0.0108767 & 0.328058\\
+5:17 & 0.000665641 & 0.000259475 & 0.0116786 & 0.512188\\
+5:18 & 0.000506533 & 0.000108114 & 0.00641956 & 0.46709\\
+5:19 & 0.00163321 & 5.54846e-05 & 0.011357 & 0.72678\\
+\bottomrule
+\end{tabular}
+\caption{5-node family, matched\_random, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Rolling & Flat & Short fit\\
+\midrule
+5:00 & 8.00849e-05 & 2.32474e-05 & 0.00118512 & 0.0688744\\
+5:01 & 0.000217301 & 0.00011242 & 0.00162781 & 0.0681247\\
+5:02 & 0.000204552 & 0.000100535 & 0.00256592 & 0.0692621\\
+5:03 & 0.000387919 & 9.56742e-05 & 0.000977632 & 0.0257974\\
+5:04 & 9.85775e-05 & 7.64351e-05 & 0.00298195 & 0.0630217\\
+5:05 & 0.000283448 & 7.69297e-06 & 0.000438541 & 0.0352509\\
+5:06 & 0.000855537 & 5.56614e-05 & 0.00176291 & 0.0470241\\
+5:07 & 0.000151976 & 0.000267359 & 0.00221941 & 0.0937499\\
+5:08 & 0.000105895 & 2.28439e-05 & 0.00125788 & 0.0560247\\
+5:09 & 0.000143403 & 7.48724e-05 & 0.000945259 & 0.0514908\\
+5:10 & 0.000147066 & 7.13842e-05 & 0.00106637 & 0.170906\\
+5:11 & 0.000265707 & 3.11113e-05 & 0.00114781 & 0.0335524\\
+5:12 & 0.00015724 & 0.000189644 & 0.000615802 & 0.0542049\\
+5:13 & 0.000443613 & 0.000471606 & 0.00106386 & 0.0310716\\
+5:14 & 0.000422361 & 1.48289e-05 & 0.000389304 & 0.052823\\
+5:15 & 0.000711755 & 0.000120679 & 0.00329343 & 0.073191\\
+5:16 & 0.000156192 & 8.62359e-05 & 0.00171423 & 0.0517037\\
+5:17 & 0.000111885 & 4.3614e-05 & 0.00196301 & 0.0860916\\
+5:18 & 9.0191e-05 & 1.92503e-05 & 0.00114304 & 0.0831679\\
+5:19 & 0.000171165 & 5.81491e-06 & 0.00119023 & 0.0761682\\
+\bottomrule
+\end{tabular}
+\caption{5-node family, matched\_random, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Rolling & Flat & Short fit\\
+\midrule
+30:00 & 5.29388e-06 & 2.75974e-05 & 1.40168e-05 & 0.00143869\\
+30:01 & 1.94508e-05 & 6.64071e-06 & 1.7717e-05 & 0.00076315\\
+30:02 & 1.55282e-05 & 8.4582e-05 & 3.49923e-05 & 0.00051716\\
+30:03 & 1.88036e-05 & 3.26891e-05 & 1.03312e-05 & 0.000988502\\
+30:04 & 6.53831e-06 & 6.67173e-06 & 3.61344e-06 & 7.32737e-05\\
+30:05 & 8.76078e-06 & 6.57288e-06 & 8.02934e-06 & 0.000185469\\
+30:06 & 2.20917e-06 & 2.28064e-06 & 8.35874e-06 & 0.000136408\\
+30:07 & 3.09149e-06 & 2.5979e-06 & 5.23728e-06 & 0.000130963\\
+30:08 & 1.94946e-05 & 7.58093e-06 & 1.87531e-05 & 0.000690553\\
+30:09 & 3.91397e-06 & 5.61616e-06 & 2.58247e-06 & 0.00102255\\
+30:10 & 1.06867e-05 & 2.73965e-06 & 1.5882e-06 & 3.61305e-05\\
+30:11 & 3.71989e-06 & 2.29018e-05 & 5.53813e-05 & 0.00109498\\
+30:12 & 1.01411e-05 & 2.19549e-05 & 1.37305e-05 & 0.000404836\\
+30:13 & 1.5194e-05 & 0.00016681 & 1.94059e-05 & 0.00066355\\
+30:14 & 0.000132932 & 6.31015e-06 & 1.71837e-05 & 0.00063953\\
+30:15 & 9.03914e-06 & 0.0002276 & 2.68972e-05 & 0.000406741\\
+30:16 & 3.57099e-06 & 2.68772e-06 & 2.8191e-06 & 9.54245e-05\\
+30:17 & 3.97963e-06 & 4.22296e-05 & 5.29181e-06 & 0.000129346\\
+30:18 & 8.34418e-06 & 6.47997e-05 & 1.66594e-05 & 0.00033419\\
+30:19 & 4.45553e-06 & 3.70912e-07 & 1.47332e-06 & 2.38399e-05\\
+\bottomrule
+\end{tabular}
+\caption{30-node family, balanced\_varied\_value, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Rolling & Flat & Short fit\\
+\midrule
+30:00 & 6.32501e-06 & 3.29728e-05 & 1.6747e-05 & 0.00171892\\
+30:01 & 8.78694e-05 & 2.99996e-05 & 8.00369e-05 & 0.00344756\\
+30:02 & 3.91302e-05 & 0.000213142 & 8.81785e-05 & 0.00130321\\
+30:03 & 2.86027e-05 & 4.97245e-05 & 1.5715e-05 & 0.00150364\\
+30:04 & 8.04675e-05 & 8.21095e-05 & 4.44709e-05 & 0.000901786\\
+30:05 & 4.94633e-05 & 3.71104e-05 & 4.53336e-05 & 0.00104716\\
+30:06 & 2.93002e-05 & 3.02482e-05 & 0.000110862 & 0.00180917\\
+30:07 & 2.87392e-05 & 2.41507e-05 & 4.8687e-05 & 0.00121746\\
+30:08 & 3.99492e-05 & 1.55352e-05 & 3.84298e-05 & 0.00141512\\
+30:09 & 8.77764e-06 & 1.2595e-05 & 5.79157e-06 & 0.00229322\\
+30:10 & 0.000247062 & 6.33371e-05 & 3.67171e-05 & 0.000835288\\
+30:11 & 5.98646e-06 & 3.68561e-05 & 8.91257e-05 & 0.00176216\\
+30:12 & 1.9384e-05 & 4.19649e-05 & 2.62447e-05 & 0.000773812\\
+30:13 & 1.58013e-05 & 0.000173478 & 2.01816e-05 & 0.000690072\\
+30:14 & 0.000247099 & 1.17296e-05 & 3.19417e-05 & 0.00118879\\
+30:15 & 4.01564e-05 & 0.00101112 & 0.000119491 & 0.00180695\\
+30:16 & 5.09991e-05 & 3.83847e-05 & 4.0261e-05 & 0.0013628\\
+30:17 & 3.33762e-05 & 0.000354168 & 4.4381e-05 & 0.00108479\\
+30:18 & 4.30566e-05 & 0.000334372 & 8.59638e-05 & 0.00172445\\
+30:19 & 0.000224583 & 1.8696e-05 & 7.42635e-05 & 0.00120166\\
+\bottomrule
+\end{tabular}
+\caption{30-node family, balanced\_varied\_value, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Rolling & Flat & Short fit\\
+\midrule
+30:00 & 4.04399e-05 & 0.00045911 & 5.53792e-05 & 0.00123635\\
+30:01 & 2.41414e-06 & 5.17623e-06 & 4.54117e-05 & 0.000699688\\
+30:02 & 9.82878e-06 & 0.000238393 & 0.000116332 & 0.000737994\\
+30:03 & 3.04197e-06 & 0.00028577 & 2.50775e-05 & 0.000828535\\
+30:04 & 7.39674e-07 & 8.21744e-05 & 8.86338e-06 & 6.00367e-05\\
+30:05 & 3.69235e-06 & 0.000216314 & 1.66296e-05 & 0.00023302\\
+30:06 & 1.47372e-05 & 2.37927e-05 & 3.10444e-06 & 0.000149223\\
+30:07 & 1.2378e-06 & 1.71484e-06 & 2.00721e-05 & 0.000103049\\
+30:08 & 1.07198e-05 & 0.000156965 & 1.89493e-05 & 0.00120276\\
+30:09 & 5.98364e-05 & 2.27623e-05 & 8.17201e-05 & 0.000883554\\
+30:10 & 1.53136e-07 & 2.02384e-06 & 4.40878e-06 & 2.24843e-05\\
+30:11 & 2.37817e-06 & 0.000205675 & 0.00018105 & 0.000900513\\
+30:12 & 1.77706e-06 & 1.73054e-05 & 9.10894e-05 & 0.000483862\\
+30:13 & 5.60575e-06 & 1.96897e-05 & 5.76735e-05 & 0.000951051\\
+30:14 & 2.76961e-06 & 0.000123442 & 3.30715e-05 & 0.000851251\\
+30:15 & 3.59459e-05 & 3.82432e-05 & 2.36837e-05 & 0.000419156\\
+30:16 & 8.01801e-07 & 6.65759e-06 & 6.3252e-06 & 8.63031e-05\\
+30:17 & 3.08855e-06 & 1.52787e-05 & 6.92192e-06 & 0.000120888\\
+30:18 & 1.01212e-06 & 4.12581e-05 & 1.70288e-05 & 0.00044163\\
+30:19 & 1.7994e-06 & 2.62841e-06 & 1.94226e-06 & 1.6142e-05\\
+\bottomrule
+\end{tabular}
+\caption{30-node family, matched\_random, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrrrr}
+\toprule
+System & Delivery & Rolling & Flat & Short fit\\
+\midrule
+30:00 & 5.61478e-05 & 0.00063744 & 7.68899e-05 & 0.00171658\\
+30:01 & 1.3092e-05 & 2.8071e-05 & 0.00024627 & 0.00379444\\
+30:02 & 2.78494e-05 & 0.000675475 & 0.000329622 & 0.00209107\\
+30:03 & 5.64098e-06 & 0.000529927 & 4.65035e-05 & 0.00153642\\
+30:04 & 1.127e-05 & 0.00125204 & 0.000135046 & 0.000914743\\
+30:05 & 2.45037e-05 & 0.00143554 & 0.00011036 & 0.0015464\\
+30:06 & 0.00021396 & 0.000345432 & 4.50715e-05 & 0.00216647\\
+30:07 & 1.30312e-05 & 1.80533e-05 & 0.000211314 & 0.00108487\\
+30:08 & 2.68148e-05 & 0.000392636 & 4.74001e-05 & 0.00300861\\
+30:09 & 0.000162376 & 6.17692e-05 & 0.00022176 & 0.00239767\\
+30:10 & 4.18661e-06 & 5.53302e-05 & 0.000120532 & 0.000614702\\
+30:11 & 4.92799e-06 & 0.000426194 & 0.000375167 & 0.00186602\\
+30:12 & 4.02432e-06 & 3.91896e-05 & 0.00020628 & 0.00109575\\
+30:13 & 6.26031e-06 & 2.19887e-05 & 6.44078e-05 & 0.0010621\\
+30:14 & 5.61903e-06 & 0.000250442 & 6.7096e-05 & 0.00172703\\
+30:15 & 0.000202435 & 0.000215373 & 0.000133379 & 0.00236055\\
+30:16 & 1.24934e-05 & 0.000103737 & 9.85573e-05 & 0.00134475\\
+30:17 & 2.70192e-05 & 0.00013366 & 6.05542e-05 & 0.00105755\\
+30:18 & 6.13798e-06 & 0.00025021 & 0.000103271 & 0.00267826\\
+30:19 & 0.000109308 & 0.000159667 & 0.000117986 & 0.000980575\\
+\bottomrule
+\end{tabular}
+\caption{30-node family, matched\_random, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
+\end{table}
+% END EDITORIAL TABLE delivery_prospective_absolute_table
 \clearpage
+% BEGIN EDITORIAL TABLE delivery_prospective_descriptive_table
+% Descriptive paired reporting; no additional superiority tests.
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrr}
+\toprule
+System & Mean history log ratio & Ratio\\
+\midrule
+5:00 & 1.00796 & 2.74\\
+5:01 & 0.899692 & 2.45885\\
+5:02 & 0.710513 & 2.03504\\
+5:03 & 0.594084 & 1.81137\\
+5:04 & 0.126488 & 1.13484\\
+5:05 & 1.92375 & 6.84658\\
+5:06 & 1.65872 & 5.25259\\
+5:07 & 0.344176 & 1.41083\\
+5:08 & 1.12415 & 3.07758\\
+5:09 & 0.712417 & 2.03891\\
+5:10 & -0.281145 & 0.754919\\
+5:11 & 1.19228 & 3.29458\\
+5:12 & -0.222725 & 0.800335\\
+5:13 & 0.128714 & 1.13737\\
+5:14 & 1.99847 & 7.37778\\
+5:15 & 1.18209 & 3.2612\\
+5:16 & 0.666936 & 1.94826\\
+5:17 & 0.931385 & 2.53802\\
+5:18 & 1.28783 & 3.62492\\
+5:19 & 2.01386 & 7.4922\\
+\bottomrule
+\end{tabular}
+\caption{5-node delivery/rolling, initialization zero. The two history log NMSE ratios are averaged within each system using the registered floor. The final column exponentiates that mean. Every system is shown in fixed ID order, including worsening systems. These rows are the paired units of the original registered contrast, not extra tests.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrr}
+\toprule
+System & Mean history log ratio & Ratio\\
+\midrule
+5:00 & -1.80783 & 0.16401\\
+5:01 & -0.930298 & 0.394436\\
+5:02 & -1.70333 & 0.182076\\
+5:03 & -0.496488 & 0.608664\\
+5:04 & -1.78345 & 0.168057\\
+5:05 & -0.238597 & 0.787732\\
+5:06 & -0.491199 & 0.611893\\
+5:07 & -1.33702 & 0.262628\\
+5:08 & -1.41149 & 0.243781\\
+5:09 & -0.910402 & 0.402363\\
+5:10 & -1.60738 & 0.200412\\
+5:11 & -0.742689 & 0.475833\\
+5:12 & -0.887456 & 0.411702\\
+5:13 & -0.535634 & 0.585298\\
+5:14 & -0.195674 & 0.822281\\
+5:15 & -0.874951 & 0.416883\\
+5:16 & -1.19234 & 0.30351\\
+5:17 & -1.3317 & 0.264029\\
+5:18 & -1.25885 & 0.283981\\
+5:19 & -0.908823 & 0.402998\\
+\bottomrule
+\end{tabular}
+\caption{5-node delivery/flat, initialization zero. The two history log NMSE ratios are averaged within each system using the registered floor. The final column exponentiates that mean. Every system is shown in fixed ID order, including worsening systems. These rows are the paired units of the original registered contrast, not extra tests.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrr}
+\toprule
+System & Mean history log ratio & Ratio\\
+\midrule
+30:00 & -2.04032 & 0.129987\\
+30:01 & 0.155966 & 1.16879\\
+30:02 & -2.44183 & 0.0870012\\
+30:03 & -2.54784 & 0.0782506\\
+30:04 & -2.36529 & 0.0939216\\
+30:05 & -1.89157 & 0.150835\\
+30:06 & -0.255424 & 0.774588\\
+30:07 & -0.0760152 & 0.926802\\
+30:08 & -0.869715 & 0.419071\\
+30:09 & 0.302706 & 1.35352\\
+30:10 & -0.61013 & 0.54328\\
+30:11 & -3.13874 & 0.0433372\\
+30:12 & -1.52422 & 0.21779\\
+30:13 & -1.82613 & 0.161036\\
+30:14 & -0.374697 & 0.687498\\
+30:15 & -1.64399 & 0.193208\\
+30:16 & -0.916252 & 0.400016\\
+30:17 & -1.98034 & 0.138022\\
+30:18 & -2.87877 & 0.0562038\\
+30:19 & 1.0535 & 2.86768\\
+\bottomrule
+\end{tabular}
+\caption{30-node delivery/rolling, initialization zero. The two history log NMSE ratios are averaged within each system using the registered floor. The final column exponentiates that mean. Every system is shown in fixed ID order, including worsening systems. These rows are the paired units of the original registered contrast, not extra tests.}
+\end{table}
+\begin{table}[ht]
+\centering\scriptsize
+\begin{tabular}{lrr}
+\toprule
+System & Mean history log ratio & Ratio\\
+\midrule
+30:00 & -0.644046 & 0.525163\\
+30:01 & -1.42053 & 0.241586\\
+30:02 & -1.6418 & 0.193631\\
+30:03 & -0.755293 & 0.469873\\
+30:04 & -0.945228 & 0.388591\\
+30:05 & -0.708869 & 0.492201\\
+30:06 & 0.113424 & 1.12011\\
+30:07 & -1.65657 & 0.190792\\
+30:08 & -0.265447 & 0.766863\\
+30:09 & 0.0520597 & 1.05344\\
+30:10 & -0.726816 & 0.483446\\
+30:11 & -3.51649 & 0.0297034\\
+30:12 & -2.11995 & 0.120038\\
+30:13 & -1.28784 & 0.275866\\
+30:14 & -0.217045 & 0.804894\\
+30:15 & -0.336616 & 0.714183\\
+30:16 & -0.914506 & 0.400714\\
+30:17 & -0.545981 & 0.579273\\
+30:18 & -1.75714 & 0.172538\\
+30:19 & 0.515112 & 1.67383\\
+\bottomrule
+\end{tabular}
+\caption{30-node delivery/flat, initialization zero. The two history log NMSE ratios are averaged within each system using the registered floor. The final column exponentiates that mean. Every system is shown in fixed ID order, including worsening systems. These rows are the paired units of the original registered contrast, not extra tests.}
+\end{table}
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rllr}
+\toprule
+Nodes & History & Control & Delivery/control\\
+\midrule
+5 & balanced\_varied\_value & rolling & 1.61407\\
+5 & matched\_random & rolling & 3.74793\\
+5 & balanced\_varied\_value & flat & 0.792755\\
+5 & matched\_random & flat & 0.160042\\
+30 & balanced\_varied\_value & rolling & 0.695011\\
+30 & matched\_random & rolling & 0.108275\\
+30 & balanced\_varied\_value & flat & 0.912254\\
+30 & matched\_random & flat & 0.167609\\
+\bottomrule
+\end{tabular}
+\caption{Descriptive history-specific geometric ratios across twenty systems in each stratum, at initialization zero. No collection-strategy superiority or additional significance test is asserted.}
+\end{table}
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rr}
+\toprule
+Nodes & Delivery/short fit\\
+\midrule
+5 & 0.00855424\\
+30 & 0.0186544\\
+\bottomrule
+\end{tabular}
+\caption{Descriptive delivery versus the registered short-fit ablation. History log ratios are averaged within each system before averaging across twenty systems. Both arms use initialization zero. No added significance test.}
+\end{table}
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{rlrr}
+\toprule
+Nodes & Control & Delivery floor hits & Control floor hits\\
+\midrule
+5 & rolling & 0 & 0\\
+5 & flat & 0 & 0\\
+30 & rolling & 0 & 0\\
+30 & flat & 0 & 0\\
+\bottomrule
+\end{tabular}
+\caption{Counts of initialization-zero arm/history errors strictly below the registered floor, per primary contrast. The same delivery error appears in two contrasts and is counted there twice, not as extra independent data. All-cell floor flags remain in the machine-readable supplement.}
+\end{table}
+% END EDITORIAL TABLE delivery_prospective_descriptive_table
+\clearpage
+\section{Quantized targets and counterexamples}
+\label{app:quantization}
+\begin{proposition}[Quantization margin]
+For $m\geq2$ distinct ordered levels $\ell_1<\cdots<\ell_m$, let $Q$ assign the nearest
+level, with a fixed tie rule, and let
+$b_k=(\ell_k+\ell_{k+1})/2$. Define
+$M(y)=\min_k|y-b_k|$. If $|\hat y-y|<M(y)$ then
+$Q(\hat y)=Q(y)$. If a pointwise prediction bound $B(y)$ is valid,
+$\Pr(Q(\hat y)\ne Q(y))\leq\Pr(M(y)\leq B(y))$ under any specified deployment
+probability measure for which the bound holds almost surely.
+\end{proposition}
+\begin{proof}
+The open interval of radius $M(y)$ around $y$ crosses no decision boundary.
+Consequently both values occupy the same decision cell. The contrapositive
+implies that a quantization error requires $M(y)\leq|\hat y-y|\leq B(y)$.
+Strict inequality excludes boundary ties.
+\end{proof}
+Snapped error depends on the location of errors relative to decision boundaries.
+Similar MSE alone need not imply similar exact-level accuracy.
+This finite-level example clips outside values to endpoint cells. The empirical
+scorer instead extends the lattice past both endpoints. The same argument uses
+the complete set of boundaries of that extended quantizer. At a recorded true
+level, its nearest boundary distance remains half the adjacent gap. The
+empirical evaluation measure is uniform over the archived grid.
+
+\begin{proposition}[Squared error and snapping risk]
+Under a specified deployment probability measure, let
+$R=\mathbb E[(\hat Y-Y)^2]<\infty$ and use the same quantizer and margin
+$M$ as above. For every $\tau>0$,
+\[
+ \Pr(Q(\hat Y)\ne Q(Y))
+ \leq \min\{1,\Pr(M(Y)\leq\tau)+R/\tau^2\}.
+\]
+If $M(Y)\geq m>0$ almost surely, the sharper bound is
+$\Pr(Q(\hat Y)\ne Q(Y))\leq\min\{1,R/m^2\}$.
+\end{proposition}
+\begin{proof}
+A snapping error requires $|\hat Y-Y|\geq M(Y)$. Its event is therefore
+contained in the union of $\{M(Y)\leq\tau\}$ and
+$\{|\hat Y-Y|>\tau\}$. Apply the union bound and Markov's inequality to
+the squared error. Under the positive-margin assumption the error event instead
+requires $(\hat Y-Y)^2\geq m^2$, giving the second bound directly.
+\end{proof}
+For a uniformly spaced lattice with gap $\Delta$ and true responses on its
+levels, $m=\Delta/2$. The second inequality also applies to a finite evaluation
+grid by taking its empirical measure and continuous MSE. It may be vacuous.
+It is a consequence of evaluated error and quantizer geometry, not a guarantee
+on new actions. For continuously valued targets, concentration near decision
+boundaries can make even small squared error compatible with frequent snapping
+errors. Neither bound orders two models by snapped error from their MSE alone.
+
+\paragraph{Counterexamples.}
+For a constant predictor and test response zero, fitting a single training
+response zero gives zero risk. Adding a noisy response two makes its
+least-squares mean one and test risk one. With a noisy training target one,
+optimizing a constant from $0.1$ to one reduces training error but increases
+test error. For a two-stage chain, suppose the true parent and child are zero
+on the observed support, the learned parent predicts $0.1$, and the learned
+child is $\hat f(z)=100z$. The child has zero observed-parent error at zero,
+but its free-running prediction is ten. These are existence examples, not
+descriptions of the measured histories. Analytically solved chains, forks,
+colliders and clamps are checked by executable tests.
+
 \end{document}
