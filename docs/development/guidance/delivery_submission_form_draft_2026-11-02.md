@@ -1,5 +1,7 @@
 # TMLR submission worksheet, November 2 revision
 
+**Submission hold, November 2:** Patrick has archived this paper version and requires a broader LLM intervention mechanism with demonstrated experimentalist utility before submission. The form and packet details below are historical preparation, not an instruction to upload. See [archive record](delivery_paper_archive_2026-11-02.md) and [new research agenda](ace_llm_intervention_agenda_2026-11-02.md). The later source archive also includes wording and mathematics changes absent from the PDF listed below.
+
 Private author worksheet. This is not an upload attachment or submission approval.
 
 ## Title

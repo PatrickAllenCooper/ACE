@@ -1,5 +1,7 @@
 # Revision in response to the November 2 model panel
 
+**Current direction:** Patrick subsequently preserved the paper as a component study and made the LLM mechanism and experimentalist utility prerequisites for submission. This review remains evidence about the scoped delivery paper. It does not clear the broader claim. See [archive record](delivery_paper_archive_2026-11-02.md) and [new research agenda](ace_llm_intervention_agenda_2026-11-02.md).
+
 This revision improves the existing TMLR manuscript in place. The six models' two review rounds are internal feedback, not twelve independent reviews or a venue decision. No new experiment, model fit, response, or inferential test is part of this revision. Original studies, failed attempts, the November 1 packet, and generated scientific reports remain preserved.
 
 ## Scientific interpretation
