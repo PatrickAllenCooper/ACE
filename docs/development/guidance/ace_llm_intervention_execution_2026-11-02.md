@@ -275,3 +275,14 @@ A versioned PyTorch2.9.1 source inspection identified a missing control: evaluat
 Bothcontrollerlocks were released after completecustody. A final liveuserqueuequery wasempty. Scientifictraining/development/confirmation namespaces remainungenerated. Theactivegoal remainsunanswered, but thisturn made concrete full-size runtime/numerical-diagnosticprogress. Next implement the bounded discriminating diagnostic, then qualify the chosen computation recipe and proceed to the independentlyfrozen scientificstudy. Do not loosen thresholds, relabelGPU05, repeatacceptedstudies or spendnewGPUtime without usingthisnewdiagnostic evidence.
 
 Independent saved-artifact review found0required corrections and confirmed all60files/26inputpins,112tensor diagnostics/100failures, zero updates, cleanup and exact parent accounting. Final failed-attempt dispositionSHA256 `bfc56119af8834d36fadc4f2fda3ce0048af41ee12cc819cb6672cd15e71a5bb`. This accepts custody and reconciliation only, not the failed qualification. Next scientific initialization must exclude all artificial qualification adapters.
+
+
+### Discriminating full-size gradient diagnostic submitted once
+
+Job35209536 was submitted once at2026-11-02T23:28:35Z. Sourceff1a3ab79fd9541d5c9ce4a17f0a7e989b4435b0, packetb9f1052cb0936ff740aa988af6570a88e5d2d860, freeze0ff56c88449d9ae053b97bb83a6bc7799369294358d69f2700cfb70294daa6c3. All25remoteinput objects matched. Bothcontrollerlocks held,18priorjournals/eightterminaljobIDs reconciled, emptylivequeue, scratchstat/df/dedicatedwrite-read-cleanup passed. Distinct implementation and frozenpacket reviews0required. Five new fabricated methods passed. No old qualification repeated.
+
+The new diagnostic records all112adaptergradients and outputprojection inputs/inputgradients for eight backwards. It crosses ordinary/strict deterministic algorithms with full/selected actionprojection, two repeats each, fixedweights/RNG/cuBLASconfiguration/Flashbackend and zero optimizerupdates/responses. Captures persist before comparisons, using original tolerances. Numerical discrepancies are diagnostic results, not concealed failures. Completeness is not scientific qualification.
+
+RequestoneA10020GBslice,4CPU with at most8allocated,12GiB and5minutes, accountucb736_asc1/aa100/gpu-testing/no-requeue. Startup180/child250/supervisor280seconds and ownedcleanup remain enforced. Conservative reservations39600/57600CPU-seconds and3900/7200GPU-seconds. Known priorallocation2482CPU/344GPU-slice seconds excludes this job. Localpreparation remains partlyunmetered. Scientific namespaces remainungenerated.
+
+External ACE-LLM-intervention-gradient-gpu-20261102-06 and repository results/ace_llm_intervention_task_runtime_20261102/gpu06 preserve the packet and once-onlyjournals. Do not duplicate or blind-retry.
