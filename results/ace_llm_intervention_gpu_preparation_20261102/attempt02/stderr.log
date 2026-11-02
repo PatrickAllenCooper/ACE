@@ -1,0 +1,28 @@
+test_absolute_deadlines_include_supervisor_preparation (__main__.PacketTests.test_absolute_deadlines_include_supervisor_preparation) ... ok
+test_actual_owned_process_group_cleanup (__main__.PacketTests.test_actual_owned_process_group_cleanup) ... FAIL
+test_cleanup_handles_missing_group_and_error_without_losing_failure (__main__.PacketTests.test_cleanup_handles_missing_group_and_error_without_losing_failure) ... ok
+test_final_phase_scan_reads_new_receipt (__main__.PacketTests.test_final_phase_scan_reads_new_receipt) ... ok
+test_fixed_worker_design_and_inventory (__main__.PacketTests.test_fixed_worker_design_and_inventory) ... ok
+test_full_allocated_resources_positive_and_units (__main__.PacketTests.test_full_allocated_resources_positive_and_units) ... ok
+test_gpu_sample_excludes_unrelated_processes (__main__.PacketTests.test_gpu_sample_excludes_unrelated_processes) ... ok
+test_negative_allocation_variants (__main__.PacketTests.test_negative_allocation_variants) ... ok
+
+======================================================================
+FAIL: test_actual_owned_process_group_cleanup (__main__.PacketTests.test_actual_owned_process_group_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-gpu-preparation-20261102-02/test_llm_intervention_gpu_packet.py", line 105, in test_actual_owned_process_group_cleanup
+    self.assertEqual(result["errors"], [])
+AssertionError: Lists differ: ['PermissionError: [Errno 1] Operation not permitted'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'PermissionError: [Errno 1] Operation not permitted'
+
+- ['PermissionError: [Errno 1] Operation not permitted']
++ []
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.133s
+
+FAILED (failures=1)
