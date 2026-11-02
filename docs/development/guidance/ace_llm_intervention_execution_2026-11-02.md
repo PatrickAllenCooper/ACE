@@ -247,3 +247,5 @@ Known cycle allocation is now2290CPU-seconds and296GPU-slice-seconds. Conservati
 Next work is actual full-size adapter reload, long-context memory and gradient qualification with measured GPU demand, then the separately frozen charged training and paired development study. The first-screen design recommendation remains unexecuted. The active scientific question remains unanswered. Accepted original studies and the archived manuscript are unchanged.
 
 Independent saved-artifact review found zero required corrections. Final acceptance SHA256 is `90ef0d4ab4a74589735726bab5ca22bbd8ff1720c67044e1d526d9f63974a31d`. It binds the complete inventory, parent checks, original terminal and separate review.
+
+After acceptance, both controller locks were released. The final live user queue was empty. The complete43-object custody is explicitly tracked, including logs and adapter bytes. No task remains running from this attempt.
