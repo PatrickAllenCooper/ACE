@@ -1,0 +1,19 @@
+{
+  "command": "python -m unittest test_llm_intervention_canonical_scoring -v",
+  "cwd": "/tmp",
+  "interpreter": "ace-foundation-synthesis-env-20261009/bin/python",
+  "methods": 4,
+  "passed": [
+    "test_explicit_scalar_softmax_and_input_gradient_oracle",
+    "test_singleton_rows_and_permutation_extension_invariance"
+  ],
+  "errors": [
+    "test_full_selected_supervised_and_preference_gradients",
+    "test_invalid_path_projection_and_input_rejected"
+  ],
+  "reason": "Imported CausalToy has a biased output head, contrary to the declared bias-free Qwen projection contract",
+  "exception": "ValueError: finite frozen BF16 bias-free linear projection required",
+  "elapsed_unittest_seconds": 0.225,
+  "scientific_models": 0,
+  "scientific_responses": 0
+}
