@@ -42,24 +42,25 @@ This copies the first-page disclosure; it does not substitute for actual human v
 
 Patrick supplied this author order, his email, the shared affiliation, and his advisor's first name with the same email format. The advisor's full name/email match the existing `paper/iclr_ace_2027/paper.tex` author block and [CU Boulder's faculty directory](https://www.colorado.edu/cs/alvaro-velasquez). Patrick has now explicitly confirmed that Alvaro is the only coauthor, is final author, and has agreed to coauthorship. This does not establish approval of the final manuscript version or submission. Contact/corresponding-author designation and OpenReview profile identifiers remain to be finalized. The public directory is used only to verify identity/contact details; it does not establish funding or conflicts for this paper.
 
-Current private author-state record: `results/delivery_submission_audit_20261101/author_metadata_20261101_03.json`. The original `author_review_pending.json` remains preserved as the earlier snapshot bound by the completed preparation receipt. The new metadata does not alter the anonymous manuscript or reviewed packet.
+Current private author-state record: `results/delivery_submission_audit_20261101/author_metadata_20261101_04.json`. The original `author_review_pending.json` remains preserved as the earlier snapshot bound by the completed preparation receipt. The new metadata does not alter the anonymous manuscript or reviewed packet.
 
 ## Declarations supplied November 1
 
 - Funding for this paper: **none**, as stated by Patrick.
+- Competing interests: **none**, as stated by Patrick.
+- Overlapping version submitted elsewhere: **no**, as stated by Patrick.
 - Coauthor arrangement: **Alvaro is the only coauthor and final author**.
 - Alvaro's agreement to coauthorship: **confirmed by Patrick**.
 
 ## Author-only declarations — still pending
 
 - Approval of the final manuscript version by both authors: **unconfirmed**.
-- OpenReview profile identifiers and current conflict information: **unconfirmed**.
-- Competing interests and applicable human-subject/ethics declarations: **unconfirmed**. The no-funding statement does not establish absence of competing interests.
-- Overlapping archival submission status and each author's eligibility under the current submission quota: **unconfirmed**.
+- OpenReview profile identifiers, affiliation/collaboration records used for reviewer-conflict matching, and submission-quota eligibility: **unconfirmed**. These administrative checks are separate from the confirmed absence of competing interests.
+- Applicable human-subject/ethics declarations: **unconfirmed**.
 - Human verification of the methods, results, claims, references, and disclosed AI-assisted work: **pending**.
 - Final approval of this exact PDF, optional supplement, and public submission: **pending**.
 
-The author identity, funding, author order and coauthorship-agreement questions have been answered. Competing interests and overlapping-submission status were requested separately because the reply did not address them. Final-version approval and submission approval remain distinct from agreement to coauthorship. Earlier identity support comes from Patrick's reply, the existing manuscript, and the official directory; no brain archive result was used.
+Patrick has answered the requested author identity, order, affiliation, funding, competing-interest, overlapping-submission and coauthorship-agreement questions. Final-version approval and submission approval remain distinct from agreement to coauthorship. Earlier identity support comes from Patrick's reply, the existing manuscript, and the official directory; no brain archive result was used.
 
 ## Action-editor recommendation preparation
 

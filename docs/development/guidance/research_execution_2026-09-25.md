@@ -3163,3 +3163,8 @@ Patrick supplied the author order Patrick Cooper, then advisor Alvaro, both Univ
 ### November1 funding and coauthorship confirmation
 
 Patrick states no funding, confirms Alvaro Velasquez is the sole coauthor/final author and has agreed to coauthorship. Private worksheet and new `author_metadata_20261101_03.json` record those declarations with the prior02 snapshot preserved. Competing interests and overlapping submission remain unknown and were asked explicitly; agreement to coauthorship is not treated as final manuscript/submission approval. No scientific, manuscript, packet, review or allocation change. Local administrative update under both controller locks.
+
+
+### November1 competing-interest and overlap declarations
+
+Patrick confirms no competing interests and no overlapping version submitted elsewhere. Private worksheet and `author_metadata_20261101_04.json` now record all facts from the author/declaration questions; prior snapshots are retained. No inference of reviewer-profile conflict completeness, quota eligibility, final manuscript verification or submission approval. Anonymous manuscript and reviewed packet unchanged; no technical review, compile, experiment, allocation or upload repeated. Local update coordinated under both controller locks.
