@@ -44,6 +44,15 @@ class LinearGaussianSCM:
             seen.add(node.name)
             d = 1 + len(node.parents)
             self.heads[node.name] = Head(np.zeros(d), np.eye(d)*prior_variance, float(variance))
+        self._initial_heads = copy.deepcopy(self.heads)
+
+    def is_fresh(self) -> bool:
+        """True only before any receipt or change to constructor priors."""
+        return not self._requests and set(self.heads) == set(self._initial_heads) and all(
+            h.eligible_rows == 0 and h.noise_variance == self._initial_heads[name].noise_variance
+            and np.array_equal(h.mean, self._initial_heads[name].mean)
+            and np.array_equal(h.covariance, self._initial_heads[name].covariance)
+            for name, h in self.heads.items())
 
     def fork(self):
         """Independent learner state for candidate branches, including row identity."""

@@ -258,6 +258,18 @@ class ChargedExecutor:
         proposal_id = self._proposal(completion, provenance or {"kind": "explicit_completion"})
         return self._execute_proposal(decision, completion, proposal_id)
 
+    def execute_completion(self, completion: str, *, provenance=None) -> dict | None:
+        """Parse a worker's raw text inside the durable proposal boundary."""
+        if self._halted:
+            raise RuntimeError("attempt is terminal or ambiguous")
+        proposal_id = self._proposal(completion, provenance or {"kind": "text_worker"})
+        try:
+            decision = parse_completion(completion, self.menu)
+        except BaseException as exc:
+            self._reject(proposal_id, "completion_parse", exc)
+            raise
+        return self._execute_proposal(decision, completion, proposal_id)
+
     def _execute_proposal(self, decision, completion, proposal_id):
         stage = "completion_parse"
         try:
