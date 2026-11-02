@@ -1,0 +1,91 @@
+{
+  "utc": "2026-11-02T21:49:13.346501+00:00",
+  "status": "passed_parent_checks_pending_independent_review",
+  "scope": "actual pretrained artificial GPU training and constrained-action qualification only",
+  "scientific_utility_qualified": false,
+  "job_id": "35204547",
+  "source_commit": "334700845d19c8e6406a7c01865a5a95d74faa6e",
+  "packet_commit": "912422a1e95c5d4f0492c44f9401e604621551d4",
+  "freeze_sha256": "ae98aa3627d8738eef31c2307a5f9731c2de643ec5825a697e15215ba70d077b",
+  "pins": {
+    "terminal": "184ca5b56bd7dafc729e02885d7e1103f96ed116e5e6f069f21e2585111ffd6b",
+    "supervisor": "6bc070b3f6bb1797e3409744e7579afa1d1744d43d7fb366ae489315e7baa187",
+    "pre_generation": "e5679a6b72d8ec35c5c953f4767315c35e5d8e3a0cf8f32ad77f33b2058ebc82",
+    "adapter": "e7eea9dc43c472860222165f385d701c5db79252cbe36297e1a53742b3b342a7",
+    "inventory": "4cc55223bbb4a78bfabe695106d8123c2855d8ae8f1d1402842c4c2ade786a37",
+    "generation": "ad5b3fbe1ab65909807ba402e3c7c369c8c3fbd9dbaec0d2ec92b937a484edcf"
+  },
+  "custody": {
+    "files": 80,
+    "bytes": 4804060,
+    "all_local_exact": true
+  },
+  "sft_steps": 8,
+  "dpo_steps": 4,
+  "completion": "{\"action_id\":\"a0\"}",
+  "executed_action": {
+    "do": {
+      "X": -1.0
+    },
+    "measure": [
+      "Y"
+    ],
+    "cost_units": 1,
+    "response": {
+      "Y": -1.0
+    }
+  },
+  "artificial_responses": 1,
+  "scientific_responses": 0,
+  "worker_process_cpu_seconds": 10.519730091,
+  "worker_elapsed_seconds": 28.979073165915906,
+  "worker_peak_rss_bytes": 2404438016,
+  "supervisor_process_cpu_seconds": 0.037279901,
+  "supervisor_elapsed_seconds": 30.83614340610802,
+  "cuda_training_event_milliseconds": 1185.772834777832,
+  "gpu_allocated_peak_bytes": 3301825024,
+  "gpu_reserved_peak_bytes": 3655335936,
+  "nvidia_owned_samples": 3,
+  "nvidia_owned_peak_mib": 3718.0,
+  "first_forward_seconds": 25.4140896666795,
+  "phase_intervals_seconds": {
+    "input_verification": 12.159057724755257,
+    "torch_import": 2.7667230600491166,
+    "transformers_import": 3.116767007857561,
+    "automodel_import": 3.1553720892407,
+    "qwen3_implementation_import": 0.6849369509145617,
+    "cuda_initialization": 0.15588329965248704,
+    "cpu_model_load_call": 0.06617944221943617,
+    "gpu_transfer": 1.2219417560845613,
+    "adapter_install": 0.019305036403238773
+  },
+  "scheduler": {
+    "state": "COMPLETED",
+    "exitcode": "0:0",
+    "allocated_cpus": 4,
+    "allocated_gpu_count": 1,
+    "elapsed_seconds": 36,
+    "allocated_cpu_seconds": 144,
+    "allocated_gpu_seconds": 36,
+    "parent_total_cpu": "00:11.657",
+    "batch_maxrss": "1879308K",
+    "scope": "parent allocation counted once, child steps not added"
+  },
+  "cycle": {
+    "known_allocated_cpu_seconds": 1964,
+    "known_allocated_gpu_seconds": 296,
+    "reserved_cpu_seconds": 28800,
+    "cpu_ceiling_seconds": 57600,
+    "reserved_gpu_seconds": 2700,
+    "gpu_ceiling_seconds": 7200
+  },
+  "limits": [
+    "One fixed artificial prompt with trained labels, not scientific usefulness or generalization",
+    "Runtime verifies eight package versions and source/model pins, not whole-runtime byte closure",
+    "MIG process memory and CUDA progress verify real work, whole-device utilization is not attributable",
+    "Startup dominates this short smoke, no production efficiency or speedup claim",
+    "Observed CPU-load call may use memory mapping, not total physical weight IO",
+    "Single unpadded prompt only, batched policy decoding is not qualified",
+    "No adapter reload inference has been independently qualified yet"
+  ]
+}

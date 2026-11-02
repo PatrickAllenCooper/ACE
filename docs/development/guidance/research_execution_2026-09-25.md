@@ -3279,3 +3279,14 @@ Job35204547 submitted once at2026-11-02T21:44:37Z after the reviewed CPU bridge 
 Remote `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_04`, exclusive local `ACE-LLM-intervention-gpu-20261102-04`, repository `results/ace_llm_intervention_gpu_runtime_20261102/gpu04`. Samecaps:oneA10020GBtesting slice,4requested/≤8allocatedCPUs,12GiB,15minutes,accountucb736_asc1,aa100/gpu-testing,no-requeue. The new finite-public-menu decoder admits allaffordableactions andstop, preserves the fixedtrainingrecipe, saves adapter/checks beforegeneration and gives imports/load/cleanup separate timing. This is artificial training/interface qualification only.
 
 Conservative cycle reservations are28800/57600CPU-seconds and2700/7200GPU-seconds. Known actual allocation beforethisattempt remains1820CPU-seconds and260GPU-seconds. ActualGPU04cost/supervision/custody/qualification remains open. No scientificworlds orutilitycomparison has been generated.
+
+
+### Actual constrained Qwen training/action qualification accepted
+
+GPU04job35204547 completed0:0 after36schedulerseconds. All80remoteobjects4804060bytes match completeexclusive localcustody. Independentpost-runreview foundzero requiredfindings. `gpu04/qualification_acceptance.json` bindsfreezeae98aa36, terminal184ca5b5, supervisor6bc070b3, adaptere7eea9dc, pre-generationchecke5679a6b andcompleteinventory4cc55223. Source33470084 andpacket912422a1 remainunchanged.
+
+The modelcompleted8SFT+4DPO updates withfinitepositivegradients, unchangedbase/reference andchangedadapter. Itgeneratedthevalidcommand `{"action_id":"a0"}` andexecutedonechargedartificialinterventionX=-1,responseY=-1. Scientificresponseszero. TrainingCUDAevents1.185772835seconds, frameworkpeak3301825024bytes andthreeownedNVIDIAsamplespeak3718MiB independentlyestablishGPUwork. Bothownedprocess-group andfinalNVIDIAcleanup pass. Thisqualifiesoneartificialtraining-to-actionpath, notutility,generalization, numericalrepeatability orcausaleffectoftrainingonvalidgeneration.
+
+Firstforward25.414seconds, worker28.979073166elapsed/10.519730091processCPU/2404438016peakRSS, supervisor30.836143406elapsed/.037279901CPU. Verification12.159seconds andnamedimports9.724seconds dominatedstartup. CPULoadcall.066seconds isnotallphysicalweightIO. Schedulerallocated4CPU×36seconds=144CPU-seconds and36GPU-slice-seconds. Knowncumulativeallocation1964CPU-seconds and296GPU-seconds. Conservative reservations28800/57600CPU-seconds,2700/7200GPU-seconds. Theseoverlap andexcludepartlyunmeteredpreparation. No efficiency/speedupclaim.
+
+GPU03andallpredecessorfailures remainpreserved. No freshscientificworldsaregenerated. Nextwork: target-relevantnumericalacquisition, sharedpublictaskdescriptor, matchedlearnednumericalranker, chargedpolicy-trainingsupervision andseparatefreshdevelopment/confirmation. Adapterreload/multiepisodeinference andproductionresourcequalification remainopen. Acceptedpaperstudiesandarchivedmanuscript remainunchanged.
