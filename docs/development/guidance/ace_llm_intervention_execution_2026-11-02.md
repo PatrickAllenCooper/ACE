@@ -286,3 +286,12 @@ The new diagnostic records all112adaptergradients and outputprojection inputs/in
 RequestoneA10020GBslice,4CPU with at most8allocated,12GiB and5minutes, accountucb736_asc1/aa100/gpu-testing/no-requeue. Startup180/child250/supervisor280seconds and ownedcleanup remain enforced. Conservative reservations39600/57600CPU-seconds and3900/7200GPU-seconds. Known priorallocation2482CPU/344GPU-slice seconds excludes this job. Localpreparation remains partlyunmetered. Scientific namespaces remainungenerated.
 
 External ACE-LLM-intervention-gradient-gpu-20261102-06 and repository results/ace_llm_intervention_task_runtime_20261102/gpu06 preserve the packet and once-onlyjournals. Do not duplicate or blind-retry.
+
+
+### GPU06 completed and isolated two numerical effects
+
+Job35209536completed0:0. Complete77-file63386825-byte custody and25inputpins independentlyreconstructed. Defaultsamepathrepeats failed88/112full and82/112selectedadaptergradients. Strictsamepathrepeats arebitwiseidentical. Strictfull/selected stillfails101/112 withmaxabsolute.026554226875305176. Alllossesmatch, alignedhiddeninputs areidentical, dHiddenmax3.814697265625e-6. Theseobservationsseparaterepeatvariationfromstablecrosspathdifferences, withoutuniquekernelattribution. Zerooptimizerupdates/responses. Fullscientificruntime remainsunqualified.
+
+Actualallocation260CPU-seconds/65GPU-slice-seconds. Knowncycletotals2742CPU/409GPU-slice seconds. Conservative reservations39600/57600CPU and3900/7200GPU-seconds. Worker12.510996682CPU/59.81611355487257elapsedseconds, supervisor.070712429CPU/61.563073116354644elapsed. TwelveownedNVIDIA samplespeak6770MiB,8backwards/positiveCUDAevents andframeworkmemorysupportGPUwork. Ownedcleanupcomplete. Scopesoverlap,localpreparationpartlyunmetered.
+
+Independentreview0required. Results andfutureprecisioncorrectiondispositions preserved in reviews/ace_llm_intervention_gpu06_results_review_2026-11-02.md. NextcandidateusesstrictdeterminismandseparateFP32outputprojectionpreservingtheBF16tiedbase. Itneedsfreshreview/freeze, unchangedSFT/DPOgradientgates,longcontext/reload/resourcequalification. GPU05remainsfailed. Scientifictraining/development/confirmation remainungenerated.
