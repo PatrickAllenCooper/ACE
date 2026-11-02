@@ -1,0 +1,20 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+Traceback (most recent call last):
+  File "/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_03/input/qualify_llm_intervention_gpu.py", line 271, in <module>
+    run(p.parse_args())
+  File "/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_03/input/qualify_llm_intervention_gpu.py", line 236, in run
+    response = ex.execute_generated(prompt_ids, sequence,
+  File "/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_03/input/llm_intervention_contract.py", line 249, in execute_generated
+    decision = parse_completion(completion, self.menu)
+  File "/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_03/input/llm_intervention_contract.py", line 134, in parse_completion
+    obj = json.loads(completion, object_pairs_hook=_unique_object, parse_constant=reject_constant)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/json/__init__.py", line 359, in loads
+    return cls(**kw).decode(s)
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+json.decoder.JSONDecodeError: Unterminated string starting at: line 1 column 14 (char 13)
