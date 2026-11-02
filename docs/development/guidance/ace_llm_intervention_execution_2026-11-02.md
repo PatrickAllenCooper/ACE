@@ -47,3 +47,18 @@ At 20:03:58 UTC the specific job was RUNNING, elapsed 18 seconds, account `ucb73
 ## Completion criteria still open
 
 The active goal requires a tested trained LLM policy, fair numerical and learned controls, fresh independent evaluation, an acquisition-versus-learner distinction, complete costs and failures, and an experimentalist task with useful measured outcomes. Artificial interface tests establish none of the comparative scientific claims. The goal remains active.
+
+
+### Completed CPU qualification and exact local custody
+
+Job 35200690 finished COMPLETED/0:0 on November 2. All five source pins, seven cached-model objects, declared package versions and Python 3.10.19 matched. The worker passed all 18 artificial methods and tokenized an artificial prompt to 311 tokens with an eight-token action including EOS. No pretrained model was instantiated. Full exclusive local custody contains all 17 non-model remote objects, 61,965 bytes, with exact membership and byte hashes checked. `results/ace_llm_intervention_runtime_20261102/cpu01/cpu_acceptance.json` binds this narrow acceptance. Post-completion scontrol was unavailable. Identity is supported by the submitted normal job ID and matching sacct raw/display parent.
+
+The scheduler allocated two CPUs for 285 seconds, or 570 allocated CPU-seconds. Worker process CPU was 5.096893548 seconds, elapsed time 251.824212783 seconds and peak RSS 814,465,024 bytes. Scheduler total CPU and batch RSS have different scopes. Child steps are not added to parent allocation. The roughly four-minute startup/verification interval needs phase-level diagnosis before GPU work. It does not establish measured GPU memory demand. The reservation remains 4,800/57,600 CPU-seconds including the preparation allowance and conservative CPU-job cap, with no GPU allocation.
+
+### Tractable mechanism learner
+
+`llm_intervention_scm.py` implements a linear-Gaussian reference learner using paid receipts. Clamped mechanisms are excluded, known hard-clamp values remain usable as parents even if not measured separately, and genuinely missing-parent rows are omitted. This is exact conjugate updating for the retained local factors with known noise and error-free covariates. It is not full inference over latent missing parents. Candidate forks are independent, composition uses predicted parents, and posterior planning draws do not call the environment.
+
+A distinct review found one required correction to unmeasured hard-clamp parent handling. It is fixed. Independent nonorthogonal posterior and controlled-RNG covariance/noise/parent-flow fixtures strengthen the check. Eight artificial methods pass in exclusive preparation02 after six initial methods in preparation01. Final SCM source SHA256 is `296aadb60347da5c948028b7de10440e361f54a4427f2a0655e39961ca7e2a7b`. The [SCM review](reviews/ace_llm_intervention_scm_review_2026-11-02.md) has zero required findings remaining. These checks do not involve trained language models or fresh scientific worlds.
+
+The SCM attempts record 0.095066 and 0.088943 child CPU seconds. Together with the two earlier local fixture attempts, measured local test CPU is 2.177494 seconds. This excludes other preparation and review. Exact sources, outputs and receipts remain in `results/ace_llm_intervention_scm_preparation_20261102` and exclusive external originals. The new SCM is outside the completed CPU job's source freeze.
