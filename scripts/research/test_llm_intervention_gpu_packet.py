@@ -14,10 +14,10 @@ from qualify_llm_intervention_gpu import validate_freeze, SOURCES, MODELS, PACKA
 from supervise_llm_intervention_gpu import (authenticate_allocation, scheduler_fields, gpu_process_sample,
                                           absolute_deadlines, terminate, group_alive, read_phases, finish_failure)
 
-RESOURCES = {"account": "ucb736_asc1", "partition": "aa100", "qos": "gpu-normal",
+RESOURCES = {"account": "ucb736_asc1", "partition": "aa100", "qos": "gpu-testing",
              "requested_cpus": 4, "max_allocated_cpus": 8, "memory_mib": 12288,
              "wall_seconds": 900, "gpus": 1, "gpu_type": "a100_3g.20gb"}
-RAW = ("JobId=123 UserId=paco0228(100) Account=ucb736_asc1 Partition=aa100 QOS=gpu-normal "
+RAW = ("JobId=123 UserId=paco0228(100) Account=ucb736_asc1 Partition=aa100 QOS=gpu-testing "
        "JobState=RUNNING NumNodes=1 NumTasks=1 NumCPUs=4 CPUs/Task=4 ReqB:S:C:T=0:0:*:* TimeLimit=00:15:00 "
        "ReqTRES=cpu=4,mem=12G,node=1,billing=28,gres/gpu=1,gres/gpu:a100_3g.20gb=1 "
        "AllocTRES=cpu=4,mem=12G,node=1,billing=28,gres/gpu=1,gres/gpu:a100_3g.20gb=1")
@@ -36,7 +36,7 @@ class PacketTests(unittest.TestCase):
     def test_negative_allocation_variants(self):
         changes = [("JobId=123", "JobId=124"), ("paco0228(", "other("),
                    ("Account=ucb736_asc1", "Account=other"), ("aa100", "al40"),
-                   ("gpu-normal", "gpu-long"), ("RUNNING", "PENDING"),
+                   ("gpu-testing", "gpu-long"), ("RUNNING", "PENDING"),
                    ("NumNodes=1", "NumNodes=2"), ("NumTasks=1", "NumTasks=2"),
                    ("CPUs/Task=4", "CPUs/Task=8"), ("00:15:00", "01:00:00"),
                    ("mem=12G", "mem=24G"), ("cpu=4", "cpu=12"),

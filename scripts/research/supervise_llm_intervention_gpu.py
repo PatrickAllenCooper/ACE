@@ -51,14 +51,14 @@ def memory_mib(text):
 
 
 def authenticate_allocation(raw, job_id, resources):
-    expected = {"account": "ucb736_asc1", "partition": "aa100", "qos": "gpu-normal",
+    expected = {"account": "ucb736_asc1", "partition": "aa100", "qos": "gpu-testing",
                 "requested_cpus": 4, "max_allocated_cpus": 8, "memory_mib": 12288,
                 "wall_seconds": 900, "gpus": 1, "gpu_type": "a100_3g.20gb"}
     if resources != expected or not re.fullmatch(r"[1-9][0-9]*", job_id):
         raise ValueError("altered resource request or invalid job identity")
     fields = scheduler_fields(raw)
     for name, wanted in {"JobId": job_id, "Account": "ucb736_asc1", "Partition": "aa100",
-                         "QOS": "gpu-normal", "JobState": "RUNNING", "NumNodes": "1",
+                         "QOS": "gpu-testing", "JobState": "RUNNING", "NumNodes": "1",
                          "NumTasks": "1", "TimeLimit": "00:15:00"}.items():
         if fields.get(name) != wanted:
             raise ValueError("scheduler allocation mismatch: " + name)
