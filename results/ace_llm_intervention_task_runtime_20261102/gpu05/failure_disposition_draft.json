@@ -1,0 +1,143 @@
+{
+  "actual_allocation": {
+    "cpu_seconds": 192,
+    "cpu_threads": 4,
+    "elapsed_seconds": 48,
+    "exit_code": "1:0",
+    "gpu_seconds": 48,
+    "gpu_slices": 1,
+    "slurm_batch_maxrss": "1240964K",
+    "slurm_state": "FAILED",
+    "slurm_total_cpu": "00:09.481"
+  },
+  "all_input_pins_match": true,
+  "bytes": 5325554,
+  "causal_diagnosis": "unresolved, loss equality does not establish gradient equivalence; no tolerance relaxation or success reclassification",
+  "complete_custody": true,
+  "cycle_conservative_reserved_cpu_seconds": 37200,
+  "cycle_conservative_reserved_gpu_seconds": 3600,
+  "cycle_known_allocated_cpu_seconds": 2482,
+  "cycle_known_allocated_gpu_seconds": 344,
+  "environment_responses": 0,
+  "failing_gradient_tensors": 100,
+  "failure": {
+    "elapsed_seconds": 41.53631062572822,
+    "exception_type": "ValueError",
+    "message": "actual full/selected discrepancy retained in comparison-sft.json",
+    "process_cpu_seconds": 8.222815741,
+    "status": "failed",
+    "traceback": "Traceback (most recent call last):\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_task_gpu_20261102_05/input/qualify_llm_intervention_task_gpu.py\", line 275, in run\n    comparisons.append(compare_and_record(out, objective, observed))\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_task_gpu_20261102_05/input/qualify_llm_intervention_task_gpu.py\", line 110, in compare_and_record\n    raise ValueError(\"actual full/selected discrepancy retained in comparison-\"+objective+\".json\")\nValueError: actual full/selected discrepancy retained in comparison-sft.json\n"
+  },
+  "file_count": 60,
+  "first_gpu_forward_seconds": 40.149389386642724,
+  "job_id": "35208932",
+  "long_context_training_executed": false,
+  "losses": {
+    "full_loss": 4.774877548217773,
+    "gradient_tensors": 112,
+    "loss_absolute_difference": 0.0,
+    "loss_within_tolerance": true,
+    "max_gradient_absolute_difference": 0.023575246334075928,
+    "objective": "sft",
+    "selected_loss": 4.774877548217773,
+    "tolerances": {
+      "gradient_atol": 0.0001,
+      "gradient_rtol": 0.01,
+      "loss_atol": 0.0001,
+      "loss_rtol": 1e-05
+    }
+  },
+  "optimizer_updates": 0,
+  "owned_nvidia_peak_mib": 5970.0,
+  "owned_nvidia_sample_count": 2,
+  "phase_timings": [
+    {
+      "elapsed_seconds": 0.0007078228518366814,
+      "phase": "input_verification_start",
+      "process_cpu_seconds": 0.00016197400000000223
+    },
+    {
+      "elapsed_seconds": 24.76046932162717,
+      "phase": "input_verification_complete",
+      "process_cpu_seconds": 1.293209836
+    },
+    {
+      "elapsed_seconds": 24.764160248916596,
+      "phase": "imports_start",
+      "process_cpu_seconds": 1.29370736
+    },
+    {
+      "elapsed_seconds": 36.18645454291254,
+      "phase": "attention_backend_frozen",
+      "process_cpu_seconds": 4.523213084
+    },
+    {
+      "elapsed_seconds": 36.19000940397382,
+      "phase": "imports_complete",
+      "process_cpu_seconds": 4.526701527
+    },
+    {
+      "elapsed_seconds": 36.344875510782,
+      "phase": "cuda_initialization_complete",
+      "process_cpu_seconds": 4.658014986
+    },
+    {
+      "elapsed_seconds": 36.93520719697699,
+      "phase": "tokenization_complete",
+      "process_cpu_seconds": 4.999615379000001
+    },
+    {
+      "elapsed_seconds": 36.938495656941086,
+      "phase": "model_cpu_load_start",
+      "process_cpu_seconds": 5.000037933000001
+    },
+    {
+      "elapsed_seconds": 37.07681396789849,
+      "phase": "model_cpu_load_and_restore_complete",
+      "process_cpu_seconds": 5.106598102
+    },
+    {
+      "elapsed_seconds": 38.31145540671423,
+      "phase": "gpu_transfer_complete",
+      "process_cpu_seconds": 6.331127584
+    },
+    {
+      "elapsed_seconds": 40.149389386642724,
+      "phase": "first_gpu_forward_complete",
+      "process_cpu_seconds": 7.841369592
+    },
+    {
+      "elapsed_seconds": 41.53970136772841,
+      "phase": "worker_function_exit",
+      "process_cpu_seconds": 8.22354528
+    }
+  ],
+  "policy_reload_after_training_executed": false,
+  "scientific_worlds": 0,
+  "source_and_completed_attempt_immutable": true,
+  "status": "failed_qualification_preserved",
+  "supervisor": {
+    "child_returncode": 1,
+    "cleanup": {
+      "errors": [],
+      "group_still_exists": false,
+      "kill_sent": false,
+      "leader_returncode": 1,
+      "pgid": 2125621,
+      "term_sent": false
+    },
+    "elapsed_seconds": 43.0998718040064,
+    "exception_type": "ValueError",
+    "message": "worker failed or has no completion receipt",
+    "persistence_errors": [],
+    "post_cleanup_gpu_sample": {
+      "owned_rows": [],
+      "returncode": 0,
+      "stderr": ""
+    },
+    "process_cpu_seconds": 0.026351455000000003,
+    "status": "failed",
+    "traceback": "Traceback (most recent call last):\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_task_gpu_20261102_05/input/supervise_llm_intervention_task_gpu.py\", line 308, in run\n    raise ValueError(\"worker failed or has no completion receipt\")\nValueError: worker failed or has no completion receipt\n"
+  },
+  "utc": "2026-11-02T23:11:37.283004+00:00"
+}
