@@ -2508,7 +2508,7 @@ supervision therefore differ across recipes.}
 \label{fig:delivery-procedure}
 \end{figure}
 \end{filecontents*}
-% delivery_evaluation_design.tex: SHA256 c957978f6db2b7f89b7f3ba1de63ba8a072c3bad108eca604804a56816fc3ddb
+% delivery_evaluation_design.tex: SHA256 8f30525cb9cb2ab5663afff9ba8baa0454f6bf9321b9d5680b58f37fea80d667
 \begin{filecontents*}[overwrite]{delivery_evaluation_design.tex}
 % Design summary only, no prospective performance values.
 \begin{table}[ht]
@@ -2519,7 +2519,7 @@ supervision therefore differ across recipes.}
 Study & Reporting unit & Evaluation and scale & Initialization summary\\
 \midrule
 Confirmation & Paired histories of one fixed emulator & Previously exposed discrete grid, snapped exact-level error & Median of three scored initializations, sensitivity summary\\[4pt]
-Attribution (A) & The same archived histories, exploratory contrasts & The same exposed grid, continuous NMSE using grid target variance & Initialization zero primary, one and two for sensitivity\\[4pt]
+Attribution (A) & The same recorded histories, exploratory contrasts & The same exposed grid, continuous NMSE using grid target variance & Initialization zero primary, one and two for sensitivity\\[4pt]
 Prospective (B) & Independent system within each specified family, two histories paired within system & Reserved joint root-action blocks, continuous NMSE using the corresponding training-history target variance & Initialization zero for deployment, one and two for sensitivity\\[4pt]
 Physical (C) & Condition-specific assessment of one apparatus, no independent-world tests & Held-out joint angle blocks, continuous NMSE using each condition's training target variance & Initialization zero for neural fits, fixed linear controls\\
 \bottomrule
@@ -3019,16 +3019,21 @@ Nodes & Control & Delivery floor hits & Control floor hits\\
 \newtheorem{proposition}{Proposition}[section]
 \input{delivery_claims}
 \input{delivery_prospective_claims}
-\title{From Experimental Histories to Causal Surrogates:\\Data Reuse, Optimization, and Error Propagation\thanks{AI-assisted tools
-supported research planning, code development, analysis and manuscript drafting.
-The human authors are responsible for the final scientific assessment,
-verification and submission.}}
+\title{From Experimental Histories to Causal Surrogates:\\Data Reuse, Optimization, and Error Propagation}
 \author{\name Anonymous authors}
 \newif\ifdeliverydraft
 \deliverydrafttrue % Final human author review pending; no visible draft notice.
 \hypersetup{hidelinks,pdftitle={From Experimental Histories to Causal Surrogates},pdfauthor={Anonymous authors}}
 \begin{document}
 \maketitle
+% Unmarked first-page disclosure. The title carries no footnote symbol.
+\begingroup
+\renewcommand{\thefootnote}{}
+\footnotetext{AI-assisted tools
+supported research planning, code development, analysis and manuscript drafting.
+The human authors are responsible for the final scientific assessment,
+verification and submission.}
+\endgroup
 \ifdeliverydraft
 \fi
 \begin{abstract}
@@ -3044,13 +3049,14 @@ also depends strongly on collection history. For thirty-node balanced histories,
 the delivery/flat error ratio is 0.912 and delivery improves only 10 of 20 systems,
 compared with a ratio of 0.168 for matched-random histories. Across delivery, rolling and flat in the two families, median root-mean-square
 errors are about
-0.5\% to 3.4\% of the training target's standard deviation. Separate archived
-studies favor long fits on retained histories of one emulator but find that
-Fourier regression beats delivery in all eleven physical conditions. Conditional
+0.5\% to 3.4\% of the training target's standard deviation. Analyses of recorded emulator runs favor long fits on retained histories.
+In a separate physical dataset, Fourier regression beats delivery in all eleven
+conditions. Conditional
 theory explains why eligible-row fitting, joint support and prediction through
-a learned chain must be considered separately. These results support evaluating
-a final refit against the rolling learner and simple controls, with explicit
-attention to collection history, initialization and unequal training budgets.
+a learned chain must be considered separately. These completed comparisons show that the benefit
+of a final refit depends on the task, comparator and collection history.
+Individual fits can remain unstable across initializations, and training
+budgets differ across methods.
 
 \end{abstract}
 
@@ -3076,8 +3082,8 @@ estimates are constrained. These details matter even when every measured
 variable lies inside its training range.
 
 Our central question is empirical: \emph{when does refitting a completed
-experimental history improve the delivered predictor?} In an archived task,
-we compare three changes: retaining observations that a rolling buffer discards,
+experimental history improve the delivered predictor?} Using recorded runs of a deterministic
+emulator, we compare three changes: retaining observations that a rolling buffer discards,
 using paid observations that never entered a live update, and performing more
 optimization. A direct flat predictor and fixed classical regressors test
 whether a simpler refit can explain the result. We use ``delivery'' to denote
@@ -3092,7 +3098,7 @@ thirty-node balanced histories show mixed results. Delivery loses to rolling
 in the five-node family and wins in the thirty-node family. All four registered
 contrasts and every system are retained.
 
-Two archived studies provide context. Repeated histories of one emulator and
+Two analyses of recorded emulator runs provide context. Repeated histories of one emulator and
 an exploratory scratch-fit matrix compare retained data, paid observations
 that never entered a live update, and fitting effort. Long fits on retained
 histories improve over final-buffer and short fits. Adding the unused paid rows
@@ -3141,7 +3147,7 @@ width 64 from scratch, with full-batch Adam, learning rate $0.002$, and 30,000
 updates per head. Initialization zero is the deployment specification. A
 100-update version is the optimization ablation. The simpler control uses the
 same MLP form for a direct root-to-target regression. It predicts the composed
-map without supplying intermediate labels. In the archived attribution,
+map without supplying intermediate labels. In the attribution study,
 intermediate-intervention rows are excluded from this flat regression because
 its root-only inputs cannot represent those responses. In the prospective
 root-only design, all training rows are eligible for every nonroot head and
@@ -3160,14 +3166,14 @@ For a target $Y$ and an evaluation action set $\mathcal A$, continuous MSE is
 $|\mathcal A|^{-1}\sum_{a\in\mathcal A}(\hat y(a)-y(a))^2$.
 Prospective normalized MSE (NMSE) divides this quantity by the target variance
 in the corresponding training history, using no held-out responses to set the
-scale. Archived attribution instead normalizes by the population target variance
+scale. The attribution study instead normalizes by the population target variance
 of its exposed grid, shared across arms. Physical errors use each condition's
 training target variance. Exact-level error is the fraction with
-$Q(\hat y)\ne Q(y)$ for the fixed archived quantizer. It extends the recorded
+$Q(\hat y)\ne Q(y)$ for the emulator's fixed quantizer. It extends the recorded
 level lattice beyond both endpoints using the adjacent end spacing and resolves
 midpoint ties downward, rather than clipping predictions to endpoint levels.
 Nonfinite predictions invalidate the comparison.
-Exact-level error is secondary outside the archival confirmation and applies
+Exact-level error is secondary outside the confirmation study and applies
 to genuinely quantized targets. It is not interchangeable with continuous error. We distinguish
 exposed-grid assessment, which includes acquired inputs, from action-block
 holdout evaluation. Table~\ref{tab:evaluation-design} summarizes the endpoints,
@@ -3223,7 +3229,7 @@ at deployment, but we do not apply that algorithm or transfer its regret
 results to our intervention setting. Our deterministic bound states the needed
 support and Lipschitz assumptions directly. Causal Chambers supply manipulable
 physical systems with published causal models \citep{gamella2025chambers}. We use
-one archived light-tunnel task as a prediction check against physical and
+recorded measurements from one light-tunnel task as a prediction check against physical and
 Fourier bases, rather than claiming a new apparatus or a live action-design
 experiment.
 
@@ -3285,7 +3291,7 @@ adaptation can include a directly intervened node. And the final observation
 refresh enters the saved buffer after the last fit. These differences are
 recorded rather than silently attributed to data quantity. The scratch factorial
 controls masks among its cells but does not exactly replay the online objective.
-No selected clamped-node fast updates occurred in these archived confirmation
+No selected clamped-node fast updates occurred in these recorded confirmation
 histories, so that code-path limitation is not an observed explanation of their
 delivery improvement.
 Diagnostics retain support coverage, observed-parent residuals, propagated
@@ -3357,7 +3363,7 @@ All paid & tree & -- & 24.582 & 3.883 & 0.004\\
 All paid & flat & CPU & 1.234 & 1.206 & 1.455\\
 \bottomrule
 \end{tabular}
-\caption{Exploratory primary initialization 0 across the twelve archived histories. Ratios are geometric means relative to unchanged online weights. Lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding evaluation and imports performed before the fit timer. Classical-library imports inside the timer remain included. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}
+\caption{Exploratory primary initialization 0 across the twelve recorded histories. Ratios are geometric means relative to unchanged online weights. Lower is better. CPU hours sum fit process time across the twelve fits in each row, excluding evaluation and imports performed before the fit timer. Classical-library imports inside the timer remain included. SCM cost includes all five heads. CPU denotes the matched-CPU flat fit, whose update count varies. Epoch counts apply only to neural fits. All configurations and sensitivity initializations are retained in the receipt.}
 \label{tab:attribution}
 \end{table}
 % END EDITORIAL TABLE delivery_attribution_table
@@ -3385,7 +3391,7 @@ rescue or selecting a different scored initialization.
 \label{sec:prospective}
 We fixed the protocol before collecting responses or inspecting held-out
 outcomes. The delivery recipe, flat control and short-fit ablation were selected
-in the archived attribution study. No prospective result changed them. The
+in the attribution study. No prospective result changed them. The
 complete study includes every registered system and fit. Section~\ref{sec:reproducibility}
 distinguishes our retained execution records from the evidence in the anonymous
 supplement.
@@ -3417,7 +3423,7 @@ structural map. This estimand does not substitute a composed conditional mean
 for the expected outcome of a noisy nonlinear SCM. The first 50 paid training
 responses provide a common, fixed input calibration for structured learners
 before their retrospective updates. Thus the rolling comparator reproduces
-the archived online update kernel after calibration. It is not a streaming
+the original online update kernel after calibration. It is not a streaming
 algorithm that operates before those calibration observations are available.
 The primary NMSE denominator uses the full training-history target variance.
 
@@ -3524,7 +3530,7 @@ Against rolling, the balanced-history ratios are 1.614 and 0.695, with 4 and
 3 and 19 improving. These are descriptive within-history comparisons, not tests
 of which collection strategy is better. Longer fitting beats the 100-update ablation in both
 families but does not remove the five-node loss to rolling. Its cause remains
-undiagnosed. The archived propagation diagnostic concerns a different task and
+undiagnosed. The emulator propagation diagnostic concerns a different task and
 cannot explain this prospective reversal.
 
 \paragraph{Absolute error and initialization matter.}
@@ -3544,10 +3550,10 @@ reports the initialization contrasts and this failure alongside all original
 absolute errors, system ratios, history summaries and ablations. No primary
 floor is activated, and initialization zero remains the deployment rule.
 
-\section{Archived physical prediction}
+\section{Prediction from recorded physical measurements}
 \label{sec:physical}
 We use eleven evaluation conditions of \texttt{lt\_malus\_v1}, each with
-1,000 archived readings. Depending on the condition, 772--815 rows train the
+1,000 recorded readings. Depending on the condition, 772--815 rows train the
 models and 185--228 rows are held out. \texttt{white\_64} is development only. Duplicate commands and joint action
 blocks are grouped before splitting. We compare delivery, rolling-buffer learning,
 joint Fourier regression and the published relative-angle physics model, using
@@ -3642,7 +3648,7 @@ reproduction details.
 \label{sec:discussion}
 \paragraph{What the comparisons establish.}
 A final refit should be evaluated as its own prediction procedure. In the
-archived scratch-fit matrix, retaining a completed history and fitting longer
+scratch-fit comparison using recorded emulator runs, retaining a completed history and fitting longer
 both matter. Retention also changes input scaling, while the online comparator
 carries persistent weights and optimizer state. These contrasts therefore do
 not isolate the causes of the online-to-delivery difference. The prospective
@@ -3661,7 +3667,7 @@ interventions from root-only observations.
 
 \paragraph{Scope of the evidence.}
 The prospective results are conditional on two restricted, noise-disabled
-generator families and a shared initialization scheme. Both archived studies
+generator families and a shared initialization scheme. Both emulator studies
 use an exposed grid from one emulator. Confirmation summarizes three scored
 refits by their median, which is not a deployable selection rule. Attribution
 uses initialization zero for its primary comparisons. The physical study
@@ -3673,7 +3679,7 @@ interventions saved by changing an acquisition policy.
 
 \paragraph{Broader impact.}
 An inaccurate surrogate can mislead a later experimental decision, especially
-outside observed joint support. The archived emulator includes communication
+outside observed joint support. The emulator includes communication
 and jamming variables, but its hand-coded scores do not validate an operational
 system. Deployment would require application-specific validation, intervention
 limits and human oversight. The adverse comparisons and support counterexamples
@@ -3688,7 +3694,7 @@ balanced histories, the ratio is 0.912 and only 10 of 20 systems improve.
 Delivery also beats rolling in the thirty-node family but loses in the five-node
 family, for an undiagnosed reason. Absolute errors are small, initialization
 can produce severe individual failures, and the training budgets differ.
-The archived studies add two lessons: retained histories can support better
+The analyses of recorded experiments add two lessons: retained histories can support better
 scratch fits, and a simple domain-informed model can beat neural delivery.
 Evaluate the final refit, the rolling learner and suitable simple controls on
 the same held-out task. Check the composed prediction rather than relying on
@@ -3711,9 +3717,9 @@ and CPU process time. Memory is measured at fit/attempt or whole-process
 granularity as specified above. An epoch denotes one full-batch update
 per fitted head, not an acquired observation.
 
-\subsection{Archived emulator and acquisition histories}
-The archived task is a hand-coded deterministic emulator, rather than a physical
-world. It has eight controllable roots and five measured nonroot mechanisms:
+\subsection{Recorded emulator experiments and acquisition histories}
+The recorded experiments use a hand-coded deterministic emulator rather than
+a physical system. It has eight controllable roots and five measured nonroot mechanisms:
 two link scores $L,M$, their combined score $I$, the target $Y$ and a separate
 cost branch $C$. Write the roots as $(N,D,h,p,N_M,h_M,p_M,J)$, representing
 total and dynamic counts, altitude and power for the first link, count, altitude
@@ -3746,7 +3752,7 @@ The shared $J$ is a fork and $I$ is a collider. $C$ never feeds the target.
 Response generation follows frozen Python rounding. Scorer midpoint ties are
 separately defined above. The 31 target levels are $\{k/30:k=0,\ldots,30\}$.
 Every one of the $5^8=390{,}625$ root actions receives equal weight in the exposed
-grid. Its target variance normalizes archived continuous errors.
+grid. Its target variance normalizes continuous emulator prediction errors.
 
 Each independently seeded history includes three seed observations,
 500 observational validation responses, and 500 interventional validation
@@ -3791,12 +3797,12 @@ History & Online NMSE & SCM NMSE & Flat NMSE & SCM/admitted & SCM snap\\
 884825602 & 0.003601 & 0.001272 & 0.002688 & 0.939 & 0.020\\
 \bottomrule
 \end{tabular}
-\caption{Every archived history at fixed initialization zero. SCM and flat draw their respective eligible subsets from the same paid history and use 30,000 full-batch updates per SCM head and for the flat model. A mechanism head excludes rows that clamp that mechanism. The root-to-target flat fit excludes rows that clamp any nonroot node. Admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history 124753321 and are not prospective tests.}
+\caption{Every recorded history at fixed initialization zero. SCM and flat draw their respective eligible subsets from the same paid history and use 30,000 full-batch updates per SCM head and for the flat model. A mechanism head excludes rows that clamp that mechanism. The root-to-target flat fit excludes rows that clamp any nonroot node. Admitted refers to the long SCM fit on the admitted-row union. NMSE uses the shared exposed-grid target variance. The final column is SCM exact-level error. These exploratory outcomes retain history 124753321 and are not prospective tests.}
 \label{tab:attribution-histories}
 \end{table}
 % END EDITORIAL TABLE delivery_history_table
 
-\paragraph{Archived attribution.}
+\paragraph{Attribution analysis.}
 The row sets use unique paid query IDs, not unique action values. The admitted
 set is the union available during actual live updates, excluding probe-clone
 training. Reconstruction accounts for the selected row's duplicated appearance
@@ -3806,7 +3812,7 @@ Inputs are normalized as $(x-\mathrm{lo})/(\mathrm{hi}-\mathrm{lo})$ using
 eligible training minima and maxima, without input clipping. A constant range
 is given width one. The structured fit includes the
 communication-cost branch even though it does not feed the evaluated target.
-In every archived history, the final buffer supplies 50 unique paid rows per
+In every recorded history, the final buffer supplies 50 unique paid rows per
 head and the admitted union 1,178. All-paid mechanism fits have 4,303 eligible
 rows for the two links and combined score, and 4,803 for the target and cost.
 The root-only flat fit has 3,803. Counts refer to query identities, not distinct
@@ -3826,8 +3832,8 @@ It is not presented as another 30,000-update cell. The full matrix contains
 sensitivity cells, plus the fixed classical and matched-CPU controls.
 
 \paragraph{Original rolling comparator.}
-Original archived weights are never refit in the confirmation or attribution
-comparison. In the prospective study, the archived training kernel is invoked
+The original saved weights are never refit in the confirmation or attribution
+comparison. In the prospective study, the original training kernel is invoked
 directly with its persistent Adam states, 50-entry replay and duplicated newly
 selected observation. Its fast adaptation and consolidation updates remain
 unchanged. The known directly-clamped-node fast-adaptation limitation is inactive
@@ -3886,7 +3892,7 @@ replacement world.
 
 \section{Physical split and uncertainty}
 \label{app:physical}
-The archive task uses the two polarizer commands and the measured light response
+The physical dataset records the two polarizer commands and the measured light response
 \texttt{vis\_3}. Angles are in $[-90,90)$ degrees. For command pair
 $(\theta_1,\theta_2)$, define $b_j=\lfloor(\theta_j+90)/30\rfloor$.
 A joint block is held out if $(b_1+2b_2)\bmod5=0$. Identical commands and their
@@ -3895,7 +3901,7 @@ repeated readings always share a block. The development condition
 Neural output centering and scaling use the training mean and standard
 deviation, and are inverted before scoring. Neural angle inputs are divided by
 90. The neural delivery fit uses
-30,000 full-batch updates. Rolling fitting follows archive order, using the
+30,000 full-batch updates. Rolling fitting follows the recorded acquisition order, using the
 last 50 eligible training rows and 100 updates per arriving row with persistent
 Adam. Its retrospective access to the training normalizer is shared with
 delivery and is not a strictly streaming normalization claim.
@@ -3922,7 +3928,7 @@ equal weight. The primary descriptive NMSE instead weights readings equally.
 This difference explains why a block-weighted ratio need not equal a ratio
 computed from the row-weighted table. Neither bootstrap establishes uncertainty
 across independently constructed physical systems. The intervals are a conditional
-resampling assessment under block exchangeability. Archive-order dependence or
+resampling assessment under block exchangeability. Dependence on acquisition order or
 unobserved action blocks can limit that interpretation.
 
 \section{Historical execution and release accounting}
@@ -3937,7 +3943,7 @@ histories and the interrupted attempt, then completed the same final registered
 history before scoring. No scored outcome determined this continuation.
 Neither the attribution fits nor the physical study acquired new responses.
 
-Archived attribution records \AFitCPU{} fit CPU-core-hours. The physical study
+The attribution analysis records \AFitCPU{} fit CPU-core-hours. The physical study
 records \CCPU{} fit/evaluation CPU-core-hours. Their timers exclude process
 startup and imports completed before timing. Imports inside the attribution
 fit timer remain included. Confirmation refit timings are elapsed intervals
@@ -3970,7 +3976,7 @@ sealed.
 Our separate execution records connect protocols, responses, source versions,
 model states and outputs through file digests. Saved-artifact checks reproduced
 the prospective predictions and statistics using all 640 checkpoints and 48,000
-cached responses. Separate adapters checked the archived confirmation,
+cached responses. Separate adapters checked the recorded confirmation,
 attribution and physical predictions without optimization or new responses.
 These later checks do not reproduce original collection or training, and they
 do not establish the chronology of the original protocol freeze.
@@ -4507,7 +4513,7 @@ This finite-level example clips outside values to endpoint cells. The empirical
 scorer instead extends the lattice past both endpoints. The same argument uses
 the complete set of boundaries of that extended quantizer. At a recorded true
 level, its nearest boundary distance remains half the adjacent gap. The
-empirical evaluation measure is uniform over the archived grid.
+empirical evaluation measure is uniform over the emulator's evaluation grid.
 
 \begin{proposition}[Squared error and snapping risk]
 Under a specified deployment probability measure, let
