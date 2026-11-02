@@ -3252,3 +3252,12 @@ Independent saved-evidence review found no custody/source/count discrepancy and 
 Pure single-prompt grammar review found zero required defects. One optional independent exact-set oracle was added and passed as one new focused test. Initial six methods were not repeated. Actual tokenizer/callback/model qualification remains open. `results/ace_llm_intervention_grammar_preparation_20261102/review01/review_receipt.json` pins the reports and source/preparation lineage.
 
 The shared CURC master disappeared during the final queue check after complete GPU03 terminal custody was secured. A private reconnect request is pending. Do not claim fresh queue access from old evidence. No new job was submitted after35203022. Continue local worker diagnostics and CPU qualification preparation, without altering any original packet. Fresh access and both shared controller locks must be reconciled before another submission.
+
+
+### CPU qualification of constrained Qwen decoding submitted once
+
+The restored CURC channel worked and the user queue was empty. Both shared local controller locks were held. Ten preceding new-line journals were reconciled, and fresh dedicated scratch ownership/df/write/read/cleanup passed. Twelve input objects and exact membership matched independent pins. Implementation review fixed one lazy architecture-import issue, then its narrow recheck and distinct actual-packet review had zero required issues.
+
+Job35204167 submitted once at2026-11-02T21:36:07Z. Source334700845d19c8e6406a7c01865a5a95d74faa6e, packet45de9aae, freezeSHA256 `cf73af49666a76079c44cedbffcd93e63f19a561ae4da745438ba449019cf89c`. Remote `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_decoding_cpu_20261102_01`. Exclusive local `ACE-LLM-intervention-decoding-cpu-20261102-01`, repository `results/ace_llm_intervention_decoding_runtime_20261102/cpu01`.
+
+Request1CPU/4GiB/tenminutes/acpu/cpu-normal/accountucb736_asc1,noGPU,no-requeue. Conservatively reserving two allocated CPU threads adds1200CPU-seconds, for21600/57600CPU-seconds and unchanged1800/7200GPU-seconds. No new GPU attempt is submitted. The CPU command authenticates source/model/runtime/oldfixture, imports the actual Qwen3 class without weights, and checks the real tokenizer and Transformers prefix mask. Full target qualification and actual allocation/custody remain pending. Fresh scientific worlds and a trained scientific intervention policy remain ungenerated.
