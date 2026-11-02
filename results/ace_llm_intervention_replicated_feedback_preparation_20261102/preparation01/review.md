@@ -1,0 +1,7 @@
+# Replicated training-feedback review
+
+Implemented by independent coding agent Mencius. Main-agent read-only integration review found0required defects. No old tests or scientific data wereused. The new arithmetic applies fixedtaskweights within eachreplicate, then computes pairedcandidate differences acrossreplicates. The handoracle givesSE0.5 ratherthanpooled-query0.6708203932499369. Negativegains/ties/allpairsremain, allinputarraysarecopied, exactorderedtaskIDs/weights/scale/targetanddigestarechecked. Malformed/nonfiniteinputsanddevelopment/confirmationscopesreject. No response execution or independence claim follows from this pure aggregator. No stopping inference isperformed.
+
+Nine newartificialtestmethods passed inonesingleexecution from/tmp, .venv_test/bin/python, unittestelapsed.005seconds, exit0. Exactinterpreterversion/childCPUwerenotrecorded, nofailedtestattempts. Preparingthetestsencounteredtworead-onlydiscoverymisses, withoutsideeffects. No model, optimizer, scientificworld orremoteoperation.
+
+Runnerintegration must separatelyauthenticatechargedbranch/scoringjournals, namespaceindependence, identicalpre-actionlearners, completecandidatecoverage, querytargetmeasurements andsharedpublicstate. Purepositiveoutputsremainprovenance_qualified=False. Oldone-branchhelperandcompletedstudiesremainunchanged. Fourbranchreplicatesperactionandfixedqueryweightsareproposedforfuturetraining, notfrozenbythishelper.
