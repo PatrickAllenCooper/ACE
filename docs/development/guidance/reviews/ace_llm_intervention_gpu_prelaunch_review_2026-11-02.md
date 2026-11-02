@@ -31,3 +31,8 @@ GPU01 was rejected before allocation because the original packet paired a20GBMIG
 ## Corrected GPU02 actual packet
 
 Descartes independently compared the corrected actual packet to rejected GPU01. Zero required defects. All13 manifest hashes and12 explicit checksum entries match, four sources match commit3a8a1f21, and only the supervisor QOS gate changes. Worker, model/runtime pins, fixture, caps and recipe are unchanged. The new exclusive02 paths and job name agree. The packet binds the QOS correction and definite submission rejection. The workload is artificial adapter/interface qualification only. Freeze SHA256 `fd041a2401d93a5044ef4c01e37da3a83d7b6fe6fa97f83fde7999fe012a8dd8`. No tests or model execution repeated in this check.
+
+
+## GPU02 typed-GRES failure correction
+
+Descartes independently checked the saved actual scheduler record and narrow parser delta. Zero required defects. The record has one typed A10020GBslice without a generic GPU entry. The guard requires typed count1, permits generic count omission, requires generic count1 if present, rejects duplicate and other GRES. All other resource guards remain unchanged. New fixture covers actual receipt, agreeing aggregate and six negative variants. Supervisor SHA04a84fffd8bc4c9e590d8e466229f71f6b935b505c3b6b9561e06beb86bd8850. GPU02 proves allocation only, not model execution. Review did not repeat tests/models.

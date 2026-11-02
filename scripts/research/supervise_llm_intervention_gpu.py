@@ -73,7 +73,10 @@ def authenticate_allocation(raw, job_id, resources):
         if key in tres:
             raise ValueError("duplicate allocated resource")
         tres[key] = value
-    if (tres.get("gres/gpu") != "1" or tres.get("gres/gpu:a100_3g.20gb") != "1"
+    # Alpine may report only the typed GRES. It is the authoritative slice
+    # count. If an aggregate count is also present, it must agree exactly.
+    if (("gres/gpu" in tres and tres["gres/gpu"] != "1")
+            or tres.get("gres/gpu:a100_3g.20gb") != "1"
             or tres.get("node") != "1" or not str(tres.get("cpu", "")).isdigit()
             or not 4 <= int(tres["cpu"]) <= 8 or fields.get("NumCPUs") != tres["cpu"]
             or fields.get("CPUs/Task") != tres["cpu"]
