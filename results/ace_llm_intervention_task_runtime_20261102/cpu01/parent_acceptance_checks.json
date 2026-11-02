@@ -1,0 +1,126 @@
+{
+  "utc": "2026-11-02T22:48:03.210912+00:00",
+  "status": "parent_checks_passed_pending_independent_review",
+  "job_id": "35207064",
+  "source_revision": "d89d2f7e79f1d676b258d4b9ae72c211820342a5",
+  "freeze_sha256": "f71998c5b73893149b5a7cc9cbb556922ef9ec9667a14b25a0b84b0bbfead622",
+  "remote_inventory_sha256": "8c68fc43c043ec5188201ad0b586e7dff4a830b2a411bbc687aab5db943e960a",
+  "terminal_sha256": "3641f036680256a5c5a22a54ae9e4f0562f717dc2ffcd975a238555a438c2926",
+  "complete_raw_files": 43,
+  "complete_raw_bytes": 4908699,
+  "sacct": "35207064|ace_llm_tcpu01|ucb736_asc1|acpu|cpu-normal|COMPLETED|0:0|163|2|4G|billing=1,cpu=2,mem=4G,node=1||00:06.282|2026-11-02T15:42:45|2026-11-02T15:43:03|2026-11-02T15:45:46\n35207064.batch|batch|ucb736_asc1|||COMPLETED|0:0|163|2||cpu=2,mem=4G,node=1|1206120K|00:06.281|2026-11-02T15:43:03|2026-11-02T15:43:03|2026-11-02T15:45:46\n35207064.extern|extern|ucb736_asc1|||COMPLETED|0:0|163|2||billing=1,cpu=2,mem=4G,node=1|0|00:00.001|2026-11-02T15:43:03|2026-11-02T15:43:03|2026-11-02T15:45:46\n",
+  "allocated_cpu_seconds": 326,
+  "cumulative_known_allocated_cpu_seconds": 2290,
+  "cumulative_known_gpu_slice_seconds": 296,
+  "conservative_cpu_reservation_seconds": 30000,
+  "conservative_gpu_reservation_seconds": 2700,
+  "checks": {
+    "preference": {
+      "full_loss": 0.693399965763092,
+      "gradient_max_absolute_difference": 0.0,
+      "parameters_compared": 8,
+      "selected_loss": 0.693399965763092
+    },
+    "projection_profile": {
+      "batch_size": 2,
+      "full_logit_elements": 806,
+      "input_positions": 13,
+      "projected_positions": 3,
+      "scope": "tensor element count only, not total memory or measured speed",
+      "selected_logit_elements": 186,
+      "vocabulary_size": 31
+    },
+    "reload": {
+      "fabricated_receipt_pin": true,
+      "projection_names": [
+        "model.layers.0.self_attn.q_proj",
+        "model.layers.0.self_attn.v_proj",
+        "model.layers.1.self_attn.q_proj",
+        "model.layers.1.self_attn.v_proj"
+      ],
+      "score_max_absolute_difference": 0.0,
+      "updates": 0
+    },
+    "sft": {
+      "full_loss": 3.4510374069213867,
+      "gradient_max_absolute_difference": 0.0,
+      "parameters_compared": 8,
+      "selected_loss": 3.4510374069213867
+    }
+  },
+  "prompt_token_counts": [
+    613,
+    877,
+    2526,
+    4341,
+    16010
+  ],
+  "generated_completions": [
+    "{\"action_id\":\"a00\"}",
+    "{\"action_id\":\"a00\"}"
+  ],
+  "worker_process_cpu_seconds": 5.348364032,
+  "worker_elapsed_seconds": 129.90897520584986,
+  "worker_peak_rss_bytes": 851607552,
+  "phases": [
+    {
+      "elapsed_seconds": 0.0012519708834588528,
+      "phase": "authentication_start",
+      "process_cpu_seconds": 0.00036902799999999347,
+      "utc": "2026-11-02T22:43:10Z"
+    },
+    {
+      "elapsed_seconds": 10.609316992107779,
+      "packages": {
+        "huggingface-hub": "0.36.0",
+        "jinja2": "3.1.6",
+        "numpy": "2.2.6",
+        "safetensors": "0.7.0",
+        "scipy": "1.15.3",
+        "tokenizers": "0.22.1",
+        "torch": "2.9.1",
+        "transformers": "4.57.3"
+      },
+      "phase": "authentication_complete",
+      "process_cpu_seconds": 1.055952094,
+      "utc": "2026-11-02T22:43:21Z"
+    },
+    {
+      "elapsed_seconds": 125.35362429497764,
+      "phase": "imports_complete",
+      "process_cpu_seconds": 4.74324992,
+      "utc": "2026-11-02T22:45:15Z"
+    },
+    {
+      "cases": 5,
+      "elapsed_seconds": 128.25224094185978,
+      "phase": "task_tokens_complete",
+      "process_cpu_seconds": 5.122944571,
+      "utc": "2026-11-02T22:45:18Z"
+    },
+    {
+      "elapsed_seconds": 129.73683221498504,
+      "phase": "tiny_qwen_scoring_reload_complete",
+      "process_cpu_seconds": 5.2230232789999995,
+      "utc": "2026-11-02T22:45:20Z"
+    },
+    {
+      "decisions": 2,
+      "elapsed_seconds": 129.9074567630887,
+      "phase": "tiny_actual_generation_complete",
+      "process_cpu_seconds": 5.348122404,
+      "utc": "2026-11-02T22:45:20Z"
+    },
+    {
+      "elapsed_seconds": 129.91165659809485,
+      "phase": "worker_function_exit",
+      "process_cpu_seconds": 5.348547992,
+      "utc": "2026-11-02T22:45:20Z"
+    }
+  ],
+  "pretrained_weights_loaded": false,
+  "scientific_worlds_generated": false,
+  "full_size_gpu_inference_qualified": false,
+  "scientific_utility_qualified": false,
+  "scope": "target CPU tiny random Qwen scoring/reload/generation only"
+}

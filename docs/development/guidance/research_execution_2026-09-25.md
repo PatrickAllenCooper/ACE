@@ -3333,3 +3333,20 @@ The target job requests1CPU/4GiB/10minutes onacpu/cpu-normal/accountucb736_asc1,
 Remote output `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_task_cpu_20261102_01`, exclusive local `ACE-LLM-intervention-task-cpu-20261102-01`, repository `results/ace_llm_intervention_task_runtime_20261102/cpu01`. Conservative reservations now30000/57600CPU-seconds and2700/7200GPU-seconds. Known prior allocation1964CPU-seconds and296GPU-slice-seconds excludes this job. Runtime qualification and actual new cost remain pending at this entry. Do not resubmit a queued/running or ambiguous attempt.
 
 A distinct independent design recommendation for the first24-world/eight-arm screen is preserved in `reviews/ace_llm_intervention_first_screen_design_2026-11-02.md`. It proposes separate32training worlds, charged replicated branch feedback and fixed useful-accuracy endpoints. It is not a scientific freeze. The runner, generator/evaluator separation and adequate training exposure still need implementation. Fresh scientific namespaces remain ungenerated, and later ablations, confirmation and engineering utility remain part of the active goal.
+
+
+### Accepted target CPU scoring, reload and generation integration
+
+Job35207064 completed0:0 with two allocated CPU threads for163seconds, or326allocatedCPU-seconds. Complete exclusive local custody contains43remote files totaling4908699bytes. Every byte and relative path matches the remote terminal inventory, and all23frozen input pins still match. Worker terminalSHA256 is `3641f036680256a5c5a22a54ae9e4f0562f717dc2ffcd975a238555a438c2926`. The source and packet remain unchanged.
+
+In the actual Py3.10.19/torch2.9.1/Transformers4.57.3 runtime, tiny random Qwen models produced identical full/selected supervised and preference losses. The maximum difference among eight adapter parameter gradients waszero for both objectives. Reloading the fabricated tiny adapter into the unchanged tiny base also gavezero score difference. These are scoped FP32 integration checks, not a universal numerical proof or full-size pretrained result.
+
+All five authenticated task fixtures produced the same613/877/2526/4341/16010prompt lengths observed locally. Two actual tiny-Qwen generations returned the legal action `a00` on different public histories. Neither was sent to the environment. The accepted full-size GPU04 adapter's112tensor inventory and1146880parameters were checked against its independent digest and the cached architecture, but that full model was not loaded or restored in this job. Optimizer updates, pretrained-weight loads, environment responses and scientific worlds wereallzero.
+
+The worker used5.348364032processCPU seconds,129.90897520584986elapsed seconds and851607552peakRSS bytes. Slurm batchMaxRSS was1206120K andTotalCPU6.282seconds across the job. These are different measurement scopes. Authentication ended at10.609seconds, imports at125.354seconds and the tiny execution ended at129.907seconds. An owned stack sample observed a Transformers import operation. That sample does not identify the cause of every delay. Startup dominates this CPU qualification, and no GPU efficiency claim follows.
+
+Known cycle allocation is now2290CPU-seconds and296GPU-slice-seconds. Conservative reservations remain30000/57600CPU-seconds and2700/7200GPU-seconds. They overlap with process and elapsed measurements and exclude partly unmetered local work. No new GPU allocation was made.
+
+Next work is actual full-size adapter reload, long-context memory and gradient qualification with measured GPU demand, then the separately frozen charged training and paired development study. The first-screen design recommendation remains unexecuted. The active scientific question remains unanswered. Accepted original studies and the archived manuscript are unchanged.
+
+Independent saved-artifact review found zero required corrections. Final acceptance SHA256 is `90ef0d4ab4a74589735726bab5ca22bbd8ff1720c67044e1d526d9f63974a31d`. It binds the complete inventory, parent checks, original terminal and separate review.
