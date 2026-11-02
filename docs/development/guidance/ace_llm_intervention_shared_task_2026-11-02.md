@@ -65,3 +65,11 @@ The next scientific path is to qualify the complete new prompt and checkpoint in
 ## Review and correction
 
 Independent review identified two source defects. Episode size limits are now checked before any response can be charged, including a zero-decision episode. Numerical initialization now uses only CPU RNG state and explicitly CPU/float32 layers. Both findings are closed. Two new regression methods and two affected methods pass in preparation03, using1.078357childCPU seconds,1.389958elapsed seconds and313147392peakRSS bytes. There are thirteen distinct passing task/ranker methods across the preserved attempts. See [review](reviews/ace_llm_intervention_shared_task_review_2026-11-02.md).
+
+## One supervision record for both learned arms
+
+`llm_intervention_supervision.py` converts a pinned training record into both representations. The record contains the public task envelope, a supervised action identity, strict or tied pairwise labels, world identity, scope and an independently supplied supervision receipt pin. The numerical arm receives the feature rows and matching action indices. The language arm receives the same public envelope as text and matching JSON commands. Neither input contains the answer labels or the receipt metadata.
+
+Ties remain explicit in the alignment record and do not become invented strict preferences. Stop is a legal supervised decision and can appear on either side of a strict preference. Unknown or unavailable actions, duplicate pairs, altered pins and development or confirmation scope are rejected. The caller must explicitly select artificial scope for fixtures.
+
+Four distinct fabricated-record methods pass, including the optional stop coverage requested in an independent review. There are no required converter findings. Actual charged training data, model training, runtime qualification and independent world separation remain open. A record pin authenticates bytes, not the process that produced the labels.
