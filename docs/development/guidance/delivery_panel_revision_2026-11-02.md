@@ -41,3 +41,18 @@ Optional new experiments, checkpoint diagnoses, additional inference and acquisi
 Numerical and procedure evidence, separate delta reviews, page checks and final packet pins are under `results/delivery_panel_revision_20261102`. The original prospective bundle remains pinned at `2cca8a3699bcee68adef1a7fe610df87a6518a39513f71b310e990d73183cd84`. Inline publication table copies change labels and captions while retaining original numeric entries. Original generated companions, all saved prospective CSVs and both original claim indexes remain unchanged in the repository.
 
 Human authors still must approve the exact revised version and submission. The confirmed author order, affiliation, funding, competing-interest and overlap declarations are retained without asking again. No submission or public upload is authorized by this revision record.
+
+
+## Revised packet
+
+Writing revision: `2deb0b38168bc5893b3795e77d2bd350c5939aa0`. The new committed 42-file, 16-companion capture has inventory SHA256 `2b3c8001e5251dd38c99c1e93ed5b924f478cbb9fe1ff185ff64f52cc61bb27b`. The native editor compiler succeeds. The reviewed export has 26 pages in total, with the conclusion ending and references beginning on page 12. All pages were rendered and checked for layout. Quantization proofs remain in Appendix G.
+
+New private packet: `/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-TMLR-submission-review-20261102-01`.
+
+- PDF: 181,823 bytes, SHA256 `1e44419f9a82cc80ab45c2c2e687c8277ad68f726fa2130436f9e7cf4a9c61b7`.
+- Anonymous supplement: 183,823 bytes, 31 members, SHA256 `59480f9487ad08011fea146196dea669d614082286564cbcbca9a85e2a6bea3f`.
+- Private submission manifest: SHA256 `0e433a653e3e742e63c73d9386ae8f2798c94a82c954091d1b8d84d79e843da3`.
+
+The private November 2 submission worksheet uses the revised abstract and these exact files. Confirmed author declarations are carried forward. Final-version and submission approval are still pending. No remote allocation, model loading, new scientific response, inference rerun, installation or upload occurred. Local writing, saved-data summaries and compilation are preparation, not part of a newly measured whole-project CPU total.
+
+The independent numerical delta review found no incorrect value or changed original data field. The procedure review's one required chronology clarification and two optional clarifications were closed. The clarity review's six required text corrections and two selected optional improvements were closed by a narrow recheck. The separate actual packet review inspected every member and closed with zero required issues. The final preparation receipt binds its exact reviewed artifacts and all three focused revision reviews.
