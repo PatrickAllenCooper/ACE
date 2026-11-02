@@ -2325,7 +2325,7 @@ white\_255 & 0.85 [0.16, 3.55] & 2.92 [0.54, 6.83] & 8.57 [1.65, 15.65]\\
 \label{tab:physical-ci}
 \end{table}
 \end{filecontents*}
-% delivery_theory.tex: SHA256 32c324c43102a1fd66f01457f0b8773fe3dc341010d0b448e9d5db81c0cd2a88
+% delivery_theory.tex: SHA256 37fecd41fd830f67cd653b31e9b5664a04af9f6a9ea12c02cbf0d1beeebf7ba6
 \begin{filecontents*}[overwrite]{delivery_theory.tex}
 \section{Conditions and limits of delivery}
 \label{sec:theory}
@@ -2342,12 +2342,15 @@ is integrable and has mean zero. The intervention policy is a function of previo
 randomness independent of those experiments and the current noise vector.
 It chooses its action before the current exogenous noises are realized. Retain a row only when the action does not replace mechanism $i$,
 and let $S_i$ denote the final retained-row indicator, including any terminal
-selection. Require $\mathbb E[U_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1]=0$
+selection. Require
+\[
+ \mathbb E\bigl[U_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1\bigr]=0
+\]
 almost surely on the retained support, where $A$ is the current action and $H$ the preceding
 history. Conditional independence of $S_i$ and $U_i$ given parents, action and
 history is a sufficient retention condition. Then, in the retained mixture,
 \[
- \mathbb{E}[V_i\mid V_{\mathrm{Pa}(i)}=p,\text{retained}]=f_i(p).
+ \mathbb E\bigl[V_i\mid V_{\mathrm{Pa}(i)}=p,\text{retained}\bigr]=f_i(p).
 \]
 Thus squared-loss regression can target this mechanism on supported parent
 values, assuming finite second moments. This is an estimand statement. Finite
@@ -2360,8 +2363,11 @@ preceding nodes in topological order and the chosen action. The current $U_i$
 is independent of those noises and of past experiments. The policy precedes the current realization. Hence
 $\mathbb E[U_i\mid V_{\mathrm{Pa}(i)},A,H]=0$ before terminal selection.
 The stated retention condition preserves this conditional mean zero. Substituting the structural equation therefore gives
-$\mathbb E[V_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1]
-=f_i(V_{\mathrm{Pa}(i)})$. Taking the further conditional expectation over
+\[
+ \mathbb E\bigl[V_i\mid V_{\mathrm{Pa}(i)},A,H,S_i=1\bigr]
+ =f_i(V_{\mathrm{Pa}(i)}).
+\]
+Taking the further conditional expectation over
 action and history yields the assertion.
 The conditional expectation minimizes population squared loss on the retained
 support. No statement outside that support follows.
@@ -2388,7 +2394,10 @@ even when both conditional-mean mechanisms are exactly known.
 Consider a deterministic SCM and its learned functions $\hat f_i$, evaluated
 in topological order under identical correctly clamped interventions.
 For each non-clamped node, assume
-$|\hat f_i(v_{\mathrm{Pa}(i)})-f_i(v_{\mathrm{Pa}(i)})|\leq\epsilon_i$
+\[
+ \bigl|\hat f_i(v_{\mathrm{Pa}(i)})-f_i(v_{\mathrm{Pa}(i)})\bigr|
+ \leq\epsilon_i
+\]
 at every true parent vector in the deployment support. Assume also
 \[
  |\hat f_i(p)-\hat f_i(q)|\leq
@@ -2401,7 +2410,9 @@ $L_{ij}\geq0$. Writing $e_i=|\hat v_i-v_i|$, one has
 \]
 Correctly clamped nodes have $e_i=0$. If their rows in $L$ and their local
 bounds are set to zero, the vector bound is
-$e\leq(I-L)^{-1}\epsilon=\sum_{k=0}^{d-1}L^k\epsilon$,
+\[
+ e\leq(I-L)^{-1}\epsilon=\sum_{k=0}^{d-1}L^k\epsilon,
+\]
 where $d$ is the number of nodes and $L$ is strictly triangular in topological
 order.
 \end{proposition}
@@ -3358,10 +3369,13 @@ $\AWorseLocalMSE{}$, while free-running chain MSE is $\AWorseChainMSE{}$.
 The propagated prediction-shift MSE is $\AWorseShiftMSE{}$. Only
 \AWorseOutsidePercent{}\% of true evaluation parent vectors lie outside the
 training bounding box. That summary establishes neither joint support nor
-coverage of deployed predicted-parent vectors. Writing
-$r=\hat f(p_{\rm true})-y$ and
-$d=\hat f(p_{\rm pred})-\hat f(p_{\rm true})$, the grid average satisfies
-$\mathrm{MSE}_{\rm chain}=\mathbb E[r^2]+\mathbb E[d^2]+2\mathbb E[rd]$.
+coverage of deployed predicted-parent vectors. Write
+$r=\hat f(p_{\mathrm{true}})-y$ and
+$d=\hat f(p_{\mathrm{pred}})-\hat f(p_{\mathrm{true}})$. The grid average satisfies
+\[
+ \mathrm{MSE}_{\mathrm{chain}}
+ =\mathbb E[r^2]+\mathbb E[d^2]+2\mathbb E[rd].
+\]
 The cross-term prevents additive attribution of local residual and propagated
 shift. Neither this diagnostic nor the snapped endpoint identifies a unique cause.
 The history is retained without tuning a
@@ -3443,11 +3457,15 @@ All 640 fits were saved before any held-out response was generated. All forty
 systems completed without replacement or filtering.
 
 \subsection{Registered primary analysis}
-For system $s$, history $h$, and control $c$, define
+Let $\mathcal T=\{\mathrm{balanced},\mathrm{random}\}$ denote the two history types.
+For system $s$, history $h$ and arm $a$, write the floored error as
+$\widetilde N_{s,h,a}=\max\{\mathrm{NMSE}_{s,h,a},10^{-12}\}$.
+The paired log ratio for control $c$ is
 \begin{equation}
- z_{s,c}=\frac{1}{2}\sum_{h\in\{\mathrm{balanced},\mathrm{random}\}}
- \left[\log\max(\mathrm{NMSE}_{s,h,\mathrm{delivery}},\eta)
-       -\log\max(\mathrm{NMSE}_{s,h,c},\eta)\right],\qquad\eta=10^{-12}.
+ z_{s,c}=\frac{1}{2}\sum_{h\in\mathcal T}
+ \log\!\left(
+   \frac{\widetilde N_{s,h,\mathrm{delivery}}}{\widetilde N_{s,h,c}}
+ \right).
  \label{eq:paired-analysis}
 \end{equation}
 The numerical floor and its activation count are reported. The independent
@@ -3484,8 +3502,8 @@ criterion is not 95\% assurance of a 20\% population gain.
 \toprule
 Nodes & Control & Ratio & Marginal 95\% CI & Holm $p$ & Registered gate\\
 \midrule
-5 & rolling & 2.45956 & [1.78782, 3.38368] & 3.29547e-05 & not met\\
-5 & flat & 0.356194 & [0.282389, 0.449288] & 6.62773e-08 & met\\
+5 & rolling & 2.45956 & [1.78782, 3.38368] & $3.29547\times10^{-5}$ & not met\\
+5 & flat & 0.356194 & [0.282389, 0.449288] & $6.62773\times10^{-8}$ & met\\
 30 & rolling & 0.274321 & [0.158409, 0.47505] & 0.000185887 & met\\
 30 & flat & 0.391027 & [0.254548, 0.600681] & 0.000205416 & met\\
 \bottomrule
@@ -3700,25 +3718,30 @@ two link scores $L,M$, their combined score $I$, the target $Y$ and a separate
 cost branch $C$. Write the roots as $(N,D,h,p,N_M,h_M,p_M,J)$, representing
 total and dynamic counts, altitude and power for the first link, count, altitude
 and power for the second, and shared jamming. Their five-level supports are
-\begin{align*}
- N&\in\{250,350,450,550,650\},&D&\in\{0,50,100,150,200\},\\
- h&\in\{250,300,350,400,450\},&p&\in\{1,1.25,1.5,1.75,2\},\\
- N_M&\in\{5,10,15,20,25\},&h_M&\in\{6000,7000,8000,9000,10000\},\\
- p_M&\in\{1,1.25,1.5,1.75,2\},&J&\in\{0,0.25,0.5,0.75,1\}.
-\end{align*}
+\[
+\begin{alignedat}{2}
+ N&\in\{250,350,450,550,650\},&\qquad D&\in\{0,50,100,150,200\},\\
+ h&\in\{250,300,350,400,450\},& p&\in\{1,1.25,1.5,1.75,2\},\\
+ N_M&\in\{5,10,15,20,25\},& h_M&\in\{6000,7000,8000,9000,10000\},\\
+ p_M&\in\{1,1.25,1.5,1.75,2\},& J&\in\{0,0.25,0.5,0.75,1\}.
+\end{alignedat}
+\]
 Let $s(z)=\min(1,\max(0,z))$ and $d=D/N$. The fixed mechanisms are
-\begin{align*}
+\[
+\begin{aligned}
  L={}&s\Biggl(0.35s\left(\frac{N+0.3D-100}{600}\right)
  +0.25s\left(1-\frac{|h-350|}{300}\right)\\
  &\qquad+0.40s\left(\frac{p(1+0.15d)-0.8}{1.2}\right)
- -0.30s(J(1-0.6d))\Biggr),\\
- M={}&s\left(0.25s\left(\frac{N_M-5}{20}\right)
- +0.30s\left(1-\frac{|h_M-8000|}{4000}\right)
- +0.45s\left(\frac{p_M-0.8}{1.2}\right)-0.25s(0.85J)\right),\\
- I={}&s(0.55L+0.45M),\qquad
- Y=\frac{\operatorname{round}_{\rm even}(30s((I-0.35)/0.50))}{30},
- \qquad C=N+0.75D.
-\end{align*}
+ -0.30s(J(1-0.6d))\Biggr),\\[4pt]
+ M={}&s\Biggl(0.25s\left(\frac{N_M-5}{20}\right)
+ +0.30s\left(1-\frac{|h_M-8000|}{4000}\right)\\
+ &\qquad+0.45s\left(\frac{p_M-0.8}{1.2}\right)
+ -0.25s(0.85J)\Biggr),\\[4pt]
+ I={}&s(0.55L+0.45M),\\[4pt]
+ Y={}&\frac{\operatorname{round}_{\mathrm{even}}\!\bigl(30s((I-0.35)/0.50)\bigr)}{30},\\[4pt]
+ C={}&N+0.75D.
+\end{aligned}
+\]
 The shared $J$ is a fork and $I$ is a collider. $C$ never feeds the target.
 Response generation follows frozen Python rounding. Scorer midpoint ties are
 separately defined above. The 31 target levels are $\{k/30:k=0,\ldots,30\}$.
@@ -3820,11 +3843,13 @@ Stage-specific dependency and seed schemes accompany the release.
 \section{Prospective systems and action construction}
 \label{app:systems}
 The five-node family has roots $X_1,X_4$ and mechanisms
-\begin{align*}
- X_2&=aX_1+b,&
- X_3&=cX_1-dX_2+s\sin(X_2),&
+\[
+\begin{aligned}
+ X_2&=aX_1+b,\\
+ X_3&=cX_1-dX_2+s\sin(X_2),\\
  X_5&=qX_4^2.
-\end{align*}
+\end{aligned}
+\]
 Independent coefficient draws multiply base coefficients
 $(a,b,c,d,s,q)=(2,1,0.5,1,1,0.2)$ by independent uniform factors in
 $[0.8,1.2]$. The thirty-node family has five layers of sizes $(5,5,10,5,5)$ and edge
@@ -3879,8 +3904,13 @@ Physics regression fits an intercept and $\cos^2(\theta_1-\theta_2)$ after
 conversion to radians. Fourier regression uses the 25 tensor-product features
 from $\{1,\sin(2\theta),\cos(2\theta),\sin(4\theta),\cos(4\theta)\}$ at each
 angle. The Fourier span contains the physics regressor because
-$\cos^2(\theta_1-\theta_2)=\{1+\cos(2\theta_1)\cos(2\theta_2)
-+\sin(2\theta_1)\sin(2\theta_2)\}/2$.
+\[
+\begin{aligned}
+ \cos^2(\theta_1-\theta_2)
+ =\frac{1}{2}\bigl[&1+\cos(2\theta_1)\cos(2\theta_2)\\
+                   &{}+\sin(2\theta_1)\sin(2\theta_2)\bigr].
+\end{aligned}
+\]
 Both fit linear coefficients on training rows only. The train/test row counts
 are blue\_128: 790/210, blue\_255: 815/185, blue\_64: 793/207,
 green\_128: 794/206, green\_255: 789/211, green\_64: 775/225,
@@ -3986,12 +4016,12 @@ Nodes & Arm & Init & Geometric NMSE & Ratio/init 0\\
 5 & flat & 0 & 0.00120093 & 1\\
 5 & flat & 1 & 0.00242763 & 2.02146\\
 5 & flat & 2 & 0.00134551 & 1.12039\\
-30 & delivery & 0 & 2.7302e-05 & 1\\
-30 & delivery & 1 & 2.80113e-05 & 1.02598\\
-30 & delivery & 2 & 2.18951e-05 & 0.80196\\
-30 & flat & 0 & 6.98213e-05 & 1\\
-30 & flat & 1 & 7.78361e-05 & 1.11479\\
-30 & flat & 2 & 8.30776e-05 & 1.18986\\
+30 & delivery & 0 & $2.7302\times10^{-5}$ & 1\\
+30 & delivery & 1 & $2.80113\times10^{-5}$ & 1.02598\\
+30 & delivery & 2 & $2.18951\times10^{-5}$ & 0.80196\\
+30 & flat & 0 & $6.98213\times10^{-5}$ & 1\\
+30 & flat & 1 & $7.78361\times10^{-5}$ & 1.11479\\
+30 & flat & 2 & $8.30776\times10^{-5}$ & 1.18986\\
 \bottomrule
 \end{tabular}
 \caption{Descriptive sensitivity across all registered initializations. Initialization zero remains the deployment model. No best or median scored model is selected. History log errors are averaged within each system, then across twenty systems per stratum. A fixed $10^{-12}$ floor is used, with activations retained in the receipt. These repeats are not independent systems or additional superiority tests.}
@@ -4111,7 +4141,7 @@ System & Delivery & Rolling & Flat & Short fit\\
 5:02 & 0.0014389 & 0.000707204 & 0.0180498 & 0.487219\\
 5:03 & 0.0056272 & 0.00138786 & 0.0141817 & 0.374221\\
 5:04 & 0.000889682 & 0.000689842 & 0.0269127 & 0.568784\\
-5:05 & 0.00360282 & 9.77828e-05 & 0.00557415 & 0.448063\\
+5:05 & 0.00360282 & $9.77828\times10^{-5}$ & 0.00557415 & 0.448063\\
 5:06 & 0.00784253 & 0.000510237 & 0.0161602 & 0.431061\\
 5:07 & 0.000799895 & 0.00140719 & 0.0116814 & 0.493433\\
 5:08 & 0.0012372 & 0.000266891 & 0.0146961 & 0.654552\\
@@ -4125,7 +4155,7 @@ System & Delivery & Rolling & Flat & Short fit\\
 5:16 & 0.000991035 & 0.000547164 & 0.0108767 & 0.328058\\
 5:17 & 0.000665641 & 0.000259475 & 0.0116786 & 0.512188\\
 5:18 & 0.000506533 & 0.000108114 & 0.00641956 & 0.46709\\
-5:19 & 0.00163321 & 5.54846e-05 & 0.011357 & 0.72678\\
+5:19 & 0.00163321 & $5.54846\times10^{-5}$ & 0.011357 & 0.72678\\
 \bottomrule
 \end{tabular}
 \caption{5-node family, matched\_random, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
@@ -4136,26 +4166,26 @@ System & Delivery & Rolling & Flat & Short fit\\
 \toprule
 System & Delivery & Rolling & Flat & Short fit\\
 \midrule
-5:00 & 8.00849e-05 & 2.32474e-05 & 0.00118512 & 0.0688744\\
+5:00 & $8.00849\times10^{-5}$ & $2.32474\times10^{-5}$ & 0.00118512 & 0.0688744\\
 5:01 & 0.000217301 & 0.00011242 & 0.00162781 & 0.0681247\\
 5:02 & 0.000204552 & 0.000100535 & 0.00256592 & 0.0692621\\
-5:03 & 0.000387919 & 9.56742e-05 & 0.000977632 & 0.0257974\\
-5:04 & 9.85775e-05 & 7.64351e-05 & 0.00298195 & 0.0630217\\
-5:05 & 0.000283448 & 7.69297e-06 & 0.000438541 & 0.0352509\\
-5:06 & 0.000855537 & 5.56614e-05 & 0.00176291 & 0.0470241\\
+5:03 & 0.000387919 & $9.56742\times10^{-5}$ & 0.000977632 & 0.0257974\\
+5:04 & $9.85775\times10^{-5}$ & $7.64351\times10^{-5}$ & 0.00298195 & 0.0630217\\
+5:05 & 0.000283448 & $7.69297\times10^{-6}$ & 0.000438541 & 0.0352509\\
+5:06 & 0.000855537 & $5.56614\times10^{-5}$ & 0.00176291 & 0.0470241\\
 5:07 & 0.000151976 & 0.000267359 & 0.00221941 & 0.0937499\\
-5:08 & 0.000105895 & 2.28439e-05 & 0.00125788 & 0.0560247\\
-5:09 & 0.000143403 & 7.48724e-05 & 0.000945259 & 0.0514908\\
-5:10 & 0.000147066 & 7.13842e-05 & 0.00106637 & 0.170906\\
-5:11 & 0.000265707 & 3.11113e-05 & 0.00114781 & 0.0335524\\
+5:08 & 0.000105895 & $2.28439\times10^{-5}$ & 0.00125788 & 0.0560247\\
+5:09 & 0.000143403 & $7.48724\times10^{-5}$ & 0.000945259 & 0.0514908\\
+5:10 & 0.000147066 & $7.13842\times10^{-5}$ & 0.00106637 & 0.170906\\
+5:11 & 0.000265707 & $3.11113\times10^{-5}$ & 0.00114781 & 0.0335524\\
 5:12 & 0.00015724 & 0.000189644 & 0.000615802 & 0.0542049\\
 5:13 & 0.000443613 & 0.000471606 & 0.00106386 & 0.0310716\\
-5:14 & 0.000422361 & 1.48289e-05 & 0.000389304 & 0.052823\\
+5:14 & 0.000422361 & $1.48289\times10^{-5}$ & 0.000389304 & 0.052823\\
 5:15 & 0.000711755 & 0.000120679 & 0.00329343 & 0.073191\\
-5:16 & 0.000156192 & 8.62359e-05 & 0.00171423 & 0.0517037\\
-5:17 & 0.000111885 & 4.3614e-05 & 0.00196301 & 0.0860916\\
-5:18 & 9.0191e-05 & 1.92503e-05 & 0.00114304 & 0.0831679\\
-5:19 & 0.000171165 & 5.81491e-06 & 0.00119023 & 0.0761682\\
+5:16 & 0.000156192 & $8.62359\times10^{-5}$ & 0.00171423 & 0.0517037\\
+5:17 & 0.000111885 & $4.3614\times10^{-5}$ & 0.00196301 & 0.0860916\\
+5:18 & $9.0191\times10^{-5}$ & $1.92503\times10^{-5}$ & 0.00114304 & 0.0831679\\
+5:19 & 0.000171165 & $5.81491\times10^{-6}$ & 0.00119023 & 0.0761682\\
 \bottomrule
 \end{tabular}
 \caption{5-node family, matched\_random, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
@@ -4166,26 +4196,26 @@ System & Delivery & Rolling & Flat & Short fit\\
 \toprule
 System & Delivery & Rolling & Flat & Short fit\\
 \midrule
-30:00 & 5.29388e-06 & 2.75974e-05 & 1.40168e-05 & 0.00143869\\
-30:01 & 1.94508e-05 & 6.64071e-06 & 1.7717e-05 & 0.00076315\\
-30:02 & 1.55282e-05 & 8.4582e-05 & 3.49923e-05 & 0.00051716\\
-30:03 & 1.88036e-05 & 3.26891e-05 & 1.03312e-05 & 0.000988502\\
-30:04 & 6.53831e-06 & 6.67173e-06 & 3.61344e-06 & 7.32737e-05\\
-30:05 & 8.76078e-06 & 6.57288e-06 & 8.02934e-06 & 0.000185469\\
-30:06 & 2.20917e-06 & 2.28064e-06 & 8.35874e-06 & 0.000136408\\
-30:07 & 3.09149e-06 & 2.5979e-06 & 5.23728e-06 & 0.000130963\\
-30:08 & 1.94946e-05 & 7.58093e-06 & 1.87531e-05 & 0.000690553\\
-30:09 & 3.91397e-06 & 5.61616e-06 & 2.58247e-06 & 0.00102255\\
-30:10 & 1.06867e-05 & 2.73965e-06 & 1.5882e-06 & 3.61305e-05\\
-30:11 & 3.71989e-06 & 2.29018e-05 & 5.53813e-05 & 0.00109498\\
-30:12 & 1.01411e-05 & 2.19549e-05 & 1.37305e-05 & 0.000404836\\
-30:13 & 1.5194e-05 & 0.00016681 & 1.94059e-05 & 0.00066355\\
-30:14 & 0.000132932 & 6.31015e-06 & 1.71837e-05 & 0.00063953\\
-30:15 & 9.03914e-06 & 0.0002276 & 2.68972e-05 & 0.000406741\\
-30:16 & 3.57099e-06 & 2.68772e-06 & 2.8191e-06 & 9.54245e-05\\
-30:17 & 3.97963e-06 & 4.22296e-05 & 5.29181e-06 & 0.000129346\\
-30:18 & 8.34418e-06 & 6.47997e-05 & 1.66594e-05 & 0.00033419\\
-30:19 & 4.45553e-06 & 3.70912e-07 & 1.47332e-06 & 2.38399e-05\\
+30:00 & $5.29388\times10^{-6}$ & $2.75974\times10^{-5}$ & $1.40168\times10^{-5}$ & 0.00143869\\
+30:01 & $1.94508\times10^{-5}$ & $6.64071\times10^{-6}$ & $1.7717\times10^{-5}$ & 0.00076315\\
+30:02 & $1.55282\times10^{-5}$ & $8.4582\times10^{-5}$ & $3.49923\times10^{-5}$ & 0.00051716\\
+30:03 & $1.88036\times10^{-5}$ & $3.26891\times10^{-5}$ & $1.03312\times10^{-5}$ & 0.000988502\\
+30:04 & $6.53831\times10^{-6}$ & $6.67173\times10^{-6}$ & $3.61344\times10^{-6}$ & $7.32737\times10^{-5}$\\
+30:05 & $8.76078\times10^{-6}$ & $6.57288\times10^{-6}$ & $8.02934\times10^{-6}$ & 0.000185469\\
+30:06 & $2.20917\times10^{-6}$ & $2.28064\times10^{-6}$ & $8.35874\times10^{-6}$ & 0.000136408\\
+30:07 & $3.09149\times10^{-6}$ & $2.5979\times10^{-6}$ & $5.23728\times10^{-6}$ & 0.000130963\\
+30:08 & $1.94946\times10^{-5}$ & $7.58093\times10^{-6}$ & $1.87531\times10^{-5}$ & 0.000690553\\
+30:09 & $3.91397\times10^{-6}$ & $5.61616\times10^{-6}$ & $2.58247\times10^{-6}$ & 0.00102255\\
+30:10 & $1.06867\times10^{-5}$ & $2.73965\times10^{-6}$ & $1.5882\times10^{-6}$ & $3.61305\times10^{-5}$\\
+30:11 & $3.71989\times10^{-6}$ & $2.29018\times10^{-5}$ & $5.53813\times10^{-5}$ & 0.00109498\\
+30:12 & $1.01411\times10^{-5}$ & $2.19549\times10^{-5}$ & $1.37305\times10^{-5}$ & 0.000404836\\
+30:13 & $1.5194\times10^{-5}$ & 0.00016681 & $1.94059\times10^{-5}$ & 0.00066355\\
+30:14 & 0.000132932 & $6.31015\times10^{-6}$ & $1.71837\times10^{-5}$ & 0.00063953\\
+30:15 & $9.03914\times10^{-6}$ & 0.0002276 & $2.68972\times10^{-5}$ & 0.000406741\\
+30:16 & $3.57099\times10^{-6}$ & $2.68772\times10^{-6}$ & $2.8191\times10^{-6}$ & $9.54245\times10^{-5}$\\
+30:17 & $3.97963\times10^{-6}$ & $4.22296\times10^{-5}$ & $5.29181\times10^{-6}$ & 0.000129346\\
+30:18 & $8.34418\times10^{-6}$ & $6.47997\times10^{-5}$ & $1.66594\times10^{-5}$ & 0.00033419\\
+30:19 & $4.45553\times10^{-6}$ & $3.70912\times10^{-7}$ & $1.47332\times10^{-6}$ & $2.38399\times10^{-5}$\\
 \bottomrule
 \end{tabular}
 \caption{30-node family, balanced\_varied\_value, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
@@ -4196,26 +4226,26 @@ System & Delivery & Rolling & Flat & Short fit\\
 \toprule
 System & Delivery & Rolling & Flat & Short fit\\
 \midrule
-30:00 & 6.32501e-06 & 3.29728e-05 & 1.6747e-05 & 0.00171892\\
-30:01 & 8.78694e-05 & 2.99996e-05 & 8.00369e-05 & 0.00344756\\
-30:02 & 3.91302e-05 & 0.000213142 & 8.81785e-05 & 0.00130321\\
-30:03 & 2.86027e-05 & 4.97245e-05 & 1.5715e-05 & 0.00150364\\
-30:04 & 8.04675e-05 & 8.21095e-05 & 4.44709e-05 & 0.000901786\\
-30:05 & 4.94633e-05 & 3.71104e-05 & 4.53336e-05 & 0.00104716\\
-30:06 & 2.93002e-05 & 3.02482e-05 & 0.000110862 & 0.00180917\\
-30:07 & 2.87392e-05 & 2.41507e-05 & 4.8687e-05 & 0.00121746\\
-30:08 & 3.99492e-05 & 1.55352e-05 & 3.84298e-05 & 0.00141512\\
-30:09 & 8.77764e-06 & 1.2595e-05 & 5.79157e-06 & 0.00229322\\
-30:10 & 0.000247062 & 6.33371e-05 & 3.67171e-05 & 0.000835288\\
-30:11 & 5.98646e-06 & 3.68561e-05 & 8.91257e-05 & 0.00176216\\
-30:12 & 1.9384e-05 & 4.19649e-05 & 2.62447e-05 & 0.000773812\\
-30:13 & 1.58013e-05 & 0.000173478 & 2.01816e-05 & 0.000690072\\
-30:14 & 0.000247099 & 1.17296e-05 & 3.19417e-05 & 0.00118879\\
-30:15 & 4.01564e-05 & 0.00101112 & 0.000119491 & 0.00180695\\
-30:16 & 5.09991e-05 & 3.83847e-05 & 4.0261e-05 & 0.0013628\\
-30:17 & 3.33762e-05 & 0.000354168 & 4.4381e-05 & 0.00108479\\
-30:18 & 4.30566e-05 & 0.000334372 & 8.59638e-05 & 0.00172445\\
-30:19 & 0.000224583 & 1.8696e-05 & 7.42635e-05 & 0.00120166\\
+30:00 & $6.32501\times10^{-6}$ & $3.29728\times10^{-5}$ & $1.6747\times10^{-5}$ & 0.00171892\\
+30:01 & $8.78694\times10^{-5}$ & $2.99996\times10^{-5}$ & $8.00369\times10^{-5}$ & 0.00344756\\
+30:02 & $3.91302\times10^{-5}$ & 0.000213142 & $8.81785\times10^{-5}$ & 0.00130321\\
+30:03 & $2.86027\times10^{-5}$ & $4.97245\times10^{-5}$ & $1.5715\times10^{-5}$ & 0.00150364\\
+30:04 & $8.04675\times10^{-5}$ & $8.21095\times10^{-5}$ & $4.44709\times10^{-5}$ & 0.000901786\\
+30:05 & $4.94633\times10^{-5}$ & $3.71104\times10^{-5}$ & $4.53336\times10^{-5}$ & 0.00104716\\
+30:06 & $2.93002\times10^{-5}$ & $3.02482\times10^{-5}$ & 0.000110862 & 0.00180917\\
+30:07 & $2.87392\times10^{-5}$ & $2.41507\times10^{-5}$ & $4.8687\times10^{-5}$ & 0.00121746\\
+30:08 & $3.99492\times10^{-5}$ & $1.55352\times10^{-5}$ & $3.84298\times10^{-5}$ & 0.00141512\\
+30:09 & $8.77764\times10^{-6}$ & $1.2595\times10^{-5}$ & $5.79157\times10^{-6}$ & 0.00229322\\
+30:10 & 0.000247062 & $6.33371\times10^{-5}$ & $3.67171\times10^{-5}$ & 0.000835288\\
+30:11 & $5.98646\times10^{-6}$ & $3.68561\times10^{-5}$ & $8.91257\times10^{-5}$ & 0.00176216\\
+30:12 & $1.9384\times10^{-5}$ & $4.19649\times10^{-5}$ & $2.62447\times10^{-5}$ & 0.000773812\\
+30:13 & $1.58013\times10^{-5}$ & 0.000173478 & $2.01816\times10^{-5}$ & 0.000690072\\
+30:14 & 0.000247099 & $1.17296\times10^{-5}$ & $3.19417\times10^{-5}$ & 0.00118879\\
+30:15 & $4.01564\times10^{-5}$ & 0.00101112 & 0.000119491 & 0.00180695\\
+30:16 & $5.09991\times10^{-5}$ & $3.83847\times10^{-5}$ & $4.0261\times10^{-5}$ & 0.0013628\\
+30:17 & $3.33762\times10^{-5}$ & 0.000354168 & $4.4381\times10^{-5}$ & 0.00108479\\
+30:18 & $4.30566\times10^{-5}$ & 0.000334372 & $8.59638\times10^{-5}$ & 0.00172445\\
+30:19 & 0.000224583 & $1.8696\times10^{-5}$ & $7.42635\times10^{-5}$ & 0.00120166\\
 \bottomrule
 \end{tabular}
 \caption{30-node family, balanced\_varied\_value, fixed initialization zero: NMSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
@@ -4226,26 +4256,26 @@ System & Delivery & Rolling & Flat & Short fit\\
 \toprule
 System & Delivery & Rolling & Flat & Short fit\\
 \midrule
-30:00 & 4.04399e-05 & 0.00045911 & 5.53792e-05 & 0.00123635\\
-30:01 & 2.41414e-06 & 5.17623e-06 & 4.54117e-05 & 0.000699688\\
-30:02 & 9.82878e-06 & 0.000238393 & 0.000116332 & 0.000737994\\
-30:03 & 3.04197e-06 & 0.00028577 & 2.50775e-05 & 0.000828535\\
-30:04 & 7.39674e-07 & 8.21744e-05 & 8.86338e-06 & 6.00367e-05\\
-30:05 & 3.69235e-06 & 0.000216314 & 1.66296e-05 & 0.00023302\\
-30:06 & 1.47372e-05 & 2.37927e-05 & 3.10444e-06 & 0.000149223\\
-30:07 & 1.2378e-06 & 1.71484e-06 & 2.00721e-05 & 0.000103049\\
-30:08 & 1.07198e-05 & 0.000156965 & 1.89493e-05 & 0.00120276\\
-30:09 & 5.98364e-05 & 2.27623e-05 & 8.17201e-05 & 0.000883554\\
-30:10 & 1.53136e-07 & 2.02384e-06 & 4.40878e-06 & 2.24843e-05\\
-30:11 & 2.37817e-06 & 0.000205675 & 0.00018105 & 0.000900513\\
-30:12 & 1.77706e-06 & 1.73054e-05 & 9.10894e-05 & 0.000483862\\
-30:13 & 5.60575e-06 & 1.96897e-05 & 5.76735e-05 & 0.000951051\\
-30:14 & 2.76961e-06 & 0.000123442 & 3.30715e-05 & 0.000851251\\
-30:15 & 3.59459e-05 & 3.82432e-05 & 2.36837e-05 & 0.000419156\\
-30:16 & 8.01801e-07 & 6.65759e-06 & 6.3252e-06 & 8.63031e-05\\
-30:17 & 3.08855e-06 & 1.52787e-05 & 6.92192e-06 & 0.000120888\\
-30:18 & 1.01212e-06 & 4.12581e-05 & 1.70288e-05 & 0.00044163\\
-30:19 & 1.7994e-06 & 2.62841e-06 & 1.94226e-06 & 1.6142e-05\\
+30:00 & $4.04399\times10^{-5}$ & 0.00045911 & $5.53792\times10^{-5}$ & 0.00123635\\
+30:01 & $2.41414\times10^{-6}$ & $5.17623\times10^{-6}$ & $4.54117\times10^{-5}$ & 0.000699688\\
+30:02 & $9.82878\times10^{-6}$ & 0.000238393 & 0.000116332 & 0.000737994\\
+30:03 & $3.04197\times10^{-6}$ & 0.00028577 & $2.50775\times10^{-5}$ & 0.000828535\\
+30:04 & $7.39674\times10^{-7}$ & $8.21744\times10^{-5}$ & $8.86338\times10^{-6}$ & $6.00367\times10^{-5}$\\
+30:05 & $3.69235\times10^{-6}$ & 0.000216314 & $1.66296\times10^{-5}$ & 0.00023302\\
+30:06 & $1.47372\times10^{-5}$ & $2.37927\times10^{-5}$ & $3.10444\times10^{-6}$ & 0.000149223\\
+30:07 & $1.2378\times10^{-6}$ & $1.71484\times10^{-6}$ & $2.00721\times10^{-5}$ & 0.000103049\\
+30:08 & $1.07198\times10^{-5}$ & 0.000156965 & $1.89493\times10^{-5}$ & 0.00120276\\
+30:09 & $5.98364\times10^{-5}$ & $2.27623\times10^{-5}$ & $8.17201\times10^{-5}$ & 0.000883554\\
+30:10 & $1.53136\times10^{-7}$ & $2.02384\times10^{-6}$ & $4.40878\times10^{-6}$ & $2.24843\times10^{-5}$\\
+30:11 & $2.37817\times10^{-6}$ & 0.000205675 & 0.00018105 & 0.000900513\\
+30:12 & $1.77706\times10^{-6}$ & $1.73054\times10^{-5}$ & $9.10894\times10^{-5}$ & 0.000483862\\
+30:13 & $5.60575\times10^{-6}$ & $1.96897\times10^{-5}$ & $5.76735\times10^{-5}$ & 0.000951051\\
+30:14 & $2.76961\times10^{-6}$ & 0.000123442 & $3.30715\times10^{-5}$ & 0.000851251\\
+30:15 & $3.59459\times10^{-5}$ & $3.82432\times10^{-5}$ & $2.36837\times10^{-5}$ & 0.000419156\\
+30:16 & $8.01801\times10^{-7}$ & $6.65759\times10^{-6}$ & $6.3252\times10^{-6}$ & $8.63031\times10^{-5}$\\
+30:17 & $3.08855\times10^{-6}$ & $1.52787\times10^{-5}$ & $6.92192\times10^{-6}$ & 0.000120888\\
+30:18 & $1.01212\times10^{-6}$ & $4.12581\times10^{-5}$ & $1.70288\times10^{-5}$ & 0.00044163\\
+30:19 & $1.7994\times10^{-6}$ & $2.62841\times10^{-6}$ & $1.94226\times10^{-6}$ & $1.6142\times10^{-5}$\\
 \bottomrule
 \end{tabular}
 \caption{30-node family, matched\_random, fixed initialization zero: MSE. NMSE uses the training target variance of each shared history. Errors here are not floored. The short fit is the registered 100-update SCM ablation. Rows are systems. Histories and arms are paired, not additional independent samples.}
@@ -4256,25 +4286,25 @@ System & Delivery & Rolling & Flat & Short fit\\
 \toprule
 System & Delivery & Rolling & Flat & Short fit\\
 \midrule
-30:00 & 5.61478e-05 & 0.00063744 & 7.68899e-05 & 0.00171658\\
-30:01 & 1.3092e-05 & 2.8071e-05 & 0.00024627 & 0.00379444\\
-30:02 & 2.78494e-05 & 0.000675475 & 0.000329622 & 0.00209107\\
-30:03 & 5.64098e-06 & 0.000529927 & 4.65035e-05 & 0.00153642\\
-30:04 & 1.127e-05 & 0.00125204 & 0.000135046 & 0.000914743\\
-30:05 & 2.45037e-05 & 0.00143554 & 0.00011036 & 0.0015464\\
-30:06 & 0.00021396 & 0.000345432 & 4.50715e-05 & 0.00216647\\
-30:07 & 1.30312e-05 & 1.80533e-05 & 0.000211314 & 0.00108487\\
-30:08 & 2.68148e-05 & 0.000392636 & 4.74001e-05 & 0.00300861\\
-30:09 & 0.000162376 & 6.17692e-05 & 0.00022176 & 0.00239767\\
-30:10 & 4.18661e-06 & 5.53302e-05 & 0.000120532 & 0.000614702\\
-30:11 & 4.92799e-06 & 0.000426194 & 0.000375167 & 0.00186602\\
-30:12 & 4.02432e-06 & 3.91896e-05 & 0.00020628 & 0.00109575\\
-30:13 & 6.26031e-06 & 2.19887e-05 & 6.44078e-05 & 0.0010621\\
-30:14 & 5.61903e-06 & 0.000250442 & 6.7096e-05 & 0.00172703\\
+30:00 & $5.61478\times10^{-5}$ & 0.00063744 & $7.68899\times10^{-5}$ & 0.00171658\\
+30:01 & $1.3092\times10^{-5}$ & $2.8071\times10^{-5}$ & 0.00024627 & 0.00379444\\
+30:02 & $2.78494\times10^{-5}$ & 0.000675475 & 0.000329622 & 0.00209107\\
+30:03 & $5.64098\times10^{-6}$ & 0.000529927 & $4.65035\times10^{-5}$ & 0.00153642\\
+30:04 & $1.127\times10^{-5}$ & 0.00125204 & 0.000135046 & 0.000914743\\
+30:05 & $2.45037\times10^{-5}$ & 0.00143554 & 0.00011036 & 0.0015464\\
+30:06 & 0.00021396 & 0.000345432 & $4.50715\times10^{-5}$ & 0.00216647\\
+30:07 & $1.30312\times10^{-5}$ & $1.80533\times10^{-5}$ & 0.000211314 & 0.00108487\\
+30:08 & $2.68148\times10^{-5}$ & 0.000392636 & $4.74001\times10^{-5}$ & 0.00300861\\
+30:09 & 0.000162376 & $6.17692\times10^{-5}$ & 0.00022176 & 0.00239767\\
+30:10 & $4.18661\times10^{-6}$ & $5.53302\times10^{-5}$ & 0.000120532 & 0.000614702\\
+30:11 & $4.92799\times10^{-6}$ & 0.000426194 & 0.000375167 & 0.00186602\\
+30:12 & $4.02432\times10^{-6}$ & $3.91896\times10^{-5}$ & 0.00020628 & 0.00109575\\
+30:13 & $6.26031\times10^{-6}$ & $2.19887\times10^{-5}$ & $6.44078\times10^{-5}$ & 0.0010621\\
+30:14 & $5.61903\times10^{-6}$ & 0.000250442 & $6.7096\times10^{-5}$ & 0.00172703\\
 30:15 & 0.000202435 & 0.000215373 & 0.000133379 & 0.00236055\\
-30:16 & 1.24934e-05 & 0.000103737 & 9.85573e-05 & 0.00134475\\
-30:17 & 2.70192e-05 & 0.00013366 & 6.05542e-05 & 0.00105755\\
-30:18 & 6.13798e-06 & 0.00025021 & 0.000103271 & 0.00267826\\
+30:16 & $1.24934\times10^{-5}$ & 0.000103737 & $9.85573\times10^{-5}$ & 0.00134475\\
+30:17 & $2.70192\times10^{-5}$ & 0.00013366 & $6.05542\times10^{-5}$ & 0.00105755\\
+30:18 & $6.13798\times10^{-6}$ & 0.00025021 & 0.000103271 & 0.00267826\\
 30:19 & 0.000109308 & 0.000159667 & 0.000117986 & 0.000980575\\
 \bottomrule
 \end{tabular}
@@ -4457,9 +4487,13 @@ For $m\geq2$ distinct ordered levels $\ell_1<\cdots<\ell_m$, let $Q$ assign the 
 level, with a fixed tie rule, and let
 $b_k=(\ell_k+\ell_{k+1})/2$. Define
 $M(y)=\min_k|y-b_k|$. If $|\hat y-y|<M(y)$ then
-$Q(\hat y)=Q(y)$. If a pointwise prediction bound $B(y)$ is valid,
-$\Pr(Q(\hat y)\ne Q(y))\leq\Pr(M(y)\leq B(y))$ under any specified deployment
-probability measure for which the bound holds almost surely.
+$Q(\hat y)=Q(y)$. If a pointwise prediction bound $B(y)$ is valid, then
+\[
+ \Pr\bigl(Q(\hat y)\ne Q(y)\bigr)
+ \leq\Pr\bigl(M(y)\leq B(y)\bigr)
+\]
+under any specified deployment probability measure for which the bound holds
+almost surely.
 \end{proposition}
 \begin{proof}
 The open interval of radius $M(y)$ around $y$ crosses no decision boundary.
@@ -4480,11 +4514,14 @@ Under a specified deployment probability measure, let
 $R=\mathbb E[(\hat Y-Y)^2]<\infty$ and use the same quantizer and margin
 $M$ as above. For every $\tau>0$,
 \[
- \Pr(Q(\hat Y)\ne Q(Y))
- \leq \min\{1,\Pr(M(Y)\leq\tau)+R/\tau^2\}.
+ \Pr\bigl(Q(\hat Y)\ne Q(Y)\bigr)
+ \leq \min\left\{1,\Pr\bigl(M(Y)\leq\tau\bigr)+\frac{R}{\tau^2}\right\}.
 \]
 If $M(Y)\geq m>0$ almost surely, the sharper bound is
-$\Pr(Q(\hat Y)\ne Q(Y))\leq\min\{1,R/m^2\}$.
+\[
+ \Pr\bigl(Q(\hat Y)\ne Q(Y)\bigr)
+ \leq\min\left\{1,\frac{R}{m^2}\right\}.
+\]
 \end{proposition}
 \begin{proof}
 A snapping error requires $|\hat Y-Y|\geq M(Y)$. Its event is therefore
