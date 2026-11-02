@@ -1,0 +1,7 @@
+# Charged replicated branch integration review
+
+Implementation: Mencius. Parent read-only integration review:0requireddefects. Nine newartificialmethods passed inoneexecutionfrom/tmp, Python3.9.6 at .venv_test/bin/python, elapsed.059unittestseconds, exit0. No failedtestattempts. Expectedfailurefixtures are retained, includingunknowncallbackreturns, returnednonfinitevalues, clampcontradictions, baseline mutation and exclusive-output rejection. No pretrainedmodel, remoteaction orscientificnamespace.
+
+Eachreplicate/candidateforks thesamefrozenpre-action learner. Plansandmappingsprecedecallbacks. ChargedExecutor reservesbeforeeachresponse, scoringqueriesarepaidonceperreplicateandsharedwithoutlearnerupdates, allqueriesmeasuretarget. Recordedtaskpin/weights/scale/feedorderbindtopureaggregator. Exactrequestmappingspreventcollisionswithpriorrows. Baseline snapshotsincludepriors/requestIDsandsummaries. Accountingreconstructshashchainedjournals andretainsallreservationsincludingunknownreturns. Terminalrequiresallplannedresponses/costs, nofiltering. Callbackhonesty, noise andworld/streamindependencestillrequirefuturefrozenrunner. Provenanceflagsfalse.
+
+Thehandoracle hasfourbranch/fourscoringreturns,14costunits, paireddifferences.25/1,mean5/8,replicateSE3/8. Failurefixturekeeps3reservedunitsandoneunknownresponsewithoutretry. Existingoutputremainsuntouched. Oldhelper/frozenstudiesunchanged.
