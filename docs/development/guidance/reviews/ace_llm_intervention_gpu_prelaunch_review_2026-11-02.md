@@ -36,3 +36,8 @@ Descartes independently compared the corrected actual packet to rejected GPU01. 
 ## GPU02 typed-GRES failure correction
 
 Descartes independently checked the saved actual scheduler record and narrow parser delta. Zero required defects. The record has one typed A10020GBslice without a generic GPU entry. The guard requires typed count1, permits generic count omission, requires generic count1 if present, rejects duplicate and other GRES. All other resource guards remain unchanged. New fixture covers actual receipt, agreeing aggregate and six negative variants. Supervisor SHA04a84fffd8bc4c9e590d8e466229f71f6b935b505c3b6b9561e06beb86bd8850. GPU02 proves allocation only, not model execution. Review did not repeat tests/models.
+
+
+## GPU03 actual packet delta
+
+Descartes checked all15manifest hashes and14checksum entries, four source bindings to0c87bce4, the narrow typed-GRES supervisor correction, unchanged worker/model/runtime/fixture/recipe/caps, new03paths/jobname/freeze invocation and exact failure/correction lineage. Zero required issues. FreezeSHA256 `2ef3056c6a26d9bb7ce89dd2577eaa890a8e5a5610aab9e796aec778b20281db`. No tests/models/submissions repeated in review.

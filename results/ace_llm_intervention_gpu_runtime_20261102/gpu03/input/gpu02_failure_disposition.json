@@ -1,0 +1,30 @@
+{
+  "status": "failed_before_child_creation",
+  "job_id": "35202931",
+  "scheduler_state": "FAILED",
+  "exit_code": "1:0",
+  "allocated_cpus": 4,
+  "elapsed_seconds": 8,
+  "allocated_cpu_seconds": 32,
+  "allocated_gpu_seconds": 8,
+  "actual_gpu_work": false,
+  "failure": {
+    "child_returncode": null,
+    "cleanup": null,
+    "elapsed_seconds": 0.058735000900924206,
+    "exception_type": "ValueError",
+    "message": "actual CPU/memory/GPU allocation differs",
+    "persistence_errors": [],
+    "process_cpu_seconds": 0.0018768930000000045,
+    "status": "failed",
+    "traceback": "Traceback (most recent call last):\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_02/input/supervise_llm_intervention_gpu.py\", line 241, in run\n    allocation = authenticate_allocation(check.stdout, job_id, freeze[\"resources\"])\n  File \"/gpfs/alpine1/scratch/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_02/input/supervise_llm_intervention_gpu.py\", line 82, in authenticate_allocation\n    raise ValueError(\"actual CPU/memory/GPU allocation differs\")\nValueError: actual CPU/memory/GPU allocation differs\n"
+  },
+  "custody_files": 21,
+  "custody_bytes": 102689,
+  "inventory_sha256": "2d6839532340dcafad70cc60199f87d12cf4fa23b81c7840298d891a35c5bf56",
+  "process_cpu_is_not_allocation": true,
+  "known_cycle_allocated_cpu_seconds": 642,
+  "known_cycle_allocated_gpu_seconds": 8,
+  "reserved_cpu_seconds": 13200,
+  "reserved_gpu_seconds": 900
+}
