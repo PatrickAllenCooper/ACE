@@ -26,3 +26,8 @@ After the targetCPU stage passed, an actual-allocation delta was reviewed separa
 
 
 GPU01 was rejected before allocation because the original packet paired a20GBMIG with gpu-normal. The earlier packet review checked internal agreement but missed site compatibility. The retained Slurm Error7, official CURC GRES table and live QOS metadata identify gpu-testing as the intended workflow-qualification queue for this slice. A distinct narrow correction review finds zero required issues in replacing the frozen/live QOS gate with gpu-testing. The same GPU/count/CPU/memory/time and artificial recipe remain fixed. The focused new test rejects gpu-normal in either the frozen or actual resource record. SupervisorSHA256 `b8675a12ad9924427d81eadb1a3b9ec47b8ad0395fa231e0f35e77536e0e9d6b`. A new GPU02 packet remains required. Established scientific workflows must use production resources.
+
+
+## Corrected GPU02 actual packet
+
+Descartes independently compared the corrected actual packet to rejected GPU01. Zero required defects. All13 manifest hashes and12 explicit checksum entries match, four sources match commit3a8a1f21, and only the supervisor QOS gate changes. Worker, model/runtime pins, fixture, caps and recipe are unchanged. The new exclusive02 paths and job name agree. The packet binds the QOS correction and definite submission rejection. The workload is artificial adapter/interface qualification only. Freeze SHA256 `fd041a2401d93a5044ef4c01e37da3a83d7b6fe6fa97f83fde7999fe012a8dd8`. No tests or model execution repeated in this check.

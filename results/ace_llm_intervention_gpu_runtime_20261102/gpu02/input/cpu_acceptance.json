@@ -1,0 +1,193 @@
+{
+  "utc": "2026-11-02T20:49:35.681082+00:00",
+  "job_id": "35202401",
+  "scope": "CPU exact artificial token fixture and nine target-runtime packet/cleanup checks only",
+  "complete_objects": 43,
+  "bytes": 95222,
+  "freeze_sha256": "62d0ef536f7036006c06a43e941b00bfb0c7796cbf3f7d0244c94fd61cd8e9a6",
+  "terminal_sha256": "06d4c4096137a8111d81af61db411aaf8397fe23f516a0a7c1801ca9fdfba127",
+  "fixture_sha256": "0c0d24ec20af68597aa79f439538c55a76395702246475d1b3466f496f4c1e52",
+  "tests": 9,
+  "cleanup_scenarios": [
+    {
+      "owned_cleanup_fixture": true,
+      "leader_exits": false,
+      "pgid": 3919968,
+      "term_sent": true,
+      "kill_sent": false,
+      "errors": [],
+      "group_still_exists": false,
+      "leader_returncode": -15
+    },
+    {
+      "owned_cleanup_fixture": true,
+      "leader_exits": true,
+      "pgid": 3919970,
+      "term_sent": true,
+      "kill_sent": false,
+      "errors": [],
+      "group_still_exists": false,
+      "leader_returncode": 0
+    }
+  ],
+  "allocated_cpu_seconds": 40,
+  "process_cpu_seconds": 3.982085642,
+  "reaped_child_cpu_seconds": 0.038980999999999995,
+  "worker_elapsed_seconds": 14.066608282271773,
+  "peak_worker_rss_bytes": 793161728,
+  "whole_runtime_byte_closure_qualified": false,
+  "pretrained_model_loaded": false,
+  "gpu_used": false,
+  "scientific_utility_qualified": false,
+  "phases": [
+    {
+      "elapsed_seconds": 5.77499158680439e-05,
+      "phase": "source_auth_start",
+      "process_cpu_seconds": 5.4590000000000194e-05
+    },
+    {
+      "elapsed_seconds": 0.013371022883802652,
+      "phase": "source_auth_complete",
+      "process_cpu_seconds": 0.004723369999999998
+    },
+    {
+      "elapsed_seconds": 0.01617044396698475,
+      "filename": "config.json",
+      "phase": "model_hash_start",
+      "process_cpu_seconds": 0.004936557000000001
+    },
+    {
+      "elapsed_seconds": 0.02267346391454339,
+      "filename": "config.json",
+      "phase": "model_hash_complete",
+      "process_cpu_seconds": 0.005182156
+    },
+    {
+      "elapsed_seconds": 0.025434965267777443,
+      "filename": "generation_config.json",
+      "phase": "model_hash_start",
+      "process_cpu_seconds": 0.005316774000000003
+    },
+    {
+      "elapsed_seconds": 0.029195144306868315,
+      "filename": "generation_config.json",
+      "phase": "model_hash_complete",
+      "process_cpu_seconds": 0.00553029
+    },
+    {
+      "elapsed_seconds": 0.03093062713742256,
+      "filename": "merges.txt",
+      "phase": "model_hash_start",
+      "process_cpu_seconds": 0.005654928999999996
+    },
+    {
+      "elapsed_seconds": 0.036907203029841185,
+      "filename": "merges.txt",
+      "phase": "model_hash_complete",
+      "process_cpu_seconds": 0.008098674000000007
+    },
+    {
+      "elapsed_seconds": 0.03887114813551307,
+      "filename": "model.safetensors",
+      "phase": "model_hash_start",
+      "process_cpu_seconds": 0.008235742999999997
+    },
+    {
+      "elapsed_seconds": 2.584293033927679,
+      "filename": "model.safetensors",
+      "phase": "model_hash_complete",
+      "process_cpu_seconds": 0.997931245
+    },
+    {
+      "elapsed_seconds": 2.5888473792001605,
+      "filename": "tokenizer.json",
+      "phase": "model_hash_start",
+      "process_cpu_seconds": 0.998290991
+    },
+    {
+      "elapsed_seconds": 2.888918617274612,
+      "filename": "tokenizer.json",
+      "phase": "model_hash_complete",
+      "process_cpu_seconds": 1.006872697
+    },
+    {
+      "elapsed_seconds": 2.8917975393123925,
+      "filename": "tokenizer_config.json",
+      "phase": "model_hash_start",
+      "process_cpu_seconds": 1.007186773
+    },
+    {
+      "elapsed_seconds": 2.8954272870905697,
+      "filename": "tokenizer_config.json",
+      "phase": "model_hash_complete",
+      "process_cpu_seconds": 1.007417909
+    },
+    {
+      "elapsed_seconds": 2.898129838053137,
+      "filename": "vocab.json",
+      "phase": "model_hash_start",
+      "process_cpu_seconds": 1.007545808
+    },
+    {
+      "elapsed_seconds": 2.9049674603156745,
+      "filename": "vocab.json",
+      "phase": "model_hash_complete",
+      "process_cpu_seconds": 1.009602148
+    },
+    {
+      "elapsed_seconds": 3.0701529649086297,
+      "packages": {
+        "huggingface-hub": "0.36.0",
+        "jinja2": "3.1.6",
+        "numpy": "2.2.6",
+        "safetensors": "0.7.0",
+        "scipy": "1.15.3",
+        "tokenizers": "0.22.1",
+        "torch": "2.9.1",
+        "transformers": "4.57.3"
+      },
+      "phase": "runtime_metadata_complete",
+      "process_cpu_seconds": 1.019430216
+    },
+    {
+      "elapsed_seconds": 3.0751883541233838,
+      "phase": "torch_import_start",
+      "process_cpu_seconds": 1.019772724
+    },
+    {
+      "cuda_build": "12.8",
+      "elapsed_seconds": 5.757026094943285,
+      "origin": "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/torch/__init__.py",
+      "phase": "torch_import_complete",
+      "process_cpu_seconds": 2.056728811
+    },
+    {
+      "elapsed_seconds": 5.759927578270435,
+      "phase": "tokenizer_import_start",
+      "process_cpu_seconds": 2.057050819
+    },
+    {
+      "elapsed_seconds": 12.879437409341335,
+      "phase": "tokenizer_import_complete",
+      "process_cpu_seconds": 3.681507631
+    },
+    {
+      "elapsed_seconds": 13.162430866155773,
+      "phase": "tokenizer_load_complete",
+      "process_cpu_seconds": 3.9523743149999997
+    },
+    {
+      "elapsed_seconds": 13.21479267720133,
+      "fixture_sha256": "0c0d24ec20af68597aa79f439538c55a76395702246475d1b3466f496f4c1e52",
+      "phase": "fixture_complete",
+      "process_cpu_seconds": 3.9731887259999996,
+      "prompt_tokens": 289
+    },
+    {
+      "elapsed_seconds": 14.063060794956982,
+      "phase": "new_packet_tests_complete",
+      "process_cpu_seconds": 3.981764294,
+      "tests": 9
+    }
+  ]
+}
