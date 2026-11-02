@@ -3352,3 +3352,14 @@ Next work is actual full-size adapter reload, long-context memory and gradient q
 Independent saved-artifact review found zero required corrections. Final acceptance SHA256 is `90ef0d4ab4a74589735726bab5ca22bbd8ff1720c67044e1d526d9f63974a31d`. It binds the complete inventory, parent checks, original terminal and separate review.
 
 After acceptance, both controller locks were released. The final live user queue was empty. The complete43-object custody is explicitly tracked, including logs and adapter bytes. No task remains running from this attempt.
+
+
+### Full-size shared-task GPU qualification submitted once
+
+Job35208932 was submitted once at2026-11-02T23:07:20Z. Source384c2d817d68ff27e8cb3ff99d2c673749966a4c, packet6d4d2478e148d7718d1311b89230bda55e71f7a7 and freezeSHA256b17599b6ed864c603270c097d86ada40eaebc696dfd9815dac80f7769be599c9 are fixed. All26remote input pins matched. Both controller locks were held, sixteen prior journals and seven terminal job identities reconciled, the live ACE queue was empty and scratch write/read/cleanup passed. Independent source review found one discrepancy-preservation issue, fixed before freezing. Its narrow recheck and the distinct frozen-packet review found zero required corrections.
+
+This is new full-size artificial qualification, not a repeat of the prior short prompt or tinyCPU checks. It restores the accepted GPU04 adapter into the pinnedQwen0.6B, compares full/selected losses and112adapter gradients at613prompttokens, and measures threeSFT/threeDPO updates at4341/7343tokens. It freezes FlashAttention-only SDPA, BF16base/FP32adapters and no activation checkpointing. Full prompt/grammar/label-mask tokens were prepared onCPU. It saves the original preference reference separately, reloads the new artificial policy into a fresh base and generates four commands without executing them. All scientific worlds and new environment responses remainzero.
+
+RequestoneA10020GBtesting slice,4CPUthreads with at most8allocated,12GiB and15minutes onaa100/gpu-testing/accountucb736_asc1. Startup420/worker840/supervisor870seconds and owned-group/GPU cleanup remain enforced. No scientific use of testingQOS is authorized by this packet. The bounded test may fail and every failure is retained. No blind retry.
+
+Remote output `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_task_gpu_20261102_05`, exclusive local `ACE-LLM-intervention-task-gpu-20261102-05`, repository `results/ace_llm_intervention_task_runtime_20261102/gpu05`. Conservative reservations now37200/57600CPU-seconds and3600/7200GPU-seconds. Known allocation2290CPU-seconds/296GPU-slice-seconds excludes this new job. Local preparation is not fully metered. Five pure contract methods and one new discrepancy-persistence method passed, with no repeated old numerical qualification. Actual runtime, resource measurements and complete custody remain pending.
