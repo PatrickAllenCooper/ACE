@@ -192,7 +192,9 @@ def finish_failure(out, failure, process, start, cpu):
     finally:
         # This executes even when the intent receipt cannot be persisted.
         cleanup = terminate(process, min(start+865., time.monotonic()+18.)) if process is not None else None
+    gpu_cleanup = gpu_process_sample(process.pid) if process is not None else None
     result = {**failure, "cleanup": cleanup, "persistence_errors": persistence_errors,
+              "post_cleanup_gpu_sample": gpu_cleanup,
               "child_returncode": process.returncode if process else None,
               "elapsed_seconds": time.monotonic()-start, "process_cpu_seconds": time.process_time()-cpu}
     try:
@@ -226,7 +228,7 @@ def run(args):
         freeze = json.loads(freeze_path.read_bytes())
         source = freeze_path.parent
         required = {"supervise_llm_intervention_gpu.py", "qualify_llm_intervention_gpu.py",
-                    "llm_intervention_contract.py", "llm_intervention_learning.py"}
+                    "llm_intervention_contract.py", "llm_intervention_learning.py", "llm_intervention_grammar.py"}
         if set(freeze["sources"]) != required or Path(__file__).resolve() != source/"supervise_llm_intervention_gpu.py":
             raise ValueError("source membership/entrypoint mismatch")
         for name, pin in freeze["sources"].items():
@@ -279,6 +281,10 @@ def run(args):
                         raise TimeoutError("no recorded GPU-worker progress for120seconds")
                     time.sleep(2)
             returncode = process.wait()
+            save(out/"child_exit.json", {"returncode": returncode, "monotonic_seconds": time.monotonic(),
+                "child_elapsed_seconds": time.monotonic()-child_start,
+                "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "scope": "supervisor observation of process exit, includes polling interval"})
         # Include receipts written between the final live sample and exit.
         phases = read_phases(out/"worker")
         first_forward = next((p for p in phases if p.get("phase") == "first_gpu_forward_complete"), None)
@@ -291,6 +297,10 @@ def run(args):
         save(out/"process_group_cleanup.json", cleanup)
         if cleanup["errors"] or cleanup["group_still_exists"] is not False:
             raise ValueError("owned process group cleanup not confirmed")
+        gpu_cleanup = gpu_process_sample(process.pid)
+        save(out/"cleanup_gpu_process.json", gpu_cleanup)
+        if gpu_cleanup["returncode"] != 0 or gpu_cleanup["owned_rows"]:
+            raise ValueError("GPU process cleanup not independently confirmed")
         terminal_path = out/"worker"/"terminal.json"
         if returncode or not terminal_path.is_file():
             raise ValueError("worker failed or has no completion receipt")
@@ -300,12 +310,13 @@ def run(args):
                 or terminal["dpo_steps"] != 4 or terminal["scientific_responses"] != 0
                 or terminal["artificial_responses"] != 1 or terminal["cuda_step_ms_total"] <= 0
                 or terminal["peak_gpu_allocated_bytes"] <= 0 or not saw_owned_gpu
-                or first_forward is None or first_forward["elapsed_seconds"] > 420):
+                or first_forward is None or first_forward["elapsed_seconds"] > 420
+                or terminal["decoding"] != freeze["decoding"]
+                or terminal["decoding_fixture_sha256"] != freeze["prepared_decoding_sha256"]
+                or sha(out/"worker"/"decoding_fixture.json") != freeze["prepared_decoding_sha256"]
+                or terminal["pre_generation_verification_sha256"] != sha(out/"worker"/"pre_generation_verification.json")
+                or terminal["adapter_sha256"] != sha(out/"worker"/"adapter.pt")):
             raise ValueError("missing runtime/interface/utilization qualification")
-        gpu_cleanup = gpu_process_sample(process.pid)
-        save(out/"cleanup_gpu_process.json", gpu_cleanup)
-        if gpu_cleanup["returncode"] != 0 or gpu_cleanup["owned_rows"]:
-            raise ValueError("GPU process cleanup not independently confirmed")
         if time.monotonic() > start+870.:
             raise TimeoutError("whole-supervisor envelope exceeded")
         save(out/"supervisor.json", {"status": "complete", "job_id": job_id,

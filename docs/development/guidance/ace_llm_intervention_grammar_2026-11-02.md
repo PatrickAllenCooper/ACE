@@ -35,3 +35,15 @@ The next worker also needs more precise timing. The failed run spent about163sec
 The old worker reached generation after its frozen-base, reference and adapter-update checks, but their final values were not persisted. The next worker must record those results before generation. Cleanup established process-group disappearance with no recorded errors. It did not include an independent post-exit NVIDIA sample, so GPU-process clearance was not directly observed by that telemetry.
 
 No new scientific worlds, training preferences, private scores or utility conclusions arise from this change. The research agenda still requires a strong numerical acquisition control, a learned numerical policy with matched supervision, independent development and confirmation, and a useful experimentalist task.
+
+## Prospective v2 integration
+
+The working implementation now connects the finite grammar to the Transformers prefix callback for a single unpadded prompt. It requires a separately pinned CPU decoding fixture and a generation cap sufficient for every menu command. A new source schema binds the grammar module explicitly. The unconstrained GPU03 packet remains unchanged.
+
+The revised worker records individual Torch, Transformers and AutoModel imports, CUDA initialization, CPU model loading, GPU transfer and adapter installation. It samples its own Python stack every60seconds for diagnosis without treating those samples as acceptance. It records pre-generation checks and an adapter checkpoint, then the generated token sequence. A function-exit event and supervisor process-exit observation help distinguish execution from interpreter teardown. Failure cleanup now retains the final NVIDIA query or its uncertainty.
+
+Five new local integration methods passed using the existing local framework and character tokens. One affected freeze-schema method also passed. These do not qualify CURC's tokenizer or framework version. Preparation01 records0.690354childCPU seconds for the new methods and0.051594seconds for the affected method. Peak child RSS239845376bytes is the cumulative high-water mark across that preparation. Other development overhead remains unmetered.
+
+The next CPU-only command imports the actual target model class without instantiating it, authenticates the cached model and source bytes, reconstructs the previously accepted artificial prompt, and checks the actual tokenizer and Transformers mask at every distinct legal-command prefix. It preserves allowed-token logits and excludes all other tokens. No training, CUDA query, pretrained model loading or environment response is planned in this CPU stage.
+
+Proposed request: oneCPU,4GiB,tenminutes on acpu/cpu-normal underucb736_asc1, noGPU andno-requeue. The two prior CPU stages allocated twoCPU threads, so reserve1200CPU-seconds conservatively if submitted. This would make21600/57600reservedCPU-seconds while leaving1800/7200GPU-seconds unchanged. It is not an allocation until a separately reviewed frozen packet is submitted once. The restored transport worked on the new check. Shared controller ownership and submission journals must be reconciled again before launch.

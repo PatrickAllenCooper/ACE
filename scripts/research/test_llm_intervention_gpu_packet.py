@@ -50,7 +50,7 @@ class PacketTests(unittest.TestCase):
                 authenticate_allocation(raw, "123", RESOURCES)
 
     def test_fixed_worker_design_and_inventory(self):
-        freeze = {"schema": "ace-llm-gpu-smoke-v1", "sources": {n: "a"*64 for n in SOURCES},
+        freeze = {"schema": "ace-llm-gpu-smoke-v2", "decoding": "finite-public-menu-v1", "sources": {n: "a"*64 for n in SOURCES},
                   "model_files": {n: "b"*64 for n in MODELS}, "runtime": {n: "x" for n in PACKAGES},
                   "training": {"seed": 107, "rank": 8, "alpha": 16., "sft_steps": 8,
                     "dpo_steps": 4, "learning_rate": .0005, "beta": .1, "max_tokens": 512, "max_new_tokens": 32},

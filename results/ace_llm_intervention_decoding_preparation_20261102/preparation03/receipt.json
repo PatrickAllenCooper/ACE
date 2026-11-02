@@ -1,0 +1,19 @@
+{
+  "scope": "new actual Qwen3 implementation import on existing local environment, no instances/target qualification",
+  "command": [
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ace-foundation-synthesis-env-20261009/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import json,sys,torch,transformers; from transformers.models.qwen3.modeling_qwen3 import Qwen3ForCausalLM; print(json.dumps({\"class\":Qwen3ForCausalLM.__name__,\"origin\":sys.modules[Qwen3ForCausalLM.__module__].__file__,\"transformers\":transformers.__version__,\"torch\":torch.__version__,\"cuda_initialized\":torch.cuda.is_initialized(),\"model_instances\":0}))"
+  ],
+  "sources": {
+    "prepare_llm_intervention_decoding_cpu.py": "0bcdca5d39d3ca8641be3c92f18612dd705f06e4eef5df9da904f513248d4eca",
+    "qualify_llm_intervention_gpu.py": "f39947ec7915686003cfe8ea8699418451cc960f4edda98aa3dbb579d46178c0"
+  },
+  "returncode": 0,
+  "child_cpu_seconds": 2.172469,
+  "elapsed_seconds": 3.797070458,
+  "peak_child_rss_bytes": 422739968,
+  "target_CPU_GPU_qualified": false
+}
