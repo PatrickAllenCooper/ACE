@@ -8,7 +8,7 @@ from llm_intervention_action_scoring import action_positions, supervised_loss_se
 from llm_intervention_learning import supervised_loss
 
 
-def capture_backward(model, batch, *, selected):
+def capture_backward(model, batch, *, selected, loss_function=None):
     if type(selected) is not bool or not isinstance(getattr(model, "lm_head", None), torch.nn.Module):
         raise ValueError("explicit path and output projection required")
     positions, _, _ = action_positions(batch)
@@ -31,7 +31,8 @@ def capture_backward(model, batch, *, selected):
     model.zero_grad(set_to_none=True)
     handles.append(model.lm_head.register_forward_pre_hook(before_projection))
     try:
-        loss = (supervised_loss_selected if selected else supervised_loss)(model, batch)
+        loss = ((supervised_loss_selected if selected else supervised_loss)(model, batch)
+                if loss_function is None else loss_function(model, batch, selected))
         if not torch.isfinite(loss):
             raise ValueError("nonfinite loss")
         loss.backward()
