@@ -1,0 +1,30 @@
+{
+  "allow_tf32": false,
+  "cublas_workspace_config": ":4096:8",
+  "float32_matmul": "highest",
+  "recipe": {
+    "activation_checkpointing": false,
+    "adapter_dtype": "float32",
+    "alpha": 16.0,
+    "attention": "sdpa",
+    "base_dtype": "bfloat16",
+    "beta": 0.1,
+    "dpo_steps": 3,
+    "float32_matmul": "highest",
+    "gradient_atol": 0.0001,
+    "gradient_rtol": 0.01,
+    "learning_rate": 0.0001,
+    "loss_atol": 0.0001,
+    "loss_rtol": 1e-05,
+    "max_new_tokens": 32,
+    "max_tokens": 8192,
+    "output_projection": "fixed_row_fp32_action_reduction_v1",
+    "rank": 8,
+    "sdpa_backend": "flash_attention_only",
+    "seed": 109,
+    "sft_steps": 3,
+    "strict_determinism": true
+  },
+  "strict": true,
+  "warn_only": false
+}
