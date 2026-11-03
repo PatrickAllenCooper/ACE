@@ -1,0 +1,196 @@
+{
+  "accounting_policy_proposal": "For future admission within unchanged16CPU/2GPU-hour envelope use completed actual allocations + outstanding maximum reservations + preparation allowance. Preserve historical submitted-cap sum separately. Include failed attempts. No new run authorized by this receipt.",
+  "active_ace_jobs": [],
+  "actual_allocation_plus_preparation_allowance_cpu_seconds": 7234,
+  "admission_policy": "Within unchanged57600CPU/7200GPU ceilings, closed actual allocations + ALL outstanding maximum reservations including candidate + cumulative CPU preparation allowance. Outstanding includes pending/running/ambiguous/unreconciled attempts. Refresh all related journals/accounting/queue under both controller locks before each admission. Increase prep allowance if evidence requires. Historical ledger unchanged, no new campaign or allocation authorized.",
+  "cycle_cpu_ceiling_seconds": 57600,
+  "cycle_gpu_ceiling_seconds": 7200,
+  "historical_conservative_reservation_ledger_cpu_seconds": 54000,
+  "historical_conservative_reservation_ledger_gpu_seconds": 5700,
+  "historical_ledger_scope": {
+    "all_failed_allocations_retained": true,
+    "allocated_jobs_maximum_cpu_reservations": 50400,
+    "definitive_rejected_attempt_reservation_released_cpu_seconds": 7200,
+    "definitive_rejected_attempt_reservation_released_gpu_seconds": 900,
+    "included_cumulative_local_preparation_allowance_cpu_seconds": 3600,
+    "rejected_reservation_included_in_54000_5700": false
+  },
+  "known_allocated_cpu_seconds": 3634,
+  "known_allocated_gpu_slice_seconds": 632,
+  "local_preparation_allowance_cpu_seconds": 3600,
+  "predecessor_proposed_receipt_sha256": "3a8328599dbc07439cebf80e073feefb14d29e2690192b2b115d596eaaa6f1f1",
+  "prior_journal_receipt_sha256": "03e82968e73f91d83417bc2fb762594d40e5346de06ca1cf1d66324a8c9ef7b0",
+  "prior_receipts": 12,
+  "rejected_receipts": [
+    {
+      "input_manifest": {
+        "files": {
+          "allocation_delta_receipt.json": "82848706488087da2ae6523c81ada96a4c34ca4011fa6446801ae6e9f4b62dcb",
+          "cpu_acceptance.json": "e679f8ce2baa83bd716dae73c2cd3693c9cf4a9602c475ec441fbaa65d849b63",
+          "cpu_terminal.json": "06d4c4096137a8111d81af61db411aaf8397fe23f516a0a7c1801ca9fdfba127",
+          "fixture.json": "0c0d24ec20af68597aa79f439538c55a76395702246475d1b3466f496f4c1e52",
+          "freeze.json": "717f77e9f663f356e68de6de36fd873380889a8398d4107912fd6c87f602e0d4",
+          "gpu01.sbatch": "d7e00b5fa054ed55d0e4d43afad3b1399534df014f90ce14333c00337fa3e6a7",
+          "llm_intervention_contract.py": "ad89a8b72c8251c5a658bf45c27874353b161df5863b61929af40f5077254636",
+          "llm_intervention_learning.py": "065f9f68c55518190a82c6a69dc7be45a83e4ab03664e6f5df078ce6112f7aca",
+          "qualify_llm_intervention_gpu.py": "2f0dceb9b12cfdc82548a6cbd523c3034b69b3d07ea1b53acbea51029206d3e9",
+          "source-pins.sha256": "bbd35ec012471bd033fe89772859074a6cff7a5358d5b91442e83ae9205c721c",
+          "supervise_llm_intervention_gpu.py": "5ac036598af3d31e76357a238f449ecee589edfa93cc2d3eec57cca42d2bb332"
+        },
+        "freeze_sha256": "717f77e9f663f356e68de6de36fd873380889a8398d4107912fd6c87f602e0d4",
+        "remote_root": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_01"
+      },
+      "intent": {
+        "attempt_gpu_reservation_seconds": 900,
+        "authenticated_inputs": 11,
+        "blind_retry_forbidden": true,
+        "conservative_attempt_cpu_reservation_seconds": 7200,
+        "cpu_qualification": "35202401 complete and accepted, full43object custody",
+        "created_utc": "2026-11-02T20:54:01.505558+00:00",
+        "df": "Filesystem                                        Size  Used Avail Use% Mounted on\nc3nsd1.rc.int.colorado.edu:/gpfs/alpine1/scratch  2.8P  2.2P  640T  78% /scratch/alpine\n",
+        "freeze_sha256": "717f77e9f663f356e68de6de36fd873380889a8398d4107912fd6c87f602e0d4",
+        "matching_sacct": "",
+        "packet_commit": "254dc7fdf043fc1f0699ef06e3d68f415201d744",
+        "remote_root": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_gpu_20261102_01",
+        "remote_utc": "2026-11-02T20:54:04.340083+00:00",
+        "resources": {
+          "account": "ucb736_asc1",
+          "gpu_type": "a100_3g.20gb",
+          "gpus": 1,
+          "max_allocated_cpus": 8,
+          "memory_mib": 12288,
+          "partition": "aa100",
+          "qos": "gpu-normal",
+          "requested_cpus": 4,
+          "wall_seconds": 900
+        },
+        "review": "independent actual GPU packet review zero required issues",
+        "root_uid": 348288,
+        "squeue": "",
+        "total_cycle_cpu_reservation_seconds": 13200,
+        "total_cycle_gpu_reservation_seconds": 900,
+        "write_read_cleanup": true
+      },
+      "job_id": null,
+      "returncode": 1,
+      "stderr": "sbatch: error: Error 7: An invalid GRES type was specified for the selected partition aa100 and QoS gpu-normal.\nsbatch: error: Valid GRES types for this partition and QoS selection are: a100-40gb or a100_80gb\nsbatch: error:  \nsbatch: error: For more information on this error, please see https://curc.readthedocs.io/en/latest/running-jobs/error-status-codes.html#alpine-job-submission-error-codes.\nsbatch: error:  \nsbatch: error: Batch job submission failed: Unspecified error\n",
+      "stdout": "",
+      "utc": "2026-11-02T20:54:04.352287+00:00"
+    }
+  ],
+  "remaining_after_allocated_gpu_slice_seconds": 6568,
+  "remaining_after_allocation_and_preparation_cpu_seconds": 50366,
+  "rows": [
+    {
+      "allocated_cpu_seconds": 570,
+      "allocated_cpus": 2,
+      "allocated_gpu_slice_seconds": 0,
+      "elapsed_seconds": 285,
+      "exit_code": "0:0",
+      "job_id": "35200690",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpu_seconds": 40,
+      "allocated_cpus": 2,
+      "allocated_gpu_slice_seconds": 0,
+      "elapsed_seconds": 20,
+      "exit_code": "0:0",
+      "job_id": "35202401",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpu_seconds": 32,
+      "allocated_cpus": 4,
+      "allocated_gpu_slice_seconds": 8,
+      "elapsed_seconds": 8,
+      "exit_code": "1:0",
+      "job_id": "35202931",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpu_seconds": 1008,
+      "allocated_cpus": 4,
+      "allocated_gpu_slice_seconds": 252,
+      "elapsed_seconds": 252,
+      "exit_code": "1:0",
+      "job_id": "35203022",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpu_seconds": 170,
+      "allocated_cpus": 2,
+      "allocated_gpu_slice_seconds": 0,
+      "elapsed_seconds": 85,
+      "exit_code": "0:0",
+      "job_id": "35204167",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpu_seconds": 144,
+      "allocated_cpus": 4,
+      "allocated_gpu_slice_seconds": 36,
+      "elapsed_seconds": 36,
+      "exit_code": "0:0",
+      "job_id": "35204547",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpu_seconds": 326,
+      "allocated_cpus": 2,
+      "allocated_gpu_slice_seconds": 0,
+      "elapsed_seconds": 163,
+      "exit_code": "0:0",
+      "job_id": "35207064",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpu_seconds": 192,
+      "allocated_cpus": 4,
+      "allocated_gpu_slice_seconds": 48,
+      "elapsed_seconds": 48,
+      "exit_code": "1:0",
+      "job_id": "35208932",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpu_seconds": 260,
+      "allocated_cpus": 4,
+      "allocated_gpu_slice_seconds": 65,
+      "elapsed_seconds": 65,
+      "exit_code": "0:0",
+      "job_id": "35209536",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpu_seconds": 148,
+      "allocated_cpus": 4,
+      "allocated_gpu_slice_seconds": 37,
+      "elapsed_seconds": 37,
+      "exit_code": "1:0",
+      "job_id": "35209701",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpu_seconds": 240,
+      "allocated_cpus": 4,
+      "allocated_gpu_slice_seconds": 60,
+      "elapsed_seconds": 60,
+      "exit_code": "1:0",
+      "job_id": "35209904",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpu_seconds": 504,
+      "allocated_cpus": 4,
+      "allocated_gpu_slice_seconds": 126,
+      "elapsed_seconds": 126,
+      "exit_code": "0:0",
+      "job_id": "35210147",
+      "state": "COMPLETED"
+    }
+  ],
+  "status": "closed_attempt_reconciliation_label_corrected_pending_delta_review",
+  "terminal_jobs": 12,
+  "whole_sprint_process_cpu_known": false
+}
