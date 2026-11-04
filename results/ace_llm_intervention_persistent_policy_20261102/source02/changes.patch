@@ -1,0 +1,271 @@
+--- source01/llm_intervention_persistent_policy.py
++++ source02/llm_intervention_persistent_policy.py
+@@ -153,10 +153,11 @@
+               "envelope_sha256": request["envelope_sha256"], "completion": completion})
+ 
+ 
+-def cleanup_process_group(process, seconds, *, graceful=False):
++def cleanup_process_group(process, seconds, *, graceful=False, service_io=None):
+     """Bounded cleanup of this Popen session only; always return evidence."""
+     result = {"pgid": process.pid, "term_sent": False, "kill_sent": False, "errors": []}
+     end = time.monotonic()+seconds
++    io_failed = False
+     def alive():
+         process.poll()
+         try:
+@@ -167,14 +168,26 @@
+         except OSError as exc:
+             result["errors"].append(type(exc).__name__+": "+str(exc))
+             return True
++    def wait_until(until):
++        nonlocal io_failed
++        while time.monotonic() < until and alive():
++            if service_io is not None and not io_failed:
++                try:
++                    service_io(min(.01, max(0., until-time.monotonic())))
++                except BaseException as exc:
++                    result["errors"].append("pipe service: "+type(exc).__name__+": "+str(exc))
++                    io_failed = True
++                    return  # Escalate immediately after a protocol/bounds error.
++            else:
++                time.sleep(.01)
+     try:
+         if process.stdin and not process.stdin.closed:
+             try: process.stdin.close()
+             except OSError as exc: result["errors"].append("stdin close: "+str(exc))
+         if graceful:
+-            until = min(end, time.monotonic()+min(.2, seconds/4))
+-            while time.monotonic() < until and alive():
+-                time.sleep(.01)
++            # Drain while granting half the same total budget for clean exit;
++            # reserve the rest for TERM/KILL and owned-group confirmation.
++            wait_until(min(end, time.monotonic()+seconds/2))
+         for sig, key, fraction in ((signal.SIGTERM, "term_sent", .5), (signal.SIGKILL, "kill_sent", 1.)):
+             if not alive():
+                 break
+@@ -186,8 +199,7 @@
+             except OSError as exc:
+                 result["errors"].append(type(exc).__name__+": "+str(exc))
+             until = min(end, time.monotonic()+max(0., end-time.monotonic())*fraction)
+-            while time.monotonic() < until and alive():
+-                time.sleep(.01)
++            wait_until(until)
+         result["group_still_exists"] = alive()
+     except BaseException as exc:
+         result["errors"].append(type(exc).__name__+": "+str(exc))
+@@ -201,7 +213,9 @@
+     """One owned worker; call(envelope, request_id) returns exact completion.
+ 
+     choose(state, directory, decision_index) adapts the existing ProcessPolicy
+-    interface when task=PredictionTask is supplied. Transport evidence lives in
++    interface when task=PredictionTask is supplied. It allocates session IDs
++    independently of episode indices; bind_task() changes tasks without reload.
++    Episode/index mappings remain client-side evidence. Transport evidence lives in
+     this client's exclusive output directory. Calls are sequential, not thread
+     safe. Use a context manager or close(); any failure permanently closes the
+     session. Inherited filesystem/environment access is not an OS sandbox.
+@@ -224,6 +238,7 @@
+         self.input_limit, self.output_limit, self.completion_limit = max_input_bytes, max_output_bytes, max_completion_bytes
+         self.stderr_limit, self.max_requests, self.cleanup_seconds = max_stderr_bytes, max_requests, cleanup_seconds
+         self.previous, self.count, self.closed, self.failed = -1, 0, False, False
++        self._binding_count, self._task_binding = 0, None
+         self.process, self.selector = None, None
+         self.raw_files, self.bytes = {}, {"stdout": 0, "stderr": 0}
+         self.stage, self.discarded_bytes = "launch", 0
+@@ -329,6 +344,26 @@
+             if not data: return
+             self._capture("stderr", data)
+ 
++    def _service_close_io(self, timeout):
++        """One bounded read per ready pipe; never wait on one pipe alone."""
++        try:
++            for key, _ in self.selector.select(timeout):
++                if key.data not in ("stdout", "stderr"):
++                    continue
++                try:
++                    data = os.read(key.fd, 65536 if key.data == "stderr" else min(4096, self.output_limit+1))
++                except BlockingIOError:
++                    continue
++                if not data:
++                    self.selector.unregister(key.fileobj)
++                    continue
++                self._capture(key.data, data)
++                if key.data == "stdout":
++                    raise ValueError("unsolicited worker output during close")
++        except BaseException as exc:
++            self._close_io_error = exc
++            raise
++
+     def _release(self):
+         if self.selector: self.selector.close()
+         if self.process:
+@@ -392,14 +427,48 @@
+             self._fail(exc)
+             raise
+ 
++    def bind_task(self, task):
++        """Rebind subsequent choose calls between episodes, without worker reload.
++
++        Full graph-dependent task validation still occurs against each public
++        state in call(). No binding metadata or episode path is sent to the worker.
++        """
++        if self.closed:
++            raise RuntimeError("policy session is closed; no retry or restart")
++        try:
++            self.stage = "task_binding"
++            if not isinstance(task, PredictionTask):
++                raise ValueError("task binding requires PredictionTask")
++            payload = task.payload()
++            index = self._binding_count
++            _save(self.output/f"task-binding-{index:04d}.json", {
++                "binding_index": index, "task": payload, "task_sha256": digest(payload),
++                "previous_task_sha256": digest(self.task.payload()) if self.task is not None else None,
++                "last_completed_session_request_id": self.previous, "worker_pid": self.process.pid,
++                "model_reloaded": False})
++            self.task, self._task_binding, self._binding_count = task, index, index+1
++            return self
++        except BaseException as exc:
++            self._fail(exc)
++            raise
++
+     def choose(self, public_state, directory, decision_index):
+-        if self.task is None:
+-            exc = ValueError("choose requires a bound PredictionTask; use call for a public envelope")
+-            if not self.closed: self._fail(exc)
+-            raise exc
+-        try:
++        if self.closed:
++            raise RuntimeError("policy session is closed; no retry or restart")
++        try:
++            self.stage = "episode_binding"
++            if self.task is None:
++                raise ValueError("choose requires a bound PredictionTask; use call for a public envelope")
++            if type(decision_index) is not int or not 0 <= decision_index < 2**63:
++                raise ValueError("episode decision index must be a nonnegative integer")
++            session_id = self.previous+1
+             envelope = {"version": TASK_VERSION, "state": public_state, "task": self.task.payload()}
+-            return self.call(envelope, decision_index)
++            _save(self.output/f"request-{self.count:04d}.episode.json", {
++                "episode_directory": str(Path(directory).resolve()), "decision_index": decision_index,
++                "session_request_id": session_id, "task_sha256": digest(envelope["task"]),
++                "task_binding_index": self._task_binding, "identity_sha256": self.identity_pin,
++                "status": "planned_before_transmission", "scope": "client_only_episode_to_session_mapping"})
++            return self.call(envelope, session_id)
+         except BaseException as exc:
+             if not self.closed: self._fail(exc)
+             raise
+@@ -409,8 +478,12 @@
+             return
+         self.stage = "close"
+         try:
+-            cleanup = cleanup_process_group(self.process, self.cleanup_seconds, graceful=True)
++            self._close_io_error = None
++            cleanup = cleanup_process_group(self.process, self.cleanup_seconds, graceful=True,
++                                            service_io=self._service_close_io)
+             _save(self.output/"close-cleanup.json", cleanup)
++            if self._close_io_error is not None:
++                raise self._close_io_error
+             self._drain_stderr()
+             if cleanup["errors"] or cleanup["group_still_exists"] is not False or cleanup["leader_returncode"] != 0:
+                 raise RuntimeError("clean worker exit and owned process-group cleanup not confirmed")
+--- source01/test_llm_intervention_persistent_policy.py
++++ source02/test_llm_intervention_persistent_policy.py
+@@ -61,6 +61,13 @@
+         sys.stdout.buffer.flush()
+     emit({"type": "ready", "version": VERSION, "identity": IDENTITY, "identity_sha256": digest(IDENTITY)})
+     raw = sys.stdin.buffer.readline(1024*1024)
++    if mode in ("shutdown-stderr", "shutdown-mixed"):
++        sys.stderr.buffer.write(b"d"*(512*1024))
++        sys.stderr.buffer.flush()
++        if mode == "shutdown-mixed":
++            emit({"type": "unsolicited_after_shutdown_diagnostics"})
++            time.sleep(10)
++        return
+     if mode == "bad-close":
+         emit({"type": "unsolicited_after_eof"})
+         return
+@@ -238,6 +245,84 @@
+         self.assertEqual([p.name for p in path.iterdir()], ["sentinel"])
+         self.assertEqual((path/"sentinel").read_bytes(), b"preserve")
+ 
++    def test_review02_shutdown_drains_pipe_filling_stderr_before_clean_exit(self):
++        policy = self.client("review02-shutdown", "shutdown-stderr", max_stderr_bytes=1024*1024,
++                             cleanup_seconds=2.)
++        policy.close()
++        path = self.root/"review02-shutdown"
++        self.assertEqual((path/"stderr.bin").read_bytes(), b"d"*(512*1024))
++        closed = json.loads((path/"closed.json").read_text())
++        self.assertEqual(closed["cleanup"]["leader_returncode"], 0)
++        self.assertFalse(closed["cleanup"]["term_sent"])
++        self.assertFalse(closed["cleanup"]["kill_sent"])
++        self.assertFalse(closed["cleanup"]["group_still_exists"])
++        self.assertEqual(closed["captured_bytes"]["stderr"], 512*1024)
++
++    def test_review02_shutdown_detects_stdout_while_draining_stderr(self):
++        policy = self.client("review02-mixed", "shutdown-mixed", max_stderr_bytes=1024*1024,
++                             cleanup_seconds=2.)
++        with self.assertRaisesRegex(ValueError, "unsolicited"):
++            policy.close()
++        self.failure("review02-mixed")
++        path = self.root/"review02-mixed"
++        self.assertEqual((path/"stderr.bin").read_bytes(), b"d"*(512*1024))
++        self.assertIn(b"unsolicited_after_shutdown_diagnostics", (path/"stdout.bin").read_bytes())
++        cleanup = json.loads((path/"close-cleanup.json").read_text())
++        self.assertTrue(any("pipe service" in error for error in cleanup["errors"]))
++        self.assertFalse(cleanup["group_still_exists"])
++
++    def test_review02_shutdown_stderr_limit_still_rejects_and_cleans_up(self):
++        policy = self.client("review02-limit", "shutdown-stderr", max_stderr_bytes=65536,
++                             cleanup_seconds=2.)
++        with self.assertRaisesRegex(ValueError, "stderr cumulative"):
++            policy.close()
++        failure = self.failure("review02-limit")
++        self.assertEqual((self.root/"review02-limit/stderr.bin").stat().st_size, 65536)
++        self.assertGreater(failure["discarded_observed_bytes"], 0)
++
++    def test_review02_choose_session_ids_rebinding_and_episode_mapping(self):
++        other_task = PredictionTask("Y", (MENU[1],), (1.,), 2., .08)
++        with self.client("review02-episodes", task=TASK) as policy:
++            pid = policy.process.pid
++            self.assertEqual(policy.call(envelope(), 40), ' {"action_id": "a0"} ')
++            self.assertEqual(policy.choose(envelope()["state"], self.root/"episode-A", 0), ' {"action_id": "a0"} ')
++            self.assertIs(policy.bind_task(other_task), policy)
++            self.assertEqual(policy.choose(envelope("second")["state"], self.root/"episode-B", 0), ' {"action_id": "a1"} ')
++            self.assertEqual(policy.choose(envelope()["state"], self.root/"episode-B", 1), ' {"action_id": "a0"} ')
++            self.assertEqual(policy.process.pid, pid)
++        path = self.root/"review02-episodes"
++        for index, session_id in enumerate((40, 41, 42, 43)):
++            request = json.loads((path/f"request-{index:04d}.input.json").read_text())
++            response = json.loads((path/f"request-{index:04d}.observed-response.json").read_text())
++            self.assertEqual(request["request_id"], session_id)
++            self.assertEqual(response["request_id"], session_id)
++            self.assertNotIn("episode_directory", request)
++            self.assertNotIn("decision_index", request)
++            self.assertEqual(request["envelope"]["task"], (TASK if index < 2 else other_task).payload())
++        for index, episode, local_id in ((1, "episode-A", 0), (2, "episode-B", 0), (3, "episode-B", 1)):
++            mapping = json.loads((path/f"request-{index:04d}.episode.json").read_text())
++            self.assertEqual(mapping["session_request_id"], 40+index)
++            self.assertEqual(mapping["decision_index"], local_id)
++            self.assertEqual(mapping["episode_directory"], str((self.root/episode).resolve()))
++            self.assertEqual(mapping["task_sha256"], digest((TASK if index == 1 else other_task).payload()))
++        binding = json.loads((path/"task-binding-0000.json").read_text())
++        self.assertEqual(binding["worker_pid"], pid)
++        self.assertEqual(binding["last_completed_session_request_id"], 41)
++        self.assertEqual(binding["task_sha256"], digest(other_task.payload()))
++        self.assertFalse(binding["model_reloaded"])
++        self.assertEqual((path/"stderr.bin").read_text().count("ARTIFICIAL_INIT"), 1)
++        self.assertEqual(json.loads((path/"closed.json").read_text())["completed_requests"], 4)
++
++    def test_review02_episode_mapping_survives_rejected_response(self):
++        policy = self.client("review02-mapping-failed", "mismatch", task=TASK)
++        with self.assertRaisesRegex(ValueError, "identity mismatch"):
++            policy.choose(envelope()["state"], self.root/"failed-episode", 0)
++        self.failure("review02-mapping-failed")
++        mapping = json.loads((self.root/"review02-mapping-failed/request-0000.episode.json").read_text())
++        self.assertEqual(mapping["session_request_id"], 0)
++        self.assertEqual(mapping["decision_index"], 0)
++        self.assertEqual(mapping["episode_directory"], str((self.root/"failed-episode").resolve()))
++
+ 
+ class _Tee:
+     def __init__(self, *streams): self.streams = streams

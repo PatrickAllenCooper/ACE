@@ -1,0 +1,14 @@
+ARTIFICIAL_INIT
+ARTIFICIAL_DECISION
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/scripts/research/test_llm_intervention_persistent_policy.py", line 252, in <module>
+    worker(sys.argv[2])
+  File "/Users/pat/code/ACE/scripts/research/test_llm_intervention_persistent_policy.py", line 54, in worker
+    serve_policy(initialize, identity=identity)
+  File "/Users/pat/code/ACE/scripts/research/llm_intervention_persistent_policy.py", line 151, in serve_policy
+    completion = _completion(completion, state, menu, max_completion_bytes)
+  File "/Users/pat/code/ACE/scripts/research/llm_intervention_persistent_policy.py", line 86, in _completion
+    decision = parse_completion(value, menu)
+  File "/Users/pat/code/ACE/scripts/research/llm_intervention_contract.py", line 142, in parse_completion
+    raise ValueError("completion is outside the legal action grammar")
+ValueError: completion is outside the legal action grammar
