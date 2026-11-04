@@ -1,0 +1,1853 @@
+{
+  "status": "reviewed_artificial_integration_driver",
+  "required_findings_remaining": 0,
+  "initial_required_findings": 3,
+  "source_sha256": "fb3e95013cb46cd53f3b44ee72a141d75616c39b762b8e62ea90d89f3a9de717",
+  "test_source_sha256": "7c57063e99f4904dfb63083e9b5cc9b1e2aedc2e642a2efb9e534261ee8408e4",
+  "review_sha256": "5fdf24c69f38db5319b70730cf12fe6c654ad24fece22a416ddf67595972d611",
+  "new_methods_passed_once": 7,
+  "source_and_fixture_files": {
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_complete_arithmetic_fixture/complete/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "16b35c04d0cb63e1e05a3786e6133852649a9fa52b43f4d8d2eff9683e88bf6d"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0001.observed-response.json.original": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/0/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "aa2911fcbe2e4b0313fd7b2085216983249e7094c7d510f2215fa661083630a9"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/authenticated.json.original": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/1/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "dfd18270aea9f4dc9e57161beadb8cb7dd486f97031313d43e3a08653bd43113"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/generation-0002.json.original": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/2/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/generation-0001.json": {
+      "bytes": 383,
+      "sha256": "520e9fb9cb05a1d774020b6ee88868db42c159f214d5f15b57569b9cb7121530"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/generation-0001.json.original": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/3/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "293e7a852e009d6edc011b4e0100bc527303eda7ce81bc6b90590da6ad2b88f4"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/generation-0001.json.original": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/4/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0002.json": {
+      "bytes": 159,
+      "sha256": "cf6026e22f03dc8c65d573d7d4928821e20db996481bccec3da959a9cc3dd6f0"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0002.json.original": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_corrupt_identity_command_tokens_and_progress_rejected/5/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/generation-0004.json": {
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_generation/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/phase-003.json": {
+      "bytes": 23,
+      "sha256": "ee4dd53d83fdfab0c98feb4305ca425ba49fe73190c1508f330edd3b05f94802"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/extra_load/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/failure.json": {
+      "bytes": 18,
+      "sha256": "2c3fa007e925205c6a4e28efc51ef48d9ae629217021dd1def01fa82eeaa3a7f"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/failure/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/raw-generation-0002.bin": {
+      "bytes": 7,
+      "sha256": "d67e2e944994496c8d8ec76eed0cf9f09679448d584b532bebf941852a37f5ed"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_extra_load_generation_failure_and_raw_corruption_rejected/raw_corruption/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "d015f1c3d3f08f8c613b008124051513e1b41e493a486b179b6a4086d1dce3b6"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/0/worker/terminal.json.original": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/closed.json": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "24307af8bd6e16c327968d617fd900622ac00e6ca0263827e5a66cd23731ce9d"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/1/worker/terminal.json.original": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/closed.json": {
+      "bytes": 188,
+      "sha256": "4952738c61814d5029b9a103fe6f465eefd739b03db0060b341cb721833528a1"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/closed.json.original": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/2/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/closed.json": {
+      "bytes": 188,
+      "sha256": "b105b19da5910de49f42a0a278990fb0cbb713e42c9b2e858c8985f0c0ad34ce"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/closed.json.original": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/3/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/closed.json": {
+      "bytes": 189,
+      "sha256": "9d78e910537db0e8d5952ae9c4f9b84e1415161a8f47b06eac04ef2dc0157366"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/closed.json.original": {
+      "bytes": 189,
+      "sha256": "1b21f6e592023da0ecc682cfa0a833a3492e8b83d1f49526c9a97e3c3fb14a3f"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/ready.json": {
+      "bytes": 88,
+      "sha256": "0406b45ca5dc437d3d6838b0f4e9481779fcf8270aad47b977a17e208d959715"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/request-0000.accepted.json": {
+      "bytes": 147,
+      "sha256": "32a37187c37b8b1d2076cf1fce57e78e17bacbe1971841039a70b706d6088952"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/request-0000.observed-response.json": {
+      "bytes": 256,
+      "sha256": "ff81f08e9b918a8a80d283e86dcf04949ed2db72ccc84f765a1628ae6f4944fa"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/request-0001.accepted.json": {
+      "bytes": 147,
+      "sha256": "dc7fd646167cd2cef04afb4954906d9bcd0674c4e9640ae0d5e6f740dd23ce36"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/request-0001.observed-response.json": {
+      "bytes": 256,
+      "sha256": "cf52952e5c1975372322929a2e5945d3d534e11e40974b8e0c88e269778be8b2"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/request-0002.accepted.json": {
+      "bytes": 147,
+      "sha256": "25561ede130fd2bf93490e155593f76ebef1122fc4b2147b18fae0b6d37eb4b1"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/request-0002.observed-response.json": {
+      "bytes": 256,
+      "sha256": "0f5f63b98e1600bd988670ce12bfa55b0c7beaa9c1b0480e0ea586038f59b408"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/request-0003.accepted.json": {
+      "bytes": 147,
+      "sha256": "b75de3a50deffbe6a02ada5c9b661e9385864bbf9971b2c34c63bca6cce95df3"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/client/request-0003.observed-response.json": {
+      "bytes": 256,
+      "sha256": "023a2270dac41cbe333c77ac8cdfcf73ed7eaadbe2955ee76dcd3a5dafefe507"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/authenticated.json": {
+      "bytes": 130,
+      "sha256": "a2a7db75ccece854ab2a84b3b75c88214d1af167c9d5deb9d103bdfc5d945c84"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/generation-0000.json": {
+      "bytes": 391,
+      "sha256": "7731df4acc515b10b4b121f1993eec91ed23a22dcf5723868b779e64a5443619"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/generation-0001.json": {
+      "bytes": 391,
+      "sha256": "5e21049f5985005d18497d597644179e2051e118f3abf3db8161aba56a0f2895"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/generation-0002.json": {
+      "bytes": 391,
+      "sha256": "7e004f4058e859613cab4fe58b18948c0e2fcc3104f7bfa0fed791db650b1210"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/generation-0003.json": {
+      "bytes": 391,
+      "sha256": "e071fb85e0dd9b3c6e519bb92b53d71630273dc759544214ceba9c19ae15a0c0"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/phase-000.json": {
+      "bytes": 34,
+      "sha256": "a7b795c3e2591d1fd0a36ec7a6ad9e52d10a5ef19c8fbf681cd456f68d85df3d"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/phase-001.json": {
+      "bytes": 37,
+      "sha256": "39e74c48ea3aa9aeafc936db6e43af045b90c0c1856d6849f9c6bb078a0c2849"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/phase-002.json": {
+      "bytes": 25,
+      "sha256": "783920b08483261af2a892574a8f7474f2f9eba49335cd1c389b4f5ca1ec3d35"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/raw-generation-0000.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/raw-generation-0000.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/raw-generation-0001.bin": {
+      "bytes": 24,
+      "sha256": "a44d09a8a616349cba49e0b31f765bc2a47a8ab37b2c08ea2fba3bcf01e5ad52"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/raw-generation-0001.json": {
+      "bytes": 163,
+      "sha256": "a4b971d106f401db65760482b962e418e3861d7e1e91591e0b36be10e2c10041"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/raw-generation-0002.bin": {
+      "bytes": 24,
+      "sha256": "ebf433c662c6ef2045144778ca1a33fdd6566db556a318c7fc2edf69cb1b23b7"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/raw-generation-0002.json": {
+      "bytes": 163,
+      "sha256": "3403b699aa0f3c8de10bcda29b905b2da95ba0e6e2481dc1b10d4109d2cfe091"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/raw-generation-0003.bin": {
+      "bytes": 24,
+      "sha256": "e2e2033ae7e19d680599d4eb0a1359a2b48ec5baac75066c317fbf85159c54ef"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/raw-generation-0003.json": {
+      "bytes": 163,
+      "sha256": "80d2567dc750556c1c2df52d00c24ed669f5bede866f528cb7cb872e2b044d62"
+    },
+    "preparation01/fixtures/test_updates_responses_and_unclean_exit_rejected/4/worker/terminal.json": {
+      "bytes": 186,
+      "sha256": "f6d6e16f5c5c91760721b9dd694779b4ef0bf84bf654678336148625d91ae4f2"
+    },
+    "preparation01/qualify_llm_intervention_model_service.py": {
+      "bytes": 14225,
+      "sha256": "70be5bc0c6783c61e0ec05d2f675d454e9c6f42e3da7243dde33784dac383487"
+    },
+    "preparation01/test_llm_intervention_model_service_integration.py": {
+      "bytes": 6082,
+      "sha256": "96719708691922d83e092025413ba6eab91fc73aea45810bf76270704589b23e"
+    },
+    "preparation01/test_receipt.json": {
+      "bytes": 575,
+      "sha256": "1c4af03f8317922298392e98baaa6d6df324bf7e0e2b57a2ef06cd6915e348cc"
+    },
+    "preparation01/tests.stderr": {
+      "bytes": 474,
+      "sha256": "e0c7c614f496f4a0b634e1995a842c4346b8af8ff1e24d4ee33defbf6ddcc0c9"
+    },
+    "preparation01/tests.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "preparation02/fixtures/test_scheduler_failures_preserve_raw_and_partial_output/nonzero/scheduler_raw.json": {
+      "bytes": 171,
+      "sha256": "4c0948896a20e28b6b79c12dac8e0b8121da42a2e8a93ac97c6387814e07d58d"
+    },
+    "preparation02/fixtures/test_scheduler_failures_preserve_raw_and_partial_output/timeout/scheduler_raw.json": {
+      "bytes": 172,
+      "sha256": "79de39555b9de98350cae8956279e6bec371637d5b3f13ec64ceabf36c9c326d"
+    },
+    "preparation02/initial_review.md": {
+      "bytes": 9588,
+      "sha256": "d8d9563d5c32d0d3b5c83fa84a97938044a62392d51201a57019726ae0cea923"
+    },
+    "preparation02/qualify_llm_intervention_model_service.py": {
+      "bytes": 17130,
+      "sha256": "fb3e95013cb46cd53f3b44ee72a141d75616c39b762b8e62ea90d89f3a9de717"
+    },
+    "preparation02/test_llm_intervention_model_service_integration.py": {
+      "bytes": 8776,
+      "sha256": "7c57063e99f4904dfb63083e9b5cc9b1e2aedc2e642a2efb9e534261ee8408e4"
+    },
+    "preparation02/test_receipt.json": {
+      "bytes": 848,
+      "sha256": "ce4a5e7cd7d32fc7529899f64725192b63617d99cca6535c6cc62605298700b0"
+    },
+    "preparation02/tests.stderr": {
+      "bytes": 386,
+      "sha256": "58de0024f29fab90436843ced1b20c5df20d9d7c4aaddea4f71b1b84595821dd"
+    },
+    "preparation02/tests.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "actual_model_execution": false,
+  "packet_qualified": false,
+  "scientific_execution_qualified": false,
+  "new_allocations": 0,
+  "fixture_child_cpu_seconds": 0.12443399999999999,
+  "scope": "synthetic saved records and mocked scheduler/telemetry/watchdog; not real execution"
+}
