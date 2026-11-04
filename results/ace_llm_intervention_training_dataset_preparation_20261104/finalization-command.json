@@ -1,0 +1,14 @@
+{
+  "static_inspection": {
+    "cmd": "nl -ba scripts/research/llm_intervention_training_dataset.py | sed -n '130,215p'; nl -ba scripts/research/llm_intervention_training_dataset.py | sed -n '430,490p'; wc -l scripts/research/llm_intervention_training_dataset.py scripts/research/test_llm_intervention_training_dataset.py docs/development/guidance/ace_llm_intervention_training_dataset_2026-11-04.md",
+    "cwd": "/Users/pat/code/ACE",
+    "exit_code": 0,
+    "summary": "Static line inspection; lengths407/282/96. No tests or imported execution."
+  },
+  "finalization": {
+    "command": "/Users/pat/code/ACE/.venv_test/bin/python -B /Users/pat/code/ACE/results/ace_llm_intervention_training_dataset_preparation_20261104/finalize-custody.py",
+    "cwd": "/tmp",
+    "script": "finalize-custody.py",
+    "scope": "Copy/hash/reconcile saved artifacts only, no implementation import or test execution."
+  }
+}
