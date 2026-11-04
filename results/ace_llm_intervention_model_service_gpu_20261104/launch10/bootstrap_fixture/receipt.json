@@ -1,0 +1,37 @@
+{
+  "status": "two_optimized_python_arithmetic_bootstrap_checks_passed",
+  "records": [
+    {
+      "label": "correct",
+      "command": [
+        "/Users/pat/code/ACE/.venv_test/bin/python",
+        "-O",
+        "-B",
+        "-c",
+        "import hashlib, runpy, sys\np = sys.argv[1]\nexpected = sys.argv[2]\nif hashlib.sha256(open(p, \"rb\").read()).hexdigest() != expected:\n    raise ValueError(\"driver source digest differs\")\nsys.argv = [p] + sys.argv[3:]\nrunpy.run_path(p, run_name=\"__main__\")",
+        "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-model-service-gpu-20261104-10/bootstrap_fixture/arithmetic_driver.py",
+        "e10d13ee6beb328301b03cd6651a69e7c0b475c9559e6bf9f3dde151dc373eeb"
+      ],
+      "returncode": 0,
+      "expected_rejection": false
+    },
+    {
+      "label": "changed",
+      "command": [
+        "/Users/pat/code/ACE/.venv_test/bin/python",
+        "-O",
+        "-B",
+        "-c",
+        "import hashlib, runpy, sys\np = sys.argv[1]\nexpected = sys.argv[2]\nif hashlib.sha256(open(p, \"rb\").read()).hexdigest() != expected:\n    raise ValueError(\"driver source digest differs\")\nsys.argv = [p] + sys.argv[3:]\nrunpy.run_path(p, run_name=\"__main__\")",
+        "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-model-service-gpu-20261104-10/bootstrap_fixture/arithmetic_driver.py",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "returncode": 1,
+      "expected_rejection": true
+    }
+  ],
+  "child_cpu_seconds": 0.047876999999999996,
+  "elapsed_seconds": 0.058073792,
+  "scope": "new tiny bootstrap only, no real driver/model/remote/submission",
+  "preceding_preparation02": "Malformed nested escaping found during local inspection before execution or transfer; preserved unchanged."
+}
