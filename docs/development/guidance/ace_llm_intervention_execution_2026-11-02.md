@@ -927,3 +927,12 @@ Service v3 and runtime contract v2 include the independently pinned helper. The 
 Independent integration review found zero required fixes. Four new integration methods and five affected source/authentication/CPU-contract methods pass, with no models, devices or scientific responses. The single command used 0.160422 child CPU seconds, 0.164464792 elapsed seconds and 26148864 peak child RSS bytes. This excludes development and review. The preparation receipt is f107b1f788dd44807afbc77683239519dfa7219c568b73bd22a962f4f431aa41.
 
 A new CPU preflight is required because the previous 25-input receipt cannot cover the new 26-input closure. Proposed resources are 2 CPUs, 6 GiB and 600 seconds. The accepted threading diagnostic used that allocation for 91 seconds. Near-limit batch RSS is preserved without claiming memory headroom. Proposed CPU admission is 11872/57600 including 7072 closed allocation, 3600 cumulative preparation and 1200 proposed reservation. GPU remains 941/7200. No new allocation or submission has occurred. The GPU caller remains deliberately pending its new CPU-source and accepted-job rebind.
+
+
+### Revised CPU03 submitted once
+
+Job35350736 was submitted once at2026-11-07T22:08:47.536950Z from packetcommit1842075b and source8f3c0c5ad2321bc1f0d8f4f3b4239b085ae56ff3. PacketSHAde434a9243aaa9744f7893d258b0ed06989d74d0e0b69fd36aab1ab3ae025e94, preflightSHA3a6ffe2d172943477158dd1a8c4de5fd196fca69e86d887b20cdda8f0966fb29. Both controller locks,23 terminal prior jobs,48 submission journals, renewed association, scratch readiness and29 remote transfer pins were checked. Remote submission intentSHAdb921dce70d648360d36444040a8af525c3768da4868a2ddf8ff0a33823a73cb.
+
+Resources2CPU6GiB600seconds, accountucb736_asc2/acpu/cpu-normal, noGPU orrequeue. Exclusive externalACE-LLM-intervention-service-cpu-20261107-03, reporesults/ace_llm_intervention_service_cpu_20261107/launch03, remote/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_service_cpu_20261107_03. Admission11872CPU/941GPU includes proposedjobcap1200CPU and cumulative3600CPU preparation. No duplicate or retry. Model weights, adapter tensors and scientific responses remain unused by this CPU gate.
+
+Final packet review found one metadata identity typo, corrected before submission with predecessor drafts preserved. Focused recheck reports zero remaining required fixes. Actual runtime and terminal custody acceptance remain open.
