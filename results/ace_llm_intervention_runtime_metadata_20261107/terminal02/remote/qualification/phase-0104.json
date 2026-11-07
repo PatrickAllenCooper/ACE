@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/scratch/local/35347001/ace-runtime-metadata-35347001/runtime/bin/python",
+    "-I",
+    "-B",
+    "-X",
+    "importtime",
+    "-c",
+    "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_runtime_metadata_20261107_02/qualify_llm_intervention_runtime_metadata.py",
+    "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329",
+    "--packet",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_runtime_metadata_20261107_02/diagnostic.json",
+    "--packet-sha256",
+    "80107304e27dca7a1ff328487d3189210cd5509bdf2051e26641ab7c28dff151",
+    "--self-sha256",
+    "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329",
+    "--helper-sha256",
+    "7664772074cc84bdc9d668f5a99aae475a9e54aafc0c85486e23bf9b88ba747e",
+    "--probe-sha256",
+    "8d6f9e2761922802712a8bf2e77df6bdec3708ce1e08272864bebbf76f0d1951",
+    "--worker",
+    "--staged-prefix",
+    "/scratch/local/35347001/ace-runtime-metadata-35347001/runtime",
+    "--stage-sha256",
+    "341881bf56c8fe3bb45b5e5c59aaf71c085dcfa661d622b0a62a4e0801ec965a"
+  ],
+  "elapsed_seconds": 50.466349189024186,
+  "peak_self_rss_bytes": 156909568,
+  "phase": "worker_start",
+  "process_cpu_seconds": 28.989841258,
+  "utc": "2026-11-07T20:10:39.700695+00:00"
+}
