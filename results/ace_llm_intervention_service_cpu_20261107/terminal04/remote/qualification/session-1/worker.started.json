@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/scratch/local/35353861/ace-service-cpu-35353861/runtime/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_service_cpu_20261107_04/llm_intervention_model_service.py",
+    "a7735dd35f56d7653a5ff42520db7fd67b98395e62333cccce31583317f7134e",
+    "--freeze",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_service_cpu_20261107_04/adapter.json",
+    "--freeze-sha256",
+    "5f9089fbfe8b859331ab22381494026cb6ed621e3927585d7e28016884342b7f",
+    "--output",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_service_cpu_20261107_04/qualification/session-1/worker",
+    "--runtime-stage",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_service_cpu_20261107_04/qualification/stage.json",
+    "--runtime-stage-sha256",
+    "c97a6617598d9a9c0f78889b0dc17b7b56ac21d434bab86c23b378a74e55aee4",
+    "--verify-only",
+    "--fixture",
+    "case0.json=d2b75286406717fcd1ea14d9101f45be7795c364f70e558ddc0ff72349335cf3",
+    "--fixture",
+    "case3.json=7fb3cf1b59f594b78733419a18246602d6cc471bc4b900b47ea7d421309387e4",
+    "--fixture",
+    "stress.json=0ba5221ba59ba698355302c135c6dfead6d4be2c25d8946af7085fdff166d32f"
+  ],
+  "deadline_monotonic": 1209250.224447318,
+  "pgid": 3062074,
+  "pid": 3062074,
+  "utc": "2026-11-07T22:37:36.908813+00:00"
+}
