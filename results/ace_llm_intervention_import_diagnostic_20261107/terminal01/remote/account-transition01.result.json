@@ -1,0 +1,30 @@
+{
+  "after": {
+    "command": [
+      "scontrol",
+      "show",
+      "job",
+      "-o",
+      "35341862"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "JobId=35341862 JobName=ace_llm_import01 UserId=paco0228(348288) GroupId=paco0228pgrp(348288) MCS_label=N/A Priority=17776 Nice=0 Account=ucb736_asc2 QOS=cpu-normal JobState=PENDING Reason=None Dependency=(null) Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:00:00 TimeLimit=00:08:00 TimeMin=N/A SubmitTime=2026-11-07T09:25:18 EligibleTime=2026-11-07T09:25:18 AccrueTime=Unknown StartTime=Unknown EndTime=Unknown Deadline=N/A SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-11-07T10:55:23 Scheduler=Main Partition=acpu AllocNode:Sid=login-ci5:1544585 ReqNodeList=(null) ExcNodeList=(null) NodeList= NumNodes=1-1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=1,mem=3G,node=1 AllocTRES=(null) Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=1 MinMemoryNode=3G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null) Command=/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_import_diagnostic_20261107_01/job.sbatch WorkDir=/home/paco0228 StdErr=/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_import_diagnostic_20261107_01/logs/35341862.err StdIn=/dev/null StdOut=/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_import_diagnostic_20261107_01/logs/35341862.out Switches=1@7-00:00:00 TresPerTask=cpu=1 \n"
+  },
+  "intent_sha256": "600b82f7dcc5496676d40cc5b748ae926fad15e49a259651e75a2ec721e03108",
+  "job_id": "35341862",
+  "new_submission": false,
+  "update": {
+    "command": [
+      "scontrol",
+      "update",
+      "JobId=35341862",
+      "Account=ucb736_asc2"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  "utc": "2026-11-07T17:55:25.650570+00:00",
+  "verified": true
+}
