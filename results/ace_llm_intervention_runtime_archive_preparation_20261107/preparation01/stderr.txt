@@ -1,0 +1,15 @@
+....E.
+======================================================================
+ERROR: test_roundtrip_byte_oracle_modes_links_and_exclusive_output (__main__.ArchiveTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_runtime_archive_preparation_20261107/preparation01/test_llm_intervention_runtime_archive.py", line 38, in test_roundtrip_byte_oracle_modes_links_and_exclusive_output
+    r=a.stage(self.archive/'runtime.tar',p,h,self.root/'staged',progress=events.append)
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_runtime_archive_preparation_20261107/preparation01/llm_intervention_runtime_archive.py", line 243, in stage
+    raise ValueError("staged link escapes root")
+ValueError: staged link escapes root
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.022s
+
+FAILED (errors=1)
