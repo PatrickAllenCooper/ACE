@@ -1,0 +1,15 @@
+{
+  "new_submission": false,
+  "read_only": true,
+  "remote": {
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "{\"hostname\": \"login-ci5\", \"results\": {\"accounting\": {\"command\": [\"sacct\", \"-X\", \"-j\", \"35341862\", \"-n\", \"-P\", \"--format=JobIDRaw,State,ExitCode,AllocCPUS,ElapsedRaw,Account,AllocTRES%150\"], \"returncode\": 0, \"stderr\": \"\", \"stdout\": \"35341862|PENDING|0:0|0|0|ucb736_asc1|\\n\"}, \"association\": {\"command\": [\"sacctmgr\", \"-n\", \"-P\", \"show\", \"assoc\", \"where\", \"account=ucb736_asc1\", \"user=paco0228\", \"format=Cluster,Account,User,Partition,MaxJobs,GrpJobs,MaxSubmitJobs,GrpSubmitJobs\"], \"returncode\": 0, \"stderr\": \"\", \"stdout\": \"alpine|ucb736_asc1|paco0228||0|||\\n\"}, \"job\": {\"command\": [\"squeue\", \"-j\", \"35341862\", \"-h\", \"-o\", \"%i|%T|%R\"], \"returncode\": 0, \"stderr\": \"\", \"stdout\": \"35341862|PENDING|(AssocMaxJobsLimit)\\n\"}}, \"utc\": \"2026-11-07T17:28:26.295954+00:00\"}\n"
+  },
+  "shared_check": {
+    "returncode": 0,
+    "stderr": "Master running (pid=27070)\n",
+    "stdout": ""
+  },
+  "utc": "2026-11-07T17:28:02.851641+00:00"
+}
