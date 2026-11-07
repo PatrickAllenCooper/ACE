@@ -1,0 +1,48 @@
+/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+Traceback (most recent call last):
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261104_10/input/llm_intervention_model_service.py", line 437, in <module>
+    main()
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261104_10/input/llm_intervention_model_service.py", line 418, in main
+    serve_policy(initialize, identity=identity(freeze), max_requests=freeze["limits"]["max_requests"])
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261104_10/input/llm_intervention_persistent_policy.py", line 129, in serve_policy
+    decide = initialize()
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261104_10/input/llm_intervention_model_service.py", line 417, in initialize
+    return initialize_qwen(freeze, adapter_raw, journal, arm_deadline)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261104_10/input/llm_intervention_model_service.py", line 286, in initialize_qwen
+    from transformers.models.qwen3.modeling_qwen3 import Qwen3ForCausalLM
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/models/qwen3/modeling_qwen3.py", line 33, in <module>
+    from ...modeling_layers import (
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/modeling_layers.py", line 28, in <module>
+    from .processing_utils import Unpack
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/processing_utils.py", line 75, in <module>
+    from .modeling_utils import PreTrainedAudioTokenizerBase
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/modeling_utils.py", line 70, in <module>
+    from .loss.loss_utils import LOSS_MAPPING
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/loss/loss_utils.py", line 21, in <module>
+    from .loss_d_fine import DFineForObjectDetectionLoss
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/loss/loss_d_fine.py", line 21, in <module>
+    from .loss_for_object_detection import (
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/transformers/loss/loss_for_object_detection.py", line 28, in <module>
+    from scipy.optimize import linear_sum_assignment
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/optimize/__init__.py", line 422, in <module>
+    from ._optimize import *
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/optimize/_optimize.py", line 34, in <module>
+    from scipy.linalg import cholesky, issymmetric, LinAlgError
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/linalg/__init__.py", line 222, in <module>
+    from ._sketches import *
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/linalg/_sketches.py", line 10, in <module>
+    from scipy.sparse import csc_matrix
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/sparse/__init__.py", line 315, in <module>
+    from . import csgraph
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/sparse/csgraph/__init__.py", line 187, in <module>
+    from ._laplacian import laplacian
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/sparse/csgraph/_laplacian.py", line 7, in <module>
+    from scipy.sparse.linalg import LinearOperator
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/sparse/linalg/__init__.py", line 134, in <module>
+    from ._eigen import *
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/sparse/linalg/_eigen/__init__.py", line 11, in <module>
+    from ._svds import svds
+  File "/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/sparse/linalg/_eigen/_svds.py", line 5, in <module>
+    from . import eigsh
+ImportError: cannot import name 'eigsh' from partially initialized module 'scipy.sparse.linalg._eigen' (most likely due to a circular import) (/projects/paco0228/miniconda3/envs/ace/lib/python3.10/site-packages/scipy/sparse/linalg/_eigen/__init__.py)
