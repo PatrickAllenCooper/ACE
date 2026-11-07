@@ -10,9 +10,9 @@ CPU runtime diagnostic35347001 and complete service-import/tokenization prefligh
 
 The reviewed GPUcaller correction resolved that import failure in job**35349776**. The service loaded the model onto its one20GBMIGslice, then failed beforehandshake on the genericruntimeguard's classification of NVIDIAdevice and deletedzero shared-memorymaps asnativelibraries. All189rawfiles are local, with independentfailurecustodyreviewcomplete and0requiredfindings. GPUmemoryresidency is observed. No forwardgeneration, intervention, trainingupdate or scientificresponse completed. This attempt remains unqualified.
 
-Closedallocations total **7,072CPU-seconds** and **941GPU-slice-seconds**. Including the cumulative3,600CPU-second preparation allowance gives **10,672/57,600CPU-seconds** for admission. GPUadmission is**941/7,200seconds**. NoACEjob or reservation remains active in the terminalsnapshot. ProcessCPU, elapsedtime and allocatedCPU overlap and are not additive. WholecycleCPU remainsunknown because preparation is partlyunmetered.
+Closed allocations total **7,278 CPU-seconds** and **941GPU-slice-seconds**. Including the cumulative3,600CPU-second preparation allowance gives **10,878/57,600 CPU-seconds** for admission. GPUadmission is**941/7,200seconds**. NoACEjob or reservation remains active in the terminalsnapshot. ProcessCPU, elapsedtime and allocatedCPU overlap and are not additive. WholecycleCPU remainsunknown because preparation is partlyunmetered.
 
-A narrow GPU device-map classifier is now integrated into the new captured service closure and independently reviewed. Actual CPU and GPU qualification of this successor remain open. It preserves rawobservations and distinguishes exact non-executable specialmappings fromlibraries. Unknown/executable paths remainrejected. Do not submit anotherGPUattempt until the diagnosedcorrection, derivedsourcebindings, independentreview and boundedqualification are complete.
+A narrow GPU device-map classifier is now integrated into the new captured service closure and independently reviewed. The revised CPU preflight35350736 is now independently accepted. GPU qualification of this successor remains open. It preserves rawobservations and distinguishes exact non-executable specialmappings fromlibraries. Unknown/executable paths remainrejected. Do not submit anotherGPUattempt until the diagnosedcorrection, derivedsourcebindings, independentreview and boundedqualification are complete.
 
 
 ## Objective and authority
@@ -936,3 +936,13 @@ Job35350736 was submitted once at2026-11-07T22:08:47.536950Z from packetcommit18
 Resources2CPU6GiB600seconds, accountucb736_asc2/acpu/cpu-normal, noGPU orrequeue. Exclusive externalACE-LLM-intervention-service-cpu-20261107-03, reporesults/ace_llm_intervention_service_cpu_20261107/launch03, remote/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_service_cpu_20261107_03. Admission11872CPU/941GPU includes proposedjobcap1200CPU and cumulative3600CPU preparation. No duplicate or retry. Model weights, adapter tensors and scientific responses remain unused by this CPU gate.
 
 Final packet review found one metadata identity typo, corrected before submission with predecessor drafts preserved. Focused recheck reports zero remaining required fixes. Actual runtime and terminal custody acceptance remain open.
+
+
+### CPU03 terminal custody, independent acceptance pending
+
+Job35350736 completed0:0 on2CPU6GiB103seconds,206allocatedCPU seconds andzeroGPU. Both fresh service configurations completed full imports and three-fixture tokenization with the GPU mapping flag false. No weights or adapter tensors were loaded. All195rawfiles/7684072bytes are exclusively local underterminal03 and externalACE-LLM-intervention-service-cpu-terminal-20261107-03. All29transferpins match.
+
+Archive staging took58.590447773seconds. Supervisor93.971583518elapsed/32.458462801processCPU seconds. Session child-plus-cleanupCPU13.102130 and12.164019seconds and cumulative childRSS961871872/987770880bytes have separate overlapping scopes. SlurmTotalCPU57.862seconds, batchMaxRSS6289300KiB, no comfortable headroom claim. Closedallocation7278CPU/941GPU and CPUadmission10878including3600preparation. The1200CPU reservation is released. Independent acceptance is pending, so no new GPU packet is prepared or submitted. A premature read-only collection observation was rejected before custody creation and is retained. The same job was never restarted.
+
+
+CPU03 saved-evidence acceptance is complete, zero required findings. AcceptanceSHA996be82b0387f9efe82a471a7ff735eee44ee5929c0e7ae1906d5eb3666d1f76. The future GPU caller source/job rebind is independently checked. The three affected GPU-contract fixture methods passed once,0.082175childCPU/.085728959elapsed/22085632peakRSS bytes, preparation only. Next is one reviewed exclusive GPU13 packet, with unchanged one20GBslice/4requested(max8)CPU/12GiB/600seconds and240/560/580second timing limits. Proposed admission15678CPU/1541GPU includes4800CPU/600GPU reservation and cumulative3600preparation. No new GPU job has been submitted.

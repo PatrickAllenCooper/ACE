@@ -25,7 +25,7 @@ import types
 
 
 VERSION = "ace-persistent-model-integration-v4"
-CPU_SOURCE_SHA = "c827a53f0fe03204c447e8e7d406e6d8a2c9318b4d6cd5fdc82beb84b576b6b7"
+CPU_SOURCE_SHA = "d658bedd192d5c3e92f8fc22a052c67d6524df296623ef74e2c5f38bf02fbeb5"
 GPU_HELPER_SHA = "ad67abbb4929cdd8b41d90ea83a6197e8138e62340239a96f8161aee1a3091ec"
 RESOURCES = {"account": "ucb736_asc2", "partition": "aa100", "qos": "gpu-testing",
     "requested_cpus": 4, "max_allocated_cpus": 8, "memory_mib": 12288,
@@ -71,7 +71,7 @@ def packet_shape(packet, cpu_inputs):
 def check_preflight(acceptance, packet, preflight, cpu):
     # Pins bind a separately reviewed CPU result, not proof inferred from metadata.
     if (acceptance.get('status') != 'cpu_service_preflight_accepted'
-        or acceptance.get('job_id') != '35348366'
+        or acceptance.get('job_id') != '35350736'
         or acceptance.get('preflight_sha256') != packet['files']['cpu-preflight.json']
         or acceptance.get('cpu_preflight_qualified') is not True
         or acceptance.get('model_service_qualified') is not False

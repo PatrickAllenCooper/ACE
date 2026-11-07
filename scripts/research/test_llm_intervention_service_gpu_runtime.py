@@ -1,4 +1,4 @@
-"""Artificial v2 GPU integration contracts. No runtime, model or GPU execution."""
+"""Artificial current GPU integration contracts. No runtime, model or GPU execution."""
 import copy
 import json
 from pathlib import Path
@@ -12,6 +12,8 @@ import test_llm_intervention_service_cpu as fixtures
 import llm_intervention_model_service as service
 import llm_intervention_service_runtime as runtime
 import qualify_llm_intervention_runtime_metadata as diagnostic
+import llm_intervention_gpu_mappings as mappings
+import test_llm_intervention_gpu_mappings as map_fixtures
 
 
 class GpuRuntimeTests(unittest.TestCase):
@@ -26,7 +28,7 @@ class GpuRuntimeTests(unittest.TestCase):
             'services':['frozen.json','adapter.json'], 'resources':dict(gpu.RESOURCES)}
 
     def test_exact_new_packet_roster_and_resource_types(self):
-        self.assertEqual(len(self.files),29)
+        self.assertEqual(len(self.files),30)
         gpu.packet_shape(self.packet,cpu.INPUTS)
         for change in (lambda p:p.update(schema='ace-persistent-model-integration-v1'),
             lambda p:p['files'].pop('cpu-acceptance.json'),
@@ -39,11 +41,11 @@ class GpuRuntimeTests(unittest.TestCase):
 
     def test_cpu_acceptance_cannot_cover_different_service_inputs(self):
         preflight={'files':{n:'a'*64 for n in cpu.INPUTS}}
-        accepted={'status':'cpu_service_preflight_accepted','job_id':'35348366',
+        accepted={'status':'cpu_service_preflight_accepted','job_id':'35350736',
             'preflight_sha256':'a'*64,'cpu_preflight_qualified':True,
             'model_service_qualified':False,'scientific_qualified':False}
         gpu.check_preflight(accepted,self.packet,preflight,cpu)
-        for key,value in [('job_id','35348012'),('status','pending'),('preflight_sha256','b'*64),
+        for key,value in [('job_id','35348366'),('status','pending'),('preflight_sha256','b'*64),
                           ('cpu_preflight_qualified',False),('model_service_qualified',True)]:
             with self.assertRaises(ValueError):gpu.check_preflight({**accepted,key:value},self.packet,preflight,cpu)
         other=copy.deepcopy(preflight);other['files']['llm_intervention_model_service.py']='b'*64
@@ -98,8 +100,15 @@ class GpuRuntimeTests(unittest.TestCase):
         f=fixtures.CpuPreflightTests();f.setUp();self.addCleanup(f.doCleanups)
         records=f.receipts()
         observation=records.pop('runtime-after-cpu-tokenization.json')
-        records['runtime-after-model-load.json']=copy.deepcopy(observation)
-        records['runtime-after-requests.json']=copy.deepcopy(observation)
+        records['runtime-stage-binding.json']['gpu_mapping_enabled']=True
+        sample,inventory=map_fixtures.fixture()
+        for phase in mappings.PHASES:
+            raw=copy.deepcopy(observation)
+            raw.update(process_maps=sample['process_maps'],mixed_native_paths=sample['mixed_native_paths'])
+            _,proof=mappings.checked_view(raw,inventory,phase,prefix=f.stage['staged_prefix'],original_runtime=diagnostic.RUNTIME_SOURCE)
+            records['runtime-'+phase+'.json']=raw
+            records['gpu-mapping-inventory-'+phase+'.json']=inventory
+            records['gpu-mapping-validation-'+phase+'.json']=proof
         records['terminal.json']={'runtime_stage_sha256':'c'*64}
         return f,records
 
