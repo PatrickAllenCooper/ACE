@@ -1,0 +1,70 @@
+{
+  "account": "ucb736_asc2",
+  "allocated_cpu_seconds": 301,
+  "causal_import_order_fix_demonstrated": false,
+  "cpu_admission_seconds": 8363,
+  "cpu_ceiling_seconds": 57600,
+  "cumulative_preparation_allowance_seconds": 3600,
+  "gpu_admission_seconds": 836,
+  "gpu_ceiling_seconds": 7200,
+  "gpu_slice_seconds": 0,
+  "input_pins": {
+    "docs/development/guidance/reviews/ace_llm_intervention_import_diagnostic_results_review_2026-11-07.md": {
+      "bytes": 10294,
+      "sha256": "2140a4a1eee29d4fcb6fafda7036b4e45d1bb18ade4a96a07f749996c804a346"
+    },
+    "results/ace_llm_intervention_import_diagnostic_20261107/launch02/live04.json": {
+      "bytes": 19769,
+      "sha256": "10138b4cb49a1804f88a9e81eaa5acc3e6b58a87c9974c028780e1c9ec3d2c88"
+    },
+    "results/ace_llm_intervention_import_diagnostic_20261107/terminal02/disposition.json": {
+      "bytes": 14043,
+      "sha256": "80720261564b76abf2bc267a3aa057ec0146272718f00de12e648699623ac35e"
+    },
+    "results/ace_llm_intervention_import_diagnostic_20261107/terminal02/inventory_transport.json": {
+      "bytes": 16051,
+      "sha256": "f636749bdddfe323e5616e1bf849d8308daac4d86841b7590667d7e050fc9f22"
+    },
+    "results/ace_llm_intervention_import_diagnostic_20261107/terminal02/remote/diagnostic/diagnostic_complete.json": {
+      "bytes": 2661,
+      "sha256": "20bd39d3fc0a6ef82610d1e8246a27fe5e9869e8a5948403ebc4f8c7f1f34add"
+    },
+    "results/ace_llm_intervention_import_diagnostic_20261107/terminal02/remote/diagnostic/matched_import_order/failure.json": {
+      "bytes": 5087,
+      "sha256": "0bdafc71fc60f19746d21f33eda1dc9cb48b271bb749bc61363efe204f919da6"
+    },
+    "results/ace_llm_intervention_import_diagnostic_20261107/terminal02/remote/diagnostic/scipy_first/terminal.json": {
+      "bytes": 335,
+      "sha256": "b9f680e6c6ec9d33ae4bb073675981c85e30e7229540e6988def6326657767bb"
+    },
+    "results/ace_llm_intervention_import_diagnostic_20261107/terminal02/transfer.json": {
+      "bytes": 54,
+      "sha256": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+    }
+  },
+  "job_id": "35343088",
+  "known_closed_cpu_seconds": 4763,
+  "limitations": [
+    "Sequential workers share node and filesystem cache; timing difference does not isolate import order.",
+    "Selected Python-source captures do not authenticate the complete installed binary environment.",
+    "This receipt is not model-service or GPU qualification."
+  ],
+  "model_weights_loaded": false,
+  "next_gate": "Reviewed CPU-only original-sequence startup qualification after measured preparation, retaining actual path/source evidence and cache/I/O uncertainty. No new allocation in this receipt.",
+  "original_import_order": "failed_timeout_outer_kill_cleanup_confirmed",
+  "original_pending_disposition_preserved": true,
+  "packet_commit": "869e4cbfe4e9e3a37ed0098225723442e4faa293",
+  "parent_source_commit": "de8244e0730c243e82cfa9fdefe50905b6f26379",
+  "raw_bytes": 1958758,
+  "raw_files": 75,
+  "required_review_findings": 0,
+  "runtime_qualified": false,
+  "schema": "ace_llm_import_diagnostic_review_acceptance_v1",
+  "scientific_responses": 0,
+  "scientific_utility_qualified": false,
+  "scipy_first": "completed_imports_no_model_load",
+  "status": "diagnostic_custody_and_scoped_conclusions_accepted",
+  "training_updates": 0,
+  "utc": "2026-11-07T18:17:54.797410+00:00",
+  "whole_cycle_process_cpu_known": false
+}
