@@ -1,0 +1,79 @@
+{
+  "collector_sha256": "efc4221c8cd7af2667c4d7ed9e9237c544dfd1342158c894a25708e63f57c5b4",
+  "scope": "Only captured pure allocation function with six hand-computed artificial rows. No full collector, remote or model execution.",
+  "passed": 6,
+  "process_cpu_seconds": 0.00020900000000000085,
+  "elapsed_seconds": 0.00021100000000000112,
+  "cases": [
+    {
+      "observed_account": "ucb736_asc2",
+      "observed_cpus": 4,
+      "observed_elapsed_seconds": 126,
+      "observed_alloc_tres": "cpu=4,mem=12G,node=1,gres/gpu:a100_3g.20gb=1",
+      "observed_gpu_count": 1,
+      "resource_contract_matched": true,
+      "allocated_cpu_seconds": 504,
+      "gpu_slice_seconds": 126,
+      "accounting_errors": []
+    },
+    {
+      "observed_account": "ucb736_asc2",
+      "observed_cpus": 8,
+      "observed_elapsed_seconds": 100,
+      "observed_alloc_tres": "cpu=8,mem=12288M,node=1,gres/gpu=1,gres/gpu:a100_3g.20gb=1",
+      "observed_gpu_count": 1,
+      "resource_contract_matched": true,
+      "allocated_cpu_seconds": 800,
+      "gpu_slice_seconds": 100,
+      "accounting_errors": []
+    },
+    {
+      "observed_account": "ucb736_asc2",
+      "observed_cpus": 4,
+      "observed_elapsed_seconds": 20,
+      "observed_alloc_tres": "cpu=4,mem=12G,node=1,gres/gpu=2,gres/gpu:a100_3g.20gb=2",
+      "observed_gpu_count": 2,
+      "resource_contract_matched": false,
+      "allocated_cpu_seconds": 80,
+      "gpu_slice_seconds": 40,
+      "accounting_errors": []
+    },
+    {
+      "observed_account": "ucb736_asc2",
+      "observed_cpus": 4,
+      "observed_elapsed_seconds": 20,
+      "observed_alloc_tres": "cpu=4,mem=12G,node=1,gres/gpu=2,gres/gpu:a100_3g.20gb=1",
+      "observed_gpu_count": null,
+      "resource_contract_matched": false,
+      "allocated_cpu_seconds": 80,
+      "gpu_slice_seconds": null,
+      "accounting_errors": [
+        "conflicting GPU counts"
+      ]
+    },
+    {
+      "observed_account": "ucb736_asc2",
+      "observed_cpus": 4,
+      "observed_elapsed_seconds": 20,
+      "observed_alloc_tres": "cpu=4,mem=12G,node=1,gres/fpga=1",
+      "observed_gpu_count": null,
+      "resource_contract_matched": false,
+      "allocated_cpu_seconds": 80,
+      "gpu_slice_seconds": null,
+      "accounting_errors": [
+        "unknown GPU allocation"
+      ]
+    },
+    {
+      "observed_account": "ucb736_asc1",
+      "observed_cpus": 4,
+      "observed_elapsed_seconds": 20,
+      "observed_alloc_tres": "cpu=4,mem=12G,node=1,gres/gpu:a100_3g.20gb=1",
+      "observed_gpu_count": 1,
+      "resource_contract_matched": false,
+      "allocated_cpu_seconds": 80,
+      "gpu_slice_seconds": 20,
+      "accounting_errors": []
+    }
+  ]
+}
