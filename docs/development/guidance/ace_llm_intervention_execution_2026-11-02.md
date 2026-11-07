@@ -946,3 +946,12 @@ Archive staging took58.590447773seconds. Supervisor93.971583518elapsed/32.458462
 
 
 CPU03 saved-evidence acceptance is complete, zero required findings. AcceptanceSHA996be82b0387f9efe82a471a7ff735eee44ee5929c0e7ae1906d5eb3666d1f76. The future GPU caller source/job rebind is independently checked. The three affected GPU-contract fixture methods passed once,0.082175childCPU/.085728959elapsed/22085632peakRSS bytes, preparation only. Next is one reviewed exclusive GPU13 packet, with unchanged one20GBslice/4requested(max8)CPU/12GiB/600seconds and240/560/580second timing limits. Proposed admission15678CPU/1541GPU includes4800CPU/600GPU reservation and cumulative3600preparation. No new GPU job has been submitted.
+
+
+### GPU13 submitted once after CPU03 acceptance
+
+Job35351262 submitted once at2026-11-07T22:21:02.400442Z. Packetcommit21e2607841096dad9814fd2ae6f72b91aa3b4d12, sourcecommitd12adcbc4f67ef1b0be279dfe71ef91c036f0773. OuterpacketSHAf6660dc06258e05e5bee6d2e0fd0e2695114f800208c69e80ecfc729d71e6a44, innerSHAd8e324922e06ea3aeef8da8d06fae9199cb40429f806c458b05bc0ea45848848. Both locks,24prior terminaljobs/50journals, account/slice/readiness and33remoteinputpins reconciled. SubmissionintentSHA8c3ba49ba0cf74921d62229c9854303d9d127f715db8451f5afe50eb8c3dae37. Finalpacketreviewzero required findings.
+
+Remote/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_13. ExclusiveexternalACE-LLM-intervention-model-service-gpu-20261107-13, reporesults/ace_llm_intervention_model_service_gpu_20261107/launch13. Onea100_3g.20gb,4requested/max8allocatedCPUs,12GiB,600seconds, accountucb736_asc2/aa100/gpu-testing, norequeue. Admission15678/57600CPU and1541/7200GPU includes4800CPU/600GPU reservation and3600cumulativeCPUpreparation.
+
+Full eight-generation service acceptance, actualGPUsignals, runtime proof reconstruction, clean shutdown and terminalcustody remain pending. No duplicate or retry. Scientificworlds/training/responses remain unchanged.
