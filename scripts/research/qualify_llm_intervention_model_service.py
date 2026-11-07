@@ -11,6 +11,8 @@ import argparse
 import hashlib
 import json
 import math
+import re
+import stat
 import os
 from pathlib import Path
 import signal
@@ -20,6 +22,165 @@ import threading
 import time
 import traceback
 import types
+
+
+VERSION = "ace-persistent-model-integration-v2"
+CPU_SOURCE_SHA = "c827a53f0fe03204c447e8e7d406e6d8a2c9318b4d6cd5fdc82beb84b576b6b7"
+GPU_HELPER_SHA = "ad67abbb4929cdd8b41d90ea83a6197e8138e62340239a96f8161aee1a3091ec"
+RESOURCES = {"account": "ucb736_asc2", "partition": "aa100", "qos": "gpu-testing",
+    "requested_cpus": 4, "max_allocated_cpus": 8, "memory_mib": 12288,
+    "wall_seconds": 600, "gpus": 1, "gpu_type": "a100_3g.20gb"}
+FIRST_GPU_SECONDS = 240.
+
+
+def bounded_input(path, pin, maximum):
+    if type(pin) is not str or re.fullmatch('[0-9a-f]{64}', pin) is None:
+        raise ValueError("independent input pin required")
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as handle:
+        before = os.fstat(handle.fileno())
+        if not stat.S_ISREG(before.st_mode) or before.st_size > maximum:
+            raise ValueError("regular bounded input required")
+        raw = handle.read(maximum+1)
+        after = os.fstat(handle.fileno())
+    if (len(raw) > maximum or sha(raw) != pin or
+        (before.st_ino, before.st_size, before.st_mtime_ns) !=
+        (after.st_ino, after.st_size, after.st_mtime_ns)):
+        raise ValueError("input changed or independent pin differs")
+    return raw
+
+
+def module_from_bytes(name, path, raw):
+    module = types.ModuleType(name)
+    module.__file__ = str(path)
+    exec(compile(raw, str(path), "exec"), vars(module))
+    return module
+
+
+def packet_shape(packet, cpu_inputs):
+    expected = set(cpu_inputs) | {"qualify_llm_intervention_model_service.py",
+        "supervise_llm_intervention_checkpoint_gpu.py", "cpu-preflight.json", "cpu-acceptance.json"}
+    if (type(packet) is not dict or set(packet) != {"schema", "files", "services", "resources"}
+        or packet['schema'] != VERSION or packet['services'] != ['frozen.json', 'adapter.json']
+        or json.dumps(packet['resources'], sort_keys=True) != json.dumps(RESOURCES, sort_keys=True)
+        or type(packet['files']) is not dict or set(packet['files']) != expected
+        or any(type(p) is not str or re.fullmatch('[0-9a-f]{64}', p) is None for p in packet['files'].values())):
+        raise ValueError("complete prospective GPU packet contract differs")
+
+
+def check_preflight(acceptance, packet, preflight, cpu):
+    # Pins bind a separately reviewed CPU result, not proof inferred from metadata.
+    if (acceptance.get('status') != 'cpu_service_preflight_accepted'
+        or acceptance.get('job_id') != '35348366'
+        or acceptance.get('preflight_sha256') != packet['files']['cpu-preflight.json']
+        or acceptance.get('cpu_preflight_qualified') is not True
+        or acceptance.get('model_service_qualified') is not False
+        or acceptance.get('scientific_qualified') is not False
+        or any(packet['files'][name] != pin for name, pin in preflight['files'].items())
+        or set(preflight['files']) != set(cpu.INPUTS)):
+        raise ValueError("accepted CPU preflight or exact input lineage differs")
+
+
+def service_command(prefix, root, filename, files, directory, stage_path, stage_pin, bootstrap):
+    return (str(prefix/'bin/python'), '-I', '-B', '-c', bootstrap,
+        str(root/'llm_intervention_model_service.py'), files['llm_intervention_model_service.py'],
+        '--freeze', str(root/filename), '--freeze-sha256', files[filename],
+        '--output', str(directory/'worker'), '--runtime-stage', str(stage_path),
+        '--runtime-stage-sha256', stage_pin)
+
+
+def child_environment(prefix, inherited):
+    env = dict(inherited)
+    for name in ('PYTHONHOME', 'PYTHONPATH', 'LD_PRELOAD'):
+        env.pop(name, None)
+    if not env.get('CUDA_VISIBLE_DEVICES'):
+        raise ValueError("scheduler GPU visibility must be preserved, not fabricated")
+    env.update(LD_LIBRARY_PATH=str(prefix/'lib'), OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1',
+        MKL_NUM_THREADS='1', NUMEXPR_NUM_THREADS='1', HF_HUB_OFFLINE='1',
+        TRANSFORMERS_OFFLINE='1', TOKENIZERS_PARALLELISM='false', PYTHONDONTWRITEBYTECODE='1')
+    return env
+
+
+def require_session_time(start, now):
+    if now-start >= 310.:
+        raise TimeoutError("less than 250 seconds remain in the original GPU deadline")
+
+
+def validate_runtime(directory, freeze, files, stage, stage_pin, cpu, service, diagnostic, checks, provenance):
+    worker = Path(directory)/'worker'
+    def read(name):
+        with (worker/name).open('rb') as handle:
+            raw = handle.read(16*1024**2+1)
+        if len(raw) > 16*1024**2:
+            raise ValueError("bounded runtime receipt exceeded")
+        return service.decode(raw)
+    # Reuse the CPU baseline/metadata/cache/provenance checks. The second
+    # observation is explicitly mapped to each GPU phase, never relabeled on disk.
+    for phase in ('after-model-load', 'after-requests'):
+        def mapped(name):
+            return read('runtime-'+phase+'.json' if name == 'runtime-after-cpu-tokenization.json' else name)
+        cpu.validate_runtime_records(mapped, stage, stage_pin, service, diagnostic, checks, provenance)
+    expected = {Path(n).stem: pin for n,pin in freeze['sources'].items() if n != 'llm_intervention_model_service.py'}
+    for phase in ('after-service-imports', 'after-model-load', 'after-requests'):
+        projects = read('runtime-'+phase+'.json')['captured_project_modules']
+        if (not set(expected) <= set(projects) or not set(projects) <= set(expected)|{'__main__','__mp_main__'}
+            or any(projects[n]['sha256'] != pin for n,pin in expected.items())):
+            raise ValueError("GPU service project import closure differs")
+    auth = read('authenticated.json')
+    if (auth['runtime'] != service.RUNTIME or set(auth['models']) != service.MODEL_NAMES
+        or any(row['sha256'] != freeze['model_files'][n] or type(row['bytes']) is not int or row['bytes'] <= 0
+               for n,row in auth['models'].items())
+        or read('terminal.json')['runtime_stage_sha256'] != stage_pin):
+        raise ValueError("GPU model input or runtime-stage binding differs")
+    return {'runtime_observations': ['after-service-imports','after-model-load','after-requests'],
+            'stage_sha256': stage_pin, 'actual_imports_qualified': True}
+
+
+def authenticate_allocation(raw, job_id, resources, helper):
+    scheduler_fields, memory_mib = helper.scheduler_fields, helper.memory_mib
+    expected = {"account": "ucb736_asc2", "partition": "aa100", "qos": "gpu-testing",
+                "requested_cpus": 4, "max_allocated_cpus": 8, "memory_mib": 12288,
+                "wall_seconds": 600, "gpus": 1, "gpu_type": "a100_3g.20gb"}
+    if resources != expected or not re.fullmatch(r"[1-9][0-9]*", job_id):
+        raise ValueError("altered resource request or invalid job identity")
+    fields = scheduler_fields(raw)
+    for name, wanted in {"JobId": job_id, "Account": "ucb736_asc2", "Partition": "aa100",
+                         "QOS": "gpu-testing", "JobState": "RUNNING", "NumNodes": "1",
+                         "NumTasks": "1", "TimeLimit": "00:10:00", "Requeue": "0", "Restarts": "0"}.items():
+        if fields.get(name) != wanted:
+            raise ValueError("scheduler allocation mismatch: " + name)
+    if not fields.get("UserId", "").startswith("paco0228("):
+        raise ValueError("unexpected job owner")
+    pairs = fields.get("AllocTRES", "").split(",")
+    tres = {}
+    for pair in pairs:
+        if pair.count("=") != 1:
+            raise ValueError("invalid AllocTRES")
+        key, value = pair.split("=")
+        if key in tres:
+            raise ValueError("duplicate allocated resource")
+        tres[key] = value
+    # Alpine may report only the typed GRES. It is the authoritative slice
+    # count. If an aggregate count is also present, it must agree exactly.
+    if (("gres/gpu" in tres and tres["gres/gpu"] != "1")
+            or tres.get("gres/gpu:a100_3g.20gb") != "1"
+            or tres.get("node") != "1" or not str(tres.get("cpu", "")).isdigit()
+            or not 4 <= int(tres["cpu"]) <= 8 or fields.get("NumCPUs") != tres["cpu"]
+            or fields.get("CPUs/Task") != tres["cpu"]
+            or memory_mib(tres.get("mem", "")) != 12288
+            or any(k.startswith("gres/") and k not in {"gres/gpu", "gres/gpu:a100_3g.20gb"} for k in tres)):
+        raise ValueError("actual CPU/memory/GPU allocation differs")
+    requested = {}
+    for pair in fields.get("ReqTRES", "").split(","):
+        if pair.count("=") != 1:
+            raise ValueError("invalid requested resource evidence")
+        key, value = pair.split("=")
+        if key in requested:
+            raise ValueError("duplicate requested resource")
+        requested[key] = value
+    if requested.get("cpu") != "4" or memory_mib(requested.get("mem", "")) != 12288:
+        raise ValueError("CPU/memory request differs from frozen request")
+    return {"fields": fields, "allocated_resources": tres}
 
 
 def sha(raw):
@@ -149,55 +310,24 @@ def main():
     signal.signal(signal.SIGALRM, deadline)
     signal.signal(signal.SIGTERM, deadline)
     signal.signal(signal.SIGINT, deadline)
-    signal.setitimer(signal.ITIMER_REAL, 560.)
+    signal.setitimer(signal.ITIMER_REAL, FIRST_GPU_SECONDS)
     try:
-        raw = Path(args.packet).read_bytes()
-        if sha(raw) != args.packet_sha256:
-            raise ValueError("independent packet pin mismatch")
+        cpu_raw = bounded_input(root/'qualify_llm_intervention_service_cpu.py', CPU_SOURCE_SHA, 128*1024)
+        cpu_checks = module_from_bytes('pinned_cpu_checks', root/'qualify_llm_intervention_service_cpu.py', cpu_raw)
+        raw = bounded_input(args.packet, args.packet_sha256, 128*1024)
         packet = json.loads(raw)
-        if (set(packet) != {"schema", "files", "services", "resources"}
-                or packet["schema"] != "ace-persistent-model-integration-v1"
-                or packet["services"] != ["frozen.json", "adapter.json"]):
-            raise ValueError("fixed artificial integration contract differs")
-        data = {}
-        for name, expected in packet["files"].items():
-            if type(name) is not str or Path(name).name != name or (root/name).is_symlink():
-                raise ValueError("plain regular pinned packet inputs required")
-            data[name] = (root/name).read_bytes()
-            if sha(data[name]) != expected:
-                raise ValueError("packet input mismatch: " + name)
-        # Bootstrap only captured, independently authenticated service bytes.
-        name = "llm_intervention_model_service"
-        if name in sys.modules:
-            raise ValueError("service module already cached")
-        service = types.ModuleType(name)
-        service.__file__ = str(root/(name+".py"))
-        sys.modules[name] = service
-        exec(compile(data[name+".py"], service.__file__, "exec"), service.__dict__)
-        needed = set(service.SOURCE_NAMES) | {"qualify_llm_intervention_model_service.py",
-            "supervise_llm_intervention_checkpoint_gpu.py", "frozen.json", "adapter.json",
-            "case0.json", "case3.json", "stress.json", "trained_adapter.pt", "gpu09_terminal.json"}
-        if set(data) != needed or Path(__file__).absolute() != root/"qualify_llm_intervention_model_service.py":
-            raise ValueError("unexpected complete packet membership/entrypoint")
-        freezes = [service.validate_freeze(service.decode(data[n])) for n in packet["services"]]
-        for f in freezes:
-            if (f["scope"] != "artificial" or f["sources"] != {n: packet["files"][n] for n in service.SOURCE_NAMES}
-                    or f["limits"] != {"startup_seconds": 180, "request_seconds": 30,
-                        "idle_seconds": 30, "total_seconds": 240, "max_requests": 4}):
-                raise ValueError("service source/scope/deadline contract differs")
-        if (freezes[0]["treatment"] != "frozen" or freezes[1]["treatment"] != "artificial_adapter"
-                or freezes[0]["model_files"] != freezes[1]["model_files"]
-                or freezes[0]["model_directory"] != freezes[1]["model_directory"]
-                or freezes[1]["adapter"] != {"file": "trained_adapter.pt", "sha256": packet["files"]["trained_adapter.pt"],
-                    "training_receipt": "gpu09_terminal.json", "training_receipt_sha256": packet["files"]["gpu09_terminal.json"],
-                    "training_scope": "artificial"}):
-            raise ValueError("frozen/adapter treatment bindings differ")
-        previous = service.decode(data["gpu09_terminal.json"])
-        if previous["status"] != "complete" or previous["adapter_sha256"] != packet["files"]["trained_adapter.pt"]:
-            raise ValueError("saved artificial adapter lineage mismatch")
-        if (list(sys.version_info[:3]) != [3, 10, 19]
-                or {n: service.importlib.metadata.version(n) for n in service.RUNTIME} != service.RUNTIME):
-            raise ValueError("integration Python/package versions differ")
+        packet_shape(packet, cpu_checks.INPUTS)
+        data = {n: bounded_input(root/n, pin, 8*1024**2) for n,pin in packet['files'].items()}
+        if (packet['files']['qualify_llm_intervention_service_cpu.py'] != CPU_SOURCE_SHA
+            or packet['files']['supervise_llm_intervention_checkpoint_gpu.py'] != GPU_HELPER_SHA
+            or Path(__file__).absolute() != root/'qualify_llm_intervention_model_service.py'):
+            raise ValueError("independent helper pin or entrypoint differs")
+        service = module_from_bytes('pinned_service', root/'llm_intervention_model_service.py', data['llm_intervention_model_service.py'])
+        diagnostic = module_from_bytes('pinned_diagnostic', root/'qualify_llm_intervention_runtime_metadata.py', data['qualify_llm_intervention_runtime_metadata.py'])
+        preflight = service.decode(data['cpu-preflight.json'])
+        freezes = cpu_checks.authenticate(root, preflight, {n:data[n] for n in cpu_checks.INPUTS}, service, diagnostic)
+        check_preflight(service.decode(data['cpu-acceptance.json']), packet, preflight, cpu_checks)
+        runtime_checks = module_from_bytes('pinned_runtime_checks', root/'llm_intervention_service_runtime.py', data['llm_intervention_service_runtime.py'])
         captured = {n: data[n] for n in service.SOURCE_NAMES}
         loader = service.CapturedSources(captured, root)
         sys.meta_path.insert(0, loader)
@@ -209,7 +339,30 @@ def main():
         job_id = os.environ.get("SLURM_JOB_ID", "")
         scheduler = scheduler_record(out, job_id)
         save(out/"allocation.json", {"raw": scheduler,
-            "validated": supervisor.authenticate_allocation(scheduler, job_id, packet["resources"])})
+            "validated": authenticate_allocation(scheduler, job_id, packet["resources"], supervisor)})
+        scratch = Path(os.environ.get('SLURM_SCRATCH',''))
+        if not scratch.is_absolute():
+            raise ValueError('absolute node scratch required')
+        scratch = scratch.resolve(strict=True)
+        if not scratch.is_dir() or scratch.stat().st_uid != os.getuid():
+            raise ValueError('owned node scratch required')
+        local = scratch/('ace-service-gpu-'+job_id)
+        local.mkdir(mode=0o700, exist_ok=False)
+        helper = module_from_bytes('pinned_archive_helper', root/'llm_intervention_runtime_archive.py', data['llm_intervention_runtime_archive.py'])
+        event = diagnostic.events(out, start, cpu, 512*1024**2)
+        event('stage_start')
+        stage = diagnostic.stage_runtime(preflight, helper, local/'runtime', event)
+        stage_path = out/'stage.json'
+        save(stage_path, stage)
+        stage_pin = sha(stage_path.read_bytes())
+        event('stage_complete', staged_prefix=stage['staged_prefix'])
+        prefix = Path(stage['staged_prefix'])
+        provenance = diagnostic.provenance_contract(prefix)
+        save(out/'independent-provenance-sources.json', provenance)
+        # PersistentPolicy inherits this environment. Keep scheduler GPU visibility.
+        environment = child_environment(prefix, os.environ)
+        os.environ.clear()
+        os.environ.update(environment)
         cases = {n: service.decode(data[n]) for n in ("case0.json", "case3.json", "stress.json")}
         tasks = {n: unpack_envelope(v)[1] for n, v in cases.items()}
         if tasks["case0.json"] == tasks["case3.json"]:
@@ -234,9 +387,10 @@ def main():
         for i, (filename, freeze) in enumerate(zip(packet["services"], freezes)):
             directory = out/f"session{i}"
             directory.mkdir()
-            command = (sys.executable, "-B", str(root/"llm_intervention_model_service.py"),
-                "--freeze", str(root/filename), "--freeze-sha256", packet["files"][filename],
-                "--output", str(directory/"worker"))
+            require_session_time(start, time.monotonic())
+            command = service_command(prefix, root, filename, packet['files'], directory,
+                                      stage_path, stage_pin, diagnostic.BOOTSTRAP)
+            event('service_start', ordinal=i, manifest=filename)
             # Retain this object's process handle even if its handshake fails
             # inside __init__. The independent final watchdog can then clean
             # the owned group even if the transport has marked itself closed.
@@ -246,6 +400,14 @@ def main():
                 max_stderr_bytes=1024*1024, max_requests=4, task=tasks["case0.json"])
             with current:
                 a = current.call(cases["case0.json"], 40)
+                if i == 0:
+                    sample = supervisor.gpu_process_sample(current.process.pid)
+                    save(directory/'first_gpu_sample.json', sample)
+                    require_gpu_sample(sample, active=True)
+                    if time.monotonic()-start >= FIRST_GPU_SECONDS:
+                        raise TimeoutError('first verified GPU work missed startup limit')
+                    event('first_gpu_work', pid=current.process.pid)
+                    signal.setitimer(signal.ITIMER_REAL, max(.01, start+560.-time.monotonic()))
                 current.bind_task(tasks["case3.json"])
                 current.choose(cases["case3.json"]["state"], directory/"episode1", 0)
                 current.choose(cases["stress.json"]["state"], directory/"episode1", 1)
@@ -259,7 +421,11 @@ def main():
             validation = validate_session(directory, freeze_sha256=packet["files"][filename],
                 identity_sha256=service.digest(service.identity(freeze)),
                 envelope_pins=[service.digest(cases[n]) for n in ("case0.json", "case3.json", "stress.json", "case0.json")])
-            sessions.append({"treatment": freeze["treatment"], "pid": current.process.pid, **validation})
+            runtime_validation = validate_runtime(directory, freeze, packet['files'], stage, stage_pin,
+                cpu_checks, service, diagnostic, runtime_checks, provenance)
+            sessions.append({"treatment": freeze["treatment"], "pid": current.process.pid,
+                             **validation, **runtime_validation})
+            event('service_complete', ordinal=i, pid=current.process.pid)
             current = None
         stop.set()
         monitor.join(timeout=12.)
@@ -271,7 +437,8 @@ def main():
                        and r.get("owned_rows") for r in records):
                 raise ValueError("independent owned-process GPU telemetry missing")
         arm_final_deadline(start, None)
-        save(out/"terminal.json", {"status": "complete", "packet_sha256": args.packet_sha256,
+        save(out/"terminal.json", {"schema": VERSION, "status": "complete", "packet_sha256": args.packet_sha256,
+            "stage_sha256": stage_pin, "cpu_preflight_sha256": packet["files"]["cpu-preflight.json"],
             "sessions": sessions, "new_training_updates": 0, "environment_responses": 0,
             "scientific_worlds": 0, "elapsed_seconds": time.monotonic()-start,
             "supervisor_process_cpu_seconds": time.process_time()-cpu,

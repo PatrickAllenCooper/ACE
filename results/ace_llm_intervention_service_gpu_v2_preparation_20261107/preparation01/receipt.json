@@ -1,0 +1,31 @@
+{
+  "accepted_cpu_preflight_sha256": "f4f0fea9f5c3d77720d365256583f7cebd7aa823777db11a1f98f32398df22f4",
+  "actual_gpu_qualification": false,
+  "checks": {
+    "actual_models_gpu_runtime_or_scientific_execution": false,
+    "child_cpu_seconds": 0.093666,
+    "command": [
+      "python3",
+      "-B",
+      "-c",
+      "import sys,unittest;sys.path.insert(0,'/Users/pat/code/ACE/scripts/research');import test_llm_intervention_service_gpu_runtime as m;result=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(m.GpuRuntimeTests));sys.exit(not result.wasSuccessful())"
+    ],
+    "cwd": "/tmp",
+    "elapsed_seconds": 0.097985791,
+    "methods": 8,
+    "peak_child_rss_bytes": 21839872,
+    "returncode": 0
+  },
+  "closed_cpu_seconds": 6470,
+  "closed_gpu_seconds": 836,
+  "cpu_admission_seconds": 10070,
+  "gpu_admission_seconds": 836,
+  "new_allocation": false,
+  "required_remaining": 0,
+  "review_sha256": "9315a8c957c3eb5682eae3aab7ea8ff67e285020bc3ec03ac8cfba891a341006",
+  "scientific_qualification": false,
+  "source_sha256": "ee75aead983f30393774cd239af53f9ef1caf7876bdef23089b9c0ae3f1c1174",
+  "status": "implementation_reviewed_not_submitted",
+  "test_sha256": "2b6ca6d11156c361cb4e9c5af42583c3f2e0fffb4937b1ed178e1e0aa5621144",
+  "utc": "2026-11-07T21:19:14.604191+00:00"
+}
