@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/scratch/local/35349555/ace-threading-35349555/runtime/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_threading_20261107_01/qualify_llm_intervention_threading.py",
+    "643920e4a306b42b5e100b1d578f792fad84c1e4afc45f4ba60933e1930be20a",
+    "--packet",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_threading_20261107_01/diagnostic.json",
+    "--packet-sha256",
+    "a601f263a314cb9121cd51c74023e07d27bc263e49d8b80f2146ba3d5f1fb3fe",
+    "--mode",
+    "worker",
+    "--prefix",
+    "/scratch/local/35349555/ace-threading-35349555/runtime",
+    "--output",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_threading_20261107_01/qualification/inherited/parent/child"
+  ],
+  "explicit_environment": false,
+  "parent_pgid": 1640178,
+  "pgid": 1640178,
+  "pid": 1640217
+}

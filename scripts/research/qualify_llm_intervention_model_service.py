@@ -24,7 +24,7 @@ import traceback
 import types
 
 
-VERSION = "ace-persistent-model-integration-v2"
+VERSION = "ace-persistent-model-integration-v3"
 CPU_SOURCE_SHA = "c827a53f0fe03204c447e8e7d406e6d8a2c9318b4d6cd5fdc82beb84b576b6b7"
 GPU_HELPER_SHA = "ad67abbb4929cdd8b41d90ea83a6197e8138e62340239a96f8161aee1a3091ec"
 RESOURCES = {"account": "ucb736_asc2", "partition": "aa100", "qos": "gpu-testing",
@@ -91,14 +91,51 @@ def service_command(prefix, root, filename, files, directory, stage_path, stage_
 
 def child_environment(prefix, inherited):
     env = dict(inherited)
-    for name in ('PYTHONHOME', 'PYTHONPATH', 'LD_PRELOAD'):
+    for name in ('PYTHONHOME', 'PYTHONPATH', 'LD_PRELOAD', 'MKL_SERVICE_FORCE_INTEL'):
         env.pop(name, None)
     if not env.get('CUDA_VISIBLE_DEVICES'):
         raise ValueError("scheduler GPU visibility must be preserved, not fabricated")
     env.update(LD_LIBRARY_PATH=str(prefix/'lib'), OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1',
         MKL_NUM_THREADS='1', NUMEXPR_NUM_THREADS='1', HF_HUB_OFFLINE='1',
-        TRANSFORMERS_OFFLINE='1', TOKENIZERS_PARALLELISM='false', PYTHONDONTWRITEBYTECODE='1')
+        TRANSFORMERS_OFFLINE='1', TOKENIZERS_PARALLELISM='false', PYTHONDONTWRITEBYTECODE='1',
+        MKL_THREADING_LAYER='GNU')
     return env
+
+
+def install_child_environment(environment):
+    """Set this owned launcher's C environment before its fresh child exec.
+
+    NumPy may have set C variables absent from Python's os.environ mapping.
+    Clear disallowed C variables explicitly, then overwrite the threading layer.
+    This does not change libraries already loaded in the parent process.
+    """
+    import ctypes
+    libc = ctypes.CDLL(None)
+    libc.getenv.argtypes = [ctypes.c_char_p]
+    libc.getenv.restype = ctypes.c_char_p
+    keys = ('MKL_THREADING_LAYER', 'MKL_SERVICE_FORCE_INTEL', 'CUDA_VISIBLE_DEVICES')
+    def snapshot():
+        c = {}
+        for name in keys:
+            value = libc.getenv(name.encode())
+            if value is not None and len(value)>8192:
+                raise ValueError('bounded child environment required')
+            c[name] = None if value is None else value.decode('utf-8')
+        return {'python':{n:os.environ.get(n) for n in keys},'c':c}
+    before = snapshot()
+    if (environment.get('MKL_THREADING_LAYER')!='GNU'
+        or any(n in environment for n in ('MKL_SERVICE_FORCE_INTEL','PYTHONHOME','PYTHONPATH','LD_PRELOAD'))
+        or not environment.get('CUDA_VISIBLE_DEVICES')):
+        raise ValueError('explicit GNU child environment contract differs')
+    for name in ('MKL_SERVICE_FORCE_INTEL','PYTHONHOME','PYTHONPATH','LD_PRELOAD'):
+        os.unsetenv(name)
+    os.environ.clear()
+    os.environ.update(environment)
+    after = snapshot()
+    expected = {n:environment.get(n) for n in keys}
+    if after['python']!=expected or after['c']!=expected:
+        raise ValueError('Python/C child environment handoff differs')
+    return {'before':before,'after':after,'loaded_parent_libraries_changed':False}
 
 
 def require_session_time(start, now):
@@ -361,8 +398,7 @@ def main():
         save(out/'independent-provenance-sources.json', provenance)
         # PersistentPolicy inherits this environment. Keep scheduler GPU visibility.
         environment = child_environment(prefix, os.environ)
-        os.environ.clear()
-        os.environ.update(environment)
+        save(out/'child-environment.json', install_child_environment(environment))
         cases = {n: service.decode(data[n]) for n in ("case0.json", "case3.json", "stress.json")}
         tasks = {n: unpack_envelope(v)[1] for n, v in cases.items()}
         if tasks["case0.json"] == tasks["case3.json"]:

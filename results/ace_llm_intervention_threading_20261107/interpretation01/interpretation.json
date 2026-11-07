@@ -1,0 +1,287 @@
+{
+  "allocated_cpu_seconds": 182,
+  "conclusion": "Captured numerical parent imports set C MKL_THREADING_LAYER=INTEL while Pythonmapping staysunset. Original clear/update leaves thatvalue inherited. Torch-firstcopiedchild reproduces exact priorstderr. ExplicitGNU freshchild passes imports/CPUarithmetic. This identifies the failure mechanism in thisdiagnostic, not the unrecorded historicalGPU11environment.",
+  "cpu_admission_seconds": 10452,
+  "cumulative_preparation_allowance": 3600,
+  "disposition_sha256": "6c84b6d84f4a923df4989b11129b955454ef9a298a79012d7ee826b961985026",
+  "gpu_seconds": 0,
+  "job_id": "35349555",
+  "known_closed_cpu_seconds": 6852,
+  "known_gpu_seconds": 886,
+  "memory_caution": "BatchRSS is near6GiB allocation. Different scope from processRSS. No comfortableheadroom claim.",
+  "model_service_qualified": false,
+  "review_required": true,
+  "scientific_result": false,
+  "slurm_batch_maxrss_kib": 6290032,
+  "source_environment_changed": false,
+  "stage_elapsed_seconds": 60.06058320897864,
+  "status": "interpretation_independent_review_pending",
+  "terminal_sha256": "26d9a1a2852df9a24bf82e977395ea3260535865b42b443cf39e9f0f0158236d",
+  "utc": "2026-11-07T21:43:21.029440+00:00",
+  "variants": {
+    "explicit_gnu": {
+      "child_terminal": {
+        "environment_responses": 0,
+        "explicit_cuda_api_called": false,
+        "model_loaded": false,
+        "origins": {
+          "numpy": "/scratch/local/35349555/ace-threading-35349555/runtime/lib/python3.10/site-packages/numpy/__init__.py",
+          "scipy": "/scratch/local/35349555/ace-threading-35349555/runtime/lib/python3.10/site-packages/scipy/__init__.py",
+          "torch": "/scratch/local/35349555/ace-threading-35349555/runtime/lib/python3.10/site-packages/torch/__init__.py"
+        },
+        "status": "imports_and_cpu_arithmetic_complete",
+        "training_updates": 0,
+        "versions": {
+          "numpy": "2.2.5",
+          "scipy": "1.15.3",
+          "torch": "2.9.1+cu128"
+        }
+      },
+      "observations": {
+        "after-original-handoff": {
+          "c": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": "/scratch/local/35349555/ace-threading-35349555/runtime/lib",
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": "INTEL",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          },
+          "python": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": "/scratch/local/35349555/ace-threading-35349555/runtime/lib",
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": null,
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          }
+        },
+        "after-parent-imports": {
+          "c": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": null,
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": "INTEL",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          },
+          "python": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": null,
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": null,
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          }
+        },
+        "before-parent-imports": {
+          "c": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": null,
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": null,
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          },
+          "python": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": null,
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": null,
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          }
+        },
+        "child/before-torch": {
+          "c": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": "/scratch/local/35349555/ace-threading-35349555/runtime/lib",
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": "GNU",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          },
+          "python": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": "/scratch/local/35349555/ace-threading-35349555/runtime/lib",
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": "GNU",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          }
+        }
+      },
+      "parent_terminal": {
+        "child_cpu_seconds": 5.156705,
+        "child_receipt_present": true,
+        "child_returncode": 0,
+        "cumulative_child_maxrss_bytes": 691150848,
+        "elapsed_seconds": 5.526374586013844,
+        "environment_responses": 0,
+        "model_loaded": false,
+        "model_service_qualified": false,
+        "status": "parent_child_observation_complete",
+        "training_updates": 0,
+        "variant": "explicit_gnu"
+      },
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "inherited": {
+      "child_terminal": null,
+      "observations": {
+        "after-original-handoff": {
+          "c": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": "/scratch/local/35349555/ace-threading-35349555/runtime/lib",
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": "INTEL",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          },
+          "python": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": "/scratch/local/35349555/ace-threading-35349555/runtime/lib",
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": null,
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          }
+        },
+        "after-parent-imports": {
+          "c": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": null,
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": "INTEL",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          },
+          "python": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": null,
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": null,
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          }
+        },
+        "before-parent-imports": {
+          "c": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": null,
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": null,
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          },
+          "python": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": null,
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": null,
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          }
+        },
+        "child/before-torch": {
+          "c": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": "/scratch/local/35349555/ace-threading-35349555/runtime/lib",
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": "INTEL",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          },
+          "python": {
+            "CUDA_VISIBLE_DEVICES": "",
+            "LD_LIBRARY_PATH": "/scratch/local/35349555/ace-threading-35349555/runtime/lib",
+            "LD_PRELOAD": null,
+            "MKL_NUM_THREADS": "1",
+            "MKL_SERVICE_FORCE_INTEL": null,
+            "MKL_THREADING_LAYER": "INTEL",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "PYTHONHOME": null,
+            "PYTHONPATH": null
+          }
+        }
+      },
+      "parent_terminal": {
+        "child_cpu_seconds": 2.035634,
+        "child_receipt_present": false,
+        "child_returncode": 1,
+        "cumulative_child_maxrss_bytes": 578433024,
+        "elapsed_seconds": 4.027195494010812,
+        "environment_responses": 0,
+        "model_loaded": false,
+        "model_service_qualified": false,
+        "status": "parent_child_observation_complete",
+        "training_updates": 0,
+        "variant": "inherited"
+      },
+      "stderr": "Error: mkl-service + Intel(R) MKL: MKL_THREADING_LAYER=INTEL is incompatible with libgomp.so.1 library.\n\tTry to import numpy first or set the threading layer accordingly. Set MKL_SERVICE_FORCE_INTEL to force it.\n",
+      "stderr_sha256": "a7725ed693545ef8bef7299d13c741a60cc1af465e23c676f12d42cb623df82e"
+    }
+  }
+}
