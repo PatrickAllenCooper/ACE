@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/Users/pat/code/ACE/.venv_test/bin/python",
+    "-I",
+    "-B",
+    "-X",
+    "importtime",
+    "-c",
+    "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-runtime-metadata-preparation-20261107-01/fixtures/test_child_bootstrap_checks_captured_bytes_before_execution/bootstrap-target.py",
+    "0000000000000000000000000000000000000000000000000000000000000000",
+    "--packet",
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-runtime-metadata-preparation-20261107-01/fixtures/test_child_bootstrap_checks_captured_bytes_before_execution/diagnostic.json",
+    "--packet-sha256",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "--self-sha256",
+    "fd2a12da2adc0598c43c15bf3b6bc320728eb1877274cf94b617e789b6f052ab",
+    "--helper-sha256",
+    "7664772074cc84bdc9d668f5a99aae475a9e54aafc0c85486e23bf9b88ba747e",
+    "--probe-sha256",
+    "8d6f9e2761922802712a8bf2e77df6bdec3708ce1e08272864bebbf76f0d1951",
+    "--worker",
+    "--staged-prefix",
+    "/fabricated-prefix",
+    "--stage-sha256",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "returncode": 1,
+  "stderr": "import time: self [us] | cumulative | imported package\nimport time:        81 |         81 |   _io\nimport time:        17 |         17 |   marshal\nimport time:        96 |         96 |   posix\nimport time:       201 |        395 | _frozen_importlib_external\nimport time:       382 |        382 |   time\nimport time:        98 |        480 | zipimport\nimport time:        25 |         25 |     _codecs\nimport time:      1842 |       1866 |   codecs\nimport time:       774 |        774 |   encodings.aliases\nimport time:       918 |        918 |   encodings.cp437\nimport time:      1265 |       4822 | encodings\nimport time:       343 |        343 | encodings.utf_8\nimport time:        38 |         38 | _signal\nimport time:       343 |        343 | encodings.latin_1\nimport time:        18 |         18 |     _abc\nimport time:       431 |        448 |   abc\nimport time:       330 |        778 | io\nimport time:        24 |         24 |       _stat\nimport time:       578 |        602 |     stat\nimport time:      2389 |       2389 |     _collections_abc\nimport time:       483 |        483 |       genericpath\nimport time:      1250 |       1732 |     posixpath\nimport time:      2273 |       6994 |   os\nimport time:       436 |        436 |   _sitebuiltins\nimport time:        30 |         30 |     _locale\nimport time:       252 |        282 |   _bootlocale\nimport time:       258 |        258 |   sitecustomize\nimport time:      1908 |       9876 | site\nimport time:       468 |        468 |   _hashlib\nimport time:       239 |        239 |   _blake2\nimport time:       226 |        226 |   _sha3\nimport time:       668 |       1599 | hashlib\nimport time:       826 |        826 |         types\nimport time:      2192 |       3018 |       enum\nimport time:        28 |         28 |         _sre\nimport time:       625 |        625 |           sre_constants\nimport time:      2680 |       3305 |         sre_parse\nimport time:      1979 |       5310 |       sre_compile\nimport time:       305 |        305 |             _heapq\nimport time:      1079 |       1383 |           heapq\nimport time:        39 |         39 |           itertools\nimport time:       271 |        271 |           keyword\nimport time:        27 |         27 |             _operator\nimport time:       918 |        945 |           operator\nimport time:       633 |        633 |           reprlib\nimport time:        23 |         23 |           _collections\nimport time:      3170 |       6462 |         collections\nimport time:        15 |         15 |         _functools\nimport time:      2030 |       8505 |       functools\nimport time:       555 |        555 |       copyreg\nimport time:       917 |      18303 |     re\nimport time:       542 |      18844 |   fnmatch\nimport time:        43 |         43 |     nt\nimport time:        22 |         22 |     nt\nimport time:        18 |         18 |     nt\nimport time:        18 |         18 |     nt\nimport time:      1615 |       1713 |   ntpath\nimport time:        21 |         21 |   errno\nimport time:       223 |        223 |     urllib\nimport time:      1278 |       1278 |     warnings\nimport time:      2540 |       4040 |   urllib.parse\nimport time:      3785 |      28402 | pathlib\nTraceback (most recent call last):\n  File \"<string>\", line 6, in <module>\nValueError: independent bootstrap source pin differs\n",
+  "stdout": ""
+}

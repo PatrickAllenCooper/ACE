@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/Users/pat/code/ACE/.venv_test/bin/python",
+    "-I",
+    "-B",
+    "-X",
+    "importtime",
+    "-c",
+    "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-runtime-metadata-preparation-20261107-01/fixtures/test_child_bootstrap_checks_captured_bytes_before_execution/bootstrap-target.py",
+    "fd2a12da2adc0598c43c15bf3b6bc320728eb1877274cf94b617e789b6f052ab",
+    "--packet",
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-runtime-metadata-preparation-20261107-01/fixtures/test_child_bootstrap_checks_captured_bytes_before_execution/diagnostic.json",
+    "--packet-sha256",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "--self-sha256",
+    "fd2a12da2adc0598c43c15bf3b6bc320728eb1877274cf94b617e789b6f052ab",
+    "--helper-sha256",
+    "7664772074cc84bdc9d668f5a99aae475a9e54aafc0c85486e23bf9b88ba747e",
+    "--probe-sha256",
+    "8d6f9e2761922802712a8bf2e77df6bdec3708ce1e08272864bebbf76f0d1951",
+    "--worker",
+    "--staged-prefix",
+    "/fabricated-prefix",
+    "--stage-sha256",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "returncode": 0,
+  "stderr": "import time: self [us] | cumulative | imported package\nimport time:        79 |         79 |   _io\nimport time:        13 |         13 |   marshal\nimport time:        94 |         94 |   posix\nimport time:       192 |        376 | _frozen_importlib_external\nimport time:       529 |        529 |   time\nimport time:        90 |        619 | zipimport\nimport time:        21 |         21 |     _codecs\nimport time:      1576 |       1596 |   codecs\nimport time:       571 |        571 |   encodings.aliases\nimport time:       691 |        691 |   encodings.cp437\nimport time:       989 |       3845 | encodings\nimport time:       142 |        142 | encodings.utf_8\nimport time:        30 |         30 | _signal\nimport time:       155 |        155 | encodings.latin_1\nimport time:        15 |         15 |     _abc\nimport time:       276 |        290 |   abc\nimport time:       200 |        490 | io\nimport time:        19 |         19 |       _stat\nimport time:       337 |        356 |     stat\nimport time:      2097 |       2097 |     _collections_abc\nimport time:       280 |        280 |       genericpath\nimport time:       955 |       1235 |     posixpath\nimport time:      1883 |       5569 |   os\nimport time:       256 |        256 |   _sitebuiltins\nimport time:        24 |         24 |     _locale\nimport time:       122 |        146 |   _bootlocale\nimport time:       168 |        168 |   sitecustomize\nimport time:      1461 |       7597 | site\nimport time:       463 |        463 |   _hashlib\nimport time:       223 |        223 |   _blake2\nimport time:       224 |        224 |   _sha3\nimport time:       485 |       1395 | hashlib\nimport time:       797 |        797 |         types\nimport time:      1946 |       2742 |       enum\nimport time:        33 |         33 |         _sre\nimport time:       430 |        430 |           sre_constants\nimport time:      2520 |       2950 |         sre_parse\nimport time:      1850 |       4831 |       sre_compile\nimport time:       293 |        293 |             _heapq\nimport time:       811 |       1103 |           heapq\nimport time:        37 |         37 |           itertools\nimport time:       102 |        102 |           keyword\nimport time:        26 |         26 |             _operator\nimport time:       781 |        807 |           operator\nimport time:       458 |        458 |           reprlib\nimport time:        24 |         24 |           _collections\nimport time:      2945 |       5473 |         collections\nimport time:        16 |         16 |         _functools\nimport time:      1966 |       7455 |       functools\nimport time:       376 |        376 |       copyreg\nimport time:       714 |      16117 |     re\nimport time:       405 |      16521 |   fnmatch\nimport time:        40 |         40 |     nt\nimport time:        20 |         20 |     nt\nimport time:        19 |         19 |     nt\nimport time:        18 |         18 |     nt\nimport time:      1354 |       1448 |   ntpath\nimport time:        20 |         20 |   errno\nimport time:        58 |         58 |     urllib\nimport time:      1099 |       1099 |     warnings\nimport time:      2404 |       3561 |   urllib.parse\nimport time:      3456 |      25005 | pathlib\nimport time:       357 |        357 |       _json\nimport time:       522 |        878 |     json.scanner\nimport time:       994 |       1872 |   json.decoder\nimport time:       986 |        986 |   json.encoder\nimport time:       649 |       3505 | json\n",
+  "stdout": ""
+}

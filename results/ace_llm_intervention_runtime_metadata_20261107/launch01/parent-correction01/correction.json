@@ -1,0 +1,36 @@
+{
+  "cost_scope": "local writer extraction/invocation plus bounded legacy-journal read, excludes preparation/review, not whole-cycle cost",
+  "fixture": "one NEW actual generated writer AST invocation, local exclusive JSON roundtrip; no remote or old tests",
+  "fixture_cpu_seconds": 0.0018680000000000016,
+  "fixture_wall_seconds": 0.002214250000000001,
+  "input_packet_unchanged": true,
+  "legacy_journals": {
+    "readiness.json": {
+      "json_error": null,
+      "last_bytes_hex": "220a7d0a",
+      "sha256": "f6af11d9947865224839b1ce4d0d1d9f3177feaa161e82d5ecf0048af6b1c3b5"
+    },
+    "submission.intent.json": {
+      "json_error": null,
+      "last_bytes_hex": "220a7d0a",
+      "sha256": "dfe1b1d5c9e01cfa9969eca261016a5053135e538bc3aa2606d289653cf9fcfa"
+    },
+    "submission.result.json": {
+      "json_error": null,
+      "last_bytes_hex": "220a7d0a",
+      "sha256": "67157d506deb9052199bc15de81268cbb952fa4a586682a5ba23591e185828a4"
+    }
+  },
+  "legacy_scope": "New defect discovered in shared template. Original remote bytes remain retained. Their valid local transport stdout and pins retain submission identity. No prior remote journal rewritten.",
+  "new_allocations": 0,
+  "old_tests_repeated": 0,
+  "packet_sha256": "c32df16f0f0960f25d8871b40d2ecd970ef0d3b93ffd352dcb4075f3cb5f7c63",
+  "remote_operations": 0,
+  "source_pins": {
+    "ace_llm_intervention_runtime_metadata_2026-11-07.md": "caf26212848af6f12a537784fcf92b05469b4c5a6fa964697391d7c1e9c02f01",
+    "launch_once.py": "c93e0791abf7c19791a8985336d4ce12562c6aa556cc3131c7fb1598f6421a4d",
+    "pull_terminal.py": "9f757547b71880fcb47d76fcebedf0cd04370172375bfc131ea6301ca3099b3d"
+  },
+  "status": "parent_R1_R2_corrected_delta_review_pending",
+  "utc": "2026-11-07T19:41:03.689361+00:00"
+}
