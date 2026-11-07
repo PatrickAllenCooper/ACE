@@ -41,11 +41,11 @@ class GpuRuntimeTests(unittest.TestCase):
 
     def test_cpu_acceptance_cannot_cover_different_service_inputs(self):
         preflight={'files':{n:'a'*64 for n in cpu.INPUTS}}
-        accepted={'status':'cpu_service_preflight_accepted','job_id':'35350736',
+        accepted={'status':'cpu_service_preflight_accepted','job_id':'35353861',
             'preflight_sha256':'a'*64,'cpu_preflight_qualified':True,
             'model_service_qualified':False,'scientific_qualified':False}
         gpu.check_preflight(accepted,self.packet,preflight,cpu)
-        for key,value in [('job_id','35348366'),('status','pending'),('preflight_sha256','b'*64),
+        for key,value in [('job_id','35350736'),('status','pending'),('preflight_sha256','b'*64),
                           ('cpu_preflight_qualified',False),('model_service_qualified',True)]:
             with self.assertRaises(ValueError):gpu.check_preflight({**accepted,key:value},self.packet,preflight,cpu)
         other=copy.deepcopy(preflight);other['files']['llm_intervention_model_service.py']='b'*64

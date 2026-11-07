@@ -71,7 +71,7 @@ def packet_shape(packet, cpu_inputs):
 def check_preflight(acceptance, packet, preflight, cpu):
     # Pins bind a separately reviewed CPU result, not proof inferred from metadata.
     if (acceptance.get('status') != 'cpu_service_preflight_accepted'
-        or acceptance.get('job_id') != '35350736'
+        or acceptance.get('job_id') != '35353861'
         or acceptance.get('preflight_sha256') != packet['files']['cpu-preflight.json']
         or acceptance.get('cpu_preflight_qualified') is not True
         or acceptance.get('model_service_qualified') is not False
