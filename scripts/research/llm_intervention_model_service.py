@@ -24,19 +24,29 @@ import time
 import traceback
 
 
-VERSION = "ace-pinned-qwen-service-v1"
+VERSION = "ace-pinned-qwen-service-v2"
 SOURCE_NAMES = frozenset({"llm_intervention_model_service.py",
     "llm_intervention_persistent_policy.py", "llm_intervention_contract.py",
     "llm_intervention_episode.py", "llm_intervention_task.py", "llm_intervention_scm.py",
     "llm_intervention_numerical_policy.py", "llm_intervention_language_policy.py",
     "llm_intervention_learning.py", "llm_intervention_grammar.py",
     "llm_intervention_canonical_scoring.py", "llm_intervention_action_scoring.py",
-    "llm_intervention_precision.py"})
+    "llm_intervention_precision.py", "llm_intervention_service_runtime.py",
+    "qualify_llm_intervention_runtime_metadata.py"})
 MODEL_NAMES = frozenset({"model.safetensors", "config.json", "generation_config.json",
     "tokenizer_config.json", "tokenizer.json", "merges.txt", "vocab.json"})
-RUNTIME = {"torch": "2.9.1", "transformers": "4.57.3", "numpy": "2.2.6",
-    "scipy": "1.15.3", "safetensors": "0.7.0", "huggingface-hub": "0.36.0",
-    "tokenizers": "0.22.1", "jinja2": "3.1.6"}
+RUNTIME = {
+    "schema": "ace-staged-service-runtime-v1",
+    "archive_sha256": "6815ab9784b6025b8bb4439e40a1a012b9697d434bfc83bd5f36e27abc262d98",
+    "manifest_sha256": "b44610f638f0873da8588f1cf23039638203a855959a6ed12cf0ec6c2551d63a",
+    "diagnostic_source_sha256": "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329",
+    "diagnostic_acceptance_sha256": "6e557150edb12f0db45c3b0baa9c72eeb63d763af769c062d3c8a556b633f578",
+    "imported_versions": {"torch": "2.9.1+cu128", "transformers": "4.57.3", "numpy": "2.2.5",
+        "scipy": "1.15.3", "safetensors": "0.7.0", "huggingface_hub": "0.36.0",
+        "tokenizers": "0.22.1", "jinja2": "3.1.6"},
+    "metadata_candidates": {"torch": ["2.9.1"], "transformers": ["4.57.3"],
+        "numpy": ["2.2.5", "2.2.6"], "scipy": ["1.15.3"], "safetensors": ["0.7.0"],
+        "huggingface-hub": ["0.36.0"], "tokenizers": ["0.22.1"], "jinja2": ["3.1.6"]}}
 RECIPE = {"base_dtype": "bfloat16", "adapter_dtype": "float32", "rank": 8,
     "alpha": 16., "attention": "sdpa", "sdpa_backend": "flash_attention_only",
     "strict_determinism": True, "float32_matmul": "highest", "tf32": False,
@@ -86,6 +96,8 @@ def validate_freeze(freeze):
         keys(freeze[section], names)
         if not all(pin(p) for p in freeze[section].values()):
             raise ValueError("invalid file pin")
+    if freeze["sources"]["qualify_llm_intervention_runtime_metadata.py"] != RUNTIME["diagnostic_source_sha256"]:
+        raise ValueError("accepted diagnostic source pin differs")
     limits = freeze["limits"]
     keys(limits, {"startup_seconds", "request_seconds", "idle_seconds", "total_seconds", "max_requests"})
     for name, cap in (("startup_seconds", 180), ("request_seconds", 60),
@@ -157,10 +169,10 @@ def authenticate(freeze_path, freeze_sha256, *, runtime=True, on_manifest=None):
         # Bind receipt bytes. A separately reviewed launch must establish that
         # this receipt actually qualifies the scientific training history.
         read_pinned(source/a["training_receipt"], a["training_receipt_sha256"])
-    if runtime:
-        observed = {name: importlib.metadata.version(name) for name in RUNTIME}
-        if observed != RUNTIME or list(sys.version_info[:3]) != freeze["python_version"]:
-            raise ValueError("actual Python/package versions differ")
+    # Imported versions and provenance are checked by ServiceRuntime after
+    # captured-source installation. Metadata defaults cannot establish them.
+    if runtime and list(sys.version_info[:3]) != freeze["python_version"]:
+        raise ValueError("actual Python version differs")
     return freeze, captured, adapter_raw, models
 
 
@@ -177,6 +189,7 @@ class CapturedSources(importlib.abc.MetaPathFinder, importlib.abc.Loader):
         self.sources = {Path(name).stem: raw for name, raw in captured.items()
                         if name != "llm_intervention_model_service.py"}
         self.root = Path(root)
+        self.loaded = {}
         if set(self.sources) & set(sys.modules):
             raise ValueError("project module was imported before authentication")
 
@@ -193,6 +206,7 @@ class CapturedSources(importlib.abc.MetaPathFinder, importlib.abc.Loader):
     def exec_module(self, module):
         module.__file__ = str(self.root/(module.__name__+".py"))
         exec(compile(self.sources[module.__name__], module.__file__, "exec"), module.__dict__)
+        self.loaded[module.__name__] = module
 
 
 class Journal:
@@ -366,10 +380,13 @@ def main():
     parser.add_argument("--freeze", required=True)
     parser.add_argument("--freeze-sha256", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--runtime-stage", required=True)
+    parser.add_argument("--runtime-stage-sha256", required=True)
     parser.add_argument("--verify-only", action="store_true")
+    parser.add_argument("--fixture", action="append", default=[], help="CPU-only NAME=SHA256 public fixture")
     args = parser.parse_args()
     journal = Journal(args.output)
-    loader = None
+    loader, runtime_observer = None, None
     def timeout(signum, frame):
         raise TimeoutError("bounded model-service deadline reached")
     signal.signal(signal.SIGALRM, timeout)
@@ -400,23 +417,42 @@ def main():
         arm_deadline(startup_remaining)
         journal.save("authenticated.json", {"freeze_sha256": args.freeze_sha256,
             "identity": identity(freeze), "models": models, "runtime": RUNTIME,
-            "runtime_scope": "Python/package versions, not installed runtime byte closure",
+            "runtime_scope": "declared prospective contract; runtime observations follow separately",
             "training_provenance_qualified": False, "scientific_execution_qualified": False})
         journal.event("authentication_complete")
-        if args.verify_only:
-            journal.save("terminal.json", {"status": "verified_only", "model_loaded": False,
-                "new_training_updates": 0, "environment_responses": 0})
-            return
         os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1",
             TOKENIZERS_PARALLELISM="false", CUBLAS_WORKSPACE_CONFIG=":4096:8")
+        if args.verify_only:
+            os.environ["CUDA_VISIBLE_DEVICES"] = ""
         loader = CapturedSources(captured, Path(args.freeze).absolute().parent)
         sys.meta_path.insert(0, loader)
         with contextlib.redirect_stdout(sys.stderr):
+            from llm_intervention_service_runtime import ServiceRuntime, fixture_inputs, verify_cpu_tokens
+            if args.fixture and not args.verify_only:
+                raise ValueError("CPU fixture arguments are not service requests")
+            fixtures = fixture_inputs(args.fixture, Path(args.freeze).absolute().parent,
+                                      read_pinned, decode) if args.verify_only else None
+            runtime_observer = ServiceRuntime(freeze, captured, loader, Path(__file__).absolute(), globals(),
+                args.runtime_stage, args.runtime_stage_sha256, journal, read_pinned, decode)
+            runtime_observer.import_cpu_closure()
+            if args.verify_only:
+                verify_cpu_tokens(freeze, fixtures, journal)
+                runtime_observer.observe("after-cpu-tokenization")
+                journal.save("terminal.json", {"status": "cpu_preflight_complete",
+                    "freeze_sha256": args.freeze_sha256, "runtime_stage_sha256": args.runtime_stage_sha256,
+                    "model_loaded": False, "adapter_deserialized": False, "explicit_cuda_api_called": False,
+                    "new_training_updates": 0, "environment_responses": 0,
+                    "service_qualified": False, "scientific_execution_qualified": False})
+                return
             from llm_intervention_persistent_policy import serve_policy
         def initialize():
-            return initialize_qwen(freeze, adapter_raw, journal, arm_deadline)
+            decide = initialize_qwen(freeze, adapter_raw, journal, arm_deadline)
+            runtime_observer.observe("after-model-load")
+            return decide
         serve_policy(initialize, identity=identity(freeze), max_requests=freeze["limits"]["max_requests"])
+        runtime_observer.observe("after-requests")
         journal.save("terminal.json", {"status": "complete", "freeze_sha256": args.freeze_sha256,
+            "runtime_stage_sha256": args.runtime_stage_sha256,
             "generation_count": len(list(journal.output.glob("generation-*.json"))),
             "new_training_updates": 0, "environment_responses": 0,
             "scheduler_cleanup_and_scientific_acceptance_qualified": False})
@@ -426,6 +462,14 @@ def main():
             "environment_responses": 0, "retry_allowed": False,
             "available_raw_generation_records": sorted(p.name for p in journal.output.glob("raw-generation-*.json")),
             "accepted_generation_records": sorted(p.name for p in journal.output.glob("generation-*.json"))})
+        # Best-effort observation cannot replace the primary failure or qualify
+        # execution. The external supervisor still owns its absolute deadline.
+        if runtime_observer is not None:
+            try:
+                runtime_observer.observe("failure", require_imports=False)
+            except BaseException as observation_error:
+                journal.save("runtime-failure-observation-error.json", {
+                    "type": type(observation_error).__name__, "message": str(observation_error)})
         raise
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0.)

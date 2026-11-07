@@ -22,7 +22,9 @@ class ModelServiceTests(unittest.TestCase):
         def files(root, names):
             result = {}
             for name in names:
-                raw = ("artificial bytes for " + name).encode()
+                raw = ((Path(__file__).parent/name).read_bytes()
+                       if name == "qualify_llm_intervention_runtime_metadata.py"
+                       else ("artificial bytes for " + name).encode())
                 (root/name).write_bytes(raw)
                 result[name] = hashlib.sha256(raw).hexdigest()
             return result
@@ -120,7 +122,7 @@ class ModelServiceTests(unittest.TestCase):
             service.authenticate(*self.packet(), runtime=False)
         original.unlink()
         real.rename(original)
-        with patch.object(service.importlib.metadata, "version", return_value="wrong"):
+        with patch.object(service.sys, "version_info", (0, 0, 0)):
             with self.assertRaises(ValueError):
                 service.authenticate(*self.packet())
 

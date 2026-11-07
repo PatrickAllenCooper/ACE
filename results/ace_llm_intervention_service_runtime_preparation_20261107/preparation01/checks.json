@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-B",
+    "-c",
+    "import sys,unittest;sys.path.insert(0,'/Users/pat/code/ACE/scripts/research');unittest.main(module=None,argv=[\"new-runtime-checks\", \"-v\",*['test_llm_intervention_service_runtime', 'test_llm_intervention_model_service.ModelServiceTests.test_all_inputs_are_authenticated_before_model_import', 'test_llm_intervention_model_service.ModelServiceTests.test_source_model_and_manifest_corruption_fail', 'test_llm_intervention_model_service.ModelServiceTests.test_duplicate_nonfinite_and_changed_recipe_are_rejected', 'test_llm_intervention_model_service.ModelServiceTests.test_adapter_receipt_bytes_and_scope_must_match', 'test_llm_intervention_model_service.ModelServiceTests.test_captured_source_executes_authenticated_bytes_not_later_disk', 'test_llm_intervention_model_service.ModelServiceTests.test_symlink_and_runtime_mismatch_rejected', 'test_llm_intervention_model_service.ModelServiceTests.test_authenticated_deadline_callback_precedes_all_payload_reads']])"
+  ],
+  "cwd": "/tmp",
+  "exit_code": 0,
+  "elapsed_seconds": 0.145631291,
+  "child_cpu_seconds": 0.084315,
+  "peak_child_rss_bytes": 22937600,
+  "scope": "8 new artificial runtime methods and 7 affected authentication methods. No models, accelerator calls, scientific responses or accepted-diagnostic rerun.",
+  "sources": {
+    "llm_intervention_model_service.py": "260d9bcd0366a1200d0aee54da5044740b1e2b3b82a68c54d7b4ded05d4b51cf",
+    "llm_intervention_service_runtime.py": "cd8b8046f43efb8541a389c72dc8f7275c62cb2d5c7d0b1c853c805e83cbee55",
+    "test_llm_intervention_model_service.py": "53999d9f21fd1d04cbbe0da769037692fa07070474af183d683b8511f7cd8644",
+    "test_llm_intervention_service_runtime.py": "8c1fc4871f09de981b44c8ac0dcd23599c0249f1591f93e772e441aa180c44d2"
+  }
+}
