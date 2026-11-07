@@ -1,0 +1,27 @@
+Interpreter: /Users/pat/code/ACE/.venv_test/bin/python
+Version: 3.9.6 (default, Aug 25 2026, 21:26:21)  [Clang 21.0.0 (clang-2100.3.34.2)]
+Torch: 2.8.0
+Retained fixtures: /Users/pat/code/ACE/results/ace_llm_intervention_training_engine_preparation_20261107/test-attempt01/fixtures
+test_absent_pairs_data_state_association_and_fixed_schedule_reject (__main__.EngineTests) ... ok
+test_ambiguous_optimizer_failure_keeps_partial_state_without_retry (__main__.EngineTests) ... ok
+test_failed_step_retains_prior_steps_nonfinite_loss_and_partial_checkpoint (__main__.EngineTests) ... FAIL
+test_fixed_sft_dpo_reference_checkpoints_counts_and_clipping (__main__.EngineTests) ... ok
+test_parameter_bound_inventory_and_pin_reject_before_updates (__main__.EngineTests) ... ok
+test_reference_mutation_is_retained_and_rejected_before_dpo_update (__main__.EngineTests) ... ok
+
+======================================================================
+FAIL: test_failed_step_retains_prior_steps_nonfinite_loss_and_partial_checkpoint (__main__.EngineTests)
+----------------------------------------------------------------------
+ValueError: finite aligned [pair, chosen/rejected] scores and positive beta required
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/scripts/research/test_llm_intervention_training_engine.py", line 257, in test_failed_step_retains_prior_steps_nonfinite_loss_and_partial_checkpoint
+    self.run_fit(arithmetic=Arithmetic(fail_at=4))
+AssertionError: "nonfinite scheduled loss" does not match "finite aligned [pair, chosen/rejected] scores and positive beta required"
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.728s
+
+FAILED (failures=1)
