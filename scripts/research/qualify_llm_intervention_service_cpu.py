@@ -21,10 +21,10 @@ import time
 import traceback
 import types
 
-VERSION = "ace-model-service-cpu-preflight-v2"
+VERSION = "ace-model-service-cpu-preflight-v3"
 DIAGNOSTIC_SHA = "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329"
 RESOURCES = {"account":"ucb736_asc2", "partition":"acpu", "qos":"cpu-normal",
-             "cpus":1, "memory_mib":3840, "wall_seconds":600, "gpus":0, "requeue":False}
+             "cpus":2, "memory_mib":6144, "wall_seconds":600, "gpus":0, "requeue":False}
 SERVICES = ["frozen.json", "adapter.json"]
 FIXTURES = {"case0.json", "case3.json", "stress.json"}
 SOURCE_FILES = {"llm_intervention_model_service.py", "llm_intervention_service_runtime.py",
@@ -32,7 +32,7 @@ SOURCE_FILES = {"llm_intervention_model_service.py", "llm_intervention_service_r
     "llm_intervention_contract.py", "llm_intervention_episode.py", "llm_intervention_task.py",
     "llm_intervention_scm.py", "llm_intervention_numerical_policy.py", "llm_intervention_language_policy.py",
     "llm_intervention_learning.py", "llm_intervention_grammar.py", "llm_intervention_canonical_scoring.py",
-    "llm_intervention_action_scoring.py", "llm_intervention_precision.py"}
+    "llm_intervention_action_scoring.py", "llm_intervention_precision.py", "llm_intervention_gpu_mappings.py"}
 INPUTS = SOURCE_FILES | {"qualify_llm_intervention_service_cpu.py", "llm_intervention_runtime_archive.py",
     "probe.py", "frozen.json", "adapter.json", "trained_adapter.pt", "gpu09_terminal.json"} | FIXTURES
 
@@ -90,12 +90,12 @@ def captured_module(name, path, raw):
 def allocation_fields(raw, job):
     fields=dict(re.findall(r"(\w+)=(\S+)",raw))
     expected={"JobId":job,"JobState":"RUNNING","Account":"ucb736_asc2",
-        "Partition":"acpu","QOS":"cpu-normal","NumCPUs":"1","NumTasks":"1",
+        "Partition":"acpu","QOS":"cpu-normal","NumCPUs":"2","NumTasks":"1",
         "NumNodes":"1","TimeLimit":"00:10:00","Requeue":"0","Restarts":"0"}
     tres=fields.get("AllocTRES","").split(",")
-    need(all(fields.get(k)==v for k,v in expected.items()) and "cpu=1" in tres
-         and "mem=3840M" in tres and not any("gres/" in x for x in tres),
-         "allocation differs from fixed one-CPU preflight")
+    need(all(fields.get(k)==v for k,v in expected.items()) and "cpu=2" in tres
+         and "mem=6G" in tres and not any("gres/" in x for x in tres),
+         "allocation differs from fixed two-CPU preflight")
     return fields
 
 
@@ -136,7 +136,8 @@ def authenticate(root, packet, data, service, diagnostic):
 def validate_runtime_records(read, stage, stage_sha, service, diagnostic, runtime_checks, provenance):
     bound=read("runtime-stage-binding.json")
     need(bound["stage_sha256"]==stage_sha and bound["contract"]==service.RUNTIME
-         and bound["stage"]==stage,"runtime stage receipt differs")
+         and bound["stage"]==stage and type(bound.get("gpu_mapping_enabled")) is bool,
+         "runtime stage receipt or explicit device policy differs")
     prefix=Path(stage["staged_prefix"])
     runtime_checks.check_stage(stage,service.RUNTIME,prefix)
     before=read("runtime-before-imports.json")
@@ -186,6 +187,8 @@ def validate_session(out, freeze_sha, stage_sha, freeze, files, service, envelop
         need(len(raw)<=16*1024**2,"CPU receipt exceeds bound")
         return service.decode(raw)
     need(not list(out.rglob("failure.json")), "service failure cannot qualify")
+    need(read("runtime-stage-binding.json")["gpu_mapping_enabled"] is False,
+         "CPU preflight must keep GPU mapping exception disabled")
     terminal=read("terminal.json")
     need(terminal.get("status")=="cpu_preflight_complete"
          and terminal.get("freeze_sha256")==freeze_sha

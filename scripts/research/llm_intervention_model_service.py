@@ -24,7 +24,7 @@ import time
 import traceback
 
 
-VERSION = "ace-pinned-qwen-service-v2"
+VERSION = "ace-pinned-qwen-service-v3"
 SOURCE_NAMES = frozenset({"llm_intervention_model_service.py",
     "llm_intervention_persistent_policy.py", "llm_intervention_contract.py",
     "llm_intervention_episode.py", "llm_intervention_task.py", "llm_intervention_scm.py",
@@ -32,11 +32,13 @@ SOURCE_NAMES = frozenset({"llm_intervention_model_service.py",
     "llm_intervention_learning.py", "llm_intervention_grammar.py",
     "llm_intervention_canonical_scoring.py", "llm_intervention_action_scoring.py",
     "llm_intervention_precision.py", "llm_intervention_service_runtime.py",
-    "qualify_llm_intervention_runtime_metadata.py"})
+    "qualify_llm_intervention_runtime_metadata.py", "llm_intervention_gpu_mappings.py"})
 MODEL_NAMES = frozenset({"model.safetensors", "config.json", "generation_config.json",
     "tokenizer_config.json", "tokenizer.json", "merges.txt", "vocab.json"})
 RUNTIME = {
-    "schema": "ace-staged-service-runtime-v1",
+    "schema": "ace-staged-service-runtime-v2",
+    "gpu_mapping_policy": "ace-gpu-device-map-observation-v1",
+    "gpu_mapping_source_sha256": "997db0ce1ffa8d3863f1b1034446276585f72e482f51b36f5e472d96663783ce",
     "archive_sha256": "6815ab9784b6025b8bb4439e40a1a012b9697d434bfc83bd5f36e27abc262d98",
     "manifest_sha256": "b44610f638f0873da8588f1cf23039638203a855959a6ed12cf0ec6c2551d63a",
     "diagnostic_source_sha256": "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329",
@@ -98,6 +100,8 @@ def validate_freeze(freeze):
             raise ValueError("invalid file pin")
     if freeze["sources"]["qualify_llm_intervention_runtime_metadata.py"] != RUNTIME["diagnostic_source_sha256"]:
         raise ValueError("accepted diagnostic source pin differs")
+    if freeze["sources"]["llm_intervention_gpu_mappings.py"] != RUNTIME["gpu_mapping_source_sha256"]:
+        raise ValueError("reviewed GPU mapping source pin differs")
     limits = freeze["limits"]
     keys(limits, {"startup_seconds", "request_seconds", "idle_seconds", "total_seconds", "max_requests"})
     for name, cap in (("startup_seconds", 180), ("request_seconds", 60),
@@ -433,7 +437,8 @@ def main():
             fixtures = fixture_inputs(args.fixture, Path(args.freeze).absolute().parent,
                                       read_pinned, decode) if args.verify_only else None
             runtime_observer = ServiceRuntime(freeze, captured, loader, Path(__file__).absolute(), globals(),
-                args.runtime_stage, args.runtime_stage_sha256, journal, read_pinned, decode)
+                args.runtime_stage, args.runtime_stage_sha256, journal, read_pinned, decode,
+                allow_gpu_mappings=not args.verify_only)
             runtime_observer.import_cpu_closure()
             if args.verify_only:
                 verify_cpu_tokens(freeze, fixtures, journal)

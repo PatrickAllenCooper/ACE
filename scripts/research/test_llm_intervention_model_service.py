@@ -23,7 +23,7 @@ class ModelServiceTests(unittest.TestCase):
             result = {}
             for name in names:
                 raw = ((Path(__file__).parent/name).read_bytes()
-                       if name == "qualify_llm_intervention_runtime_metadata.py"
+                       if name in {"qualify_llm_intervention_runtime_metadata.py", "llm_intervention_gpu_mappings.py"}
                        else ("artificial bytes for " + name).encode())
                 (root/name).write_bytes(raw)
                 result[name] = hashlib.sha256(raw).hexdigest()

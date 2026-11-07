@@ -21,6 +21,7 @@ DIAGNOSTIC = "qualify_llm_intervention_runtime_metadata"
 DIAGNOSTIC_SHA = "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329"
 EXTRA_PACKAGES = ("safetensors", "huggingface_hub", "tokenizers", "jinja2")
 FIXTURES = frozenset({"case0.json", "case3.json", "stress.json"})
+GPU_MAPPINGS_SHA = "997db0ce1ffa8d3863f1b1034446276585f72e482f51b36f5e472d96663783ce"
 
 
 def need(condition, message):
@@ -113,15 +114,31 @@ def fixture_inputs(arguments, root, read_pinned, decode):
             for name, sha in sorted(pins.items())}
 
 
+def checked_gpu_snapshot(snapshot, device_inventory, saved_evidence, phase, prefix, diagnostic):
+    """Independently reconstruct the check view from saved, unmodified records."""
+    mappings = importlib.import_module("llm_intervention_gpu_mappings")
+    view, evidence = mappings.checked_view(snapshot, device_inventory, phase,
+        prefix=prefix, original_runtime=diagnostic.RUNTIME_SOURCE)
+    need(saved_evidence == evidence, "saved device classification differs from raw reconstruction")
+    return view
+
+
 class ServiceRuntime:
     def __init__(self, freeze, captured, loader, entry_file, entry_globals,
-                 stage_path, stage_sha256, journal, read_pinned, decode):
+                 stage_path, stage_sha256, journal, read_pinned, decode, *, allow_gpu_mappings=False):
         self.contract, self.journal = freeze["runtime"], journal
         self.loader, self.captured = loader, captured
         self.entry_file, self.entry_globals = Path(entry_file), entry_globals
         need(self.contract["diagnostic_source_sha256"] == DIAGNOSTIC_SHA
              and hashlib.sha256(captured[DIAGNOSTIC+".py"]).hexdigest() == DIAGNOSTIC_SHA,
              "accepted diagnostic source differs")
+        need(type(allow_gpu_mappings) is bool
+             and self.contract["gpu_mapping_source_sha256"] == GPU_MAPPINGS_SHA
+             and hashlib.sha256(captured["llm_intervention_gpu_mappings.py"]).hexdigest() == GPU_MAPPINGS_SHA,
+             "reviewed device-mapping contract differs")
+        self.allow_gpu_mappings = allow_gpu_mappings
+        self.gpu_mappings = importlib.import_module("llm_intervention_gpu_mappings")
+        need(self.gpu_mappings.VERSION == self.contract["gpu_mapping_policy"], "device mapping policy differs")
         need(sys.flags.isolated == 1 and sys.dont_write_bytecode,
              "isolated interpreter with bytecode writes disabled required")
         self.diagnostic = importlib.import_module(DIAGNOSTIC)
@@ -145,7 +162,8 @@ class ServiceRuntime:
              "exclusive temporary root differs")
         journal.save("runtime-stage-binding.json", {"stage_sha256": stage_sha256, "stage": stage,
             "temporary_root": str(self.temp_root), "temporary_root_stat": self.temp_stat,
-            "contract": self.contract, "outer_archive_execution_required": True})
+            "contract": self.contract, "outer_archive_execution_required": True,
+            "gpu_mapping_enabled": self.allow_gpu_mappings})
         self.provenance = d.provenance_contract(self.prefix)
         journal.save("runtime-provenance-sources.json", self.provenance)
         self.baseline = None
@@ -169,7 +187,15 @@ class ServiceRuntime:
             for name in EXTRA_PACKAGES}
         # Keep complete evidence before validation, including failures.
         self.journal.save("runtime-"+label+".json", {**snapshot, "captured_project_modules": projects})
-        d.check_prefix(self.prefix, snapshot, self.baseline)
+        check_view = snapshot
+        if label in self.gpu_mappings.PHASES:
+            need(self.allow_gpu_mappings, "CPU preflight cannot admit GPU device mappings")
+            device_inventory = self.gpu_mappings.capture()
+            self.journal.save("gpu-mapping-inventory-"+label+".json", device_inventory)
+            check_view, evidence = self.gpu_mappings.checked_view(snapshot, device_inventory, label,
+                prefix=self.prefix, original_runtime=d.RUNTIME_SOURCE)
+            self.journal.save("gpu-mapping-validation-"+label+".json", evidence)
+        d.check_prefix(self.prefix, check_view, self.baseline)
         if require_imports:
             need(snapshot["generated_provenance"]["verified"], "generated Torch provenance absent")
             imported_versions(snapshot, modules, self.contract)

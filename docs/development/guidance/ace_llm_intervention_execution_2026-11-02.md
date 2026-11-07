@@ -12,7 +12,7 @@ The reviewed GPUcaller correction resolved that import failure in job**35349776*
 
 Closedallocations total **7,072CPU-seconds** and **941GPU-slice-seconds**. Including the cumulative3,600CPU-second preparation allowance gives **10,672/57,600CPU-seconds** for admission. GPUadmission is**941/7,200seconds**. NoACEjob or reservation remains active in the terminalsnapshot. ProcessCPU, elapsedtime and allocatedCPU overlap and are not additive. WholecycleCPU remainsunknown because preparation is partlyunmetered.
 
-A narrow GPUdevice-map classifier has completed independentreview and is **not integrated or qualified**. It preserves rawobservations and distinguishes exact non-executable specialmappings fromlibraries. Unknown/executable paths remainrejected. Do not submit anotherGPUattempt until the diagnosedcorrection, derivedsourcebindings, independentreview and boundedqualification are complete.
+A narrow GPU device-map classifier is now integrated into the new captured service closure and independently reviewed. Actual CPU and GPU qualification of this successor remain open. It preserves rawobservations and distinguishes exact non-executable specialmappings fromlibraries. Unknown/executable paths remainrejected. Do not submit anotherGPUattempt until the diagnosedcorrection, derivedsourcebindings, independentreview and boundedqualification are complete.
 
 
 ## Objective and authority
@@ -918,3 +918,12 @@ New isolated `llm_intervention_gpu_mappings.py` classifies exact non-executable 
 Sixinitialartificialmethods pass. Independentreview foundonecomplete-roster omission, nowfixed. A newfocusedmethod covering3omittedunknownpaths,4invalidrootbindings and2allowedlibrarypaths passes. Finaldeltareview0required. Initial0.032201CPU/.035084291elapsed/14991360RSS, correction0.032003CPU/.035351542elapsed/15646720RSS areseparatepreparation, notwholecycleCPU. Neither tests nor review execute realdevices/models/GPU. Preparation01/02 arepreserved. FinalreceiptSHA33d42f0a414c24a0bf7fc03d2e13db7ba92449e51f56323766622e093957c3c3.
 
 Read `ace_llm_intervention_gpu_mapping_contract_2026-11-07.md`. Next integrate the helper into aNEWcapturedclosure and service/CPU/GPUsource-successor manifests. Preserve genericacceptedCPUdiagnostic unchanged. Save rawsnapshot/deviceinventorybeforechecks, independentlyreconstructcheckviewinreporter. The old25-inputCPUacceptance cannotcovernewbytes. RevisedCPUclosurequalification and reviewednewGPUpacketremainmandatory. NoGPU13submitted, originalruntime/model/scientificworldsunchanged, closedallocation7072CPU941GPU/admission10672CPUwithprep.
+
+
+### Device-map integration prepared for a new CPU preflight
+
+Service v3 and runtime contract v2 include the independently pinned helper. The observer preserves raw maps before capture, saves device inventory and a separate classification proof, and applies the unchanged runtime guard to a reconstructed view. The GPU reporter independently reconstructs both late-phase views. CPU-only acceptance explicitly excludes the mapping exemption. The generic CPU diagnostic remains byte-identical.
+
+Independent integration review found zero required fixes. Four new integration methods and five affected source/authentication/CPU-contract methods pass, with no models, devices or scientific responses. The single command used 0.160422 child CPU seconds, 0.164464792 elapsed seconds and 26148864 peak child RSS bytes. This excludes development and review. The preparation receipt is f107b1f788dd44807afbc77683239519dfa7219c568b73bd22a962f4f431aa41.
+
+A new CPU preflight is required because the previous 25-input receipt cannot cover the new 26-input closure. Proposed resources are 2 CPUs, 6 GiB and 600 seconds. The accepted threading diagnostic used that allocation for 91 seconds. Near-limit batch RSS is preserved without claiming memory headroom. Proposed CPU admission is 11872/57600 including 7072 closed allocation, 3600 cumulative preparation and 1200 proposed reservation. GPU remains 941/7200. No new allocation or submission has occurred. The GPU caller remains deliberately pending its new CPU-source and accepted-job rebind.

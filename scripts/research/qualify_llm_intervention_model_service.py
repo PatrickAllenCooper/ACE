@@ -24,7 +24,7 @@ import traceback
 import types
 
 
-VERSION = "ace-persistent-model-integration-v3"
+VERSION = "ace-persistent-model-integration-v4"
 CPU_SOURCE_SHA = "c827a53f0fe03204c447e8e7d406e6d8a2c9318b4d6cd5fdc82beb84b576b6b7"
 GPU_HELPER_SHA = "ad67abbb4929cdd8b41d90ea83a6197e8138e62340239a96f8161aee1a3091ec"
 RESOURCES = {"account": "ucb736_asc2", "partition": "aa100", "qos": "gpu-testing",
@@ -153,9 +153,15 @@ def validate_runtime(directory, freeze, files, stage, stage_pin, cpu, service, d
         return service.decode(raw)
     # Reuse the CPU baseline/metadata/cache/provenance checks. The second
     # observation is explicitly mapped to each GPU phase, never relabeled on disk.
+    if read('runtime-stage-binding.json').get('gpu_mapping_enabled') is not True:
+        raise ValueError('GPU mapping policy must be explicitly bound')
     for phase in ('after-model-load', 'after-requests'):
         def mapped(name):
-            return read('runtime-'+phase+'.json' if name == 'runtime-after-cpu-tokenization.json' else name)
+            if name != 'runtime-after-cpu-tokenization.json':
+                return read(name)
+            return checks.checked_gpu_snapshot(read('runtime-'+phase+'.json'),
+                read('gpu-mapping-inventory-'+phase+'.json'), read('gpu-mapping-validation-'+phase+'.json'),
+                phase, Path(stage['staged_prefix']), diagnostic)
         cpu.validate_runtime_records(mapped, stage, stage_pin, service, diagnostic, checks, provenance)
     expected = {Path(n).stem: pin for n,pin in freeze['sources'].items() if n != 'llm_intervention_model_service.py'}
     for phase in ('after-service-imports', 'after-model-load', 'after-requests'):

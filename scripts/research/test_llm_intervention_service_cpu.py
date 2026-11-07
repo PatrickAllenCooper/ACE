@@ -21,7 +21,8 @@ class CpuPreflightTests(unittest.TestCase):
             "trained_adapter.pt","gpu09_terminal.json"}|cpu.FIXTURES
         self.files={name:"a"*64 for name in needed}
         self.files.update({"qualify_llm_intervention_runtime_metadata.py":cpu.DIAGNOSTIC_SHA,
-            "llm_intervention_runtime_archive.py":diagnostic.HELPER_SHA,"probe.py":diagnostic.PROBE_SHA})
+            "llm_intervention_runtime_archive.py":diagnostic.HELPER_SHA,"probe.py":diagnostic.PROBE_SHA,
+            "llm_intervention_gpu_mappings.py":runtime.GPU_MAPPINGS_SHA})
         self.freeze={"schema":service.VERSION,"scope":"artificial","model_directory":"/model",
             "model_files":{name:"b"*64 for name in service.MODEL_NAMES},
             "sources":{name:self.files[name] for name in service.SOURCE_NAMES},
@@ -41,12 +42,12 @@ class CpuPreflightTests(unittest.TestCase):
 
     def test_renewed_cpu_allocation_and_drift(self):
         fields={"JobId":"123","JobState":"RUNNING","Account":"ucb736_asc2","Partition":"acpu",
-            "QOS":"cpu-normal","NumCPUs":"1","NumTasks":"1","NumNodes":"1","TimeLimit":"00:10:00",
-            "Requeue":"0","Restarts":"0","AllocTRES":"cpu=1,mem=3840M,node=1,billing=1"}
+            "QOS":"cpu-normal","NumCPUs":"2","NumTasks":"1","NumNodes":"1","TimeLimit":"00:10:00",
+            "Requeue":"0","Restarts":"0","AllocTRES":"cpu=2,mem=6G,node=1,billing=1"}
         raw=lambda f:" ".join(k+"="+v for k,v in f.items())
         cpu.allocation_fields(raw(fields),"123")
         changes={"JobId":"124","JobState":"PENDING","Account":"ucb736_asc1","Partition":"aa100",
-            "QOS":"gpu-testing","NumCPUs":"2","NumTasks":"2","NumNodes":"2","TimeLimit":"00:20:00",
+            "QOS":"gpu-testing","NumCPUs":"1","NumTasks":"2","NumNodes":"2","TimeLimit":"00:20:00",
             "Requeue":"1","Restarts":"1","AllocTRES":"cpu=1,mem=4G,node=1,gres/gpu=1"}
         for k,v in changes.items():
             with self.subTest(k=k),self.assertRaises(ValueError):
@@ -55,7 +56,7 @@ class CpuPreflightTests(unittest.TestCase):
             cpu.allocation_fields(raw({**fields,"AllocTRES":"cpu=1,mem=3G,node=1"}),"123")
 
     def test_exact_input_scope_helpers_and_adapter_lineage(self):
-        self.assertEqual(len(self.files),25)
+        self.assertEqual(len(self.files),26)
         self.assertEqual(len(cpu.authenticate(self.root,self.packet,self.data,service,diagnostic)),2)
         mutations=[lambda p:p.update(services=list(reversed(cpu.SERVICES))),
             lambda p:p["resources"].update(gpus=1),lambda p:p["archive"].update(sha256="0"*64),
@@ -72,18 +73,18 @@ class CpuPreflightTests(unittest.TestCase):
             cpu.authenticate(self.root,self.packet,bad,service,diagnostic)
 
     def test_memory_limit_contract_rejects_old_or_expanded_allocation(self):
-        self.assertEqual(cpu.RESOURCES['memory_mib'],3840)
+        self.assertEqual(cpu.RESOURCES['memory_mib'],6144)
         self.assertNotIn('memory_gib',cpu.RESOURCES)
         cpu.packet_shape(self.packet)
         old=copy.deepcopy(self.packet);old['schema']='ace-model-service-cpu-preflight-v1'
         with self.assertRaises(ValueError):cpu.packet_shape(old)
         old=copy.deepcopy(self.packet);old['resources'].pop('memory_mib');old['resources']['memory_gib']=4
         with self.assertRaises(ValueError):cpu.packet_shape(old)
-        base='JobId=123 JobState=RUNNING Account=ucb736_asc2 Partition=acpu QOS=cpu-normal NumCPUs=1 NumTasks=1 NumNodes=1 TimeLimit=00:10:00 Requeue=0 Restarts=0 AllocTRES=cpu=1,mem=3840M,node=1,billing=1'
+        base='JobId=123 JobState=RUNNING Account=ucb736_asc2 Partition=acpu QOS=cpu-normal NumCPUs=2 NumTasks=1 NumNodes=1 TimeLimit=00:10:00 Requeue=0 Restarts=0 AllocTRES=cpu=2,mem=6G,node=1,billing=1'
         cpu.allocation_fields(base,'123')
-        for bad in (base.replace('mem=3840M','mem=4G'),
-                    base.replace('NumCPUs=1','NumCPUs=2').replace('cpu=1,mem=3840M','cpu=2,mem=4G'),
-                    base.replace('mem=3840M','mem=3G')):
+        for bad in (base.replace('mem=6G','mem=4G'),
+                    base.replace('NumCPUs=2','NumCPUs=1').replace('cpu=2,mem=6G','cpu=1,mem=6G'),
+                    base.replace('mem=6G','mem=3G')):
             with self.assertRaises(ValueError):cpu.allocation_fields(bad,'123')
     def test_child_uses_staged_isolated_bootstrap_and_all_fixtures(self):
         command=cpu.child_command(Path('/stage/runtime'),self.root,"frozen.json",self.files,
@@ -136,7 +137,7 @@ class CpuPreflightTests(unittest.TestCase):
             "authenticated.json":{"freeze_sha256":"a"*64,"identity":service.identity(self.freeze),
                 "runtime":service.RUNTIME,"models":{n:{"sha256":p,"bytes":3} for n,p in self.freeze["model_files"].items()}},
             "runtime-stage-binding.json":{"stage_sha256":"c"*64,"contract":service.RUNTIME,
-                'stage':self.stage,'temporary_root':str(temp)},
+                'stage':self.stage,'temporary_root':str(temp),'gpu_mapping_enabled':False},
             'runtime-before-imports.json':baseline,'runtime-provenance-sources.json':self.provenance,
             'cache-reconciliation.json':{'no_cache_modified':True,'pairs':[{
                 'cache_path':str(prefix/c),'source_path':str(prefix/s),'cache_sha256':'a'*64,'source_sha256':'a'*64,
