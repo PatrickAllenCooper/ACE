@@ -81,3 +81,12 @@ CPU35349555 completed both observations. Captured parent numerical imports chang
 The v3caller setsGNU explicitly, removes force-Intel and other prohibited values at the Cenvironment level, installs the childenvironment and records threeallowlistedPython/Cvalues. It requires agreement withGNU, forceflagabsent and unchanged schedulerGPUvisibility. It does not reconfigure alreadyloadedparentlibraries. Two new pure regressionmethods and independentcorrectionreview pass. Fourteenexistingfunctions remainASTidentical and the25CPUqualifiedinputs are unchanged. Source/raw/runtime/manifests remain preserved.
 
 The proposed nextGPUattempt retains one20GBslice/fourrequestedCPUs/maxeightactualCPUs/12GiB/600seconds and all240/560/580secondtimers. Currentclosedallocation6852CPU/886GPU seconds plus3600preparation. A future4800CPU/600GPUreservation would bring admission15252/57600CPU and1486/7200GPU seconds. A reviewedexclusivepacket, freshreadiness and complete actualGPUacceptance remain required. No science or newresponses are authorized by thisdiagnostic.
+
+
+## Revised device-mapping closure
+
+GPU12 passed the corrected child environment and reached model loading. It stopped before handshake because the generic runtime guard treated exact NVIDIA device and deleted-zero shared-memory mappings as libraries. Complete failed custody remains preserved. Memory residency alone does not qualify inference.
+
+Service v3 and runtime contract v2 add the reviewed device-mapping helper as the sixteenth captured source. The raw snapshot is saved first. Device inventory and classification proof follow. Only the post-load and post-request checks receive a separately reconstructed view. CPU preflight explicitly disables that policy. The GPU saved-evidence validator independently reconstructs both late observations while retaining all other provenance checks.
+
+Independent integration review found zero required changes. Four new integration methods and five affected authentication/resource methods pass. These are artificial checks only. CPU preflight v3 has 26 inputs and requests two CPUs, six GiB and ten minutes. Its CPU03 packet precedes any new GPU launch. The earlier CPU acceptance cannot authenticate the changed closure. GPU caller v4 still needs the new CPU-source pin, accepted job and receipt after successful CPU qualification. No scientific descriptors have been generated.
