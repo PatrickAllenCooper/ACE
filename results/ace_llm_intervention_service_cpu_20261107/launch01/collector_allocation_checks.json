@@ -1,0 +1,102 @@
+{
+  "collector_sha256": "af960edc356a11c7eb6cdf577465179efac8e389eb002aca13947143e788a4fb",
+  "scope": "Six new hand-computed artificial allocation cases on the extracted pure function only. Collector top-level, remote access and transfers did not execute.",
+  "cases": [
+    {
+      "case": "requested",
+      "passed": true,
+      "observed": {
+        "observed_account": "ucb736_asc2",
+        "observed_cpus": 1,
+        "observed_elapsed_seconds": 9,
+        "observed_alloc_tres": "cpu=1,mem=4G,node=1,billing=1",
+        "observed_gpu_count": 0,
+        "resource_contract_matched": true,
+        "allocated_cpu_seconds": 9,
+        "gpu_slice_seconds": 0,
+        "accounting_errors": []
+      }
+    },
+    {
+      "case": "twoCPU_oneGPU",
+      "passed": true,
+      "observed": {
+        "observed_account": "ucb736_asc2",
+        "observed_cpus": 2,
+        "observed_elapsed_seconds": 9,
+        "observed_alloc_tres": "cpu=2,mem=12G,node=1,gres/gpu=1,gres/gpu:a100_3g.20gb=1",
+        "observed_gpu_count": 1,
+        "resource_contract_matched": false,
+        "allocated_cpu_seconds": 18,
+        "gpu_slice_seconds": 9,
+        "accounting_errors": []
+      }
+    },
+    {
+      "case": "wrong_account",
+      "passed": true,
+      "observed": {
+        "observed_account": "different",
+        "observed_cpus": 1,
+        "observed_elapsed_seconds": 9,
+        "observed_alloc_tres": "cpu=1,mem=4G,node=1,billing=1",
+        "observed_gpu_count": 0,
+        "resource_contract_matched": false,
+        "allocated_cpu_seconds": 9,
+        "gpu_slice_seconds": 0,
+        "accounting_errors": []
+      }
+    },
+    {
+      "case": "missing_tres",
+      "passed": true,
+      "observed": {
+        "observed_account": "ucb736_asc2",
+        "observed_cpus": 1,
+        "observed_elapsed_seconds": 9,
+        "observed_alloc_tres": "",
+        "observed_gpu_count": null,
+        "resource_contract_matched": false,
+        "allocated_cpu_seconds": 9,
+        "gpu_slice_seconds": null,
+        "accounting_errors": [
+          "missing allocation inventory"
+        ]
+      }
+    },
+    {
+      "case": "bad_cpu",
+      "passed": true,
+      "observed": {
+        "observed_account": "ucb736_asc2",
+        "observed_cpus": null,
+        "observed_elapsed_seconds": 9,
+        "observed_alloc_tres": "cpu=1,mem=4G,node=1,billing=1",
+        "observed_gpu_count": null,
+        "resource_contract_matched": false,
+        "allocated_cpu_seconds": null,
+        "gpu_slice_seconds": null,
+        "accounting_errors": [
+          "unparseable AllocCPUS"
+        ]
+      }
+    },
+    {
+      "case": "conflicting_GPU",
+      "passed": true,
+      "observed": {
+        "observed_account": "ucb736_asc2",
+        "observed_cpus": 1,
+        "observed_elapsed_seconds": 9,
+        "observed_alloc_tres": "cpu=1,mem=4G,node=1,gres/gpu=1,gres/gpu:a100=2",
+        "observed_gpu_count": null,
+        "resource_contract_matched": false,
+        "allocated_cpu_seconds": 9,
+        "gpu_slice_seconds": null,
+        "accounting_errors": [
+          "conflicting GPU counts"
+        ]
+      }
+    }
+  ]
+}
