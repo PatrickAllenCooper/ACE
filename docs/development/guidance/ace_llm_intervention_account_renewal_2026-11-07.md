@@ -21,3 +21,5 @@ The renewal requires Alpine acknowledgement in resulting publications. Its suppl
 > This work utilized the Alpine high performance computing resource at the University of Colorado Boulder. Alpine is jointly funded by the University of Colorado Boulder, the University of Colorado Anschutz, Colorado State University, and the National Science Foundation (award 2201538).
 
 The notice also retains the PI's reporting and user-eligibility responsibilities. This record does not submit a paper, amend the archived manuscript or grant a new resource budget.
+
+At 18:02 UTC, the reviewed launch02 was submitted once as job **35343088**. Its first live allocation matches the declared CPU resources and renewed account. Outcome acceptance remains pending. Source/packet commit is 869e4cbfe4e9e3a37ed0098225723442e4faa293.
