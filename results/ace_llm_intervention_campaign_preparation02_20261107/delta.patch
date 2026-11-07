@@ -1,0 +1,174 @@
+--- prep01/llm_intervention_campaign.py
++++ prep02/llm_intervention_campaign.py
+@@ -344,6 +344,7 @@
+     private.mkdir(exist_ok=False)
+     roster = {"scope": c["scope"], "policy_ids": c["policy_ids"], "strata_fields": c["strata_fields"], "worlds": []}
+     cells, pins = [], []
++    intended_raw = None
+     try:
+         for i, source in enumerate(c["sources"]):
+             arms = {}
+@@ -368,11 +369,28 @@
+         result = summarize_screen(roster=roster, cells=cells, report_pins=pins)
+         paired._save(private/"report-pins.json", pins)
+         paired._save(private/"summary.json", result)
+-        paired._publish(root/"finalization.json", {"version": VERSION, "campaign_sha256": campaign_sha256,
++        receipt = {"version": VERSION, "campaign_sha256": campaign_sha256,
+             "attempt_pins": attempt_pins, "summary_sha256": paired._sha((private/"summary.json").read_bytes()),
+             "cell_count": result["cell_count"], "completed_utc": _utc(), "scientific_acceptance": False,
+-            "new_environment_responses": 0, "new_training_updates": 0, "retry_allowed": False})
++            "new_environment_responses": 0, "new_training_updates": 0, "retry_allowed": False}
++        intended_raw = paired._raw(receipt)
++        paired._publish(root/"finalization.json", receipt)
+         return result
+     except BaseException as exc:
+-        paired._save(private/"failure.json", {"utc": _utc(), "error": _error(exc), "traceback": traceback.format_exc(), "retry_allowed": False})
++        diagnostic = {"utc": _utc(), "error": _error(exc), "traceback": traceback.format_exc(), "retry_allowed": False}
++        # Linking may have succeeded before an interrupt reached this handler.
++        # Only proven absence permits a competing terminal failure disposition.
++        try:
++            published = (root/"finalization.json").read_bytes()
++        except FileNotFoundError:
++            paired._save(private/"failure.json", diagnostic)
++        except OSError as read_error:
++            paired._save(private/"publication-uncertain.json", {**diagnostic,
++                "publication_read_error": _error(read_error), "authority": "requires_outer_reconciliation"})
++        else:
++            matched = intended_raw is not None and published == intended_raw
++            paired._save(private/("post-publication-diagnostic.json" if matched else "publication-uncertain.json"),
++                {**diagnostic, "authority": "finalization.json" if matched else "requires_outer_reconciliation",
++                 "expected_receipt_sha256": paired._sha(intended_raw) if intended_raw is not None else None,
++                 "observed_receipt_sha256": paired._sha(published)})
+         raise
+--- prep01/test_llm_intervention_campaign.py
++++ prep02/test_llm_intervention_campaign.py
+@@ -327,4 +327,111 @@
+         self.assertTrue(all(row['cell_status']=='unresolved' for row in result['rows']))
+ 
+ 
++class CampaignPublicationTests(unittest.TestCase):
++    """New pure publication controls; mocked admission/reporting, no episodes."""
++    @classmethod
++    def setUpClass(cls):
++        cls.root = Path(os.environ['ACE_CAMPAIGN_PUBLICATION_TEST_OUTPUT'])
++        cls.root.mkdir(exist_ok=False)
++
++    def setUp(self):
++        self.path = self.root/self._testMethodName
++        self.path.mkdir()
++        self.result = {'cell_count': 0, 'fixture': 'publication only; not an admitted campaign'}
++        fabricated = {'policy_ids': [], 'sources': [], 'services': {}, 'scope': 'artificial', 'strata_fields': []}
++        for guard in (
++                patch.object(campaign, '_root', return_value=(fabricated, self.path)),
++                patch.object(campaign, 'summarize_screen', return_value=self.result),
++                patch.object(paired, 'finalize_paired_world', side_effect=AssertionError('no private world reporting')),
++                patch.object(paired, 'run_world_arm', side_effect=AssertionError('no arm execution')),
++                patch.object(ResponseAdapter, '__call__', side_effect=AssertionError('no environment')),
++                patch('llm_intervention_world.generate_world', side_effect=AssertionError('no world generation'))):
++            guard.start()
++            self.addCleanup(guard.stop)
++
++    def finalize(self):
++        return campaign.finalize_campaign(campaign={}, campaign_sha256='f'*64,
++            source_plan_pins=[], output=self.path, attempt_pins={})
++
++    def assert_nonretryable(self):
++        self.assertTrue((self.path/'finalization-intent.json').is_file())
++        with self.assertRaises(FileExistsError): self.finalize()
++
++    def test_normal_publication_has_only_authoritative_receipt(self):
++        self.assertEqual(self.finalize(), self.result)
++        terminal = self.path/'finalization.json'
++        self.assertEqual(terminal.read_bytes(), (self.path/'finalization.candidate.json').read_bytes())
++        self.assertFalse((self.path/'private/failure.json').exists())
++        self.assertFalse((self.path/'private/post-publication-diagnostic.json').exists())
++        self.assert_nonretryable()
++
++    def test_prelink_error_has_only_terminal_failure(self):
++        fault = OSError('new regression: link failed before publication')
++        with patch.object(paired.os, 'link', side_effect=fault):
++            with self.assertRaises(OSError) as raised: self.finalize()
++        self.assertIs(raised.exception, fault)
++        self.assertFalse((self.path/'finalization.json').exists())
++        self.assertTrue((self.path/'finalization.candidate.json').is_file())
++        failure = json.loads((self.path/'private/failure.json').read_bytes())
++        self.assertIn('link failed before publication', failure['error'])
++        self.assertFalse((self.path/'private/post-publication-diagnostic.json').exists())
++        self.assert_nonretryable()
++
++    def test_postlink_interrupt_retains_success_and_separate_diagnostic(self):
++        link = paired.os.link
++        fault = KeyboardInterrupt('new regression: interrupt after successful link')
++        def interrupted(source, target):
++            link(source, target)
++            raise fault
++        with patch.object(paired.os, 'link', side_effect=interrupted):
++            with self.assertRaises(KeyboardInterrupt) as raised: self.finalize()
++        self.assertIs(raised.exception, fault)
++        raw = (self.path/'finalization.json').read_bytes()
++        self.assertEqual(raw, (self.path/'finalization.candidate.json').read_bytes())
++        self.assertFalse((self.path/'private/failure.json').exists())
++        diagnostic = json.loads((self.path/'private/post-publication-diagnostic.json').read_bytes())
++        self.assertEqual(diagnostic['authority'], 'finalization.json')
++        self.assertEqual(diagnostic['expected_receipt_sha256'], paired._sha(raw))
++        self.assertEqual(diagnostic['observed_receipt_sha256'], paired._sha(raw))
++        self.assertIn('KeyboardInterrupt', diagnostic['error'])
++        self.assert_nonretryable()
++
++    def test_unexpected_published_bytes_require_reconciliation(self):
++        fault = OSError('new regression: unexpected terminal collision')
++        other = b'{"fixture":"unexpected existing receipt"}\n'
++        def conflict(path, value):
++            paired._write(path, other)
++            raise fault
++        with patch.object(paired, '_publish', side_effect=conflict):
++            with self.assertRaises(OSError) as raised: self.finalize()
++        self.assertIs(raised.exception, fault)
++        self.assertEqual((self.path/'finalization.json').read_bytes(), other)
++        diagnostic = json.loads((self.path/'private/publication-uncertain.json').read_bytes())
++        self.assertEqual(diagnostic['authority'], 'requires_outer_reconciliation')
++        self.assertEqual(diagnostic['observed_receipt_sha256'], paired._sha(other))
++        self.assertNotEqual(diagnostic['expected_receipt_sha256'], diagnostic['observed_receipt_sha256'])
++        self.assertFalse((self.path/'private/failure.json').exists())
++        self.assertFalse((self.path/'private/post-publication-diagnostic.json').exists())
++        self.assert_nonretryable()
++
++    def test_unreadable_postlink_receipt_cannot_be_declared_failure(self):
++        link, read = paired.os.link, Path.read_bytes
++        fault = KeyboardInterrupt('new regression: postlink interrupt with unreadable receipt')
++        def interrupted(source, target):
++            link(source, target)
++            raise fault
++        def unreadable(path):
++            if path == self.path/'finalization.json': raise PermissionError('new regression: cannot reconcile bytes')
++            return read(path)
++        with patch.object(paired.os, 'link', side_effect=interrupted), patch.object(Path, 'read_bytes', unreadable):
++            with self.assertRaises(KeyboardInterrupt) as raised: self.finalize()
++        self.assertIs(raised.exception, fault)
++        self.assertTrue((self.path/'finalization.json').is_file())
++        diagnostic = json.loads((self.path/'private/publication-uncertain.json').read_bytes())
++        self.assertEqual(diagnostic['authority'], 'requires_outer_reconciliation')
++        self.assertIn('PermissionError', diagnostic['publication_read_error'])
++        self.assertFalse((self.path/'private/failure.json').exists())
++        self.assert_nonretryable()
++
++
+ if __name__=='__main__': unittest.main(verbosity=2)
+--- prep01/ace_llm_intervention_campaign_2026-11-07.md
++++ prep02/ace_llm_intervention_campaign_2026-11-07.md
+@@ -104,6 +104,15 @@
+ schedule and bindings were fixed in the source plans. Finalization itself is an
+ exclusive once-only attempt and retains partial reports on failure.
+ 
++An exact intended `finalization.json` remains authoritative if an interrupt arrives
++after publication. The interrupt propagates and is retained separately in
++`private/post-publication-diagnostic.json`; no terminal failure is then emitted.
++Only confirmed absence of the published receipt permits `private/failure.json`.
++Unreadable or unexpected published bytes instead produce
++`private/publication-uncertain.json` for outer reconciliation. None of these paths
++authorizes retry. Focused publication regressions use fabricated reporting inputs
++and filesystem faults only, without replaying any world or policy.
++
+ ## Scope and validation
+ 
+ The new test file uses two hand-written one-node, zero-noise artificial worlds

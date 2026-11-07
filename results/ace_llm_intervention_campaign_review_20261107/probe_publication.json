@@ -1,0 +1,47 @@
+{
+  "campaign_sha256": "87c12c245d38c9a63ac888bf90651e46682542bfd78580cec0a05186721f0c6d",
+  "paired_sha256": "f4061bf16743212e4ae95b459749205595116f4f60db9cadd446c532509d07c3",
+  "scope": "Pure memory fault injection; exact extracted finalize_campaign/_publish; no project imports, worlds, policies, subprocesses or remote work.",
+  "results": [
+    {
+      "fault": "none",
+      "raised": null,
+      "files": [
+        "root/finalization-intent.json",
+        "root/finalization.candidate.json",
+        "root/finalization.json",
+        "root/private/report-pins.json",
+        "root/private/summary.json"
+      ],
+      "published_success": true,
+      "published_failure": false
+    },
+    {
+      "fault": "before_link",
+      "raised": "OSError",
+      "files": [
+        "root/finalization-intent.json",
+        "root/finalization.candidate.json",
+        "root/private/failure.json",
+        "root/private/report-pins.json",
+        "root/private/summary.json"
+      ],
+      "published_success": false,
+      "published_failure": true
+    },
+    {
+      "fault": "after_link",
+      "raised": "KeyboardInterrupt",
+      "files": [
+        "root/finalization-intent.json",
+        "root/finalization.candidate.json",
+        "root/finalization.json",
+        "root/private/failure.json",
+        "root/private/report-pins.json",
+        "root/private/summary.json"
+      ],
+      "published_success": true,
+      "published_failure": true
+    }
+  ]
+}
