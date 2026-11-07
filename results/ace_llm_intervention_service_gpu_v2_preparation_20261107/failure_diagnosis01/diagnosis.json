@@ -1,0 +1,29 @@
+{
+  "accepted_cpu_observation_sha256": "385fe7c5a1c4e25eb5707c27d8346daa774231cc8b7b46a1b39690a95cfcedec",
+  "accepted_cpu_openmp_paths": [
+    "/scratch/local/35348366/ace-service-cpu-35348366/runtime/lib/libgomp.so.1.0.0",
+    "/scratch/local/35348366/ace-service-cpu-35348366/runtime/lib/libmkl_gnu_thread.so.2",
+    "/scratch/local/35348366/ace-service-cpu-35348366/runtime/lib/python3.10/site-packages/torch/lib/libgomp.so.1"
+  ],
+  "correction_implemented": false,
+  "failed_job": "35348887",
+  "hypothesis": "Parent NumPy/mkl-service initialization can set MKL_THREADING_LAYER=INTEL in the C environment inherited by a torch-first child. This reconciles successful CPU GNU paths with the GPU child conflict, but the failing parent/child C environment was not recorded, so the initiating cause is not fully identified.",
+  "models_loaded": false,
+  "next_gate": "Capture narrow Python/C environment state before and after parent numerical imports. Prepare/review explicit GNU child threading selection and real CPU-only reproduction of the parent-child launch shape with exact archive/source/runtime guards. Do not use MKL_SERVICE_FORCE_INTEL, blanket native-path exemptions, new installs or blind GPU retry.",
+  "no_new_allocation": true,
+  "primary_sources": [
+    {
+      "scope": "Upstream source describes selection/setenv and explicit INTEL plus GNU OpenMP rejection. Not an authenticated copy of installed binary source.",
+      "url": "https://raw.githubusercontent.com/IntelPython/mkl-service/master/mkl/_mklinitmodule.c"
+    },
+    {
+      "scope": "Documented explicit threading-layer selection.",
+      "url": "https://www.intel.com/content/www/us/en/docs/onemkl/developer-guide-linux/2025-0/dynamic-select-the-interface-and-threading-layer.html"
+    }
+  ],
+  "runtime_modified": false,
+  "source_observation": "GPU parent imports PersistentPolicy/unpack_envelope before spawning. Those captured project modules import NumPy. CPU preflight supervisor does not import that numerical project closure.",
+  "stderr": "Error: mkl-service + Intel(R) MKL: MKL_THREADING_LAYER=INTEL is incompatible with libgomp.so.1 library.\n\tTry to import numpy first or set the threading layer accordingly. Set MKL_SERVICE_FORCE_INTEL to force it.\n",
+  "stderr_sha256": "a7725ed693545ef8bef7299d13c741a60cc1af465e23c676f12d42cb623df82e",
+  "utc": "2026-11-07T21:27:59.462406+00:00"
+}
