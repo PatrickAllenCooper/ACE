@@ -1,0 +1,95 @@
+{
+  "accepted_generations": 0,
+  "child_environment": {
+    "after": {
+      "c": {
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_SERVICE_FORCE_INTEL": null,
+        "MKL_THREADING_LAYER": "GNU"
+      },
+      "python": {
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_SERVICE_FORCE_INTEL": null,
+        "MKL_THREADING_LAYER": "GNU"
+      }
+    },
+    "before": {
+      "c": {
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_SERVICE_FORCE_INTEL": null,
+        "MKL_THREADING_LAYER": "INTEL"
+      },
+      "python": {
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_SERVICE_FORCE_INTEL": null,
+        "MKL_THREADING_LAYER": null
+      }
+    },
+    "loaded_parent_libraries_changed": false
+  },
+  "diagnosis": "The generic CPU runtime guard classifies every absolute file-backed process mapping as a native library. Model loading introduced NVIDIA device and deleted /dev/zero shared-memory mappings. These are non-executable mappings, not evidence of a mixed imported Python or numerical library. Current guard correctly rejects anything unrecognized, but needs a narrow authenticated GPU-device mapping contract. No broad /dev exemption is justified.",
+  "failed_job": "35349776",
+  "failure": {
+    "accepted_generation_records": [],
+    "available_raw_generation_records": [],
+    "environment_responses": 0,
+    "message": "mixed loaded native paths",
+    "new_training_updates": 0,
+    "retry_allowed": false,
+    "traceback": "Traceback (most recent call last):\n  File \"/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_12/llm_intervention_model_service.py\", line 452, in main\n    serve_policy(initialize, identity=identity(freeze), max_requests=freeze[\"limits\"][\"max_requests\"])\n  File \"/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_12/llm_intervention_persistent_policy.py\", line 129, in serve_policy\n    decide = initialize()\n  File \"/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_12/llm_intervention_model_service.py\", line 450, in initialize\n    runtime_observer.observe(\"after-model-load\")\n  File \"/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_12/llm_intervention_service_runtime.py\", line 172, in observe\n    d.check_prefix(self.prefix, snapshot, self.baseline)\n  File \"/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_12/qualify_llm_intervention_runtime_metadata.py\", line 486, in check_prefix\n    need(not snapshot['mixed_native_paths'], 'mixed loaded native paths')\n  File \"/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_12/qualify_llm_intervention_runtime_metadata.py\", line 77, in need\n    if not ok: raise ValueError(message)\nValueError: mixed loaded native paths\n",
+    "type": "ValueError"
+  },
+  "gpu_forward_computation_verified": false,
+  "handshake_completed": false,
+  "mixed_native_paths": [
+    "/dev/nvidia-uvm",
+    "/dev/nvidia0",
+    "/dev/nvidiactl",
+    "/dev/zero"
+  ],
+  "model_loaded": true,
+  "new_environment_responses": 0,
+  "new_updates": 0,
+  "next_gate": "Retain failure, validate exact non-executable character-device and anonymous-shared mapping observations with independent ownership/type/device/mapping checks, preserve raw snapshot and unknown mapping rejection, then reviewed derived source/runtime qualification. No blind GPU retry.",
+  "observation_sha256": "038e2a87e4ab85ff234abb86ee3624d309ab8f81193956884e87abd57aa004aa",
+  "rejected_mapping_rows": [
+    "200200000-200400000 rw-s 00000000 00:06 55168                            /dev/nvidia0",
+    "200400000-203c00000 rw-s 00000000 00:06 55166                            /dev/nvidiactl",
+    "203e00000-204000000 rw-s 00000000 00:06 55166                            /dev/nvidiactl",
+    "204000000-204200000 rw-s 00000000 00:06 55166                            /dev/nvidiactl",
+    "204200000-204400000 rw-s 204200000 00:06 55180                           /dev/nvidia-uvm",
+    "14d0bd600000-14d0bd8a1000 rw-s 00000000 00:01 227648332                  /dev/zero (deleted)",
+    "14d0bda00000-14d0bdc00000 rw-s 00000000 00:01 227648333                  /dev/zero (deleted)",
+    "14d132c00000-14d132e00000 rw-s 00000000 00:01 227648331                  /dev/zero (deleted)",
+    "14d14e400000-14d14e600000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d14e600000-14d14e800000 rw-s 00000000 00:01 227648323                  /dev/zero (deleted)",
+    "14d14e800000-14d14ea00000 rw-s 00000000 00:01 227648324                  /dev/zero (deleted)",
+    "14d14f000000-14d14f200000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d14f400000-14d14f600000 rw-s 00000000 00:01 227648326                  /dev/zero (deleted)",
+    "14d14f600000-14d14fb33000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d1549de000-14d154bde000 rw-s 00000000 00:01 227648325                  /dev/zero (deleted)",
+    "14d154bde000-14d154bdf000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154bdf000-14d154be0000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be0000-14d154be1000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be1000-14d154be2000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be2000-14d154be3000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be3000-14d154be4000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be4000-14d154be5000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be5000-14d154be6000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be6000-14d154be7000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be7000-14d154be8000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be8000-14d154be9000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154be9000-14d154bea000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154bea000-14d154beb000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154beb000-14d154bec000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154bec000-14d154bed000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154bed000-14d154bee000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154bee000-14d154bef000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154bef000-14d154bf0000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154bf0000-14d154bf1000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d154bf1000-14d154bf2000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "14d1614af000-14d1614bf000 -w-s 00000000 00:06 55168                      /dev/nvidia0",
+    "14d28e6c7000-14d28e6c8000 r--s 00000000 00:06 55166                      /dev/nvidiactl"
+  ],
+  "utc": "2026-11-07T21:50:27.855076+00:00"
+}
