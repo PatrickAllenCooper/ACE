@@ -42,7 +42,7 @@ class CpuPreflightTests(unittest.TestCase):
     def test_renewed_cpu_allocation_and_drift(self):
         fields={"JobId":"123","JobState":"RUNNING","Account":"ucb736_asc2","Partition":"acpu",
             "QOS":"cpu-normal","NumCPUs":"1","NumTasks":"1","NumNodes":"1","TimeLimit":"00:10:00",
-            "Requeue":"0","Restarts":"0","AllocTRES":"cpu=1,mem=4G,node=1,billing=1"}
+            "Requeue":"0","Restarts":"0","AllocTRES":"cpu=1,mem=3840M,node=1,billing=1"}
         raw=lambda f:" ".join(k+"="+v for k,v in f.items())
         cpu.allocation_fields(raw(fields),"123")
         changes={"JobId":"124","JobState":"PENDING","Account":"ucb736_asc1","Partition":"aa100",
@@ -71,6 +71,20 @@ class CpuPreflightTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             cpu.authenticate(self.root,self.packet,bad,service,diagnostic)
 
+    def test_memory_limit_contract_rejects_old_or_expanded_allocation(self):
+        self.assertEqual(cpu.RESOURCES['memory_mib'],3840)
+        self.assertNotIn('memory_gib',cpu.RESOURCES)
+        cpu.packet_shape(self.packet)
+        old=copy.deepcopy(self.packet);old['schema']='ace-model-service-cpu-preflight-v1'
+        with self.assertRaises(ValueError):cpu.packet_shape(old)
+        old=copy.deepcopy(self.packet);old['resources'].pop('memory_mib');old['resources']['memory_gib']=4
+        with self.assertRaises(ValueError):cpu.packet_shape(old)
+        base='JobId=123 JobState=RUNNING Account=ucb736_asc2 Partition=acpu QOS=cpu-normal NumCPUs=1 NumTasks=1 NumNodes=1 TimeLimit=00:10:00 Requeue=0 Restarts=0 AllocTRES=cpu=1,mem=3840M,node=1,billing=1'
+        cpu.allocation_fields(base,'123')
+        for bad in (base.replace('mem=3840M','mem=4G'),
+                    base.replace('NumCPUs=1','NumCPUs=2').replace('cpu=1,mem=3840M','cpu=2,mem=4G'),
+                    base.replace('mem=3840M','mem=3G')):
+            with self.assertRaises(ValueError):cpu.allocation_fields(bad,'123')
     def test_child_uses_staged_isolated_bootstrap_and_all_fixtures(self):
         command=cpu.child_command(Path('/stage/runtime'),self.root,"frozen.json",self.files,
             self.root/'session',self.root/'stage.json','c'*64,'captured bootstrap')

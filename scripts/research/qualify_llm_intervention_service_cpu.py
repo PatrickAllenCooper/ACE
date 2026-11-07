@@ -21,10 +21,10 @@ import time
 import traceback
 import types
 
-VERSION = "ace-model-service-cpu-preflight-v1"
+VERSION = "ace-model-service-cpu-preflight-v2"
 DIAGNOSTIC_SHA = "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329"
 RESOURCES = {"account":"ucb736_asc2", "partition":"acpu", "qos":"cpu-normal",
-             "cpus":1, "memory_gib":4, "wall_seconds":600, "gpus":0, "requeue":False}
+             "cpus":1, "memory_mib":3840, "wall_seconds":600, "gpus":0, "requeue":False}
 SERVICES = ["frozen.json", "adapter.json"]
 FIXTURES = {"case0.json", "case3.json", "stress.json"}
 SOURCE_FILES = {"llm_intervention_model_service.py", "llm_intervention_service_runtime.py",
@@ -94,7 +94,7 @@ def allocation_fields(raw, job):
         "NumNodes":"1","TimeLimit":"00:10:00","Requeue":"0","Restarts":"0"}
     tres=fields.get("AllocTRES","").split(",")
     need(all(fields.get(k)==v for k,v in expected.items()) and "cpu=1" in tres
-         and "mem=4G" in tres and not any("gres/" in x for x in tres),
+         and "mem=3840M" in tres and not any("gres/" in x for x in tres),
          "allocation differs from fixed one-CPU preflight")
     return fields
 

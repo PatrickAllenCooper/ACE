@@ -1,0 +1,36 @@
+{
+  "checks": {
+    "child_cpu_seconds": 0.047663,
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-B",
+      "-c",
+      "import sys,unittest;sys.path.insert(0,'/Users/pat/code/ACE/scripts/research');unittest.main(module=None,argv=[\"memory-contract\",\"-v\",\"test_llm_intervention_service_cpu.CpuPreflightTests.test_memory_limit_contract_rejects_old_or_expanded_allocation\",\"test_llm_intervention_service_cpu.CpuPreflightTests.test_renewed_cpu_allocation_and_drift\"])"
+    ],
+    "cwd": "/tmp",
+    "elapsed_seconds": 0.08501191699999999,
+    "exit_code": 0,
+    "peak_child_rss_bytes": 21561344,
+    "scope": "One new resource-version method and one affected allocation method. No interface/runtime/model execution or remote allocation.",
+    "sources": {
+      "qualify_llm_intervention_service_cpu.py": "c827a53f0fe03204c447e8e7d406e6d8a2c9318b4d6cd5fdc82beb84b576b6b7",
+      "test_llm_intervention_service_cpu.py": "22e6c8a1f2f4d3218b02b8bc49079a8ae7c2bea5c4dd3da24d56abe3da457dd0"
+    }
+  },
+  "closed_cpu_seconds": 6384,
+  "closed_gpu_seconds": 836,
+  "model_service_qualified": false,
+  "predecessor_failed_job": "35348012",
+  "preparation_allowance_cpu_seconds": 3600,
+  "proposed_admission_cpu_seconds": 10584,
+  "proposed_reservation_cpu_seconds": 600,
+  "required_remaining": 0,
+  "review_sha256": "6e27aa205840dc2e0b2db722966bef399f45e2d659343b1d40a5500ac19b1b7f",
+  "reviewer": "Beauvoir",
+  "scientific_generation": false,
+  "source_science_changed": false,
+  "status": "reviewed_resource_correction_not_submitted",
+  "supervisor_sha256": "c827a53f0fe03204c447e8e7d406e6d8a2c9318b4d6cd5fdc82beb84b576b6b7",
+  "test_sha256": "22e6c8a1f2f4d3218b02b8bc49079a8ae7c2bea5c4dd3da24d56abe3da457dd0",
+  "utc": "2026-11-07T21:01:48.835523+00:00"
+}
