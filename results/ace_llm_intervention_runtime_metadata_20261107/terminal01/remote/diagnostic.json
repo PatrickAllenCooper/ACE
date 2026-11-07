@@ -1,0 +1,56 @@
+{
+  "actual_versions": {
+    "numpy": "2.2.5",
+    "python": "3.10.19",
+    "scipy": "1.15.3",
+    "torch": "2.9.1+cu128",
+    "transformers": "4.57.3"
+  },
+  "archive": {
+    "path": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_staged_runtime_20261107_01/qualification/packed/runtime.tar",
+    "sha256": "6815ab9784b6025b8bb4439e40a1a012b9697d434bfc83bd5f36e27abc262d98"
+  },
+  "limits": {
+    "child_outer_seconds": 185,
+    "child_success_seconds": 180,
+    "cleanup_seconds": 5,
+    "stage_peak_rss_bytes": 536870912,
+    "supervisor_seconds": 580,
+    "worker_peak_rss_bytes": 1610612736
+  },
+  "manifest": {
+    "path": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_staged_runtime_20261107_01/qualification/packed/manifest.json",
+    "sha256": "b44610f638f0873da8588f1cf23039638203a855959a6ed12cf0ec6c2551d63a"
+  },
+  "numpy_metadata_versions": [
+    "2.2.5",
+    "2.2.6"
+  ],
+  "output": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_runtime_metadata_20261107_01/qualification",
+  "resources": {
+    "account": "ucb736_asc2",
+    "cpus": 1,
+    "gpus": 0,
+    "memory_gib": 3,
+    "partition": "acpu",
+    "qos": "cpu-normal",
+    "requeue": false,
+    "wall_seconds": 600
+  },
+  "runtime_source": "/projects/paco0228/miniconda3/envs/ace",
+  "sources": {
+    "helper": {
+      "path": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_runtime_metadata_20261107_01/llm_intervention_runtime_archive.py",
+      "sha256": "7664772074cc84bdc9d668f5a99aae475a9e54aafc0c85486e23bf9b88ba747e"
+    },
+    "probe": {
+      "path": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_runtime_metadata_20261107_01/probe.py",
+      "sha256": "8d6f9e2761922802712a8bf2e77df6bdec3708ce1e08272864bebbf76f0d1951"
+    },
+    "self": {
+      "path": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_runtime_metadata_20261107_01/qualify_llm_intervention_runtime_metadata.py",
+      "sha256": "9f728a3df959a0e69cc110d31cf11e5c07b9dde84ffe74eb914084c713b91b49"
+    }
+  },
+  "version": "ace-runtime-metadata-diagnostic-v1"
+}
