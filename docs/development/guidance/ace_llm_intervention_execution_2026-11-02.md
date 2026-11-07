@@ -1,5 +1,15 @@
 # Execution of the renewed ACE intervention research agenda
 
+## Current state: November 7, 2026
+
+The broader LLM intervention question remains unanswered. No fresh scientific training or development worlds have been generated for this cycle. The earlier delivery paper remains preserved and off the submission path.
+
+The paid training-data builder, prospective screen schedule, private cost-to-accuracy reporter, supplied-model SFT/DPO engine and matched-exposure proposal are implemented and independently reviewed. The engine saves the supervised policy and uses it as a fixed reference during preference training. These components need complete runner integration, numerical-policy training and actual model/runtime qualification before scientific use.
+
+GPU09 qualified a bounded artificial training/reload experiment. GPU10 failed during imports before loading a model or generating a response. CPU diagnostic job **35341862** was submitted once and remains pending. At 17:00 UTC, CURC still reported **MaxJobs=0** for paco0228 under ucb736_asc1 and the job reason AssocMaxJobsLimit, with zero allocation for this job. Patrick has been asked to contact CURC about this allowance. SSH works. The job remains unchanged, and both controller locks are released.
+
+Current admission accounting is **8,530 / 57,600 CPU-seconds** and **836 / 7,200 GPU-slice-seconds**. CPU admission includes 4,450 closed allocation seconds, the cumulative 3,600-second preparation allowance and the pending diagnostic's 480-second maximum. It is not whole-cycle process CPU. The dated entries below preserve the evidence and earlier states. Do not repeat closed tests, reviews or artificial model runs merely to reconfirm them.
+
 ## Objective and authority
 
 Patrick has activated the goal: follow [the research agenda](ace_llm_intervention_agenda_2026-11-02.md) until there is a concrete answer to whether an LLM trained to use an SCM can give experimentalists a useful answer at lower experimental cost. This authorizes development and bounded qualification toward that question. It does not turn artificial tests or an isolated favorable pilot into the answer.
@@ -492,3 +502,15 @@ The engine reuses the GPU09 arithmetic and optimizer settings, but does not copy
 Independent review found zero required corrections within this documented scope. All254original preparation files,911,118bytes and18source pins match exclusive external custody. Six unique new tiny arithmetic controls have passing evidence across two retained invocations. The first invocation had one test assertion failure because nonfinite scores were rejected earlier than that assertion expected. Only that corrected method reran. Engine source stayed unchanged. Test-childCPU2.521239seconds andelapsed3.050262458seconds exclude other development and do not reset the cumulative preparation allowance. Scoring and recomputation counters were mocked around tiny real AdamW updates. No Qwen model, GPU, scientific world or environment response ran.
 
 Source SHA dccff3ada3e3c269368ffea5d6f23981575287528082e4fffdfc81f5af778651 and the independent report are bound in results/ace_llm_intervention_training_engine_acceptance_20261107. This closes the reusable training-loop implementation gap, not real-model integration or experimental utility. A bounded matched-exposure proposal is being prepared separately before any scientific training freeze.
+
+### Matched training exposure implemented and reviewed
+
+The new pure exposure planner proposes one supervised update per complete record, followed by at most one preference update per record with a strict comparison. A fixed hash of the predeclared record identity and unordered action commands selects that comparison. Preference direction, gain size and record hashes do not enter the key. Eligibility still depends on the training labels. Every tie and unselected comparison remains in the saved record and exposure accounting. This is deterministic selection, not random uniform sampling.
+
+The numerical and language schedules identify the same selected examples in the same order. This matches example exposure, not model size, loss, tokens or compute. If all comparisons are tied, the planner returns an explicit untrainable two-stage status. It does not fabricate preferences or silently adopt a different training recipe. For the proposed complete 160-record screen, if 32 terminal records have no strict pairs, the rule would give 160 supervised updates and at most 128 preference updates. No such scientific records have been generated.
+
+Seven new artificial methods passed once in 0.126284 test-child CPU seconds and 0.206635833 elapsed seconds. Ten proposals and 18 rejected fixtures remain in the 110-file, 341,561-byte preparation capsule and matching exclusive external custody. The independent implementation review found zero required fixes. A metadata clarification distinguishes engine commit d337ba3312ec021adc01e22d0446014e86a869c7 from its file SHA dccff3ada3e3c269368ffea5d6f23981575287528082e4fffdfc81f5af778651. Both were independently checked. The initial and corrected reviews are preserved without a test rerun.
+
+Acceptance and source/review lineage are under results/ace_llm_intervention_training_exposure_acceptance_20261107. Scientific adoption remains pending complete integration and a resource freeze. Next local work is numerical training that consumes this exact schedule, then the complete paired runner and independent roster reporting. The older numerical trainer's default epoch loop does not implement this proposed matched schedule and must not be treated as equivalent.
+
+A final read-only CURC check at 17:00:24 UTC confirmed job35341862 still PENDING with AssocMaxJobsLimit, zero allocated CPUs and zero elapsed time. The association still reports MaxJobs=0. Fresh evidence is queue_scope02.json, preserved in both custody locations. No job, account, partition, allocation or controller lock was changed by that check. The existing admission totals and external restoration request remain unchanged.
