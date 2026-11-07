@@ -232,4 +232,186 @@ class MetadataTests(unittest.TestCase):
             if mode=='after_link':self.assertEqual(json.loads((out/'publication-diagnostic.json').read_bytes())['authority'],'terminal.json')
 
 
+class MetadataDeltaTests(unittest.TestCase):
+    """v2-only fabricated fixtures. Never execute captured third-party sources."""
+    @classmethod
+    def setUpClass(cls):
+        cls.root = Path(os.environ['ACE_RUNTIME_METADATA_DELTA_OUTPUT']).resolve()
+        cls.root.mkdir(exist_ok=False)
+
+    def setUp(self):
+        self.path = self.root/self._testMethodName; self.path.mkdir()
+
+    def fixture(self, label, *, generate=True):
+        base = self.path/label; base.mkdir()
+        prefix = base/'runtime'; prefix.mkdir()
+        root, root_stat = q.create_child_temp(prefix)
+        substitutions = {'assign_module_interface_cls':'module_interface_cls = None', 'args':'*args',
+                         'kwargs':'**kwargs', 'arg_types':'*args, **kwargs', 'arrow_and_return_type':'',
+                         'arrow_and_future_return_type':'', 'jit_script_decorator':''}
+        generator = ("_FILE_PREFIX = '_remote_module_'\ndef instantiate_non_scriptable_remote_module_template():\n"
+                     '    str_dict = dict('+', '.join(k+'='+repr(v) for k,v in substitutions.items())+')\n'
+                     "    raise AssertionError('fixture generator must never execute')\n").encode()
+        template = ("_TEMPLATE_PREFIX = "+repr('{assign_module_interface_cls}\ndef forward(self, {arg_types}):\n    return None\n')+
+                    "\n_REMOTE_FORWARD_TEMPLATE_ENABLE_MOVING_CPU_TENSORS_TO_CUDA = "+repr('def forward_async(self, {arg_types}):\n    return None\ndef _remote_forward({arg_types}):\n    return None\n')+
+                    "\nraise AssertionError('fixture template must never execute')\n").encode()
+        sources, modules = {}, {}
+        for name,(relative,_) in q.PROVENANCE_SOURCES.items():
+            b = generator if name == q.GENERATOR else template if name == q.TEMPLATE else b"raise AssertionError('fixture source must never execute')\n"
+            p = prefix/'lib/python3.10/site-packages'/relative; p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(b)
+            sources[name] = (relative,q.sha(b))
+            m = types.ModuleType(name); m.__file__ = str(p); m.__spec__ = importlib.util.spec_from_file_location(name,p); modules[name] = m
+        lazy = type('_LazyModule',(types.ModuleType,),{'__module__':q.LAZY_UTILS,
+                    '__getattr__':lambda self,name: (_ for _ in ()).throw(AssertionError('no lazy traversal'))})
+        modules[q.LAZY_UTILS]._LazyModule = lazy
+        m = lazy('transformers'); m.__dict__.update(vars(modules['transformers'])); m._objects = {'__version__':'4.57.3'}; modules['transformers'] = m
+        for name in ('numpy','scipy','torch'):
+            m = types.ModuleType(name); m.__file__ = str(prefix/(name+'.py')); m.__version__ = q.ACTUAL[name]; modules[name] = m
+        with patch.object(q,'PROVENANCE_SOURCES',sources): contract = q.provenance_contract(prefix)
+        value = dict(base=base,prefix=prefix,root=root,root_stat=root_stat,sources=sources,contract=contract,modules=modules,
+                     baseline=[str(prefix/'lib/python3.10')],generator=generator,template=template)
+        if generate:self.generate(value)
+        return value
+
+    def generate(self, f):
+        owner = q.tempfile.TemporaryDirectory(dir=f['root'])
+        owner._finalizer.detach()  # Retain every artificial fixture, including failures.
+        folder = Path(owner.name); path = folder/(q.GENERATED_MODULE+'.py')
+        path.write_text(f['contract']['expected_source'])
+        f['modules'][q.GENERATOR]._TEMP_DIR = owner
+        f['modules'][q.GENERATOR].INSTANTIATED_TEMPLATE_DIR_PATH = str(folder)
+        m = types.ModuleType(q.GENERATED_MODULE); m.__file__ = str(path); m.__spec__ = importlib.util.spec_from_file_location(q.GENERATED_MODULE,path)
+        def artificial_function(*args,**kwargs): return None
+        for name in ('forward','forward_async','_remote_forward'):
+            fn = types.FunctionType(artificial_function.__code__.replace(co_filename=str(path),co_name=name),{})
+            fn.__module__ = q.GENERATED_MODULE; setattr(m,name,fn)
+        f['modules'][q.GENERATED_MODULE] = m; f.update(file=path,folder=folder,owner=owner)
+
+    def snapshot(self, f, *, search=None, maps=''):
+        with patch.object(q.sys,'prefix',str(f['prefix'])),patch.object(q.sys,'base_prefix',str(f['prefix'])),\
+             patch.object(q.sys,'executable',str(f['prefix']/'bin/python')),\
+             patch.object(q.sys,'path',search if search is not None else f['baseline']+[str(f['folder'])]):
+            return q.runtime_snapshot(f['prefix'],q.RUNTIME_SOURCE,modules=f['modules'],maps=maps,
+                contract=f['contract'],temp_root=f['root'],temp_stat=f['root_stat'])
+
+    def test_delta_canonical_static_generation_and_lazy_version(self):
+        f=self.fixture('canonical');snapshot=self.snapshot(f)
+        q.write(f['base']/'snapshot.json',snapshot);q.check_prefix(f['prefix'],snapshot,f['baseline'])
+        proof=snapshot['generated_provenance'];self.assertTrue(proof['verified'])
+        self.assertEqual(proof['source_content'],f['contract']['expected_source'])
+        self.assertEqual(proof['source_sha256'],q.sha(f['file'].read_bytes()))
+        self.assertEqual(snapshot['mixed_modules'],{q.GENERATED_MODULE:str(f['file'])})
+        version=snapshot['packages']['transformers']
+        self.assertIsNone(version['direct_version']);self.assertFalse(version['direct_version_present'])
+        self.assertEqual(version['version'],'4.57.3');self.assertEqual(version['version_resolution'],'transformers_pinned_lazy_objects')
+        with self.assertRaises(FileExistsError):q.create_child_temp(f['prefix'])
+        packet={'version':'ace-runtime-metadata-diagnostic-v1','sources':{},'archive':{},'manifest':{},
+                'runtime_source':q.RUNTIME_SOURCE,'output':str(f['base']/'uncreated'),'resources':q.RESOURCES,
+                'limits':q.LIMITS,'actual_versions':q.ACTUAL,'numpy_metadata_versions':['2.2.5','2.2.6']}
+        q.write(f['base']/'old-version-packet.json',packet)
+        args=types.SimpleNamespace(packet=f['base']/'old-version-packet.json',packet_sha256=q.sha(q.raw(packet)))
+        with self.assertRaisesRegex(ValueError,'fixed diagnostic contract'):q.authenticate(args)
+
+    def test_delta_forged_origin_and_extra_paths_rejected(self):
+        for mode in ('file','spec','loader','function','generator','extra_search','extra_module','extra_native'):
+            with self.subTest(mode=mode):
+                f=self.fixture(mode);m=f['modules'][q.GENERATED_MODULE];search=None;maps=''
+                if mode=='file':m.__file__=str(f['base']/'forged.py')
+                elif mode=='spec':m.__spec__.origin=str(f['base']/'forged.py')
+                elif mode=='loader':m.__spec__.loader.path=str(f['base']/'forged.py')
+                elif mode=='function':m.forward.__code__=m.forward.__code__.replace(co_filename='/forged.py')
+                elif mode=='generator':f['modules'][q.GENERATOR].__spec__.origin='/forged-generator.py'
+                elif mode=='extra_search':search=f['baseline']+[str(f['folder']),'/tmp']
+                elif mode=='extra_module':f['modules']['forged_alias']=m
+                elif mode=='extra_native':maps='100-200 r-xp 0 00:00 0 /opt/foreign.so\n'
+                snapshot=self.snapshot(f,search=search,maps=maps);q.write(f['base']/'rejected.json',snapshot)
+                with self.assertRaises(ValueError):q.check_prefix(f['prefix'],snapshot,f['baseline'])
+
+    def test_delta_content_pins_and_nonliteral_generator_rejected(self):
+        f=self.fixture('content');f['file'].write_text(f['contract']['expected_source']+'# forged\n')
+        snapshot=self.snapshot(f);q.write(f['base']/'rejected.json',snapshot)
+        self.assertIn('# forged',snapshot['generated_provenance']['source_content'])
+        with self.assertRaisesRegex(ValueError,'pinned literal expansion'):q.check_prefix(f['prefix'],snapshot,f['baseline'])
+        f=self.fixture('source_pin');source=Path(f['contract']['sources'][q.TEMPLATE]['path']);source.write_bytes(source.read_bytes()+b'# forged\n')
+        with patch.object(q,'PROVENANCE_SOURCES',f['sources']):
+            with self.assertRaisesRegex(ValueError,'pinned provenance source'):q.provenance_contract(f['prefix'])
+        with self.assertRaisesRegex(ValueError,'static string literal'):
+            q.static_generated_source(f['generator'].replace(b"args='*args'",b"args=str('must not execute')"),f['template'])
+
+    def test_delta_ownership_symlink_and_inventory_rejected(self):
+        for mode in ('ownership','permissions','symlink','inventory','owner_path'):
+            with self.subTest(mode=mode):
+                f=self.fixture(mode);original=Path.lstat
+                def fake_stat(path):
+                    s=original(path)
+                    if mode=='ownership' and path==f['folder']:
+                        return types.SimpleNamespace(**{k:(getattr(s,k)+1 if k=='st_uid' else getattr(s,k))
+                            for k in ('st_dev','st_ino','st_uid','st_gid','st_mode','st_nlink','st_size','st_mtime_ns','st_ctime_ns')})
+                    return s
+                if mode=='permissions':f['folder'].chmod(0o755)
+                elif mode=='symlink':
+                    saved=f['base']/'retained-original.py';f['file'].rename(saved);f['file'].symlink_to(saved)
+                elif mode=='inventory':(f['folder']/'unexpected.py').write_text('forged\n')
+                elif mode=='owner_path':f['owner'].name=str(f['base']/'forged-owner')
+                with patch.object(Path,'lstat',fake_stat):snapshot=self.snapshot(f)
+                q.write(f['base']/'rejected.json',snapshot)
+                self.assertFalse(snapshot['generated_provenance']['verified'])
+                with self.assertRaises(ValueError):q.check_prefix(f['prefix'],snapshot,f['baseline'])
+
+    def test_delta_lazy_version_wrong_class_origin_value_and_conflict(self):
+        for mode in ('class','origin','missing','nonstr','wrong','conflict'):
+            with self.subTest(mode=mode):
+                f=self.fixture(mode);m=f['modules']['transformers']
+                if mode=='class':
+                    fake=types.ModuleType('transformers');fake.__dict__.update(vars(m));f['modules']['transformers']=fake
+                elif mode=='origin':m.__spec__.origin='/forged-transformers.py'
+                elif mode=='missing':m._objects={}
+                elif mode=='nonstr':m._objects={'__version__':4573}
+                elif mode=='wrong':m._objects={'__version__':'4.57.2'}
+                elif mode=='conflict':m.__version__='4.57.2'
+                snapshot=self.snapshot(f);q.write(f['base']/'rejected.json',snapshot)
+                self.assertEqual(snapshot['packages']['transformers']['version_resolution'],'rejected')
+                self.assertIsNone(snapshot['packages']['transformers']['version'])
+                with self.assertRaisesRegex(ValueError,'package version observation'):q.check_prefix(f['prefix'],snapshot,f['baseline'])
+
+    def test_delta_worker_retains_generated_evidence_on_success_and_failure(self):
+        original_snapshot=q.runtime_snapshot
+        for mode in ('success','content_failure'):
+            f=self.fixture(mode,generate=False);out=f['base']/'output';out.mkdir()
+            stage={'staged_prefix':str(f['prefix']),'archive_sha256':q.ARCHIVE_SHA,'manifest_sha256':q.MANIFEST_SHA,'cache_source_sha256':{},
+                   'temporary_root':{'path':str(f['root']),'stat':f['root_stat']}}
+            q.write(out/'stage.json',stage)
+            args=types.SimpleNamespace(staged_prefix=str(f['prefix']),stage_sha256=q.sha(q.raw(stage)),packet_sha256='a'*64)
+            observed={}
+            def imports(event):
+                self.generate(f)
+                if mode=='content_failure':f['file'].write_text(f['contract']['expected_source']+'# forged\n')
+                observed.update(f['modules']);q.sys.path.append(str(f['folder']))
+                return f['modules']['numpy'],f['modules']['scipy']
+            def snapshot(prefix,original,**kw):
+                return original_snapshot(prefix,original,modules=observed,maps='',**kw)
+            fake_scipy=f['modules']['scipy'];fake_linalg=types.ModuleType('scipy.linalg');fake_scipy.linalg=fake_linalg
+            metadata={'numpy_entries':[{'version':'2.2.5'},{'version':'2.2.6'}],'distributions':[],'resolved_defaults':{}}
+            with patch.object(q,'PROVENANCE_SOURCES',f['sources']),patch.object(q,'original_imports',side_effect=imports),\
+                 patch.object(q,'runtime_snapshot',side_effect=snapshot),patch.object(q,'capture_caches'),\
+                 patch.object(q,'metadata_inventory',return_value=metadata),patch.object(q,'arithmetic',return_value={'passed':True}),\
+                 patch.object(q.sys,'prefix',str(f['prefix'])),patch.object(q.sys,'base_prefix',str(f['prefix'])),\
+                 patch.object(q.sys,'executable',str(f['prefix']/'bin/python')),patch.object(q.sys,'path',list(f['baseline'])),\
+                 patch.object(q.sys,'version_info',(3,10,19)),patch.object(q.tempfile,'gettempdir',return_value=str(f['root'])),\
+                 patch.dict(os.environ,{k:str(f['root']) for k in ('TMPDIR','TMP','TEMP')}),patch.object(q.signal,'setitimer'),\
+                 patch.dict(sys.modules,{'scipy':fake_scipy,'scipy.linalg':fake_linalg}):
+                if mode=='success':q.worker({'output':str(out)},args,time.monotonic(),time.process_time())
+                else:
+                    with self.assertRaisesRegex(ValueError,'pinned literal expansion'):q.worker({'output':str(out)},args,time.monotonic(),time.process_time())
+            terminal=json.loads((out/'worker/terminal.json').read_bytes())
+            self.assertEqual(terminal['status'],'diagnostic_complete' if mode=='success' else 'failed')
+            self.assertEqual(terminal['version'],q.VERSION);self.assertFalse(terminal['runtime_adopted'])
+            self.assertFalse(terminal['service_qualified']);self.assertEqual(terminal['environment_responses'],0)
+            self.assertEqual(terminal['generated_module_verified'],mode=='success')
+            self.assertIn('provenance-sources.json',terminal['evidence_sha256'])
+            final=json.loads((out/'worker/final-runtime.json').read_bytes())
+            self.assertIn('source_content',final['generated_provenance'])
+            if mode=='success':q.validate_worker(out,args.packet_sha256,args.stage_sha256)
+
+
 if __name__=='__main__':unittest.main(verbosity=2)

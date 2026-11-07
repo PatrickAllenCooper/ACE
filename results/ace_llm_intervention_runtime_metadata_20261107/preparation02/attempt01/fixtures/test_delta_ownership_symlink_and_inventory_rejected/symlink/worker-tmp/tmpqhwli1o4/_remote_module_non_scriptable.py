@@ -1,0 +1,1 @@
+/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-runtime-metadata-preparation-20261107-02/attempt01/fixtures/test_delta_ownership_symlink_and_inventory_rejected/symlink/retained-original.py

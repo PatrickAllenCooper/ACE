@@ -6,6 +6,7 @@ archive stage and the original probe's kill_owned are reused. No model is loaded
 from __future__ import annotations
 
 import argparse
+import ast
 import datetime
 import gc
 import hashlib
@@ -20,19 +21,35 @@ from pathlib import Path
 import re
 import resource
 import signal
+import stat
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 import traceback
 import types
 
-VERSION = 'ace-runtime-metadata-diagnostic-v1'
+VERSION = 'ace-runtime-metadata-diagnostic-v2'
 ARCHIVE_SHA = '6815ab9784b6025b8bb4439e40a1a012b9697d434bfc83bd5f36e27abc262d98'
 MANIFEST_SHA = 'b44610f638f0873da8588f1cf23039638203a855959a6ed12cf0ec6c2551d63a'
 HELPER_SHA = '7664772074cc84bdc9d668f5a99aae475a9e54aafc0c85486e23bf9b88ba747e'
 PROBE_SHA = '8d6f9e2761922802712a8bf2e77df6bdec3708ce1e08272864bebbf76f0d1951'
 RUNTIME_SOURCE = '/projects/paco0228/miniconda3/envs/ace'
+GENERATED_MODULE = '_remote_module_non_scriptable'
+GENERATOR = 'torch.distributed.nn.jit.instantiator'
+TEMPLATE = 'torch.distributed.nn.jit.templates.remote_module_template'
+LAZY_UTILS = 'transformers.utils.import_utils'
+# Independent entries from the retained, pinned archive manifest. No installed
+# source is executed to reconstruct the generated module's expected bytes.
+PROVENANCE_SOURCES = {
+    'torch.distributed.nn': ('torch/distributed/nn/__init__.py', '4dae25d09af680e2bb79047e7b7dacb5668328f3a557f2a28b4484c7275793f4'),
+    'torch.distributed.nn.api.remote_module': ('torch/distributed/nn/api/remote_module.py', 'd51779fdbafb1ca1d99d002e6f32cf17bc1fef730a6251e3ef0278d8078bd112'),
+    GENERATOR: ('torch/distributed/nn/jit/instantiator.py', '567d1314ee27ff0b3bd22e7c4d1157246469de25e7a3183d96debe167b193615'),
+    TEMPLATE: ('torch/distributed/nn/jit/templates/remote_module_template.py', '0ff1856bbd031b5298d46c06c0502abc20bd804f42c1949ed4127e8c773660cc'),
+    'transformers': ('transformers/__init__.py', '7eb0743ed843f24c1d4e8b8daf4b18249cb81403b4571a70c00be0a4c0a67bd4'),
+    LAZY_UTILS: ('transformers/utils/import_utils.py', '66b2ac40be2c538dbd9409370c1f6bf769934b8b232edac365e16299c5ec1108'),
+}
 ACTUAL = {'python': '3.10.19', 'numpy': '2.2.5', 'scipy': '1.15.3', 'torch': '2.9.1+cu128', 'transformers': '4.57.3'}
 RESOURCES = {'account': 'ucb736_asc2', 'partition': 'acpu', 'qos': 'cpu-normal',
              'cpus': 1, 'memory_gib': 3, 'wall_seconds': 600, 'gpus': 0, 'requeue': False}
@@ -271,14 +288,175 @@ def check_metadata(inventory, prefix):
          and all(inside(r['metadata_path'], prefix) for r in inventory['resolved_defaults'].values()), 'mixed distribution metadata paths')
 
 
-def runtime_snapshot(prefix, original, *, modules=None, maps=None):
+def owned_stat(path, *, directory=False, private=False):
+    path = Path(path)
+    need(path.is_absolute() and path == path.resolve(strict=True), 'noncanonical/symlink provenance path')
+    s = path.lstat()
+    need((stat.S_ISDIR(s.st_mode) if directory else stat.S_ISREG(s.st_mode))
+         and s.st_uid == os.getuid(), 'provenance object type/ownership differs')
+    need(not private or stat.S_IMODE(s.st_mode) == 0o700, 'private directory mode differs')
+    if not directory:
+        need(s.st_nlink == 1 and not s.st_mode & 0o022, 'provenance file links/permissions differ')
+    return {k: getattr(s, 'st_'+k) for k in ('dev', 'ino', 'uid', 'gid', 'mode', 'nlink', 'size', 'mtime_ns', 'ctime_ns')}
+
+
+def owned_read(path, maximum=256*1024):
+    before = owned_stat(path)
+    need(before['size'] <= maximum, 'provenance source exceeds bound')
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as f:
+        s = os.fstat(f.fileno())
+        need((s.st_dev, s.st_ino) == (before['dev'], before['ino']), 'provenance file replaced before read')
+        b = f.read(maximum+1)
+    need(len(b) <= maximum and owned_stat(path) == before, 'provenance file changed during read')
+    return b, before
+
+
+def static_generated_source(generator, template):
+    """Read only literal AST nodes; never import/exec/eval generator or template."""
+    def assignment(body, name):
+        found = [n.value for n in body if isinstance(n, ast.Assign)
+                 and len(n.targets) == 1 and isinstance(n.targets[0], ast.Name) and n.targets[0].id == name]
+        need(len(found) == 1, 'one static assignment required: '+name)
+        return found[0]
+    def literal(node):
+        need(isinstance(node, ast.Constant) and type(node.value) is str, 'static string literal required')
+        return node.value
+    g, t = ast.parse(generator), ast.parse(template)
+    prefix = literal(assignment(g.body, '_FILE_PREFIX'))
+    functions = [n for n in g.body if isinstance(n, ast.FunctionDef)
+                 and n.name == 'instantiate_non_scriptable_remote_module_template']
+    need(len(functions) == 1 and prefix+'non_scriptable' == GENERATED_MODULE, 'known generator function/name required')
+    call = assignment(functions[0].body, 'str_dict')
+    need(isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == 'dict'
+         and not call.args and len(call.keywords) == 7, 'literal generator substitutions required')
+    substitutions = {k.arg: literal(k.value) for k in call.keywords}
+    need(set(substitutions) == {'assign_module_interface_cls', 'args', 'kwargs', 'arg_types',
+                               'arrow_and_return_type', 'arrow_and_future_return_type', 'jit_script_decorator'},
+         'generator substitution fields differ')
+    text = literal(assignment(t.body, '_TEMPLATE_PREFIX')) + literal(assignment(t.body, '_REMOTE_FORWARD_TEMPLATE_ENABLE_MOVING_CPU_TENSORS_TO_CUDA'))
+    result = text.format(**substitutions).encode('utf-8')
+    need(len(result) <= 128*1024, 'generated source exceeds bound')
+    return result
+
+
+def provenance_contract(prefix):
+    captured, records = {}, {}
+    for name, (relative, expected) in PROVENANCE_SOURCES.items():
+        path = prefix/'lib/python3.10/site-packages'/relative
+        b, metadata = owned_read(path)
+        need(sha(b) == expected, 'pinned provenance source differs: '+name)
+        captured[name] = b
+        records[name] = {'path': str(path), 'sha256': expected, 'stat': metadata}
+    expected = static_generated_source(captured[GENERATOR], captured[TEMPLATE])
+    return {'sources': records, 'expected_source': expected.decode('utf-8'), 'expected_source_sha256': sha(expected)}
+
+
+def source_module(name, modules, contract):
+    module = modules.get(name)
+    need(isinstance(module, types.ModuleType), 'provenance module missing: '+name)
+    d = vars(module); record = contract['sources'][name]
+    need(d.get('__file__') == record['path'], 'provenance module origin differs: '+name)
+    spec = d.get('__spec__')
+    need(type(spec) is importlib.machinery.ModuleSpec and spec.name == name and spec.origin == record['path'],
+         'provenance module spec differs: '+name)
+    b, metadata = owned_read(record['path'])
+    need(sha(b) == record['sha256'] and metadata == record['stat'], 'provenance source changed: '+name)
+    return d
+
+
+def temp_root_for(prefix):
+    return prefix.parent/'worker-tmp'
+
+
+def create_child_temp(prefix):
+    root = temp_root_for(prefix)
+    need(not inside(root, prefix) and not inside(root, RUNTIME_SOURCE), 'temporary root overlaps runtime')
+    root.mkdir(mode=0o700, exist_ok=False)
+    return root, owned_stat(root, directory=True, private=True)
+
+
+def generated_provenance(prefix, root, root_stat, contract, modules):
+    result = {'present': GENERATED_MODULE in modules or GENERATOR in modules, 'verified': False}
+    if not result['present']: return result
+    try:
+        need(contract is not None and root_stat is not None, 'generated provenance context absent')
+        result['source_pins'] = {n: r['sha256'] for n, r in contract['sources'].items() if n.startswith('torch.')}
+        loaded = {n: source_module(n, modules, contract) for n in result['source_pins']}
+        root_now = owned_stat(root, directory=True, private=True)
+        need(all(root_now[k] == root_stat[k] for k in ('dev', 'ino', 'uid', 'gid', 'mode')), 'temporary root identity changed')
+        owner = loaded[GENERATOR].get('_TEMP_DIR')
+        need(type(owner) is tempfile.TemporaryDirectory, 'generator temporary owner type differs')
+        directory = loaded[GENERATOR].get('INSTANTIATED_TEMPLATE_DIR_PATH')
+        need(type(directory) is str and vars(owner).get('name') == directory, 'generator temporary owner path differs')
+        folder = Path(directory)
+        need(folder.parent == root and folder.name.startswith('tmp'), 'generated directory outside exclusive root')
+        result.update(temporary_root=str(root), temporary_root_stat=root_now, directory=directory,
+                      directory_stat=owned_stat(folder, directory=True, private=True), owner_type='tempfile.TemporaryDirectory')
+        path = folder/(GENERATED_MODULE+'.py')
+        need(sorted(p.name for p in root.iterdir()) == [folder.name]
+             and sorted(p.name for p in folder.iterdir()) == [path.name], 'unexpected temporary directory contents')
+        b, metadata = owned_read(path, 128*1024)
+        result.update(path=str(path), file_stat=metadata, source_content=b.decode('utf-8'), source_sha256=sha(b),
+                      expected_source_sha256=contract['expected_source_sha256'])
+        module = modules.get(GENERATED_MODULE)
+        need(type(module) is types.ModuleType, 'generated module type differs')
+        d = vars(module); spec = d.get('__spec__')
+        result.update(module_file=d.get('__file__'), spec_origin=spec.origin if type(spec) is importlib.machinery.ModuleSpec else None)
+        need(d.get('__file__') == str(path) and type(spec) is importlib.machinery.ModuleSpec
+             and spec.name == GENERATED_MODULE and spec.origin == str(path) and spec.has_location
+             and spec.submodule_search_locations is None, 'generated module file/spec origin differs')
+        loader = spec.loader
+        need(type(loader) is importlib.machinery.SourceFileLoader and loader.path == str(path)
+             and loader.name == GENERATED_MODULE, 'generated module source loader differs')
+        need(b == contract['expected_source'].encode('utf-8') and sha(b) == contract['expected_source_sha256'],
+             'generated source differs from pinned literal expansion')
+        functions = {}
+        for name in ('forward', 'forward_async', '_remote_forward'):
+            f = d.get(name)
+            need(type(f) is types.FunctionType and f.__module__ == GENERATED_MODULE
+                 and f.__code__.co_filename == str(path), 'generated function origin differs: '+name)
+            functions[name] = {'module': f.__module__, 'code_filename': f.__code__.co_filename}
+        result.update(function_origins=functions, verified=True)
+    except Exception as exc:
+        result['error'] = type(exc).__name__+': '+str(exc)
+    return result
+
+
+def package_observation(name, modules, paths, contract):
+    d = vars(modules[name]) if name in modules else {}
+    direct = d.get('__version__')
+    result = {'loaded': name in modules, 'origin': paths.get(name), 'direct_version': direct,
+              'direct_version_present': '__version__' in d, 'version': direct,
+              'version_resolution': 'module_dict' if '__version__' in d else 'absent'}
+    if name != 'transformers' or name not in modules: return result
+    try:
+        need(contract is not None, 'lazy version provenance context absent')
+        utils = source_module(LAZY_UTILS, modules, contract)
+        source_module('transformers', modules, contract)
+        cls = utils.get('_LazyModule')
+        need(isinstance(cls, type) and type(modules[name]) is cls and cls.__module__ == LAZY_UTILS,
+             'Transformers lazy module class differs')
+        objects = d.get('_objects')
+        need(type(objects) is dict and type(objects.get('__version__')) is str
+             and len(objects['__version__']) <= 128, 'Transformers lazy version string absent')
+        resolved = objects['__version__']; result['lazy_objects_version'] = resolved
+        need('__version__' not in d or direct == resolved, 'direct/lazy Transformers versions conflict')
+        result.update(version=resolved, version_resolution='transformers_pinned_lazy_objects')
+        need(resolved == ACTUAL['transformers'], 'actual Transformers version differs')
+    except Exception as exc:
+        result.update(version=None, version_resolution='rejected', version_error=type(exc).__name__+': '+str(exc))
+    return result
+
+
+def runtime_snapshot(prefix, original, *, modules=None, maps=None, contract=None, temp_root=None, temp_stat=None):
     modules = sys.modules if modules is None else modules
     paths = {name: str(Path(vars(m)['__file__']).resolve()) for name, m in list(modules.items())
              if isinstance(m, types.ModuleType) and type(vars(m).get('__file__')) is str and not vars(m)['__file__'].startswith('<')}
-    package = {name: {'loaded': name in modules, 'version': vars(modules[name]).get('__version__') if name in modules else None,
-                      'origin': paths.get(name)} for name in ('numpy', 'scipy', 'torch', 'transformers')}
+    package = {name: package_observation(name, modules, paths, contract) for name in ('numpy', 'scipy', 'torch', 'transformers')}
     allowed = Path(__file__).resolve()
     mixed = [p for p in paths.values() if inside(p, original) or not inside(p, prefix) and Path(p) != allowed]
+    mixed_modules = {n: p for n, p in paths.items() if p in mixed}
     if maps is None: maps = read('/proc/self/maps', 8*1024**2).decode('utf-8', errors='replace')
     mapped = [line.split(None, 5)[5].removesuffix(' (deleted)') for line in maps.splitlines()
               if len(line.split(None, 5)) == 6 and line.split(None, 5)[5].startswith('/')]
@@ -287,14 +465,26 @@ def runtime_snapshot(prefix, original, *, modules=None, maps=None):
     return {'python_version': '.'.join(map(str, sys.version_info[:3])), 'executable': sys.executable, 'prefix': sys.prefix,
             'base_prefix': sys.base_prefix, 'sys_path': list(sys.path), 'packages': package, 'module_paths': paths,
             'mixed_module_paths': sorted(set(mixed)), 'mixed_native_paths': sorted(set(native_mixed)),
+            'mixed_modules': mixed_modules,
+            'generated_provenance': generated_provenance(prefix, temp_root, temp_stat, contract, modules),
             'process_maps': maps, 'scope': 'observed loaded paths only; not universal binary dependency closure'}
 
 
-def check_prefix(prefix, snapshot):
+def check_prefix(prefix, snapshot, baseline=None):
     need(Path(snapshot['prefix']).resolve() == prefix.resolve() and inside(snapshot['executable'], prefix)
          and Path(snapshot['base_prefix']).resolve() == prefix.resolve(), 'copied interpreter prefix differs')
-    need(all(type(p) is str and Path(p).is_absolute() and inside(p, prefix) for p in snapshot['sys_path']), 'mixed interpreter search paths')
-    need(not snapshot['mixed_module_paths'] and not snapshot['mixed_native_paths'], 'mixed loaded module/native paths')
+    proof = snapshot.get('generated_provenance', {})
+    if proof.get('present'):
+        need(proof.get('verified') is True, 'generated module provenance rejected: '+proof.get('error', 'unverified'))
+        need(baseline is not None and snapshot['sys_path'] == baseline+[proof['directory']], 'unexpected generated search-path delta')
+        need(snapshot.get('mixed_modules') == {GENERATED_MODULE: proof['path']}
+             and snapshot['mixed_module_paths'] == [proof['path']], 'unexpected generated module exception')
+    else:
+        need(all(type(p) is str and Path(p).is_absolute() and inside(p, prefix) for p in snapshot['sys_path']), 'mixed interpreter search paths')
+        need(baseline is None or snapshot['sys_path'] == baseline, 'unexpected interpreter search-path delta')
+        need(not snapshot['mixed_module_paths'], 'mixed loaded module paths')
+    need(not snapshot['mixed_native_paths'], 'mixed loaded native paths')
+    need(not any(p.get('version_error') for p in snapshot['packages'].values()), 'package version observation rejected')
 
 
 def original_imports(event):
@@ -352,8 +542,8 @@ def events(out, start, cpu, memory_cap):
     return event
 
 
-def capture_snapshot(prefix, out, name):
-    snapshot = runtime_snapshot(prefix, RUNTIME_SOURCE)
+def capture_snapshot(prefix, out, name, **provenance):
+    snapshot = runtime_snapshot(prefix, RUNTIME_SOURCE, **provenance)
     maps = snapshot.pop('process_maps')
     with (out/(name+'.maps.txt')).open('x') as f:
         f.write(maps); f.flush(); os.fsync(f.fileno())
@@ -366,12 +556,26 @@ def worker(packet, args, start, cpu):
     prefix = Path(args.staged_prefix).resolve()
     event = events(out, start, cpu, LIMITS['worker_peak_rss_bytes'])
     error, snapshot = None, None
+    contract, temp_stat, baseline = None, None, None
+    temp_root = temp_root_for(prefix)
     try:
         stage = decode(pinned(Path(packet['output'])/'stage.json', args.stage_sha256, 16384))
         need(stage['staged_prefix'] == str(prefix) and stage['manifest_sha256'] == MANIFEST_SHA
              and stage['archive_sha256'] == ARCHIVE_SHA, 'worker stage binding differs')
-        snapshot = capture_snapshot(prefix, out, 'before-imports')
+        temp_stat = owned_stat(temp_root, directory=True, private=True)
+        bound_temp = stage['temporary_root']
+        need(bound_temp['path'] == str(temp_root)
+             and all(temp_stat[k] == bound_temp['stat'][k] for k in ('dev', 'ino', 'uid', 'gid', 'mode')),
+             'temporary root differs from pinned stage receipt')
+        need(not inside(temp_root, prefix) and not inside(temp_root, RUNTIME_SOURCE)
+             and all(os.environ.get(k) == str(temp_root) for k in ('TMPDIR', 'TMP', 'TEMP'))
+             and tempfile.gettempdir() == str(temp_root) and not list(temp_root.iterdir()), 'exclusive child temporary root differs')
+        write(out/'temporary-root.json', {'path': str(temp_root), 'stat': temp_stat, 'outside_runtime': True})
+        contract = provenance_contract(prefix)
+        write(out/'provenance-sources.json', contract)
+        snapshot = capture_snapshot(prefix, out, 'before-imports', contract=contract, temp_root=temp_root, temp_stat=temp_stat)
         check_prefix(prefix, snapshot)
+        baseline = list(snapshot['sys_path'])
         need(snapshot['python_version'] == ACTUAL['python'], 'actual Python version differs')
         event('cache_capture_start')
         capture_caches(prefix, stage['cache_source_sha256'], out)
@@ -381,8 +585,9 @@ def worker(packet, args, start, cpu):
         check_metadata(metadata, prefix)
         event('metadata_capture_complete')
         numpy, scipy = original_imports(event)
-        snapshot = capture_snapshot(prefix, out, 'after-imports')
-        check_prefix(prefix, snapshot)
+        snapshot = capture_snapshot(prefix, out, 'after-imports', contract=contract, temp_root=temp_root, temp_stat=temp_stat)
+        check_prefix(prefix, snapshot, baseline)
+        need(snapshot['generated_provenance']['verified'], 'known generated Torch module not verified')
         need({k: v['version'] for k, v in snapshot['packages'].items()} == {k: v for k, v in ACTUAL.items() if k != 'python'}, 'actual package versions differ from diagnostic contract')
         import scipy.linalg
         controls = arithmetic(numpy, scipy.linalg)
@@ -396,8 +601,8 @@ def worker(packet, args, start, cpu):
         write(out/'failure-detail.json', {'type': type(exc).__name__, 'message': str(exc), 'traceback': traceback.format_exc()})
     finally:
         try:
-            snapshot = capture_snapshot(prefix, out, 'final-runtime')
-            check_prefix(prefix, snapshot)
+            snapshot = capture_snapshot(prefix, out, 'final-runtime', contract=contract, temp_root=temp_root, temp_stat=temp_stat)
+            check_prefix(prefix, snapshot, baseline)
         except BaseException as exc:
             if error is None: error = exc
             write(out/'origin-capture-error.json', {'type': type(exc).__name__, 'message': str(exc)})
@@ -408,6 +613,7 @@ def worker(packet, args, start, cpu):
     publish(out, {'version': VERSION, 'status': 'diagnostic_complete' if error is None else 'failed', **FLAGS,
                   **measurement, 'packet_sha256': args.packet_sha256, 'stage_sha256': args.stage_sha256,
                   'actual_packages': snapshot['packages'] if snapshot else None, 'evidence_sha256': evidence,
+                  'generated_module_verified': bool(snapshot and snapshot.get('generated_provenance', {}).get('verified')),
                   'error': None if error is None else type(error).__name__+': '+str(error),
                   'dependency_capability_checks_instrumented': False, 'source_only_execution': False})
     if error is not None: raise error
@@ -417,6 +623,7 @@ def validate_worker(out, packet_pin, stage_pin):
     directory = out/'worker'
     b = read(directory/'terminal.json', 128*1024); value = decode(b)
     need((directory/'terminal.candidate.json').read_bytes() == b and value['status'] == 'diagnostic_complete'
+         and value['version'] == VERSION and value['generated_module_verified'] is True
          and value['packet_sha256'] == packet_pin and value['stage_sha256'] == stage_pin
          and all(value.get(k) == v for k, v in FLAGS.items()) and value['elapsed_seconds'] <= 180
          and value['peak_self_rss_bytes'] <= LIMITS['worker_peak_rss_bytes'], 'worker diagnostic did not complete within contract')
@@ -489,14 +696,18 @@ def supervise(packet, source_bytes, args, start, cpu):
         probe = load_verified(source_bytes['probe'], packet['sources']['probe']['path'], 'metadata_original_probe')
         event('stage_start', scratch=str(local), prior_stage_seconds=35.303541)
         stage = stage_runtime(packet, helper, local/'runtime', event)
+        prefix = Path(stage['staged_prefix'])
+        temp_root, temp_stat = create_child_temp(prefix)
+        stage['temporary_root'] = {'path': str(temp_root), 'stat': temp_stat}
         write(out/'stage.json', stage); stage_pin = sha((out/'stage.json').read_bytes())
         event('stage_complete', staged_prefix=stage['staged_prefix'])
-        prefix = Path(stage['staged_prefix'])
+        event('temporary_root_ready', path=str(temp_root), stat=temp_stat)
         command = child_command(packet, args, prefix, stage_pin)
         env = dict(os.environ)
         for k in ('PYTHONHOME', 'PYTHONPATH', 'LD_PRELOAD'): env.pop(k, None)
         env.update(LD_LIBRARY_PATH=str(prefix/'lib'), CUDA_VISIBLE_DEVICES='', OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1',
-                   MKL_NUM_THREADS='1', NUMEXPR_NUM_THREADS='1', VECLIB_MAXIMUM_THREADS='1', HF_HUB_OFFLINE='1', TRANSFORMERS_OFFLINE='1')
+                   MKL_NUM_THREADS='1', NUMEXPR_NUM_THREADS='1', VECLIB_MAXIMUM_THREADS='1', HF_HUB_OFFLINE='1', TRANSFORMERS_OFFLINE='1',
+                   TMPDIR=str(temp_root), TMP=str(temp_root), TEMP=str(temp_root))
         event('worker_start', command=command)
         result = run_child(command, env, out, start+580, probe.kill_owned,
                            lambda: validate_worker(out, args.packet_sha256, stage_pin))

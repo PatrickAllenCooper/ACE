@@ -25,7 +25,7 @@ absolute. This module does not submit jobs or generate either launch packet.
 
 ```python
 packet = {
-    "version": "ace-runtime-metadata-diagnostic-v1",
+    "version": "ace-runtime-metadata-diagnostic-v2",
     "sources": {
         "self": {"path": caller_path, "sha256": independently_frozen_self_sha},
         "helper": {"path": helper_path, "sha256": "7664772074cc84bdc9d668f5a99aae475a9e54aafc0c85486e23bf9b88ba747e"},
@@ -114,8 +114,9 @@ scientific inputs or environment responses. Dependency capability checks during
 imports are not instrumented and are not represented as absent.
 
 Loaded module paths and `/proc/self/maps` are captured on success **and failure**.
-The worker rejects the old prefix, mixed interpreter search/module paths and
-native paths outside the staged prefix or explicit system library roots.
+The worker rejects the old prefix and unexpected interpreter search/module paths;
+v2 admits only the exact verified Torch-generated exception described below.
+Native paths outside the staged prefix or explicit system library roots fail.
 The pinned caller itself may live outside the runtime. This is observed path
 containment, not universal dependency closure or an OS sandbox.
 
@@ -157,3 +158,69 @@ and the retained bulk archive are not executed or replayed. The exclusive eviden
 capsule binds tested source bytes, command, stdout/stderr, retained failures,
 resource measurements and matching external copies. Parent review and a frozen
 launcher are still required before any actual diagnostic launch.
+
+## v2 delta after retained CPU failure 35345616
+
+The v1 job remains failed and unqualified. Its saved imports observed Python
+3.10.19, NumPy 2.2.5, SciPy 1.15.3 and Torch 2.9.1+cu128. NumPy metadata defaulted
+to 2.2.6 with both metadata directories present. The path guard stopped before
+arithmetic: Torch appended `/tmp/tmphqxw2qr_` and imported
+`_remote_module_non_scriptable.py` there. No mixed native path was recorded.
+Transformers' dictionary-only version observation was null. Neither the generated
+file's actual bytes nor Transformers' lazy version value were captured in v1;
+source attribution does not retroactively supply those observations or certify
+that run. The 144 raw files and original launch/preparation capsules stay intact.
+
+Six archive source files retained in `derivedforensics01` match entries in the
+independently pinned archive manifest. Torch's `remote_module.py` invokes its
+non-scriptable generator at import time; `instantiator.py` creates a temporary
+directory, appends it to `sys.path`, writes the expanded template and imports it.
+Transformers' initializer supplies its version to `_LazyModule._objects`.
+These sources explain the two v1 failures; they are not imported during local
+preparation. Their exact pins are embedded in the v2 diagnostic.
+
+For v2, the supervisor creates a fresh owned mode-0700 `worker-tmp` sibling of
+the staged `runtime`, then sets the child's `TMPDIR`, `TMP` and `TEMP` to that
+root before startup. The worker checks its identity, permissions, emptiness,
+resolved tempfile selection and separation from the runtime before imports.
+This changes only the child's temporary environment; it never edits the installed
+or staged runtime. No broad temporary-directory exception is granted.
+
+Before numerical imports, `provenance-sources.json` records pinned source hashes,
+paths/stats and expected generated text/hash. Reconstruction parses the pinned
+generator/template AST and reads only literal strings and the seven fixed
+non-scriptable substitutions. It never executes or imports those source files.
+The real dependency imports still execute their ordinary trusted runtime code.
+
+After imports and during final capture, the only accepted extra search path is
+the exact directory held by the loaded pinned instantiator's `TemporaryDirectory`.
+Its root identity, UID, mode, nonsymlink ancestry and exact file inventory must
+match. The sole accepted outside-prefix module is
+`_remote_module_non_scriptable`, with matching file/spec/loader/function origins.
+Its bounded regular, single-link, owned source must equal the pinned literal
+expansion byte for byte. Snapshots preserve its content/hash, file/directory
+stats, ownership relationship, origins and full search/module path deltas,
+including rejection evidence where safely readable. Additional paths, aliases,
+files, foreign native libraries or provenance mismatches remain fatal. The
+generated entry remains visible in the raw mixed-path fields; verification
+explains the exact exception rather than erasing it. This is post-import
+observation in a trusted same-user process, not pre-execution authentication of
+generated code, protection against a hostile same-user writer, or a sandbox.
+
+Transformers version resolution is restricted to the exact loaded `_LazyModule`
+class from its authenticated source. Its already-present `_objects` dictionary
+must contain a string version exactly `4.57.3`; conflicting direct and lazy
+values fail. Records retain the direct value/presence, lazy value and resolution
+method. No generic `getattr` traversal or metadata-to-imported-version substitution
+is used. All other actual versions and both NumPy metadata entries remain required.
+
+The packet/terminal version is now `ace-runtime-metadata-diagnostic-v2`; old
+packets are rejected, and the parent must pin fresh source and packet bytes for
+launch02. Scheduler, deadlines, memory design bounds, original owned-process
+cleanup, authoritative terminal publication and zero-response restrictions are
+unchanged. Preparation02 runs only `MetadataDeltaTests` (six new methods), using
+stdlib and hand-written artificial modules/files. Legacy v1 fixtures are left
+unchanged and are not rerun or recertified for the tighter v2 worker contract.
+No actual package import, model execution, runtime adoption or new remote launch
+is part of this delta. Parent review and a separately authorized CPU diagnostic
+remain necessary.

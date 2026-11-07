@@ -1,0 +1,40 @@
+{
+  "child_cpu_seconds": 0.28455699999999995,
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-I",
+    "-B",
+    "-c",
+    "import hashlib,importlib.abc,json,sys,types,unittest\nfrom pathlib import Path\nclass NoRealRuntime(importlib.abc.MetaPathFinder):\n    def find_spec(self, fullname, path=None, target=None):\n        if fullname.split('.')[0] in ('numpy','scipy','torch','transformers'):\n            raise AssertionError('actual runtime import prohibited: '+fullname)\nsys.meta_path.insert(0,NoRealRuntime())\nroot=Path(sys.argv[1])\nfor name,pin in json.loads(sys.argv[2]).items():\n    path=root/(name+'.py');b=path.read_bytes()\n    assert hashlib.sha256(b).hexdigest()==pin\n    module=types.ModuleType(name);module.__file__=str(path);sys.modules[name]=module\n    exec(compile(b,str(path),'exec'),module.__dict__)\ntest=sys.modules['test_llm_intervention_runtime_metadata']\nsuite=unittest.defaultTestLoader.loadTestsFromTestCase(test.MetadataDeltaTests)\nassert suite.countTestCases()==6\nassert all(x._testMethodName.startswith('test_delta_') for x in suite)\nresult=unittest.TextTestRunner(verbosity=2).run(suite)\nraise SystemExit(0 if result.wasSuccessful() else 1)\n",
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-runtime-metadata-preparation-20261107-02/attempt01/source",
+    "{\"qualify_llm_intervention_runtime_metadata\": \"31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329\", \"test_llm_intervention_runtime_metadata\": \"6470197dcfb0482eb0819ffa27f0c813260818393934303ccfdc5fcb4cccd634\"}"
+  ],
+  "cost_scope": "This test attempt only; excludes preparation, review and copying, not full-cycle CPU.",
+  "cwd": "/tmp",
+  "elapsed_seconds": 0.33068037499999997,
+  "environment_overrides": {
+    "ACE_RUNTIME_METADATA_DELTA_OUTPUT": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-runtime-metadata-preparation-20261107-02/attempt01/fixtures",
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "environment_responses": 0,
+  "error": null,
+  "finished_utc": "2026-11-07T20:02:24.753054+00:00",
+  "gpu_allocations": 0,
+  "models": 0,
+  "old_methods_executed": 0,
+  "parent_cpu_seconds": 0.0013689999999999952,
+  "peak_child_rss_bytes_macos": 27426816,
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "remote_operations": 0,
+  "returncode": 0,
+  "runtime_adopted": false,
+  "scope": "Six NEW MetadataDeltaTests methods only; stdlib and fabricated source/modules. Real runtime imports blocked.",
+  "started_utc": "2026-11-07T20:02:24.422085+00:00",
+  "timeout_seconds": 30,
+  "training_updates": 0
+}
