@@ -14,8 +14,8 @@ from pathlib import Path
 import re
 import stat
 
-VERSION = "ace-gpu-device-map-observation-v1"
-PATHS = frozenset({"/dev/nvidia0", "/dev/nvidiactl", "/dev/nvidia-uvm", "/dev/zero"})
+VERSION = "ace-gpu-device-map-observation-v2"
+SPECIAL_PATHS = frozenset({"/dev/nvidiactl", "/dev/nvidia-uvm", "/dev/zero"})
 PHASES = frozenset({"after-model-load", "after-requests"})
 FIELDS = {"uid", "mode", "inode", "dev_major", "dev_minor", "rdev_major", "rdev_minor"}
 
@@ -25,10 +25,26 @@ def need(value, message):
         raise ValueError(message)
 
 
-def capture():
+def device_paths(mixed):
+    """Exact special nodes plus one canonical indexed NVIDIA character node.
+
+    The physical node index is observed, not CUDA's process-local logical index.
+    Minors254/255 are reserved for modeset/control and excluded here.
+    """
+    need(type(mixed) is list and all(type(p) is str for p in mixed)
+         and sorted(set(mixed)) == mixed, "canonical rejected-path inventory required")
+    indexed = [p for p in mixed if p not in SPECIAL_PATHS]
+    need(len(indexed) == 1, "one indexed GPU mapping required")
+    match = re.fullmatch(r"/dev/nvidia(0|[1-9][0-9]{0,2})", indexed[0])
+    need(match is not None and int(match[1]) < 254,
+         "unknown mapped path remains rejected")
+    return SPECIAL_PATHS | {indexed[0]}
+
+
+def capture(snapshot):
     """Call only in the GPU worker, then save these bytes as observation evidence."""
     records = {}
-    for name in sorted(PATHS):
+    for name in sorted(device_paths(snapshot.get("mixed_native_paths"))):
         path = Path(name)
         need(path.resolve(strict=True)==path, "device path alias rejected")
         before = path.lstat()
@@ -59,20 +75,26 @@ def character_registry(raw):
         need(len(fields)==2 and fields[0].isdigit(),"malformed character registry")
         major = int(fields[0])
         name = fields[1]
-        need(name not in values and 0<major<2**20,"duplicate/invalid character driver")
-        values[name]=major
-    need("nvidia-uvm" in values,"registered UVM major required")
+        need(0<major<2**20,"invalid character driver major")
+        # Linux may register an unrelated driver name under several majors.
+        # Only the two drivers used by this contract require unique identities.
+        if name in ("nvidia", "nvidia-uvm"):
+            need(name not in values, "ambiguous required character driver")
+            values[name]=major
+    need(set(values)=={"nvidia", "nvidia-uvm"},"registered NVIDIA and UVM majors required")
     return values
 
 
 def inventory(value):
     need(type(value) is dict and set(value)=={"schema","devices","proc_devices","proc_devices_sha256"}
          and value["schema"]==VERSION and type(value["devices"]) is dict
-         and set(value["devices"])==PATHS,"exact GPU device inventory required")
+         and set(value["devices"])==device_paths(sorted(value["devices"])),"exact GPU device inventory required")
     registry = character_registry(value["proc_devices"])
     need(hashlib.sha256(value["proc_devices"].encode("ascii")).hexdigest()==value["proc_devices_sha256"],
          "device registry digest differs")
-    expected = {"/dev/nvidia0":(195,0),"/dev/nvidiactl":(195,255),
+    need(registry.get("nvidia")==195, "registered NVIDIA frontend major required")
+    gpu_path=next(p for p in value["devices"] if p not in SPECIAL_PATHS)
+    expected = {gpu_path:(195,int(gpu_path.removeprefix("/dev/nvidia"))),"/dev/nvidiactl":(195,255),
                 "/dev/nvidia-uvm":(registry["nvidia-uvm"],0),"/dev/zero":(1,5)}
     for name,r in value["devices"].items():
         need(type(r) is dict and set(r)==FIELDS and all(type(v) is int and v>=0 for v in r.values()),
@@ -113,8 +135,7 @@ def checked_view(snapshot, device_inventory, phase, *, prefix, original_runtime)
     need(type(snapshot) is dict and type(snapshot.get("mixed_native_paths")) is list,
          "original complete runtime snapshot required")
     mixed=snapshot["mixed_native_paths"]
-    need(all(type(p) is str for p in mixed) and sorted(set(mixed))==mixed
-         and set(mixed)<=PATHS,"unknown mapped path remains rejected")
+    paths=device_paths(mixed)
     prefix_path,original_path=Path(prefix),Path(original_runtime)
     need(prefix_path.is_absolute() and original_path.is_absolute()
          and prefix_path.resolve()!=Path('/') and original_path.resolve()!=Path('/')
@@ -126,6 +147,7 @@ def checked_view(snapshot, device_inventory, phase, *, prefix, original_runtime)
     need(not inside(prefix_path,original_path) and not inside(original_path,prefix_path),
          "copied and original runtime roots must not overlap")
     devices=inventory(device_inventory)
+    need(set(devices)==paths, "mapped physical GPU and captured inventory disagree")
     rows=mapping_rows(snapshot.get("process_maps"))
     # Match the pinned CPU diagnostic's native-path policy on every raw row.
     # Never trust a saved rejection list that omits an unknown mapped object.
@@ -133,7 +155,7 @@ def checked_view(snapshot, device_inventory, phase, *, prefix, original_runtime)
         or not inside(r['path'],prefix_path) and not any(inside(r['path'],root)
             for root in ('/lib','/lib64','/usr/lib','/usr/lib64'))})
     need(recomputed==mixed,"full raw-map rejection set differs from saved observation")
-    selected=[r for r in rows if r["path"] in PATHS]
+    selected=[r for r in rows if r["path"] in paths]
     need({r["path"] for r in selected}==set(mixed),"raw maps and rejected device roster disagree")
     for row in selected:
         name=row["path"]

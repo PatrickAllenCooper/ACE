@@ -1,0 +1,20 @@
+/scratch/local/35351262/ace-service-gpu-35351262/runtime/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_13/llm_intervention_model_service.py", line 486, in <module>
+    main()
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_13/llm_intervention_model_service.py", line 457, in main
+    serve_policy(initialize, identity=identity(freeze), max_requests=freeze["limits"]["max_requests"])
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_13/llm_intervention_persistent_policy.py", line 129, in serve_policy
+    decide = initialize()
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_13/llm_intervention_model_service.py", line 455, in initialize
+    runtime_observer.observe("after-model-load")
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_13/llm_intervention_service_runtime.py", line 195, in observe
+    check_view, evidence = self.gpu_mappings.checked_view(snapshot, device_inventory, label,
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_13/llm_intervention_gpu_mappings.py", line 116, in checked_view
+    need(all(type(p) is str for p in mixed) and sorted(set(mixed))==mixed
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_model_service_gpu_20261107_13/llm_intervention_gpu_mappings.py", line 25, in need
+    raise ValueError(message)
+ValueError: unknown mapped path remains rejected

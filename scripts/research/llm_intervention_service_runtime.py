@@ -21,7 +21,7 @@ DIAGNOSTIC = "qualify_llm_intervention_runtime_metadata"
 DIAGNOSTIC_SHA = "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329"
 EXTRA_PACKAGES = ("safetensors", "huggingface_hub", "tokenizers", "jinja2")
 FIXTURES = frozenset({"case0.json", "case3.json", "stress.json"})
-GPU_MAPPINGS_SHA = "997db0ce1ffa8d3863f1b1034446276585f72e482f51b36f5e472d96663783ce"
+GPU_MAPPINGS_SHA = "ad1c6854e720473a800a6aeb8cb5f5530033abb2a4c8a18c6af5417063aaa856"
 
 
 def need(condition, message):
@@ -190,7 +190,7 @@ class ServiceRuntime:
         check_view = snapshot
         if label in self.gpu_mappings.PHASES:
             need(self.allow_gpu_mappings, "CPU preflight cannot admit GPU device mappings")
-            device_inventory = self.gpu_mappings.capture()
+            device_inventory = self.gpu_mappings.capture(snapshot)
             self.journal.save("gpu-mapping-inventory-"+label+".json", device_inventory)
             check_view, evidence = self.gpu_mappings.checked_view(snapshot, device_inventory, label,
                 prefix=self.prefix, original_runtime=d.RUNTIME_SOURCE)

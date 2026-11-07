@@ -1,0 +1,99 @@
+{
+  "accepted_gpu_inference": false,
+  "allocated_cpu_seconds": 272,
+  "captured_device_paths": [
+    "/dev/nvidia-uvm",
+    "/dev/nvidia0",
+    "/dev/nvidiactl",
+    "/dev/zero"
+  ],
+  "child_environment": {
+    "after": {
+      "c": {
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_SERVICE_FORCE_INTEL": null,
+        "MKL_THREADING_LAYER": "GNU"
+      },
+      "python": {
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_SERVICE_FORCE_INTEL": null,
+        "MKL_THREADING_LAYER": "GNU"
+      }
+    },
+    "before": {
+      "c": {
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_SERVICE_FORCE_INTEL": null,
+        "MKL_THREADING_LAYER": "INTEL"
+      },
+      "python": {
+        "CUDA_VISIBLE_DEVICES": "0",
+        "MKL_SERVICE_FORCE_INTEL": null,
+        "MKL_THREADING_LAYER": null
+      }
+    },
+    "loaded_parent_libraries_changed": false
+  },
+  "closed_cpu_seconds": 7550,
+  "closed_gpu_seconds": 1009,
+  "cpu_admission_with_preparation": 11150,
+  "diagnosis": "The v1 classifier fixes physical nvidia0. Actual mapped indexed node is nvidia1. The saved inventory contains nvidia0, so it cannot authenticate nvidia1 retroactively. Newmetadata capture with a reviewed index-independent typed contract is required.",
+  "environment_sha256": "a9c866324054e6a48dea38ed145c5ad8e54b4896ba340b3b29c9ee65cfad12a3",
+  "generation_records": 0,
+  "gpu_slice_seconds": 68,
+  "inventory_sha256": "2755d947a6f6168e92228a1301fd2a9ebbad37e4a28660b1068d15bce67af059",
+  "job_id": "35351262",
+  "mixed_native_paths": [
+    "/dev/nvidia-uvm",
+    "/dev/nvidia1",
+    "/dev/nvidiactl",
+    "/dev/zero"
+  ],
+  "model_memory_residency_only": true,
+  "new_environment_responses": 0,
+  "new_training_updates": 0,
+  "no_active_reservation": true,
+  "rejected_mapping_rows": [
+    "200200000-200400000 rw-s 00000000 00:06 55170                            /dev/nvidia1",
+    "200400000-203c00000 rw-s 00000000 00:06 55166                            /dev/nvidiactl",
+    "203e00000-204000000 rw-s 00000000 00:06 55166                            /dev/nvidiactl",
+    "204000000-204200000 rw-s 00000000 00:06 55166                            /dev/nvidiactl",
+    "204200000-204400000 rw-s 204200000 00:06 55180                           /dev/nvidia-uvm",
+    "153c85600000-153c858a1000 rw-s 00000000 00:01 227760569                  /dev/zero (deleted)",
+    "153c85a00000-153c85c00000 rw-s 00000000 00:01 227760570                  /dev/zero (deleted)",
+    "153cf8c00000-153cf8e00000 rw-s 00000000 00:01 227760568                  /dev/zero (deleted)",
+    "153d16400000-153d16600000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d16600000-153d16800000 rw-s 00000000 00:01 227760560                  /dev/zero (deleted)",
+    "153d16800000-153d16a00000 rw-s 00000000 00:01 227760561                  /dev/zero (deleted)",
+    "153d17000000-153d17200000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d17400000-153d17600000 rw-s 00000000 00:01 227760563                  /dev/zero (deleted)",
+    "153d17600000-153d17b33000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1c9de000-153d1cbde000 rw-s 00000000 00:01 227760562                  /dev/zero (deleted)",
+    "153d1cbde000-153d1cbdf000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbdf000-153d1cbe0000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe0000-153d1cbe1000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe1000-153d1cbe2000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe2000-153d1cbe3000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe3000-153d1cbe4000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe4000-153d1cbe5000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe5000-153d1cbe6000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe6000-153d1cbe7000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe7000-153d1cbe8000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe8000-153d1cbe9000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbe9000-153d1cbea000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbea000-153d1cbeb000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbeb000-153d1cbec000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbec000-153d1cbed000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbed000-153d1cbee000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbee000-153d1cbef000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbef000-153d1cbf0000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbf0000-153d1cbf1000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d1cbf1000-153d1cbf2000 rw-s 00000000 00:06 55166                      /dev/nvidiactl",
+    "153d29373000-153d29383000 -w-s 00000000 00:06 55170                      /dev/nvidia1",
+    "153e5658c000-153e5658d000 r--s 00000000 00:06 55166                      /dev/nvidiactl"
+  ],
+  "snapshot_sha256": "4caef9da980ad2ce937b212041aa36e56c0b870b9569cb9925694dfe530d9830",
+  "status": "failure_diagnosis_not_qualification",
+  "utc": "2026-11-07T22:27:32.495066+00:00",
+  "worker_failure_sha256": "90e5b6adb0c202c43d8d7dda8fa7aca299480f5224bbd164d1d43f2bca108d62"
+}

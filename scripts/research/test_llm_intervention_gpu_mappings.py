@@ -13,7 +13,7 @@ def check(snapshot, devices, phase):
 
 
 def fixture():
-    text="Character devices:\n  1 mem\n195 nvidia-frontend\n509 nvidia-uvm\n\nBlock devices:\n  8 sd\n"
+    text="Character devices:\n  1 mem\n195 nvidia\n509 nvidia-uvm\n\nBlock devices:\n  8 sd\n"
     records={}
     for i,(name,major,minor) in enumerate((('/dev/nvidia0',195,0),('/dev/nvidiactl',195,255),
                                           ('/dev/nvidia-uvm',509,0),('/dev/zero',1,5))):
@@ -25,7 +25,7 @@ def fixture():
         '2000-3000 r--s 00000000 00:06 101 /dev/nvidiactl',
         '3000-4000 -w-s 00000000 00:06 102 /dev/nvidia-uvm',
         '4000-5000 rw-s 00000000 00:01 900 /dev/zero (deleted)'])+'\n'
-    return {'prefix':'/copied','process_maps':maps,'mixed_native_paths':sorted(g.PATHS),'mixed_module_paths':['unchanged']},inventory
+    return {'prefix':'/copied','process_maps':maps,'mixed_native_paths':sorted((g.SPECIAL_PATHS | {"/dev/nvidia0"})),'mixed_module_paths':['unchanged']},inventory
 
 
 class GpuMappingTests(unittest.TestCase):
@@ -47,7 +47,7 @@ class GpuMappingTests(unittest.TestCase):
                         ('00:06 100','00:07 100'),('00:06 100','00:06 999')):
             bad=copy.deepcopy(s);bad['process_maps']=bad['process_maps'].replace(old,new)
             with self.subTest(new=new),self.assertRaises(ValueError):check(bad,i,'after-model-load')
-        bad=copy.deepcopy(s);bad['mixed_native_paths']=sorted([*g.PATHS,'/tmp/untrusted.so'])
+        bad=copy.deepcopy(s);bad['mixed_native_paths']=sorted([*(g.SPECIAL_PATHS | {"/dev/nvidia0"}),'/tmp/untrusted.so'])
         with self.assertRaises(ValueError):check(bad,i,'after-requests')
 
     def test_device_identity_and_driver_registry(self):

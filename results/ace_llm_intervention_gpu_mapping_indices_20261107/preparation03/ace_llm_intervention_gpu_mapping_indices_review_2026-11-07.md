@@ -1,0 +1,11 @@
+# Physical GPU index correction review
+
+Independent reviewer Linnaeus (01a1b81f-2fa2-7a40-882d-77eef1ae15f9) reviewed the delta from the frozenGPU13 helper, its observer call, service manifest and focused fixtures. Read-only. No tests, runtime, models, remote commands, device I/O or edits.
+
+One required finding: the initial draft required registry name nvidia-frontend, while the complete saved CURC registry records195 nvidia. This was corrected. Inspection of that complete registry also showed legitimate duplicate unrelated InfiniBand driver names. The parser validates every character entry but requires unique identities only for nvidia and nvidia-uvm. Missing, conflicting or duplicate required driver identities reject.
+
+Focused delta recheck: zero required findings. The complete saved registry is independently pinned in the focused fixture and remains distinct from synthetic device metadata. Both service/runtime source anchors match helperSHAad1c6854e720473a800a6aeb8cb5f5530033abb2a4c8a18c6af5417063aaa856. All six final preparation03 source/test copies match. The physical index is observed, canonical and bounded below254. Root-owned character type, driver major, basename/minor agreement, map inode/device identity and non-executable shared permissions remain mandatory. No broad device-directory exemption or GPU-assignment proof is claimed.
+
+The main agent ran five new index methods and two affected integration methods. Six passed initially. A capture mock failed on Darwin's encoding of a fabricated Linux device number. Only that mock was changed, then its focused method passed. One additional complete-registry method with six negative subcases passed after the registry correction. Eight distinct methods passed across the retained attempts. No prior passing method was repeated. These are artificial checks with saved registry text, not live qualification or retrospective authentication of GPU13 node1.
+
+Initial testcommand0.116660childCPU/0.119403125elapsed/26066944peakRSS bytes. Corrected capture fixture0.045830CPU/0.048537375elapsed/19660800RSS. Newregistry fixture0.050176CPU/0.052812541elapsed/20332544RSS. All exclude development/review and are not wholecycleCPU. CPU03 remains acceptance of the old source closure only. New source/runtime qualification and a new exclusive reviewed packet remain required.

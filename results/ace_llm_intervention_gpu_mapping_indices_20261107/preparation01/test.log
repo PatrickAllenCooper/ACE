@@ -1,0 +1,22 @@
+test_capture_uses_observed_node_and_metadata_only (test_llm_intervention_gpu_mapping_indices.PhysicalIndexTests) ... ERROR
+test_inventory_cannot_substitute_logical_zero_for_physical_one (test_llm_intervention_gpu_mapping_indices.PhysicalIndexTests) ... ok
+test_nonzero_node_still_rejects_executable_private_or_deleted_mapping (test_llm_intervention_gpu_mapping_indices.PhysicalIndexTests) ... ok
+test_nonzero_physical_indices_keep_exact_device_checks (test_llm_intervention_gpu_mapping_indices.PhysicalIndexTests) ... ok
+test_reserved_malformed_multiple_and_unknown_nodes_rejected (test_llm_intervention_gpu_mapping_indices.PhysicalIndexTests) ... ok
+test_live_observer_preserves_raw_before_capture_and_checks_separate_view (test_llm_intervention_mapping_integration.MappingIntegrationTests) ... ok
+test_gpu_receipts_reconstruct_both_phases_and_keep_cpu_guards (test_llm_intervention_mapping_integration.MappingIntegrationTests) ... ok
+
+======================================================================
+ERROR: test_capture_uses_observed_node_and_metadata_only (test_llm_intervention_gpu_mapping_indices.PhysicalIndexTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/scripts/research/test_llm_intervention_gpu_mapping_indices.py", line 86, in test_capture_uses_observed_node_and_metadata_only
+    observed = g.capture(snapshot)
+  File "/Users/pat/code/ACE/scripts/research/llm_intervention_gpu_mappings.py", line 53, in capture
+    "rdev_major":os.major(before.st_rdev),"rdev_minor":os.minor(before.st_rdev)}
+OverflowError: can't convert negative int to unsigned
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.051s
+
+FAILED (errors=1)

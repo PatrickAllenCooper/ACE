@@ -30,7 +30,7 @@ class MappingIntegrationTests(unittest.TestCase):
         def save(name, value):
             records[name] = copy.deepcopy(value)
             order.append(name)
-        def capture():
+        def capture(snapshot):
             self.assertIn('runtime-after-model-load.json', records)
             order.append('capture')
             return inventory
@@ -46,7 +46,7 @@ class MappingIntegrationTests(unittest.TestCase):
              patch.object(mappings, 'capture', side_effect=capture):
             result = obj.observe('after-model-load', require_imports=False)
         self.assertEqual(raw, before | {'additional_package_versions': dict.fromkeys(runtime.EXTRA_PACKAGES)})
-        self.assertEqual(result['mixed_native_paths'], sorted(mappings.PATHS))
+        self.assertEqual(result['mixed_native_paths'], sorted((mappings.SPECIAL_PATHS | {"/dev/nvidia0"})))
         self.assertEqual(order[:2], ['runtime-after-model-load.json', 'capture'])
         checked = obj.diagnostic.check_prefix.call_args.args[1]
         self.assertEqual(checked['mixed_native_paths'], [])

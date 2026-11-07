@@ -24,7 +24,7 @@ import time
 import traceback
 
 
-VERSION = "ace-pinned-qwen-service-v3"
+VERSION = "ace-pinned-qwen-service-v4"
 SOURCE_NAMES = frozenset({"llm_intervention_model_service.py",
     "llm_intervention_persistent_policy.py", "llm_intervention_contract.py",
     "llm_intervention_episode.py", "llm_intervention_task.py", "llm_intervention_scm.py",
@@ -36,9 +36,9 @@ SOURCE_NAMES = frozenset({"llm_intervention_model_service.py",
 MODEL_NAMES = frozenset({"model.safetensors", "config.json", "generation_config.json",
     "tokenizer_config.json", "tokenizer.json", "merges.txt", "vocab.json"})
 RUNTIME = {
-    "schema": "ace-staged-service-runtime-v2",
-    "gpu_mapping_policy": "ace-gpu-device-map-observation-v1",
-    "gpu_mapping_source_sha256": "997db0ce1ffa8d3863f1b1034446276585f72e482f51b36f5e472d96663783ce",
+    "schema": "ace-staged-service-runtime-v3",
+    "gpu_mapping_policy": "ace-gpu-device-map-observation-v2",
+    "gpu_mapping_source_sha256": "ad1c6854e720473a800a6aeb8cb5f5530033abb2a4c8a18c6af5417063aaa856",
     "archive_sha256": "6815ab9784b6025b8bb4439e40a1a012b9697d434bfc83bd5f36e27abc262d98",
     "manifest_sha256": "b44610f638f0873da8588f1cf23039638203a855959a6ed12cf0ec6c2551d63a",
     "diagnostic_source_sha256": "31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329",
