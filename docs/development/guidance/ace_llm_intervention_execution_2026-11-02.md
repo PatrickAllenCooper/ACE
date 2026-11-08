@@ -2,6 +2,14 @@
 
 ## Current state: November 8, 2026
 
+GPU01 job **35388249 completed0:0** in136seconds with4CPU,15GiB andone20GB A100 slice. All24generations across frozen/SFT/DPO services completed with positive CUDA timing, independent owned NVIDIA memory samples and clean shutdown. No new optimizer updates occurred. Full1834rawfiles/108,890,768bytes andallinputpins are local in `results/ace_llm_intervention_campaign_gpu_20261108/terminal01`, with exclusive external custody. DispositionSHA`c3a754e54cac4fcc8e8959e14020e9fdaa772b659761bd9c28a84754de30db4e`. Independent GPU result acceptance is pending before CPU private finalization. These are artificial integration results, not scientific efficiency evidence.
+
+Closed allocation is **10,246CPU-seconds and1,483GPU-slice-seconds**. The GPU reservation is released. Including the unchanged3,600CPU preparation allowance, admission is13,846/57,600CPU and1,483/7,200GPU, with no active job. A300second/twoCPU finalizer would reserve600CPU and reach14,446CPU. Reconcile35terminaljobs/72submissionjournals before any submission. ProcessCPU,elapsedtime,allocation andreservation are separate overlapping scopes. Whole-cycle CPU remains unknown. The32training/24development worlds remain ungenerated and unfrozen. [Current campaign guide](ace_llm_intervention_paired_campaign_integration_2026-11-08.md) records the immediate next step.
+
+### Historical execution snapshots
+
+The entries below retain their original scope and costs. The current state above supersedes them.
+
 Latest complete evidence: CPU03 job **35387068 completed successfully** in 119 seconds. All ten CPU cells and 36 numerical decisions completed after the planned six numerical training updates. All 951 raw files and 89,451,811 bytes are safely local, and the saved-evidence validator passed. Independent result review accepts the complete CPU phase with zero required findings. Acceptance SHA-256: `11bb11f75715d232cc8b74af81dbc6826272bb982769c054353f16def204817f`. No GPU campaign or private finalization has run. Closed allocation is 9,702 CPU-seconds and 1,347 GPU-slice-seconds. Including the unchanged 3,600 CPU-second preparation allowance, current admission is 13,302 CPU-seconds with no outstanding job. The proposed GPU cap would bring admission to 18,102 CPU-seconds and 1,947 GPU-slice-seconds. Reconcile 34 terminal jobs and 70 journals. The current campaign guide supersedes the earlier active-job snapshots below.
 
 Latest: corrected artificial CPU03 submitted ONCE as35387068 at08:06:30.500036UTC. Source183ce313,packet70d9ee06,packetSHA0533b4fad722652ec63ed12850d3a3d55d1f6c391e81f7280d36561aa9e5ac13. Source and concretepacket review0required, all77remote pins matched. Admission14264CPU/1347GPU includes1200CPUcap+3600prep above9464closedCPU. NoGPUcampaign submitted. [Campaign guide](ace_llm_intervention_paired_campaign_integration_2026-11-08.md) is the current execution record. The failure/cost snapshot below precedes this reservation.

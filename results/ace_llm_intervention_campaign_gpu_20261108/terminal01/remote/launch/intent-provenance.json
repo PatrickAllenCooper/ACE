@@ -1,0 +1,50 @@
+{
+  "admission": {
+    "closed_cpu_seconds": 9702,
+    "closed_gpu_slice_seconds": 1347,
+    "cpu03_allocated_cpu_seconds": 238,
+    "cpu03_job_id": "35387068",
+    "cpu_admission": 18102,
+    "cpu_ceiling": 57600,
+    "cumulative_preparation_cpu_allowance": 3600,
+    "gpu_slice_admission": 1947,
+    "gpu_slice_ceiling": 7200,
+    "new_cpu_reservation": 4800,
+    "new_gpu_slice_reservation": 600
+  },
+  "cpu_acceptance": {
+    "path": "/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-acceptance03/acceptance.json",
+    "sha256": "11bb11f75715d232cc8b74af81dbc6826272bb982769c054353f16def204817f"
+  },
+  "cpu_disposition": {
+    "path": "/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal03/disposition.json",
+    "sha256": "20b83793b58a1a8fd4a681ae2858278df1e350119493cdf971b8fb0ad22faf59"
+  },
+  "cpu_job_id": "35387068",
+  "cpu_packet_commit": "70d9ee060d10ed087ebf222e1ac3d5b9836b0fd1",
+  "cpu_review_receipt": {
+    "path": "/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-acceptance03/review_receipt.json",
+    "sha256": "35100504f8279b2f96006706c6f440e5db1d92d35b65e2255ba336431ca1c3d7"
+  },
+  "cpu_source_commit": "183ce3137213dcc1e4f33855bfab7b20dd307bb0",
+  "final_obligations": "Retain full launch/GPU/campaign custody; reconcile allocation, GPU/memory/progress/throughput/elapsed evidence; independent GPU acceptance and separate CPU finalization. Exit 0 never qualifies.",
+  "gpu_executed": false,
+  "guards": {
+    "final_seconds": 580,
+    "first_gpu_seconds": 240,
+    "per_service_startup_seconds": 120,
+    "progress_freshness_seconds": 90,
+    "signals": "positive CUDA generations/progress plus independent owned NVIDIA process memory; absent telemetry remains uncertainty",
+    "work_seconds": 550
+  },
+  "original_contract_paths": {
+    "campaign": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/cpu03/worker/artifacts/campaign",
+    "cpu_inputs": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/inputs",
+    "cpu_output": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/cpu03",
+    "gpu_output": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/gpu03"
+  },
+  "resource_rationale": "One sequential 20GB slice: prior ~3.278GB GPU reserved; 15GiB host margin over prior 95.05% of 12GiB. Four requested CPUs fit 3840MiB/CPU; reserve maximum eight CPUs for 600s.",
+  "scientific_qualified": false,
+  "source_commit": "12c7322e5046cd3e9b38cb59a1c01ed87054b71b",
+  "terminal_root": "/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal03/remote"
+}

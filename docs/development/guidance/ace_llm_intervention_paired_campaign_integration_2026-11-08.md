@@ -1,10 +1,26 @@
 # Artificial paired-campaign integration
 
-November 8, 2026. **CPU03 completed0:0, complete custody and saved validation passed. Independent acceptance complete. GPU phase not submitted.** CPU01 remains a preserved failure before staging. The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
+November 8, 2026. **CPU03 completed0:0, complete custody and saved validation passed. Independent acceptance complete. GPU01 completed0:0 as35388249, full custody preserved, independent acceptance pending.** CPU01 remains a preserved failure before staging. The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
 
 Training GPU03, job 35379434, is now independently accepted with zero required defects. It completed fresh four-step SFT and two-step DPO training, both exact checkpoint reloads, ten legal generations and clean shutdown. Its acceptance is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. The two failed predecessors remain unchanged.
 
-Current closed allocation after CPU03 is **9,702 CPU-seconds and 1,347 GPU-slice-seconds**. No reservation remains outstanding. With the unchanged3,600CPU-second preparation allowance, current admission is13,302/57,600CPU and1,347/7,200GPU. These are admission bounds, not whole-cycle process CPU.
+Current closed allocation is **10,246 CPU-seconds and 1,483 GPU-slice-seconds**. No job remains active. The unchanged3,600CPU-second preparation allowance gives13,846/57,600CPU admission. A proposed twoCPU/300second finalizer adds600CPU, reaching14,446CPU with no additional GPU. These admission quantities are not whole-cycle process CPU.
+
+## GPU01 terminal custody
+
+Job35388249 completed0:0 in136seconds on the requested4CPU/15GiB/one20GBslice. All1,834rawfiles and108,890,768bytes match exclusive external custody. All transferred source/input pins match. The three services each completed eight positive CUDA generations and closed cleanly. Independent NVIDIA process samples establish GPU memory use alongside generation progress. CUDA intervals are3.256/4.777/6.039seconds for frozen/SFT/DPO. These are not whole-job utilization percentages. No SM utilization percentage was recorded.
+
+The allocation adds544CPU-seconds and136GPU-slice-seconds. Supervisor elapsed129.7967seconds, its process CPU and49.963905helper/service CPU seconds remain separate scopes. SlurmTotalCPU92.205seconds andbatchMaxRSS10,252,000KiB are overlapping measurements. All original adaptive responses are in the charged arm journals. Private score finalization has not run. Independent result acceptance remains necessary before the separate CPU finalizer. Terminal dispositionSHA`c3a754e54cac4fcc8e8959e14020e9fdaa772b659761bd9c28a84754de30db4e`. Reconcile35terminaljobs and72journals before further submission.
+
+## GPU01 submitted once
+
+Job **35388249** was submitted at **2026-11-08T08:30:13.531221Z**. Source commit`12c7322e5046cd3e9b38cb59a1c01ed87054b71b`, packet commit`07722b85059e47f8e1de27c4c9a0840d03aac420`, packet SHA-256`970dc22bdeab1d8cdeded84dfe4f42c58c186cfd77fc9763a9273fbc4a0a3976`. Independent packet review found zero required fixes. Both locks,34terminaljobs,70journalpins, original CPU inputs/acceptance, account/partition/slice and scratch readiness reconciled. All89transferred pins passed readback and the original GPU byte-admission routine before the single submission. Remote intent SHA-256`830d77db4c57093d95b28e6c854e8a7d9432b76297bbf74e23c409c59ce53e35`.
+
+The request is one A100`3g.20gb` slice, four CPUs with a reserved ceiling of eight allocated CPUs,15GiB and600seconds on`ucb736_asc2/aa100/gpu-testing`,without requeue. The new launch root is `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_gpu_20261108_01`. Actual GPU output remains the frozen sibling`ace_llm_intervention_campaign_artificial_20261108_03/gpu03`. Original CPU inputs and three service contracts are unchanged. Launch custody is`results/ace_llm_intervention_campaign_gpu_20261108/launch01` and external`ACE-LLM-intervention-campaign-gpu-20261108-01`.
+
+Frozen,SFT and DPO services run sequentially on both artificial worlds. No optimizer updates occur. Adaptive responses remain charged in their original arm journals. Require advancing positive generation records plus independent owned GPU-process memory, original startup/progress deadlines, clean closure, exact runtime/source/model/role identities, actual scheduler resources and full custody before accepting this phase. Private finalization remains separate and pending.
+
+The new CPU-only finalizer has passed23fabricated tests and a bounded independent static review with zero required findings. Both test attempts, including the initial scheduler-parsing failure, are retained. It has not been allocated or executed. It will use the original finalization interface only after independently pinned GPU acceptance and whole-campaign custody. These preparations do not qualify a scientific screen.
 
 ## CPU03 independently accepted
 
