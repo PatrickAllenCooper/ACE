@@ -19,3 +19,7 @@ Current state: implementation and two independent static reviews are complete, w
 Eight supervisor boundary methods were exercised across preserved initial and correction sources. Six worker methods were exercised, with the affected partial-output method rerun after its membership gate changed. The new full fabricated bundle contains97files, including95manifest-pinned files. It rejects extra attempts, generations, failed checkpoints, changed bytes and clock inconsistencies. These tests use no models or numerical libraries. The initial four worker tests retain their executing agent's transcript and reported timing, without an invented process-CPU measurement. All source versions, failures and review deltas remain in the preparation directories.
 
 Source freeze, concrete packet review and actual execution remain required. Accepted CPU/GPU sources and all previous attempts are unchanged.
+
+## Submitted qualification
+
+Job35377234 was submitted once at2026-11-08T05:42:35.833530Z after the final packet review found zero required fixes. All48remote input pins, both controller locks,28terminal predecessor jobs and58submission journals reconciled. Source74be8f57 and packetcommitda4200b0 are preserved with the full pinned packet. At05:42:46UTC the job was RUNNING with four CPUs,12GiB and one20GBslice. Runtime staging had begun. This initial observation does not prove GPU use or training success. The reservation is now16,586CPU seconds and1,691GPU-slice seconds including the current bounded job. Terminal custody and independent acceptance are pending.
