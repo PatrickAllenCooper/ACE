@@ -14,7 +14,7 @@ for name,cmd in {'job':['scontrol','show','job','-o',JOB],'accounting':['sacct',
  p=subprocess.run(cmd,capture_output=True,text=True,timeout=15);r[name]={'returncode':p.returncode,'stdout':p.stdout,'stderr':p.stderr}
 r['packed_files']={}
 r['gpu_samples']={str(p.relative_to(root)):json.loads(p.read_bytes()) for p in sorted((root/'qualification').glob('gpu-sample-*.json'))[-3:]}
-r['generation_records']={str(p.relative_to(root)):{k:v for k,v in json.loads(p.read_bytes()).items() if k in ('ordinal','cuda_interval_ms','peak_gpu_allocated_bytes','peak_gpu_reserved_bytes','elapsed_seconds')} for p in (root/'qualification').rglob('generation-*.json')}
+r['generation_records']={str(p.relative_to(root)):{k:v for k,v in json.loads(p.read_bytes()).items() if k in ('stage','ordinal','record_id','cuda_interval_ms','peak_gpu_allocated_bytes','peak_gpu_reserved_bytes','elapsed_seconds')} for p in (root/'qualification').rglob('*-generation-*.json')}
 r['phases']={str(p.relative_to(root)):json.loads(p.read_bytes()) for p in (root/'qualification').rglob('phase-*.json')}
 r['ends']={str(p.relative_to(root)):json.loads(p.read_bytes()) for p in (root/'qualification').rglob('*.json') if p.name in ('terminal.json','failure.json','failure-detail.json','diagnostic_complete.json')}
 print(json.dumps(r))
