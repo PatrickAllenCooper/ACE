@@ -2,6 +2,12 @@
 
 ## Current state: November 8, 2026
 
+GPU03 was submitted **once as35379434 at2026-11-08T06:19:21.510159Z**. Sourcea855243c37330d117fb6c87bc79314c38a7b610e and packet commit85c04de1d4c7ada295060108c05d24049e578c24 are pushed and independently matched to remote. Outer SHA50e71a2ccc98e23994234ae0a01e9c00155132e2a67a62d02f5b6510ede49d50 and inner SHA566bbca00939cd339ebf14e58c95bd40eaffb76e467c2847df503317bea1e231 bind the reviewed workspace-release correction. Implementation and packet reviews each found zero required fixes. Both controller locks,30terminal jobs and62remote journals reconciled. Scratch readiness and all48transfer hashes passed. Remote intent SHA2ab85354d928f491900f143d1964412f789ad1941f9d77f07632b359e8c14d51.
+
+The output is`/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_03`, with exclusive external directory`ACE-LLM-intervention-training-gpu-20261108-03` and repository`results/ace_llm_intervention_training_gpu_20261108/launch03`. Do not duplicate or retry this job. Its maximum4800CPU/600GPU reservation gives17178/57600CPU and1839/7200GPU admission, including the unchanged3600CPU preparation allowance. Prior closed costs8778CPU/1239GPU remain separate until actual terminal accounting. Checkpoint reload, inference, zero-memory boundaries, full custody and independent acceptance remain required. Scientific descriptors are still ungenerated.
+
+Earlier active-job and failure snapshots below are historical.
+
 GPU02 job **35378508 failed1:0** after all six updates and the corrected singleton final score pass completed. It stopped before the first checkpoint reload because the release check found64MiB allocated and150MiB reserved after garbage collection and cache clearing. This is a different failure from GPU01. Complete custody retains308raw files and66,951,929bytes in`terminal02` and its exclusive external mirror. All48 input pins match. Independent failure review accepts the complete failure custody and accounting with zero required findings, recorded in`failure_acceptance02`.
 
 The71second allocation adds284CPU seconds and71GPU-slice seconds. Closed totals are now **8778CPU/1239GPU**. With the unchanged3600CPU preparation allowance, admission is **12378/57600CPU and1239/7200GPU**, with no active ACE job. A proposed600second correction would bring admission to17178CPU/1839GPU and requires fresh reconciliation of30terminal jobs and62remote submission journals. No checkpoint inference or complete training qualification is claimed.
