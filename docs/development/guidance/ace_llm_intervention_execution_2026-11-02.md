@@ -1,18 +1,16 @@
 # Execution of the renewed ACE intervention research agenda
 
-## Current state: November 7, 2026
+## Current state: November 8, 2026
 
-The broader LLM intervention question remains unanswered. The32training and24development world descriptors remain ungenerated and unfrozen. The earlier delivery paper remains preserved and off the submission path. Accepted studies and historical failures are unchanged.
+The broader LLM intervention question remains unanswered. The32training and24development descriptors remain ungenerated/unfrozen. The archived delivery paper and accepted studies remain off the submission path and unchanged.
 
-ACE now uses renewed account **ucb736_asc2** under INC1508105 within the existing cycle ceiling. CURC access is working. The training-data builder, collectors, SFT/DPO engine, numerical controls, episode/controller and private reporting components are implemented and independently reviewed. Full runner integration and model-service qualification are still required before scientific use.
+ACE uses renewed accountucb736_asc2, INC1508105, within this cycle's57600CPU/7200GPU-second ceiling. CPU04job35353861 is independently accepted after both fresh imports/tokenizations. It used154allocatedCPU seconds. Full195rawfiles and199terminalcustodyfiles are local. AcceptanceSHA110b44c20a08251501326c74fda9eff7edbcace18118a37be3257e67d5579e14. This is CPU-only qualification, not GPUservice or scientific qualification.
 
-CPU runtime diagnostic35347001 and complete service-import/tokenization preflight35348366 are accepted. The captured runtime imports NumPy2.2.5 while retaining both2.2.5/2.2.6 distribution metadata. This is recorded explicitly and does not certify historical runs. CPU threading diagnostic35349555 is also accepted. It reproduced hidden C-level INTEL threading inheritance and the matchingTorchimportfailure. An explicitGNU child passed numericalimports andCPUarithmetic.
+GPU14 is reviewed withzero required findings and NOTSUBMITTED. Source6c93a9fff83507730cbdb9a8ada615557c79232a, packetSHAfcd27b5c891bd5bb57020b26ac5ba79ba573f7c2e1fc0dd91c37d748f8678f61, innerSHAfef1f2ed103bb719d1572221b8899d0ec60a8332247d2093b10e14a62d0d23f8. It includes30inputs/33transfers and26unchangedCPU04inputs. The caller differs only by its acceptedCPUjob anchor. The reviewed physicalindexv2 correction preserves fullrawmaps and exactdevicechecks. PriorGPU13failure remainsacceptedcustody, notinferencequalification.
 
-The CPU03 successor preflight is independently accepted. GPU13job35351262 reached model loading but failed beforehandshake because the reviewedv1 mapping contract assumed physical/dev/nvidia0 while the job mapped/dev/nvidia1. Full195rawfiles are local and failurecustodyreview is complete withzero required findings. No inference request, training update orscientificresponse completed. The archived studies and ungenerated32training/24development descriptors are unchanged.
+Current closed allocations7704CPU/1009GPU-slice seconds. Adding3600cumulativeCPUpreparation gives11304/57600CPU admission. NoGPU14reservation is active. Its proposed4800CPU/600GPU cap would make16104CPU/1609GPU. ProcessCPU, elapsed, allocation and reservations overlap, not additive. WholecycleCPU unknown.
 
-Closed allocations total **7,550 CPU-seconds** and **1,009 GPU-slice-seconds**. Including cumulative3,600CPU preparation gives **11,150/57,600 CPU-seconds** admission. GPUadmission is **1,009/7,200seconds**. No ACEjob orreservation remainsactive. ProcessCPU,elapsedtime andallocation overlap. WholecycleCPU remainsunknown.
-
-A typed physical-index correction is implemented and independently reviewed, with zero remaining required fixes. It classifies one observed canonical NVIDIA node with root-owned character-device, drivermajor, basename/minor, inode/device and mappingpermission checks. It retains raw maps and does not claimGPUassignmentproof. Actual CPU/GPU qualification of the successor remains open.
+The shared socket was freshly missing at2026-11-08T04:16UTC. A private reconnect request is pending. NoGPU14transfer, readiness orsubmissionattempt occurred. After reconnect, run the committed once-only launcher, which rechecks bothlocks,26terminaljobs54journals, accounting, account/slice/readiness andallpins. Never assumeoldqueueevidence provescurrentstate. Training/campaignactualruntimeintegration and thefreshscientificfreeze remainopen.
 
 
 ## Objective and authority
