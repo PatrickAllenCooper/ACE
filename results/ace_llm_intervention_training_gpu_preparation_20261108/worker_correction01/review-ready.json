@@ -1,0 +1,46 @@
+{
+  "R2": "Parent-owned; no parent edits in this correction.",
+  "addressed": [
+    "R1",
+    "O1"
+  ],
+  "clock_limitation": "Engine receipts have no absolute clocks; training completion is bounded by the saved pre-reload score receipt. Later stamped phases are ordered through final cleanup.",
+  "disposition": "ready_for_delta_independent_review",
+  "metrics": {
+    "child_max_rss_bytes": 19824640,
+    "child_system_cpu_seconds": 0.098939,
+    "child_user_cpu_seconds": 0.13874699999999998,
+    "completed_utc": "2026-11-08T05:31:47.290067+00:00",
+    "elapsed_seconds": 0.239972708,
+    "exit_code": 0,
+    "resource_measurement": "resource.getrusage(RUSAGE_CHILDREN); one child in this capture process",
+    "started_utc": "2026-11-08T05:31:47.049792+00:00",
+    "stderr_bytes": 0,
+    "stdout_bytes": 441
+  },
+  "review": "docs/development/guidance/reviews/ace_llm_intervention_training_gpu_worker_review_2026-11-08.md",
+  "run_training_ast_identical_to_worker03": true,
+  "source_edits": [
+    "scripts/research/llm_intervention_training_gpu_worker.py",
+    "scripts/research/test_llm_intervention_training_gpu_worker.py"
+  ],
+  "source_hashes": {
+    "/Users/pat/code/ACE/scripts/research/llm_intervention_training_gpu_worker.py": "8383f5e26524fc7d40e7dd6bdbf9bb2394b6ee81319fa5534bf8e370adbbe017",
+    "/Users/pat/code/ACE/scripts/research/test_llm_intervention_training_gpu_worker.py": "9f8e6a1844b0e21b2a3c292e3b687053899eec5f12abae2a491d6e1b811edf13"
+  },
+  "stdout_sha256": "72c4f6e3ef8a2434ce804936eece73d1e79f1b3c995e82bddc6e67dcbab5d09f",
+  "validation": {
+    "affected_existing_methods": 1,
+    "byte_integrity_negative": 1,
+    "fixture_only": true,
+    "focused_methods_passed": 3,
+    "full_fixture_files": 97,
+    "manifest_pinned_files": 95,
+    "model_or_gpu_execution": false,
+    "new_methods": 2,
+    "repinned_saved_clock_negatives": 3,
+    "repinned_surplus_negatives": 7,
+    "summary_clock_negatives": 7,
+    "tensor_deserialization": false
+  }
+}

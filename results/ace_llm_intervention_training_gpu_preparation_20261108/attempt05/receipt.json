@@ -1,0 +1,20 @@
+{
+  "child_cpu_seconds": 0.166542,
+  "command": [
+    "python3",
+    "-I",
+    "-B",
+    "-c",
+    "import importlib.util,unittest; p='/Users/pat/code/ACE/scripts/research/test_qualify_llm_intervention_training_gpu.py'; s=importlib.util.spec_from_file_location('new_tests',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); r=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(m.LiveReadCorrection)); raise SystemExit(not r.wasSuccessful())"
+  ],
+  "elapsed_seconds": 0.169877042,
+  "peak_child_rss_bytes": 26181632,
+  "preparation_overhead_fully_metered": false,
+  "returncode": 0,
+  "scope": "one NEW live-write race rejection method only; strictfinalreads unchanged; no numerical/model/GPU/scientificresponses",
+  "source_sha256": {
+    "scripts/research/qualify_llm_intervention_training_gpu.py": "5fe610684e077469444fd8b6db4fcd6b9b717ebe24b22deaf3425ece475dc6b7",
+    "scripts/research/test_qualify_llm_intervention_training_gpu.py": "a5099214cfe62dba4cf2350ddf75efcc0e3c6bcec208953dc188a59006602338"
+  },
+  "utc": "2026-11-08T05:32:47.586726+00:00"
+}

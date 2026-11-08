@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-B",
+    "-c",
+    "import runpy, sys, unittest\nnamespace = runpy.run_path(sys.argv[1], run_name=\"focused_worker_tests\")\nsuite = unittest.TestSuite(namespace[\"ArtifactValidationTests\"](name) for name in sys.argv[2:])\nresult = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)\nraise SystemExit(not result.wasSuccessful())\n",
+    "/Users/pat/code/ACE/scripts/research/test_llm_intervention_training_gpu_worker.py",
+    "test_complete_bundle_rejects_repinned_surplus_evidence",
+    "test_complete_bundle_binds_finite_phase_clocks",
+    "test_parent_validator_rejects_partial_and_failed_outputs_without_heavy_imports"
+  ],
+  "cwd": "/Users/pat/code/ACE",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-training-gpu-worker-correction-20261108-01/fixture-tmp"
+  },
+  "methods": [
+    "test_complete_bundle_rejects_repinned_surplus_evidence",
+    "test_complete_bundle_binds_finite_phase_clocks",
+    "test_parent_validator_rejects_partial_and_failed_outputs_without_heavy_imports"
+  ]
+}

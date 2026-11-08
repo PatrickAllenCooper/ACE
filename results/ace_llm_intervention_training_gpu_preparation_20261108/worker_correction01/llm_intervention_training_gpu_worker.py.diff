@@ -1,0 +1,102 @@
+--- worker03/llm_intervention_training_gpu_worker.py
++++ scripts/research/llm_intervention_training_gpu_worker.py
+@@ -219,6 +219,29 @@
+     return terminal, checkpoints, steps, scores["scores"]
+ 
+ 
++def _expected_evidence_files(plan):
++    """Derive membership from the pinned recipe, never from a saved manifest."""
++    names = {"evidence-files.json", "summary.json", "arithmetic.json", "first-gpu-work.json",
++             "initial-load.json", "final-before-reload.json"}
++    names.update(label + "-memory.json" for label in
++                 ("before-sft-reload", "before-final-reload", "after-final-inference"))
++    names.update("training/" + name for name in
++                 ("plan.json", "terminal.json", "initial-signatures.json", "reference-snapshot.json",
++                  "reference-scores.json", "reference.pt"))
++    for index, _ in enumerate(plan["schedule"]):
++        names.update(f"training/step-{index:05d}.{kind}.json" for kind in
++                     ("start", "loss", "gradients", "update-intent", "optimizer-attempt", "update-returned", "complete"))
++    for stem in ("initial", "sft", "final", *(f"step-{i:05d}" for i in plan["checkpoint_steps"])):
++        names.update(f"training/{stem}.{suffix}" for suffix in ("checkpoint.json", "adapter.pt"))
++        if stem != "initial":
++            names.add(f"training/{stem}.optimizer.pt")
++    for stage in ("sft", "final"):
++        names.update(f"{stage}-{kind}.json" for kind in ("load", "reload", "reload-scores"))
++        for index in range(len(plan["records"]) + 1):
++            names.update(f"{stage}-{kind}-{index:02d}.json" for kind in ("generation", "raw-generation"))
++    return names
++
++
+ def validate_outputs(root, prepared):
+     """Independently check saved worker evidence, using stdlib only.
+ 
+@@ -231,8 +254,13 @@
+     _need(root.is_dir() and not root.is_symlink() and not (root / "failure.json").exists(),
+           "missing/failed worker artifacts")
+     manifest = _read(root / "evidence-files.json")
++    expected_files = _expected_evidence_files(plan)
+     actual = {p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file()}
+-    _need(actual == set(manifest) | {"evidence-files.json", "summary.json"}, "evidence file inventory differs")
++    _need(actual == expected_files, "evidence file inventory differs from pinned recipe")
++    _need(type(manifest) is dict and set(manifest) == expected_files - {"evidence-files.json", "summary.json"},
++          "evidence manifest inventory differs from pinned recipe")
++    # Membership and byte integrity are separate checks: re-pinning an extra
++    # attempt, generation, checkpoint or failure cannot extend the recipe.
+     for name, pin in manifest.items():
+         path = Path(name)
+         _need(not path.is_absolute() and ".." not in path.parts and (root / path).is_file()
+@@ -261,7 +289,7 @@
+           and before["optimizer_updates"] == 0, "final saved score roster differs")
+     _score_difference(before["scores"], before["scores"])
+     sequence = [*plan["records"], plan["records"][0]]
+-    generations, loads = [], []
++    generations, loads, reload_phases = [], [], []
+     initial_load = _read(root / "initial-load.json")
+     _need(initial_load["stage"] == "initial" and initial_load["fresh_base"] is True
+           and initial_load["restoration"] is None, "initial base must not restore any adapter")
+@@ -319,6 +347,7 @@
+         _need(stage_rows[0]["sequence_ids"] == stage_rows[-1]["sequence_ids"]
+               and stage_rows[0]["completion"] == stage_rows[-1]["completion"], "first/intervening/first repeat differs")
+         generations.extend(stage_rows)
++        reload_phases.append([load, scored, *stage_rows, reload])
+     for load in loads:
+         projection = load["projection"]
+         _need(projection["recipe"] == "fixed_row_fp32_action_reduction_v1"
+@@ -326,10 +355,12 @@
+               and projection["original_dtype"] == "torch.bfloat16" and projection["projection_dtype"] == "torch.float32"
+               and projection["new_trainable_parameters"] == 0 and projection["projection_rows_per_call"] == 1
+               and _finite(load["wall_seconds"], positive=True), "canonical projection/load evidence differs")
++    memory_phases = []
+     for label in ("before-sft-reload", "before-final-reload", "after-final-inference"):
+         memory = _read(root / (label + "-memory.json"))
+         _need(memory["allocated_bytes"] == 0 and memory["reserved_bytes"] == 0,
+               "live/cached CUDA model memory remains between lifetimes")
++        memory_phases.append(memory)
+     summary = _read(root / "summary.json")
+     expected_summary = _summary_facts(prepared, terminal, checkpoints, steps, first, generations, root)
+     _need(all(summary.get(k) == v for k, v in expected_summary.items()), "worker summary differs from saved evidence")
+@@ -342,9 +373,22 @@
+           and summary["peak_gpu_reserved_bytes"] >= max([first["peak_gpu_reserved_bytes"]]
+               + [s["peak_reserved_bytes"] for s in steps] + [g["peak_gpu_reserved_bytes"] for g in generations]),
+           "reported loading time or CUDA peak differs")
+-    _need(summary["first_gpu_work_monotonic_seconds"] <= summary["training_start_monotonic_seconds"]
+-          < summary["training_complete_monotonic_seconds"] < summary["inference_complete_monotonic_seconds"],
++    clocks = [summary[k] for k in ("first_gpu_work_monotonic_seconds", "training_start_monotonic_seconds",
++                                  "training_complete_monotonic_seconds", "inference_complete_monotonic_seconds")]
++    _need(all(_finite(clock) for clock in clocks), "nonfinite summary phase clock")
++    _need(_finite(first.get("monotonic_seconds")) and clocks[0] == first["monotonic_seconds"],
++          "first GPU work clock differs from saved evidence")
++    _need(clocks[0] <= clocks[1] < clocks[2] < clocks[3],
+           "forward/training/inference phase ordering differs")
++    # Engine receipts have no absolute clocks. Bound training completion by
++    # the saved pre-reload score receipt, then reconstruct the stamped phases.
++    phase_clocks = [initial_load.get("monotonic_seconds"), *clocks[:3]]
++    phase_clocks.extend(row.get("monotonic_seconds") for row in
++                        [before, memory_phases[0], *reload_phases[0], memory_phases[1], *reload_phases[1]])
++    phase_clocks.extend((clocks[3], memory_phases[2].get("monotonic_seconds")))
++    _need(all(_finite(clock) for clock in phase_clocks)
++          and all(a <= b for a, b in zip(phase_clocks, phase_clocks[1:])),
++          "summary phase bounds differ from saved clocks")
+     return {**expected_summary, "status": "validated_worker_evidence", "evidence_files": len(manifest),
+             "summary_sha256": _sha(root / "summary.json"), "tensor_files_deserialized": False,
+             "runtime_and_cleanup_qualified": False}
