@@ -4,7 +4,19 @@ November 8, 2026. **CPU03 completed0:0, complete custody and saved validation pa
 
 Training GPU03, job 35379434, is now independently accepted with zero required defects. It completed fresh four-step SFT and two-step DPO training, both exact checkpoint reloads, ten legal generations and clean shutdown. Its acceptance is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. The two failed predecessors remain unchanged.
 
-Current closed allocation is **10,246 CPU-seconds and 1,483 GPU-slice-seconds**. No job remains active. The unchanged3,600CPU-second preparation allowance gives13,846/57,600CPU admission. A proposed twoCPU/300second finalizer adds600CPU, reaching14,446CPU with no additional GPU. These admission quantities are not whole-cycle process CPU.
+Current closed allocation is **10,368 CPU-seconds and 1,483 GPU-slice-seconds**. No ACE job remains active. Including the unchanged3,600CPU preparation allowance gives13,968/57,600CPU admission. Future submission reconciliation requires36terminaljobs and74journals. These are not whole-cycle process CPU.
+
+## CPU finalization01 complete, final review pending
+
+Job35389391 completed0:0 in61seconds,2CPU/7680MiB/zeroGPU, adding122allocatedCPU seconds. Complete2,219rawfiles/110,220,879bytes andall94transferpins match bothlocalcopies andtwo remoteinventories. FinalizationSHA`aa77436fbda2e3348b7eae08d33327c1fa5e33ae3e6602a4abd69930a53c6dfa`, summarySHA`790cb2ecbf6af7e5e63ad10e7e8056f7b69e75f68c185ad345004ce430c7d577`. All16cells/28pairs are retained withzero failed/unresolved cells andzero new responses/updates. Exactruntime,groupcleanup and scheduler completion are recorded. Independent final-result review is pending. Preserve the published finalization even if later review identifies a defect.
+
+The supervisor took51.9811seconds and26.5349processCPU seconds. Child/cleanup CPU was1.414002seconds with163,819,520peakRSS bytes. The child resource elapsed field uses the original supervisor epoch and is not an isolated scoring duration. SlurmTotalCPU28.062seconds/batchMaxRSS7,862,160KiB overlap other measurements. Do not add them or infer memory headroom from the lower child-only peak.
+
+## CPU finalization01 submitted once
+
+Job35389391 was submitted at2026-11-08T08:51:13.343861Z. Packetcommit`380d1b3d939a64ffd0602014746df7304035cc6d`, source`12c7322e5046cd3e9b38cb59a1c01ed87054b71b`, packetSHA`417bd889465198c0276fcc2a2ebf55168e21efad278c7978a34ed9360761bf6c`. IntentSHA`dedd39caaf131af4d08fdf9d4750934d622fa8993f4568a6eb22c75bb8fbb7da`. The concretepacketreview has zero required findings. Both shared locks,35terminaljobs,72journals, exactoriginalroots/acceptances, account/partition/scratch and94transferpins passed before submission.
+
+The request is2CPU,7680MiB,300seconds,zeroGPU,ucb736_asc2/acpu/cpu-normal,no-requeue. NewROOT`/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_finalization_20261108_01` owns the launch and supervisor evidence. Original campaign paths remain unchanged. Startup/work/cleanup/hard limits are120/260/280/290seconds. Require full16-cell/28-pair reporting, zero new responses/updates, exactruntime/resources, ownedcleanup andcompletecustody before independent final-result acceptance. Never blindly repeat a published campaign finalization after an outer failure. Full-size scientific worlds remain ungenerated.
 
 ## GPU01 terminal custody
 
