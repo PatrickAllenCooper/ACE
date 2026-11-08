@@ -1,0 +1,106 @@
+{
+  "change": {
+    "final_comparison": "Explicit fixed unpadded singleton command calls in supplied deterministic order, with shared final_specs before and after reload.",
+    "first_gpu_score": "Existing call site unchanged; still one singleton forward under the singletons default.",
+    "receipt_layout_metadata": "Deferred to keep the correction minimal and preserve existing receipt/fixture schemas.",
+    "sft_reference": "Preserves engine chosen/rejected pair order in one two-row call; exactly two distinct commands with equal positive token lengths are required.",
+    "unchanged": [
+      "training engine",
+      "canonical scoring backend",
+      "training recipe",
+      "labels and token plan",
+      "exact-score comparison gate",
+      "first GPU scoring call site",
+      "report validators and receipt schemas",
+      "source originals and accepted artifacts",
+      "ledger/reviews",
+      "launch02 scripts"
+    ],
+    "validation": "Pure scoring_layout rejects invalid mode, unordered/empty/unknown/duplicate commands and malformed token sequences before any scoring forward."
+  },
+  "created_utc": "2026-11-08T05:55:47.164649+00:00",
+  "external_evidence_directory": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-training-gpu-scoring-correction-20261108-02",
+  "limitations": [
+    "Pure layout and source-wiring evidence only; no real tensor packing or numerical backend execution.",
+    "Actual Flash Attention compatibility, final/SFT score equality, checkpoint reload and complete qualification require a separately authorized bounded actual run.",
+    "No new scoring-layout metadata in receipts; existing source authentication and exact-score validation remain unchanged.",
+    "No commit or GPU launch performed by this task."
+  ],
+  "parent_handoff": "Stable for distinct review and later bounded actual qualification; parent reports Hilbert has completed the correction review with zero required findings. No further checks requested.",
+  "repo_evidence_directory": "/Users/pat/code/ACE/results/ace_llm_intervention_training_gpu_preparation_20261108/scoring_correction02",
+  "resource_cost": {
+    "gpu_seconds": 0,
+    "limitation": "Only test child process cost is measured; reads, editing, coordination and evidence consolidation overhead are unmetered.",
+    "preparation_overhead_cpu_seconds": null,
+    "remote_operations": 0,
+    "scientific_responses": 0,
+    "test_child_cpu_seconds": 0.19652799999999998,
+    "test_child_peak_rss_bytes": 21397504,
+    "test_child_system_cpu_seconds": 0.013718,
+    "test_child_user_cpu_seconds": 0.18281,
+    "test_wall_seconds_sum": 0.20099595799999997
+  },
+  "review": {
+    "basis": "Reported by parent in latest instruction; reviewer read five initial passes and the corrected AST pass. No independent review was repeated here.",
+    "required_findings": 0,
+    "reviewer": "Hilbert"
+  },
+  "schema": "ace-training-gpu-scoring-correction-v1",
+  "source_diff_sha256": "180f43cfeac5f5409b27f8720d2e7c0bc68c0fc55c144cec9550c2ab5686ac04",
+  "source_scope": [
+    "scripts/research/llm_intervention_training_gpu_worker.py",
+    "scripts/research/test_llm_intervention_training_gpu_scoring_layout.py"
+  ],
+  "source_sha256": {
+    "llm_intervention_training_gpu_worker.py": "a22e725e7cf8a5ddca496fece6788c81cf95cf700fc61e18d50567fc50453a37",
+    "test_llm_intervention_training_gpu_scoring_layout.py": "ac0652251c195bd821d7ff1a1bc07ebfa596232d2c69eec7b75f5040fc926303"
+  },
+  "status": "implementation_complete_focused_tests_passed_review_reported_zero_required",
+  "testing": {
+    "coverage": [
+      "artificial command lengths 7/7/7/6",
+      "four singleton calls despite three equal lengths",
+      "supplied command ordering and unchanged before/after layouts",
+      "SFT chosen/rejected pair order",
+      "exactly two/equal positive pair lengths",
+      "invalid modes/commands/token tables",
+      "source wiring and unchanged first GPU singleton call"
+    ],
+    "cwd": "/private/tmp",
+    "distinct_new_methods_passed": 6,
+    "focused_correction": {
+      "change": "Compare AST structure with ast.dump(ast.parse(...)) instead of rendered comprehension text.",
+      "completed_utc": "2026-11-08T05:53:27.202262+00:00",
+      "copy_provenance": "This run completed before the instruction to create separate scoring_correction02. These are exact copies of its original command/output/resource receipts; no run occurred in correction02.",
+      "exit_code": 0,
+      "method": "test_scoring_call_sites_bind_explicit_layouts_and_keep_first_singleton",
+      "methods": 1,
+      "original_directory": "/Users/pat/code/ACE/results/ace_llm_intervention_training_gpu_preparation_20261108/scoring_correction01/test_assertion_correction01",
+      "passed": 1
+    },
+    "full_bundle_validator_rerun": false,
+    "initial_prototype": {
+      "exit_code": 1,
+      "failed": 1,
+      "failure": "New source-wiring assertion compared ast.unparse text; Python 3.9 inserted extra tuple-target parentheses. No worker behavior failure was identified.",
+      "methods": 6,
+      "original_directory": "/Users/pat/code/ACE/results/ace_llm_intervention_training_gpu_preparation_20261108/scoring_correction01",
+      "passed": 5,
+      "retained_immutable": true
+    },
+    "numeric_model_backend_imports_or_execution": false,
+    "passing_methods_rerun": 0,
+    "prior_closed_tests_run": 0,
+    "python_version": "3.9.6",
+    "source_whitespace_check": {
+      "command": "git diff --check -- scripts/research/llm_intervention_training_gpu_worker.py scripts/research/test_llm_intervention_training_gpu_scoring_layout.py",
+      "cwd": "/Users/pat/code/ACE",
+      "note": "Previously observed tool result; not rerun during consolidation.",
+      "observed_exit_code": 0,
+      "observed_stderr": "",
+      "observed_stdout": ""
+    },
+    "total_method_executions": 7
+  },
+  "worker_before_sha256": "8383f5e26524fc7d40e7dd6bdbf9bb2394b6ee81319fa5534bf8e370adbbe017"
+}

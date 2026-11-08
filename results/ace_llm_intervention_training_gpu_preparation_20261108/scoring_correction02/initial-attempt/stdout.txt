@@ -1,0 +1,23 @@
+test_actual_7776_lengths_use_four_unpadded_singleton_calls (focused_scoring_layout_tests.ScoringLayoutTests) ... ok
+test_invalid_commands_and_token_tables_fail_closed (focused_scoring_layout_tests.ScoringLayoutTests) ... ok
+test_invalid_modes_fail_closed (focused_scoring_layout_tests.ScoringLayoutTests) ... ok
+test_reference_pair_keeps_chosen_rejected_order_in_one_call (focused_scoring_layout_tests.ScoringLayoutTests) ... ok
+test_scoring_call_sites_bind_explicit_layouts_and_keep_first_singleton (focused_scoring_layout_tests.ScoringLayoutTests) ... FAIL
+test_supplied_order_and_identical_before_after_layout_are_preserved (focused_scoring_layout_tests.ScoringLayoutTests) ... ok
+
+======================================================================
+FAIL: test_scoring_call_sites_bind_explicit_layouts_and_keep_first_singleton (focused_scoring_layout_tests.ScoringLayoutTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/scripts/research/test_llm_intervention_training_gpu_scoring_layout.py", line 128, in test_scoring_call_sites_bind_explicit_layouts_and_keep_first_singleton
+    self.assertEqual(ast.unparse(score.body[0].value),
+AssertionError: '{key[25 chars]mands, mode=mode) for (key, (rec, commands)) in specs.items()}' != '{key[25 chars]mands, mode=mode) for key, (rec, commands) in specs.items()}'
+- {key: scoring_layout(rec, commands, mode=mode) for (key, (rec, commands)) in specs.items()}
+?                                                    -                    -
++ {key: scoring_layout(rec, commands, mode=mode) for key, (rec, commands) in specs.items()}
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.015s
+
+FAILED (failures=1)

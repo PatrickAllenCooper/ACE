@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-I",
+    "-B",
+    "-c",
+    "import runpy, sys, unittest\nnamespace = runpy.run_path(sys.argv[1], run_name=\"focused_scoring_layout_tests\")\nsuite = unittest.TestSuite([namespace[\"ScoringLayoutTests\"](\"test_scoring_call_sites_bind_explicit_layouts_and_keep_first_singleton\")])\nresult = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)\nraise SystemExit(not result.wasSuccessful())\n",
+    "/Users/pat/code/ACE/scripts/research/test_llm_intervention_training_gpu_scoring_layout.py"
+  ],
+  "cwd": "/private/tmp",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "test_scope": "Only the previously failed new AST wiring test; five passing methods and all closed prior tests are excluded",
+  "runs": 1,
+  "methods": [
+    "test_scoring_call_sites_bind_explicit_layouts_and_keep_first_singleton"
+  ]
+}

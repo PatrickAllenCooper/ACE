@@ -1,0 +1,7 @@
+cd /private/tmp
+PYTHONDONTWRITEBYTECODE=1 /Library/Developer/CommandLineTools/usr/bin/python3 -I -B -c 'import runpy, sys, unittest
+namespace = runpy.run_path(sys.argv[1], run_name="focused_scoring_layout_tests")
+suite = unittest.TestSuite([namespace["ScoringLayoutTests"]("test_scoring_call_sites_bind_explicit_layouts_and_keep_first_singleton")])
+result = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)
+raise SystemExit(not result.wasSuccessful())
+' /Users/pat/code/ACE/scripts/research/test_llm_intervention_training_gpu_scoring_layout.py

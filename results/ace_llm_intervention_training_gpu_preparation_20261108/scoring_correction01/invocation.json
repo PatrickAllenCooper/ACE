@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-I",
+    "-B",
+    "-c",
+    "import runpy, sys, unittest\nnamespace = runpy.run_path(sys.argv[1], run_name=\"focused_scoring_layout_tests\")\nsuite = unittest.defaultTestLoader.loadTestsFromTestCase(namespace[\"ScoringLayoutTests\"])\nresult = unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)\nraise SystemExit(not result.wasSuccessful())\n",
+    "/Users/pat/code/ACE/scripts/research/test_llm_intervention_training_gpu_scoring_layout.py"
+  ],
+  "cwd": "/private/tmp",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "test_scope": "Only the six new ScoringLayoutTests methods; no prior test module or fixture imported",
+  "runs": 1
+}
