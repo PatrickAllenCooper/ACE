@@ -12,6 +12,8 @@ Job35389391 completed0:0 in61seconds,2CPU/7680MiB/zeroGPU, adding122allocatedCPU
 
 The supervisor took51.9811seconds and26.5349processCPU seconds. Child/cleanup CPU was1.414002seconds with163,819,520peakRSS bytes. The child resource elapsed field uses the original supervisor epoch and is not an isolated scoring duration. SlurmTotalCPU28.062seconds/batchMaxRSS7,862,160KiB overlap other measurements. Do not add them or infer memory headroom from the lower child-only peak.
 
+The finalizer reconstructed conjugate SCM posteriors from the already paid, saved responses to compute the cost curves. It performed no new policy optimization and obtained no new environment responses.
+
 All76 saved curve points and28 paired comparisons reconcile. Every cell actually spent six logical units, with96 total logical charges and92 accepted receipt entries. Fifteen cells ever attained the threshold, while ten finished below it. World9102 begins below threshold for every arm, but five arms lose attainment. DPO never attains in world9101. Retrospective crossing costs do not demonstrate actual saved interventions. All methods and adverse results remain present. The next scientific design reports ever and final attainment separately and retains actual spending. These two supplied artificial worlds do not estimate scientific effectiveness.
 
 The following submission and phase entries are historical. The accepted complete outcome above supersedes their pending flags.
