@@ -1,0 +1,7 @@
+{
+  "local_utc": "2026-11-08T08:07:03.252439+00:00",
+  "returncode": 0,
+  "source": "from pathlib import Path\nimport json,subprocess,datetime\nroot=Path('/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03');job='35387068'\nv={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'files':{}}\nfor label,args in {'queue':['squeue','-j',job,'-h','-o','%i|%j|%T|%R|%a'],'accounting':['sacct','-j',job,'-n','-P','--format=JobIDRaw,State,ExitCode,AllocCPUS,ElapsedRaw,AllocTRES%180,MaxRSS,TotalCPU']}.items():\n p=subprocess.run(args,capture_output=True,text=True,timeout=15);v[label]={'returncode':p.returncode,'stdout':p.stdout,'stderr':p.stderr}\nfor name in ['cpu03/failure.json','cpu03/supervisor.json','cpu03/worker/failure.json','cpu03/worker/artifacts/failure.json','cpu03/worker/artifacts/cpu-phase/terminal.json']:\n p=root/name\n if p.is_file():v['files'][name]=p.read_text()[:10000]\np=root/'cpu03/worker/artifacts'\nif p.is_dir():\n fs=sorted(p.glob('phase-*.json'))\n for f in fs[-4:]:v['files'][str(f.relative_to(root))]=f.read_text()[:2000]\nprint(json.dumps(v))\n",
+  "stderr": "",
+  "stdout": "{\"utc\": \"2026-11-08T08:07:03.128458+00:00\", \"files\": {}, \"queue\": {\"returncode\": 0, \"stdout\": \"35387068|ace_llm_campaign_cpu03|PENDING|(Priority)|ucb736_asc2\\n\", \"stderr\": \"\"}, \"accounting\": {\"returncode\": 0, \"stdout\": \"35387068|PENDING|0:0|0|0|||00:00:00\\n\", \"stderr\": \"\"}}\n"
+}

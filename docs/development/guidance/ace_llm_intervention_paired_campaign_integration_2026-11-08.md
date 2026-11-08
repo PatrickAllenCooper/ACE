@@ -1,10 +1,22 @@
 # Proposed artificial paired-campaign integration
 
-November 8, 2026. **CPU02 failed after the four numerical controls. GPU phase not submitted.** CPU01 remains a preserved failure before staging. The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
+November 8, 2026. **CPU03 completed0:0, complete custody and saved validation passed. Independent acceptance pending. GPU phase not submitted.** CPU01 remains a preserved failure before staging. The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
 
 Training GPU03, job 35379434, is now independently accepted with zero required defects. It completed fresh four-step SFT and two-step DPO training, both exact checkpoint reloads, ten legal generations and clean shutdown. Its acceptance is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. The two failed predecessors remain unchanged.
 
-Current closed allocation after CPU02 is **9,464 CPU-seconds and 1,347 GPU-slice-seconds**. No job reservation remains outstanding. With the unchanged 3,600 CPU-second preparation allowance, current admission is 13,064/57,600 CPU and 1,347/7,200 GPU. A fresh 1,200 CPU-second attempt would raise admission to14,264. These are admission bounds, not whole-cycle process CPU.
+Current closed allocation after CPU03 is **9,702 CPU-seconds and 1,347 GPU-slice-seconds**. No reservation remains outstanding. With the unchanged3,600CPU-second preparation allowance, current admission is13,302/57,600CPU and1,347/7,200GPU. These are admission bounds, not whole-cycle process CPU.
+
+## CPU03 complete, independent review pending
+
+Job35387068 completed0:0 in119seconds,2CPU/7680MiB/zeroGPU,adding238allocatedCPU seconds. All10CPUcells and36numericaldecisions completed with six matched numerical training updates. Bothrankerworlds now completed and no policyfailed. Complete951rawfiles/89,451,811bytes,allinputpins,original runtime/source/model checks and cleanup records are preserved in `cpu-terminal03` and its exclusive external mirror. The original byte-only savedvalidator passed withreceiptSHA4466242d97e36e1e9c9b72e1b8032d9a7b9a35b710b54af75cfbaab8a1e572dd. No GPUservice/privatefinalization/scientificworldgeneration occurred. Distinct actual-result review still precedes acceptance.
+
+Supervisor112.976086512elapsed/29.345845790processCPU seconds; child/cleanup48.117639CPU/71.319893527elapsed/982,171,648peakRSSbytes. SchedulerTotalCPU77.591seconds andbatchMaxRSS7,862,080KiB are separateoverlapping measurements. Memory remains near the7,864,320KiB limit withoutanOOM. No resourceheadroom or whole-cycleCPU claim. Reconcile34terminaljobs70journals beforefurthermutation. ProposedGPUcap4800CPU/600GPU wouldbring admission18102CPU/1947GPU withinexistingceilings, conditional on independentCPUacceptance andfreshpacket/resourcechecks.
+
+## CPU03 submitted after direct-origin correction
+
+Job35387068 was submitted once at2026-11-08T08:06:30.500036Z. Source183ce3137213dcc1e4f33855bfab7b20dd307bb0 and packetcommit70d9ee060d10ed087ebf222e1ac3d5b9836b0fd1 are pushed. PacketSHA0533b4fad722652ec63ed12850d3a3d55d1f6c391e81f7280d36561aa9e5ac13 binds the reviewed correction. Distinct source and packet reviews have zero required findings. Both controller locks,33terminaljobs,68submissionjournals, account/partition, scratch readiness and all77transferpins matched. RemoteintentSHAe261328ea3278bee7e51761844cc155b32a3094e549da21de3ec66e8cd397dbc.
+
+Request2CPU/7680MiB/600seconds,ucb736_asc2/acpu/cpu-normal,zeroGPU,no-requeue. ROOT `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03`, CPUout`cpu03`, futureGPUout`gpu03`. Repository/external custody use`cpu03`/`ACE-LLM-intervention-campaign-cpu-20261108-03`. Only the corrected wrapper,three new-path launch contracts and packet differ among the72inputs. Same artificial worlds,methods,training/checkpoints/runtime and bounded resources. CPU02 completed/failed trajectories remain unchanged and cannot be reused as accepted cells. Full successful execution,saved validation,custody and independent CPUacceptance remain necessary before GPUlaunch.
 
 ## CPU02 failure and direct module-origin correction
 
