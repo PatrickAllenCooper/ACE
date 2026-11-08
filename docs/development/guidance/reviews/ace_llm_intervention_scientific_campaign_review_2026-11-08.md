@@ -1,0 +1,11 @@
+# Supplied scientific campaign assembler review
+
+November 8, 2026. Coordinator review distinct from the implementation agent. Required corrections: **0**. This is a source and interface review, not execution or scientific qualification. No tests were repeated and no worlds, responses, models or tokenizer were executed during review.
+
+Reviewed source `llm_intervention_scientific_campaign.py` SHA-256 `e3072b8a4c18ef459154fc71ebec8874992d4cee7c829e55b4203cf5111565d8` and test SHA-256 `3ce579831eb92d98934fa7ce231b2cd5dfddab52a1c1517bbe96c5cc2bfb0309`. The retained new test attempt reports 14 passing methods. Its guards prohibit generator, response, policy, update, subprocess and filesystem calls during assembly.
+
+The helper validates the exact original proposal and all 24 supplied world identities, graph structures, known noise variances and independent descriptor pins. It preserves realized coefficients without evaluating or selecting them. It maps execution aliases to the original proposal arm namespaces explicitly. The four numerical controls retain all 96 declared per-world seed bindings. Per-arm measurement namespaces remain distinct, while initial keys remain shared and separately charged.
+
+The existing paired-plan and campaign validators enforce eight ordered policies, fixed cross-world service identities, caller-owned command declarations and bounded timeouts. Each of the three persistent services declares 576 requests, sufficient for 24 worlds with at most 24 acquisitions each. All 192 cells, four regimes, three graphs and two cost strata remain present. The 1,536 initial logical units are included in the 6,144 total trajectory-unit ceiling, not an additional charge.
+
+Source and service pins authenticate supplied declarations only. The outer runner must independently bind actual source/runtime bytes, freeze and namespace admission, realized descriptor provenance, checkpoint roles, resource allocation and cleanup. In particular, an independently pinned service identity alone does not prove that the SFT or DPO checkpoint came from the prescribed training. The documentation and returned qualification flags make these limits explicit. No further source correction is required within this pure assembler's scope.
