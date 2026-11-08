@@ -1,6 +1,6 @@
 # Proposed artificial paired-campaign integration
 
-November 8, 2026. **Proposed plan only: not frozen, approved for execution, submitted, run or accepted.**
+November 8, 2026. **Proposed campaign, not yet frozen, submitted, run or accepted.** Routine bounded preparation is covered by the current user authorization. Concrete launcher qualification and resource admission still precede execution.
 
 Training GPU03, job 35379434, is now independently accepted with zero required defects. It completed fresh four-step SFT and two-step DPO training, both exact checkpoint reloads, ten legal generations and clean shutdown. Its acceptance is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. The two failed predecessors remain unchanged.
 
@@ -43,6 +43,22 @@ Implement one phase-aware outer driver with a pinned launch shim and saved-evide
 4. **Join dynamic service evidence to execution.** The old GPU service validator hard-codes four requests numbered 40–43. The new validator must reconcile world/task, episode decision index, session request ID/ordinal, envelope/prompt hash, raw tokens/completion, executor proposal and charged response. Verify one model load per service, task rebinding across worlds, unchanged model tensors and clean closure. No repeat-state service replay is needed.
 5. **Qualify only the new input/closure boundary.** Capture the additional campaign/numerical source closure and tokenize the new public inputs through `prepare_task_tokens`. The old `case0/case3/stress` preflight is not a campaign preflight. Preserve supervisor telemetry outside sealed policy-attempt inventories. Limit implementation validation to these new joins; do not reopen closed component suites.
 
+## New integration components
+
+The following new components connect the accepted training result to the proposed test. They do not constitute a complete launch packet.
+
+- `llm_intervention_artificial_campaign.py` builds the exact two supplied systems and eight-policy roster. It returns detached plans, fixed numerical bindings and private analytical query means without drawing a response. A distinct source review found no required changes.
+- `llm_intervention_campaign_launch.py` keeps the campaign command fixed while a later supervisor supplies the authenticated node-local runtime stage. Its separate review accepts this narrow consistency check. Archive execution, the Slurm allocation, inherited environment and whole-process supervision remain outer obligations.
+- `llm_intervention_campaign_training_lineage.py` binds the accepted GPU03 run to the four-update SFT and six-update final adapters. Each service must use the original checkpoint receipt hash for its adapter receipt field. The outer acceptance hash is a separate link. A distinct review found no required changes, and one new byte-only admission passed on the accepted originals without loading tensors.
+- `llm_intervention_campaign_cpu_phase.py` couples one matched numerical fit, fixed final-ranker deployment, complete campaign freezing, four fabricated tokenization shape probes and all five CPU controls. It preserves failed arms and prevents them from being treated as successful CPU admission. Its independent component review found no required fixes. A real captured-runtime wrapper remains necessary.
+- `llm_intervention_campaign_service_evidence.py` joins variable-length trajectories across both systems to captured requests, generations, proposals and charged returns. Its separate static review found no required fixes. Failed and unresolved sessions remain evidence-only results. Token decoding and actual source/runtime/training/scheduler admission remain outer obligations.
+
+The CPU shape probes use labelled fabricated zero-valued histories. They are not simulator observations or bounds on every possible adaptive prompt. Actual service calls retain the original token limits and must fail without truncation or repair if a prompt exceeds them.
+
+New launch tests use mocked `exec`, lineage tests use fabricated pins, and CPU-phase tests use fake fitting, tokenization and policy calls. Their passes do not establish target execution. The builder's test-development failures and final eleven-method pass are retained in a retrospective transcript record. Historical test source-time hashes and CPU measurements were not recorded and must not be invented. No completed component suite is repeated.
+
+The remaining critical work is a concrete captured-source CPU/GPU launcher, independent admission of retained CPU attempts, authenticated numerical-policy child commands, exact new service freezes and resource contracts, actual CPU preparation, then one bounded GPU campaign and private finalization. The final packet must bind every new interface and its dependencies. These additions do not alter any accepted artifact or the archived paper.
+
 ## Execution sequence after training acceptance
 
 **CPU first.** Authenticate the complete saved collection terminal, inventory, records and supervision receipts; the exact exposure; accepted tokenized plan; and accepted GPU03 training outputs. Reuse all four records, four SFT exposures, two selected DPO pairs, two unused strict pairs and two ties. No collection rerun or replacement examples.
@@ -70,14 +86,14 @@ The outer acceptance links collection → exposure → tokenized plan → succes
 | Phase | Initial bounded request |
 |---|---|
 | CPU preparation, ranker and numerical arms | 2 CPUs, 7,680 MiB, 600 seconds, zero GPU |
-| Three sequential LLM services | One A100 `3g.20gb` slice, 4 requested/max 8 allocated CPUs, 12 GiB, 600 seconds |
+| Three sequential LLM services | One A100 `3g.20gb` slice, 4 requested/max 8 allocated CPUs, 16 GiB, 600 seconds |
 | CPU finalization, if separately scheduled | 2 CPUs, 7,680 MiB, 300 seconds, zero GPU |
 
-The CPU memory proposal provides room above prior near-6-GiB batch peaks for ranker/subprocess work without another CPU. GPU14 measured approximately 3.26 GB reserved GPU memory. GPU03 measured 3.278 GB reserved and 95.05% of its 12 GiB host-memory limit. The latter includes runtime staging and constrains any wider campaign host-memory projection. Use accepted GPU03 measurements and the new CPU timings to finalize the projection. One sequential GPU slice is sufficient as the starting bound; no multi-GPU allocation is justified.
+The CPU memory proposal provides room above prior near-6-GiB batch peaks for ranker/subprocess work without another CPU. GPU14 measured approximately 3.26 GB reserved GPU memory. GPU03 measured 3.278 GB reserved and 95.05% of its 12 GiB host-memory limit. The latter includes runtime staging. The campaign also keeps a host SCM/controller alive beside each model process. Request 16 GiB host memory to provide margin above that measured near-limit run. This changes neither GPU count nor the CPU/GPU time reservation. Use the new CPU timings to check the projection before launch. One sequential GPU slice is sufficient as the starting bound; no multi-GPU allocation is justified.
 
 Proposed account is `ucb736_asc2`, CPU partition/QOS `acpu/cpu-normal`, GPU `aa100/gpu-testing`, with no requeue. Proposed exclusive output is `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_01`. Reconcile actual current jobs, existing controller locks, journals, account and slice availability before any once-only submission.
 
-Retain the 240-second first-verified-work limit, 90-second progress/telemetry guard, and cleanup margin inside the GPU cap. Size session admission for three services rather than copying the old two-session deadline assumption. Require positive CUDA work and advancing generation records together with independent owned-GPU-process evidence for every service. Record staging, model loading, inference, adaptive CPU work and final-output timestamps. Missing utilization percentages remain unknown, not proof of idleness or high utilization. Diagnose sustained CPU-only occupancy promptly and stop only owned work when safe, preserving evidence.
+Retain the 240-second first-verified-work limit, 90-second progress/telemetry guard, and cleanup margin inside the GPU cap. Size session admission for three services rather than copying the old two-session deadline assumption. Saved GPU14 phases measured 19.73 and 18.00 seconds for its two four-generation services. The new maximum is eight decisions per service. Proposed per-service startup/total limits are 120/180 seconds, with client startup 125 seconds, request timeout 35 seconds and cleanup 5 seconds. These are conservative integration caps, not a promise of completion. Require positive CUDA work and advancing generation records together with independent owned-GPU-process evidence for every service. Record staging, model loading, inference, adaptive CPU work and final-output timestamps. Missing utilization percentages remain unknown, not proof of idleness or high utilization. Diagnose sustained CPU-only occupancy promptly and stop only owned work when safe, preserving evidence.
 
 The proposed caps add at most **6,600 allocated CPU-seconds and 600 GPU-slice-seconds** if all three phases use the stated scheduler bounds. Recompute cumulative admission before submission; preserve the existing preparation allowance. Compare requested versus observed allocation, memory, throughput and elapsed time after this gate before considering scientific scale-up.
 
