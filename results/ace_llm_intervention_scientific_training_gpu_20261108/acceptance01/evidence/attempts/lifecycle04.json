@@ -1,0 +1,83 @@
+{
+  "allocated_cpu_seconds": 3616,
+  "child_start_seconds": 37.55466944165528,
+  "cleanup": {
+    "errors": [],
+    "group_still_exists": false,
+    "kill_sent": false,
+    "leader_returncode": 0,
+    "pgid": 4024569,
+    "term_sent": false
+  },
+  "cuda_first_forward_ms": 249.9192657470703,
+  "first_verified_gpu_seconds": 51.48111977567896,
+  "gpu_samples": 698,
+  "gpu_slice_seconds": 904,
+  "gpu_utilization_percentage": null,
+  "job_id": "35420219",
+  "major_phases": [
+    {
+      "elapsed_seconds": 3.1204639319330454,
+      "phase": "service_cpu_import_start",
+      "process_cpu_seconds": 1.175936775,
+      "utc": "2026-11-08T17:02:03Z"
+    },
+    {
+      "elapsed_seconds": 9.933761551044881,
+      "phase": "service_cpu_import_complete",
+      "process_cpu_seconds": 7.837855791,
+      "utc": "2026-11-08T17:02:10Z"
+    },
+    {
+      "dpo_steps": 119,
+      "elapsed_seconds": 13.996603585779667,
+      "phase": "training_start",
+      "process_cpu_seconds": 11.46976098,
+      "sft_steps": 160,
+      "training_plan_sha256": "d64c98463b8ae188c1dcea48496f4339affd10dbb8529ba587df408ef9c8c457",
+      "utc": "2026-11-08T17:02:14Z"
+    },
+    {
+      "completed_steps": 279,
+      "elapsed_seconds": 305.68097267486155,
+      "phase": "training_complete",
+      "process_cpu_seconds": 257.464824195,
+      "training_plan_sha256": "d64c98463b8ae188c1dcea48496f4339affd10dbb8529ba587df408ef9c8c457",
+      "utc": "2026-11-08T17:07:06Z"
+    },
+    {
+      "checkpoint": "sft",
+      "elapsed_seconds": 583.6099371029995,
+      "generation_count": 161,
+      "new_training_updates": 0,
+      "phase": "checkpoint_inference_complete",
+      "process_cpu_seconds": 512.8152121449999,
+      "reload_scores_exact": true,
+      "utc": "2026-11-08T17:11:44Z"
+    },
+    {
+      "checkpoint": "final",
+      "elapsed_seconds": 848.009149950929,
+      "generation_count": 161,
+      "new_training_updates": 0,
+      "phase": "checkpoint_inference_complete",
+      "process_cpu_seconds": 733.528000828,
+      "reload_scores_exact": true,
+      "utc": "2026-11-08T17:16:08Z"
+    }
+  ],
+  "max_conservative_gpu_freshness_age_seconds": 4.010276287794113,
+  "max_conservative_progress_age_seconds": 31.700669353362173,
+  "max_owned_process_memory_mib": 3404.0,
+  "max_sample_interval_seconds": 4.011829473078251,
+  "maxrss_bytes": 74203136,
+  "outer_elapsed_seconds": 895.7095277318731,
+  "positive_owned_memory_samples": 686,
+  "post_exit_owned_gpu_processes": 0,
+  "progress_snapshots": 685,
+  "runtime_directory_deletion_verified": false,
+  "slurm_elapsed_seconds": 904,
+  "stage_elapsed_seconds": 35.02711714664474,
+  "status": "verified_saved_lifecycle_gpu_and_scheduler",
+  "wall_seconds": 0.20631420799999997
+}
