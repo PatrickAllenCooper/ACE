@@ -1,0 +1,222 @@
+--- reviewed-gpu/launch_once.py
++++ scientific-finalizer/launch_once.py
+@@ -1,4 +1,4 @@
+-"""Once-only scientific GPU campaign launcher; accepted CPU campaign, no registry mutation.
++"""Once-only scientific finalizer launcher; accepted complete GPU campaign, no registry mutation.
+ Requires accepted actual CPU preparation, full actual baseline and reviewed packet.
+ """
+ from pathlib import Path
+@@ -27,7 +27,7 @@
+         if source is not None:result['python_source']=source
+         save(name,result);b.need(result['returncode']==0,'retained failed/ambiguous transport; no retry: '+name)
+         return result
+-    def remote(name,source):return b.decode(transport(name,['bash',HELPER,'run','python3 -'],source=source,timeout=55)['stdout'])
++    def remote(name,source):return b.decode(transport(name,['bash',HELPER,'run','python3 -'],source=source,timeout=305)['stdout'])
+     try:
+         for name in ('ace-delivery-controller.lock','ace-foundation-controller.lock'):
+             path=b.BASE/name;b.need(path==path.resolve(),'coordinator lock alias')
+@@ -39,15 +39,15 @@
+         b.need(Path(__file__).resolve()==local/'launch_once.py','use committed concrete launcher only')
+         packet_raw=b.read(local/'packet.json',a.packet_sha256);packet=b.decode(packet_raw)
+         b.need(packet['schema']==b.OUTER_VERSION
+-            and packet['resources']==b.RESOURCES and packet['limits']==b.LIMITS,
++            and packet['resources']==b.RESOURCES and packet['deadlines']==b.DEADLINES,
+             'exact frozen scientific campaign packet required')
+         pins={**packet['new_input_files'],'packet.json':a.packet_sha256}
+         b.need(all(type(n) is str and not Path(n).is_absolute() and '..' not in Path(n).parts and b.pin(h)
+             for n,h in pins.items()),'safe pinned packet membership required')
+         supplied={name:b.read(local/(b.metadata_name(name)),
+-            pins[b.metadata_name(name)]) for name in b.METADATA}
++            pins[b.metadata_name(name)],256*1024**2) for name in b.METADATA}
+         ctx=b.authenticate(supplied);m=ctx['metadata']
+-        cpu_data=b.admit_cpu_bytes(ctx,Path(packet['cpu_remote_custody']))
++        gpu_data=b.admit_gpu_bytes(ctx,packet['gpu_terminal_custody'],packet['gpu_terminal_mirror'])
+         b.need(local==b.LOCAL and packet['source_commit']==b.SOURCE_COMMIT and packet['remote_root']==b.ROOT,
+             'amended frozen packet roots/source differ')
+         b.need(not any(os.path.lexists(dest/name) for dest in (b.LOCAL,b.EXT) for name in
+@@ -60,38 +60,41 @@
+         review=Path(a.packet_review).absolute();review_raw=b.read(review,a.packet_review_sha256)
+         b.need(review_raw.strip() and review_raw==b.committed(a.packet_commit,str(review.relative_to(b.REPO))),
+                'committed independently pinned packet review required')
+-        b.need(packet['baseline_sha256']==ctx['pins']['cpu-baseline'] and packet['cpu_job_id']==m['cpu-acceptance']['job_id']
++        b.need(packet['baseline_sha256']==ctx['pins']['gpu-baseline'] and packet['gpu_job_id']==m['gpu-acceptance']['job_id'] and packet['gpu_acceptance_sha256']==ctx['pins']['gpu-acceptance']
+                and packet['operational_amendment_sha256']==ctx['pins']['operational-amendment']
+                and packet['namespace_claim_sha256']==ctx['pins']['namespace-claim'],'accepted baseline/namespace differs')
+         claim_pin=ctx['pins']['namespace-claim']
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local claim changed; never recreate')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+         stage=b.decode(b.read(b.LOCAL/'inputs/packet.json',pins['inputs/packet.json']))
+-        expected,data,_=b.make_packet(ctx,cpu_data,supplied)
++        expected,data,bootstrap=b.make_packet(ctx,gpu_data,supplied)
+         for name,value in data.items():
+             b.need(b.read(local/'inputs'/name,stage['files'][name],256*1024**2)==value,'reconstructed exact source/input bytes differ')
+-        b.need(packet['gpu_packet_sha256']==b.sha(b.raw(expected)), 'outer/inner GPU packet join differs')
++        b.need(packet['finalizer_packet_sha256']==b.sha(b.raw(expected)), 'outer/inner finalizer packet join differs')
+         b.need(b.raw(stage)==b.raw(expected),'captured campaign input/resource contract differs')
+-        b.need(b.read(b.LOCAL/'inputs/admission.json',pins['inputs/admission.json'])==b.raw(b.admission(ctx,stage)), 'stage admission differs')
+-        b.need(packet['original_cpu_inputs']==ctx['upstream_pins'],'complete original CPU input pins differ')
+-        context=dict(root=b.ROOT,registry=b.REMOTE_REGISTRY,pins=pins,baseline=m['cpu-baseline'],
++        b.need(b.read(local/'job.sbatch',pins['job.sbatch'])==b.job_script(ctx,stage,bootstrap),'exact finalizer job/bootstrap differs')
++        b.need(packet['admission']==b.budget(m['gpu-baseline']) and packet['prior_jobs']==46 and packet['prior_journals']==94
++               and packet['worlds']==24 and packet['cells']==192 and packet['comparisons']==28
++               and packet['paths']==stage['paths'],'actual finalizer admission/reporting envelope differs')
++        b.need(packet['original_input_pins']==ctx['upstream_pins'],'complete original upstream byte pins differ')
++        b.need(packet['upstream_rosters']==ctx['upstream_rosters'], 'complete original custody rosters differ')
++        context=dict(root=b.ROOT,registry=b.REMOTE_REGISTRY,pins=pins,baseline=m['gpu-baseline'],
+             archive=m['cpu-packet']['archive'],manifest=m['cpu-packet']['manifest'],namespace_claim_sha256=claim_pin,
+-            cpu_inputs=ctx['upstream_pins'],model_directory=m['cpu-packet']['model_directory'],model_files=m['cpu-packet']['model_files'],
+-            original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+-            cpu_root=b.CPU_ROOT,cpu_roster={n.removeprefix('launch/'):v['sha256'] for n,v in ctx['observations']['cpu']['files'].items() if n.startswith('launch/')})
++            original_inputs=ctx['upstream_pins'],upstream_rosters=ctx['upstream_rosters'],
++            original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA)
+         common='C='+repr(context)+'\n'+REMOTE_COMMON
+         save('controller.json',dict(pid=os.getpid(),utc=b.utc(),held=[str(b.BASE/n) for n in
+             ('ace-delivery-controller.lock','ace-foundation-controller.lock')]));started=True
+         ready=remote('readiness_transport.json',common+r'''
+ need(root.parent==root.parent.resolve() and root.parent.stat().st_uid==os.getuid(),'scratch parent differs')
+-need(not os.path.lexists(root) and not list(root.parent.glob('ace_llm_intervention_scientific_campaign_gpu*')),
+-     'existing campaign GPU root; no adoption/retry')
++need(not os.path.lexists(root) and not list(root.parent.glob('ace_llm_intervention_scientific_finalization*')),
++     'existing scientific finalization root; no adoption/retry')
+ r=reconcile()
+ root.mkdir(mode=0o700);(root/'logs').mkdir(mode=0o700);(root/'inputs').mkdir(mode=0o700)
+ probe=root/'write-read-probe'
+-with probe.open('xb') as f:f.write(b'ACE scientific GPU campaign readiness\n');f.flush();os.fsync(f.fileno())
+-need(read(probe)==b'ACE scientific GPU campaign readiness\n','scratch readback differs');probe.unlink()
+-fs=os.statvfs(root);need(fs.f_bavail*fs.f_frsize>=4*1024**3,'scratch output headroom insufficient')
++with probe.open('xb') as f:f.write(b'ACE scientific finalization readiness\n');f.flush();os.fsync(f.fileno())
++need(read(probe)==b'ACE scientific finalization readiness\n','scratch readback differs');probe.unlink()
++fs=os.statvfs(root);need(fs.f_bavail*fs.f_frsize>=10*1024**3,'scratch output headroom insufficient')
+ r['scratch']=dict(uid=root.stat().st_uid,free_bytes=fs.f_bavail*fs.f_frsize,write_read_cleanup=True,df=run(['df','-h',str(root)]))
+ write(root/'readiness.json',r);print(json.dumps(r))
+ ''')
+@@ -106,17 +109,18 @@
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+         intent=dict(utc=b.utc(),packet_commit=a.packet_commit,source_commit=b.SOURCE_COMMIT,
+             packet_sha256=a.packet_sha256,review_sha256=a.packet_review_sha256,pins=pins,remote_root=b.ROOT,
+-            baseline_sha256=ctx['pins']['cpu-baseline'],cpu_acceptance_sha256=ctx['pins']['cpu-acceptance'],
+-            cpu_job_id=m['cpu-acceptance']['job_id'],existing_namespace_claim_sha256=claim_pin,
++            baseline_sha256=ctx['pins']['gpu-baseline'],gpu_acceptance_sha256=ctx['pins']['gpu-acceptance'],
++            gpu_disposition_sha256=ctx['pins']['gpu-disposition'],gpu_custody_inventory_sha256=ctx['pins']['gpu-custody-inventory'],
++            gpu_job_id=m['gpu-acceptance']['job_id'],existing_namespace_claim_sha256=claim_pin,
+             namespace_admission_sha256=ctx['pins']['namespace-admission'],
+             recovery_authority_sha256=ctx['pins']['recovery-authority'],original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+-            resources=b.RESOURCES,limits=b.LIMITS,admission=packet['admission'],
++            resources=b.RESOURCES,deadlines=b.DEADLINES,admission=packet['admission'],
+             blind_retry_forbidden=True,new_namespace_claimed=False,replacement_worlds=False)
+         save('submission.intent.json',intent)
+         result=remote('submission_transport.json',common+'\nintent='+repr(intent)+
+             '\nREADINESS_SHA='+repr(b.sha(b.raw(ready)))+r'''
+ need(not os.path.lexists(root/'submission.intent.json') and not os.path.lexists(root/'submission.result.json')
+-     and not os.path.lexists(root/'gpu'),'existing GPU campaign attempt')
++     and not os.path.lexists(root/'finalization'),'existing finalization attempt')
+ need(sha(read(root/'readiness.json'))==READINESS_SHA,'original readiness differs')
+ fresh=reconcile();verify()
+ intent.update(remote_utc=utc(),fresh_readiness=fresh)
+@@ -154,7 +158,7 @@
+ import pathlib,json,hashlib,subprocess,datetime,os,stat,re,signal
+ os.umask(0o077)
+ def remote_deadline(signum,frame):raise TimeoutError('absolute remote coordinator deadline')
+-signal.signal(signal.SIGALRM,remote_deadline);signal.alarm(48)
++signal.signal(signal.SIGALRM,remote_deadline);signal.alarm(300)
+ root=pathlib.Path(C['root']); registry=pathlib.Path(C['registry'])
+ def need(ok,message):
+  if not ok:raise RuntimeError(message)
+@@ -223,33 +227,25 @@
+  need(all(r[2].split()[0] in ('COMPLETED','FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL') for r in rows),
+       'nonterminal historical job')
+  need(cost(rows)==(C['baseline']['closed_cpu_seconds'],C['baseline']['closed_gpu_slice_seconds']),'closed costs changed')
+- need(C['baseline']['closed_cpu_seconds']+17520<=57600 and C['baseline']['closed_gpu_slice_seconds']+2880<=7200,'full remaining GPU/finalizer caps exceed budget')
++ need(C['baseline']['closed_cpu_seconds']+6000<=57600 and C['baseline']['closed_gpu_slice_seconds']<=7200,'full finalizer cap exceed budget')
+  journals={str(p):sha(read(p)) for d in root.parent.glob('ace_llm_intervention*')
+            for p in d.glob('submission.*.json')}
+  need(len(journals)==C['baseline']['submission_journals'] and journals==C['baseline']['journal_pins'],
+       'exact full prior journal inventory changed')
+- partition=run(['scontrol','show','partition','aa100','-o'])
++ partition=run(['scontrol','show','partition','acpu','-o'])
+  fields=dict(x.split('=',1) for x in partition.split() if '=' in x)
+- need(fields.get('PartitionName')=='aa100' and fields.get('State')=='UP' and
+-      fields.get('MaxMemPerCPU')=='3840' and duration(fields.get('MaxTime',''))>=2880,
+-      '4CPU/15360M/2880s partition feasibility changed')
+- need(allows(fields.get('AllowAccounts',''),'ucb736_asc2') and allows(fields.get('AllowQos',''),'gpu-testing')
+-      and 'ucb736_asc2' not in fields.get('DenyAccounts','').split(',')
+-      and 'gpu-testing' not in fields.get('DenyQos','').split(','),'partition admission changed')
+- assoc=run(['sacctmgr','-n','-P','show','assoc','where','account=ucb736_asc2','user=paco0228',
+-            'format=Cluster,Account,User,Partition,MaxJobs,QOS'])
++ need(fields.get('PartitionName')=='acpu' and fields.get('State')=='UP' and fields.get('MaxMemPerCPU')=='3840'
++      and duration(fields.get('MaxTime',''))>=1200,'2CPU7680M1200s partition feasibility changed')
++ need(allows(fields.get('AllowAccounts',''),'ucb736_asc2') and allows(fields.get('AllowQos',''),'cpu-normal')
++      and 'ucb736_asc2' not in fields.get('DenyAccounts','').split(',') and 'cpu-normal' not in fields.get('DenyQos','').split(','),
++      'partition account/QoS admission differs')
++ assoc=run(['sacctmgr','-n','-P','show','assoc','where','account=ucb736_asc2','user=paco0228','format=Cluster,Account,User,Partition,MaxJobs,QOS'])
+  ar=[l.split('|') for l in assoc.splitlines() if l.strip()]
+- need(len(ar)==1 and ar[0][:3]==['alpine','ucb736_asc2','paco0228'] and ar[0][3] in ('','aa100')
+-      and ar[0][4]!='0' and 'gpu-testing' in ar[0][5].split(','),'account GPU QoS differs')
+- qos=run(['sacctmgr','-n','-P','show','qos','where','name=gpu-testing','format=Name,MaxWall,MaxTRESPU'])
++ need(len(ar)==1 and ar[0][:3]==['alpine','ucb736_asc2','paco0228'] and ar[0][3] in ('','acpu')
++      and ar[0][4]!='0' and 'cpu-normal' in ar[0][5].split(','),'account CPU QoS differs')
++ qos=run(['sacctmgr','-n','-P','show','qos','where','name=cpu-normal','format=Name,MaxWall'])
+  qr=[l.split('|') for l in qos.splitlines() if l.strip()]
+- need(len(qr)==1 and qr[0][0]=='gpu-testing' and (qr[0][1]=='' or duration(qr[0][1])>=2880),
+-      'live QoS wall insufficient')
+- limits=dict(part.split('=',1) for part in qr[0][2].split(',') if '=' in part)
+- cap=limits.get('gres/gpu:a100_3g.20gb')
+- need(cap is not None and cap.isdigit() and int(cap)>=1,'live QoS MIG cap unavailable/inadequate')
+- gpu_types=run(['sinfo','-p','aa100','-h','-o','%G'])
+- need('gpu:a100_3g.20gb:' in gpu_types,'required20GB MIG type unavailable')
++ need(len(qr)==1 and qr[0][0]=='cpu-normal' and (qr[0][1]=='' or duration(qr[0][1])>=1200),'live CPU QoS wall insufficient')
+  manifest=pathlib.Path(C['manifest']['path']);archive=pathlib.Path(C['archive']['path'])
+  need(sha(read(manifest))==C['manifest']['sha256'],'accepted runtime manifest changed')
+  st=archive.lstat()
+@@ -257,35 +253,28 @@
+       'accepted archive metadata changed')
+  need(sha(read(registry))==C['namespace_claim_sha256'],'existing accepted namespace claim changed')
+  need(sha(read(C['original_registry']))==C['original_namespace_claim_sha256'],'preserved original namespace changed')
+- cpu_root=pathlib.Path(C['cpu_root'])
+- need(cpu_root.is_dir() and cpu_root==cpu_root.resolve(),'original CPU root alias/missing')
+- members=list(cpu_root.rglob('*'))
+- need(len(members)<=262144 and not any(p.is_symlink() for p in members),'bounded ordinary CPU custody required')
+- need({str(p.relative_to(cpu_root)) for p in members if p.is_file()}==set(C['cpu_roster']),'complete original CPU custody roster changed')
+- for path,h in C['cpu_inputs'].items():
+-  need(sha(read(path,allow_hardlink=True))==h,'accepted CPU input changed: '+path)
+- model=pathlib.Path(C['model_directory'])
+- need(model==model.resolve() and model.is_dir(),'frozen model directory alias')
+- model_verified={}
+- for name,expected in C['model_files'].items():
+-  path=model/name
+-  need(path.name==name and not path.is_symlink(),'ordinary exact model member required')
+-  h=hashlib.sha256()
+-  with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
+-   before=os.fstat(f.fileno());need(stat.S_ISREG(before.st_mode),'regular model bytes required')
+-   for block in iter(lambda:f.read(1024**2),b''):h.update(block)
+-   after=os.fstat(f.fileno())
+-  need((before.st_ino,before.st_size,before.st_mtime_ns)==(after.st_ino,after.st_size,after.st_mtime_ns)
+-       and h.hexdigest()==expected,'frozen model bytes differ')
+-  model_verified[name]=expected
++ for original,expected in C['upstream_rosters'].items():
++  tree=pathlib.Path(original)
++  need(tree.is_dir() and tree==tree.resolve(),'original root alias/missing')
++  members=list(tree.rglob('*'))
++  need(len(members)<=262144 and not any(p.is_symlink() for p in members),'bounded ordinary complete custody required')
++  need({str(p.relative_to(tree)) for p in members if p.is_file()}==set(expected['files'])
++       and sorted(str(p.relative_to(tree)) for p in members if p.is_dir())==expected['directories'],
++       'complete original file/directory roster changed')
++  need(all(p.is_file() or p.is_dir() for p in members),'special upstream file forbidden')
++ for path,h in C['original_inputs'].items():
++  need(sha(read(path,allow_hardlink=True))==h,'original accepted byte changed: '+path)
+  return dict(utc=utc(),queue=queue,related_accounting=rows,journal_pins=journals,
+-             partition=partition,association=assoc,qos=qos,gpu_types=gpu_types,model_files=model_verified,manifest_sha256=C['manifest']['sha256'],
++             partition=partition,association=assoc,qos=qos,manifest_sha256=C['manifest']['sha256'],
+              archive_size=st.st_size,archive_byte_check='allocated stage authenticates full bytes before execution',
+              existing_namespace_claim_sha256=C['namespace_claim_sha256'],
+              original_namespace_claim_sha256=C['original_namespace_claim_sha256'],
+              closed_cpu_seconds=C['baseline']['closed_cpu_seconds'],closed_gpu_slice_seconds=C['baseline']['closed_gpu_slice_seconds'],
+-             cpu_reserved_total=C['baseline']['closed_cpu_seconds']+15120,gpu_reserved_total=C['baseline']['closed_gpu_slice_seconds']+2880)
++             cpu_reserved_total=C['baseline']['closed_cpu_seconds']+6000,gpu_reserved_total=C['baseline']['closed_gpu_slice_seconds'])
+ def verify():
++ need(root.is_dir() and root==root.resolve() and root.stat().st_uid==os.getuid(),'exclusive owned scratch root changed')
++ fs=os.statvfs(root);need(fs.f_bavail*fs.f_frsize>=10*1024**3,'fresh scratch headroom insufficient')
++ need(not os.path.lexists(root/'finalization'),'existing finalizer output; no retry')
+  for name,h in C['pins'].items():need(sha(read(root/name))==h,'remote pin differs: '+name)
+  return dict(utc=utc(),verified=C['pins'])
+ '''

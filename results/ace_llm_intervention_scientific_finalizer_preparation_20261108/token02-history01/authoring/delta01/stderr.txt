@@ -1,0 +1,48 @@
+test_collector48_98_failed_charge_preserves47_history (__main__.NewFinalizerHistory) ... ok
+test_failed43_splice_all_successors_and_exact_final_budget (__main__.NewFinalizerHistory) ... ok
+test_finalizer_child_job_and_monitor_unchanged_by_history (__main__.NewFinalizerHistory) ... ok
+test_finalizer_resource_profile_and_partial_retention (__main__.NewFinalizerHistory) ... ok
+test_full_root_history_and_empty_directory_retention (__main__.NewFinalizerHistory) ... ok
+test_new_producer_aliases_and_exact_recovery_object (__main__.NewFinalizerHistory) ... ok
+test_only_private_surface_append_and_original_bytes_preserved (__main__.NewFinalizerHistory) ... ok
+test_stream_eight_roots_and_two_independent_private_copies (__main__.NewFinalizerHistory) ... ERROR
+test_whole_nested_failure_archive_required (__main__.NewFinalizerHistory) ... ERROR
+
+======================================================================
+ERROR: test_stream_eight_roots_and_two_independent_private_copies (__main__.NewFinalizerHistory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/ace-scientific-finalizer-token02-8wf1foat/test_history_transport_delta.py", line 137, in test_stream_eight_roots_and_two_independent_private_copies
+    actual,_=c.stream_transfer(before,observe=lambda _:copy.deepcopy(before),save=save,helper=helper,helper_source=helper_source,external=external,local=local,copy_file=c.copy_file)
+  File "/private/tmp/ace-scientific-finalizer-token02-8wf1foat/collector/pull_terminal.py", line 161, in stream_transfer
+    helper.capture(command,request,attempt,1800)
+  File "/tmp/ace-scientific-finalizer-token02-8wf1foat/test_history_transport_delta.py", line 129, in capture
+    with (attempt/'archive.tar').open('xb') as f:emitted=h.emit(c.decode(request),f)
+  File "/private/tmp/ace-scientific-finalizer-token02-8wf1foat/collector/stream_custody.py", line 212, in emit
+    expected, before, paths = scan(request)
+  File "/private/tmp/ace-scientific-finalizer-token02-8wf1foat/collector/stream_custody.py", line 182, in scan
+    walk(Path(path), label)
+  File "/private/tmp/ace-scientific-finalizer-token02-8wf1foat/collector/stream_custody.py", line 162, in walk
+    with plain_open(path, directory=True) as fd:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 117, in __enter__
+    return next(self.gen)
+  File "/private/tmp/ace-scientific-finalizer-token02-8wf1foat/collector/stream_custody.py", line 124, in plain_open
+    nxt = os.open(part, flags, dir_fd=fd)
+NotADirectoryError: [Errno 20] Not a directory: 'tmp'
+
+======================================================================
+ERROR: test_whole_nested_failure_archive_required (__main__.NewFinalizerHistory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/ace-scientific-finalizer-token02-8wf1foat/test_history_transport_delta.py", line 90, in test_whole_nested_failure_archive_required
+    tree=dict(files=files,directories=['kept']+['kept/'+n for n in view['directories']]);b.nested_failure_capsule(ctx,tree)
+  File "/private/tmp/ace-scientific-finalizer-token02-8wf1foat/build_packet.py", line 678, in nested_failure_capsule
+    need(observed==views[0],'nested original failure capsule bytes/directories differ')
+  File "/private/tmp/ace-scientific-finalizer-token02-8wf1foat/build_packet.py", line 79, in need
+    if not ok: raise ValueError(message)
+ValueError: nested original failure capsule bytes/directories differ
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.081s
+
+FAILED (errors=2)
