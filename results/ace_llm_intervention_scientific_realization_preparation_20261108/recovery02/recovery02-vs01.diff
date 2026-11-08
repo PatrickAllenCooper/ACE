@@ -1,0 +1,718 @@
+--- predecessor01/build_packet.py
++++ recovery02/build_packet.py
+@@ -1,4 +1,4 @@
+-"""Build FIRST scientific realization packet only after independent freeze adoption.
++"""Build explicit pre-draw recovery02 realization packet only after independent freeze adoption.
+ 
+ No scientific imports, draws, environment calls, runtime staging or submission.
+ All output directories are exclusive; an interrupted build is retained, not resumed.
+@@ -15,19 +15,33 @@
+ import shlex
+ import stat
+ import subprocess
++import fcntl
+ 
+ REPO = Path('/Users/pat/code/ACE')
+ BASE = Path('/Users/pat/ACE_Study_Results/2026-10-peter-baseline')
+-LOCAL = REPO/'results/ace_llm_intervention_scientific_realization_20261108/launch01'
+-EXT = BASE/'ACE-LLM-intervention-scientific-realization-20261108-01'
+-ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_realization_20261108_01'
+-LOCAL_REGISTRY = BASE/'ACE-LLM-intervention-scientific-screen-20261107.namespace.json'
+-REMOTE_REGISTRY = str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace.json')
++LOCAL = REPO/'results/ace_llm_intervention_scientific_realization_20261108/launch02'
++EXT = BASE/'ACE-LLM-intervention-scientific-realization-20261108-02'
++ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_realization_20261108_02'
++LOCAL_REGISTRY = BASE/'ACE-LLM-intervention-scientific-screen-20261107.namespace-recovery02.json'
++REMOTE_REGISTRY = str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace-recovery02.json')
++OLD_ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_realization_20261108_01'
++OLD_LOCAL_REGISTRY = BASE/'ACE-LLM-intervention-scientific-screen-20261107.namespace.json'
++OLD_REMOTE_REGISTRY = str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace.json')
++OLD_CLAIM_SHA = '58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29'
++OLD_FREEZE_SHA = '57a3e6dd27ded5cec007be235b799a2bec711fc2c5630ff16fef87d74273cd28'
++FAILURE_SHA = '5da56ce061706f29a23c9a37a898bcbac128d16421f6cfd30731655208021a8d'
++NO_DRAW_SHA = '5fb94f9d07da3acd25c979250471037e8981066e0b201716f8c32d0b681fb9ef'
++FAILED_JOB = '35402725'
++SOURCE_CHANGES = {'scripts/research/'+n for n in (
++    'supervise_llm_intervention_scientific_cpu.py','collect_llm_intervention_scientific_training_cpu.py',
++    'prepare_llm_intervention_scientific_campaign_cpu.py','qualify_llm_intervention_scientific_campaign_gpu.py')}
++RECOVERY_INPUTS = ('predecessor-freeze','failure-acceptance','no-draw-proof','failure-inventory','failure-readback','recovery-authority')
++HELPER = '/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ ENTRY = 'supervise_llm_intervention_scientific_cpu.py'
+-ENTRY_SHA = '794fd63af304ad7093c943f57dece7668ddd6bd5102a8c5db55cea19ee5054f9'
++ENTRY_SHA = 'e5235f16dd17c72e0310004e7bd8df636008c789db8f793212d528fabfd587f8'
+ VERSION = 'ace-scientific-cpu-supervisor-v1'
+-BASELINE = REPO/'results/ace_llm_intervention_scientific_cpu_preparation_20261108/admission-baseline01/accounting.json'
+-BASELINE_SHA = 'c5eb497d133a803f12b92ff7af07420cf4856d24e174162b9f634c4e0e27631f'
++BASELINE = REPO/'results/ace_llm_intervention_scientific_realization_20261108/failure-acceptance01/accounting.json'
++BASELINE_SHA = '63cd36dfd9c0dcda4ef8ceec7b99d91ecfa696676cd1d99149256c6a0fdb3727'
+ PROPOSAL = 'results/ace_llm_intervention_screen_protocol_preparation_20261107/test-attempt01/fixtures/prospective-proposal.json'
+ PROPOSAL_SHA = '8e3214958f671dfee5ef0a2d7adc70e8f5cdc26edf0fbeff02e7925921ff13da'
+ PROPOSAL_SEMANTIC = '585536b1408054ecebc7b7bb0e80055fa153b5bc7a699d8f2927db25ee745ea8'
+@@ -115,7 +129,7 @@
+     return reference(name)
+ 
+ 
+-def validate_authority(freeze,review_raw,adoption,namespace,freeze_pin,review_pin,namespace_pin,revision,source_pins):
++def validate_authority(freeze,review_raw,adoption,namespace,freeze_pin,review_pin,namespace_pin,revision,source_pins,recovery):
+     # This is a projection of the full caller-owned freeze, not a replacement freeze.
+     need(type(freeze) is dict and freeze.get('schema')=='ace-first-trained-intervention-screen-contract-v1'
+          and freeze.get('source_commit')==revision and type(freeze.get('source_pins')) is dict,
+@@ -146,24 +160,141 @@
+         freeze_sha256=freeze_pin,proposal_sha256=PROPOSAL_SHA,proposal_semantic_sha256=PROPOSAL_SEMANTIC,
+         world_ids=WORLD_IDS,namespaces_from='exact original proposal bindings',
+         local_registry=str(LOCAL_REGISTRY),remote_registry=REMOTE_REGISTRY,realization_root=ROOT,
+-        retry_allowed=False,replacement_worlds=False)
++        retry_allowed=False,replacement_worlds=False,recovery_authority_sha256=recovery['authority_pin'],
++        original_namespace_claim_sha256=OLD_CLAIM_SHA,failed_job_id=FAILED_JOB)
+     need(raw(namespace)==raw(expected_namespace),'caller namespace descriptor differs')
+     expected_adoption=dict(schema='ace-scientific-contract-adoption-v1',status='adopted',
+         freeze_sha256=freeze_pin,review_sha256=review_pin,required_findings=0,adopted_before_first_draw=True)
+     need(raw(adoption)==raw(expected_adoption) and review_raw.strip(),'independent freeze review/adoption differs')
+ 
+ 
++def validate_recovery(supplied,freeze,freeze_pin,revision,baseline):
++    """Consume accepted failure/no-draw evidence; never rerun the audit or infer retry authority."""
++    need(set(RECOVERY_INPUTS)<=set(supplied),'explicit independently pinned recovery inputs required')
++    need(sha(supplied['predecessor-freeze'])==OLD_FREEZE_SHA and sha(supplied['failure-acceptance'])==FAILURE_SHA
++         and sha(supplied['no-draw-proof'])==NO_DRAW_SHA,'independent accepted failure/predecessor pins differ')
++    previous=decode(supplied['predecessor-freeze']);accepted=decode(supplied['failure-acceptance']);audit=decode(supplied['no-draw-proof'])
++    need(accepted['schema']=='ace-scientific-realization-failure-acceptance-v1'
++         and accepted['status']=='accepted_failed_before_draw' and accepted['job_id']==FAILED_JOB
++         and accepted['failure_accepted'] is True and accepted['realization_accepted'] is False
++         and type(accepted['required_findings']) is int and accepted['required_findings']==0
++         and accepted['complete_custody_verified'] is True and accepted['two_remote_inventories_matched'] is True
++         and accepted['original_inputs_and_claims_verified'] is True and accepted['scheduler_terminal_verified'] is True
++         and accepted['source_control_flow_and_traceback_verified'] is True
++         and accepted['scientific_worlds_generated']==accepted['environment_responses']==0
++         and all(accepted[n] is False for n in ('runtime_staging_started','owned_worker_spawned','realizer_called','output_directory_claimed'))
++         and accepted['namespace_claim_sha256']==OLD_CLAIM_SHA and accepted['freeze_sha256']==OLD_FREEZE_SHA
++         and accepted['audit_sha256']==NO_DRAW_SHA,'independent pre-draw failure acceptance differs')
++    need(audit['status']=='failure_custody_and_pre_draw_boundary_verified' and audit['job_id']==FAILED_JOB
++         and audit['scientific_worlds_generated']==audit['environment_responses']==0
++         and audit['realizer_call_reached'] is False and audit['source_commit']==accepted['source_commit'],
++         'independent source-bound no-draw proof differs')
++    need(baseline['failure_acceptance_sha256']==FAILURE_SHA and baseline['namespace_claim_preserved_sha256']==OLD_CLAIM_SHA
++         and baseline['terminal_jobs']==39 and baseline['submission_journals']==80
++         and baseline['closed_cpu_seconds']==11048 and baseline['closed_gpu_slice_seconds']==1601
++         and baseline['outstanding_reservation']==0 and baseline['automatic_retry_allowed'] is False,
++         'accepted failed attempt must remain in complete baseline')
++    files=freeze['source_pins'];old=previous['source_pins']
++    need(set(files)==set(old) and len(files)==67 and {n for n in files if files[n]!=old[n]}==SOURCE_CHANGES,
++         'exact four reviewed infrastructure deltas within unchanged67-source roster required')
++    need(files['scripts/research/'+ENTRY]==ENTRY_SHA and
++         files['scripts/research/collect_llm_intervention_scientific_training_cpu.py']==
++         '2bc872349f9fbfbafe1564b751cde899705f487f3bf822cce5518e0865bd9a4d',
++         'independently specified CPU/collection path corrections differ')
++    mutable={'utc','source_commit','source_pins','stage_closure','component_reviews','stages','admission_accounting',
++             'operational_recovery','infrastructure_amendment'}
++    need(set(freeze)-set(previous)<=mutable and all(raw(freeze.get(k))==raw(v) for k,v in previous.items() if k not in mutable),
++         'scientific contract/design/32+24/training/reporting fields changed')
++    old_stages={r['stage']:r for r in previous['stages']};new_stages={r['stage']:r for r in freeze['stages']}
++    need(len(new_stages)==len(freeze['stages']) and set(new_stages)==set(old_stages),'stage roster changed')
++    for key,row in old_stages.items():
++        expected=dict(row,entry_sha256=files['scripts/research/'+row['entry']])
++        if key=='realize':expected.update(remote_root=ROOT,exclusive_external_root=str(EXT))
++        need(raw(new_stages[key])==raw(expected),'non-infrastructure stage/resource change: '+key)
++    a=freeze['admission_accounting']
++    need(a['baseline_sha256']==BASELINE_SHA and a['closed_cpu_seconds']==11048 and a['closed_gpu_seconds']==1601
++         and a['prep_cpu_allowance']==3600 and a['new_reservations']==0
++         and a['max_projected_cpu_seconds']==11048+3600+sum(s['cpus']*s['wall_seconds'] for s in freeze['stages'])
++         and a['max_projected_gpu_seconds']==1601+sum(s['gpus']*s['wall_seconds'] for s in freeze['stages'])
++         and a['max_projected_cpu_seconds']<=57600 and a['max_projected_gpu_seconds']<=7200,
++         'successor accounting must retain actual failed cost and unchanged finite stages')
++    authority=decode(supplied['recovery-authority']);authority_pin=sha(supplied['recovery-authority'])
++    expected=dict(schema='ace-scientific-realization-recovery-authority-v1',status='authorized',recovery_id='realization02',
++        failed_job_id=FAILED_JOB,failure_acceptance_sha256=FAILURE_SHA,no_draw_proof_sha256=NO_DRAW_SHA,
++        predecessor_freeze_sha256=OLD_FREEZE_SHA,successor_freeze_sha256=freeze_pin,source_commit=revision,
++        original_namespace_claim_sha256=OLD_CLAIM_SHA,accounting_sha256=BASELINE_SHA,
++        original_root=OLD_ROOT,recovery_root=ROOT,local_recovery_registry=str(LOCAL_REGISTRY),remote_recovery_registry=REMOTE_REGISTRY,
++        one_submission_only=True,automatic_retry_allowed=False,replacement_worlds_allowed=False)
++    need(raw(authority)==raw(expected),'explicit one-attempt recovery authority required; failure eligibility is insufficient')
++    observations=[]
++    for key,receipt_name in (('failure-inventory','inventory_transport.json'),('failure-readback','inventory_after_transport.json')):
++        need(sha(supplied[key])==accepted['evidence_pins'][receipt_name],'accepted failure inventory transport pin differs')
++        transport=decode(supplied[key]);need(transport['returncode']==0,'accepted failure transport failed')
++        observed=decode(transport['stdout'])
++        need(observed['terminal_gate'] is True and observed['root_present'] is True and observed['namespace_present'] is True,
++             'complete terminal original raw custody required')
++        observations.append(observed)
++    before,after=observations
++    need(before['files']==after['files'] and before['directories']==after['directories']
++         and len(before['files'])==accepted['raw_files']==41
++         and sum(r['bytes'] for r in before['files'].values())==accepted['raw_bytes']
++         and before['files']['namespace.json']['sha256']==OLD_CLAIM_SHA,'complete authoritative41-file failed roster differs')
++    need(all(n=='namespace.json' or n.startswith('launch/') and '..' not in Path(n).parts for n in before['files']),
++         'unsafe failed custody path')
++    return dict(authority_pin=authority_pin,failed_files=before['files'],failed_directories=before['directories'],
++                acceptance=accepted,original_claim_sha256=OLD_CLAIM_SHA)
++
++
++def local_failed_custody(root,recovery):
++    """All raw files, not a prefix/sample; read only the already accepted failed custody."""
++    root=Path(root).resolve(strict=True);accepted=recovery['acceptance']
++    need(root in {Path(accepted[k]).resolve(strict=True) for k in ('repository_terminal_root','external_terminal_root')},
++         'accepted failed custody location required')
++    files={};directories=[]
++    for path in sorted((root/'remote').rglob('*')):
++        need(not path.is_symlink(),'failed custody alias forbidden')
++        name=path.relative_to(root/'remote').as_posix()
++        if path.is_dir():directories.append(name);continue
++        blob=read(path);files[name]=dict(bytes=len(blob),sha256=sha(blob))
++    need(files==recovery['failed_files'] and sorted(directories)==sorted(recovery['failed_directories']),
++         'all original failed raw bytes/directories required')
++    return read(root/'remote/namespace.json',OLD_CLAIM_SHA)
++
++
++def original_claim_remote_probe():
++    """Future BUILD invocation only: read physical original remote registry, never mutate it."""
++    code='PATH='+repr(OLD_REMOTE_REGISTRY)+'\nEXPECTED='+repr(OLD_CLAIM_SHA)+'\n'+r'''
++from pathlib import Path
++import hashlib,json,os,stat
++p=Path(PATH)
++with os.fdopen(os.open(p,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
++ s=os.fstat(f.fileno())
++ if not stat.S_ISREG(s.st_mode) or s.st_nlink!=1:raise ValueError('ordinary original claim required')
++ raw=f.read()
++ h=hashlib.sha256(raw).hexdigest()
++ if h!=EXPECTED:raise ValueError('original remote registry changed')
++print(json.dumps(dict(path=PATH,sha256=h,bytes=len(raw),mutation=False)))
++'''
++    try:
++        result=subprocess.run(['bash',HELPER,'run','python3 -'],input=code,capture_output=True,text=True,timeout=45)
++        return dict(python_source=code,returncode=result.returncode,stdout=result.stdout,stderr=result.stderr,utc=utc())
++    except subprocess.TimeoutExpired as exc:
++        txt=lambda v:v.decode(errors='replace') if isinstance(v,bytes) else v
++        return dict(python_source=code,returncode=None,timeout=True,stdout=txt(exc.stdout),stderr=txt(exc.stderr),utc=utc())
++
++
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+     ap.add_argument('--source-commit',required=True)
+-    for key in ('freeze','freeze-review','adoption','namespace-admission'):
++    for key in ('freeze','freeze-review','adoption','namespace-admission',*RECOVERY_INPUTS):
+         ap.add_argument('--'+key,required=True);ap.add_argument('--'+key+'-sha256',required=True)
++    ap.add_argument('--failure-custody',required=True)
+     args=ap.parse_args();rev=args.source_commit
+     supplied={k:read(getattr(args,k.replace('-','_')),getattr(args,k.replace('-','_')+'_sha256'))
+-              for k in ('freeze','freeze-review','adoption','namespace-admission')}
++              for k in ('freeze','freeze-review','adoption','namespace-admission',*RECOVERY_INPUTS)}
+     baseline_raw=read(BASELINE,BASELINE_SHA);baseline=decode(baseline_raw)
+-    need(baseline['terminal_jobs']==38 and baseline['submission_journals']==78
+-         and baseline['closed_cpu_seconds']==11040 and baseline['closed_gpu_slice_seconds']==1601
++    need(baseline['terminal_jobs']==39 and baseline['submission_journals']==80
++         and baseline['closed_cpu_seconds']==11048 and baseline['closed_gpu_slice_seconds']==1601
+          and baseline['preparation_allowance_cpu_seconds']==3600 and baseline['outstanding_reservation']==0,
+          'exact existing baseline required')
+     source=committed(rev,'scripts/research/'+ENTRY);need(sha(source)==ENTRY_SHA,'reviewed entry differs')
+@@ -176,6 +307,9 @@
+          and [r['world_id'] for r in proposal['development_worlds']]==WORLD_IDS['development'],'original32/24 schedule differs')
+     protocol={Path(n).name for n in proposal['source_pins']}
+     freeze=decode(supplied['freeze'])
++    recovery=validate_recovery(supplied,freeze,args.freeze_sha256,rev,baseline)
++    original_claim=local_failed_custody(args.failure_custody,recovery)
++    need(read(OLD_LOCAL_REGISTRY,OLD_CLAIM_SHA)==original_claim,'physical original local registry differs')
+     # Use the independently pinned AST projection of work_sources('realize'); no project callable execution.
+     stage_closure=freeze['stage_closure']['stages']['realize']
+     work=stage_closure['work_sources']
+@@ -191,7 +325,7 @@
+     source_pins={origins[n]:sha(b) for n,b in data.items()}
+     validate_authority(freeze,supplied['freeze-review'],decode(supplied['adoption']),
+         decode(supplied['namespace-admission']),args.freeze_sha256,args.freeze_review_sha256,
+-        args.namespace_admission_sha256,rev,source_pins)
++        args.namespace_admission_sha256,rev,source_pins,recovery)
+     for path,h in freeze['source_pins'].items():
+         need(type(path) is str and not Path(path).is_absolute() and '..' not in Path(path).parts and pin(h),
+              'repo-relative full closure source pins required')
+@@ -220,13 +354,17 @@
+     files.update({'inputs/packet.json':packet_raw,'inputs/admission.json':raw(admission),
+         'freeze.json':supplied['freeze'],'freeze-review.md':supplied['freeze-review'],'adoption.json':supplied['adoption'],
+         'namespace-admission.json':supplied['namespace-admission'],'accepted-accounting.json':baseline_raw})
+-    for name in ('build_packet.py','launch_once.py','monitor_once.py'):
++    for name in RECOVERY_INPUTS:files[name+'.json']=supplied[name]
++    files['original-namespace-claim.json']=original_claim
++    files['failed-raw-inventory.json']=raw(dict(root=OLD_ROOT,registry=OLD_REMOTE_REGISTRY,
++        files=recovery['failed_files'],directories=recovery['failed_directories']))
++    for name in ('build_packet.py','launch_once.py','monitor_once.py','pull_terminal.py'):
+         files[name]=read(Path(__file__).resolve().with_name(name))
+     command=[packet['runtime_source']+'/bin/python','-I','-B','-c',literal(diagnostic,'BOOTSTRAP'),
+         ROOT+'/inputs/'+ENTRY,ENTRY_SHA,'--packet',ROOT+'/inputs/packet.json','--packet-sha256',sha(packet_raw),
+         '--source-commit',rev,'--admission',ROOT+'/inputs/admission.json','--admission-sha256',sha(raw(admission)),
+         '--output',packet['output']]
+-    files['job.sbatch']=('\n'.join(['#!/bin/bash','#SBATCH --job-name=ace_llm_scientific_realize01',
++    files['job.sbatch']=('\n'.join(['#!/bin/bash','#SBATCH --job-name=ace_llm_scientific_realize02',
+         '#SBATCH --account=ucb736_asc2','#SBATCH --partition=acpu','#SBATCH --qos=cpu-normal',
+         '#SBATCH --nodes=1','#SBATCH --ntasks=1','#SBATCH --cpus-per-task=2','#SBATCH --mem=7680M',
+         '#SBATCH --time=00:05:00','#SBATCH --no-requeue','#SBATCH --output='+ROOT+'/logs/%j.out',
+@@ -238,21 +376,45 @@
+     outer=dict(schema='ace-scientific-realization-launch-v1',source_commit=rev,remote_root=ROOT,
+         resources=RESOURCES,deadlines=DEADLINES,source_pins=source_pins,
+         new_input_files={n:sha(b) for n,b in sorted(files.items())},baseline_sha256=BASELINE_SHA,
+-        admission=dict(closed_cpu_seconds=11040,closed_gpu_slice_seconds=1601,preparation_allowance_cpu_seconds=3600,
+-            candidate_cpu_reservation=600,candidate_gpu_reservation=0,total_cpu_seconds=15240,total_gpu_seconds=1601,
+-            ceiling_cpu_seconds=57600,ceiling_gpu_seconds=7200,prior_jobs=38,prior_journals=78),
+-        namespace_claimed=False,submitted=False,qualification='concrete packet still requires independent review',
++        admission=dict(closed_cpu_seconds=11048,closed_gpu_slice_seconds=1601,preparation_allowance_cpu_seconds=3600,
++            candidate_cpu_reservation=600,candidate_gpu_reservation=0,total_cpu_seconds=15248,total_gpu_seconds=1601,
++            ceiling_cpu_seconds=57600,ceiling_gpu_seconds=7200,prior_jobs=39,prior_journals=80),
++        recovery=dict(authority_sha256=recovery['authority_pin'],failed_job_id=FAILED_JOB,
++            failure_acceptance_sha256=FAILURE_SHA,no_draw_proof_sha256=NO_DRAW_SHA,
++            original_namespace_claim_sha256=OLD_CLAIM_SHA,original_root=OLD_ROOT,
++            original_local_registry=str(OLD_LOCAL_REGISTRY),original_remote_registry=OLD_REMOTE_REGISTRY,
++            automatic_retry_allowed=False,one_submission_only=True),
++        namespace_claimed=False,submitted=False,qualification='concrete recovery packet still requires independent review',
+         sizing='Measured 2CPU/7680MiB profile; 300s bounded staging+56 descriptor realization, no memory-headroom claim.')
+-    files['packet.json']=raw(outer)
+     need(not any(os.path.lexists(p) for p in (LOCAL,EXT,LOCAL_REGISTRY)),'existing packet/namespace; no adoption or retry')
+-    created=[]
++    created=[];locks=[]
+     try:
++        for name in ('ace-delivery-controller.lock','ace-foundation-controller.lock'):
++            path=BASE/name;need(path==path.resolve(),'coordinator lock alias')
++            handle=os.fdopen(os.open(path,os.O_RDWR|os.O_NOFOLLOW),'r+')
++            try:fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
++            except BaseException:handle.close();raise
++            locks.append(handle)
++        need(read(OLD_LOCAL_REGISTRY,OLD_CLAIM_SHA)==original_claim,'original local claim changed before build')
+         for root in (LOCAL,EXT):
+             root.mkdir(parents=True,mode=0o700,exist_ok=False);created.append(root)
+             (root/'inputs').mkdir(mode=0o700)
++        probe=original_claim_remote_probe()
++        # Persist every remote-read outcome, including partial timeout streams, before inspecting it.
++        probe_raw=raw(probe)
++        for root in created:write(root/'original-claim-build-readback.json',probe_raw)
++        need(probe['returncode']==0,'original remote claim build readback failed; preserve attempt, no retry')
++        observed=decode(probe['stdout'])
++        need(observed==dict(path=OLD_REMOTE_REGISTRY,sha256=OLD_CLAIM_SHA,bytes=len(original_claim),mutation=False)
++             and read(OLD_LOCAL_REGISTRY,OLD_CLAIM_SHA)==original_claim,'original physical claim readback differs')
++        outer['new_input_files']['original-claim-build-readback.json']=sha(probe_raw)
++        files['packet.json']=raw(outer)
++        for root in created:
+             for name,b in files.items(): write(root/name,b)
+         for name,b in files.items():
+             need(read(LOCAL/name)==read(EXT/name)==b,'two-copy packet readback differs')
++        need(read(LOCAL/'original-claim-build-readback.json')==read(EXT/'original-claim-build-readback.json')==probe_raw,
++             'two-copy original registry readback evidence differs')
+         print(json.dumps(dict(local=str(LOCAL),external=str(EXT),packet_sha256=sha(files['packet.json']),
+                               stage_packet_sha256=sha(packet_raw),namespace_claimed=False,submitted=False),indent=2))
+     except BaseException as exc:
+@@ -260,6 +422,8 @@
+             try:write(root/'build-failure.json',raw(dict(type=type(exc).__name__,message=str(exc),retry_allowed=False)))
+             except BaseException:pass
+         raise
++    finally:
++        for handle in reversed(locks):fcntl.flock(handle,fcntl.LOCK_UN);handle.close()
+ 
+ 
+ if __name__=='__main__': main()
+--- predecessor01/launch_once.py
++++ recovery02/launch_once.py
+@@ -1,4 +1,4 @@
+-"""Once-only FIRST realization launcher. No registry adoption, restart or retry.
++"""Once-only explicit recovery02 realization launcher. No registry adoption, restart or retry.
+ 
+ Requires a separately reviewed, committed packet and both coordinator locks.
+ Never invoke while merely authoring this preparation. No import-time actions.
+@@ -38,7 +38,10 @@
+ def write(path,value):
+  with pathlib.Path(path).open('xb') as f:f.write(raw(value));f.flush();os.fsync(f.fileno())
+ def run(command):
+- p=subprocess.run(command,capture_output=True,text=True,timeout=20)
++ try:p=subprocess.run(command,capture_output=True,text=True,timeout=20)
++ except subprocess.TimeoutExpired as exc:
++  txt=lambda value:value.decode(errors='replace') if isinstance(value,bytes) else value
++  raise RuntimeError(json.dumps(dict(command=command,timeout=True,stdout=txt(exc.stdout),stderr=txt(exc.stderr)))) from exc
+  need(p.returncode==0,json.dumps(dict(command=command,returncode=p.returncode,stdout=p.stdout,stderr=p.stderr)))
+  return p.stdout
+ def normalized(rows):
+@@ -59,6 +62,23 @@
+  fields=s.split(':');need(len(fields)==3 and all(v.isdigit() for v in fields),'unreadable live wall limit')
+  h,m,sec=map(int,fields);return days*86400+h*3600+m*60+sec
+ def allows(value,name):return value=='ALL' or name in value.split(',')
++def verify_original():
++ original=pathlib.Path(C['original_root']);old_registry=pathlib.Path(C['original_registry'])
++ need(original.is_dir() and original==original.resolve(),'retained original root required')
++ paths=sorted(original.rglob('*'));directories=['launch'];names={}
++ for path in paths:
++  need(not path.is_symlink(),'original raw custody symlink')
++  name='launch/'+path.relative_to(original).as_posix()
++  if path.is_dir():directories.append(name)
++  else:names[name]=path
++ names['namespace.json']=old_registry
++ need(set(names)==set(C['failed_files']) and sorted(directories)==sorted(C['failed_directories']),
++      'complete original41-file roster/directories changed; no truncation or replacement')
++ for name,path in names.items():
++  value=read(path)
++  need(dict(bytes=len(value),sha256=sha(value))==C['failed_files'][name],'original failed raw bytes changed: '+name)
++ need(sha(read(old_registry))==C['original_claim_sha256'],'original registry changed')
++ return dict(root=str(original),files=C['failed_files'],directories=directories,original_claim_sha256=C['original_claim_sha256'])
+ def reconcile():
+  queue=run(['squeue','-u','paco0228','-h','-o','%i|%j|%T|%R|%a'])
+  for line in queue.splitlines():
+@@ -67,15 +87,15 @@
+  accounting=run(['sacct','-X','-u','paco0228','-S','2026-11-02','--format',
+   'JobIDRaw,JobName%80,State,ExitCode,AllocCPUS,ElapsedRaw,Account,AllocTRES%180','-n','-P'])
+  rows=[line.split('|') for line in accounting.splitlines() if '|ace_llm' in line]
+- need(len(rows)==38 and normalized(rows)==normalized(C['baseline']['related_accounting']),
++ need(len(rows)==39 and normalized(rows)==normalized(C['baseline']['related_accounting']),
+       'exact historical accounting changed')
+  need(all(r[2].split()[0] in ('COMPLETED','FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL') for r in rows),
+       'nonterminal historical job')
+- need(sum(int(r[4])*int(r[5]) for r in rows)==11040 and
++ need(sum(int(r[4])*int(r[5]) for r in rows)==11048 and
+       sum(int(r[5]) for r in rows if 'gres/gpu:' in r[7])==1601,'closed costs changed')
+  journals={str(p):sha(read(p)) for d in root.parent.glob('ace_llm_intervention*')
+            for p in d.glob('submission.*.json')}
+- need(len(journals)==78 and journals==C['baseline']['journal_pins'],'exact full prior journal inventory changed')
++ need(len(journals)==80 and journals==C['baseline']['journal_pins'],'exact full prior journal inventory changed')
+  partition=run(['scontrol','show','partition','acpu','-o'])
+  fields=dict(x.split('=',1) for x in partition.split() if '=' in x)
+  need(fields.get('PartitionName')=='acpu' and fields.get('State')=='UP' and
+@@ -99,10 +119,12 @@
+  need(archive==archive.resolve() and stat.S_ISREG(st.st_mode) and st.st_size==8438650880,
+       'accepted archive metadata changed')
+  need(not os.path.lexists(registry),'existing scientific namespace registry; never adopt')
++ original=verify_original()
+  return dict(utc=utc(),queue=queue,related_accounting=rows,journal_pins=journals,
+              partition=partition,association=assoc,qos=qos,manifest_sha256=C['manifest']['sha256'],
+              archive_size=st.st_size,archive_byte_check='allocated stage authenticates full bytes before execution',
+-             closed_cpu_seconds=11040,closed_gpu_slice_seconds=1601,cpu_reserved_total=15240,gpu_reserved_total=1601)
++             closed_cpu_seconds=11048,closed_gpu_slice_seconds=1601,cpu_reserved_total=15248,gpu_reserved_total=1601,
++             original_failed_custody=original)
+ def verify():
+  for name,h in C['pins'].items():need(sha(read(root/name))==h,'remote pin differs: '+name)
+  return dict(utc=utc(),verified=C['pins'])
+@@ -141,6 +163,7 @@
+                ('controller.json','launcher_failure.json','submission.intent.json','submission.result.json','build-failure.json')),
+                'previous controller/build/submission attempt; no retry')
+         b.need(not os.path.lexists(b.LOCAL_REGISTRY),'existing local namespace; no adoption')
++        original_claim=b.read(b.OLD_LOCAL_REGISTRY,b.OLD_CLAIM_SHA)
+         packet_raw=b.read(b.LOCAL/'packet.json',args.packet_sha256);packet=b.decode(packet_raw)
+         b.need(packet['schema']=='ace-scientific-realization-launch-v1' and packet['remote_root']==b.ROOT
+                and packet['resources']==b.RESOURCES and packet['deadlines']==b.DEADLINES
+@@ -159,24 +182,38 @@
+         baseline_raw=b.read(b.LOCAL/'accepted-accounting.json',b.BASELINE_SHA);baseline=b.decode(baseline_raw)
+         b.need(b.read(b.BASELINE,b.BASELINE_SHA)==baseline_raw,'existing baseline changed; never create another')
+         stage=b.decode(b.read(b.LOCAL/'inputs/packet.json',pins['inputs/packet.json']))
+-        b.validate_authority(b.decode(b.read(b.LOCAL/'freeze.json')),b.read(b.LOCAL/'freeze-review.md'),
++        freeze=b.decode(b.read(b.LOCAL/'freeze.json'))
++        supplied={n:b.read(b.LOCAL/(n+'.json'),pins[n+'.json']) for n in b.RECOVERY_INPUTS}
++        recovery=b.validate_recovery(supplied,freeze,pins['freeze.json'],packet['source_commit'],baseline)
++        b.need(original_claim==b.read(b.LOCAL/'original-namespace-claim.json',b.OLD_CLAIM_SHA),
++               'physical original local registry differs from captured accepted claim')
++        b.need(b.decode(b.read(b.LOCAL/'failed-raw-inventory.json'))==dict(root=b.OLD_ROOT,registry=b.OLD_REMOTE_REGISTRY,
++               files=recovery['failed_files'],directories=recovery['failed_directories']),
++               'complete accepted original raw roster projection differs')
++        b.need(packet['recovery']['authority_sha256']==recovery['authority_pin'],'packet recovery authority differs')
++        b.validate_authority(freeze,b.read(b.LOCAL/'freeze-review.md'),
+             b.decode(b.read(b.LOCAL/'adoption.json')),b.decode(b.read(b.LOCAL/'namespace-admission.json')),
+-            pins['freeze.json'],pins['freeze-review.md'],pins['namespace-admission.json'],packet['source_commit'],packet['source_pins'])
++            pins['freeze.json'],pins['freeze-review.md'],pins['namespace-admission.json'],packet['source_commit'],packet['source_pins'],recovery)
+         intent=dict(utc=b.utc(),packet_commit=args.packet_commit,source_commit=packet['source_commit'],pins=pins,
+             packet_sha256=args.packet_sha256,review_sha256=args.packet_review_sha256,remote_root=b.ROOT,
+             launcher_sha256=pins['launch_once.py'],baseline_sha256=b.BASELINE_SHA,resources=b.RESOURCES,
+             deadlines=b.DEADLINES,admission=packet['admission'],freeze_sha256=pins['freeze.json'],
+             namespace_admission_sha256=pins['namespace-admission.json'],controller_pid_local=os.getpid(),
+-            blind_retry_forbidden=True,replacement_worlds=False)
++            blind_retry_forbidden=True,replacement_worlds=False,recovery_authority_sha256=recovery['authority_pin'],
++            original_namespace_claim_sha256=b.OLD_CLAIM_SHA,failed_job_id=b.FAILED_JOB,
++            failure_acceptance_sha256=b.FAILURE_SHA,no_draw_proof_sha256=b.NO_DRAW_SHA,explicit_recovery_only=True)
+         save('controller.json',dict(pid=os.getpid(),held=[str(b.BASE/n) for n in
+             ('ace-delivery-controller.lock','ace-foundation-controller.lock')],utc=b.utc()));started=True
+         context=dict(root=b.ROOT,registry=b.REMOTE_REGISTRY,pins=pins,baseline=baseline,
+-                     archive=stage['archive'],manifest=stage['manifest'])
++                     archive=stage['archive'],manifest=stage['manifest'],original_root=b.OLD_ROOT,
++                     original_registry=b.OLD_REMOTE_REGISTRY,original_claim_sha256=b.OLD_CLAIM_SHA,
++                     failed_files=recovery['failed_files'],failed_directories=recovery['failed_directories'])
+         common='C='+repr(context)+'\n'+REMOTE_COMMON
+         ready=remote('readiness_transport.json',common+r'''
+ need(root.parent==root.parent.resolve() and root.parent.stat().st_uid==os.getuid(),'scratch parent ownership differs')
+ need(not os.path.lexists(root),'existing realization root; no retry/adoption')
+-need(not list(root.parent.glob('ace_llm_intervention_scientific_realization*')),'prior realization root exists')
++need({str(p) for p in root.parent.glob('ace_llm_intervention_scientific_realization*')}=={C['original_root']},
++     'only the accepted failed original root may precede explicit recovery02')
+ r=reconcile()
+ root.mkdir(mode=0o700);(root/'logs').mkdir(mode=0o700);(root/'inputs').mkdir(mode=0o700)
+ probe=root/'write-read-probe'
+@@ -204,11 +241,14 @@
+         # Bind complete local claims before the final remote readiness/claim/submission transaction.
+         for name,h in pins.items():
+             b.need(b.read(b.LOCAL/name,h)==b.read(b.EXT/name,h),'local inputs changed under coordinator')
++        b.need(b.read(b.OLD_LOCAL_REGISTRY,b.OLD_CLAIM_SHA)==original_claim,'original local registry changed before recovery claim')
+         claim=dict(schema='ace-scientific-screen-namespace-claim-v1',freeze_sha256=pins['freeze.json'],
+             namespace_admission_sha256=pins['namespace-admission.json'],packet_sha256=args.packet_sha256,
+             packet_commit=args.packet_commit,realization_root=b.ROOT,world_ids=b.WORLD_IDS,
+             local_registry=str(b.LOCAL_REGISTRY),remote_registry=b.REMOTE_REGISTRY,
+-            retry_allowed=False,replacement_worlds=False,utc=b.utc())
++            retry_allowed=False,replacement_worlds=False,utc=b.utc(),claim_kind='explicit_pre_draw_recovery02',
++            recovery_authority_sha256=recovery['authority_pin'],original_namespace_claim_sha256=b.OLD_CLAIM_SHA,
++            failed_job_id=b.FAILED_JOB,failure_acceptance_sha256=b.FAILURE_SHA,no_draw_proof_sha256=b.NO_DRAW_SHA)
+         b.write(b.LOCAL_REGISTRY,b.raw(claim))
+         b.need(b.read(b.LOCAL_REGISTRY)==b.raw(claim),'local exclusive namespace readback differs')
+         save('namespace-claim.json',claim)
+@@ -238,6 +278,7 @@
+ write(root/'submission.result.json',r);print(json.dumps(r))
+ '''.replace("C['readiness_sha256']",repr(b.sha(b.raw(ready)))))
+         save('submission.result.json',result)
++        b.need(b.read(b.OLD_LOCAL_REGISTRY,b.OLD_CLAIM_SHA)==original_claim,'original local registry changed; reconcile without retry')
+         b.need(result['job_id'] is not None,'failed/ambiguous submission; retain registries and reconcile, never retry')
+         print(b.raw(result).decode())
+     except BaseException as exc:
+--- predecessor01/pull_terminal.py
++++ recovery02/pull_terminal.py
+@@ -1,4 +1,4 @@
+-"""Complete FIRST scientific realization terminal custody, never acceptance.
++"""Complete explicit pre-draw recovery02 realization terminal custody, never acceptance.
+ 
+ Standalone sidecar. Requires independent current job/outer packet/result pins.
+ Copies the whole root and both separate namespace claims, retains all terminal
+@@ -20,14 +20,21 @@
+ 
+ REPO=Path('/Users/pat/code/ACE')
+ BASE=Path('/Users/pat/ACE_Study_Results/2026-10-peter-baseline')
+-LAUNCH=REPO/'results/ace_llm_intervention_scientific_realization_20261108/launch01'
+-LAUNCH_EXT=BASE/'ACE-LLM-intervention-scientific-realization-20261108-01'
+-LOCAL=LAUNCH.parent/'terminal01'
+-EXT=BASE/'ACE-LLM-intervention-scientific-realization-terminal-20261108-01'
+-ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_realization_20261108_01'
+-LOCAL_NAMESPACE=BASE/'ACE-LLM-intervention-scientific-screen-20261107.namespace.json'
+-REMOTE_NAMESPACE=str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace.json')
+-BASELINE_SHA='c5eb497d133a803f12b92ff7af07420cf4856d24e174162b9f634c4e0e27631f'
++LAUNCH=REPO/'results/ace_llm_intervention_scientific_realization_20261108/launch02'
++LAUNCH_EXT=BASE/'ACE-LLM-intervention-scientific-realization-20261108-02'
++LOCAL=LAUNCH.parent/'terminal02'
++EXT=BASE/'ACE-LLM-intervention-scientific-realization-terminal-20261108-02'
++ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_realization_20261108_02'
++LOCAL_NAMESPACE=BASE/'ACE-LLM-intervention-scientific-screen-20261107.namespace-recovery02.json'
++REMOTE_NAMESPACE=str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace-recovery02.json')
++OLD_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_realization_20261108_01'
++OLD_LOCAL_NAMESPACE=BASE/'ACE-LLM-intervention-scientific-screen-20261107.namespace.json'
++OLD_REMOTE_NAMESPACE=str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace.json')
++OLD_CLAIM_SHA='58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29'
++FAILURE_SHA='5da56ce061706f29a23c9a37a898bcbac128d16421f6cfd30731655208021a8d'
++NO_DRAW_SHA='5fb94f9d07da3acd25c979250471037e8981066e0b201716f8c32d0b681fb9ef'
++FAILED_JOB='35402725'
++BASELINE_SHA='63cd36dfd9c0dcda4ef8ceec7b99d91ecfa696676cd1d99149256c6a0fdb3727'
+ HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ TERMINAL={'COMPLETED','FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL',
+           'PREEMPTED','BOOT_FAIL','DEADLINE','REVOKED'}
+@@ -105,7 +112,7 @@
+ REMOTE_OBSERVATION=r'''
+ from pathlib import Path
+ import subprocess,hashlib,json,datetime,stat,os
+-root=Path(ROOT);namespace=Path(NAMESPACE)
++root=Path(ROOT);namespace=Path(NAMESPACE);original=Path(OLD_ROOT);original_namespace=Path(OLD_NAMESPACE)
+ def need(ok,message):
+  if not ok:raise ValueError(message)
+ def fingerprint(path):
+@@ -119,7 +126,8 @@
+  need(identity(before)==identity(after)==identity(path.lstat()),'remote file changed during capture')
+  return dict(bytes=after.st_size,sha256=h.hexdigest()),after
+ v=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),results={},files={},directories=[],
+-       root_present=root.exists(),namespace_present=os.path.lexists(namespace),original_hardlink_groups=[])
++       root_present=root.exists(),namespace_present=os.path.lexists(namespace),original_hardlink_groups=[],
++       original_root_present=original.exists(),original_namespace_present=os.path.lexists(original_namespace))
+ commands={
+  'related_accounting':['sacct','-X','-u','paco0228','-S','2026-11-02','--format',
+    'JobIDRaw,JobName%80,State,ExitCode,AllocCPUS,ElapsedRaw,Account,AllocTRES%180','-n','-P'],
+@@ -145,19 +153,22 @@
+  need(all(len(r)==5 and r[0]!=JOB and not r[1].lower().startswith('ace') for r in queue),'current/related ACE job active')
+  v['parent_accounting']=selected[0];v['related_accounting']=rows;v['terminal_gate']=True
+  links={}
+- if v['root_present']:
+-  need(root.is_dir() and root==root.resolve(),'ordinary original remote root required')
+-  v['directories'].append('launch')
+-  for path in sorted(root.rglob('*')):
++ for label,tree,present in (('launch',root,v['root_present']),('failed01',original,v['original_root_present'])):
++  if not present:continue
++  need(tree.is_dir() and tree==tree.resolve(),'ordinary remote root required')
++  v['directories'].append(label)
++  for path in sorted(tree.rglob('*')):
+    need(not path.is_symlink(),'remote tree symlink forbidden')
+-   name='launch/'+path.relative_to(root).as_posix()
++   name=label+'/'+path.relative_to(tree).as_posix()
+    if path.is_dir():v['directories'].append(name);continue
+    info,s=fingerprint(path);v['files'][name]=info
+    if s.st_nlink>1:links.setdefault((s.st_dev,s.st_ino,s.st_nlink),[]).append(name)
+- if v['namespace_present']:
+-  need(namespace.parent==namespace.parent.resolve(),'registry parent alias')
+-  info,s=fingerprint(namespace);v['files']['namespace.json']=info
+-  if s.st_nlink>1:links.setdefault((s.st_dev,s.st_ino,s.st_nlink),[]).append('namespace.json')
++ for name,path,present in (('namespace.json',namespace,v['namespace_present']),
++                           ('original-namespace.json',original_namespace,v['original_namespace_present'])):
++  if not present:continue
++  need(path.parent==path.parent.resolve(),'registry parent alias')
++  info,s=fingerprint(path);v['files'][name]=info
++  if s.st_nlink>1:links.setdefault((s.st_dev,s.st_ino,s.st_nlink),[]).append(name)
+  v['original_hardlink_groups']=sorted([dict(paths=sorted(paths),link_count=k[2]) for k,paths in links.items()],
+                                      key=lambda group:group['paths'])
+  v['journal_pins']={str(p):fingerprint(p)[0]['sha256'] for d in root.parent.glob('ace_llm_intervention*')
+@@ -192,7 +203,7 @@
+                 and req.get('cpu')=='2' and req.get('mem') in ('7680M','7.5G','7.50G')
+                 and req.get('node')=='1' and not any(k.startswith('gres/') for k in req))
+     if not requested:errors.append('requested CPU profile missing/different')
+-    matched=(requested and row[1]=='ace_llm_scientific_realize01' and row[6]=='ucb736_asc2'
++    matched=(requested and row[1]=='ace_llm_scientific_realize02' and row[6]=='ucb736_asc2'
+         and cpus==2 and tres.get('cpu')=='2' and tres.get('mem') in ('7680M','7.5G','7.50G')
+         and tres.get('node')=='1' and not gres and 0<=elapsed<=300)
+     if not matched:errors.append('actual allocation identity/profile differs')
+@@ -234,9 +245,40 @@
+     need(all(type(n) is str and not Path(n).is_absolute() and '..' not in Path(n).parts and pin(h) for n,h in pins.items()),
+          'safe complete input pin roster required')
+     baseline_raw=read_metadata(LAUNCH/'accepted-accounting.json',BASELINE_SHA);baseline=decode(baseline_raw)
+-    need(baseline['terminal_jobs']==38 and baseline['submission_journals']==78
+-         and baseline['closed_cpu_seconds']==11040 and baseline['closed_gpu_slice_seconds']==1601,
+-         'exact existing 38-job/78-journal baseline required')
++    need(baseline['terminal_jobs']==39 and baseline['submission_journals']==80
++         and baseline['closed_cpu_seconds']==11048 and baseline['closed_gpu_slice_seconds']==1601,
++         'exact existing 39-job/80-journal baseline required')
++    need(a.job_id!=FAILED_JOB,'new recovery job must differ from accepted failed attempt')
++    accepted=decode(read_metadata(LAUNCH/'failure-acceptance.json',FAILURE_SHA))
++    read_metadata(LAUNCH/'no-draw-proof.json',NO_DRAW_SHA)
++    authority=decode(read_metadata(LAUNCH/'recovery-authority.json',pins['recovery-authority.json']))
++    expected_authority=dict(schema='ace-scientific-realization-recovery-authority-v1',status='authorized',
++        recovery_id='realization02',failed_job_id=FAILED_JOB,failure_acceptance_sha256=FAILURE_SHA,
++        no_draw_proof_sha256=NO_DRAW_SHA,predecessor_freeze_sha256=accepted['freeze_sha256'],
++        successor_freeze_sha256=pins['freeze.json'],source_commit=packet['source_commit'],
++        original_namespace_claim_sha256=OLD_CLAIM_SHA,accounting_sha256=BASELINE_SHA,
++        original_root=OLD_ROOT,recovery_root=ROOT,local_recovery_registry=str(LOCAL_NAMESPACE),
++        remote_recovery_registry=REMOTE_NAMESPACE,one_submission_only=True,automatic_retry_allowed=False,
++        replacement_worlds_allowed=False)
++    need(raw(authority)==raw(expected_authority),'exact independently supplied recovery authority differs')
++    recovery_bindings=dict(recovery_authority_sha256=pins['recovery-authority.json'],
++        original_namespace_claim_sha256=OLD_CLAIM_SHA,failed_job_id=FAILED_JOB,
++        failure_acceptance_sha256=FAILURE_SHA,no_draw_proof_sha256=NO_DRAW_SHA)
++    need(all(intent.get(k)==v for k,v in recovery_bindings.items()) and intent.get('explicit_recovery_only') is True,
++         'local intent recovery lineage differs')
++    expected_failed=[]
++    for name,accepted_name in (('failure-inventory.json','inventory_transport.json'),
++                               ('failure-readback.json','inventory_after_transport.json')):
++        transport=decode(read_metadata(LAUNCH/name,accepted['evidence_pins'][accepted_name]))
++        need(transport['returncode']==0,'accepted predecessor inventory transport failed')
++        v=decode(transport['stdout']);expected_failed.append(dict(files=v['files'],directories=v['directories']))
++    failed=expected_failed[0]
++    need(failed==expected_failed[1] and len(failed['files'])==accepted['raw_files']==41
++         and sum(v['bytes'] for v in failed['files'].values())==accepted['raw_bytes']
++         and failed['files']['namespace.json']['sha256']==OLD_CLAIM_SHA,
++         'accepted complete original41-file roster differs')
++    projection=decode(read_metadata(LAUNCH/'failed-raw-inventory.json',pins['failed-raw-inventory.json']))
++    need(projection==dict(root=OLD_ROOT,registry=OLD_REMOTE_NAMESPACE,**failed),'captured failed roster differs')
+     locks=[];claimed=[];sealed=False;started=time.monotonic();cpu=time.process_time()
+     def save(name,value):
+         data=raw(value)
+@@ -251,7 +293,8 @@
+         if source is not None:transport['python_source']=source
+         save(name,transport);need(transport['returncode']==0,'failed/partial custody retained: '+name)
+         return transport
+-    source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,NAMESPACE=REMOTE_NAMESPACE,JOB=a.job_id,TERMINAL=TERMINAL).items())+'\n'+REMOTE_OBSERVATION
++    source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,NAMESPACE=REMOTE_NAMESPACE,JOB=a.job_id,
++        TERMINAL=TERMINAL,OLD_ROOT=OLD_ROOT,OLD_NAMESPACE=OLD_REMOTE_NAMESPACE).items())+'\n'+REMOTE_OBSERVATION
+     def observe(name):
+         transport=run_saved(name,['bash',HELPER,'run','python3 -'],source=source,timeout=240)
+         v=decode(transport['stdout'])
+@@ -277,6 +320,8 @@
+         save('collector-intent.json',dict(utc=utc(),job_id=a.job_id,packet_sha256=a.packet_sha256,
+             submission_result_sha256=a.submission_result_sha256,remote_root=ROOT,remote_namespace=REMOTE_NAMESPACE,
+             local_namespace=str(LOCAL_NAMESPACE),collector_sha256=sha(Path(__file__).read_bytes()),
++            original_root=OLD_ROOT,original_local_namespace=str(OLD_LOCAL_NAMESPACE),
++            original_remote_namespace=OLD_REMOTE_NAMESPACE,recovery_bindings=recovery_bindings,
+             retry_allowed=False,acceptance=False))
+         # Keep complete local and external coordinator histories, not just their successful receipts.
+         coordinator={}
+@@ -292,14 +337,21 @@
+         else:claim_raw=None
+         save('local-namespace-observation.json',dict(path=str(LOCAL_NAMESPACE),present=local_claim_present,
+             sha256=None if claim_raw is None else sha(claim_raw)))
++        original_claim_raw=read_metadata(OLD_LOCAL_NAMESPACE) if os.path.lexists(OLD_LOCAL_NAMESPACE) else None
++        if original_claim_raw is not None:
++            for dest in claimed:write(dest/'namespaces/original-local.namespace.json',original_claim_raw)
++        save('original-local-namespace-observation.json',dict(path=str(OLD_LOCAL_NAMESPACE),
++            present=original_claim_raw is not None,sha256=None if original_claim_raw is None else sha(original_claim_raw)))
+         before=observe('inventory_transport.json')
+         size=sum(v['bytes'] for v in before['files'].values())
+         for parent in (BASE,LOCAL.parent):
+             fs=os.statvfs(parent);need(fs.f_bavail*fs.f_frsize>size*2+2*1024**3,'insufficient complete-custody space')
+         for label,remote_path,present in (('launch',ROOT,before['root_present']),
+-                                          ('namespace.json',REMOTE_NAMESPACE,before['namespace_present'])):
++                    ('namespace.json',REMOTE_NAMESPACE,before['namespace_present']),
++                    ('failed01',OLD_ROOT,before['original_root_present']),
++                    ('original-namespace.json',OLD_REMOTE_NAMESPACE,before['original_namespace_present'])):
+             if not present:continue
+-            command=['scp',*(['-r'] if label=='launch' else []),'-o','ControlPath=/tmp/defab-curc.sock',
++            command=['scp',*(['-r'] if label in ('launch','failed01') else []),'-o','ControlPath=/tmp/defab-curc.sock',
+                      '-o','BatchMode=yes','paco0228@login.rc.colorado.edu:'+remote_path,str(EXT/'remote'/label)]
+             run_saved('transfer-'+label+'.json',command,timeout=1800)
+         actual=inventory(EXT/'remote')
+@@ -308,6 +360,8 @@
+         after=observe('inventory_after_transport.json')
+         need(after['files']==before['files'] and sorted(after['directories'])==sorted(before['directories'])
+              and after['root_present']==before['root_present'] and after['namespace_present']==before['namespace_present']
++             and after['original_root_present']==before['original_root_present']
++             and after['original_namespace_present']==before['original_namespace_present']
+              and after['original_hardlink_groups']==before['original_hardlink_groups']
+              and after['parent_accounting']==before['parent_accounting']
+              and after['journal_pins']==before['journal_pins']
+@@ -320,6 +374,17 @@
+                 else:copy_file(path,target)
+             need(inventory(EXT/sub)==inventory(LOCAL/sub),'second independent byte copy differs')
+         errors=[]
++        oldfiles={('namespace.json' if n=='original-namespace.json' else 'launch/'+n.removeprefix('failed01/')):v
++                  for n,v in actual['files'].items() if n=='original-namespace.json' or n.startswith('failed01/')}
++        olddirs=[('launch' if n=='failed01' else 'launch/'+n.removeprefix('failed01/'))
++                 for n in actual['directories'] if n=='failed01' or n.startswith('failed01/')]
++        if dict(files=oldfiles,directories=sorted(olddirs))!=dict(files=failed['files'],directories=sorted(failed['directories'])):
++            errors.append('complete accepted original41-file failed custody changed/missing')
++        if original_claim_raw is None or sha(original_claim_raw)!=OLD_CLAIM_SHA:
++            errors.append('original local registry missing/changed')
++        if original_claim_raw is not None and (not os.path.lexists(OLD_LOCAL_NAMESPACE)
++                or fingerprint(OLD_LOCAL_NAMESPACE)['sha256']!=sha(original_claim_raw)):
++            errors.append('original local registry changed during collection')
+         if not before['root_present']:errors.append('original remote root missing')
+         mismatches=[n for n,h in pins.items() if actual['files'].get('launch/'+n,{}).get('sha256')!=h]
+         if mismatches:errors.append('remote original input/packet pin disagreement')
+@@ -343,17 +408,23 @@
+                     and claim.get('freeze_sha256')==pins.get('freeze.json')
+                     and claim.get('namespace_admission_sha256')==pins.get('namespace-admission.json')):
+                 errors.append('namespace claim packet/freeze binding differs')
++            if not (all(claim.get(k)==v for k,v in recovery_bindings.items())
++                    and claim.get('claim_kind')=='explicit_pre_draw_recovery02'
++                    and claim.get('local_registry')==str(LOCAL_NAMESPACE)
++                    and claim.get('remote_registry')==REMOTE_NAMESPACE
++                    and claim.get('retry_allowed') is False and claim.get('replacement_worlds') is False):
++                errors.append('namespace recovery authority/failed-attempt binding differs')
+         prior=[r for r in before['related_accounting'] if r[0]!=a.job_id]
+-        accounting_ok=len(prior)==38 and normalize(prior)==normalize(baseline['related_accounting'])
+-        if not accounting_ok:errors.append('exact 38 prior accounting rows differ')
++        accounting_ok=len(prior)==39 and normalize(prior)==normalize(baseline['related_accounting'])
++        if not accounting_ok:errors.append('exact 39 prior accounting rows differ')
+         steps=before['results']['steps']
+         step_parents=[r.split('|') for r in (steps.get('stdout') or '').splitlines() if r.startswith(a.job_id+'|')]
+         if steps['returncode']!=0 or len(step_parents)!=1 or normalize([step_parents[0][:8]])!=normalize([before['parent_accounting']]):
+             errors.append('full job/step accounting missing or allocation row disagrees')
+         journals={**baseline['journal_pins'],ROOT+'/submission.intent.json':result['intent_sha256'],
+                   ROOT+'/submission.result.json':a.submission_result_sha256}
+-        journal_ok=len(journals)==80 and before['journal_pins']==journals
+-        if not journal_ok:errors.append('exact 78 prior plus two current journals differ')
++        journal_ok=len(journals)==82 and before['journal_pins']==journals
++        if not journal_ok:errors.append('exact 80 prior plus two current journals differ')
+         for label,original in (('local-launch',LAUNCH),('external-launch',LAUNCH_EXT)):
+             if inventory(original)!=coordinator[label]:errors.append(label+' changed while custody was collected')
+             captured=coordinator[label]['files']
+@@ -383,12 +454,16 @@
+             hardlink_custody='All original names copied to separate regular files; original alias metadata retained, no alias dereference/omission.',
+             namespace_local_sha256=None if claim_raw is None else sha(claim_raw),
+             namespace_remote_sha256=actual['files'].get('namespace.json',{}).get('sha256'),
++            recovery_bindings=recovery_bindings,original_failed_raw_files=len(oldfiles),
++            original_failed_custody_verified=(oldfiles==failed['files'] and sorted(olddirs)==sorted(failed['directories'])),
++            original_namespace_local_sha256=None if original_claim_raw is None else sha(original_claim_raw),
++            original_namespace_remote_sha256=actual['files'].get('original-namespace.json',{}).get('sha256'),
+             exact_prior_accounting_matched=accounting_ok,exact_prior_and_current_journals_matched=journal_ok,
+             observed_related_jobs=len(before['related_accounting']),observed_submission_journals=len(before['journal_pins']),
+-            allocation=allocation,closed_cpu_seconds=(11040+allocation['allocated_cpu_seconds']) if accounting_ok else None,
++            allocation=allocation,closed_cpu_seconds=(11048+allocation['allocated_cpu_seconds']) if accounting_ok else None,
+             closed_gpu_slice_seconds=(1601+allocation['gpu_slice_seconds']) if accounting_ok and allocation['gpu_slice_seconds'] is not None else None,
+             preparation_allowance_cpu_seconds=3600,
+-            cpu_admission_after_release=(14640+allocation['allocated_cpu_seconds']) if accounting_ok else None,
++            cpu_admission_after_release=(14648+allocation['allocated_cpu_seconds']) if accounting_ok else None,
+             cpu_ceiling_seconds=57600,gpu_ceiling_seconds=7200,output_marker_metadata=markers,
+             output_json_decoded=False,scientific_qualified=False,realization_accepted=False,acceptance=False,retry_allowed=False,
+             collector_wall_seconds=time.monotonic()-started,collector_process_cpu_seconds=time.process_time()-cpu,
