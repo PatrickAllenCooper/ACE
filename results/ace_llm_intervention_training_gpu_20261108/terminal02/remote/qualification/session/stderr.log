@@ -1,0 +1,18 @@
+/scratch/local/35378508/ace-training-gpu-35378508/runtime/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_02/qualify_llm_intervention_training_gpu.py", line 410, in <module>
+    if __name__=='__main__':main()
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_02/qualify_llm_intervention_training_gpu.py", line 400, in main
+    child(args,*context)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_02/qualify_llm_intervention_training_gpu.py", line 157, in child
+    summary=run_training(prepared,model,journal.output/'fit',observer,journal)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_02/llm_intervention_training_gpu_worker.py", line 690, in run_training
+    clear_cuda("before-sft-reload")
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_02/llm_intervention_training_gpu_worker.py", line 533, in clear_cuda
+    _need(evidence["allocated_bytes"] == evidence["reserved_bytes"] == 0,
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_02/llm_intervention_training_gpu_worker.py", line 48, in _need
+    raise ValueError(message)
+ValueError: CUDA tensors/cache survived model disposal: before-sft-reload
