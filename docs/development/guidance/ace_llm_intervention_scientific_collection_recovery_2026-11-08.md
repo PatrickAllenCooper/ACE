@@ -1,0 +1,27 @@
+# Collection startup recovery
+
+November 8, 2026. Proposed operational recovery after collection job35407428. This record does not authorize a duplicate job or claim completed collection.
+
+## What the saved evidence shows
+
+Collection01 failed1:0 after126 allocated seconds. Its126-second allocation on2CPUs charges252 CPU seconds. Complete custody retains146 raw files and2,336,700 bytes, all80 packet inputs, both original and recovery namespace claims and all41 historical jobs/84 journals. There are no transfer, input or accounting disagreements. Disposition SHA256 is `fd3a52be3054c1dd8d0d2b324dea3e64bdf8bc3676c28e7367cc0bbf06a3c685`; raw custody inventory is `0b0ab5a287cd58a31eea828e25ac7ccfa599900287d665da93ea2bbac2054b4d`.
+
+The traceback places the interruption in the runtime stager's progress-record fsync. The original absolute120-second startup timer fired before the parent created the worker session. The last of55 phase records reports26,501 of49,966 objects at119.991399 elapsed seconds and21.527731 processCPU seconds. The first object was reported at68.052393 seconds and7.868748 processCPU seconds. No worker, collection task or response journal is present. Independent failure review must establish the zero-response boundary from the exact source and traceback, rather than infer it only from absent output.
+
+The same pinned runtime completed staging in the accepted realization02 at33.676689 seconds. That run reached its first object at12.686317 seconds and7.421690 processCPU seconds. These saved timings show substantial wall-time variation. They do not isolate archive reads, metadata writes, filesystem contention or cache effects. No filesystem bypass, weakened integrity check or repeated runtime qualification is proposed. The saved timing comparison is `results/ace_llm_intervention_scientific_collection_recovery_preparation_20261108/diagnosis01/diagnosis.json`, SHA256 `61dc39510dfa1d50787ba451f90b180f275e057fadf670422f55729d50b28e24`.
+
+## Bounded proposed correction
+
+Keep the original scientific freeze `15602614ef9d7e9a3e21027e7495f891c98ba32a2b6b0ee9857e5b71d5e5e66d`, source commit `a9346022f145cc29439325b6f291597b2e6ec037`, accepted56 descriptors and both namespace claims unchanged. Use a separately reviewed stage amendment that changes only collection startup from120 to300 seconds and assigns a new exclusive collection02 output. Work, cleanup and hard deadlines remain850,875 and890 seconds from the original start. Requested resources remain2CPUs,7680MiB,900seconds,zeroGPUs,ucb736_asc2/acpu/cpu-normal,no requeue.
+
+The existing collection supervisor already accepts explicitly supplied ordered deadlines. Its realization deadlines remain fixed. No production source change is needed for this proposal. The amendment must authenticate the original freeze and accepted realization independently, rather than pretend a later freeze authenticated the earlier descriptors. All scientific inputs,32 training systems,160 records,3,584 pairs,9,216 response-attempt ceiling and10,240 response-cost ceiling remain fixed. The24 evaluation descriptors remain excluded from collection. No method, label, threshold, initialization, checkpoint or world is selected from outcomes.
+
+The proposed300-second startup window is a bounded engineering allowance, not a guaranteed completion time. It leaves550seconds before the unchanged work deadline if startup consumes the entire allowance. It retains every archive/object check and phase record. A further failure remains a failure with its full cost and evidence.
+
+After independent failure acceptance, closed allocation is expected to be11,386 CPU seconds and1,601 GPU-slice seconds. The single3,600 CPU preparation allowance remains unchanged. One900-second recovery on2CPUs would admit16,786 CPU seconds and1,601 GPU-slice seconds. Full remaining-stage caps project55,306 CPU seconds and7,181 GPU-slice seconds, within57,600/7,200. These projections are not new reservations or actual processCPU.
+
+## Before the single recovery attempt
+
+Require complete independently accepted failure custody, proof that no scientific response or collection worker ran, and a new exact41-job/84-journal accounting baseline. Bind those records and the accepted realization into a separate collection-only operational amendment. Independently review the amendment, new coordinator and concrete packet. Preserve collection01 and every failed or interrupted attempt. Reconcile both shared controller locks, all exact jobs/journals, source/input bytes, original claims and site readiness before one exclusive submission. Never reuse the failed output root or automatically retry an ambiguous submission.
+
+A successful recovery still requires complete original response/attempt custody, exact runtime and cleanup evidence, actual scheduler accounting and independent collection acceptance. Tokenization and model training remain gated on that acceptance. Later components must explicitly consume the reviewed amendment lineage, without rewriting the original scientific freeze or accepted records. Final scientific utility remains unanswered.
