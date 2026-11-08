@@ -1,0 +1,32 @@
+{
+  "collector_sha256": "e4cd620b5d9d8b24023deeca814b4b975126414c8bcce6628fe6b7d3941a3080",
+  "syntax": "AST parse only, local collector and embedded remote source",
+  "executed": false,
+  "tests_run": false,
+  "remote_actions": false,
+  "repository_sources_changed": false,
+  "compatibility_packet_sha256": "a50cfb5bee794ec20b5452c0183059cdc13c3f3038ed310b9d987912032b0838",
+  "required_cli": [
+    "--job-id",
+    "--packet-sha256",
+    "--submission-intent-sha256 (local intent)",
+    "--submission-result-sha256",
+    "--launch-commit (eventual packet/review/controller commit)"
+  ],
+  "fixes": [
+    "Explicit independent launch pins; committed packet, exact input roster, launcher, packet review and collector bindings.",
+    "Exclusive terminal roots claimed before observation; failed transports/partial copies retained with no retries.",
+    "Complete new remote root, all local launch bytes, two remote inventories, external and repository mirrors with exact roster/hash comparisons.",
+    "Actual Slurm owner/name/account/partition/QOS/request/allocated TRES/time/no-requeue identity; 4 requested,4-8 allocated CPUs,12GiB,one A100 3g.20gb slice,600s.",
+    "Fresh exact 38-job/78-journal extension against hash-bound remote launch intent baseline of37/76; duplicate IDs, row/pin/cost conflicts retained.",
+    "Actual billing CPU and slice elapsed costs; 10568 CPU/1483 GPU prior plus3600 preparation allowance; unresolved conflicts do not silently close admission.",
+    "No runtime,training,GPU-work or scientific acceptance from exit codes. All raw checkpoints/receipts/failures retained; only compact scalar terminal summaries printed."
+  ],
+  "bounds": {
+    "maximum_remote_files": 4096,
+    "maximum_single_file_bytes": 67108864,
+    "maximum_inventory_bytes": 536870912,
+    "collector_deadline_seconds": 900
+  },
+  "limits": "Static source handoff only. No Slurm/transport/runtime execution or fabricated tests. Bounds fail closed with retained evidence rather than skipping artifacts. Parent must commit final collector before launch; conflicting or partial custody requires explicit reconciliation, not rerun."
+}
