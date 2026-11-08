@@ -1,0 +1,38 @@
+test_added_file_and_symlink_cannot_hide_in_custody (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_admits_complete_custody_without_runtime_imports (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_all_eight_pins_and_publication_candidates_are_independent (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_cpu_acceptance_cannot_be_relabelled_or_omitted (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_each_immutable_inventory_rejects_tampering (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_exact_cpu_allocation_rejects_gpu_resources_requeues_and_wrong_limits (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ERROR
+test_failed_authentication_records_terminal_attempt_and_forbids_blind_retry (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_missing_or_unaccepted_authority_rejected_before_private_decode (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_output_overlap_and_unpinned_destinations_are_rejected_without_writes (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_previous_finalization_intent_forbids_retry_even_if_repinned (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_report_never_accepts_changed_original_attempts (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_report_rejects_missing_cells_comparisons_claims_and_lost_curves (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_report_retains_failed_cells_all_comparisons_and_original_journals (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_source_pin_failure_precedes_helper_execution (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_startup_deadline_is_independent_of_work_deadline (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_successful_acceptance_does_not_override_failed_gpu_terminal (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_supervisor_owns_one_group_and_closes_before_return (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_terminal_pins_cannot_escape_or_point_at_uninventoried_bytes (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_unconfirmed_cleanup_is_held_and_cannot_be_relabelled_clean (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_worker_calls_original_engine_exactly_once_and_retains_exception (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+test_worker_exit_failure_still_cleans_and_never_relaunches (test_finalize_llm_intervention_campaign_cpu.FinalizerTests) ... ok
+
+======================================================================
+ERROR: test_exact_cpu_allocation_rejects_gpu_resources_requeues_and_wrong_limits (test_finalize_llm_intervention_campaign_cpu.FinalizerTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/scripts/research/test_finalize_llm_intervention_campaign_cpu.py", line 258, in test_exact_cpu_allocation_rejects_gpu_resources_requeues_and_wrong_limits
+    self.assertEqual(gate.allocation(self.scheduler(), '123')['NumCPUs'], '2')
+  File "/Users/pat/code/ACE/scripts/research/finalize_llm_intervention_campaign_cpu.py", line 313, in allocation
+    need(all(len(x) == 2 for x in rows), 'malformed resource list')
+  File "/Users/pat/code/ACE/scripts/research/finalize_llm_intervention_campaign_cpu.py", line 51, in need
+    raise ValueError(message)
+ValueError: malformed resource list
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.266s
+
+FAILED (errors=1)
