@@ -90,3 +90,31 @@ GPU12 passed the corrected child environment and reached model loading. It stopp
 Service v3 and runtime contract v2 add the reviewed device-mapping helper as the sixteenth captured source. The raw snapshot is saved first. Device inventory and classification proof follow. Only the post-load and post-request checks receive a separately reconstructed view. CPU preflight explicitly disables that policy. The GPU saved-evidence validator independently reconstructs both late observations while retaining all other provenance checks.
 
 Independent integration review found zero required changes. Four new integration methods and five affected authentication/resource methods pass. These are artificial checks only. CPU preflight v3 has 26 inputs and requests two CPUs, six GiB and ten minutes. Its CPU03 packet precedes any new GPU launch. The earlier CPU acceptance cannot authenticate the changed closure. GPU caller v4 still needs the new CPU-source pin, accepted job and receipt after successful CPU qualification. No scientific descriptors have been generated.
+
+## November 8 qualification outcome
+
+CPU04 and GPU14 are independently accepted. The current service is v4 with
+runtime contract v3 and the physical-device mapping helper v2. GPU14 job35372844
+completed two fresh sessions and eight decisions on saved artificial states.
+The frozen model and restored artificial adapter both returned identical tokens
+and decisions on separated repeated inputs. All source, model, runtime, mapping,
+process cleanup and scheduler observations passed the bounded external review.
+Complete raw evidence remains in terminal14. Acceptance is separately recorded
+in acceptance14 with SHAe1fca5005c2a709964955f83b02b27a12374b77882325cc2ada94a532e747340.
+
+The requested single20GBslice,4CPUs and12GiB were the actual allocation. A600second
+cap bounded the82second run. First verified GPU work occurred at51.097seconds.
+Generation counters peaked at2,899,408,896allocated and3,258,974,208reserved GPU
+bytes. Thirteen positive owned-process samples included a3,356MiB peak. The eight
+calls emitted66tokens includingEOS in about5.146449seconds, excluding preparation
+and loading. CUDA intervals total about5.131701seconds. Utilization percentage
+was not measured. These observations establish GPU work, not a whole-job
+utilization rate or a general throughput estimate. The short qualification includes
+fixed archive staging and verification costs. Future campaigns should reuse the
+service across their declared roster rather than repeat this eight-request job.
+
+Both sessions observed physical/dev/nvidia0. GPU14 does not reconstruct the missing
+node1 metadata from failedGPU13, qualify every physical index, or resolve historical
+cache provenance. All failures remain preserved. No new training or environment
+responses occurred. The next required qualification is the integrated training
+engine and paired campaign, followed by the fresh scientific study.
