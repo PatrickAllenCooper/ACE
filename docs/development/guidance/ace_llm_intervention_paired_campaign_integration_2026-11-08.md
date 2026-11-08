@@ -59,6 +59,16 @@ New launch tests use mocked `exec`, lineage tests use fabricated pins, and CPU-p
 
 The remaining critical work is a concrete captured-source CPU/GPU launcher, independent admission of retained CPU attempts, authenticated numerical-policy child commands, exact new service freezes and resource contracts, actual CPU preparation, then one bounded GPU campaign and private finalization. The final packet must bind every new interface and its dependencies. These additions do not alter any accepted artifact or the archived paper.
 
+### Full launcher preparation
+
+The new CPU launcher stages the accepted runtime once, authenticates the complete training batch and accepted adapters as bytes, fits the matched numerical control and runs the five CPU policies. Each adaptive numerical call uses the same staged interpreter and captured source with its own bounded deadline. It verifies its used numerical imports without rescanning the entire archive or importing a language model on every decision. Its saved validator reads evidence without fitting, loading tensors or computing private scores.
+
+Independent CPU-wrapper review found one input/status interface defect before execution. The corrected adapter supplies both text and binary stdin and rejects a failed CLI return before publishing completion. Thirteen initial methods, two subsequent focused methods and two new interface methods passed. The final narrow independent recheck has zero required findings remaining. All source snapshots, logs and receipts are retained under `results/ace_llm_intervention_campaign_preparation_20261108/cpu_wrapper01` and `cpu_wrapper02`.
+
+The GPU phase and outer launcher are implemented. Three required outer-review findings are resolved: the startup timer transfers to the original overall work deadline, unresolved owned cleanup keeps the controller alive until confirmed closure or its original hard deadline, and pinned separated output paths are checked before any claim or failure write. The narrow independent recheck has zero remaining required fixes. Fifteen distinct mocked phase methods passed, plus one affected cleanup-method rerun. The wrapper's four initial methods and three new or changed methods passed across preserved source versions. These are fabricated boundary checks, not real model execution or scheduler acceptance.
+
+The current 15 GiB request supersedes the preserved 16 GiB prototype. No previous receipt is relabelled. A new committed CPU packet and concrete review still precede the actual CPU stage. Its successful execution, exclusive complete custody and separate acceptance must precede the GPU packet. The final GPU packet is not constructed by these preparations and no campaign job has yet been submitted.
+
 ## Execution sequence after training acceptance
 
 **CPU first.** Authenticate the complete saved collection terminal, inventory, records and supervision receipts; the exact exposure; accepted tokenized plan; and accepted GPU03 training outputs. Reuse all four records, four SFT exposures, two selected DPO pairs, two unused strict pairs and two ties. No collection rerun or replacement examples.
@@ -86,10 +96,10 @@ The outer acceptance links collection → exposure → tokenized plan → succes
 | Phase | Initial bounded request |
 |---|---|
 | CPU preparation, ranker and numerical arms | 2 CPUs, 7,680 MiB, 600 seconds, zero GPU |
-| Three sequential LLM services | One A100 `3g.20gb` slice, 4 requested/max 8 allocated CPUs, 16 GiB, 600 seconds |
+| Three sequential LLM services | One A100 `3g.20gb` slice, 4 requested/max 8 allocated CPUs, 15 GiB, 600 seconds |
 | CPU finalization, if separately scheduled | 2 CPUs, 7,680 MiB, 300 seconds, zero GPU |
 
-The CPU memory proposal provides room above prior near-6-GiB batch peaks for ranker/subprocess work without another CPU. GPU14 measured approximately 3.26 GB reserved GPU memory. GPU03 measured 3.278 GB reserved and 95.05% of its 12 GiB host-memory limit. The latter includes runtime staging. The campaign also keeps a host SCM/controller alive beside each model process. Request 16 GiB host memory to provide margin above that measured near-limit run. This changes neither GPU count nor the CPU/GPU time reservation. Use the new CPU timings to check the projection before launch. One sequential GPU slice is sufficient as the starting bound; no multi-GPU allocation is justified.
+The CPU memory proposal provides room above prior near-6-GiB batch peaks for ranker/subprocess work without another CPU. GPU14 measured approximately 3.26 GB reserved GPU memory. GPU03 measured 3.278 GB reserved and 95.05% of its 12 GiB host-memory limit. The latter includes runtime staging. The campaign also keeps a host SCM/controller alive beside each model process. Request 15 GiB host memory to provide margin above that measured near-limit run. The most recent accepted partition record limits memory to 3,840 MiB per requested CPU, so 15 GiB fits four CPUs while 16 GiB would exceed that ratio. Fresh partition admission remains required. This changes neither GPU count nor the CPU/GPU time reservation. Use the new CPU timings to check the projection before launch. One sequential GPU slice is sufficient as the starting bound; no multi-GPU allocation is justified.
 
 Proposed account is `ucb736_asc2`, CPU partition/QOS `acpu/cpu-normal`, GPU `aa100/gpu-testing`, with no requeue. Proposed exclusive output is `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_01`. Reconcile actual current jobs, existing controller locks, journals, account and slice availability before any once-only submission.
 
