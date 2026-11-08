@@ -1,0 +1,7 @@
+{
+  "python_source": "PATH='/scratch/alpine/paco0228/ACE/results/.ace-scientific-screen-20261107.namespace.json'\nEXPECTED='58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29'\n\nfrom pathlib import Path\nimport hashlib,json,os,stat\np=Path(PATH)\nwith os.fdopen(os.open(p,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:\n s=os.fstat(f.fileno())\n if not stat.S_ISREG(s.st_mode) or s.st_nlink!=1:raise ValueError('ordinary original claim required')\n raw=f.read()\n h=hashlib.sha256(raw).hexdigest()\n if h!=EXPECTED:raise ValueError('original remote registry changed')\nprint(json.dumps(dict(path=PATH,sha256=h,bytes=len(raw),mutation=False)))\n",
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\"path\": \"/scratch/alpine/paco0228/ACE/results/.ace-scientific-screen-20261107.namespace.json\", \"sha256\": \"58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29\", \"bytes\": 2058, \"mutation\": false}\n",
+  "utc": "2026-11-08T12:55:45.306386+00:00"
+}
