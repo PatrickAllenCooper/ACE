@@ -6,11 +6,15 @@ Training GPU03, job 35379434, is now independently accepted with zero required d
 
 Current closed allocation is **10,368 CPU-seconds and 1,483 GPU-slice-seconds**. No ACE job remains active. Including the unchanged3,600CPU preparation allowance gives13,968/57,600CPU admission. Future submission reconciliation requires36terminaljobs and74journals. These are not whole-cycle process CPU.
 
-## CPU finalization01 complete, final review pending
+## CPU finalization01 independently accepted
 
-Job35389391 completed0:0 in61seconds,2CPU/7680MiB/zeroGPU, adding122allocatedCPU seconds. Complete2,219rawfiles/110,220,879bytes andall94transferpins match bothlocalcopies andtwo remoteinventories. FinalizationSHA`aa77436fbda2e3348b7eae08d33327c1fa5e33ae3e6602a4abd69930a53c6dfa`, summarySHA`790cb2ecbf6af7e5e63ad10e7e8056f7b69e75f68c185ad345004ce430c7d577`. All16cells/28pairs are retained withzero failed/unresolved cells andzero new responses/updates. Exactruntime,groupcleanup and scheduler completion are recorded. Independent final-result review is pending. Preserve the published finalization even if later review identifies a defect.
+Job35389391 completed0:0 in61seconds,2CPU/7680MiB/zeroGPU, adding122allocatedCPU seconds. Complete2,219rawfiles/110,220,879bytes andall94transferpins match bothlocalcopies andtwo remoteinventories. FinalizationSHA`aa77436fbda2e3348b7eae08d33327c1fa5e33ae3e6602a4abd69930a53c6dfa`, summarySHA`790cb2ecbf6af7e5e63ad10e7e8056f7b69e75f68c185ad345004ce430c7d577`. All16cells/28pairs are retained withzero failed/unresolved cells andzero new responses/updates. Exactruntime,groupcleanup and scheduler completion are recorded. Independent final-result review found zero required corrections. Acceptance SHA-256 `c0fa8e82d7399905a23d84bceca01e5e6a25cad903ae99725e62c985318c8a86`, separate review receipt `8069ab52b12658743ade47996f193542ff02325d3e71aabb4cde161b17c4b208`. The [actual-results review](reviews/ace_llm_intervention_campaign_finalization_execution01_review_2026-11-08.md) gives every method and both worlds. Preserve the published finalization.
 
 The supervisor took51.9811seconds and26.5349processCPU seconds. Child/cleanup CPU was1.414002seconds with163,819,520peakRSS bytes. The child resource elapsed field uses the original supervisor epoch and is not an isolated scoring duration. SlurmTotalCPU28.062seconds/batchMaxRSS7,862,160KiB overlap other measurements. Do not add them or infer memory headroom from the lower child-only peak.
+
+All76 saved curve points and28 paired comparisons reconcile. Every cell actually spent six logical units, with96 total logical charges and92 accepted receipt entries. Fifteen cells ever attained the threshold, while ten finished below it. World9102 begins below threshold for every arm, but five arms lose attainment. DPO never attains in world9101. Retrospective crossing costs do not demonstrate actual saved interventions. All methods and adverse results remain present. The next scientific design reports ever and final attainment separately and retains actual spending. These two supplied artificial worlds do not estimate scientific effectiveness.
+
+The following submission and phase entries are historical. The accepted complete outcome above supersedes their pending flags.
 
 ## CPU finalization01 submitted once
 

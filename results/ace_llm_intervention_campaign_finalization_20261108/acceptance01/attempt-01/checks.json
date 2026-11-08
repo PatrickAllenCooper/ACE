@@ -1,0 +1,1230 @@
+{
+  "action_counts": {
+    "dpo_llm": {
+      "observe_all": 7,
+      "x_plus": 1
+    },
+    "frozen_llm": {
+      "observe_all": 7,
+      "x_plus": 1
+    },
+    "learned_ranker": {
+      "x_plus": 6
+    },
+    "local_information": {
+      "observe_all": 4,
+      "x_minus": 3,
+      "x_plus": 1
+    },
+    "menu_coverage": {
+      "x_minus": 4,
+      "x_plus": 3
+    },
+    "sft_llm": {
+      "observe_all": 7,
+      "x_plus": 1
+    },
+    "target_risk": {
+      "x_minus": 4,
+      "x_plus": 3
+    },
+    "uniform_random": {
+      "observe_all": 3,
+      "x_minus": 3,
+      "x_plus": 2
+    }
+  },
+  "batch_max_rss_kib": 7862160,
+  "checks": [
+    "2219 files / 110220879 bytes; both copies and both remote inventories match",
+    "94 committed packet pins, 51 captured sources, upstream acceptance and all original common bytes preserved",
+    "new Slurm/absolute deadlines/owned cleanup/runtime; 122 CPU seconds, zero GPU; census 36 jobs / 74 journals",
+    "16 saved prediction curves independently recomputed; all receipt charges; adverse final attainment and DPO nonattainment retained",
+    "28 independent pair calculations and exact full summary/strata consistency, no favorable filtering"
+  ],
+  "closed_cpu_seconds": 10368,
+  "closed_gpu_slice_seconds": 1483,
+  "cpu_admission_with_preparation_allowance": 13968,
+  "curve_points": 76,
+  "curves": [
+    {
+      "capped_acquisition": 1,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 1,
+      "policy_id": "uniform_random",
+      "recomputed_errors": [
+        0.188643825528793,
+        0.027842609195928805,
+        0.02690655004597899,
+        0.003187733869285304,
+        0.0073666961958599045
+      ],
+      "true_query_means": [
+        -1.0,
+        3.0
+      ],
+      "world_id": 9101
+    },
+    {
+      "capped_acquisition": 4,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 4,
+      "policy_id": "menu_coverage",
+      "recomputed_errors": [
+        0.188643825528793,
+        0.33796051183815584,
+        0.11813648986268782,
+        0.05214279587593675,
+        0.021752389690433936
+      ],
+      "true_query_means": [
+        -1.0,
+        3.0
+      ],
+      "world_id": 9101
+    },
+    {
+      "capped_acquisition": 4,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 4,
+      "policy_id": "local_information",
+      "recomputed_errors": [
+        0.188643825528793,
+        0.11763814214632182,
+        0.08418645684174136,
+        0.07873607422020132,
+        0.014018500607463779
+      ],
+      "true_query_means": [
+        -1.0,
+        3.0
+      ],
+      "world_id": 9101
+    },
+    {
+      "capped_acquisition": 2,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 2,
+      "policy_id": "target_risk",
+      "recomputed_errors": [
+        0.188643825528793,
+        0.13135356151060434,
+        0.014994396631310594,
+        0.01579066732173227,
+        0.009704344235528014
+      ],
+      "true_query_means": [
+        -1.0,
+        3.0
+      ],
+      "world_id": 9101
+    },
+    {
+      "capped_acquisition": 1,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 1,
+      "policy_id": "learned_ranker",
+      "recomputed_errors": [
+        0.188643825528793,
+        0.03447390159564449,
+        0.0447744413192444,
+        0.02886919672149507,
+        0.020073153500724902
+      ],
+      "true_query_means": [
+        -1.0,
+        3.0
+      ],
+      "world_id": 9101
+    },
+    {
+      "capped_acquisition": 2,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 2,
+      "policy_id": "frozen_llm",
+      "recomputed_errors": [
+        0.188643825528793,
+        0.22367488222756166,
+        0.0067626497388788166,
+        0.0009995407948487848,
+        0.0012910940345436236
+      ],
+      "true_query_means": [
+        -1.0,
+        3.0
+      ],
+      "world_id": 9101
+    },
+    {
+      "capped_acquisition": 2,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 2,
+      "policy_id": "sft_llm",
+      "recomputed_errors": [
+        0.188643825528793,
+        0.15855454890467988,
+        0.023002747904036277,
+        0.02332231071549375,
+        0.020497624308750243
+      ],
+      "true_query_means": [
+        -1.0,
+        3.0
+      ],
+      "world_id": 9101
+    },
+    {
+      "capped_acquisition": 4,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": false,
+      "first_crossing_acquisition": null,
+      "policy_id": "dpo_llm",
+      "recomputed_errors": [
+        0.188643825528793,
+        0.10119413346969294,
+        0.10751895837143083,
+        0.1065629210900898,
+        0.10182108066238214
+      ],
+      "true_query_means": [
+        -1.0,
+        3.0
+      ],
+      "world_id": 9101
+    },
+    {
+      "capped_acquisition": 0,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": false,
+      "first_crossing_acquisition": 0,
+      "policy_id": "uniform_random",
+      "recomputed_errors": [
+        0.029213499710309024,
+        0.4180921406023099,
+        0.4460980791052934,
+        0.6117317660093701,
+        0.7597713164495332
+      ],
+      "true_query_means": [
+        3.25,
+        -0.75
+      ],
+      "world_id": 9102
+    },
+    {
+      "capped_acquisition": 0,
+      "charges": {
+        "accepted_responses": 5,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 5,
+        "reserved_attempts": 5,
+        "unknown_returns": 0
+      },
+      "final_attained": false,
+      "first_crossing_acquisition": 0,
+      "policy_id": "menu_coverage",
+      "recomputed_errors": [
+        0.029213499710309024,
+        0.5087634843416438,
+        0.25743876915959746,
+        0.15930384445245369
+      ],
+      "true_query_means": [
+        3.25,
+        -0.75
+      ],
+      "world_id": 9102
+    },
+    {
+      "capped_acquisition": 0,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": false,
+      "first_crossing_acquisition": 0,
+      "policy_id": "local_information",
+      "recomputed_errors": [
+        0.029213499710309024,
+        0.8899506619388898,
+        1.1265596830864755,
+        1.0480154646010804,
+        0.9390796100855572
+      ],
+      "true_query_means": [
+        3.25,
+        -0.75
+      ],
+      "world_id": 9102
+    },
+    {
+      "capped_acquisition": 0,
+      "charges": {
+        "accepted_responses": 5,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 5,
+        "reserved_attempts": 5,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 0,
+      "policy_id": "target_risk",
+      "recomputed_errors": [
+        0.029213499710309024,
+        0.009992789413409472,
+        0.01258749645449156,
+        0.01149544784573453
+      ],
+      "true_query_means": [
+        3.25,
+        -0.75
+      ],
+      "world_id": 9102
+    },
+    {
+      "capped_acquisition": 0,
+      "charges": {
+        "accepted_responses": 4,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 4,
+        "reserved_attempts": 4,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 0,
+      "policy_id": "learned_ranker",
+      "recomputed_errors": [
+        0.029213499710309024,
+        0.008815098064768163,
+        0.005001003732731227
+      ],
+      "true_query_means": [
+        3.25,
+        -0.75
+      ],
+      "world_id": 9102
+    },
+    {
+      "capped_acquisition": 0,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": false,
+      "first_crossing_acquisition": 0,
+      "policy_id": "frozen_llm",
+      "recomputed_errors": [
+        0.029213499710309024,
+        0.4550793094587861,
+        0.2766907288433234,
+        0.47212454148315963,
+        0.4824202629284992
+      ],
+      "true_query_means": [
+        3.25,
+        -0.75
+      ],
+      "world_id": 9102
+    },
+    {
+      "capped_acquisition": 0,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": true,
+      "first_crossing_acquisition": 0,
+      "policy_id": "sft_llm",
+      "recomputed_errors": [
+        0.029213499710309024,
+        0.04260395421876648,
+        0.012392817634532552,
+        0.010805862379797306,
+        0.009805662920743368
+      ],
+      "true_query_means": [
+        3.25,
+        -0.75
+      ],
+      "world_id": 9102
+    },
+    {
+      "capped_acquisition": 0,
+      "charges": {
+        "accepted_responses": 6,
+        "actual_acquisition_cost_units": 4,
+        "actual_initial_cost_units": 2,
+        "actual_total_cost_units": 6,
+        "known_return_cost_units": 6,
+        "known_returns": 6,
+        "reserved_attempts": 6,
+        "unknown_returns": 0
+      },
+      "final_attained": false,
+      "first_crossing_acquisition": 0,
+      "policy_id": "dpo_llm",
+      "recomputed_errors": [
+        0.029213499710309024,
+        0.027621453048330937,
+        0.07386822688591482,
+        0.13855952923828949,
+        0.1609771187753618
+      ],
+      "true_query_means": [
+        3.25,
+        -0.75
+      ],
+      "world_id": 9102
+    }
+  ],
+  "finalization_work_start": {
+    "monotonic": 229362.225787736,
+    "packet_sha256": "417bd889465198c0276fcc2a2ebf55168e21efad278c7978a34ed9360761bf6c",
+    "pid": 3290206,
+    "private_finalization_calls": 1,
+    "utc": "2026-11-08T08:52:31.898105+00:00"
+  },
+  "logical_accepted_responses": 92,
+  "logical_actual_acquisition_cost_units": 64,
+  "logical_actual_initial_cost_units": 32,
+  "logical_actual_total_cost_units": 96,
+  "original_common_files_preserved": 1740,
+  "outer_attempt": {
+    "completed_utc": "2026-11-08T08:52:35.579056+00:00",
+    "elapsed_seconds": 51.98114527898724,
+    "error": null,
+    "independent_acceptance_required": true,
+    "packet_sha256": "417bd889465198c0276fcc2a2ebf55168e21efad278c7978a34ed9360761bf6c",
+    "process_cpu_seconds": 26.534867502,
+    "retry_allowed": false,
+    "schema": "ace-artificial-campaign-finalizer-cpu-v1",
+    "scientific_acceptance": false,
+    "status": "completed"
+  },
+  "pairs": [
+    {
+      "acquisition_cost_differences": [
+        -3,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "uniform_random",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -1.5,
+      "mean_total_cost_difference": -1.5,
+      "right": "menu_coverage",
+      "ties": 1,
+      "total_cost_differences": [
+        -3,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -3,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "uniform_random",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -1.5,
+      "mean_total_cost_difference": -1.5,
+      "right": "local_information",
+      "ties": 1,
+      "total_cost_differences": [
+        -3,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -1,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "uniform_random",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -0.5,
+      "mean_total_cost_difference": -0.5,
+      "right": "target_risk",
+      "ties": 1,
+      "total_cost_differences": [
+        -1,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        0,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "uniform_random",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 0.0,
+      "mean_total_cost_difference": 0.0,
+      "right": "learned_ranker",
+      "ties": 2,
+      "total_cost_differences": [
+        0,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -1,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "uniform_random",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -0.5,
+      "mean_total_cost_difference": -0.5,
+      "right": "frozen_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -1,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -1,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "uniform_random",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -0.5,
+      "mean_total_cost_difference": -0.5,
+      "right": "sft_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -1,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -3,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "uniform_random",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -1.5,
+      "mean_total_cost_difference": -1.5,
+      "right": "dpo_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -3,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        0,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "menu_coverage",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 0.0,
+      "mean_total_cost_difference": 0.0,
+      "right": "local_information",
+      "ties": 2,
+      "total_cost_differences": [
+        0,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "menu_coverage",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 1.0,
+      "mean_total_cost_difference": 1.0,
+      "right": "target_risk",
+      "ties": 1,
+      "total_cost_differences": [
+        2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        3,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "menu_coverage",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 1.5,
+      "mean_total_cost_difference": 1.5,
+      "right": "learned_ranker",
+      "ties": 1,
+      "total_cost_differences": [
+        3,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "menu_coverage",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 1.0,
+      "mean_total_cost_difference": 1.0,
+      "right": "frozen_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "menu_coverage",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 1.0,
+      "mean_total_cost_difference": 1.0,
+      "right": "sft_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        0,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "menu_coverage",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 0.0,
+      "mean_total_cost_difference": 0.0,
+      "right": "dpo_llm",
+      "ties": 2,
+      "total_cost_differences": [
+        0,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "local_information",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 1.0,
+      "mean_total_cost_difference": 1.0,
+      "right": "target_risk",
+      "ties": 1,
+      "total_cost_differences": [
+        2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        3,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "local_information",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 1.5,
+      "mean_total_cost_difference": 1.5,
+      "right": "learned_ranker",
+      "ties": 1,
+      "total_cost_differences": [
+        3,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "local_information",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 1.0,
+      "mean_total_cost_difference": 1.0,
+      "right": "frozen_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "local_information",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 1.0,
+      "mean_total_cost_difference": 1.0,
+      "right": "sft_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        0,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "local_information",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 0.0,
+      "mean_total_cost_difference": 0.0,
+      "right": "dpo_llm",
+      "ties": 2,
+      "total_cost_differences": [
+        0,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        1,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "target_risk",
+      "left_losses_higher_cost": 1,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 0.5,
+      "mean_total_cost_difference": 0.5,
+      "right": "learned_ranker",
+      "ties": 1,
+      "total_cost_differences": [
+        1,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        0,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "target_risk",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 0.0,
+      "mean_total_cost_difference": 0.0,
+      "right": "frozen_llm",
+      "ties": 2,
+      "total_cost_differences": [
+        0,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        0,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "target_risk",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 0.0,
+      "mean_total_cost_difference": 0.0,
+      "right": "sft_llm",
+      "ties": 2,
+      "total_cost_differences": [
+        0,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "target_risk",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -1.0,
+      "mean_total_cost_difference": -1.0,
+      "right": "dpo_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -1,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "learned_ranker",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -0.5,
+      "mean_total_cost_difference": -0.5,
+      "right": "frozen_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -1,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -1,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "learned_ranker",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -0.5,
+      "mean_total_cost_difference": -0.5,
+      "right": "sft_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -1,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -3,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "learned_ranker",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -1.5,
+      "mean_total_cost_difference": -1.5,
+      "right": "dpo_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -3,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        0,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "frozen_llm",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 0,
+      "mean_acquisition_cost_difference": 0.0,
+      "mean_total_cost_difference": 0.0,
+      "right": "sft_llm",
+      "ties": 2,
+      "total_cost_differences": [
+        0,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "frozen_llm",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -1.0,
+      "mean_total_cost_difference": -1.0,
+      "right": "dpo_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    },
+    {
+      "acquisition_cost_differences": [
+        -2,
+        0
+      ],
+      "comparison_scope": "all roster worlds, including failed/unresolved cap endpoints; descriptive, not evidence of success",
+      "difference_definition": "left_minus_right_capped_cost",
+      "left": "sft_llm",
+      "left_losses_higher_cost": 0,
+      "left_wins_lower_cost": 1,
+      "mean_acquisition_cost_difference": -1.0,
+      "mean_total_cost_difference": -1.0,
+      "right": "dpo_llm",
+      "ties": 1,
+      "total_cost_differences": [
+        -2,
+        0
+      ],
+      "world_ids": [
+        9101,
+        9102
+      ],
+      "worlds_with_failed_cell": 0,
+      "worlds_with_unresolved_cell": 0
+    }
+  ],
+  "process_cpu_seconds": 0.70791,
+  "raw_bytes": 110220879,
+  "raw_files": 2219,
+  "source_sha256": "22e005f23c436ae1e3f3b23d814bf2b88045c0643de795e5d9eb638038d9e510",
+  "staging_complete_utc": "2026-11-08T08:52:29.165020+00:00",
+  "staging_start_utc": "2026-11-08T08:51:56.805824+00:00",
+  "status": "passed",
+  "submission_journals": 74,
+  "terminal_jobs": 36
+}
