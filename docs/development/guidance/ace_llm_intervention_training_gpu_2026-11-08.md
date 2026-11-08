@@ -23,3 +23,13 @@ Source freeze, concrete packet review and actual execution remain required. Acce
 ## Submitted qualification
 
 Job35377234 was submitted once at2026-11-08T05:42:35.833530Z after the final packet review found zero required fixes. All48remote input pins, both controller locks,28terminal predecessor jobs and58submission journals reconciled. Source74be8f57 and packetcommitda4200b0 are preserved with the full pinned packet. At05:42:46UTC the job was RUNNING with four CPUs,12GiB and one20GBslice. Runtime staging had begun. This initial observation does not prove GPU use or training success. The reservation is now16,586CPU seconds and1,691GPU-slice seconds including the current bounded job. Terminal custody and independent acceptance are pending.
+
+## Attempt01 failure and bounded correction
+
+Job35377234 completed all six planned optimizer updates but failed in the subsequent final likelihood comparison. The kernel warning identifies an unsupported non-null attention mask. The final all-command batch mixed seven-token intervention commands and a six-token stop command, requiring padding. Training itself used singleton supervised commands and equal-length preference pairs. Training arithmetic, backend and input plan are unchanged.
+
+The correction uses fixed singleton command calls for the final before/after-reload score comparison. The post-SFT reference check keeps the original equal-length two-command batch used by the training engine. This fixes inference batching rather than changing training. A new attempt must start fresh adapters and preserve all attempt01 files. It is not a resume or a successful qualification until actual reload, inference, supervision and independent acceptance pass.
+
+Complete custody retains307rawfiles/66,963,772bytes. Worker cleanup has natural exit1, no remaining group, no TERM/KILL and no cleanup errors. First verified GPU work was52.016662seconds from supervisor start. Six updates completed in13.281326seconds of engine elapsed time, with independent ownedGPU process evidence. These facts establish partial execution only. Exact failure custody and resources still need the distinct result review.
+
+The77second allocation adds308CPU/77GPU seconds. Closed totals8494CPU/1168GPU plus3600CPU preparation give12094/57600CPU admission and1168/7200GPU, no outstanding job. The same proposed600second bound adds4800CPU/600GPU, giving16894/1768. The full integrated path remains unqualified, and scientific descriptors remain ungenerated.
