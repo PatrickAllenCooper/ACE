@@ -51,3 +51,13 @@ Complete failed custody contains308raw files and66,951,929bytes. The71second all
 The implementation now records allocated and reserved bytes before workspace clearing, immediately after clearing, and after allocator-cache release. It requires one successful workspace-clear call and exact zero final counters. Six new pure controls pass, along with one necessary full-bundle validator method whose fabricated memory receipts changed. The original AST test error and its focused correction are preserved. Test children consumed0.467202CPU seconds, excluding preparation and review. No model or GPU execution occurred during these checks. The intermediate measurement was requested by the coordinating agent after the failure review, under the existing user authorization.
 
 Final worker SHA is`faa3111ccfdbfb8004eb539a41dcc57df98183037a5ed25afd294fa2cec4f1bd`; preparation receipt SHA is`3e5d3620fcfe88dcd703d3fb33ee1938e79460e6e900b2287dd06e4c22c90106`. Distinct implementation review and a new concrete freeze still precede actual qualification.
+
+## Attempt03 accepted
+
+Job 35379434 completed all four SFT and two DPO updates, both fresh checkpoint reloads and ten legal generations. Both reload score differences were exactly zero. The workspace-clear operation reduced allocated memory to zero at all three model-lifetime boundaries. Cache release then reduced reserved memory to zero. Natural child exit, an empty owned process group and an empty post-exit GPU sample all passed.
+
+The independent actual-result review found zero required defects. Complete custody contains 403 raw files and 67,689,522 bytes, with all 48 input pins matched. The accepted successor receipt is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. Original failed attempts and pending-review collection receipts retain their original bytes.
+
+This qualifies artificial integrated training and checkpoint inference in the observed runtime. It does not establish intervention utility. No environment responses were generated. The next gate is the complete paired artificial intervention campaign. Scientific training and development descriptors remain ungenerated.
+
+The job used four CPUs and one 20 GB GPU slice for 108 seconds, adding 432 allocated CPU seconds and 108 GPU-slice seconds. Closed totals are 9,210 CPU seconds and 1,347 GPU-slice seconds. Including the unchanged 3,600-second CPU preparation allowance gives admission of 12,810/57,600 CPU seconds and 1,347/7,200 GPU seconds. Slurm batch RSS reached 95.05% of the 12 GiB request, so future workload sizing must account for this limited host-memory margin. GPU peak reserved memory was 3.278 GB. No multi-GPU allocation is justified.

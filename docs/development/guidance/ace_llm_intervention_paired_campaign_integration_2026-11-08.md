@@ -2,9 +2,9 @@
 
 November 8, 2026. **Proposed plan only: not frozen, approved for execution, submitted, run or accepted.**
 
-GPU01 failed after its six optimizer updates, during the padded final score check. Its evidence remains preserved. The next training candidate is the reviewed GPU02 correction, source `c3e2411f`, with its packet ready but unsubmitted; actual training qualification remains pending. This plan begins only after successful fresh-adapter training, both checkpoint reloads/inference, cleanup and independent result acceptance. It does not reopen GPU01 or duplicate GPU02 work.
+Training GPU03, job 35379434, is now independently accepted with zero required defects. It completed fresh four-step SFT and two-step DPO training, both exact checkpoint reloads, ten legal generations and clean shutdown. Its acceptance is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. The two failed predecessors remain unchanged.
 
-Current closed allocation is **8,494 CPU-seconds and 1,168 GPU-slice-seconds**. With the unchanged 3,600 CPU-second preparation allowance, current admission is 12,094/57,600 CPU and 1,168/7,200 GPU. These figures exclude unsubmitted GPU02 and this proposal. Reconcile actual totals before any later submission.
+Current closed allocation is **9,210 CPU-seconds and 1,347 GPU-slice-seconds**. With the unchanged 3,600 CPU-second preparation allowance, admission is 12,810/57,600 CPU and 1,347/7,200 GPU. No campaign resources are allocated. The prospective caps below would bring admission to 19,410 CPU seconds and 1,947 GPU-slice seconds. Reconcile current jobs and journals before any submission.
 
 ## Next gate and scope
 
@@ -45,7 +45,7 @@ Implement one phase-aware outer driver with a pinned launch shim and saved-evide
 
 ## Execution sequence after training acceptance
 
-**CPU first.** Authenticate the complete saved collection terminal, inventory, records and supervision receipts; the exact exposure; accepted tokenized plan; and successful GPU02 training outputs. Reuse all four records, four SFT exposures, two selected DPO pairs, two unused strict pairs and two ties. No collection rerun or replacement examples.
+**CPU first.** Authenticate the complete saved collection terminal, inventory, records and supervision receipts; the exact exposure; accepted tokenized plan; and accepted GPU03 training outputs. Reuse all four records, four SFT exposures, two selected DPO pairs, two unused strict pairs and two ties. No collection rerun or replacement examples.
 
 Train the numerical control once on that exact exposure using the accepted 128-unit, seed-109 recipe with continuous optimizer state. `numeric_recipe(artificial=False)` selects the full architecture while data scope remains `artificial`, which the trainer permits. Retain both exports and reload evidence; deploy only the predeclared final DPO ranker. Do not use the older default epoch-based trainer or add a ninth arm.
 
@@ -73,13 +73,13 @@ The outer acceptance links collection → exposure → tokenized plan → succes
 | Three sequential LLM services | One A100 `3g.20gb` slice, 4 requested/max 8 allocated CPUs, 12 GiB, 600 seconds |
 | CPU finalization, if separately scheduled | 2 CPUs, 7,680 MiB, 300 seconds, zero GPU |
 
-The CPU memory proposal provides room above prior near-6-GiB batch peaks for ranker/subprocess work without another CPU. GPU14 measured approximately 3.26 GB reserved GPU memory; GPU09 measured 4.84 GB during training. Use successful GPU02 measurements and the new CPU timings to finalize the projection. One sequential GPU slice is sufficient as the starting bound; no multi-GPU allocation is justified.
+The CPU memory proposal provides room above prior near-6-GiB batch peaks for ranker/subprocess work without another CPU. GPU14 measured approximately 3.26 GB reserved GPU memory. GPU03 measured 3.278 GB reserved and 95.05% of its 12 GiB host-memory limit. The latter includes runtime staging and constrains any wider campaign host-memory projection. Use accepted GPU03 measurements and the new CPU timings to finalize the projection. One sequential GPU slice is sufficient as the starting bound; no multi-GPU allocation is justified.
 
 Proposed account is `ucb736_asc2`, CPU partition/QOS `acpu/cpu-normal`, GPU `aa100/gpu-testing`, with no requeue. Proposed exclusive output is `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_01`. Reconcile actual current jobs, existing controller locks, journals, account and slice availability before any once-only submission.
 
 Retain the 240-second first-verified-work limit, 90-second progress/telemetry guard, and cleanup margin inside the GPU cap. Size session admission for three services rather than copying the old two-session deadline assumption. Require positive CUDA work and advancing generation records together with independent owned-GPU-process evidence for every service. Record staging, model loading, inference, adaptive CPU work and final-output timestamps. Missing utilization percentages remain unknown, not proof of idleness or high utilization. Diagnose sustained CPU-only occupancy promptly and stop only owned work when safe, preserving evidence.
 
-The proposed caps add at most **6,600 allocated CPU-seconds and 600 GPU-slice-seconds** if all three phases use the stated scheduler bounds. Recompute cumulative admission after GPU02 closes; preserve the existing preparation allowance. Compare requested versus observed allocation, memory, throughput and elapsed time after this gate before considering scientific scale-up.
+The proposed caps add at most **6,600 allocated CPU-seconds and 600 GPU-slice-seconds** if all three phases use the stated scheduler bounds. Recompute cumulative admission before submission; preserve the existing preparation allowance. Compare requested versus observed allocation, memory, throughput and elapsed time after this gate before considering scientific scale-up.
 
 ## Inspected implementation anchors
 
