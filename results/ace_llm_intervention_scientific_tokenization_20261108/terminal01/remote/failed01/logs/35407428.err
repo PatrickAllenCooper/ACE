@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/supervise_llm_intervention_scientific_cpu.py", line 473, in <module>
+    if __name__=='__main__':main()
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/supervise_llm_intervention_scientific_cpu.py", line 455, in main
+    else:parent(args,ctx)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/supervise_llm_intervention_scientific_cpu.py", line 398, in parent
+    event('stage_start');stage=d.stage_runtime(p,archive,local/'runtime',event)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/qualify_llm_intervention_runtime_metadata.py", line 194, in stage_runtime
+    stage = helper.stage(packet['archive']['path'], packet['manifest']['path'], packet['manifest']['sha256'], staged,
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/llm_intervention_runtime_archive.py", line 241, in stage
+    progress(dict(phase="stage", completed_objects=i+1, objects=len(records)))
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/qualify_llm_intervention_runtime_metadata.py", line 195, in <lambda>
+    progress=lambda detail: event('stage_progress', detail=detail))
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/qualify_llm_intervention_runtime_metadata.py", line 540, in event
+    write(out/f'phase-{serial:04d}.json', value); serial += 1
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/qualify_llm_intervention_runtime_metadata.py", line 86, in write
+    f.write(raw(value)); f.flush(); os.fsync(f.fileno())
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01/inputs/supervise_llm_intervention_scientific_cpu.py", line 428, in interrupted
+    def interrupted(sig,frame):raise InterruptedError('scientific CPU stage interrupted')
+InterruptedError: scientific CPU stage interrupted
