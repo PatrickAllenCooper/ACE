@@ -1,0 +1,111 @@
+--- predecessor/audit_saved.py
++++ audit_saved.py
+@@ -203,21 +203,51 @@
+     recipe=closed('llm_intervention_ranker_training.py',['numeric_recipe'],
+         dict(VERSION='ace-matched-numerical-training-v1')).numeric_recipe(artificial=False)
+     need(equal(num['recipe'],recipe),'complete numerical recipe differs')
+-    width=num['feature_width']; need(type(width)is int and 1<=width<=20000,'numerical width bound')
+-    need(num['parameter_count']==width*128+128+128*128+128+128+1<=3000000
+-         and num['encoding']=='complete-padded-numeric-state-signed-log-v1' and num['retry_allowed'] is False,
+-         'numerical shape/encoding/retry differs')
+-    need(set(num['feature_pins'])==set(ROSTER),'all numerical feature pin metadata required')
+-    for row in exposure['records']:
+-        f=num['feature_pins'][row['record_id']]
+-        need(set(f)=={'shape','float32_tensor_sha256'} and equal(f['shape'],[len(row['action_ids']),width])
+-             and pin(f['float32_tensor_sha256']),'numerical feature metadata differs')
++    audit_numerical_shape(num, exposure)
+     d=exposure['counts']['dpo_steps']
+     return dict(prepared_sha256=sha(prepared_raw),plan_sha256=digest(plan),numerical_plan_file_sha256=sha(numerical_raw),
+         numerical_plan_sha256=digest(num),exposure_sha256=digest(exposure),records=160,retained_pairs=3584,
+         sft_steps=160,dpo_steps=d,prompt_tokens_min=min(lens),prompt_tokens_max=max(lens),stored_tokens=plan['stored_tokens'],
+         checkpoint_steps=[159,159+d],checkpoint_roles=['sft_reference_after_all_160_sft','final_after_all_D_dpo'],
+         numerical_feature_tensors_recomputed=False,token_ids_retokenized=False,acceptance_authorized=False)
++
++
++def numerical_dimensions():
++    """Integer dimension arithmetic from the pinned encoder, never features/tensors."""
++    name='llm_intervention_task.py'
++    pins=decode((ROOT/'reference-pins.json').read_bytes())
++    raw=(ROOT/'source'/name).read_bytes()
++    need(sha(raw)==pins['source/'+name]['sha256'],'numerical encoder source changed')
++    keys=['MAX_NODES','MAX_ACTIONS','MAX_QUERIES','MAX_HISTORY']
++    assignments=[n for n in ast.parse(raw).body if isinstance(n,ast.Assign) and len(n.targets)==1
++        and isinstance(n.targets[0],ast.Tuple)
++        and all(isinstance(x,ast.Name) for x in n.targets[0].elts)
++        and [x.id for x in n.targets[0].elts]==keys]
++    need(len(assignments)==1,'exact pinned encoder dimension assignment required')
++    n,a,q,h=ast.literal_eval(assignments[0].value)
++    need(all(type(v)is int for v in (n,a,q,h)) and (n,a,q,h)==(8,32,64,80),
++         'frozen public encoder bounds differ')
++    # numerical_features: scalars + target + nodes + menu + history + queries
++    # + one candidate (including its stop flag). No response values are read.
++    width=7+n+n*(6+n+(n+1)+(n+1)**2)+a*(3*n+3)+h*(4*n+a+3)+q*(3*n+4)+(3*n+4)
++    parameters=width*128+128+128*128+128+128+1
++    need(width==8891 and parameters==1154817,'pinned encoder/ranker arithmetic differs')
++    return width,parameters
++
++
++def audit_numerical_shape(num, exposure):
++    width,parameters=numerical_dimensions()
++    need(type(num['feature_width'])is int and num['feature_width']==width
++         and type(num['parameter_count'])is int and num['parameter_count']==parameters,
++         'source-derived numerical width/parameter count differs')
++    need(num['encoding']=='complete-padded-numeric-state-signed-log-v1' and num['retry_allowed'] is False,
++         'numerical encoding/retry differs')
++    need(set(num['feature_pins'])==set(ROSTER),'all numerical feature pin metadata required')
++    for row in exposure['records']:
++        f=num['feature_pins'][row['record_id']]
++        need(set(f)=={'shape','float32_tensor_sha256'} and equal(f['shape'],[len(row['action_ids']),width])
++             and pin(f['float32_tensor_sha256']),'numerical feature metadata differs')
++    # Signature validation is metadata only, not a recomputation of tensor bytes.
+ 
+ 
+ def audit_runtime(get, stage_raw, provenance, packet):
+@@ -274,9 +304,15 @@
+     for value in (parent['elapsed_seconds'],resources['elapsed_including_cleanup_seconds']):
+         need(type(value)in(int,float) and math.isfinite(value) and 0<=value<590,'absolute completion bound differs')
+     closed('prepare_llm_intervention_training_cpu.py',['validate_phases']).validate_phases(phases)
+-    need(all(type(r['elapsed_seconds'])in(int,float) and math.isfinite(r['elapsed_seconds']) and 0<=r['elapsed_seconds']<550
+-             for r in phases),'work phase outside original work deadline')
+-    return dict(owned_process_cleanup_consistent=True,node_local_runtime_deletion_claimed=False,acceptance_authorized=False)
++    need(all(type(r['elapsed_seconds'])in(int,float) and math.isfinite(r['elapsed_seconds']) and 0<=r['elapsed_seconds']
++             for r in phases),'invalid worker-journal-relative phase duration')
++    # Journal.started is created in the child after staging; no saved origin
++    # aligns these durations to the parent. Ordering is not a work-deadline proof.
++    return dict(owned_process_cleanup_consistent=True,node_local_runtime_deletion_claimed=False,
++        phase_time_origin='worker_journal_started',phase_order_and_durations_consistent=True,
++        original_origin_work_deadline_verified=False,exact_cleanup_duration_verified=False,
++        work_timing_requires_separate_authenticated_source_command_trace_audit=True,
++        acceptance_authorized=False)
+ 
+ 
+ def validate_acceptance(value, facts, job_id):
+--- predecessor/HANDOFF.md
++++ HANDOFF.md
+@@ -2,7 +2,7 @@
+ 
+ Status: source/schema preparation only. No actual terminal02 evidence has been audited, no job ID is assumed, and no acceptance has been issued. Wait for parent-supplied complete terminal02 custody and independent pins. No model, tokenizer, tensor, scientific response or remote execution is part of this kit. It is an audit aid, not a new stage supervisor or qualification framework.
+ 
+-`audit_saved.py` is a stdlib library with no acceptance-writing CLI. Running it directly exits without auditing. Its pure checks and captured source functions have NOT been invoked on actual artifacts or fixtures; only static parsing/source-selection checks were performed. Functions return consistency facts, never permission to train. Pin the kit and `reference-pins.json` before use. The latter binds the copied reviewed source and historical public metadata; it is not a substitute for parent-supplied terminal trust anchors.
++`audit_saved.py` is a stdlib library with no acceptance-writing CLI. Running it directly exits without auditing. No actual artifact checks have run. Only the two corrected numerical-shape/lifecycle paths receive NEW fabricated fixtures; no old methods or component suites are repeated. Functions return consistency facts, never permission to train. Pin the kit and `reference-pins.json` before use. The latter binds the copied reviewed source and historical public metadata; it is not a substitute for parent-supplied terminal trust anchors.
+ 
+ ## Independent inputs required before actual audit
+ 
+@@ -18,9 +18,9 @@
+ 4. Verify actual saved Slurm allocation/request records and terminal row: intended job, user, accountucb736_asc2/acpu/cpu-normal,3CPU11520MiB,600seconds,one node/task,zeroGRES/GPU,no-requeue/no-restart. Require conclusive terminal COMPLETED0:0 for success. Check full44 unique job rows/90 unique journal pins, exactly the43/88 predecessor rows plus the new actual job. Use allocation elapsed, not process CPU, for3×elapsed charges. Report process CPU and MaxRSS separately, including measurement limitations. Preserve predecessor13373CPU1601GPU and single3600CPU preparation allowance; no future cost defaults or release of failed costs. Zero outstanding reservation after terminal, caps57600CPU7200GPU. Recalculate remaining-stage reservations from the adopted contract/operational authority, retaining tiny GPU headroom; no new reservation is created by this audit.
+ 5. Verify all current source/input pins and original inner packet, original six tokenizer files (bytes only), source/runtime/model-report lineage, proposal/collection accepted pins, operational authority, original namespaces. Full32 source files/28 loaded source_names are inherited. Decode only policy_train public records, saved token IDs and public receipt metadata, never24 development coefficients/outcomes or weights. `accepted_batch(packet,proposal,acceptance,get)` reuses the exact pinned pure collection-byte binding over already authenticated files. It retains all160 records/3584 comparisons and complete accepted charges, not a fresh collection/scoring audit.
+ 6. Call `audit_publication(get_raw,packet,batch)` and compare its returned `authenticated.json` collection tree EXACTLY to the independently authenticated full original tree (including byte sizes). Verify exact auth key membership and tokenizer byte lengths. Compare final/candidate prepared and numerical bytes, and all retained original records/receipts. Reject any current-root failure/publication-interruption record, missing output, unexpected competing success or unexplained traceback. Preserve earlier-root failures as required history; do not reject them merely for existing.
+-7. `audit_artifacts(packet_raw,prepared_raw,numerical_raw,exposure_raw,batch)` recomputes the complete exposure object independently using stdlib: all original strict and tied labels, stable command-pair hash selection, zero exposure for unselected pairs, one SFT per160 records, one DPO per eligible nonterminal record, exact D in1..128, numerical chosen/rejected alignment and ordered SFT→DPO schedule. D=0, missing/tuned/replaced records, truncation or selection disagreement fails; no rescue. It checks both numerical and LLM full recipes, seed109, singleton scoring,112 adapter shapes/1,146,880parameters, saved token/EOS/PAD/legal-command identities and full token counts. All prompts must be<=4744 (GPU admission), commands<=32/EOS151645/PAD151643. Checkpoint indices159 and159+D mean SFT reference after all160 SFT updates and final after allD DPO updates; TOKEN produces plans, no trained checkpoint and no successful training claim. Numerical feature shape/hash metadata and parameter arithmetic are checked; tensors/features are NOT regenerated. Token IDs are NOT retokenized. Their execution provenance rests on the exact qualified CPU source/runtime and original raw-envelope pins.
++7. `audit_artifacts(packet_raw,prepared_raw,numerical_raw,exposure_raw,batch)` recomputes the complete exposure object independently using stdlib: all original strict and tied labels, stable command-pair hash selection, zero exposure for unselected pairs, one SFT per160 records, one DPO per eligible nonterminal record, exact D in1..128, numerical chosen/rejected alignment and ordered SFT→DPO schedule. D=0, missing/tuned/replaced records, truncation or selection disagreement fails; no rescue. It checks both numerical and LLM full recipes, seed109, singleton scoring,112 adapter shapes/1,146,880parameters, saved token/EOS/PAD/legal-command identities and full token counts. All prompts must be<=4744 (GPU admission), commands<=32/EOS151645/PAD151643. Checkpoint indices159 and159+D mean SFT reference after all160 SFT updates and final after allD DPO updates; TOKEN produces plans, no trained checkpoint and no successful training claim. The pinned encoder constants N=8,A=32,Q=64,H=80 derive exact width8891 and hidden128 parameter count1,154,817; every saved shape must be action-count×8891. Numerical feature hash metadata is checked; tensors/features are NOT regenerated. Token IDs are NOT retokenized. Their execution provenance rests on the exact qualified CPU source/runtime and original raw-envelope pins.
+ 8. `audit_runtime(get,stage_raw,provenance,packet)` reuses only selected closed pure functions for stage receipt49966objects/8397575073bytes, archive/manifest pins, runtime prefix/module/native/package versions, retained duplicate NumPy metadata, cache reconciliation, generated-source provenance and captured project source closure. Authenticate the independent parent provenance capture against the archive's already reviewed fixed generator/template/source pins; matching parent/worker copies alone is insufficient. Observe timestamps and stage/import/tokenization progress from saved records. No invocation of runtime staging, original entrypoint/worker, source module top-level imports, tokenizer or tensor functions. Compare full authenticated input maps again at publication. Stage receipt/model_loaded:false is a binding, not new runtime authority by itself.
+-9. `audit_lifecycle(...)` joins parent/worker terminal hashes to stage and actual artifact pins, zero environment responses/inference/updates/model loads/CUDA calls, exact original-origin300/550/590 deadlines and startup marker, CPU-only phases and natural process-group closure (`group_still_exists:false`,returncode0,no kill/errors). Validate child command/packet/source/pid and original clock against the pinned producer, not just offset arithmetic. Verify parent terminal-candidate/publication bytes and no lifecycle diagnostics indicating uncertain closure. Do not claim deletion of node-local runtime or infer exit from PID metadata alone. Cleanup570 remains the declared bound; the helper's five-second cleanup and hard590 are checked from actual saved timing/trace where available.
++9. `audit_lifecycle(...)` joins parent/worker terminal hashes to stage and actual artifact pins, zero environment responses/inference/updates/model loads/CUDA calls, exact original-origin300/550/590 deadlines and startup marker, worker-journal-relative CPU-only phases and natural process-group closure (`group_still_exists:false`,returncode0,no kill/errors). Validate child command/packet/source/pid and original clock against the pinned producer, not just offset arithmetic. Verify parent terminal-candidate/publication bytes and no lifecycle diagnostics indicating uncertain closure. Do not claim deletion of node-local runtime or infer exit from PID metadata alone. Journal phase elapsed values use the child Journal.started origin, not the parent origin; their finite/nonnegative ordering does not prove parent work550. The library explicitly returns original_origin_work_deadline_verified:false and exact_cleanup_duration_verified:false. Parent-origin work enforcement and cleanup timing remain a separate authenticated source/command/trace audit. Do not invent an unrecorded journal origin or infer exact cleanup duration. Cleanup570 remains declared; the helper's five-second cleanup and hard590 require evidence appropriate to their actual clocks.
+ 10. Form future actual accounting in the existing baseline style. `audit_accounting` reuses EXACT6227 consumer `accepted_token_transition` and `normalized`, requiring all43 predecessor rows/88journals, one actual job and two original journals,44/90, actual3CPU×elapsed and zeroGPU, joins to disposition/final inventory and newly established acceptance pin. Its `pins` include token-failure-baseline,cpu-acceptance,cpu-disposition,cpu-result; these must be hashes of independently authenticated bytes. Never fabricate a baseline now. Joining a prospective acceptance bytepin into the final accounting can be done after review; do not publish until the whole audit passes.
+ 11. Only after the independent review resolves every required finding, publish the strict18-key acceptance with separate review/source/custody/accounting sidecar in NEW exclusive repository/external acceptance directories supplied by parent. `validate_acceptance(value,facts,job_id)` is an exact consumer-shape check, not authority to set true values. No extra keys in acceptance. Read back both independent byte copies and pin them. Sidecar binds full inputs, original failed01, source extraction provenance, arithmetic results, runtime/lifecycle/resource findings and all checker-attempt costs/failures. Scientific/training qualification remainsfalse. No model-quality or utility claims.
+ 
+@@ -28,4 +28,4 @@
+ 
+ The library receives explicit already-authenticated byte buffers/maps; it does not discover, transfer, deserialize models or publish files. `get_raw`/`get` callbacks must be rooted in the pinned inventory and bounded to named saved JSON, not arbitrary paths. `accepted_batch` reads original policy_train supervision solely for identity/exposure arithmetic. `audit_runtime` uses saved remote paths as metadata, not remote filesystem probes. Whole-custody verification, actual Slurm parsing/observations, full generated-source provenance and review judgment remain the independent auditor's existing workflow; no unearned boolean gate is manufactured here.
+ 
+-No tests or production validators were run during preparation. `static-check.json` records parse-only checks and exact copied sources. Review this new audit aid before relying on it; any integration mismatch found with actual saved schema must be preserved as a failed checker attempt and corrected narrowly. Await parent job/terminal pins.
++The original preparation was static-only. `predecessor/` preserves it in full, including its static checks; `initial-review.md` retains both required findings. New `attempt01/` holds only the two focused artificial delta methods and exact sources/transcripts/costs. No actual data or model/tensor/tokenizer functions are used. Review this new audit aid before relying on it; any integration mismatch found with actual saved schema must be preserved as a failed checker attempt and corrected narrowly. Await parent job/terminal pins.

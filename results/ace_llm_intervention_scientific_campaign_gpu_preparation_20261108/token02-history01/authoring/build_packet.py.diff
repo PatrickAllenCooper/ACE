@@ -1,0 +1,164 @@
+--- predecessor/build_packet.py
++++ build_packet.py
+@@ -3,6 +3,7 @@
+ stage metadata and independent pins are mandatory. Building never submits.
+ """
+ from pathlib import Path
++import types
+ import argparse,ast,contextlib,datetime,fcntl,hashlib,json,os,re,shlex,stat,subprocess
+ REPO=Path('/Users/pat/code/ACE')
+ BASE=Path('/Users/pat/ACE_Study_Results/2026-10-peter-baseline')
+@@ -11,7 +12,9 @@
+ ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01'
+ CPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108_01'
+ COLLECTION_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_02'
+-TOKEN_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_01'
++TOKEN_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_02'
++FAILED_TOKEN_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_01'
++FAILED_TOKEN_JOB='35415334'
+ TRAIN_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01'
+ LOCAL_REGISTRY=BASE/'ACE-LLM-intervention-scientific-screen-20261107.namespace-recovery02.json'
+ REMOTE_REGISTRY='/scratch/alpine/paco0228/ACE/results/.ace-scientific-screen-20261107.namespace-recovery02.json'
+@@ -37,8 +40,8 @@
+  'collection-failure-acceptance':'00c4557a5c681904e823441ac8bb99f4dc5e169c0c7e41e764018a1e4e7af5ee',
+  'no-response-proof':'59c21d63644cf7ae9765b3ff374538f2c614694dc383583f1e7661c301700998',
+  'collection-failure-baseline':'eeec362db1990d5cf1fb7945708293842dc9b9283a2777697e6840ad5a2c147b'}
+-STAGES=(('collection',COLLECTION_ROOT,42,86,2,0,900),('token',TOKEN_ROOT,43,88,3,0,600),
+- ('training',TRAIN_ROOT,44,90,4,1,2700),('cpu',CPU_ROOT,45,92,2,0,6000))
++STAGES=(('collection',COLLECTION_ROOT,42,86,2,0,900),('token',TOKEN_ROOT,44,90,3,0,600),
++ ('training',TRAIN_ROOT,45,92,4,1,2700),('cpu',CPU_ROOT,46,94,2,0,6000))
+ TEXT_METADATA={'freeze-review','operational-adoption-review','site-readiness','cpu-review'}
+ def metadata_name(n):return n+('.md' if n in TEXT_METADATA else '.json')
+ METADATA=tuple(FIXED)+('namespace-claim','site-readiness','cpu-review','cpu-packet','cpu-phase-terminal')+tuple(
+@@ -46,6 +49,35 @@
+ CPU_ACCEPTANCE_KEYS={'schema','status','cpu_packet_sha256','job_id','allocation','cpu_output','campaign_root',
+  'cpu_output_files','cpu_output_excluded_directory','campaign_files','bundle_path','bundle_sha256',
+  'phase_terminal_path','phase_terminal_sha256','attempt_pins','scientific_qualified'}
++
++# Standalone outer metadata validator, exact captured CPU history source; never child code.
++CPU_HISTORY_SHA='3893a30ec2e652dac78529602564a4a295ddf9258461530ec7c74557df809025'
++TOKEN_METADATA=('collection-failure-disposition','failed-token-packet','failed-token-stage','failed-token-result',
++ 'token-failure-acceptance','token-no-learnedwork-proof','token-failure-disposition','token-failure-inventory',
++ 'token-failure-readback','token-failure-custody-inventory','token-failure-baseline','token-operational-amendment',
++ 'token-operational-review','token-operational-adoption-review','token-operational-guide','token-diagnosis')
++TEXT_METADATA |= {'token-operational-review','token-operational-adoption-review','token-operational-guide'}
++METADATA+=TOKEN_METADATA+('token-packet',)
++HISTORY_ALIASES={'cpu-packet':'token-packet','cpu-launch-packet':'token-launch-packet','cpu-result':'token-result',
++ 'cpu-disposition':'token-disposition','cpu-inventory':'token-inventory','cpu-preparation-acceptance':'token-acceptance',
++ 'training-packet':'training-launch-packet','gpu-training-acceptance':'training-acceptance',
++ 'previous-baseline':'token-baseline','baseline':'training-baseline'}
++
++
++def load_cpu_history():
++    path=Path(__file__).resolve().with_name('cpu_history_contract.py');source=read(path,CPU_HISTORY_SHA)
++    module=types.ModuleType('captured_cpu_history');module.__file__=str(path)
++    exec(compile(source,str(path),'exec'),vars(module))
++    return module
++
++
++def cpu_history_view(m,pins):
++    values=dict(m);hashes=dict(pins)
++    for target,source in HISTORY_ALIASES.items():values[target]=m[source];hashes[target]=pins[source]
++    values['expected-training']=m['cpu-packet']['expected_training']
++    return values,hashes
++
++
+ def need(ok,message):
+     if not ok: raise ValueError(message)
+ 
+@@ -190,6 +222,9 @@
+     previous=m['collection-failure-baseline'];previous_pin=pins['collection-failure-baseline'];jobs=[];observations={}
+     need(previous['terminal_jobs']==41 and previous['submission_journals']==84,'accepted failed41/84 boundary required')
+     for prefix,root,count,journals,cpus,gpus,wall in STAGES:
++        if prefix=='token':
++            hm,hp=cpu_history_view(m,pins);load_cpu_history().failed_token_transition(hm,hp)
++            previous=m['token-failure-baseline'];previous_pin=pins['token-failure-baseline']
+         a,p,r,d,t,base=(m[prefix+'-'+kind] for kind in ('acceptance','launch-packet','result','disposition','inventory','baseline'))
+         job=r['job_id'];need(type(job) is str and re.fullmatch('[1-9][0-9]*',job) and job not in jobs+['35407428'],'distinct actual job required')
+         jobs.append(job)
+@@ -236,6 +271,46 @@
+              and base['cpu_admission_seconds']==after[0]+3600,'actual full-chain charges differ')
+         previous,previous_pin=base,pins[prefix+'-baseline']
+     return observations
++
++def token_recovery_history(supplied,m,pins,observations):
++    """Re-use the captured metadata validator; bind its result through the CPU campaign."""
++    helper=load_cpu_history();hm,hp=cpu_history_view(m,pins)
++    need(pins['collection-failure-disposition']==helper.FIXED['collection-failure-disposition'],
++         'independent original collection failure disposition differs')
++    bound=helper.campaign_token_history(supplied,hm,hp,observations['training']['files'])
++    outer=m['cpu-launch-packet'];recovery=bound['token_recovery']
++    need(outer['token_recovery']==recovery and outer['failed_token_root']==FAILED_TOKEN_ROOT
++         and outer['failed_token_job_id']==FAILED_TOKEN_JOB and outer['preserved_directories']==bound['preserved_directories'],
++         'original CPU campaign nested TOKEN02 authority differs')
++    for name in TOKEN_METADATA:
++        need(outer['new_input_files'][metadata_name(name)]==pins[name],'CPU original recovery capture differs: '+name)
++    for member,key in {'cpu-packet.json':'token-packet','cpu-launch-packet.json':'token-launch-packet',
++        'cpu-result.json':'token-result','cpu-disposition.json':'token-disposition','cpu-inventory.json':'token-inventory',
++        'collection-baseline.json':'collection-baseline','collection-acceptance.json':'collection-acceptance',
++        'collection-disposition.json':'collection-disposition'}.items():
++        need(outer['new_input_files'][member]==pins[key],'CPU original history capture differs: '+member)
++    need(all(outer['original_input_pins'].get(path)==h for path,h in bound['upstream_pins'].items()),
++         'CPU original full failed/token/collection byte pins differ')
++    # CPU custody must contain all original stage roots, not merely their summary counts.
++    cpu_files=observations['cpu']['files'];cpu_dirs=observations['cpu']['directories']
++    failed=decode(m['token-failure-inventory']['stdout'])
++    candidates=[n.split('/')[0] for n,v in cpu_files.items() if n.count('/')==1 and n.endswith('/packet.json')
++                and v['sha256']==pins['failed-token-packet']]
++    need(len(candidates)==1,'unique failed TOKEN01 root required in CPU custody')
++    mapping=[('training',TRAIN_ROOT,observations['training'],'launch'),('cpu',TOKEN_ROOT,observations['token'],'launch'),
++        (candidates[0],FAILED_TOKEN_ROOT,failed,'launch'),('common',COLLECTION_ROOT,observations['collection'],'launch'),
++        ('failed01',helper.FAILED_COLLECTION_ROOT,failed,'failed01')]
++    upstream={};directories={}
++    for label,root,original,old_label in mapping:
++        want={n[len(old_label)+1:]:v for n,v in original['files'].items() if n.startswith(old_label+'/')}
++        got={n[len(label)+1:]:v for n,v in cpu_files.items() if n.startswith(label+'/')}
++        want_dirs=sorted(n[len(old_label)+1:] for n in original['directories'] if n.startswith(old_label+'/'))
++        got_dirs=sorted(n[len(label)+1:] for n in cpu_dirs if n.startswith(label+'/'))
++        need(want and want==got and want_dirs==got_dirs,'complete CPU upstream root changed: '+label)
++        for n,v in want.items():safe_relative(n);need(pin(v['sha256']),'invalid original history pin');upstream[root+'/'+n]=v['sha256']
++        directories[root]=want_dirs
++    return dict(token_recovery=recovery,history_upstream_pins=upstream,history_directories=directories)
++
+ 
+ def authenticate(supplied):
+     need(set(supplied)==set(METADATA),'complete independent metadata inputs required')
+@@ -336,7 +411,8 @@
+     base=m['cpu-baseline'];remaining=[stages['gpu_campaign'],stages['finalize']]
+     need(base['closed_cpu_seconds']+3600+sum(s['cpus']*s['wall_seconds'] for s in remaining)<=57600
+          and base['closed_gpu_slice_seconds']+sum(s['gpus']*s['wall_seconds'] for s in remaining)<=7200,'full remaining frozen caps exceed budget')
+-    return dict(metadata=m,pins=pins,observations=observations)
++    recovery=token_recovery_history(supplied,m,pins,observations)
++    return dict(metadata=m,pins=pins,observations=observations,**recovery)
+ 
+ def admit_cpu_bytes(ctx,raw_root):
+     m,pins=ctx['metadata'],ctx['pins'];old=m['cpu-packet'];a=m['cpu-acceptance'];files=ctx['observations']['cpu']['files']
+@@ -377,6 +453,8 @@
+         outer=m[prefix+'-launch-packet'];result=m[prefix+'-result']
+         for name,h in {**outer['new_input_files'],'packet.json':pins[prefix+'-launch-packet'],'submission.intent.json':result['intent_sha256'],'submission.result.json':pins[prefix+'-result']}.items():
+             path=root+'/'+name;need(path not in upstream or upstream[path]==h,'historical original input pin collision');upstream[path]=h
++    for path,h in ctx['history_upstream_pins'].items():
++        need(path not in upstream or upstream[path]==h,'original failed/history pin collision');upstream[path]=h
+     ctx['upstream_pins']=upstream
+     return data
+ 
+@@ -474,7 +552,7 @@
+         stage,data,bootstrap=make_packet(ctx,cpu_data,supplied);stage_raw=raw(stage);gate=admission(ctx,stage)
+         files={'inputs/'+n:v for n,v in data.items()};files.update({'inputs/packet.json':stage_raw,'inputs/admission.json':raw(gate)})
+         for n,v in supplied.items():files[metadata_name(n)]=v
+-        for n in ('build_packet.py','launch_once.py','monitor_once.py'):files[n]=read(Path(__file__).resolve().with_name(n))
++        for n in ('build_packet.py','launch_once.py','monitor_once.py','cpu_history_contract.py'):files[n]=read(Path(__file__).resolve().with_name(n))
+         command=[ctx['metadata']['cpu-packet']['runtime_source']+'/bin/python','-I','-B','-c',bootstrap,ROOT+'/inputs/'+ENTRY,ENTRY_SHA,
+             '--packet',ROOT+'/inputs/packet.json','--packet-sha256',sha(stage_raw),'--admission',ROOT+'/inputs/admission.json',
+             '--admission-sha256',sha(raw(gate)),'--output',ROOT+'/gpu']
+@@ -491,7 +569,9 @@
+             cpu_job_id=ctx['metadata']['cpu-acceptance']['job_id'],baseline_sha256=ctx['pins']['cpu-baseline'],
+             operational_amendment_sha256=ctx['pins']['operational-amendment'],namespace_claim_sha256=ctx['pins']['namespace-claim'],
+             new_input_files={n:sha(v) for n,v in sorted(files.items())},original_cpu_inputs=ctx['upstream_pins'],
+-            paths=stage['paths'],cpu_remote_custody=str(custody),prior_jobs=45,prior_journals=92,worlds=24,cells=192,policy_ids=list(POLICIES),gpu_policy_ids=list(POLICIES[5:]),
++            token_recovery=ctx['token_recovery'],failed_token_root=FAILED_TOKEN_ROOT,failed_token_job_id=FAILED_TOKEN_JOB,
++            history_directories=ctx['history_directories'],
++            paths=stage['paths'],cpu_remote_custody=str(custody),prior_jobs=46,prior_journals=94,worlds=24,cells=192,policy_ids=list(POLICIES),gpu_policy_ids=list(POLICIES[5:]),
+             admission=dict(closed_cpu_seconds=base['closed_cpu_seconds'],closed_gpu_slice_seconds=base['closed_gpu_slice_seconds'],
+                 preparation_allowance_cpu_seconds=3600,candidate_cpu_reservation=11520,candidate_gpu_reservation=2880,
+                 total_cpu_seconds=base['closed_cpu_seconds']+15120,total_gpu_seconds=base['closed_gpu_slice_seconds']+2880,

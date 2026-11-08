@@ -1,0 +1,22 @@
+--- tested-draft/build_packet.py
++++ build_packet.py
+@@ -57,8 +57,8 @@
+  'token-failure-readback','token-failure-custody-inventory','token-failure-baseline','token-operational-amendment',
+  'token-operational-review','token-operational-adoption-review','token-operational-guide','token-diagnosis')
+ TEXT_METADATA |= {'token-operational-review','token-operational-adoption-review','token-operational-guide'}
+-METADATA+=TOKEN_METADATA+('token-stage',)
+-HISTORY_ALIASES={'cpu-packet':'token-stage','cpu-launch-packet':'token-launch-packet','cpu-result':'token-result',
++METADATA+=TOKEN_METADATA+('token-packet',)
++HISTORY_ALIASES={'cpu-packet':'token-packet','cpu-launch-packet':'token-launch-packet','cpu-result':'token-result',
+  'cpu-disposition':'token-disposition','cpu-inventory':'token-inventory','cpu-preparation-acceptance':'token-acceptance',
+  'training-packet':'training-launch-packet','gpu-training-acceptance':'training-acceptance',
+  'previous-baseline':'token-baseline','baseline':'training-baseline'}
+@@ -284,7 +284,7 @@
+          'original CPU campaign nested TOKEN02 authority differs')
+     for name in TOKEN_METADATA:
+         need(outer['new_input_files'][metadata_name(name)]==pins[name],'CPU original recovery capture differs: '+name)
+-    for member,key in {'cpu-packet.json':'token-stage','cpu-launch-packet.json':'token-launch-packet',
++    for member,key in {'cpu-packet.json':'token-packet','cpu-launch-packet.json':'token-launch-packet',
+         'cpu-result.json':'token-result','cpu-disposition.json':'token-disposition','cpu-inventory.json':'token-inventory',
+         'collection-baseline.json':'collection-baseline','collection-acceptance.json':'collection-acceptance',
+         'collection-disposition.json':'collection-disposition'}.items():

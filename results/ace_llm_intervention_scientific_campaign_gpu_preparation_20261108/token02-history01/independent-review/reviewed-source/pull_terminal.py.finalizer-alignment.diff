@@ -1,0 +1,46 @@
+--- tested-draft/pull_terminal.py
++++ pull_terminal.py
+@@ -41,9 +41,10 @@
+ OLD_REMOTE_NAMESPACE=str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace.json')
+ OLD_CLAIM_SHA='58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29'
+ HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+-BUILDER_SHA='1f10f6e073d5df04dd9c12ee399de3f0b0068c68449c527eda13beb47260333c'
++BUILDER_SHA='140374c5e561cc3078b5a5aa79c0b75094d4631d55d554a182348ecebe997ff9'
+ POLICIES=('frozen_llm','sft_llm','dpo_llm')
+-UPSTREAM_ROOTS=dict(cpu=CPU_ROOT,training=TRAIN_ROOT,token=TOKEN_ROOT,failed_token01=FAILED_TOKEN_ROOT,common=COMMON_ROOT,failed01=FAILED_ROOT)
++UPSTREAM_ROOTS=dict(cpu=CPU_ROOT,training=TRAIN_ROOT,token=TOKEN_ROOT,common=COMMON_ROOT,failed01=FAILED_ROOT)
++UPSTREAM_ROOTS['failed-token01']=FAILED_TOKEN_ROOT
+ TERMINAL={'COMPLETED','FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL',
+           'PREEMPTED','BOOT_FAIL','DEADLINE','REVOKED'}
+ 
+@@ -161,7 +162,7 @@
+  need(all(len(r)==5 and r[0]!=JOB and not r[1].lower().startswith('ace') for r in queue),'current/related ACE job active')
+  v['parent_accounting']=selected[0];v['related_accounting']=rows;v['terminal_gate']=True
+  links={}
+- for label,tree,present in (('launch',root,v['root_present']),('cpu',Path(CPU_ROOT),v['cpu_present']),('training',Path(TRAIN_ROOT),v['training_present']),('token',Path(TOKEN_ROOT),v['token_present']),('failed_token01',Path(FAILED_TOKEN_ROOT),v['failed_token_present']),('common',Path(COMMON_ROOT),v['common_present']),('failed01',Path(FAILED_ROOT),v['failed_present'])):
++ for label,tree,present in (('launch',root,v['root_present']),('cpu',Path(CPU_ROOT),v['cpu_present']),('training',Path(TRAIN_ROOT),v['training_present']),('token',Path(TOKEN_ROOT),v['token_present']),('failed-token01',Path(FAILED_TOKEN_ROOT),v['failed_token_present']),('common',Path(COMMON_ROOT),v['common_present']),('failed01',Path(FAILED_ROOT),v['failed_present'])):
+   if not present:continue
+   need(tree.is_dir() and tree==tree.resolve(),'ordinary remote root required')
+   v['directories'].append(label)
+@@ -429,7 +430,7 @@
+ 
+ def stream_request(before):
+     roots={label:path for label,path,flag in (
+-        ('launch',ROOT,'root_present'),('cpu',CPU_ROOT,'cpu_present'),('training',TRAIN_ROOT,'training_present'),('token',TOKEN_ROOT,'token_present'),('failed_token01',FAILED_TOKEN_ROOT,'failed_token_present'),('common',COMMON_ROOT,'common_present'),('failed01',FAILED_ROOT,'failed_present')) if before[flag]}
++        ('launch',ROOT,'root_present'),('cpu',CPU_ROOT,'cpu_present'),('training',TRAIN_ROOT,'training_present'),('token',TOKEN_ROOT,'token_present'),('failed-token01',FAILED_TOKEN_ROOT,'failed_token_present'),('common',COMMON_ROOT,'common_present'),('failed01',FAILED_ROOT,'failed_present')) if before[flag]}
+     singles={label:path for label,path,flag in (
+         ('namespace.json',REMOTE_NAMESPACE,'namespace_present'),('original-namespace.json',OLD_REMOTE_NAMESPACE,'original_namespace_present')) if before[flag]}
+     return dict(roots=roots,single_files=singles,
+@@ -615,9 +616,9 @@
+     preserved_directories['failed01']=[n[len('failed01/'): ] for n in ctx['observations']['collection']['directories'] if n.startswith('failed01/')]
+     need(preserved['failed01'],'complete failed collection01 root required')
+     failed=b.decode(ctx['metadata']['token-failure-inventory']['stdout'])
+-    preserved['failed_token01']={n[len('launch/'):]:v for n,v in failed['files'].items() if n.startswith('launch/')}
+-    preserved_directories['failed_token01']=[n[len('launch/'):] for n in failed['directories'] if n.startswith('launch/')]
+-    need(preserved['failed_token01'],'whole original failed TOKEN01 root required')
++    preserved['failed-token01']={n[len('launch/'):]:v for n,v in failed['files'].items() if n.startswith('launch/')}
++    preserved_directories['failed-token01']=[n[len('launch/'):] for n in failed['directories'] if n.startswith('launch/')]
++    need(preserved['failed-token01'],'whole original failed TOKEN01 root required')
+ 
+     for path,h in upstream_pins.items():
+         found=[(label,root) for label,root in UPSTREAM_ROOTS.items() if path.startswith(root+'/')]

@@ -1,0 +1,42 @@
+--- predecessor/launch_once.py
++++ launch_once.py
+@@ -63,6 +63,9 @@
+         b.need(packet['baseline_sha256']==ctx['pins']['cpu-baseline'] and packet['cpu_job_id']==m['cpu-acceptance']['job_id']
+                and packet['operational_amendment_sha256']==ctx['pins']['operational-amendment']
+                and packet['namespace_claim_sha256']==ctx['pins']['namespace-claim'],'accepted baseline/namespace differs')
++        b.need(packet['token_recovery']==ctx['token_recovery'] and packet['failed_token_root']==b.FAILED_TOKEN_ROOT
++               and packet['failed_token_job_id']==b.FAILED_TOKEN_JOB and packet['history_directories']==ctx['history_directories'],
++               'complete original TOKEN02 recovery history differs')
+         claim_pin=ctx['pins']['namespace-claim']
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local claim changed; never recreate')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+@@ -76,7 +79,7 @@
+         b.need(packet['original_cpu_inputs']==ctx['upstream_pins'],'complete original CPU input pins differ')
+         context=dict(root=b.ROOT,registry=b.REMOTE_REGISTRY,pins=pins,baseline=m['cpu-baseline'],
+             archive=m['cpu-packet']['archive'],manifest=m['cpu-packet']['manifest'],namespace_claim_sha256=claim_pin,
+-            cpu_inputs=ctx['upstream_pins'],model_directory=m['cpu-packet']['model_directory'],model_files=m['cpu-packet']['model_files'],
++            cpu_inputs=ctx['upstream_pins'],history_directories=ctx['history_directories'],model_directory=m['cpu-packet']['model_directory'],model_files=m['cpu-packet']['model_files'],
+             original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+             cpu_root=b.CPU_ROOT,cpu_roster={n.removeprefix('launch/'):v['sha256'] for n,v in ctx['observations']['cpu']['files'].items() if n.startswith('launch/')})
+         common='C='+repr(context)+'\n'+REMOTE_COMMON
+@@ -106,6 +109,7 @@
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+         intent=dict(utc=b.utc(),packet_commit=a.packet_commit,source_commit=b.SOURCE_COMMIT,
+             packet_sha256=a.packet_sha256,review_sha256=a.packet_review_sha256,pins=pins,remote_root=b.ROOT,
++            token_recovery=ctx['token_recovery'],failed_token_root=b.FAILED_TOKEN_ROOT,failed_token_job_id=b.FAILED_TOKEN_JOB,
+             baseline_sha256=ctx['pins']['cpu-baseline'],cpu_acceptance_sha256=ctx['pins']['cpu-acceptance'],
+             cpu_job_id=m['cpu-acceptance']['job_id'],existing_namespace_claim_sha256=claim_pin,
+             namespace_admission_sha256=ctx['pins']['namespace-admission'],
+@@ -262,6 +266,12 @@
+  members=list(cpu_root.rglob('*'))
+  need(len(members)<=262144 and not any(p.is_symlink() for p in members),'bounded ordinary CPU custody required')
+  need({str(p.relative_to(cpu_root)) for p in members if p.is_file()}==set(C['cpu_roster']),'complete original CPU custody roster changed')
++ for base,expected_dirs in C['history_directories'].items():
++  tree=pathlib.Path(base);need(tree.is_dir() and not tree.is_symlink(),'original upstream root missing')
++  entries=list(tree.rglob('*'));need(not any(p.is_symlink() for p in entries),'upstream symlink')
++  need(sorted(p.relative_to(tree).as_posix() for p in entries if p.is_dir())==expected_dirs,'whole original upstream directories changed')
++  expected={n[len(base)+1:]:h for n,h in C['cpu_inputs'].items() if n.startswith(base+'/')}
++  need({p.relative_to(tree).as_posix():sha(read(p,allow_hardlink=True)) for p in entries if p.is_file()}==expected,'whole original upstream files changed')
+  for path,h in C['cpu_inputs'].items():
+   need(sha(read(path,allow_hardlink=True))==h,'accepted CPU input changed: '+path)
+  model=pathlib.Path(C['model_directory'])
