@@ -1,16 +1,20 @@
-# Proposed artificial paired-campaign integration
+# Artificial paired-campaign integration
 
-November 8, 2026. **CPU03 completed0:0, complete custody and saved validation passed. Independent acceptance pending. GPU phase not submitted.** CPU01 remains a preserved failure before staging. The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
+November 8, 2026. **CPU03 completed0:0, complete custody and saved validation passed. Independent acceptance complete. GPU phase not submitted.** CPU01 remains a preserved failure before staging. The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
 
 Training GPU03, job 35379434, is now independently accepted with zero required defects. It completed fresh four-step SFT and two-step DPO training, both exact checkpoint reloads, ten legal generations and clean shutdown. Its acceptance is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. The two failed predecessors remain unchanged.
 
 Current closed allocation after CPU03 is **9,702 CPU-seconds and 1,347 GPU-slice-seconds**. No reservation remains outstanding. With the unchanged3,600CPU-second preparation allowance, current admission is13,302/57,600CPU and1,347/7,200GPU. These are admission bounds, not whole-cycle process CPU.
 
-## CPU03 complete, independent review pending
+## CPU03 independently accepted
 
-Job35387068 completed0:0 in119seconds,2CPU/7680MiB/zeroGPU,adding238allocatedCPU seconds. All10CPUcells and36numericaldecisions completed with six matched numerical training updates. Bothrankerworlds now completed and no policyfailed. Complete951rawfiles/89,451,811bytes,allinputpins,original runtime/source/model checks and cleanup records are preserved in `cpu-terminal03` and its exclusive external mirror. The original byte-only savedvalidator passed withreceiptSHA4466242d97e36e1e9c9b72e1b8032d9a7b9a35b710b54af75cfbaab8a1e572dd. No GPUservice/privatefinalization/scientificworldgeneration occurred. Distinct actual-result review still precedes acceptance.
+Job **35387068 completed successfully** in 119 seconds on two CPUs with 7,680 MiB and no GPU. It used 238 allocated CPU-seconds. All ten CPU policy cells and 36 numerical decisions completed. The numerical ranker received the planned six training updates. Both ranker cells completed and no policy failed.
 
-Supervisor112.976086512elapsed/29.345845790processCPU seconds; child/cleanup48.117639CPU/71.319893527elapsed/982,171,648peakRSSbytes. SchedulerTotalCPU77.591seconds andbatchMaxRSS7,862,080KiB are separateoverlapping measurements. Memory remains near the7,864,320KiB limit withoutanOOM. No resourceheadroom or whole-cycleCPU claim. Reconcile34terminaljobs70journals beforefurthermutation. ProposedGPUcap4800CPU/600GPU wouldbring admission18102CPU/1947GPU withinexistingceilings, conditional on independentCPUacceptance andfreshpacket/resourcechecks.
+Complete custody contains **951 raw files and 89,451,811 bytes** in `cpu-terminal03` and its exclusive external mirror. Every input pin matches. The original saved-evidence validator passed, with receipt SHA-256 `4466242d97e36e1e9c9b72e1b8032d9a7b9a35b710b54af75cfbaab8a1e572dd`. Runtime, source, model identities and clean shutdown are recorded. No GPU service, private finalization or scientific world generation occurred. Independent result review is complete with zero required findings. The strict GPU handoff is `cpu-acceptance03/acceptance.json`, SHA-256 `11bb11f75715d232cc8b74af81dbc6826272bb982769c054353f16def204817f`. Its 467-file CPU inventory includes saved validation and excludes only the separately bound 402-file campaign. Original disposition and raw inventories remain unchanged.
+
+The supervisor recorded 112.9761 seconds elapsed and 29.3458 process CPU-seconds. Its child and cleanup recorded 48.1176 CPU-seconds, 71.3199 seconds elapsed and 982,171,648 peak RSS bytes. Slurm recorded 77.591 TotalCPU seconds and 7,862,080 KiB batch MaxRSS. These overlapping measurements must not be added. The batch peak remains close to the 7,864,320 KiB limit. There is no recorded OOM and no claim of comfortable memory headroom or whole-cycle CPU cost.
+
+Before another submission, reconcile 34 terminal jobs and 70 submission journals. The proposed GPU reservation is at most 4,800 CPU-seconds and 600 GPU-slice-seconds. Including previous allocations and the unchanged preparation allowance, this would bring admission to 18,102 CPU-seconds and 1,947 GPU-slice-seconds, within the existing ceilings. Independent CPU acceptance and fresh packet and resource checks are required first.
 
 ## CPU03 submitted after direct-origin correction
 
@@ -163,4 +167,8 @@ The proposed caps add at most **6,600 allocated CPU-seconds and 600 GPU-slice-se
 - `scripts/research/qualify_llm_intervention_model_service.py`: staging-dependent command and historical fixed-request validator.
 - `scripts/research/llm_intervention_service_runtime.py`, `llm_intervention_screen_reporting.py`: fixed old CPU fixtures and complete descriptive reporting.
 
-This document records design only. Writing it performs no checks, fitting, descriptor construction, runtime qualification or submission.
+## Boundary before the scientific screen
+
+Even a successful two-world campaign will not qualify every proposed scientific prompt. The proposed screen has three nodes, eight actions, eight target queries and up to32 history rows, compared with the much smaller artificial inputs here. Before realizing scientific worlds, check representative full-size public envelopes with the exact tokenizer and context limits, then measure the training and inference resource projection. Do not truncate an adaptive prompt or change an intervention menu to rescue a scored run. The32/24 identities, optimization schedule, executable source and resource plan still need a separate scientific freeze.
+
+The dated execution entries above record observed work. Earlier design sections remain prospective where their gates have not been completed.
