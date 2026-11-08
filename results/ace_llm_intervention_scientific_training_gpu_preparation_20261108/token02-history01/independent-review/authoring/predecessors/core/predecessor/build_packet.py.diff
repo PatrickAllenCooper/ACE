@@ -1,0 +1,204 @@
+--- predecessor/build_packet.py
++++ current/build_packet.py
+@@ -24,15 +24,24 @@
+ RESOURCES=dict(account='ucb736_asc2',partition='aa100',qos='gpu-testing',requested_cpus=4,
+  max_allocated_cpus=4,memory_mib=15360,wall_seconds=2700,gpus=1,gpu_type='a100_3g.20gb')
+ DEADLINES=dict(startup=240,worker=2620,soft=2630,cleanup=2645,hard=2670,progress=180,telemetry=90)
+-# Reference bindings only: the collection failure may require a separately reviewed successor.
+-# No successor is silently adopted. Rebind these/source closure only after explicit reviewed pins.
++# Original science/source remain immutable; collection02 has separate, exact operational authority.
+ FIXED={'freeze':'15602614ef9d7e9a3e21027e7495f891c98ba32a2b6b0ee9857e5b71d5e5e66d',
+  'freeze-review':'088b1bc2cdf5855b1b2f285b3ac751813cd5655844ced202fd956cccb29ff416',
+  'adoption':'ea0457db2d927101366bdd3763aadf7fe4884bb91ef16d5efeb8e91d0b6e5a07',
+  'namespace-admission':'5027bca99d1c1cdfc9cf89dd5639593308e8eb37f7f7ad2fb8aacb6ded5c0e36',
+  'recovery-authority':'ba6ef3937d4aa3cad68a64ae7f02e098041c5bddff5e68d5e5b0833f30cd2a50'}
++FIXED.update({
++ 'operational-amendment':'fa94858dfc19c8b15c82acde167ad8fe9991d0c863c32444d017743079617855',
++ 'operational-adoption-review':'db2a672a4f0222a06a46d1e61ebc5bdc22b869640f570e19d36a0f699a1ddbaf',
++ 'collection-failure-acceptance':'00c4557a5c681904e823441ac8bb99f4dc5e169c0c7e41e764018a1e4e7af5ee',
++ 'no-response-proof':'59c21d63644cf7ae9765b3ff374538f2c614694dc383583f1e7661c301700998',
++ 'collection-failure-baseline':'eeec362db1990d5cf1fb7945708293842dc9b9283a2777697e6840ad5a2c147b'})
++COLLECTION_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_02'
++TEXT_METADATA={'freeze-review','cpu-report','operational-adoption-review'}
++def metadata_name(name):return name+('.md' if name in TEXT_METADATA else '.json')
+ METADATA=tuple(FIXED)+('namespace-claim','cpu-packet','cpu-acceptance','cpu-inventory','cpu-disposition',
+- 'cpu-launch-packet','cpu-result','cpu-terminal','cpu-report','collection-acceptance','baseline','previous-baseline','site-readiness')
++ 'cpu-launch-packet','cpu-result','cpu-terminal','cpu-report','collection-acceptance','collection-packet','collection-result','collection-disposition','collection-inventory',
++ 'baseline','previous-baseline','site-readiness')
+ PATH_KEYS=('cpu-packet-relative','cpu-prepared-relative','cpu-terminal-relative')
+ ROSTER=[f'policy_train/{wid}/snapshot-{i:03d}' for wid in range(202611070000,202611070032) for i in range(5)]
+ 
+@@ -142,11 +151,115 @@
+     return name
+ 
+ 
++def collection_lineage(m,pins):
++    """Join accepted collection02 to the closed failure; never infer future costs or approval."""
++    authority=m['operational-amendment'];failure=m['collection-failure-acceptance'];proof=m['no-response-proof']
++    failed=m['collection-failure-baseline'];base=m['previous-baseline'];a=m['collection-acceptance']
++    packet=m['collection-packet'];result=m['collection-result'];disp=m['collection-disposition'];cpu=m['cpu-launch-packet']
++    need(authority['freeze_sha256']==pins['freeze'] and authority['source_commit']==SOURCE_COMMIT
++        and authority['recovery_root']==COLLECTION_ROOT and authority['baseline_sha256']==pins['collection-failure-baseline']
++        and authority['failure_acceptance_sha256']==pins['collection-failure-acceptance']
++        and authority['no_response_proof_sha256']==pins['no-response-proof']
++        and authority['namespace_admission_sha256']==pins['namespace-admission']
++        and authority['namespace_claim_sha256']==pins['namespace-claim']
++        and authority['scientific_inputs_unchanged'] is True and authority['other_stages_unchanged'] is True,
++        'exact collection-only operational authority lineage required')
++    need(failure['status']=='accepted_failed_before_response' and failure['job_id']=='35407428'
++        and proof['status']=='verified_failed_before_collection_worker' and proof['failed_job_id']=='35407428'
++        and proof['failure_acceptance_sha256']==pins['collection-failure-acceptance']
++        and proof['accounting_sha256']==pins['collection-failure-baseline'], 'accepted failure/proof lineage differs')
++    for value in (failure,proof):
++        need(all(type(value[k]) is int and value[k]==0 for k in ('environment_response_attempts','environment_responses',
++             'unknown_return_attempts','scientific_worlds_generated','records_created','pairs_created',
++             'scientific_response_cost_units','training_updates')), 'unknown or nonzero failed science charges')
++        need(value['node_local_partial_runtime_cleanup_verified'] is False
++            and value['runtime_qualified_for_this_execution'] is False,'failed runtime uncertainty must remain')
++    job=result['job_id']
++    need(type(job) is str and re.fullmatch('[1-9][0-9]*',job) and job!='35407428'
++        and job!=m['cpu-acceptance']['job_id'] and result['returncode']==0 and result['ambiguous'] is False
++        and pin(result['intent_sha256']) and a['job_id']==job
++        and a['collection_packet_sha256']==pins['collection-packet'] and a['disposition_sha256']==pins['collection-disposition'],
++        'independent actual collection02 acceptance/result pins required')
++    need(packet['remote_root']==COLLECTION_ROOT and packet['source_commit']==SOURCE_COMMIT
++        and packet['resources']==authority['resources'] and packet['deadlines']==authority['deadlines']
++        and packet['baseline_sha256']==pins['collection-failure-baseline']
++        and packet['operational_amendment_sha256']==pins['operational-amendment']
++        and a['collection']['root']==COLLECTION_ROOT+'/collection/session/worker/task/collection',
++        'collection02 resource/root/amendment differs; science freeze unchanged')
++    for name in ('freeze','namespace-admission','namespace-claim','operational-amendment',
++                 'collection-failure-acceptance','no-response-proof'):
++        need(packet['new_input_files'][metadata_name(name)]==pins[name], 'collection original authority pin differs: '+name)
++    need(packet['new_input_files']['failure-baseline.json']==pins['collection-failure-baseline'],
++        'collection original failure baseline differs')
++    for key,name in (('operational_amendment_sha256','operational-amendment'),
++                     ('operational_adoption_review_sha256','operational-adoption-review'),
++                     ('collection_failure_acceptance_sha256','collection-failure-acceptance'),
++                     ('no_response_proof_sha256','no-response-proof'),('collection_acceptance_sha256','collection-acceptance'),
++                     ('baseline_sha256','previous-baseline')):
++        need(cpu[key]==pins[name], 'CPU outer operational lineage differs: '+key)
++    need(cpu['collection_job_id']==job,'CPU outer collection job differs')
++    for name in ('operational-amendment','operational-adoption-review','collection-failure-acceptance','no-response-proof',
++                 'collection-failure-baseline','collection-acceptance','collection-packet','collection-result','collection-disposition'):
++        need(cpu['new_input_files'][metadata_name(name)]==pins[name], 'CPU captured collection lineage differs: '+name)
++    need(cpu['new_input_files']['baseline.json']==pins['previous-baseline'],'CPU captured actual baseline differs')
++    need(disp['job_id']==job and disp['remote_root']==COLLECTION_ROOT and disp['packet_sha256']==pins['collection-packet']
++        and disp['submission_result_sha256']==pins['collection-result'] and disp['custody_bytes_verified'] is True
++        and disp['current_lineage_verified'] is True and disp['errors']==[] and disp['input_pin_mismatches']==[]
++        and disp['exact_prior_accounting_matched'] is True and disp['exact_prior_and_current_journals_matched'] is True
++        and disp['observed_related_jobs']==42 and disp['observed_submission_journals']==86,
++        'complete independently accepted collection02 custody required')
++    transport=m['collection-inventory'];need(transport['returncode']==0,'collection inventory transport failed')
++    observed=decode(transport['stdout']);files=observed['files']
++    need(observed['terminal_gate'] is True and observed['root_present'] is True and not observed.get('observation_error')
++        and len(files)==disp['raw_files'] and sum(v['bytes'] for v in files.values())==disp['raw_bytes'],
++        'complete collection terminal inventory required')
++    need(literal(transport['python_source'],'ROOT')==COLLECTION_ROOT and literal(transport['python_source'],'JOB')==job,
++        'collection inventory captured root/job differs')
++    original={'packet.json':pins['collection-packet'],'submission.intent.json':result['intent_sha256'],
++              'submission.result.json':pins['collection-result'],**packet['new_input_files']}
++    for name,h in original.items():
++        relative('launch/'+name)
++        need(pin(h) and files['launch/'+name]['sha256']==h,'original collection packet/input/journal inventory differs')
++    prefix='launch/collection/session/worker/task/collection/'
++    need({n[len(prefix):]:v['sha256'] for n,v in files.items() if n.startswith(prefix)}==a['collection']['files'],
++        'complete accepted collection output map differs')
++    need(failed['terminal_jobs']==41 and failed['submission_journals']==84
++        and base['terminal_jobs']==42 and base['submission_journals']==86
++        and failed['outstanding_reservation']==base['outstanding_reservation']==0
++        and base['preparation_allowance_cpu_seconds']==3600 and base['cpu_cap_seconds']==57600 and base['gpu_cap_seconds']==7200
++        and base['input_pins']['predecessor']==pins['collection-failure-baseline']
++        and base['input_pins']['acceptance']==pins['collection-acceptance']
++        and base['input_pins']['disposition']==pins['collection-disposition'],'actual41-to42 baseline chain required')
++    prior=[r for r in base['related_accounting'] if r[0]!=job];new=[r for r in base['related_accounting'] if r[0]==job]
++    need(len(prior)==41 and len(new)==1 and normalized(prior)==normalized(failed['related_accounting'])
++        and normalized(new)==normalized([observed['parent_accounting']])
++        and normalized(base['related_accounting'])==normalized(observed['related_accounting']),
++        'every failed/prior row must survive collection02')
++    row=normalized(new)[0];allocation=disp['allocation'];tres=dict(row[7])
++    need(row[1]=='ace_llm_scientific_collect02' and row[2:4]==['COMPLETED','0:0'] and row[4]==2
++        and 0<=row[5]<=900 and row[6]=='ucb736_asc2'
++        and tres.get('cpu')=='2' and tres.get('node')=='1' and tres.get('mem') in ('7680M','7.5G','7.50G')
++        and not any(k.startswith('gres/') for k in tres)
++        and allocation['resource_contract_matched'] is True and allocation['errors']==[]
++        and allocation['allocated_cpus']==2 and allocation['elapsed_seconds']==row[5]
++        and allocation['allocated_cpu_seconds']==2*row[5] and allocation['gpu_count']==allocation['gpu_slice_seconds']==0,
++        'actual collection02 allocation/cost differs')
++    journals={**failed['journal_pins'],COLLECTION_ROOT+'/submission.intent.json':result['intent_sha256'],
++              COLLECTION_ROOT+'/submission.result.json':pins['collection-result']}
++    need(len(failed['journal_pins'])==84 and len(journals)==86
++        and base['journal_pins']==observed['journal_pins']==journals,'all84 failed journals plus collection02 journals required')
++    need(base['closed_cpu_seconds']==disp['closed_cpu_seconds']==failed['closed_cpu_seconds']+2*row[5]
++        and base['closed_gpu_slice_seconds']==disp['closed_gpu_slice_seconds']==failed['closed_gpu_slice_seconds']
++        and base['cpu_admission_seconds']==base['closed_cpu_seconds']+3600,
++        'actual collection02 spend required, no defaults')
++    return {COLLECTION_ROOT+'/'+n:h for n,h in original.items()}
++
++
+ def authenticate(supplied,prepared_raw,prepared_pin,plan_pin,paths):
+     need(set(supplied)==set(METADATA) and set(paths)==set(PATH_KEYS),'complete explicit caller bindings required')
+     pins={n:sha(v) for n,v in supplied.items()}
+     need(all(pins[n]==h for n,h in FIXED.items()),'adopted freeze/source/namespace metadata differs')
+-    m={n:decode(v) for n,v in supplied.items() if n not in ('freeze-review','cpu-report','site-readiness')}
++    m={n:decode(v) for n,v in supplied.items() if n not in TEXT_METADATA|{'site-readiness'}}
+     f=m['freeze'];cpu=m['cpu-packet'];a=m['cpu-acceptance'];base=m['baseline'];old=m['previous-baseline']
+     need(f['source_commit']==SOURCE_COMMIT and supplied['cpu-report'].strip() and supplied['site-readiness'].strip(),
+          'independent CPU review and site-readiness evidence required')
+@@ -190,6 +303,7 @@
+         and collection['complete_custody_verified'] is True and collection['accounting_complete'] is True
+         and collection['collection']==cpu['collection'] and cpu['collection']['freeze_sha256']==pins['freeze'],
+         'complete original accepted collection binding differs')
++    collection_originals=collection_lineage(m,pins)
+     # Metadata only until independent CPU acceptance has been authenticated above.
+     prepared=decode(prepared_raw);plan=prepared['training_plan'];exposure=prepared['exposure'];d=plan['dpo_steps']
+     need(prepared_raw==(json.dumps(prepared,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode()
+@@ -236,6 +350,10 @@
+     need(len(expected_files)==6 and paths['cpu-prepared-relative'].endswith('/session/worker/artifacts/llm-prepared.json')
+         and paths['cpu-terminal-relative']==str(Path(paths['cpu-prepared-relative']).with_name('terminal.json')),
+         'original tokenization worker artifact paths required')
++    for n,h in outer['new_input_files'].items():
++        relative('launch/'+n);need(pin(h),'invalid original CPU outer input pin')
++        if 'launch/'+n in expected_files:need(expected_files['launch/'+n]==h,'CPU outer input collision')
++        expected_files['launch/'+n]=h
+     cpu_dir=Path(paths['cpu-packet-relative']).parent
+     need(outer['new_input_files'][paths['cpu-packet-relative'].removeprefix('launch/')]==pins['cpu-packet'],
+         'original CPU inner/outer packet join differs')
+@@ -252,8 +370,8 @@
+     for flag in ('model_weights_loaded','explicit_cuda_api_called','training_execution_qualified','scientific_qualified','retry_allowed'):
+         need(terminal[flag] is False,'CPU preparation flag differs: '+flag)
+     need(all(terminal[n]==0 for n in ('inference_calls','environment_responses','training_updates')),'CPU preparation performed forbidden work')
+-    need(type(old['terminal_jobs']) is int and old['terminal_jobs']>0
+-        and type(old['submission_journals']) is int and old['submission_journals']>0
++    need(type(old['terminal_jobs']) is int and old['terminal_jobs']==42
++        and type(old['submission_journals']) is int and old['submission_journals']==86
+         and base['terminal_jobs']==old['terminal_jobs']+1 and base['submission_journals']==old['submission_journals']+2
+         and base['outstanding_reservation']==old['outstanding_reservation']==0
+         and base['preparation_allowance_cpu_seconds']==3600 and base['cpu_cap_seconds']==57600 and base['gpu_cap_seconds']==7200
+@@ -281,7 +399,7 @@
+         and base['closed_gpu_slice_seconds']+sum(s['gpus']*s['wall_seconds'] for s in remaining)<=7200,
+         'actual costs plus frozen remaining stage caps exceed budget')
+     return dict(metadata=m,pins=pins,prepared=prepared,dpo_steps=d,
+-        upstream_pins={CPU_ROOT+'/'+n.removeprefix('launch/'):h for n,h in expected_files.items()})
++        upstream_pins={**collection_originals,**{CPU_ROOT+'/'+n.removeprefix('launch/'):h for n,h in expected_files.items()}})
+ def make_packet(ctx,prepared_raw,prepared_pin,plan_pin,supplied):
+     f=ctx['metadata']['freeze'];cpu=ctx['metadata']['cpu-packet'];closure=f['stage_closure']['stages']['train']
+     source=committed(SOURCE_COMMIT,'scripts/research/'+ENTRY);need(sha(source)==ENTRY_SHA,'reviewed scientific training entry differs')
+@@ -342,7 +460,7 @@
+         scientific_protocol_frozen=True,namespace_owned=True,output=output,site_readiness_sha256=ctx['pins']['site-readiness'])
+     files={'inputs/'+n:v for n,v in data.items()}
+     files.update({'inputs/training.json':stage_raw,'inputs/admission.json':raw(admission),'cpu-paths.json':raw(paths)})
+-    for n,v in supplied.items():files[n+('.md' if n in ('freeze-review','cpu-report') else '.json')]=v
++    for n,v in supplied.items():files[metadata_name(n)]=v
+     for n in ('build_packet.py','launch_once.py','monitor_once.py'):files[n]=read(Path(__file__).resolve().with_name(n))
+     command=[stage['runtime_source']+'/bin/python','-I','-B','-c',bootstrap,ROOT+'/inputs/'+ENTRY,ENTRY_SHA,
+         '--packet',ROOT+'/inputs/training.json','--packet-sha256',sha(stage_raw),'--admission',ROOT+'/inputs/admission.json',
+@@ -358,6 +476,8 @@
+     base=ctx['metadata']['baseline']
+     outer=dict(schema='ace-scientific-training-gpu-launch-v1',source_commit=SOURCE_COMMIT,remote_root=ROOT,
+         resources=RESOURCES,deadlines=DEADLINES,new_input_files={n:sha(v) for n,v in sorted(files.items())},
++        operational_amendment_sha256=ctx['pins']['operational-amendment'],
++        collection_job_id=ctx['metadata']['collection-result']['job_id'],
+         cpu_job_id=ctx['metadata']['cpu-acceptance']['job_id'],cpu_acceptance_sha256=ctx['pins']['cpu-acceptance'],
+         prepared_sha256=args.prepared_sha256,plan_sha256=args.plan_sha256,baseline_sha256=ctx['pins']['baseline'],
+         namespace_claim_sha256=ctx['pins']['namespace-claim'],original_cpu_inputs=ctx['upstream_pins'],

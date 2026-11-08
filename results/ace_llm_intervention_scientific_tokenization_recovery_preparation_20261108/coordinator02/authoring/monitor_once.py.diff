@@ -1,0 +1,21 @@
+--- preserved-TOKEN01/monitor_once.py
++++ proposed-TOKEN02/monitor_once.py
+@@ -22,13 +22,17 @@
+     a=ap.parse_args()
+     local=Path(a.packet_directory).resolve(strict=True)
+     packet=b.decode(b.read(local/'packet.json',a.packet_sha256));remote_root=packet['remote_root']
+-    b.need(packet['schema']==b.OUTER_VERSION and packet['local_root']==str(local),
++    b.need(packet['schema']==b.OUTER_VERSION and local==b.LOCAL and packet['local_root']==str(local)
++           and remote_root==b.ROOT and packet['resources']==b.RESOURCES and packet['deadlines']==b.DEADLINES
++           and packet['token_recovery']['original_packet_sha256']==b.FAILED_TOKEN_PACKET_SHA,
+            'current pinned token preparation packet required')
+     result=b.decode(b.read(local/'submission.result.json',a.submission_result_sha256))
+     job=result.get('job_id');b.need(type(job) is str and job.isdigit() and result.get('returncode')==0 and result.get('ambiguous') is False,
+                                  'unambiguous original submission required; otherwise reconcile manually')
+     intent=b.decode(b.read(local/'submission.intent.json'))
+     b.need(intent['packet_sha256']==a.packet_sha256 and intent['remote_root']==remote_root,'original intent binding differs')
++    for name in ('monitor_once.py','build_packet.py'):
++        b.need(b.read(Path(__file__).resolve().with_name(name))==b.read(local/name,packet['new_input_files'][name]),'monitor/captured helper differs')
+     destination=Path(a.evidence_directory).absolute();destination.mkdir(mode=0o700,parents=True,exist_ok=False)
+     source='ROOT='+repr(remote_root)+'\nJOB='+repr(job)+'\nINTENT_SHA='+repr(result['intent_sha256'])+'\n'+r'''
+ import pathlib,hashlib,json,subprocess,datetime

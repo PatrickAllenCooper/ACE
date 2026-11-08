@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/ace-token01-independent-failure-audit-gmgd15sy/audit_boundary.py", line 94, in <module>
+    if __name__=='__main__':main()
+  File "/tmp/ace-token01-independent-failure-audit-gmgd15sy/audit_boundary.py", line 19, in main
+    need((OUT/'packet.json').read_bytes()==raw and sha(raw)==partial['inner_packet_sha256'],'actual parent packet differs')
+  File "/tmp/ace-token01-independent-failure-audit-gmgd15sy/audit_boundary.py", line 8, in need
+    if not ok:raise ValueError(msg)
+ValueError: actual parent packet differs

@@ -1,0 +1,85 @@
+--- preserved-TOKEN01/launch_once.py
++++ proposed-TOKEN02/launch_once.py
+@@ -60,7 +60,8 @@
+         review=Path(a.packet_review).absolute();review_raw=b.read(review,a.packet_review_sha256)
+         b.need(review_raw.strip() and review_raw==b.committed(a.packet_commit,str(review.relative_to(b.REPO))),
+                'committed independently pinned packet review required')
+-        b.need(packet['baseline_sha256']==ctx['pins']['baseline'] and packet['realization_job_id']==ctx['job']
++        b.need(packet['baseline_sha256']==ctx['pins']['token-failure-baseline']
++               and packet['token_recovery']==ctx['token_recovery'] and packet['realization_job_id']==ctx['job']
+                and packet['collection_job_id']==ctx['collection_job']
+                and packet['collection_acceptance_sha256']==ctx['pins']['collection-acceptance']
+                and packet['namespace_claim_sha256']==ctx['pins']['namespace-claim']
+@@ -73,6 +74,7 @@
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local claim changed; never recreate')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+         stage=b.decode(b.read(b.LOCAL/'inputs/packet.json',pins['inputs/packet.json']))
++        b.need(packet['token_science_equality']==b.token_science_equality(m['failed-token-stage'],stage),'exact original child equality receipt differs')
+         original={}
+         for kind,root in (('realization',b.REALIZATION_ROOT),('collection',b.COLLECTION_ROOT)):
+             original.update({root+'/packet.json':ctx['pins'][kind+'-packet'],
+@@ -85,7 +87,8 @@
+             and stage['files']['collection-acceptance.json']==ctx['pins']['collection-acceptance'],
+             'original collection/tokenizer stage binding differs')
+         failed_files={n.removeprefix('launch/'):v['sha256'] for n,v in ctx['failed_files'].items() if n.startswith('launch/')}
+-        context=dict(root=b.ROOT,failed_root=b.FAILED_COLLECTION_ROOT,failed_files=failed_files,registry=b.REMOTE_REGISTRY,pins=pins,baseline=m['baseline'],
++        context=dict(root=b.ROOT,failed_root=b.FAILED_COLLECTION_ROOT,failed_files=failed_files,registry=b.REMOTE_REGISTRY,pins=pins,baseline=m['token-failure-baseline'],failed_token_root=b.FAILED_TOKEN_ROOT,
++            prior_roots=ctx['failed_token']['preserved_roots'],prior_directories=ctx['failed_token']['preserved_directories'],
+             archive=stage['archive'],manifest=stage['manifest'],namespace_claim_sha256=claim_pin,upstream_inputs=original,
+             collection=collection,model_source=m['freeze']['model_directory'],tokenizer_files=stage['tokenizer_files'],
+             original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA)
+@@ -94,8 +97,8 @@
+             ('ace-delivery-controller.lock','ace-foundation-controller.lock')]));started=True
+         ready=remote('readiness_transport.json',common+r'''
+ need(root.parent==root.parent.resolve() and root.parent.stat().st_uid==os.getuid(),'scratch parent differs')
+-need(not os.path.lexists(root) and not list(root.parent.glob('ace_llm_intervention_scientific_tokenization*')),
+-     'existing token root; no adoption/retry')
++need(not os.path.lexists(root) and {str(p) for p in root.parent.glob('ace_llm_intervention_scientific_tokenization*')}=={C['failed_token_root']},
++     'only exact preserved TOKEN01 may preexist; no adoption/retry')
+ r=reconcile()
+ root.mkdir(mode=0o700);(root/'logs').mkdir(mode=0o700);(root/'inputs').mkdir(mode=0o700);(root/'tokenizer').mkdir(mode=0o700)
+ probe=root/'write-read-probe'
+@@ -116,7 +119,8 @@
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+         intent=dict(utc=b.utc(),packet_commit=a.packet_commit,source_commit=b.SOURCE_COMMIT,
+             packet_sha256=a.packet_sha256,review_sha256=a.packet_review_sha256,pins=pins,remote_root=b.ROOT,
+-            baseline_sha256=ctx['pins']['baseline'],realization_acceptance_sha256=ctx['pins']['realization-acceptance'],
++            baseline_sha256=ctx['pins']['token-failure-baseline'],token_recovery=ctx['token_recovery'],
++            token_science_equality=packet['token_science_equality'],realization_acceptance_sha256=ctx['pins']['realization-acceptance'],
+             realization_job_id=ctx['job'],collection_job_id=ctx['collection_job'],
+             collection_acceptance_sha256=ctx['pins']['collection-acceptance'],existing_namespace_claim_sha256=claim_pin,
+             operational_amendment_sha256=ctx['pins']['operational-amendment'],
+@@ -214,10 +218,10 @@
+ def verify_tree(c):
+  tree=pathlib.Path(c['root'])
+  need(tree.is_dir() and tree==tree.resolve(),'ordinary accepted collection root required')
+- files={};total=0
++ files={};directories=[];total=0
+  for path in sorted(tree.rglob('*')):
+   need(not path.is_symlink(),'collection member symlink')
+-  if path.is_dir():continue
++  if path.is_dir():directories.append(path.relative_to(tree).as_posix());continue
+   with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
+    before=os.fstat(f.fileno());need(stat.S_ISREG(before.st_mode) and before.st_size<=64*1024**2,'bounded regular collection member')
+    digest=hashlib.sha256()
+@@ -228,6 +232,7 @@
+   files[path.relative_to(tree).as_posix()]=digest.hexdigest();total+=after.st_size
+   need(len(files)<=65536 and total<=2*1024**3,'complete collection bound exceeded')
+  need(files==c['files'],'complete accepted collection changed; no subset or filtering')
++ if 'directories' in c:need(sorted(directories)==sorted(c['directories']),'complete preserved directory roster changed')
+  return dict(root=str(tree),files=len(files),bytes=total,verified=True,private_json_decoded=False)
+ def reconcile():
+  queue=run(['squeue','-u','paco0228','-h','-o','%i|%j|%T|%R|%a'])
+@@ -275,10 +280,11 @@
+   need(sha(read(path,allow_hardlink=True))==h,'accepted upstream journal/terminal changed: '+path)
+  collection_receipt=verify_tree(C['collection'])
+  failed_receipt=verify_tree(dict(root=C['failed_root'],files=C['failed_files']))
++ prior_receipts={path:verify_tree(dict(root=path,files=files,directories=C['prior_directories'][path])) for path,files in C['prior_roots'].items()}
+  for name,h in C['tokenizer_files'].items():
+   need(sha(read(pathlib.Path(C['model_source'])/name))==h,'original public tokenizer changed')
+  return dict(utc=utc(),queue=queue,related_accounting=rows,journal_pins=journals,
+-             partition=partition,association=assoc,qos=qos,collection=collection_receipt,failed_collection=failed_receipt,manifest_sha256=C['manifest']['sha256'],
++             partition=partition,association=assoc,qos=qos,collection=collection_receipt,failed_collection=failed_receipt,preserved_failed_token_and_prior_roots=prior_receipts,manifest_sha256=C['manifest']['sha256'],
+              archive_size=st.st_size,archive_byte_check='allocated stage authenticates full bytes before execution',
+              existing_namespace_claim_sha256=C['namespace_claim_sha256'],
+              original_namespace_claim_sha256=C['original_namespace_claim_sha256'],

@@ -1,0 +1,11 @@
+--- initial/build_packet.py
++++ r1/build_packet.py
+@@ -417,7 +417,7 @@
+     for n,h in f['source_pins'].items():
+         need(not Path(n).is_absolute() and '..' not in Path(n).parts and pin(h),'safe frozen source path required')
+         need(sha(committed(SOURCE_COMMIT,n))==h,'full captured source metadata differs: '+n)
+-    prep=f['stage_closure']['stages']['tokenize']
++    prep=f['stage_closure']['stages']['token']
+     need(cpu['source_names']==prep['source_names'] and all(cpu['files'][n]==h for n,h in prep['input_source_files'].items()),
+         'accepted CPU source closure differs from same freeze')
+     need(set(literal(source,'PREPARATION_SOURCES'))==set(closure['prepared_artifact_source_roster'])

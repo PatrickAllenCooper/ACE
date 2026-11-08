@@ -1,0 +1,19 @@
+--- /private/tmp/ace-scientific-training-gpu-token02-mcu8h32f/predecessors/core/launch_once.py
++++ /private/tmp/ace-scientific-training-gpu-token02-mcu8h32f/launch_once.py
+@@ -65,6 +65,8 @@
+                and packet['operational_amendment_sha256']==ctx['pins']['operational-amendment']
+                and packet['collection_job_id']==m['collection-result']['job_id']
+                and packet['namespace_claim_sha256']==ctx['pins']['namespace-claim'],'accepted baseline/namespace differs')
++        b.need(packet['token_recovery']==ctx['token_recovery'] and packet['failed_token_root']==b.FAILED_TOKEN_ROOT
++               and packet['failed_token_job_id']==b.FAILED_TOKEN_JOB,'exact TOKEN02 recovery history differs')
+         claim_pin=ctx['pins']['namespace-claim']
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local claim changed; never recreate')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+@@ -105,6 +107,7 @@
+             packet_sha256=a.packet_sha256,review_sha256=a.packet_review_sha256,pins=pins,remote_root=b.ROOT,
+             baseline_sha256=ctx['pins']['baseline'],cpu_acceptance_sha256=ctx['pins']['cpu-acceptance'],
+             cpu_job_id=m['cpu-acceptance']['job_id'],existing_namespace_claim_sha256=claim_pin,
++            token_recovery=ctx['token_recovery'],failed_token_job_id=b.FAILED_TOKEN_JOB,failed_token_root=b.FAILED_TOKEN_ROOT,
+             namespace_admission_sha256=ctx['pins']['namespace-admission'],
+             recovery_authority_sha256=ctx['pins']['recovery-authority'],original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+             resources=b.RESOURCES,deadlines=b.DEADLINES,admission=packet['admission'],

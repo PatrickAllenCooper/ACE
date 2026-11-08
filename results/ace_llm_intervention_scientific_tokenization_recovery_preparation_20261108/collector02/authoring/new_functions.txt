@@ -1,0 +1,43 @@
+def preserved_roots_equal(actual,preserved,directories):
+    errors=[]
+    for label,expected in preserved.items():
+        observed={n[len(label)+1:]:v for n,v in actual['files'].items() if n.startswith(label+'/')}
+        dirs=sorted(n[len(label)+1:] for n in actual['directories'] if n.startswith(label+'/'))
+        if observed!=expected or dirs!=sorted(directories[label]):errors.append('complete immutable '+label+' root changed/missing')
+    return errors
+
+
+def accounting_extension(observation,baseline,job,intent_pin,result_pin):
+    prior=[r for r in observation['related_accounting'] if r[0]!=job]
+    current=[r for r in observation['related_accounting'] if r[0]==job]
+    rows_ok=(len(prior)==43 and len(current)==1 and len(observation['related_accounting'])==44
+        and normalize(prior)==normalize(baseline['related_accounting'])
+        and normalize(current)==normalize([observation['parent_accounting']])
+        and all(r[2].split()[0] in TERMINAL for r in observation['related_accounting']))
+    journals={**baseline['journal_pins'],ROOT+'/submission.intent.json':intent_pin,ROOT+'/submission.result.json':result_pin}
+    return rows_ok,(len(baseline['journal_pins'])==88 and len(journals)==90 and observation['journal_pins']==journals)
+
+
+def cost(rows):
+    cpu=gpu=0
+    for row in normalize(rows):
+        t=dict(row[7]);need(t or row[4]==row[5]==0,'unknown historical resource charge')
+        g={k:v for k,v in t.items() if k.startswith('gres/')}
+        need(all(v.isdigit() and (k=='gres/gpu' or k.startswith('gres/gpu:')) for k,v in g.items()),'unknown historical accelerator charge')
+        typed=sum(int(v) for k,v in g.items() if k.startswith('gres/gpu:'))
+        count=int(g['gres/gpu']) if 'gres/gpu' in g else typed
+        need(not ('gres/gpu' in g and any(k.startswith('gres/gpu:') for k in g)) or count==typed,'inconsistent historical GPU count')
+        cpu+=row[4]*row[5];gpu+=count*row[5]
+    return cpu,gpu
+
+
+def no_requeue_record(observation,job,root,files):
+    # Current scontrol can age out; retain the worker's original captured scheduler record as fallback.
+    captured=files.get('launch/preparation/allocation.json');record=observation['results']['job'];origin='terminal_scontrol'
+    if record.get('returncode')!=0 and captured:
+        record=decode(read_metadata(Path(root)/'allocation.json',captured['sha256']));origin='captured_allocation'
+    fields=dict(re.findall(r'([^\s=]+)=(\S+)',record.get('stdout') or ''))
+    okay=(record.get('returncode')==0 and fields.get('JobId')==job and fields.get('Requeue')=='0' and fields.get('Restarts')=='0')
+    return dict(verified=okay,source=origin,source_sha256=None if origin=='terminal_scontrol' else captured['sha256'],fields=fields)
+
+

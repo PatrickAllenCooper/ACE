@@ -1,0 +1,206 @@
+--- /tmp/ace-scientific-training-gpu-collector-hxb4yf1k/pull_terminal.py
++++ /private/tmp/ace-scientific-training-gpu-stream-89i4t7aj/pull_terminal.py
+@@ -17,6 +17,8 @@
+ import stat
+ import subprocess
+ import time
++import shlex
++import types
+ import math
+ 
+ REPO=Path('/Users/pat/code/ACE')
+@@ -372,9 +374,128 @@
+          and type(remote['fresh_readiness']) is dict, 'remote intent augmentation malformed')
+ 
+ 
++STREAM_HELPER_SHA='fab01ad840e4e73ef0fc2136fd2eeb12b1033256e80a8f96a392afb2d50b758a'
++STREAM_REVIEW_SHA='5058426e9dccaaf210eb2969a8623a31123f13dfefaa43c57e975e5800819371'
++
++
++def load_stream_helper(source):
++    need(sha(source)==STREAM_HELPER_SHA,'independently reviewed stream helper differs')
++    module=types.ModuleType('pinned_gpu_training_stream_transport')
++    module.__file__=str(Path(__file__).resolve().parent/'stream_custody.py')
++    exec(compile(source,module.__file__,'exec'),vars(module))
++    return module
++
++
++def stream_request(before):
++    roots={label:path for label,path,flag in (
++        ('launch',ROOT,'root_present'),('cpu',CPU_ROOT,'cpu_present'),('common',COMMON_ROOT,'common_present'),('failed01',FAILED_ROOT,'failed_present')) if before[flag]}
++    singles={label:path for label,path,flag in (
++        ('namespace.json',REMOTE_NAMESPACE,'namespace_present'),('original-namespace.json',OLD_REMOTE_NAMESPACE,'original_namespace_present')) if before[flag]}
++    return dict(roots=roots,single_files=singles,
++        inventory=dict(files=before['files'],directories=sorted(before['directories'])))
++
++
++def compare_observations(before,after):
++    # Same complete comparisons as the original collector, before materialization.
++    need(after['files']==before['files'] and sorted(after['directories'])==sorted(before['directories'])
++         and after['cpu_present']==before['cpu_present'] and after['common_present']==before['common_present'] and after['failed_present']==before['failed_present']
++         and after['root_present']==before['root_present'] and after['namespace_present']==before['namespace_present']
++         and after['original_namespace_present']==before['original_namespace_present']
++         and after['original_hardlink_groups']==before['original_hardlink_groups']
++         and after['parent_accounting']==before['parent_accounting']
++         and after['journal_pins']==before['journal_pins']
++         and after['upstream_pins']==before['upstream_pins'] and after['upstream_errors']==before['upstream_errors']
++         and normalize(after['related_accounting'])==normalize(before['related_accounting']),
++         'second remote bytes/journals/terminal accounting differ')
++
++
++def mirror_attempt(source,destination,copy_file):
++    """Preserve every archive/argv/partial receipt as new independent bytes, never overwrite."""
++    source,destination=Path(source),Path(destination)
++    if not source.exists():return
++    need(not source.is_symlink(),'transport attempt symlink forbidden')
++    destination.mkdir(mode=0o700,exist_ok=False)
++    for path in sorted(source.rglob('*')):
++        need(not path.is_symlink(),'transport evidence symlink forbidden')
++        target=destination/path.relative_to(source)
++        if path.is_dir():target.mkdir(mode=0o700)
++        else:copy_file(path,target)
++    need(inventory(source)==inventory(destination),'whole transport archive/receipt mirror differs')
++
++
++def stream_transfer(before,*,observe,save,helper,helper_source,external,local,copy_file,coordinator_bytes=0):
++    """Transport only. Caller retains terminal/locks/full downstream acceptance gates."""
++    need(sha(helper_source)==STREAM_HELPER_SHA,'stream source pin differs')
++    external,local=Path(external),Path(local)
++    need(external.is_dir() and local.is_dir() and external!=local,'two previously exclusively claimed capsules required')
++    need(not any(os.path.lexists(p/'remote') for p in (external,local)),
++         'raw materialization roots must remain absent; never remove/replace a precreated root')
++    request=raw(stream_request(before));expected=helper.request_check(decode(request));bound=helper.archive_bound(expected)
++    size=sum(v['bytes'] for v in before['files'].values())
++    # Conservatively budget both copies AND both retained full archives on each filesystem.
++    for parent in (external,local):
++        fs=os.statvfs(parent)
++        need(fs.f_bavail*fs.f_frsize>2*size+2*bound+coordinator_bytes+2*1024**3,'insufficient complete stream custody space')
++    command=['bash',HELPER,'run',shlex.join(['python3','-B','-c',helper_source.decode(),'emit','--request-sha256',sha(request)])]
++    save('stream-request.json',decode(request));save('stream-command.json',command)
++    save('stream-before.json',before)
++    for dest in (external,local):write(dest/'stream-emitter.py',helper_source)
++    save('stream-intent.json',dict(helper_sha256=STREAM_HELPER_SHA,helper_review_sha256=STREAM_REVIEW_SHA,
++        request_sha256=sha(request),command_sha256=sha(raw(command)),archive_bound_bytes=bound,
++        transport_timeout_seconds=1800,copy_roots=[str(external/'remote'),str(local/'remote')],
++        acceptance=False,retry_allowed=False))
++    attempt=external/'stream-attempt';mirror=local/'stream-attempt';original_error=None
++    try:
++        helper.capture(command,request,attempt,1800)
++        capture_pin=fingerprint(attempt/'capture.json',sole_link=True)['sha256']
++        after=observe('inventory_after_transport.json')
++        compare_observations(before,after)  # Includes journals/queue gate/upstream/accounting, not only bytes.
++        save('stream-after.json',after)
++        result=helper.materialize(attempt,capture_pin,external/'stream-before.json',sha(raw(before)),
++            external/'stream-after.json',sha(raw(after)),external/'remote',local/'remote')
++        need(result['status']=='transport_verified_pending_collector_gates' and result['acceptance'] is False,
++             'transport does not establish acceptance')
++        actual=inventory(external/'remote')
++        need(actual==inventory(local/'remote')==dict(files=before['files'],directories=sorted(before['directories'])),
++             'whole raw namespace/empty-directory two-copy custody differs')
++        save('stream-transport.json',dict(helper_sha256=STREAM_HELPER_SHA,helper_review_sha256=STREAM_REVIEW_SHA,
++            capture_sha256=capture_pin,materialization_sha256=fingerprint(attempt/'materialization.json',sole_link=True)['sha256'],
++            archive=fingerprint(attempt/'archive.tar',sole_link=True),acceptance=False))
++        return actual,after
++    except BaseException as exc:
++        original_error=exc
++        raise
++    finally:
++        try:mirror_attempt(attempt,mirror,copy_file)
++        except BaseException as secondary:
++            try:save('stream-mirror-failure.json',dict(type=type(secondary).__name__,message=str(secondary),
++                original_error=None if original_error is None else dict(type=type(original_error).__name__,message=str(original_error)),
++                original_archive_preserved=True,acceptance=False,retry_allowed=False))
++            except BaseException:pass
++            if original_error is None:raise
++
++
++def authenticate_stream_files(commit,helper_repository_path,review_repository_path):
++    """Standalone outer-only binding; no added child/core packet members."""
++    need(re.fullmatch('[0-9a-f]{40}',commit) is not None,'full packet commit required for stream binding')
++    authenticated=[]
++    for name,expected,relative,suffix in (
++            ('stream_custody.py',STREAM_HELPER_SHA,helper_repository_path,'.py'),
++            ('stream_custody_review.md',STREAM_REVIEW_SHA,review_repository_path,'.md')):
++        path=Path(relative)
++        need(type(relative) is str and relative and not path.is_absolute() and '..' not in path.parts
++             and path.as_posix()==relative and path.suffix==suffix,'safe explicit standalone stream repository path required')
++        data=read_metadata(Path(__file__).resolve().parent/name,expected)
++        git=subprocess.run(['git','--no-replace-objects','show',commit+':'+relative],
++                           cwd=REPO,capture_output=True,timeout=20)
++        need(git.returncode==0 and git.stdout==data,'stream helper/review must equal independently pinned full packet commit bytes')
++        authenticated.append(data)
++    return tuple(authenticated)
++
++
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+-    for name in ('job-id','packet-sha256','submission-result-sha256','local-intent-sha256','packet-commit','collector-sha256','collector-repository-path','collector-review','collector-review-sha256','cpu-terminal-custody','cpu-custody-inventory-sha256','packet-review','packet-review-sha256'):ap.add_argument('--'+name,required=True)
++    for name in ('job-id','packet-sha256','submission-result-sha256','local-intent-sha256','packet-commit','collector-sha256','collector-repository-path','collector-review','collector-review-sha256','cpu-terminal-custody','cpu-custody-inventory-sha256','packet-review','packet-review-sha256','stream-helper-repository-path','stream-review-repository-path'):ap.add_argument('--'+name,required=True)
+     a=ap.parse_args();need(re.fullmatch('[1-9][0-9]*',a.job_id) is not None,'exact current job ID required')
+     packet_raw=read_metadata(LAUNCH/'packet.json',a.packet_sha256);packet=decode(packet_raw)
+     result_raw=read_metadata(LAUNCH/'submission.result.json',a.submission_result_sha256);result=decode(result_raw)
+@@ -409,6 +530,7 @@
+                        cwd=REPO,capture_output=True,timeout=20)
+     need(review_raw.strip() and git.returncode==0 and git.stdout==review_raw and intent['review_sha256']==a.packet_review_sha256,
+          'independent original packet review/commit required')
++    helper_source,helper_review=authenticate_stream_files(a.packet_commit,a.stream_helper_repository_path,a.stream_review_repository_path)
+     baseline_pin=pins['baseline.json'];baseline=decode(read_metadata(LAUNCH/'baseline.json',baseline_pin))
+     need(packet['baseline_sha256']==intent['baseline_sha256']==baseline_pin and baseline['terminal_jobs']==43
+          and baseline['submission_journals']==88 and len(baseline['related_accounting'])==43 and len(baseline['journal_pins'])==88
+@@ -524,13 +646,16 @@
+         need(all(not os.path.lexists(p) for p in (LOCAL,EXT)),'terminal custody already claimed; never retry')
+         for dest in (EXT,LOCAL):
+             dest.mkdir(mode=0o700);claimed.append(dest)
+-            for sub in ('remote','coordinator','namespaces'):(dest/sub).mkdir(mode=0o700)
++            for sub in ('coordinator','namespaces'):(dest/sub).mkdir(mode=0o700)
+             write(dest/'pull_terminal.py',Path(__file__).read_bytes())
++            write(dest/'stream_custody.py',helper_source);write(dest/'stream_custody_review.md',helper_review)
+         save('collector-intent.json',dict(utc=utc(),job_id=a.job_id,packet_sha256=a.packet_sha256,
+             submission_result_sha256=a.submission_result_sha256,remote_root=ROOT,remote_namespace=REMOTE_NAMESPACE,
+             local_namespace=str(LOCAL_NAMESPACE),collector_sha256=sha(Path(__file__).read_bytes()),
+             accepted_cpu_root=CPU_ROOT,accepted_collection_root=COMMON_ROOT,preserved_failed_root=FAILED_ROOT,
+             collector_repository_path=a.collector_repository_path,collector_review_sha256=a.collector_review_sha256,
++            stream_helper_sha256=STREAM_HELPER_SHA,stream_review_sha256=STREAM_REVIEW_SHA,
++            stream_helper_repository_path=a.stream_helper_repository_path,stream_review_repository_path=a.stream_review_repository_path,
+             cpu_custody_inventory_sha256=a.cpu_custody_inventory_sha256,
+             packet_commit=a.packet_commit,local_intent_sha256=a.local_intent_sha256,original_local_namespace=str(OLD_LOCAL_NAMESPACE),
+             original_remote_namespace=OLD_REMOTE_NAMESPACE,recovery_bindings=recovery_bindings,
+@@ -560,32 +685,13 @@
+             present=original_claim_raw is not None,sha256=None if original_claim_raw is None else sha(original_claim_raw)))
+         before=observe('inventory_transport.json')
+         size=sum(v['bytes'] for v in before['files'].values())
+-        for parent in (BASE,LOCAL.parent):
+-            fs=os.statvfs(parent);need(fs.f_bavail*fs.f_frsize>size*2+2*1024**3,'insufficient complete-custody space')
+-        for label,remote_path,present in (('launch',ROOT,before['root_present']),('cpu',CPU_ROOT,before['cpu_present']),
+-                    ('common',COMMON_ROOT,before['common_present']),('failed01',FAILED_ROOT,before['failed_present']),
+-                    ('namespace.json',REMOTE_NAMESPACE,before['namespace_present']),
+-                    ('original-namespace.json',OLD_REMOTE_NAMESPACE,before['original_namespace_present'])):
+-            if not present:continue
+-            command=['scp',*(['-r'] if label in ('launch','cpu','common','failed01') else []),'-o','ControlPath=/tmp/defab-curc.sock',
+-                     '-o','BatchMode=yes','paco0228@login.rc.colorado.edu:'+remote_path,str(EXT/'remote'/label)]
+-            run_saved('transfer-'+label+'.json',command,timeout=1800)
+-        actual=inventory(EXT/'remote')
+-        need(actual==dict(files=before['files'],directories=sorted(before['directories'])),
+-             'whole remote tree/namespace custody differs; keep all partial bytes')
+-        after=observe('inventory_after_transport.json')
+-        need(after['files']==before['files'] and sorted(after['directories'])==sorted(before['directories'])
+-             and after['cpu_present']==before['cpu_present'] and after['common_present']==before['common_present'] and after['failed_present']==before['failed_present']
+-             and after['root_present']==before['root_present'] and after['namespace_present']==before['namespace_present']
+-             and after['original_namespace_present']==before['original_namespace_present']
+-             and after['original_hardlink_groups']==before['original_hardlink_groups']
+-             and after['parent_accounting']==before['parent_accounting']
+-             and after['journal_pins']==before['journal_pins']
+-             and after['upstream_pins']==before['upstream_pins'] and after['upstream_errors']==before['upstream_errors']
+-             and normalize(after['related_accounting'])==normalize(before['related_accounting']),
+-             'second remote bytes/journals/terminal accounting differ')
++        helper=load_stream_helper(helper_source)  # Full commit/self/review/input authentication completed above.
++        actual,after=stream_transfer(before,observe=observe,save=save,helper=helper,helper_source=helper_source,
++            external=EXT,local=LOCAL,copy_file=copy_file,
++            coordinator_bytes=sum(v['bytes'] for info in coordinator.values() for v in info['files'].values())
++                              +sum(v['bytes'] for v in cpu_custody_before['files'].values()))
+         (LOCAL/'upstream-cpu-custody').mkdir(mode=0o700)
+-        for sub in ('remote','coordinator','upstream-cpu-custody'):
++        for sub in ('coordinator','upstream-cpu-custody'):
+             for path in (EXT/sub).iterdir():
+                 target=LOCAL/sub/path.name
+                 if path.is_dir():shutil.copytree(path,target,copy_function=copy_file)

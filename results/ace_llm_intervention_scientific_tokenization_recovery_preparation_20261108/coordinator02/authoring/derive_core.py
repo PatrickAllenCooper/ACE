@@ -1,0 +1,45 @@
+from pathlib import Path
+p=Path(__file__).resolve().parent
+s=(p/'predecessors/build_packet.py').read_text()
+s=s.replace('AUTHORING ONLY: future first scientific token preparation packet.','PROPOSED operational TOKEN02 recovery; actual reviewed failure/amendment inputs mandatory.')
+s=s.replace("ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_01'", "ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_02'\nFAILED_TOKEN_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_01'\nFAILED_TOKEN_JOB='35415334'\nFAILED_TOKEN_PACKET_SHA='a831737c6bc24a3b38269e36fa347ed3934c7803e7e18b0738881ac0b8fc323d'\nFAILED_TOKEN_STAGE_SHA='101d88f3ff15ed322273d63ad281de05afd921754102a907f7232ac000801e7b'\nFAILED_TOKEN_RESULT_SHA='39f045ab33f30d07126745bbc27edf41776b4ae96284f166da93256abc479f94'")
+s=s.replace("scientific_tokenization_20261108/launch01'", "scientific_tokenization_20261108/launch02'")
+s=s.replace("EXT=BASE/'ACE-LLM-intervention-scientific-tokenization-20261108-01'", "EXT=BASE/'ACE-LLM-intervention-scientific-tokenization-20261108-02'\nORIGINAL_EXT=BASE/'ACE-LLM-intervention-scientific-tokenization-20261108-01'")
+s=s.replace('METADATA=tuple(FIXED_PINS)', 'BASE_METADATA=tuple(FIXED_PINS)',1)
+pos=s.index("\nPROPOSAL=")
+s=s[:pos]+'''\nTOKEN_RECOVERY_METADATA=('failed-token-packet','failed-token-stage','failed-token-result',
+ 'token-failure-acceptance','token-no-learnedwork-proof','token-failure-baseline','token-failure-disposition',
+ 'token-failure-inventory','token-failure-readback','token-failure-custody-inventory',
+ 'token-operational-amendment','token-operational-review','token-operational-adoption-review','token-operational-guide','token-diagnosis')
+METADATA=BASE_METADATA+TOKEN_RECOVERY_METADATA
+TEXT_METADATA.update({'token-operational-review','token-operational-adoption-review','token-operational-guide'})
+'''+s[pos:]
+s=s.replace('DEADLINES=dict(startup=120,work=550,cleanup=570,hard=590)', 'ORIGINAL_DEADLINES=dict(startup=120,work=550,cleanup=570,hard=590)\nDEADLINES=dict(startup=300,work=550,cleanup=570,hard=590)')
+s=s.replace('def admit(supplied):','def admit_original(supplied):',1).replace('need(set(supplied)==set(METADATA),','need(set(supplied)==set(BASE_METADATA),',1)
+s=s.replace("gpu_type=None,wall_seconds=600,deadlines=DEADLINES,account=", "gpu_type=None,wall_seconds=600,deadlines=ORIGINAL_DEADLINES,account=")
+s=s.replace('nodes=1,tasks=1,requeue=False,max_restarts=0,remote_root=ROOT,','nodes=1,tasks=1,requeue=False,max_restarts=0,remote_root=FAILED_TOKEN_ROOT,')
+s=s.replace('repository_root=str(LOCAL.parent.relative_to(REPO)),exclusive_external_root=str(EXT))','repository_root=str(LOCAL.parent.relative_to(REPO)),exclusive_external_root=str(ORIGINAL_EXT))')
+s=s.replace('def main():',(p/'recovery_contract.py.txt').read_text()+'def main():',1)
+s=s.replace("    ap.add_argument('--failed-remote-custody'", "    ap.add_argument('--failed-token-remote-custody',required=True,help='complete independently audited TOKEN01 terminal remote/ tree; byte-only')\n    ap.add_argument('--failed-remote-custody'")
+s=s.replace("        source=committed(SOURCE_COMMIT,'scripts/research/'+ENTRY);", "        failed_token_tree=verify_collection_tree(a.failed_token_remote_custody,{n:v['sha256'] for n,v in ctx['failed_token']['files'].items()})\n        need(sorted(str(q.relative_to(Path(failed_token_tree))) for q in Path(failed_token_tree).rglob('*') if q.is_dir())\n             ==sorted(ctx['failed_token']['directories']),'complete failed token directory roster differs')\n        source=committed(SOURCE_COMMIT,'scripts/research/'+ENTRY);")
+s=s.replace("        diagnostic=data['qualify_llm_intervention_runtime_metadata.py'];packet_raw=raw(packet)", "        recovery_equality=token_science_equality(m['failed-token-stage'],packet)\n        diagnostic=data['qualify_llm_intervention_runtime_metadata.py'];packet_raw=raw(packet)")
+s=s.replace("('build_packet.py','launch_once.py','monitor_once.py','pull_terminal.py')", "('build_packet.py','launch_once.py','monitor_once.py')")
+s=s.replace('#SBATCH --job-name=ace_llm_scientific_token01','#SBATCH --job-name=ace_llm_scientific_token02')
+s=s.replace("        base=m['baseline']\n        outer=", "        base=m['token-failure-baseline']\n        outer=")
+s=s.replace("baseline_sha256=pins['baseline'],\n            realization_job_id", "baseline_sha256=pins['token-failure-baseline'],\n            token_recovery=ctx['token_recovery'],token_science_equality=recovery_equality,failed_token_custody=failed_token_tree,\n            realization_job_id")
+s=s.replace("        print(raw(dict(local=str(LOCAL)","        verify_collection_tree(failed_token_tree,{n:v['sha256'] for n,v in ctx['failed_token']['files'].items()})\n        print(raw(dict(local=str(LOCAL)")
+(p/'build_packet.py').write_text(s)
+# Launcher retains current once-only transport and scheduler/readiness checks, adds explicit old TOKEN custody.
+s=(p/'predecessors/launch_once.py').read_text()
+s=s.replace("packet['baseline_sha256']==ctx['pins']['baseline']", "packet['baseline_sha256']==ctx['pins']['token-failure-baseline']\n               and packet['token_recovery']==ctx['token_recovery']")
+s=s.replace("        original={}\n", "        b.need(packet['token_science_equality']==b.token_science_equality(m['failed-token-stage'],stage),'exact original child equality receipt differs')\n        original={}\n")
+s=s.replace("pins=pins,baseline=m['baseline'],", "pins=pins,baseline=m['token-failure-baseline'],failed_token_root=b.FAILED_TOKEN_ROOT,\n            prior_roots=ctx['failed_token']['preserved_roots'],")
+s=s.replace("need(not os.path.lexists(root) and not list(root.parent.glob('ace_llm_intervention_scientific_tokenization*')),\n     'existing token root; no adoption/retry')", "need(not os.path.lexists(root) and {str(p) for p in root.parent.glob('ace_llm_intervention_scientific_tokenization*')}=={C['failed_token_root']},\n     'only exact preserved TOKEN01 may preexist; no adoption/retry')")
+s=s.replace("baseline_sha256=ctx['pins']['baseline'],realization_acceptance_sha256", "baseline_sha256=ctx['pins']['token-failure-baseline'],token_recovery=ctx['token_recovery'],\n            token_science_equality=packet['token_science_equality'],realization_acceptance_sha256")
+s=s.replace(" failed_receipt=verify_tree(dict(root=C['failed_root'],files=C['failed_files']))", " failed_receipt=verify_tree(dict(root=C['failed_root'],files=C['failed_files']))\n prior_receipts={path:verify_tree(dict(root=path,files=files)) for path,files in C['prior_roots'].items()}")
+s=s.replace("collection=collection_receipt,failed_collection=failed_receipt,manifest_sha256", "collection=collection_receipt,failed_collection=failed_receipt,preserved_failed_token_and_prior_roots=prior_receipts,manifest_sha256")
+(p/'launch_once.py').write_text(s)
+s=(p/'predecessors/monitor_once.py').read_text()
+s=s.replace("packet['schema']==b.OUTER_VERSION and packet['local_root']==str(local)", "packet['schema']==b.OUTER_VERSION and local==b.LOCAL and packet['local_root']==str(local)\n           and remote_root==b.ROOT and packet['resources']==b.RESOURCES and packet['deadlines']==b.DEADLINES\n           and packet['token_recovery']['original_packet_sha256']==b.FAILED_TOKEN_PACKET_SHA")
+s=s.replace("    destination=Path(a.evidence_directory)", "    for name in ('monitor_once.py','build_packet.py'):\n        b.need(b.read(Path(__file__).resolve().with_name(name))==b.read(local/name,packet['new_input_files'][name]),'monitor/captured helper differs')\n    destination=Path(a.evidence_directory)")
+(p/'monitor_once.py').write_text(s)

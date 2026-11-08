@@ -1,0 +1,155 @@
+RESOURCES=dict(account='ucb736_asc2',partition='aa100',qos='gpu-testing',requested_cpus=4,
+    max_allocated_cpus=4,memory_mib=15360,wall_seconds=2700,gpus=1,gpu_type='a100_3g.20gb')
+DEADLINES=dict(startup=240,worker=2620,soft=2630,cleanup=2645,hard=2670,progress=180,telemetry=90)
+
+
+def tres(text):
+    pairs=[p.split('=',1) for p in text.split(',') if p]
+    need(all(len(p)==2 and all(p) for p in pairs) and len(dict(pairs))==len(pairs),'invalid/duplicate allocation TRES')
+    return dict(pairs)
+
+
+def gpu_count(t,cpus,elapsed):
+    if not t:return 0 if cpus==elapsed==0 else None
+    g={k:v for k,v in t.items() if k.startswith('gres/')}
+    if any(not v.isdigit() or not (k=='gres/gpu' or k.startswith('gres/gpu:')) for k,v in g.items()):return None
+    typed=[int(v) for k,v in g.items() if k.startswith('gres/gpu:')]
+    aggregate=int(g['gres/gpu']) if 'gres/gpu' in g else None
+    if aggregate is not None and typed and aggregate!=sum(typed):return None
+    return aggregate if aggregate is not None else sum(typed)
+
+
+def cost(rows):
+    cpu=gpu=0
+    for row in normalize(rows):
+        count=gpu_count(dict(row[7]),row[4],row[5]);need(count is not None,'unknown historical GPU charge')
+        cpu+=row[4]*row[5];gpu+=count*row[5]
+    return cpu,gpu
+
+
+def resource_tres(t):
+    return (t.get('cpu')=='4' and t.get('node')=='1' and t.get('mem') in ('15360M','15G','15.00G')
+        and t.get('gres/gpu:a100_3g.20gb')=='1' and gpu_count(t,4,1)==1
+        and all(k in ('gres/gpu','gres/gpu:a100_3g.20gb') for k in t if k.startswith('gres/')))
+
+
+def resources(observation,job,output,files):
+    row=observation['parent_accounting'];normalized=normalize([row])[0];errors=[]
+    cpus,elapsed=normalized[4:6];allocated=dict(normalized[7]);gpu=gpu_count(allocated,cpus,elapsed)
+    details=observation['results']['details'];requested={};request_identity=False
+    if details['returncode']==0:
+        rows=[r.split('|') for r in details['stdout'].splitlines() if r.strip()]
+        if len(rows)==1 and len(rows[0])>=6:
+            r=rows[0]
+            try:requested=tres(r[4])
+            except ValueError as exc:errors.append(str(exc))
+            request_identity=r[:4]==[job,'aa100','gpu-testing','45'] and r[5]=='paco0228'
+    fields={};allocation_pin=files.get('launch/training/allocation.json',{}).get('sha256')
+    if allocation_pin:
+        try:fields=decode(read_metadata(output/'allocation.json',allocation_pin))['fields']
+        except (ValueError,KeyError,OSError) as exc:errors.append('saved allocation malformed: '+str(exc))
+    if not fields and observation['results']['job']['returncode']==0:
+        fields=dict(re.findall(r'([^\s=]+)=(\S+)',observation['results']['job']['stdout']))
+    no_requeue=fields.get('JobId')==job and fields.get('Requeue')=='0' and fields.get('Restarts')=='0'
+    matched=(request_identity and resource_tres(requested) and resource_tres(allocated) and no_requeue
+        and normalized[1]=='ace_llm_scientific_train01' and normalized[6]=='ucb736_asc2'
+        and cpus==4 and gpu==1 and 0<=elapsed<=2700)
+    if not matched:errors.append('actual/requested GPU identity/resource/no-requeue/wall contract differs or unavailable')
+    if gpu is None:errors.append('unknown GPU charge; never infer zero')
+    return dict(resource_contract_matched=matched,errors=errors,expected=RESOURCES,requested_tres=requested,
+        allocated_tres=allocated,allocated_cpus=cpus,elapsed_seconds=elapsed,allocated_cpu_seconds=cpus*elapsed,
+        gpu_count=gpu,gpu_slice_seconds=None if gpu is None else gpu*elapsed,requested_mig_memory_gib=20,
+        scheduler_state=row[2],scheduler_exit=row[3],account=row[6],alloc_tres=row[7],
+        no_requeue_verified=no_requeue,allocation_fields=fields,allocation_source_sha256=allocation_pin,
+        memory_note='15GiB host request and typed20GB MIG are distinct; framework total device bytes reported separately.')
+
+
+def public_fields(data,allowed):
+    """Select top-level JSON values without decoding any other values (notably scores).
+
+    Unknown values are scanned lexically for object boundaries only. Original bytes
+    remain authoritative; this does not validate or interpret their contents.
+    """
+    text=data.decode('utf-8');decoder=json.JSONDecoder();i=0;seen=set();result={}
+    def ws(pos):
+        while pos<len(text) and text[pos].isspace():pos+=1
+        return pos
+    i=ws(i);need(i<len(text) and text[i]=='{','public evidence must be a JSON object');i+=1
+    while True:
+        i=ws(i)
+        if i<len(text) and text[i]=='}':i+=1;break
+        key,end=decoder.raw_decode(text,i);need(type(key) is str and key not in seen,'duplicate/nonstring public key');seen.add(key)
+        i=ws(end);need(i<len(text) and text[i]==':','public evidence colon required');start=ws(i+1)
+        j=start;stack=[];quoted=False;escaped=False
+        while j<len(text):
+            c=text[j]
+            if quoted:
+                if escaped:escaped=False
+                elif c=='\\':escaped=True
+                elif c=='"':quoted=False
+            elif c=='"':quoted=True
+            elif c in '[{':stack.append(c)
+            elif c in ']}':
+                if not stack:break
+                need((stack.pop(),c) in (('[',']'),('{','}')),'unbalanced public evidence')
+            elif c==',' and not stack:break
+            j+=1
+        need(j>start and not quoted and not stack,'incomplete public value')
+        if key in allowed:result[key]=decode(text[start:j])
+        i=ws(j);need(i<len(text) and text[i] in ',}','public value delimiter required')
+        if text[i]=='}':i+=1;break
+        i=ws(i+1);need(i<len(text) and text[i]!='}','trailing public comma')
+    need(ws(i)==len(text),'trailing public evidence')
+    return result
+
+
+def public_gpu_evidence(output,files):
+    """Reported CUDA/owned-process evidence only; never a runtime or utility acceptance."""
+    scalar={'utc','monotonic_seconds','elapsed_seconds','pid','device','forward_count','training_updates',
+        'cuda_interval_ms','peak_gpu_allocated_bytes','peak_gpu_reserved_bytes','total_device_bytes',
+        'model_load_seconds','first_verified_gpu_seconds','owned_process_observed',
+        'last_gpu_monotonic','last_progress_monotonic','progress_bound_seconds','telemetry_bound_seconds',
+        'leader_returncode','group_still_exists','term_sent','kill_sent','allocated_bytes','reserved_bytes',
+        'after_workspace_clear_allocated_bytes','workspace_clear_succeeded','workspace_clear_calls'}
+    prefix='launch/training/';selected={};errors=[];memory=[];samples=0;positive=0
+    first='session/worker/artifacts/first-gpu-work.json'
+    names=['child-start.json','first-verified-gpu-work.json','cleanup.json','post-exit-gpu.json',first,
+        'session/worker/artifacts/fit/first-gpu-work.json','session/worker/artifacts/fit/summary.json']
+    names+=sorted(n[len(prefix):] for n in files if n.startswith(prefix) and
+        (re.fullmatch(r'gpu-sample-\d+\.json',n[len(prefix):]) or re.fullmatch(r'progress-\d+\.json',n[len(prefix):])
+         or re.fullmatch(r'session/worker/artifacts/fit/[^/]+-memory\.json',n[len(prefix):])))
+    need(len(names)<=20000,'public metadata inventory exceeds declared bound; retain all raw bytes')
+    for name in names:
+        item=files.get(prefix+name)
+        if item is None:continue
+        try:
+            fields=public_fields(read_metadata(output/name,item['sha256']),scalar|{'returncode','owned_rows','progress'})
+            for k,v in fields.items():
+                if k in scalar:need(type(v) in (str,int,float,bool,type(None)),'public field must be scalar: '+k)
+            if 'progress' in fields:
+                progress=fields.pop('progress');need(type(progress) is list,'progress roster must be a list')
+                fields['recorded_progress_items']=len(progress)
+            selected[name]=dict(sha256=item['sha256'],reported=fields)
+        except (ValueError,KeyError,TypeError,OSError) as exc:errors.append(name+': '+str(exc))
+    child=selected.get('child-start.json',{}).get('reported',{}).get('pid')
+    for name,item in selected.items():
+        if not name.startswith('gpu-sample-'):continue
+        samples+=1;fields=item['reported'];rows=fields.get('owned_rows')
+        if fields.get('returncode')!=0 or type(rows) is not list:continue
+        for row in rows:
+            if not isinstance(row,str):continue
+            parts=[p.strip() for p in row.split(',')]
+            if len(parts)!=3 or type(child) is not int or parts[0]!=str(child):continue
+            try:value=float(parts[2])
+            except ValueError:continue
+            if math.isfinite(value) and value>0:memory.append(value);positive+=1
+    fw=selected.get(first,{}).get('reported',{})
+    interval=fw.get('cuda_interval_ms');forward=fw.get('forward_count')
+    framework_signal=(fw.get('device')=='cuda:0' and type(interval) in (int,float) and math.isfinite(interval) and interval>0
+        and type(forward) is int and forward>0)
+    return dict(acceptance=False,reported_metadata=selected,errors=errors,owned_pid=child,
+        nvidia_samples=samples,positive_owned_memory_rows=positive,owned_memory_mib_min=min(memory) if memory else None,
+        owned_memory_mib_max=max(memory) if memory else None,reported_positive_cuda_forward=framework_signal,
+        independent_signal_types_present=(positive>0 and framework_signal),
+        utilization_percent=None,utilization_note='NVIDIA process memory and CUDA event intervals/progress are independent work signals, not SM utilization percent or scientific utility. Missing evidence remains unknown.',
+        scored_outcomes_decoded=False,adapter_tensors_decoded=False,runtime_qualified=False)

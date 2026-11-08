@@ -1,0 +1,18 @@
+test_failed_history_context_and45_92_extension (__main__.NewCollectorHistory) ... ERROR
+test_stream_materializes_new_fifth_failed_root (__main__.NewCollectorHistory) ... ok
+test_whole_failed_capsule_is_independently_required (__main__.NewCollectorHistory) ... ok
+
+======================================================================
+ERROR: test_failed_history_context_and45_92_extension (__main__.NewCollectorHistory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/ace-scientific-training-gpu-token02-mcu8h32f/test_collector_token02.py", line 48, in test_failed_history_context_and45_92_extension
+    self.assertEqual(C.accounting_extension(obs,base,job,T.h('train intent'),T.h('train result')),(True,True))
+  File "/private/tmp/ace-scientific-training-gpu-token02-mcu8h32f/collector/pull_terminal.py", line 356, in accounting_extension
+    and normalize(current)==normalize([observation['parent_accounting']])
+KeyError: 'parent_accounting'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.038s
+
+FAILED (errors=1)

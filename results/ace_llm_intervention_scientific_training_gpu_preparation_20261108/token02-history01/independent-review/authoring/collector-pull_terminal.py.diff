@@ -1,0 +1,326 @@
+--- /private/tmp/ace-scientific-training-gpu-token02-mcu8h32f/predecessors/stream-collector/pull_terminal.py
++++ /private/tmp/ace-scientific-training-gpu-token02-mcu8h32f/collector/pull_terminal.py
+@@ -28,7 +28,9 @@
+ LOCAL=LAUNCH.parent/'terminal01'
+ EXT=BASE/'ACE-LLM-intervention-scientific-training-gpu-terminal-20261108-01'
+ ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01'
+-CPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_01'
++CPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_02'
++FAILED_CPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_01'
++FAILED_CPU_JOB='35415334'
+ COMMON_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_02'
+ FAILED_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01'
+ REALIZATION_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_realization_20261108_02'
+@@ -128,7 +130,7 @@
+  need(identity(before)==identity(after)==identity(path.lstat()),'remote file changed during capture')
+  return dict(bytes=after.st_size,sha256=h.hexdigest()),after
+ v=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),results={},files={},directories=[],
+-       root_present=root.exists(),cpu_present=Path(CPU_ROOT).exists(),common_present=Path(COMMON_ROOT).exists(),failed_present=Path(FAILED_ROOT).exists(),namespace_present=os.path.lexists(namespace),original_hardlink_groups=[],
++       root_present=root.exists(),cpu_present=Path(CPU_ROOT).exists(),failed_token_present=Path(FAILED_CPU_ROOT).exists(),common_present=Path(COMMON_ROOT).exists(),failed_present=Path(FAILED_ROOT).exists(),namespace_present=os.path.lexists(namespace),original_hardlink_groups=[],
+        original_namespace_present=os.path.lexists(original_namespace),upstream_pins={},upstream_errors={})
+ commands={
+  'related_accounting':['sacct','-X','-u','paco0228','-S','2026-11-02','--format',
+@@ -155,7 +157,7 @@
+  need(all(len(r)==5 and r[0]!=JOB and not r[1].lower().startswith('ace') for r in queue),'current/related ACE job active')
+  v['parent_accounting']=selected[0];v['related_accounting']=rows;v['terminal_gate']=True
+  links={}
+- for label,tree,present in (('launch',root,v['root_present']),('cpu',Path(CPU_ROOT),v['cpu_present']),('common',Path(COMMON_ROOT),v['common_present']),('failed01',Path(FAILED_ROOT),v['failed_present'])):
++ for label,tree,present in (('launch',root,v['root_present']),('cpu',Path(CPU_ROOT),v['cpu_present']),('failed-token01',Path(FAILED_CPU_ROOT),v['failed_token_present']),('common',Path(COMMON_ROOT),v['common_present']),('failed01',Path(FAILED_ROOT),v['failed_present'])):
+   if not present:continue
+   need(tree.is_dir() and tree==tree.resolve(),'ordinary remote root required')
+   v['directories'].append(label)
+@@ -349,13 +351,13 @@
+ def accounting_extension(observation,baseline,job,intent_pin,result_pin):
+     prior=[r for r in observation['related_accounting'] if r[0]!=job]
+     current=[r for r in observation['related_accounting'] if r[0]==job]
+-    rows_ok=(len(prior)==43 and len(current)==1 and len(observation['related_accounting'])==44
++    rows_ok=(len(prior)==44 and len(current)==1 and len(observation['related_accounting'])==45
+         and normalize(prior)==normalize(baseline['related_accounting'])
+         and normalize(current)==normalize([observation['parent_accounting']])
+         and all(r[2].split()[0] in TERMINAL for r in observation['related_accounting']))
+     journals={**baseline['journal_pins'],ROOT+'/submission.intent.json':intent_pin,
+               ROOT+'/submission.result.json':result_pin}
+-    journals_ok=(len(baseline['journal_pins'])==88 and len(journals)==90 and observation['journal_pins']==journals)
++    journals_ok=(len(baseline['journal_pins'])==90 and len(journals)==92 and observation['journal_pins']==journals)
+     return rows_ok,journals_ok
+ 
+ 
+@@ -388,7 +390,7 @@
+ 
+ def stream_request(before):
+     roots={label:path for label,path,flag in (
+-        ('launch',ROOT,'root_present'),('cpu',CPU_ROOT,'cpu_present'),('common',COMMON_ROOT,'common_present'),('failed01',FAILED_ROOT,'failed_present')) if before[flag]}
++        ('launch',ROOT,'root_present'),('cpu',CPU_ROOT,'cpu_present'),('failed-token01',FAILED_CPU_ROOT,'failed_token_present'),('common',COMMON_ROOT,'common_present'),('failed01',FAILED_ROOT,'failed_present')) if before[flag]}
+     singles={label:path for label,path,flag in (
+         ('namespace.json',REMOTE_NAMESPACE,'namespace_present'),('original-namespace.json',OLD_REMOTE_NAMESPACE,'original_namespace_present')) if before[flag]}
+     return dict(roots=roots,single_files=singles,
+@@ -398,7 +400,7 @@
+ def compare_observations(before,after):
+     # Same complete comparisons as the original collector, before materialization.
+     need(after['files']==before['files'] and sorted(after['directories'])==sorted(before['directories'])
+-         and after['cpu_present']==before['cpu_present'] and after['common_present']==before['common_present'] and after['failed_present']==before['failed_present']
++         and after['failed_token_present']==before['failed_token_present'] and after['cpu_present']==before['cpu_present'] and after['common_present']==before['common_present'] and after['failed_present']==before['failed_present']
+          and after['root_present']==before['root_present'] and after['namespace_present']==before['namespace_present']
+          and after['original_namespace_present']==before['original_namespace_present']
+          and after['original_hardlink_groups']==before['original_hardlink_groups']
+@@ -493,9 +495,117 @@
+     return tuple(authenticated)
+ 
+ 
++def token_failure_context(pins,packet,intent,baseline,original_files,cpu_result,original_directories):
++    """Keep the independently accepted failed TOKEN01 in the successful TOKEN02 chain."""
++    def get(name):return decode(read_metadata(LAUNCH/(name+'.json'),pins[name+'.json']))
++    a=get('token-failure-acceptance');proof=get('token-no-learnedwork-proof');failed=get('token-failure-baseline')
++    old=get('previous-baseline');d=get('token-failure-disposition');result=get('failed-token-result')
++    authority=get('token-operational-amendment');cpu_outer=get('cpu-launch-packet')
++    expected=dict(amendment_sha256=pins['token-operational-amendment.json'],
++        adoption_review_sha256=pins['token-operational-adoption-review.md'],
++        failure_acceptance_sha256=pins['token-failure-acceptance.json'],
++        no_learnedwork_proof_sha256=pins['token-no-learnedwork-proof.json'],
++        failure_baseline_sha256=pins['token-failure-baseline.json'],
++        original_packet_sha256=pins['failed-token-packet.json'],original_stage_packet_sha256=pins['failed-token-stage.json'])
++    need(packet['token_recovery']==intent['token_recovery']==cpu_outer['token_recovery']==expected
++         and packet['failed_token_root']==intent['failed_token_root']==FAILED_CPU_ROOT
++         and packet['failed_token_job_id']==intent['failed_token_job_id']==FAILED_CPU_JOB,
++         'original TOKEN02 recovery authority/intents differ')
++    need(authority['schema']=='ace-scientific-tokenization-operational-amendment-v1' and authority['status']=='adopted'
++         and authority['stage']=='tokenize' and authority['recovery_id']=='token02'
++         and authority['freeze_sha256']==pins['freeze.json'] and authority['source_commit']==packet['source_commit']
++         and authority['failed_root']==FAILED_CPU_ROOT and authority['recovery_root']==CPU_ROOT
++         and authority['failure_acceptance_sha256']==pins['token-failure-acceptance.json']
++         and authority['no_learnedwork_proof_sha256']==pins['token-no-learnedwork-proof.json']
++         and authority['baseline_sha256']==pins['token-failure-baseline.json']
++         and authority['collection_baseline_sha256']==pins['previous-baseline.json']
++         and authority['original_deadlines']==dict(startup=120,work=550,cleanup=570,hard=590)
++         and authority['deadlines']==dict(startup=300,work=550,cleanup=570,hard=590)
++         and authority['scientific_inputs_unchanged'] is authority['other_stages_unchanged'] is True
++         and authority['automatic_retry_allowed'] is authority['replacement_worlds_allowed'] is False,
++         'TOKEN02 narrow independently pinned startup-only authority required')
++    need(a['schema']=='ace-scientific-tokenization-failure-acceptance-v1' and a['status']=='accepted_failed_before_token_worker'
++         and a['job_id']==FAILED_CPU_JOB and a['packet_sha256']==pins['failed-token-packet.json']
++         and a['disposition_sha256']==pins['token-failure-disposition.json']
++         and a['failure_accepted'] is a['complete_custody_verified'] is True
++         and a['tokenization_accepted'] is a['owned_worker_spawned'] is False
++         and type(a['required_findings']) is int and a['required_findings']==0,
++         'actual independently accepted failed TOKEN01 required')
++    need(proof['status']=='verified_failed_before_token_worker' and proof['failed_job_id']==FAILED_CPU_JOB
++         and proof['failure_acceptance_sha256']==pins['token-failure-acceptance.json']
++         and proof['accounting_sha256']==pins['token-failure-baseline.json']
++         and proof['proof']['owned_worker_not_spawned'] is proof['proof']['token_preparation_not_invoked'] is True,
++         'independent failed TOKEN01 no-learnedwork proof required')
++    need(all(type(v[k]) is int and v[k]==0 for v in (a,proof) for k in ('scientific_worlds_generated',
++         'environment_response_attempts','environment_responses','unknown_return_attempts','tokenizer_calls',
++         'model_loads','inference_calls','training_updates','policy_updates')), 'failed TOKEN01 unknown/nonzero work')
++    first_transport=get('token-failure-inventory');last_transport=get('token-failure-readback')
++    need(first_transport['returncode']==last_transport['returncode']==0,'failed TOKEN01 original transports required')
++    first=decode(first_transport['stdout']);last=decode(last_transport['stdout'])
++    need(first['terminal_gate'] is last['terminal_gate'] is True and not first.get('observation_error') and not last.get('observation_error')
++         and all(first[k]==last[k] for k in ('files','directories','journal_pins','original_hardlink_groups','parent_accounting','upstream_pins','upstream_errors'))
++         and normalize(first['related_accounting'])==normalize(last['related_accounting']), 'failed TOKEN01 complete before/after observations differ')
++    for key,name in [('inventory_transport.json','token-failure-inventory.json'),('inventory_after_transport.json','token-failure-readback.json'),('custody-inventory.json','token-failure-custody-inventory.json')]:
++        need(a['evidence_pins'][key]==pins[name], 'independent failed TOKEN01 evidence pins differ')
++    need(d['job_id']==FAILED_CPU_JOB and d['remote_root']==FAILED_CPU_ROOT and d['custody_bytes_verified'] is d['current_lineage_verified'] is True
++         and d['errors']==d['input_pin_mismatches']==[] and d['remote_files']==first['files']
++         and d['raw_files']==len(first['files']) and d['raw_bytes']==sum(v['bytes'] for v in first['files'].values()),
++         'whole failed TOKEN01 disposition/inventory differs')
++    original={n[len('launch/'):]:v for n,v in first['files'].items() if n.startswith('launch/')}
++    need(original['packet.json']['sha256']==pins['failed-token-packet.json'] and original['submission.result.json']['sha256']==pins['failed-token-result.json']
++         and original['submission.intent.json']['sha256']==result['intent_sha256'] and result['job_id']==FAILED_CPU_JOB,
++         'failed TOKEN01 packet/result/intent differs')
++    # Discover the producer label by the exact independently pinned original packet, never by ordinal guesses.
++    labels=[n.split('/')[0] for n,v in original_files.items() if n.count('/')==1 and n.endswith('/packet.json')
++            and v['sha256']==pins['failed-token-packet.json']]
++    need(len(labels)==1 and labels[0] not in ('launch','common','failed01'), 'TOKEN02 custody must include one complete original failed TOKEN root')
++    need({n[len(labels[0])+1:]:v for n,v in original_files.items() if n.startswith(labels[0]+'/')}==original,
++         'accepted TOKEN02 capsule lost/changed failed TOKEN01 raw bytes')
++    need(sorted(n[len(labels[0])+1:] for n in original_directories if n.startswith(labels[0]+'/'))
++         ==sorted(n[len('launch/'):] for n in first['directories'] if n.startswith('launch/')),
++         'accepted TOKEN02 capsule lost failed TOKEN01 empty directories')
++    prior=[r for r in failed['related_accounting'] if r[0]!=FAILED_CPU_JOB];new=[r for r in failed['related_accounting'] if r[0]==FAILED_CPU_JOB]
++    need(old['terminal_jobs']==42 and old['submission_journals']==86 and failed['terminal_jobs']==43 and failed['submission_journals']==88
++         and len(prior)==42 and len(new)==1 and normalize(prior)==normalize(old['related_accounting'])
++         and normalize(new)==normalize([first['parent_accounting']])
++         and normalize(failed['related_accounting'])==normalize(first['related_accounting'])
++         and failed['input_pins']['predecessor']==pins['previous-baseline.json']
++         and failed['input_pins']['acceptance']==pins['token-failure-acceptance.json']
++         and failed['input_pins']['disposition']==pins['token-failure-disposition.json'], 'accepted failed43/88 historical extension differs')
++    need(new[0][2:4]==['FAILED','1:0'] and int(new[0][4])==3 and 0<int(new[0][5])<=600
++         and cost(new)==(3*int(new[0][5]),0), 'failed TOKEN01 bounded CPU-only allocation differs')
++    expected_journals={**old['journal_pins'],FAILED_CPU_ROOT+'/submission.intent.json':result['intent_sha256'],FAILED_CPU_ROOT+'/submission.result.json':pins['failed-token-result.json']}
++    need(len(expected_journals)==88 and failed['journal_pins']==first['journal_pins']==expected_journals,
++         'all failed TOKEN01 and older journals required')
++    prior=[r for r in baseline['related_accounting'] if r[0]!=cpu_result['job_id']];new=[r for r in baseline['related_accounting'] if r[0]==cpu_result['job_id']]
++    need(len(prior)==43 and len(new)==1 and len(baseline['related_accounting'])==44
++         and normalize(prior)==normalize(failed['related_accounting']) and new[0][2:4]==['COMPLETED','0:0']
++         and int(new[0][4])==3 and 0<int(new[0][5])<=600 and cost(new)==(3*int(new[0][5]),0),
++         'accepted TOKEN02 must extend failed43/88 to successful44/90')
++    expected_journals={**failed['journal_pins'],CPU_ROOT+'/submission.intent.json':cpu_result['intent_sha256'],CPU_ROOT+'/submission.result.json':pins['cpu-result.json']}
++    need(len(expected_journals)==90 and baseline['journal_pins']==expected_journals, 'accepted TOKEN02 exact90 journals required')
++    for value in (failed,baseline):
++        need(cost(value['related_accounting'])==(value['closed_cpu_seconds'],value['closed_gpu_slice_seconds'])
++             and value['outstanding_reservation']==0 and value['preparation_allowance_cpu_seconds']==3600,
++             'actual failed and accepted charge totals required')
++    return dict(files=original,directories=sorted(n[len('launch/'):] for n in first['directories'] if n.startswith('launch/')),
++        producer_failed_label=labels[0],raw_inventory=dict(files=first['files'],directories=sorted(first['directories'])))
++
++
++def load_failed_token_capsule(path,expected_pin,expected_raw):
++    root=Path(path).resolve(strict=True)
++    saved=decode(read_metadata(root/'custody-inventory.json',expected_pin));before=inventory(root)
++    actual=dict(files={n:v for n,v in before['files'].items() if n!='custody-inventory.json'},directories=before['directories'])
++    views=[v for k,v in saved['copies'].items() if Path(k).resolve()==root]
++    need(saved['identical'] is True and len(views)==1 and views[0]==actual,
++         'independently pinned whole failed TOKEN01 capsule required')
++    need(inventory(root/'remote')==expected_raw,'complete failed TOKEN01 raw capsule differs')
++    return root,before
++
++
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+-    for name in ('job-id','packet-sha256','submission-result-sha256','local-intent-sha256','packet-commit','collector-sha256','collector-repository-path','collector-review','collector-review-sha256','cpu-terminal-custody','cpu-custody-inventory-sha256','packet-review','packet-review-sha256','stream-helper-repository-path','stream-review-repository-path'):ap.add_argument('--'+name,required=True)
++    for name in ('job-id','packet-sha256','submission-result-sha256','local-intent-sha256','packet-commit','collector-sha256','collector-repository-path','collector-review','collector-review-sha256','cpu-terminal-custody','cpu-custody-inventory-sha256','packet-review','packet-review-sha256','stream-helper-repository-path','stream-review-repository-path','failed-token-terminal-custody'):ap.add_argument('--'+name,required=True)
+     a=ap.parse_args();need(re.fullmatch('[1-9][0-9]*',a.job_id) is not None,'exact current job ID required')
+     packet_raw=read_metadata(LAUNCH/'packet.json',a.packet_sha256);packet=decode(packet_raw)
+     result_raw=read_metadata(LAUNCH/'submission.result.json',a.submission_result_sha256);result=decode(result_raw)
+@@ -532,10 +642,10 @@
+          'independent original packet review/commit required')
+     helper_source,helper_review=authenticate_stream_files(a.packet_commit,a.stream_helper_repository_path,a.stream_review_repository_path)
+     baseline_pin=pins['baseline.json'];baseline=decode(read_metadata(LAUNCH/'baseline.json',baseline_pin))
+-    need(packet['baseline_sha256']==intent['baseline_sha256']==baseline_pin and baseline['terminal_jobs']==43
+-         and baseline['submission_journals']==88 and len(baseline['related_accounting'])==43 and len(baseline['journal_pins'])==88
++    need(packet['baseline_sha256']==intent['baseline_sha256']==baseline_pin and baseline['terminal_jobs']==44
++         and baseline['submission_journals']==90 and len(baseline['related_accounting'])==44 and len(baseline['journal_pins'])==90
+          and baseline['preparation_allowance_cpu_seconds']==3600 and baseline['outstanding_reservation']==0,
+-         'independently pinned actual43-job/88-journal baseline required')
++         'independently pinned actual44-job/90-journal baseline required')
+     normalize(baseline['related_accounting'])
+     need(packet['resources']==intent['resources']==RESOURCES and packet['deadlines']==intent['deadlines']==DEADLINES,
+          'unchanged GPU training resource/deadline contract required')
+@@ -563,15 +673,15 @@
+          and upstream['submission_result_sha256']==pins['cpu-result.json']
+          and upstream['custody_bytes_verified'] is upstream['current_lineage_verified'] is True
+          and upstream['errors']==[],'accepted CPU original job/custody differs')
+-    need(baseline['input_pins']['predecessor']==pins['previous-baseline.json']
++    need(baseline['input_pins']['predecessor']==pins['token-failure-baseline.json']
+          and baseline['input_pins']['acceptance']==pins['cpu-acceptance.json']
+-         and baseline['input_pins']['disposition']==pins['cpu-disposition.json'], 'actual43/88 accepted baseline provenance differs')
++         and baseline['input_pins']['disposition']==pins['cpu-disposition.json'], 'actual44/90 accepted baseline provenance differs')
+     collection=decode(read_metadata(LAUNCH/'collection-acceptance.json',pins['collection-acceptance.json']))
+     need(collection['status']=='accepted' and collection['complete_custody_verified'] is True
+          and collection['collection']==cpu_packet['collection']
+          and collection['collection']['root']==COMMON_ROOT+'/collection/session/worker/task/collection'
+          and collection['job_id']==packet['collection_job_id']
+-         and a.job_id not in (accepted['job_id'],collection['job_id'],'35407428'), 'distinct current GPU/accepted collection/CPU jobs required')
++         and a.job_id not in (accepted['job_id'],collection['job_id'],'35407428',FAILED_CPU_JOB), 'distinct current GPU/accepted collection/CPU jobs required')
+     transport=decode(read_metadata(LAUNCH/'cpu-inventory.json',pins['cpu-inventory.json']))
+     need(transport['returncode']==0,'original accepted CPU transport failed')
+     observation=decode(transport['stdout']);original_files=observation['files']
+@@ -588,6 +698,10 @@
+         preserved[label]={n[len(prefix):]:v for n,v in original_files.items() if n.startswith(prefix)}
+         need(preserved[label] and all(not Path(n).is_absolute() and '..' not in Path(n).parts and pin(v['sha256'])
+              and type(v['bytes']) is int and v['bytes']>=0 for n,v in preserved[label].items()), 'safe complete upstream root map required')
++    token_failure=token_failure_context(pins,packet,intent,baseline,original_files,cpu_result,observation['directories'])
++    preserved['failed-token01']=token_failure['files']
++    failed_token_capsule,failed_token_capsule_before=load_failed_token_capsule(a.failed_token_terminal_custody,
++        pins['token-failure-custody-inventory.json'],token_failure['raw_inventory'])
+     # Independent original CPU capsule pins preserve both transports, histories, all failures and reports.
+     cpu_custody=Path(a.cpu_terminal_custody).resolve(strict=True)
+     custody_raw=read_metadata(cpu_custody/'custody-inventory.json',a.cpu_custody_inventory_sha256)
+@@ -600,10 +714,10 @@
+         need(cpu_custody_before['files'][name]['sha256']==h,'CPU capsule metadata differs')
+     need(inventory(cpu_custody/'remote')['files']==original_files,'complete accepted CPU raw capsule differs')
+     upstream_pins=packet['original_cpu_inputs']
+-    need(upstream_pins and all(pin(h) and (p.startswith(CPU_ROOT+'/') or p.startswith(COMMON_ROOT+'/'))
++    need(upstream_pins and all(pin(h) and (p.startswith(CPU_ROOT+'/') or p.startswith(COMMON_ROOT+'/') or p.startswith(FAILED_CPU_ROOT+'/'))
+          and '..' not in Path(p).parts for p,h in upstream_pins.items()), 'explicit original CPU/collection readback roster required')
+     for p,h in upstream_pins.items():
+-        label='cpu' if p.startswith(CPU_ROOT+'/') else 'common';root=CPU_ROOT if label=='cpu' else COMMON_ROOT
++        label,root=next((label,root) for label,root in (('cpu',CPU_ROOT),('common',COMMON_ROOT),('failed-token01',FAILED_CPU_ROOT)) if p.startswith(root+'/'))
+         need(preserved[label][p[len(root)+1:]]['sha256']==h,'original CPU input/readback map differs')
+     recovery_bindings=dict(recovery_authority_sha256=pins['recovery-authority.json'],original_namespace_claim_sha256=OLD_CLAIM_SHA)
+     need(intent['existing_namespace_claim_sha256']==packet['namespace_claim_sha256']==pins['namespace-claim.json']
+@@ -625,7 +739,7 @@
+         save(name,transport);need(transport['returncode']==0,'failed/partial custody retained: '+name)
+         return transport
+     source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,NAMESPACE=REMOTE_NAMESPACE,JOB=a.job_id,
+-        TERMINAL=TERMINAL,OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,UPSTREAM_PINS=upstream_pins,COMMON_ROOT=COMMON_ROOT,FAILED_ROOT=FAILED_ROOT,CPU_ROOT=CPU_ROOT).items())+'\n'+REMOTE_OBSERVATION
++        TERMINAL=TERMINAL,OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,UPSTREAM_PINS=upstream_pins,COMMON_ROOT=COMMON_ROOT,FAILED_ROOT=FAILED_ROOT,CPU_ROOT=CPU_ROOT,FAILED_CPU_ROOT=FAILED_CPU_ROOT).items())+'\n'+REMOTE_OBSERVATION
+     def observe(name):
+         transport=run_saved(name,['bash',HELPER,'run','python3 -'],source=source,timeout=240)
+         v=decode(transport['stdout'])
+@@ -653,15 +767,19 @@
+             submission_result_sha256=a.submission_result_sha256,remote_root=ROOT,remote_namespace=REMOTE_NAMESPACE,
+             local_namespace=str(LOCAL_NAMESPACE),collector_sha256=sha(Path(__file__).read_bytes()),
+             accepted_cpu_root=CPU_ROOT,accepted_collection_root=COMMON_ROOT,preserved_failed_root=FAILED_ROOT,
++            preserved_failed_token_root=FAILED_CPU_ROOT,token_recovery=packet['token_recovery'],
+             collector_repository_path=a.collector_repository_path,collector_review_sha256=a.collector_review_sha256,
+             stream_helper_sha256=STREAM_HELPER_SHA,stream_review_sha256=STREAM_REVIEW_SHA,
+             stream_helper_repository_path=a.stream_helper_repository_path,stream_review_repository_path=a.stream_review_repository_path,
++            token01_custody_inventory_sha256=pins['token-failure-custody-inventory.json'],
+             cpu_custody_inventory_sha256=a.cpu_custody_inventory_sha256,
+             packet_commit=a.packet_commit,local_intent_sha256=a.local_intent_sha256,original_local_namespace=str(OLD_LOCAL_NAMESPACE),
+             original_remote_namespace=OLD_REMOTE_NAMESPACE,recovery_bindings=recovery_bindings,
+             retry_allowed=False,acceptance=False))
+         for dest in claimed:
+             write(dest/'collector-review.md',cr)
++        shutil.copytree(failed_token_capsule,EXT/'upstream-token01-custody',copy_function=copy_file)
++        need(inventory(failed_token_capsule)==inventory(EXT/'upstream-token01-custody')==failed_token_capsule_before,'original failed TOKEN01 capsule changed during copy')
+         shutil.copytree(cpu_custody,EXT/'upstream-cpu-custody',copy_function=copy_file)
+         need(inventory(cpu_custody)==inventory(EXT/'upstream-cpu-custody')==cpu_custody_before,'accepted CPU custody changed during copy')
+         # Keep complete local and external coordinator histories, not just their successful receipts.
+@@ -689,19 +807,24 @@
+         actual,after=stream_transfer(before,observe=observe,save=save,helper=helper,helper_source=helper_source,
+             external=EXT,local=LOCAL,copy_file=copy_file,
+             coordinator_bytes=sum(v['bytes'] for info in coordinator.values() for v in info['files'].values())
+-                              +sum(v['bytes'] for v in cpu_custody_before['files'].values()))
++                              +sum(v['bytes'] for v in cpu_custody_before['files'].values())
++                              +sum(v['bytes'] for v in failed_token_capsule_before['files'].values()))
+         (LOCAL/'upstream-cpu-custody').mkdir(mode=0o700)
+-        for sub in ('coordinator','upstream-cpu-custody'):
++        (LOCAL/'upstream-token01-custody').mkdir(mode=0o700)
++        for sub in ('coordinator','upstream-cpu-custody','upstream-token01-custody'):
+             for path in (EXT/sub).iterdir():
+                 target=LOCAL/sub/path.name
+                 if path.is_dir():shutil.copytree(path,target,copy_function=copy_file)
+                 else:copy_file(path,target)
+             need(inventory(EXT/sub)==inventory(LOCAL/sub),'second independent byte copy differs')
+         errors=[]
++        if inventory(failed_token_capsule)!=failed_token_capsule_before:errors.append('original failed TOKEN01 capsule changed')
+         if inventory(cpu_custody)!=cpu_custody_before:errors.append('original accepted CPU custody changed')
+         for label,expected in preserved.items():
+             actual_map={n[len(label)+1:]:v for n,v in actual['files'].items() if n.startswith(label+'/')}
+             if actual_map!=expected:errors.append('complete accepted '+label+' root changed/missing')
++        if sorted(n[len('failed-token01/'):] for n in actual['directories'] if n.startswith('failed-token01/'))!=token_failure['directories']:
++            errors.append('complete failed TOKEN01 directory custody changed/missing')
+         if before['upstream_pins']!=upstream_pins or before['upstream_errors']:
+             errors.append('accepted original CPU/collection input bytes changed/missing')
+         if actual['files'].get('original-namespace.json',{}).get('sha256')!=OLD_CLAIM_SHA:
+@@ -741,8 +864,8 @@
+                     and claim.get('retry_allowed') is False and claim.get('replacement_worlds') is False):
+                 errors.append('namespace recovery authority/failed-attempt binding differs')
+         accounting_ok,journal_ok=accounting_extension(before,baseline,a.job_id,result['intent_sha256'],a.submission_result_sha256)
+-        if not accounting_ok:errors.append('exact43 prior plus current44th accounting row differs')
+-        if not journal_ok:errors.append('exact88 prior plus current90 journals differ')
++        if not accounting_ok:errors.append('exact44 prior plus current45th accounting row differs')
++        if not journal_ok:errors.append('exact90 prior plus current92 journals differ')
+         steps=before['results']['steps']
+         step_parents=[r.split('|') for r in (steps.get('stdout') or '').splitlines() if r.startswith(a.job_id+'|')]
+         if steps['returncode']!=0 or len(step_parents)!=1 or normalize([step_parents[0][:8]])!=normalize([before['parent_accounting']]):
+@@ -791,6 +914,8 @@
+             recovery_bindings=recovery_bindings,cpu_acceptance_sha256=pins['cpu-acceptance.json'],
+             cpu_custody_inventory_sha256=a.cpu_custody_inventory_sha256,collection_acceptance_sha256=pins['collection-acceptance.json'],
+             operational_amendment_sha256=pins['operational-amendment.json'],preserved_upstream_roots=preserved,
++            token_recovery=packet['token_recovery'],preserved_failed_token_root=FAILED_CPU_ROOT,
++            token01_custody_inventory_sha256=pins['token-failure-custody-inventory.json'],
+             original_input_pins=upstream_pins,upstream_inputs_verified=before['upstream_pins']==upstream_pins and not before['upstream_errors'],
+             original_namespace_local_sha256=None if original_claim_raw is None else sha(original_claim_raw),
+             original_namespace_remote_sha256=actual['files'].get('original-namespace.json',{}).get('sha256'),
+@@ -819,7 +944,7 @@
+         if claimed and not sealed:
+             partial_errors=[]
+             if len(claimed)==2:
+-                for sub in ('remote','coordinator','upstream-cpu-custody'):
++                for sub in ('remote','coordinator','upstream-cpu-custody','upstream-token01-custody'):
+                     src=EXT/sub;dst=LOCAL/sub
+                     if not src.exists():continue
+                     try:

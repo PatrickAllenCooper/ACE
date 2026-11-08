@@ -1,0 +1,73 @@
+    need(packet['resources']==intent['resources']==RESOURCES and packet['deadlines']==intent['deadlines']==DEADLINES,
+         'unchanged GPU training resource/deadline contract required')
+    need(packet['source_commit']==intent['source_commit']=='a9346022f145cc29439325b6f291597b2e6ec037'
+         and pins['freeze.json']=='15602614ef9d7e9a3e21027e7495f891c98ba32a2b6b0ee9857e5b71d5e5e66d'
+         and pins['operational-amendment.json']==packet['operational_amendment_sha256']
+         == 'fa94858dfc19c8b15c82acde167ad8fe9991d0c863c32444d017743079617855', 'frozen source/amendment differs')
+    accepted=decode(read_metadata(LAUNCH/'cpu-acceptance.json',pins['cpu-acceptance.json']))
+    cpu_result=decode(read_metadata(LAUNCH/'cpu-result.json',pins['cpu-result.json']))
+    upstream=decode(read_metadata(LAUNCH/'cpu-disposition.json',pins['cpu-disposition.json']))
+    cpu_packet=decode(read_metadata(LAUNCH/'cpu-packet.json',pins['cpu-packet.json']))
+    need(accepted['schema']=='ace-scientific-training-preparation-acceptance-v1' and accepted['status']=='accepted'
+         and type(accepted['required_findings']) is int and accepted['required_findings']==0
+         and accepted['complete_custody_verified'] is accepted['runtime_qualified_for_this_cpu_execution'] is accepted['owned_process_cleanup_verified'] is True
+         and accepted['training_execution_qualified'] is accepted['scientific_qualified'] is False
+         and accepted['scope']=='policy_train' and accepted['cpu_packet_sha256']==pins['cpu-packet.json']
+         and accepted['prepared_sha256']==packet['prepared_sha256']==pins['inputs/prepared.json']
+         and accepted['plan_sha256']==packet['plan_sha256'] and accepted['freeze_sha256']==pins['freeze.json']
+         and accepted['namespace_admission_sha256']==pins['namespace-admission.json'], 'independent accepted CPU token preparation required')
+    need(accepted['job_id']==cpu_result['job_id']==packet['cpu_job_id']==intent['cpu_job_id']
+         and cpu_result['returncode']==0 and cpu_result['ambiguous'] is False
+         and packet['cpu_acceptance_sha256']==intent['cpu_acceptance_sha256']==pins['cpu-acceptance.json']
+         and upstream['job_id']==accepted['job_id'] and upstream['remote_root']==CPU_ROOT
+         and upstream['packet_sha256']==pins['cpu-launch-packet.json']
+         and upstream['submission_result_sha256']==pins['cpu-result.json']
+         and upstream['custody_bytes_verified'] is upstream['current_lineage_verified'] is True
+         and upstream['errors']==[],'accepted CPU original job/custody differs')
+    need(baseline['input_pins']['predecessor']==pins['previous-baseline.json']
+         and baseline['input_pins']['acceptance']==pins['cpu-acceptance.json']
+         and baseline['input_pins']['disposition']==pins['cpu-disposition.json'], 'actual43/88 accepted baseline provenance differs')
+    collection=decode(read_metadata(LAUNCH/'collection-acceptance.json',pins['collection-acceptance.json']))
+    need(collection['status']=='accepted' and collection['complete_custody_verified'] is True
+         and collection['collection']==cpu_packet['collection']
+         and collection['collection']['root']==COMMON_ROOT+'/collection/session/worker/task/collection'
+         and collection['job_id']==packet['collection_job_id']
+         and a.job_id not in (accepted['job_id'],collection['job_id'],'35407428'), 'distinct current GPU/accepted collection/CPU jobs required')
+    transport=decode(read_metadata(LAUNCH/'cpu-inventory.json',pins['cpu-inventory.json']))
+    need(transport['returncode']==0,'original accepted CPU transport failed')
+    observation=decode(transport['stdout']);original_files=observation['files']
+    need(observation['terminal_gate'] is True and not observation.get('observation_error')
+         and observation['parent_accounting'][0]==accepted['job_id']
+         and len(original_files)==upstream['raw_files'] and sum(v['bytes'] for v in original_files.values())==upstream['raw_bytes'],
+         'complete original CPU raw inventory required')
+    need(original_files['launch/packet.json']['sha256']==pins['cpu-launch-packet.json']
+         and original_files['launch/submission.result.json']['sha256']==pins['cpu-result.json']
+         and original_files['launch/submission.intent.json']['sha256']==cpu_result['intent_sha256'], 'original CPU packet/journal inventory differs')
+    preserved={}
+    for label,old_label in [('cpu','launch'),('common','common'),('failed01','failed01')]:
+        prefix=old_label+'/'
+        preserved[label]={n[len(prefix):]:v for n,v in original_files.items() if n.startswith(prefix)}
+        need(preserved[label] and all(not Path(n).is_absolute() and '..' not in Path(n).parts and pin(v['sha256'])
+             and type(v['bytes']) is int and v['bytes']>=0 for n,v in preserved[label].items()), 'safe complete upstream root map required')
+    # Independent original CPU capsule pins preserve both transports, histories, all failures and reports.
+    cpu_custody=Path(a.cpu_terminal_custody).resolve(strict=True)
+    custody_raw=read_metadata(cpu_custody/'custody-inventory.json',a.cpu_custody_inventory_sha256)
+    custody=decode(custody_raw);cpu_custody_before=inventory(cpu_custody)
+    actual_capsule=dict(files={n:v for n,v in cpu_custody_before['files'].items() if n!='custody-inventory.json'},directories=cpu_custody_before['directories'])
+    matches=[v for k,v in custody['copies'].items() if Path(k).resolve()==cpu_custody]
+    need(custody['identical'] is True and len(matches)==1 and matches[0]==actual_capsule,
+         'complete independently pinned original CPU custody capsule required')
+    for name,h in [('disposition.json',pins['cpu-disposition.json']),('inventory_transport.json',pins['cpu-inventory.json'])]:
+        need(cpu_custody_before['files'][name]['sha256']==h,'CPU capsule metadata differs')
+    need(inventory(cpu_custody/'remote')['files']==original_files,'complete accepted CPU raw capsule differs')
+    upstream_pins=packet['original_cpu_inputs']
+    need(upstream_pins and all(pin(h) and (p.startswith(CPU_ROOT+'/') or p.startswith(COMMON_ROOT+'/'))
+         and '..' not in Path(p).parts for p,h in upstream_pins.items()), 'explicit original CPU/collection readback roster required')
+    for p,h in upstream_pins.items():
+        label='cpu' if p.startswith(CPU_ROOT+'/') else 'common';root=CPU_ROOT if label=='cpu' else COMMON_ROOT
+        need(preserved[label][p[len(root)+1:]]['sha256']==h,'original CPU input/readback map differs')
+    recovery_bindings=dict(recovery_authority_sha256=pins['recovery-authority.json'],original_namespace_claim_sha256=OLD_CLAIM_SHA)
+    need(intent['existing_namespace_claim_sha256']==packet['namespace_claim_sha256']==pins['namespace-claim.json']
+         and intent['namespace_admission_sha256']==pins['namespace-admission.json']
+         and all(intent.get(k)==v for k,v in recovery_bindings.items()) and intent['new_namespace_claimed'] is False,
+         'current GPU intent namespace/acceptance joins differ')

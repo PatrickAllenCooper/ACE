@@ -1,0 +1,22 @@
+--- predecessor/launch_once.py
++++ current/launch_once.py
+@@ -44,8 +44,8 @@
+         pins={**packet['new_input_files'],'packet.json':a.packet_sha256}
+         b.need(all(type(n) is str and not Path(n).is_absolute() and '..' not in Path(n).parts and b.pin(h)
+             for n,h in pins.items()),'safe pinned packet membership required')
+-        supplied={name:b.read(local/(name+('.md' if name in ('freeze-review','cpu-report') else '.json')),
+-            pins[name+('.md' if name in ('freeze-review','cpu-report') else '.json')]) for name in b.METADATA}
++        supplied={name:b.read(local/(b.metadata_name(name)),
++            pins[b.metadata_name(name)]) for name in b.METADATA}
+         prepared_raw=b.read(local/'inputs/prepared.json',packet['prepared_sha256'],256*1024**2)
+         paths=b.decode(b.read(local/'cpu-paths.json',pins['cpu-paths.json']))
+         ctx=b.authenticate(supplied,prepared_raw,packet['prepared_sha256'],packet['plan_sha256'],paths);m=ctx['metadata']
+@@ -62,6 +62,8 @@
+         b.need(review_raw.strip() and review_raw==b.committed(a.packet_commit,str(review.relative_to(b.REPO))),
+                'committed independently pinned packet review required')
+         b.need(packet['baseline_sha256']==ctx['pins']['baseline'] and packet['cpu_job_id']==m['cpu-acceptance']['job_id']
++               and packet['operational_amendment_sha256']==ctx['pins']['operational-amendment']
++               and packet['collection_job_id']==m['collection-result']['job_id']
+                and packet['namespace_claim_sha256']==ctx['pins']['namespace-claim'],'accepted baseline/namespace differs')
+         claim_pin=ctx['pins']['namespace-claim']
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local claim changed; never recreate')

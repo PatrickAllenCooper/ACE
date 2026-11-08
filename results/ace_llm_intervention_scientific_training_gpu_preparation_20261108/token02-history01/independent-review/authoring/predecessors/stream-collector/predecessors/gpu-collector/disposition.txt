@@ -1,0 +1,39 @@
+        markers={n:actual['files'].get('launch/training/'+n) for n in (
+            'terminal.json','failure.json','cleanup.json','cleanup-failure.json',
+            'session/worker/failure.json','session/worker/artifacts/terminal.json',
+            'session/worker/artifacts/failure.json','session/worker/artifacts/fit/terminal.json')}
+        complete_markers=all(markers[n] is not None for n in ('terminal.json','session/worker/artifacts/terminal.json'))
+        reported=public_gpu_evidence(EXT/'remote/launch/training',actual['files'])
+        # Missing GPU work/cleanup evidence is unknown, not proof of idleness or success.
+        save('public-gpu-evidence.json',reported)
+        outcome='terminal_custody_review_pending' if complete_markers else 'terminal_partial_outputs_preserved'
+        if allocation['scheduler_state'].split()[0]!='COMPLETED' or allocation['scheduler_exit']!='0:0' or any(
+                value is not None for name,value in markers.items() if 'failure.json' in name):
+            outcome='terminal_failed_outputs_preserved'
+        if errors:outcome='terminal_custody_with_binding_disagreements'
+        disposition=dict(schema='ace-scientific-training-gpu-terminal-custody-v1',utc=utc(),status=outcome,
+            job_id=a.job_id,packet_sha256=a.packet_sha256,submission_result_sha256=a.submission_result_sha256,
+            custody_bytes_verified=True,current_lineage_verified=not errors,errors=errors,input_pin_mismatches=mismatches,
+            remote_root=ROOT,output_root=ROOT+'/training',remote_files=actual['files'],remote_directories=actual['directories'],
+            raw_files=len(actual['files']),raw_bytes=size,original_hardlink_groups=before['original_hardlink_groups'],
+            hardlink_custody='All original names copied as independent local bytes; original alias metadata retained.',
+            namespace_local_sha256=None if claim_raw is None else sha(claim_raw),
+            namespace_remote_sha256=actual['files'].get('namespace.json',{}).get('sha256'),
+            recovery_bindings=recovery_bindings,cpu_acceptance_sha256=pins['cpu-acceptance.json'],
+            cpu_custody_inventory_sha256=a.cpu_custody_inventory_sha256,collection_acceptance_sha256=pins['collection-acceptance.json'],
+            operational_amendment_sha256=pins['operational-amendment.json'],preserved_upstream_roots=preserved,
+            original_input_pins=upstream_pins,upstream_inputs_verified=before['upstream_pins']==upstream_pins and not before['upstream_errors'],
+            original_namespace_local_sha256=None if original_claim_raw is None else sha(original_claim_raw),
+            original_namespace_remote_sha256=actual['files'].get('original-namespace.json',{}).get('sha256'),
+            exact_prior_accounting_matched=accounting_ok,exact_prior_and_current_journals_matched=journal_ok,
+            observed_related_jobs=len(before['related_accounting']),observed_submission_journals=len(before['journal_pins']),
+            allocation=allocation,closed_cpu_seconds=(baseline['closed_cpu_seconds']+allocation['allocated_cpu_seconds']) if accounting_ok else None,
+            closed_gpu_slice_seconds=(baseline['closed_gpu_slice_seconds']+allocation['gpu_slice_seconds']) if accounting_ok and allocation['gpu_slice_seconds'] is not None else None,
+            preparation_allowance_cpu_seconds=3600,
+            cpu_admission_after_release=(baseline['closed_cpu_seconds']+3600+allocation['allocated_cpu_seconds']) if accounting_ok else None,
+            cpu_ceiling_seconds=57600,gpu_ceiling_seconds=7200,output_marker_metadata=markers,
+            public_gpu_evidence_sha256=sha(raw(reported)),development_payloads_read=0,scored_outcomes_decoded=False,
+            adapter_tensors_decoded=False,scientific_qualified=False,training_execution_qualified=False,acceptance=False,retry_allowed=False,
+            collector_wall_seconds=time.monotonic()-started,collector_process_cpu_seconds=time.process_time()-cpu,
+            cost_scope='Local collector process only; subprocess/remote costs not inferred. Actual Slurm allocation costs are separate, not utilization.',
+            acceptance_scope='Custody and actual accounting only; retained claims, work signals and exit0 do not qualify runtime, training, utility or science.')

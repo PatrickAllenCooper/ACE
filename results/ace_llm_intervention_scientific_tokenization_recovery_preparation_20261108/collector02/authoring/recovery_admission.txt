@@ -1,0 +1,64 @@
+    builder_raw=read_metadata(LAUNCH/'build_packet.py',BUILDER_SHA)
+    need(pins['build_packet.py']==BUILDER_SHA,'exact independently reviewed TOKEN02 core required')
+    b=types.ModuleType('captured_token02_metadata');b.__file__=str(LAUNCH/'build_packet.py')
+    exec(compile(builder_raw,b.__file__,'exec'),vars(b))
+    supplied={n:read_metadata(LAUNCH/b.metadata_name(n),pins[b.metadata_name(n)]) for n in b.METADATA}
+    ctx=b.admit(supplied)  # stdlib metadata-only failure/history/amendment checks; never builder main.
+    m=ctx['metadata'];baseline=m['token-failure-baseline']
+    need(packet['baseline_sha256']==intent['baseline_sha256']==pins['token-failure-baseline.json']
+         and packet['token_recovery']==intent['token_recovery']==ctx['token_recovery']
+         and packet['resources']==intent['resources']==b.RESOURCES
+         and packet['deadlines']==intent['deadlines']==b.DEADLINES
+         and packet['source_commit']==intent['source_commit']==b.SOURCE_COMMIT,
+         'exact independently admitted TOKEN02 current baseline/authority/profile required')
+    stage=decode(read_metadata(LAUNCH/'inputs/packet.json',pins['inputs/packet.json']))
+    need(packet['token_science_equality']==intent['token_science_equality']==b.token_science_equality(m['failed-token-stage'],stage),
+         'original complete child/source/data equality differs')
+    accepted=m['realization-acceptance'];realization_result=m['realization-result'];upstream=m['realization-disposition']
+    collection=m['collection-acceptance'];disposition=m['collection-disposition'];collection_result=m['collection-result']
+    need(packet['realization_job_id']==accepted['job_id'] and packet['collection_job_id']==collection['job_id']
+         and a.job_id not in (accepted['job_id'],collection['job_id'],FAILED_TOKEN_JOB,'35407428'),
+         'distinct actual TOKEN02 job required')
+    need(packet['collection_acceptance_sha256']==pins['collection-acceptance.json']
+         and packet['operational_amendment_sha256']==intent['operational_amendment_sha256']==pins['operational-amendment.json']
+         and packet['operational_adoption_review_sha256']==intent['operational_adoption_review_sha256']==pins['operational-adoption-review.md']
+         and packet['collection_failure_acceptance_sha256']==intent['collection_failure_acceptance_sha256']==pins['collection-failure-acceptance.json']
+         and packet['no_response_proof_sha256']==intent['no_response_proof_sha256']==pins['no-response-proof.json'],
+         'unchanged collection/operational predecessor bindings required')
+    original_files=ctx['failed_token']['files'];preserved={};preserved_directories={}
+    for label,old_label in [('token01','launch'),('common','common'),('failed01','failed01')]:
+        prefix=old_label+'/'
+        preserved[label]={n[len(prefix):]:v for n,v in original_files.items() if n.startswith(prefix)}
+        preserved_directories[label]=[n[len(prefix):] for n in ctx['failed_token']['directories'] if n.startswith(prefix)]
+        need(preserved[label],'complete immutable failed/prior root required')
+    # Preserve the full independently pinned original capsule: archive, both observations, logs and failures.
+    need(a.failed_token_custody_inventory_sha256==pins['token-failure-custody-inventory.json'],
+         'explicit original TOKEN01 custody pin must match adopted failure evidence')
+    prior_custody=Path(a.failed_token_terminal_custody).resolve(strict=True)
+    prior_inventory=inventory(prior_custody)
+    custody=decode(read_metadata(prior_custody/'custody-inventory.json',a.failed_token_custody_inventory_sha256))
+    view=dict(files={n:v for n,v in prior_inventory['files'].items() if n!='custody-inventory.json'},directories=prior_inventory['directories'])
+    matches=[v for k,v in custody['copies'].items() if Path(k).resolve()==prior_custody]
+    need(custody['identical'] is True and len(matches)==1 and matches[0]==view,
+         'complete original failure capsule does not match independently pinned two-copy inventory')
+    need(inventory(prior_custody/'remote')==dict(files=original_files,directories=sorted(ctx['failed_token']['directories'])),
+         'original full failure raw capsule differs')
+    for name,key in [('disposition.json','token-failure-disposition.json'),('inventory_transport.json','token-failure-inventory.json'),
+                     ('inventory_after_transport.json','token-failure-readback.json')]:
+        need(prior_inventory['files'][name]['sha256']==pins[key],'original failure capsule metadata differs')
+    upstream_pins={REALIZATION_ROOT+'/packet.json':pins['realization-packet.json'],
+        REALIZATION_ROOT+'/submission.result.json':pins['realization-result.json'],
+        REALIZATION_ROOT+'/submission.intent.json':realization_result['intent_sha256']}
+    prefix='launch/realization/session/worker/task/'
+    for name in ('terminal.json',*[f'world-{i:03d}.json' for i in range(32)]):
+        upstream_pins[REALIZATION_ROOT+'/realization/session/worker/task/'+name]=upstream['remote_files'][prefix+name]['sha256']
+    need(upstream_pins[REALIZATION_ROOT+'/realization/session/worker/task/terminal.json']==accepted['realization_terminal_sha256'],
+         'original realization terminal binding differs')
+    recovery_bindings=dict(recovery_authority_sha256=pins['recovery-authority.json'],original_namespace_claim_sha256=OLD_CLAIM_SHA)
+    need(intent['realization_acceptance_sha256']==pins['realization-acceptance.json']
+         and intent['realization_job_id']==accepted['job_id']
+         and intent['collection_acceptance_sha256']==pins['collection-acceptance.json']
+         and intent['existing_namespace_claim_sha256']==packet['namespace_claim_sha256']==pins['namespace-claim.json']
+         and intent['namespace_admission_sha256']==pins['namespace-admission.json']
+         and all(intent.get(k)==v for k,v in recovery_bindings.items()) and intent['new_namespace_claimed'] is False,
+         'current TOKEN02 intent preserves original namespace and upstream bindings')
