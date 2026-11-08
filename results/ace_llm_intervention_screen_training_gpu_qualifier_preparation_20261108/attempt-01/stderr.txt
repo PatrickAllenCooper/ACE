@@ -1,0 +1,38 @@
+test_accepted_capacity_runtime_model_inputs_cannot_change (__main__.ScreenQualifierTests) ... ok
+test_all_input_bytes_are_captured_before_other_helpers_and_heavy_imports (__main__.ScreenQualifierTests) ... ok
+test_cpu_acceptance_must_be_affirmative_and_bound_to_actual_token_inputs (__main__.ScreenQualifierTests) ... ok
+test_exact_source_data_membership_rejects_omissions_extras_and_source_order (__main__.ScreenQualifierTests) ... ok
+test_independent_helper_and_input_pins_reject_packet_repinning (__main__.ScreenQualifierTests) ... ok
+test_new_prepared_tokens_raw_envelopes_and_sources_cannot_drift (__main__.ScreenQualifierTests) ... ok
+test_plan_pin_is_independent_even_after_prepared_container_is_repinned (__main__.ScreenQualifierTests) ... ok
+test_prepared_source_inventory_cannot_be_emptied_or_extended_to_unrelated_helpers (__main__.ScreenQualifierTests) ... test_unresolved_production_pins_fail_closed_but_explicit_toy_map_can_authenticate (__main__.ScreenQualifierTests) ... ok
+test_worker_calls_forward_both_independent_pins_and_model_auth_precedes_imports (__main__.ScreenQualifierTests) ... ok
+
+======================================================================
+FAIL: test_prepared_source_inventory_cannot_be_emptied_or_extended_to_unrelated_helpers (__main__.ScreenQualifierTests) (label='empty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_screen_training_gpu_qualifier_preparation_20261108/attempt-01/source/test_qualify_llm_intervention_screen_training_gpu.py", line 243, in test_prepared_source_inventory_cannot_be_emptied_or_extended_to_unrelated_helpers
+    with self.subTest(label=label),self.assertRaises(ValueError):toy.auth()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_prepared_source_inventory_cannot_be_emptied_or_extended_to_unrelated_helpers (__main__.ScreenQualifierTests) (label='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_screen_training_gpu_qualifier_preparation_20261108/attempt-01/source/test_qualify_llm_intervention_screen_training_gpu.py", line 243, in test_prepared_source_inventory_cannot_be_emptied_or_extended_to_unrelated_helpers
+    with self.subTest(label=label),self.assertRaises(ValueError):toy.auth()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_prepared_source_inventory_cannot_be_emptied_or_extended_to_unrelated_helpers (__main__.ScreenQualifierTests) (label='extra_helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_screen_training_gpu_qualifier_preparation_20261108/attempt-01/source/test_qualify_llm_intervention_screen_training_gpu.py", line 243, in test_prepared_source_inventory_cannot_be_emptied_or_extended_to_unrelated_helpers
+    with self.subTest(label=label),self.assertRaises(ValueError):toy.auth()
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.330s
+
+FAILED (failures=3)
