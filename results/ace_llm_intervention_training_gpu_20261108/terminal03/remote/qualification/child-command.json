@@ -1,0 +1,27 @@
+{
+  "absolute_supervisor_deadline": 2739457.862432839,
+  "absolute_worker_deadline": 2739417.862432839,
+  "command": [
+    "/scratch/local/35379434/ace-training-gpu-35379434/runtime/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_03/qualify_llm_intervention_training_gpu.py",
+    "5fe610684e077469444fd8b6db4fcd6b9b717ebe24b22deaf3425ece475dc6b7",
+    "--packet",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_03/training.json",
+    "--packet-sha256",
+    "566bbca00939cd339ebf14e58c95bd40eaffb76e467c2847df503317bea1e231",
+    "--output",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_03/qualification/session/worker",
+    "--worker",
+    "--runtime-stage",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_gpu_20261108_03/qualification/stage.json",
+    "--runtime-stage-sha256",
+    "a03c4247cf059f8dca5f2cbe5bb2cb2b930ae2c313d2164be2f4a1b0103e4aaf",
+    "--worker-deadline",
+    "2739417.862432839"
+  ],
+  "first_gpu_deadline_from_start_seconds": 240
+}
