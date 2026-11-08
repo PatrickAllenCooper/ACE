@@ -42,6 +42,33 @@ def _need(ok, message):
         raise ValueError(message)
 
 
+def _output_path_binding(path, logical_root, physical_root):
+    """Admit identity or one observed CURC mount alias, without rewriting paths."""
+    path, logical_root, physical_root = map(Path, (path, logical_root, physical_root))
+    _need(path.is_absolute() and '..' not in path.parts, 'absolute normalized output required')
+    resolved = path.resolve()
+    result = dict(logical=str(path), resolved=str(resolved), mount_alias=False)
+    if resolved == path:
+        return result
+    _need(logical_root in path.parents, 'unrecognized output path alias')
+    suffix = path.relative_to(logical_root)
+    _need(resolved == physical_root/suffix
+           and logical_root.resolve(strict=True) == physical_root
+           and physical_root.resolve(strict=True) == physical_root
+           and logical_root.is_dir() and physical_root.is_dir(), 'CURC mount alias differs')
+    left, right = logical_root.stat(), physical_root.stat()
+    _need((left.st_dev, left.st_ino) == (right.st_dev, right.st_ino), 'mount roots differ')
+    current = logical_root
+    for component in suffix.parts:
+        current = current/component
+        _need(not current.is_symlink(), 'output descendant symlink forbidden')
+    result.update(mount_alias=True, root_device=left.st_dev, root_inode=left.st_ino)
+    return result
+
+def output_path_binding(path):
+    return _output_path_binding(path, '/scratch/alpine', '/gpfs/alpine1/scratch')
+
+
 def _canonical(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False)
 
@@ -336,8 +363,7 @@ def run_collection(*, packet_raw, packet_sha256, inputs, admission_raw, admissio
     it is not independent acceptance or source/runtime/scheduler qualification.
     """
     output = Path(output)
-    _need(output.is_absolute() and output == output.resolve() and not output.is_symlink(),
-          'absolute resolved exclusive output required')
+    path_binding = output_path_binding(output)
     output.mkdir(mode=0o700, exist_ok=False)
     start, cpu, invoked = time.monotonic(), time.process_time(), False
     stage = 'capture'
@@ -346,7 +372,8 @@ def run_collection(*, packet_raw, packet_sha256, inputs, admission_raw, admissio
         _save(output/'intent.json', {'schema': VERSION, 'packet_sha256': packet_sha256,
             'admission_sha256': admission_sha256, 'world_roster': WORLD_IDS,
             'record_count': 160, 'retained_pair_count': 3584, 'retry_allowed': False,
-            'started_utc': datetime.now(timezone.utc).isoformat()})
+            'started_utc': datetime.now(timezone.utc).isoformat(),
+            'output_path_binding': path_binding})
         _need(type(packet_raw) is bytes and type(admission_raw) is bytes
               and len(packet_raw)+len(admission_raw) <= MAX_INPUT_BYTES, 'bounded packet/admission required')
         _write(output/'packet.json', packet_raw)

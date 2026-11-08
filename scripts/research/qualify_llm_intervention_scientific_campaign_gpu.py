@@ -33,7 +33,7 @@ import types
 VERSION = 'ace-scientific-paired-campaign-gpu-v1'
 ENTRY = 'qualify_llm_intervention_scientific_campaign_gpu.py'
 CPU_ENTRY = 'prepare_llm_intervention_scientific_campaign_cpu.py'
-CPU_ENTRY_SHA = '8938d0d3a450f75e8f333989b70c89206de88ebcec928f7fe8d6a0d68c6166df'
+CPU_ENTRY_SHA = 'ba439d819f49f6832c97181e4ff727c4813f29031e7b67f8085670f845b0f893'
 CPU_OWNED = 'llm_intervention_cpu_owned_supervision.py'
 CPU_OWNED_SHA = '1c08423bb8fdd69ad637fbf5366978ea4a630c7ef206cc1b89ab30e3617a14e8'
 GPU_HELPER = 'qualify_llm_intervention_model_service.py'

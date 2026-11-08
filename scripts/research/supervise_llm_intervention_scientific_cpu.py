@@ -67,6 +67,34 @@ def _base():
 B = _base()
 
 
+def _output_path_binding(path, logical_root, physical_root):
+    """Admit identity or one observed CURC mount alias, without rewriting paths."""
+    path, logical_root, physical_root = map(Path, (path, logical_root, physical_root))
+    B.need(path.is_absolute() and '..' not in path.parts, 'absolute normalized output required')
+    resolved = path.resolve()
+    result = dict(logical=str(path), resolved=str(resolved), mount_alias=False)
+    if resolved == path:
+        return result
+    B.need(logical_root in path.parents, 'unrecognized output path alias')
+    suffix = path.relative_to(logical_root)
+    B.need(resolved == physical_root/suffix
+           and logical_root.resolve(strict=True) == physical_root
+           and physical_root.resolve(strict=True) == physical_root
+           and logical_root.is_dir() and physical_root.is_dir(), 'CURC mount alias differs')
+    left, right = logical_root.stat(), physical_root.stat()
+    B.need((left.st_dev, left.st_ino) == (right.st_dev, right.st_ino), 'mount roots differ')
+    current = logical_root
+    for component in suffix.parts:
+        current = current/component
+        B.need(not current.is_symlink(), 'output descendant symlink forbidden')
+    result.update(mount_alias=True, root_device=left.st_dev, root_inode=left.st_ino)
+    return result
+
+
+def output_path_binding(path):
+    return _output_path_binding(path, '/scratch/alpine', '/gpfs/alpine1/scratch')
+
+
 def work_sources(mode):
     B.need(mode in ('realize','collect'),'exactly one fixed stage required')
     return PROTOCOL_NAMES | ({REALIZE} if mode=='realize' else {COLLECT,'llm_intervention_training_collection.py'})
@@ -404,7 +432,7 @@ def main():
     try:
         p=B.decode(B.read(args.packet,args.packet_sha256,2*1024**2))
         resource_contract(p['mode'],p['resources'],p['deadlines'])
-        B.need(out==out.resolve() and Path(p['output'])==Path(p['output']).resolve(),'resolved output required')
+        path_bindings = [output_path_binding(out), output_path_binding(p['output'])]
         B.separate([Path(p['output']),Path(args.packet).absolute().parent,p['runtime_source'],p['archive']['path'],p['manifest']['path']])
         handoff=None
         if args.worker:
@@ -420,7 +448,8 @@ def main():
         signal.setitimer(signal.ITIMER_REAL,max(.001,args.started+p['deadlines']['startup']-time.monotonic()))
         out.mkdir(mode=0o700,exist_ok=False);claimed=True
         B.save(out/'start.json',dict(schema=VERSION,packet_sha256=args.packet_sha256,resources=p['resources'],
-            deadlines={k:args.started+v for k,v in p['deadlines'].items()},retry_allowed=False))
+            deadlines={k:args.started+v for k,v in p['deadlines'].items()},retry_allowed=False,
+            output_path_bindings=path_bindings))
         ctx=authenticate(args)
         if args.worker:child(args,ctx,handoff)
         else:parent(args,ctx)

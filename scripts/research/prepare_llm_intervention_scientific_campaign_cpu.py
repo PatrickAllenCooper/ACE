@@ -78,6 +78,41 @@ TRAIN_ROSTER = tuple(f'policy_train/{w}/snapshot-{i:03d}' for w in range(2026110
 
 
 def read(path,maximum=MAX_CAPTURE):return B.read(path,maximum)
+
+
+def _output_path_binding(path, logical_root, physical_root):
+    """Admit identity or one observed CURC mount alias, without rewriting paths."""
+    path, logical_root, physical_root = map(Path, (path, logical_root, physical_root))
+    B.need(path.is_absolute() and '..' not in path.parts, 'absolute normalized output required')
+    resolved = path.resolve()
+    result = dict(logical=str(path), resolved=str(resolved), mount_alias=False)
+    if resolved == path:
+        return result
+    B.need(logical_root in path.parents, 'unrecognized output path alias')
+    suffix = path.relative_to(logical_root)
+    B.need(resolved == physical_root/suffix
+           and logical_root.resolve(strict=True) == physical_root
+           and physical_root.resolve(strict=True) == physical_root
+           and logical_root.is_dir() and physical_root.is_dir(), 'CURC mount alias differs')
+    left, right = logical_root.stat(), physical_root.stat()
+    B.need((left.st_dev, left.st_ino) == (right.st_dev, right.st_ino), 'mount roots differ')
+    current = logical_root
+    for component in suffix.parts:
+        current = current/component
+        B.need(not current.is_symlink(), 'output descendant symlink forbidden')
+    result.update(mount_alias=True, root_device=left.st_dev, root_inode=left.st_ino)
+    return result
+
+
+def separate(paths):
+    # Contractual spellings remain untouched, but physical trees must be disjoint.
+    B.separate([Path(p).resolve() for p in paths])
+
+
+def output_path_binding(path):
+    return _output_path_binding(path, '/scratch/alpine', '/gpfs/alpine1/scratch')
+
+
 def capture(path,expected,maximum=MAX_CAPTURE):return B.capture(path,expected,maximum)
 def paths(packet):return B.paths(packet)
 def failure(exc):return dict(type=type(exc).__name__,message=str(exc),traceback=traceback.format_exc(),retry_allowed=False,
@@ -196,8 +231,8 @@ def service_contracts(root,p,data,service,diagnostic,lineage,launch):
             policy_provenance_sha256=p['files'][role+'.freeze.json']),'fixed prospective persistent command differs')
         contracts.append(c);destinations.extend((c['worker_output'],c['launch_output']))
     need(len({(c['binding_path'],c['stage_path']) for c in contracts})==1,'three services must share prospective stage binding')
-    B.separate([root,p['cpu_output'],p['model_directory'],*destinations])
-    for c in contracts:B.separate([root,p['cpu_output'],c['binding_path'],c['stage_path']])
+    separate([root,p['cpu_output'],p['model_directory'],*destinations])
+    for c in contracts:separate([root,p['cpu_output'],c['binding_path'],c['stage_path']])
 
 
 def packet_shape(p,service,diagnostic):
@@ -694,7 +729,7 @@ def parent(args,ctx):
     scratch=Path(os.environ.get('SLURM_SCRATCH',''));need(scratch.is_absolute(),'absolute node scratch required')
     scratch=scratch.resolve(strict=True);need(scratch.is_dir() and scratch.stat().st_uid==os.getuid(),'owned scratch required')
     local=scratch/('ace-scientific-campaign-cpu-'+job)
-    B.separate([local,out,ctx['root'],p['runtime_source'],p['archive']['path'],p['manifest']['path']]);local.mkdir(mode=0o700,exist_ok=False)
+    separate([local,out,ctx['root'],p['runtime_source'],p['archive']['path'],p['manifest']['path']]);local.mkdir(mode=0o700,exist_ok=False)
     archive=B.module('_campaign_archive',ctx['root']/'llm_intervention_runtime_archive.py',ctx['data']['llm_intervention_runtime_archive.py'])
     probe=B.module('_campaign_cleanup',ctx['root']/'probe.py',ctx['data']['probe.py'])
     training=B.module('_campaign_environment',ctx['root']/B.TRAINING,ctx['data'][B.TRAINING])
@@ -748,8 +783,9 @@ def main():
             need(not args.worker and args.world_id is not None,'one exact numeric mode required');numeric_child(args);return
         need(args.admission and pin(args.admission_sha256),'independent stage admission required')
         p=decode(capture(args.packet,args.packet_sha256,2*1024**2));resource_contract(p)
-        need(B.absolute(p['cpu_output']) and Path(p['cpu_output'])==Path(p['cpu_output']).resolve(),'resolved output required')
-        B.separate([p['cpu_output'],Path(args.packet).absolute().parent,p['runtime_source'],p['model_directory'],p['archive']['path'],p['manifest']['path']])
+        need(B.absolute(p['cpu_output']), 'absolute output required')
+        path_binding = output_path_binding(p['cpu_output'])
+        separate([p['cpu_output'],Path(args.packet).absolute().parent,p['runtime_source'],p['model_directory'],p['archive']['path'],p['manifest']['path']])
         if args.worker:
             need(type(args.parent_started) is float and math.isfinite(args.parent_started)
                 and 0<=args.started-args.parent_started<p['deadlines']['startup'] and args.parent_pid==os.getppid()
@@ -758,7 +794,8 @@ def main():
         else:claimed=paths(p)['output']
         signal.setitimer(signal.ITIMER_REAL,max(.001,args.started+p['deadlines']['startup']-time.monotonic()))
         claimed.mkdir(mode=0o700,exist_ok=False);out=claimed
-        save(out/'start.json',dict(schema=VERSION,packet_sha256=args.packet_sha256,resources=p['resources'],deadlines=p['deadlines'],retry_allowed=False))
+        save(out/'start.json',dict(schema=VERSION,packet_sha256=args.packet_sha256,resources=p['resources'],deadlines=p['deadlines'],retry_allowed=False,
+            output_path_binding=path_binding))
         ctx=authenticate(args)
         if args.worker:
             need(args.runtime_stage==str(paths(p)['output']/'stage.json') and pin(args.runtime_stage_sha256),'original runtime stage pin required');child(args,ctx)
