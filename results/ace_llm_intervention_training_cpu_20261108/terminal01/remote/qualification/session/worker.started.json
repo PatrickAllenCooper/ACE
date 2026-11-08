@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/scratch/local/35374034/ace-training-cpu-35374034/runtime/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_cpu_20261108_01/prepare_llm_intervention_training_cpu.py",
+    "b2b1425bcd010d5ddc5deeda0dc3bd89817c9fe4cae6c4cc6465ec9f7f998f43",
+    "--packet",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_cpu_20261108_01/preparation.json",
+    "--packet-sha256",
+    "b4394a7b0160b2d8f23df709334dbbc6cace2bac3fb1cd053602c7260d569d73",
+    "--output",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_cpu_20261108_01/qualification/session/worker",
+    "--worker",
+    "--runtime-stage",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_training_cpu_20261108_01/qualification/stage.json",
+    "--runtime-stage-sha256",
+    "382b26a5de0dd3a5cc2a81909911c9501016ef9df656a15f1cd6fcc225f32341"
+  ],
+  "deadline_monotonic": 1585166.569340098,
+  "pgid": 633242,
+  "pid": 633242,
+  "utc": "2026-11-08T04:56:12.246124+00:00"
+}
