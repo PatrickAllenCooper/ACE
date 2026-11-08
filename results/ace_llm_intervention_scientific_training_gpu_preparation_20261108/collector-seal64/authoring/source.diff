@@ -1,0 +1,46 @@
+--- predecessor8075/pull_terminal.py
++++ pull_terminal.py
+@@ -83,6 +83,25 @@
+     data=Path(path).read_bytes()
+     need(sha(data)==meta['sha256'],'metadata changed during read')
+     if expected is not None:need(pin(expected) and sha(data)==expected,'independent pin differs: '+str(path))
++    return data
++
++
++# Complete upstream capsule seals contain nested inventories; ordinary metadata stays32MiB.
++# Actual independently accepted TOKEN02 seal:33,854,831 bytes. Fail closed above64MiB.
++UPSTREAM_CUSTODY_SEAL_MAX_BYTES=64*1024**2
++
++
++def read_upstream_custody_seal(path,expected):
++    path=Path(path)
++    need(path.name=='custody-inventory.json' and pin(expected),'independently pinned upstream custody seal required')
++    meta=fingerprint(path,sole_link=True)
++    need(meta['bytes']<=UPSTREAM_CUSTODY_SEAL_MAX_BYTES,'bounded64MiB upstream custody seal required')
++    with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
++        info=os.fstat(f.fileno())
++        need(stat.S_ISREG(info.st_mode) and info.st_nlink==1,'regular independent upstream custody seal required')
++        data=f.read(UPSTREAM_CUSTODY_SEAL_MAX_BYTES+1)
++    need(len(data)==meta['bytes'] and len(data)<=UPSTREAM_CUSTODY_SEAL_MAX_BYTES
++         and sha(data)==meta['sha256']==expected,'upstream custody seal changed or independent pin differs')
+     return data
+ 
+ 
+@@ -594,7 +613,7 @@
+ 
+ def load_failed_token_capsule(path,expected_pin,expected_raw):
+     root=Path(path).resolve(strict=True)
+-    saved=decode(read_metadata(root/'custody-inventory.json',expected_pin));before=inventory(root)
++    saved=decode(read_upstream_custody_seal(root/'custody-inventory.json',expected_pin));before=inventory(root)
+     actual=dict(files={n:v for n,v in before['files'].items() if n!='custody-inventory.json'},directories=before['directories'])
+     views=[v for k,v in saved['copies'].items() if Path(k).resolve()==root]
+     need(saved['identical'] is True and len(views)==1 and views[0]==actual,
+@@ -704,7 +723,7 @@
+         pins['token-failure-custody-inventory.json'],token_failure['raw_inventory'])
+     # Independent original CPU capsule pins preserve both transports, histories, all failures and reports.
+     cpu_custody=Path(a.cpu_terminal_custody).resolve(strict=True)
+-    custody_raw=read_metadata(cpu_custody/'custody-inventory.json',a.cpu_custody_inventory_sha256)
++    custody_raw=read_upstream_custody_seal(cpu_custody/'custody-inventory.json',a.cpu_custody_inventory_sha256)
+     custody=decode(custody_raw);cpu_custody_before=inventory(cpu_custody)
+     actual_capsule=dict(files={n:v for n,v in cpu_custody_before['files'].items() if n!='custody-inventory.json'},directories=cpu_custody_before['directories'])
+     matches=[v for k,v in custody['copies'].items() if Path(k).resolve()==cpu_custody]

@@ -1,0 +1,50 @@
+{
+  "attempts": [
+    {
+      "attempt": "custody-attempt01",
+      "checker_process_cpu_seconds": 7.7956330000000005,
+      "cost_scope": "this checker plus local Git children only; no allocated job cost",
+      "git_child_cpu_seconds": 0.835615,
+      "receipt_sha256": "3c9907bf9397514d297981e6dcfb3abd651af7d68a3fb6fddeefaa8fea713060",
+      "status": "custody_source_history_checks_passed",
+      "wall_seconds": 12.732654792
+    },
+    {
+      "attempt": "source-scheduler-attempt01",
+      "checker_process_cpu_seconds": 0.04799200000000001,
+      "cost_scope": "this local checker process; Git child overhead not measured",
+      "git_child_cpu_seconds": null,
+      "receipt_sha256": "3c0afa3a4dd4ef6c2a690af8dfa37cd257fb002969cc1864721bd5e7582bc9df",
+      "status": "failed",
+      "wall_seconds": 0.29467375
+    },
+    {
+      "attempt": "source-scheduler-attempt02",
+      "checker_process_cpu_seconds": 0.09966900000000001,
+      "cost_scope": "this local checker process; Git child overhead not measured",
+      "git_child_cpu_seconds": null,
+      "receipt_sha256": "a1ed4ee1ae7d5044edc988dcb143a25d391f694ca813b36edfa759f30a671343",
+      "status": "failed",
+      "wall_seconds": 0.341599833
+    },
+    {
+      "attempt": "source-scheduler-attempt03",
+      "checker_process_cpu_seconds": 0.118408,
+      "cost_scope": "this local checker process; Git child overhead not measured",
+      "git_child_cpu_seconds": null,
+      "receipt_sha256": "2b31d2492ca955dffd912e2097a393a07c21218e312c9c600a2898005422ab7a",
+      "status": "source_scheduler_original_clock_checks_passed",
+      "wall_seconds": 0.37159375000000006
+    },
+    {
+      "attempt": "artifact-runtime-attempt01",
+      "checker_process_cpu_seconds": 0.752631,
+      "cost_scope": "stdlib saved arithmetic and metadata checks; no model/tokenizer/tensor execution",
+      "git_child_cpu_seconds": null,
+      "receipt_sha256": "66b3e657dfe11644c0d7ca6626bb9a48a2b1c85e6b855923d29a1ee6e8ff9d48",
+      "status": "saved_artifacts_runtime_lifecycle_checks_passed",
+      "wall_seconds": 0.753272792
+    }
+  ],
+  "scope": "review costs separate from exact Slurm job charges; whole authoring overhead unmetered"
+}

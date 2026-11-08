@@ -1,0 +1,52 @@
+from pathlib import Path
+import tempfile,hashlib,shutil,difflib
+old=Path('/private/tmp/ace-scientific-training-gpu-token02-mcu8h32f/collector/pull_terminal.py');original=old.read_bytes();assert hashlib.sha256(original).hexdigest()=='80757151c2c6848b67929bae7453f18e4856da0ce41138cba74a7f407dd789a1'
+p=Path(tempfile.mkdtemp(prefix='ace-training-gpu-collector-seal64-',dir='/tmp'));(p/'predecessor').mkdir();(p/'predecessor/pull_terminal.py').write_bytes(original)
+source=original.decode();helper='''# Complete upstream capsule seals contain nested inventories; ordinary metadata stays32MiB.
+# Actual independently accepted TOKEN02 seal:33,854,831 bytes. Fail closed above64MiB.
+UPSTREAM_CUSTODY_SEAL_MAX_BYTES=64*1024**2
+
+
+def read_upstream_custody_seal(path,expected):
+    path=Path(path)
+    need(path.name=='custody-inventory.json' and pin(expected),'independently pinned upstream custody seal required')
+    meta=fingerprint(path,sole_link=True)
+    need(meta['bytes']<=UPSTREAM_CUSTODY_SEAL_MAX_BYTES,'bounded64MiB upstream custody seal required')
+    with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
+        info=os.fstat(f.fileno())
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink==1,'regular independent upstream custody seal required')
+        data=f.read(UPSTREAM_CUSTODY_SEAL_MAX_BYTES+1)
+    need(len(data)==meta['bytes'] and len(data)<=UPSTREAM_CUSTODY_SEAL_MAX_BYTES
+         and sha(data)==meta['sha256']==expected,'upstream custody seal changed or independent pin differs')
+    return data
+
+
+'''
+source=source.replace('def inventory(root):',helper+'def inventory(root):',1)
+for text in ("read_metadata(root/'custody-inventory.json',expected_pin)","read_metadata(cpu_custody/'custody-inventory.json',a.cpu_custody_inventory_sha256)"):
+ assert source.count(text)==1;source=source.replace(text,text.replace('read_metadata','read_upstream_custody_seal'))
+(p/'pull_terminal.py').write_text(source);(p/'source.diff').write_text(''.join(difflib.unified_diff(original.decode().splitlines(True),source.splitlines(True),fromfile='predecessor8075/pull_terminal.py',tofile='pull_terminal.py')))
+review=Path('/Users/pat/code/ACE/results/ace_llm_intervention_scientific_tokenization_20261108/acceptance02/review.md');shutil.copy2(review,p/'token02-actual-size-review.md')
+(p/'test_seal_boundary.py').write_text('''"""New custody-seal size boundaries only, fabricated local bytes; never collector main."""
+import hashlib,importlib.util,os,unittest
+from pathlib import Path
+HERE=Path(__file__).resolve().parent
+OUT=Path(os.environ['ACE_SEAL_BOUNDARY_EVIDENCE'])
+spec=importlib.util.spec_from_file_location('new_seal_collector',HERE/'pull_terminal.py');C=importlib.util.module_from_spec(spec);spec.loader.exec_module(C)
+class SealBoundary(unittest.TestCase):
+ def test_actual_size_class_is_admitted_only_as_upstream_seal(self):
+  root=OUT/'observed-size';root.mkdir();path=root/'custody-inventory.json'
+  size=33854831;head=b'{"fabricated":true}';data=head+b' '*(size-len(head));path.write_bytes(data)
+  expected=hashlib.sha256(data).hexdigest();del data
+  captured=C.read_upstream_custody_seal(path,expected)
+  self.assertEqual(len(captured),size);self.assertEqual(C.decode(captured),{'fabricated':True})
+  self.assertEqual(hashlib.sha256(captured).hexdigest(),expected)
+  with self.assertRaisesRegex(ValueError,'bounded coordinator metadata'):C.read_metadata(path,expected)
+ def test_over64MiB_seal_rejects_before_whole_file_read(self):
+  root=OUT/'over-limit';root.mkdir();path=root/'custody-inventory.json'
+  with path.open('xb') as f:f.truncate(64*1024**2+1)
+  self.assertEqual(path.stat().st_size,C.UPSTREAM_CUSTODY_SEAL_MAX_BYTES+1)
+  with self.assertRaisesRegex(ValueError,'bounded64MiB upstream custody seal'):C.read_upstream_custody_seal(path,'0'*64)
+if __name__=='__main__':unittest.main(verbosity=2)
+''')
+Path('/tmp/ace-training-gpu-collector-seal64-current.txt').write_text(str(p)+'\n');print(p)

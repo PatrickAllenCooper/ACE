@@ -1,0 +1,16 @@
+# Standalone training collector — upstream seal bound correction
+
+Ready for independent review. No actual collector, project/model/tokenizer/tensor, remote, build, launch, old test or commit executed. Original source80757151c2c6848b67929bae7453f18e4856da0ce41138cba74a7f407dd789a1 remains unchanged at /private/tmp/ace-scientific-training-gpu-token02-mcu8h32f/collector/pull_terminal.py and in predecessor/.
+
+- Corrected collector: `41603ce1bc2f64db019c7ff66bafdc3df3feeee994bf78445bda1b8f91bb1c34`
+- New boundary tests: `18f4b5650a9954af89de306a08c5320acb469d370cda104c6f012dbd6b7fb5c8`
+- Test receipt: `eb071457fb1f156b0e13c33f13f8c852f6e711931a5d3e14b259f86988373777`
+- Evidence: /Users/pat/.codex/tmp/ace-training-seal64-boundary-pmlt82j4
+
+Actual independently published TOKEN02 review reports custody-inventory.json33,854,831bytes; prior32MiB bound is33,554,432bytes. read_upstream_custody_seal now admits at most67,108,864bytes (64MiB), only basename custody-inventory.json with mandatory independent SHA, ordinary sole-link file and unchanged-byte verification. It uses bounded buffering with an extra sentinel byte. Fingerprinting remains streaming. Both usages are complete upstream capsule seals: accepted TOKEN02 cpu_custody and original failed TOKEN01 load_failed_token_capsule. Their existing two-copy/full-roster/transport/archive/raw/pin/schema validations remain unchanged. No other call uses the larger limit; ordinary read_metadata remains byte-for-byte unchanged at32MiB. No general optional/unbounded size argument is exposed.
+
+This is an explicit per-seal input bound, not64MiB per nested level or a guarantee that all future recursive custody seals fit. Complete nested inventories remain within that single serialized input cap; oversized seals fail closed and must receive a separate evidence-based reviewed correction. There is no truncation, compaction, omitted ancestor, output seal rewrite or implicit downstream limit change. Parent must still bind this standalone source and its independent review in the eventual packet commit via existing collector self/review arguments. No collector CLI, frozen child/core/source roster, runtime, source authentication, raw-transfer cap, accounting, GPU work interpretation or acceptance schema changes.
+
+Two NEW fabricated tests passed once: positive exactly33,854,831bytes with SHA/JSON readback and ordinary32MiB rejection; negative64MiB+1 rejected by the seal-specific bound before whole-file buffering/JSON decoding. Wall0.183282292s, childCPU0.176654s, maxRSS123,944,960bytes. No failed test attempt. Full fabricated files, source snapshots, command/stdout/stderr and receipt retained. static-delta.json records only load_failed_token_capsule and main changed (the two calls), plus the new reader. No actual TOKEN02 custody was read as test data or modified. token02-actual-size-review.md is a retained read-only justification snapshot, not a new acceptance.
+
+Parent-provided acceptancef6fcac291d2f4031788db62c71cc7d87e26cc4fe427622aab7a8f6dcd3c8fb1e and baseline0443c128767022579041b4e303f7ff7a3616859026fb2f8772ebdcb8e16f4054 are acknowledged as the forthcoming packet's independent inputs; this correction does not rerun their audit or manufacture training acceptance.
