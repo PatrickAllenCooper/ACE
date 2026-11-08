@@ -103,6 +103,11 @@ class _Captured(importlib.abc.MetaPathFinder, importlib.abc.Loader):
         self.root = Path(__file__).absolute().parent
         self.loaded = {}
 
+    @property
+    def sources(self):
+        """Existing runtime observer's read-only loader interface."""
+        return self.source
+
     def find_spec(self, fullname, path=None, target=None):
         if fullname in self.source:
             return importlib.util.spec_from_loader(fullname, self,
@@ -127,7 +132,7 @@ def _captured(source):
     loader = _Captured(source)
     sys.meta_path.insert(0, loader)
     try:
-        yield
+        yield loader
     finally:
         sys.meta_path.remove(loader)
         for name, module in loader.loaded.items():
@@ -283,7 +288,35 @@ def _verify_collection(root, returned, planned, worlds, configs, source_pins):
         'collection_plan_sha256': _sha(plan_raw), 'record_count': 160, 'retained_pair_count': 3584, 'accounting': totals}
 
 
-def run_collection(*, packet_raw, packet_sha256, inputs, admission_raw, admission_sha256, output):
+@contextmanager
+def _observed(loader, observation, output):
+    """Explicit outer runtime hook; preserve the operation's first exception."""
+    if observation is not None:
+        observation('before_collection', loader)
+    original = None
+    try:
+        yield
+    except BaseException as exc:
+        original = exc
+        raise
+    finally:
+        if observation is not None:
+            try:
+                observation('after_collection', loader)
+            except BaseException as exc:
+                if original is None:
+                    raise
+                try:
+                    _save(output/'observation-failure.json', {
+                        'exception_type': type(exc).__name__, 'message': str(exc),
+                        'original_exception_type': type(original).__name__,
+                        'original_message': str(original)})
+                except BaseException:
+                    pass
+
+
+def run_collection(*, packet_raw, packet_sha256, inputs, admission_raw, admission_sha256, output,
+                   observation=None):
     """Run one admitted supplied batch in a fresh absolute output directory.
 
     packet: exact schema in _authenticate, including fourteen source byte pins,
@@ -296,6 +329,9 @@ def run_collection(*, packet_raw, packet_sha256, inputs, admission_raw, admissio
 
     A fresh isolated process with no previously imported project helpers is
     required. Parent must authenticate this entrypoint before invoking it.
+    observation(phase, loader), if supplied, runs before collection and on exit
+    while captured modules remain live. It must be caller-owned captured code;
+    it may reject runtime admission but is not a policy or response callback.
     Returned wrapper terminal binds the untouched collector output in collection/;
     it is not independent acceptance or source/runtime/scheduler qualification.
     """
@@ -306,6 +342,7 @@ def run_collection(*, packet_raw, packet_sha256, inputs, admission_raw, admissio
     start, cpu, invoked = time.monotonic(), time.process_time(), False
     stage = 'capture'
     try:
+        _need(observation is None or callable(observation), 'callable outer observation required')
         _save(output/'intent.json', {'schema': VERSION, 'packet_sha256': packet_sha256,
             'admission_sha256': admission_sha256, 'world_roster': WORLD_IDS,
             'record_count': 160, 'retained_pair_count': 3584, 'retry_allowed': False,
@@ -328,20 +365,22 @@ def run_collection(*, packet_raw, packet_sha256, inputs, admission_raw, admissio
         (output/'source').mkdir(mode=0o700)
         for name, raw in sorted(source.items()):
             _write(output/'source'/Path(name).name, raw)
-        with _captured(source):
+        with _captured(source) as loader:
             stage = 'supplied_bindings'
             proposal, worlds, configs, planned = _bindings(p, inputs)
             _save(output/'planned-records.json', planned)
-            stage, invoked = 'collection', True
-            sources = {n: p['source_pins'][n] for n in COLLECTION_SOURCES}
-            returned = _invoke_collection(scope='policy_train', world_roster=WORLD_IDS,
-                expected_roster_sha256=p['roster_sha256'], worlds=worlds,
-                world_pins={wid: p['world_pins'][str(wid)] for wid in WORLD_IDS},
-                configurations=configs, configuration_pins={wid: p['configuration_pins'][str(wid)] for wid in WORLD_IDS},
-                expected_source_pins=sources, output=output/'collection', proposal=proposal,
-                expected_proposal_sha256=p['proposal_sha256'])
-            stage = 'saved_evidence'
-            checked = _verify_collection(output/'collection', returned, planned, worlds, configs, sources)
+            stage = 'runtime_admission'
+            with _observed(loader, observation, output):
+                stage, invoked = 'collection', True
+                sources = {n: p['source_pins'][n] for n in COLLECTION_SOURCES}
+                returned = _invoke_collection(scope='policy_train', world_roster=WORLD_IDS,
+                    expected_roster_sha256=p['roster_sha256'], worlds=worlds,
+                    world_pins={wid: p['world_pins'][str(wid)] for wid in WORLD_IDS},
+                    configurations=configs, configuration_pins={wid: p['configuration_pins'][str(wid)] for wid in WORLD_IDS},
+                    expected_source_pins=sources, output=output/'collection', proposal=proposal,
+                    expected_proposal_sha256=p['proposal_sha256'])
+                stage = 'saved_evidence'
+                checked = _verify_collection(output/'collection', returned, planned, worlds, configs, sources)
         result = {'schema': VERSION, 'status': 'collection_complete', 'packet_sha256': packet_sha256,
             'admission_sha256': admission_sha256, 'collection_path': 'collection', **checked,
             'elapsed_seconds': time.monotonic()-start, 'process_cpu_seconds': time.process_time()-cpu,

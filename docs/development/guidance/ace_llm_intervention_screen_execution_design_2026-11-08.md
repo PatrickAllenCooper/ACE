@@ -2,6 +2,8 @@
 
 November 8, 2026. Prospective implementation design. No scientific world has been generated and this document is not an execution freeze.
 
+The complete-context artificial GPU qualification has now passed independent review. New scientific CPU collection, token preparation, GPU training and checkpoint-role components also have source reviews with no required findings. These establish implementation readiness within their stated scopes. They do not establish intervention efficiency. The complete development-stage integration, concrete packet reviews and one combined scientific freeze remain open. Realization, collection and token preparation will use separate CPU allocations, with independent acceptance between stages. GPU allocations will contain training or inference work. Neither scientific data generation nor a new allocation has begun.
+
 The screen asks whether the trained intervention policy improves the cost of reaching a fixed prediction threshold on new synthetic systems. It is a development comparison, not a submission-ready confirmation study or evidence of engineering transfer. All eight methods remain in the comparison even when an LLM performs poorly.
 
 Use the existing [32-training/24-development proposal](ace_llm_intervention_screen_protocol_2026-11-07.md), including its supplied graphs, private coefficient laws, action costs, response namespaces, eight shared initial responses and 24 additional cost units. Preserve its preassigned teacher and behavior rotations. Neither the two artificial integration systems nor their outcomes choose scientific worlds, thresholds or training examples.
