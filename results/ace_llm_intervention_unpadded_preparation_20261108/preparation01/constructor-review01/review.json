@@ -1,0 +1,107 @@
+{
+  "review_kind": "distinct static constructor review; never imported/executed builder or project code",
+  "builder": "/tmp/ace-prepare-screen-training-shape01-20261108.py",
+  "builder_sha256": "f8a7b7977b01f1bf5663c099d5e12547cee79895826be4a0f6216c5755a45fba",
+  "findings": [
+    {
+      "priority": "P2",
+      "line": 78,
+      "title": "Bind the imported source closure before importing it",
+      "detail": "The script imports mutable checkout modules at lines 78-82, then hashes only six files at 83-91. Imported dependencies such as learning, action_scoring, precision, checkpointing, language_policy, training_exposure and the recipe provider are omitted. These hashes neither authenticate an expected revision/manifest nor prove that captured bytes supplied the imported implementations. A changed dependency can produce a different plan without changing reported source_sha256. Use an independently pinned commit/manifest and capture/verify the local import closure before import; import those captured bytes and check source stability afterward."
+    },
+    {
+      "priority": "P2",
+      "line": 55,
+      "title": "Bind the acceptance decision to these exact artifacts",
+      "detail": "The only content requirement for the caller-pinned acceptance is job_id == 35391340. A pending/rejected or unrelated decision for that job passes this predicate. Once the independent result-review schema is available, require an affirmative decision/zero required fixes and its packet/tokenization/result pins, or make that verification an explicit separately pinned outer gate rather than treating this identity check as capacity acceptance. An acceptance SHA authenticates bytes, not their affirmative meaning."
+    }
+  ],
+  "observed_token_rows": 120,
+  "distinct_token_rows": 120,
+  "all_120_fit": true,
+  "selected_input_checks": [
+    {
+      "fixture_id": "collider-uniform-noise0.25-long_spelling-last_all_actions",
+      "prompt_tokens": 4638,
+      "envelope_semantic_pin_matches": true,
+      "prompt_byte_pin_matches": true,
+      "command_lengths": {
+        "{\"action_id\":\"observe_all\"}": 8,
+        "{\"action_id\":\"set_x_neg\"}": 9,
+        "{\"action_id\":\"set_x_pos\"}": 9,
+        "{\"action_id\":\"set_x_zero\"}": 9,
+        "{\"action_id\":\"set_xy\"}": 8,
+        "{\"action_id\":\"set_y_neg\"}": 9,
+        "{\"action_id\":\"set_y_pos\"}": 9,
+        "{\"action_id\":\"set_y_zero\"}": 9,
+        "{\"stop\":true}": 6
+      },
+      "all_eos_151645": true
+    },
+    {
+      "fixture_id": "collider-uniform-noise0.25-long_spelling-full_history_terminal",
+      "prompt_tokens": 4744,
+      "envelope_semantic_pin_matches": true,
+      "prompt_byte_pin_matches": true,
+      "command_lengths": {
+        "{\"stop\":true}": 6
+      },
+      "all_eos_151645": true
+    }
+  ],
+  "schedule_static": {
+    "sft_steps": 4,
+    "sft_command_lengths": [
+      8,
+      9,
+      6,
+      8
+    ],
+    "dpo_steps": 2,
+    "dpo_command_lengths": [
+      [
+        8,
+        9
+      ],
+      [
+        9,
+        8
+      ]
+    ],
+    "equal_length_pair": "retained on shape-3 but not scheduled; no equal-length DPO execution claim",
+    "execution_kind": "qwen_screen_singletons",
+    "scoring_path": "canonical_selected_unpadded"
+  },
+  "matched_views_static": "Constructor obtains labels from matched_views and requires exact prompt bytes; prepare_training_plan cross-checks envelope/task/prompt digests, commands, labels, budgets and EOS. No matched_views executed during this review.",
+  "qualification_flags": "scientific_qualified, training_execution_qualified and record/plan provenance_qualified remain false; fabricated label origin explicit. No tokenizer/model/world calls found in constructor.",
+  "input_sha256": {
+    "inputs/packet.json": "0979cb607643b4b5d01fbf56c6e701a3e474d4d2bbda1e1c9f4e78e91251ccfa",
+    "cpu01/worker/artifacts/tokenization.json": "fb663a035eef20420fe461bc4dfa4fa6afa8462b38e32e1262c5661f666ff72c",
+    "collider-uniform-noise0.25-long_spelling-last_all_actions.json": "6860789b3ce76ba795e1e25db407e9ebc19d26d341f03a72abd56332b78a3180",
+    "collider-uniform-noise0.25-long_spelling-last_all_actions.prompt.txt": "b913a4562c70899b0841a2d13b0cab633a5dd5f9d2f8ee6e52d04b104c952a2e",
+    "collider-uniform-noise0.25-long_spelling-full_history_terminal.json": "1b767fea4c32e64b5bc0370733b44660a318d0c64d12c2e6dfda39ebea800326",
+    "collider-uniform-noise0.25-long_spelling-full_history_terminal.prompt.txt": "9e78e71c762ac8234d24f95a522e818aea2967d94e73a567762a72dca5b269bf"
+  },
+  "captured_source_sha256": {
+    "llm_intervention_contract.py": "ad89a8b72c8251c5a658bf45c27874353b161df5863b61929af40f5077254636",
+    "llm_intervention_task.py": "a90031ad6e413458f1be6ffbfca966300f081b1a1072b195dc7f79bab6efece9",
+    "llm_intervention_numerical_policy.py": "5164aa54eb9080a85b7ead17cd0cf4020233174ac7de33d9dc98c07ccda352c6",
+    "llm_intervention_scm.py": "5eb9463b98843ea23639401321ba6b64129199eac7ea4bafa84d2e0f06fbd5c4",
+    "llm_intervention_episode.py": "597b9e8c3cf02eb12032958d2bdd39492317b86cb18d69e53c4570f8110137aa",
+    "llm_intervention_supervision.py": "184d685974cea991adc82ba349810e80dd8ddef1e88191d59443df1d9f1ed626",
+    "llm_intervention_training_plan.py": "a62662b3ee323ea0ae30685391fab94b00c4e6bb057e710bd799a38317a66aee",
+    "llm_intervention_training_engine.py": "1e25ceb9b2de9b84666d99cdb6c02087000b9c2bfe6ea493d13dcff1a8fe5a49",
+    "qualify_llm_intervention_checkpoint_gpu.py": "fca1daced91b4e2c1de5e7e453800140638b776324114776ddded985a5919475",
+    "llm_intervention_gradient_probe.py": "42da1edf9a60bdb31729503f3ef8fd2f7b66b9946aac82596386bdb08401f1a2",
+    "llm_intervention_learning.py": "065f9f68c55518190a82c6a69dc7be45a83e4ab03664e6f5df078ce6112f7aca",
+    "llm_intervention_action_scoring.py": "80f743ce1394872b871b47468158e8417f77ccc9635abc94f716457ffb4338b1",
+    "llm_intervention_checkpointing.py": "f8bd09b1c9ed296da0913ac81aa71d2ce57e89f0a7a448582f9c4298c28dccb5",
+    "llm_intervention_canonical_scoring.py": "795141ceba33a04e82f7fe67a0e55554979fd2464710bc72c142bf094b980169",
+    "llm_intervention_precision.py": "56fb9b32bfe94ed7e8eff5df103e94eeb3dfe8b2b334520250854958f2c37c5b",
+    "llm_intervention_language_policy.py": "4544c3b47b0d92bf18fa8f09d508c1aeb29cd0fa8293940d8453dff701ab466d",
+    "llm_intervention_grammar.py": "d06df6e0afe975d56c101ac57e70e35865b7ad45ccb03f00ebc1ef213220c1ae",
+    "llm_intervention_training_exposure.py": "98a03ff0438bddf1267c0689b92f8692b00b7901b966cc2e16201320ede62f23"
+  },
+  "limitations": "Static review only; independent capacity acceptance not reviewed and constructor not executed. Full artifact-bound source capture and acceptance decision checks require resolution.",
+  "builder_unchanged_at_end": true
+}

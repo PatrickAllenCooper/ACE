@@ -11,7 +11,7 @@ import json
 from llm_intervention_contract import canonical, digest, _unique_object
 from llm_intervention_training_exposure import propose_exposure
 from llm_intervention_training_engine import (
-    gpu09_numeric_recipe, prepare_record, prepare_training_plan, MAX_PARAMETERS,
+    gpu09_numeric_recipe, screen_numeric_recipe, prepare_record, prepare_training_plan, MAX_PARAMETERS,
 )
 
 VERSION = "ace-complete-collection-training-plan-v1"
@@ -45,7 +45,7 @@ def qwen_adapter_shapes():
 def prepare_complete_collection(*, terminal_raw, terminal_pin, inventory_raw,
         inventory_pin, collection_plan_raw, collection_plan_pin, records,
         receipts, expected_roster, expected_scope, tokenizer, tokenizer_pin,
-        outer_provenance_pin, checkpoint_steps=()):
+        outer_provenance_pin, checkpoint_steps=(), execution_kind="qwen_gpu09"):
     """Authenticate the full supplied batch before the first tokenization call.
 
     Record and receipt dictionaries contain bytes keyed by the independently
@@ -137,7 +137,8 @@ def prepare_complete_collection(*, terminal_raw, terminal_pin, inventory_raw,
     exposure = propose_exposure(records=records, record_pins=record_pins,
         supervision_receipt_pins=receipt_pins, record_roster=expected_roster, scope=expected_scope)
     _need(exposure["has_both_training_stages"], "no strict pairs, no training-plan rescue")
-    recipe = gpu09_numeric_recipe()
+    _need(execution_kind in ('qwen_gpu09', 'qwen_screen_singletons'), 'explicit supported training execution kind required')
+    recipe = screen_numeric_recipe() if execution_kind == 'qwen_screen_singletons' else gpu09_numeric_recipe()
     prepared = tuple(prepare_record(record_id=rid, raw=records[rid],
         record_sha256=record_pins[rid], supervision_receipt_sha256=receipt_pins[rid],
         scope=expected_scope, tokenizer=tokenizer, tokenizer_sha256=tokenizer_pin,
@@ -145,7 +146,7 @@ def prepare_complete_collection(*, terminal_raw, terminal_pin, inventory_raw,
     plan = prepare_training_plan(records=prepared,
         record_pins={r["record_id"]: digest(r) for r in prepared},
         schedule=tuple(exposure["schedule"]), numeric_recipe=recipe, scope=expected_scope,
-        execution_kind="qwen_gpu09", expected_adapter_shapes=qwen_adapter_shapes(),
+        execution_kind=execution_kind, expected_adapter_shapes=qwen_adapter_shapes(),
         max_trainable_parameters=MAX_PARAMETERS, checkpoint_steps=checkpoint_steps,
         outer_provenance_receipt_sha256=outer_provenance_pin)
     return {"version": VERSION, "collection_terminal_sha256": terminal_pin,

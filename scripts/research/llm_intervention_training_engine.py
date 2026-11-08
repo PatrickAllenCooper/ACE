@@ -22,6 +22,7 @@ from llm_intervention_language_policy import pin, prepare_task_tokens
 from llm_intervention_learning import LoRALinear, pack_actions, preference_loss, reference_policy, snapshot_reference
 from llm_intervention_canonical_scoring import (
     FixedRowFP32Projection, sequence_log_probs_canonical, supervised_loss_canonical,
+    sequence_log_probs_unpadded, supervised_loss_unpadded,
 )
 from llm_intervention_checkpointing import DecoderCheckpointing
 from llm_intervention_supervision import matched_views
@@ -44,9 +45,23 @@ def gpu09_numeric_recipe():
         "optimizer_state": "continuous_across_sft_dpo", "scoring_path": "canonical_selected"}
 
 
+def screen_numeric_recipe():
+    """Prospective singleton decoder layout; historical arithmetic stays named."""
+    return {**gpu09_numeric_recipe(), "scoring_path": "canonical_selected_unpadded"}
+
+
 def _recipe(value):
-    if type(value) is not dict or canonical(value) != canonical(gpu09_numeric_recipe()):
-        raise ValueError("exact explicit GPU09 numeric recipe required; no defaults or memory rescue")
+    if type(value) is not dict or canonical(value) not in (
+            canonical(gpu09_numeric_recipe()), canonical(screen_numeric_recipe())):
+        raise ValueError("exact explicit numeric recipe required; no defaults or memory rescue")
+
+
+def _execution_recipe(recipe, execution_kind):
+    _recipe(recipe)
+    if (execution_kind not in ('qwen_gpu09', 'qwen_screen_singletons', 'artificial_control')
+            or execution_kind == 'qwen_gpu09' and recipe != gpu09_numeric_recipe()
+            or execution_kind == 'qwen_screen_singletons' and recipe != screen_numeric_recipe()):
+        raise ValueError('execution kind and explicit scoring recipe disagree')
 
 
 def _name(value):
@@ -108,8 +123,8 @@ def prepare_training_plan(*, records, record_pins, schedule, numeric_recipe, sco
     SFT precedes all DPO. Repetitions/zero exposures are explicit, not selected
     from losses. Ties remain in records and are not strict DPO examples.
     """
-    _recipe(numeric_recipe)
-    if (scope not in ("artificial", "policy_train") or execution_kind not in ("qwen_gpu09", "artificial_control")
+    _execution_recipe(numeric_recipe, execution_kind)
+    if (scope not in ("artificial", "policy_train") or execution_kind not in ("qwen_gpu09", "qwen_screen_singletons", "artificial_control")
             or execution_kind == "artificial_control" and scope != "artificial"
             or not pin(outer_provenance_receipt_sha256)
             or type(records) is not tuple or not 1 <= len(records) <= MAX_RECORDS
@@ -255,6 +270,7 @@ def _inventory(model, plan):
 
 def _fit_plan_checks(plan):
     """Cheap structural admission only; no tokenization/numerical feature rebuild."""
+    _execution_recipe(plan['numeric_recipe'], plan['execution_kind'])
     records, schedule, shapes = plan["records"], plan["schedule"], plan["expected_adapter_shapes"]
     if (type(records) is not list or not 1 <= len(records) <= MAX_RECORDS
             or type(schedule) is not list or not 2 <= len(schedule) <= MAX_STEPS
@@ -308,7 +324,7 @@ def fit(*, model, plan, plan_sha256, output):
     plan = json.loads(canonical(plan))
     _recipe(plan["numeric_recipe"])
     _fit_plan_checks(plan)
-    if (plan["execution_kind"] not in ("artificial_control", "qwen_gpu09")
+    if (plan["execution_kind"] not in ("artificial_control", "qwen_gpu09", "qwen_screen_singletons")
             or plan["scope"] not in ("artificial", "policy_train")
             or plan["execution_kind"] == "artificial_control" and plan["scope"] != "artificial"):
         raise ValueError("invalid admitted execution scope")
@@ -325,6 +341,9 @@ def fit(*, model, plan, plan_sha256, output):
     events, attempt, reference_signature, reference_scores = [], None, None, {}
     initial_base = initial_projection = None
     records = {r["record_id"]: r for r in plan["records"]}
+    singletons = plan['numeric_recipe']['scoring_path'] == 'canonical_selected_unpadded'
+    score = sequence_log_probs_unpadded if singletons else sequence_log_probs_canonical
+    supervised = supervised_loss_unpadded if singletons else supervised_loss_canonical
 
     def batch(step):
         rec = records[step["record_id"]]
@@ -388,9 +407,15 @@ def fit(*, model, plan, plan_sha256, output):
                         for scheduled in plan["schedule"][index:]:
                             key = pair_key(scheduled)
                             if key not in reference_scores:
-                                reference_scores[key] = sequence_log_probs_canonical(model, batch(scheduled), selected=True).detach().cpu().clone()
-                    _save(output/"reference-scores.json", {"signature": reference_signature,
-                        "scores": {k: v.tolist() for k, v in reference_scores.items()}, "unique_pair_forwards": len(reference_scores)})
+                                reference_scores[key] = score(model, batch(scheduled), selected=True).detach().cpu().clone()
+                    reference_report = {"signature": reference_signature,
+                        "scores": {k: v.tolist() for k, v in reference_scores.items()}}
+                    if singletons:
+                        reference_report.update(unique_pair_score_calls=len(reference_scores),
+                            decoder_forwards=2*len(reference_scores), scoring_layout='ordered_unpadded_singletons')
+                    else:
+                        reference_report['unique_pair_forwards'] = len(reference_scores)
+                    _save(output/"reference-scores.json", reference_report)
                 optimizer.zero_grad(set_to_none=True)
                 attempt = {"index": index, **step, "optimizer_step_started": False, "optimizer_step_returned": False}
                 _save(output/f"step-{index:05d}.start.json", {**attempt, "record_pin": plan["record_pins"][step["record_id"]]})
@@ -400,8 +425,8 @@ def fit(*, model, plan, plan_sha256, output):
                     begin, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
                     begin.record()
                 action_batch = batch(step)
-                loss = (supervised_loss_canonical(model, action_batch, selected=True) if step["stage"] == "sft" else
-                    preference_loss(sequence_log_probs_canonical(model, action_batch, selected=True).reshape(1, 2),
+                loss = (supervised(model, action_batch, selected=True) if step["stage"] == "sft" else
+                    preference_loss(score(model, action_batch, selected=True).reshape(1, 2),
                                     reference_scores[pair_key(step)].reshape(1, 2), beta=r["beta"]))
                 value = float(loss.detach().cpu())
                 _save(output/f"step-{index:05d}.loss.json", {"finite": math.isfinite(value),
@@ -415,7 +440,7 @@ def fit(*, model, plan, plan_sha256, output):
                     "checkpoint_recompute_delta": control.recompute_calls-recompute})
                 if (any(not d["present"] or not d["finite"] for d in details)
                         or any(p.grad is not None for _, p in base)
-                        or control.recompute_calls-recompute < layers):
+                        or control.recompute_calls-recompute < layers*(action_batch.input_ids.shape[0] if singletons else 1)):
                     raise ValueError("missing/nonfinite adapter gradient, frozen-base gradient or missing recomputation")
                 norm = float(torch.nn.utils.clip_grad_norm_(list(adapters.values()), r["clip_gradient_norm"], error_if_nonfinite=True).cpu())
                 if not math.isfinite(norm) or norm <= 0:
@@ -452,7 +477,7 @@ def fit(*, model, plan, plan_sha256, output):
                 for step in plan["schedule"][plan["sft_steps"]:]:
                     key = pair_key(step)
                     if key not in verified:
-                        observed = sequence_log_probs_canonical(model, batch(step), selected=True).detach().cpu()
+                        observed = score(model, batch(step), selected=True).detach().cpu()
                         if not torch.equal(observed, reference_scores[key]):
                             raise ValueError("fixed reference score changed")
                         verified.add(key)

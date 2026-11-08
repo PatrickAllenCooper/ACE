@@ -12,7 +12,7 @@ from torch.nn import functional as F
 
 from llm_intervention_precision import FrozenFP32Projection
 from llm_intervention_action_scoring import action_positions
-from llm_intervention_learning import deterministic_scoring
+from llm_intervention_learning import ActionBatch, deterministic_scoring
 
 
 class FixedRowFP32Projection(FrozenFP32Projection):
@@ -72,5 +72,31 @@ def sequence_log_probs_canonical(model, batch, *, selected):
 
 def supervised_loss_canonical(model, batch, *, selected):
     scores = sequence_log_probs_canonical(model, batch, selected=selected)
+    counts = (batch.labels[:, 1:] != -100).sum(dim=1).to(scores.device)
+    return -(scores/counts).mean()
+
+
+def sequence_log_probs_unpadded(model, batch, *, selected):
+    """Score ordered unpadded singleton decoder calls, retaining autograd.
+
+    This is a distinct prospective arithmetic layout. It preserves the masked
+    sequence objective, not bitwise equality to padded/batched GPU execution.
+    It removes only the right-padding admitted by action_positions. Prompt,
+    action and EOS tokens remain unchanged. Each policy score stays attached
+    to its graph so a paired DPO loss can backpropagate through both forwards.
+    Actual target-runtime training requires separate qualification.
+    """
+    action_positions(batch)  # Validate all rows before any decoder forward.
+    scores = []
+    for row, length in enumerate(batch.attention_mask.sum(dim=1).tolist()):
+        one = ActionBatch(batch.input_ids[row:row+1, :length],
+                          batch.attention_mask[row:row+1, :length],
+                          batch.labels[row:row+1, :length])
+        scores.append(sequence_log_probs_canonical(model, one, selected=selected))
+    return torch.cat(scores, dim=0)
+
+
+def supervised_loss_unpadded(model, batch, *, selected):
+    scores = sequence_log_probs_unpadded(model, batch, selected=selected)
     counts = (batch.labels[:, 1:] != -100).sum(dim=1).to(scores.device)
     return -(scores/counts).mean()

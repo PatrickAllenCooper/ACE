@@ -1,0 +1,21 @@
+{
+  "status": "8 new tests passed; no old test methods run",
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "torch_distribution": "2.8.0",
+  "changed_by_sidecar": [
+    "scripts/research/test_llm_intervention_unpadded_training.py"
+  ],
+  "pins": {
+    "scripts/research/test_llm_intervention_unpadded_training.py": "4a386e2d7da62bfcd9b2e0a5e2572afe61e7764ef60cd4d3a1801690ce13cefe",
+    "scripts/research/llm_intervention_canonical_scoring.py": "795141ceba33a04e82f7fe67a0e55554979fd2464710bc72c142bf094b980169",
+    "scripts/research/llm_intervention_training_engine.py": "1e25ceb9b2de9b84666d99cdb6c02087000b9c2bfe6ea493d13dcff1a8fe5a49",
+    "scripts/research/llm_intervention_training_plan.py": "a62662b3ee323ea0ae30685391fab94b00c4e6bb057e710bd799a38317a66aee"
+  },
+  "source_bytes_still_match": true,
+  "source_bugs_found": [],
+  "scope": "Fabricated token IDs, tiny CPU arithmetic/autograd/checkpointing; not Qwen, tokenizer, target runtime, GPU or scientific qualification.",
+  "failed_attempt": "/Users/pat/.codex/tmp/ace-unpadded-training-tests-i0_or2hy",
+  "failure_resolution": "Test-only full-position reduction oracle wrongly required bitwise agreement; max observed 3.814697265625e-6. Independent mathematical oracle now rtol=3e-7 atol=1e-6; exact same-layout comparisons retained.",
+  "resource_report": "run.json",
+  "full_test_log": "stderr.txt"
+}
