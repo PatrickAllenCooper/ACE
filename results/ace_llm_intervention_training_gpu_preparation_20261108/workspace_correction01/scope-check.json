@@ -1,0 +1,29 @@
+{
+  "evidence_file_membership_unchanged": true,
+  "old_test_file_only_memory_fixture_metadata_changed": true,
+  "run_training_other_than_clear_cuda_wrapper_unchanged": true,
+  "validate_outputs_other_than_memory_check_unchanged": true,
+  "whitespace_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "scripts/research/llm_intervention_training_gpu_worker.py",
+      "scripts/research/test_llm_intervention_training_gpu_workspace_cleanup.py",
+      "scripts/research/test_llm_intervention_training_gpu_worker.py"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  "worker_added_helpers": [
+    "_check_disposal_memory",
+    "_clear_cuda_after_disposal"
+  ],
+  "worker_changed_existing_functions": [
+    "run_training",
+    "validate_outputs"
+  ],
+  "worker_other_top_level_source_ast_unchanged": true
+}

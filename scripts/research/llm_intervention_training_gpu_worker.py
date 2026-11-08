@@ -52,6 +52,52 @@ def _finite(value, *, positive=False):
     return type(value) in (int, float) and math.isfinite(value) and (value > 0 if positive else True)
 
 
+def _clear_cuda_after_disposal(torch_api, *, label, save, stamp):
+    """Release workspaces only after model=None; retain measured failure evidence."""
+    evidence = {"cleanup_operation": "torch._C._cuda_clearCublasWorkspaces",
+                "workspace_clear_calls": 0, "workspace_clear_succeeded": False}
+    try:
+        gc.collect()  # DecoderCheckpointing leaves cycles on the discarded model.
+        torch_api.cuda.synchronize()
+        evidence.update(before_allocated_bytes=torch_api.cuda.memory_allocated(),
+                        before_reserved_bytes=torch_api.cuda.memory_reserved())
+        try:
+            clear = getattr(getattr(torch_api, "_C", None), "_cuda_clearCublasWorkspaces", None)
+            _need(callable(clear), "required cuBLAS workspace cleanup API is not callable")
+            evidence["workspace_clear_calls"] = 1
+            clear()
+            evidence["workspace_clear_succeeded"] = True
+        finally:
+            # Preserve ordinary cleanup and measurements even if the API fails.
+            torch_api.cuda.synchronize()
+            evidence.update(after_workspace_clear_allocated_bytes=torch_api.cuda.memory_allocated(),
+                            after_workspace_clear_reserved_bytes=torch_api.cuda.memory_reserved())
+            torch_api.cuda.empty_cache()
+            evidence.update(allocated_bytes=torch_api.cuda.memory_allocated(),
+                            reserved_bytes=torch_api.cuda.memory_reserved())
+        _need(evidence["allocated_bytes"] == evidence["reserved_bytes"] == 0,
+              "CUDA tensors/cache survived model disposal: " + label)
+    except BaseException as exc:
+        evidence["cleanup_error"] = {"exception_type": type(exc).__name__, "message": str(exc)}
+        raise
+    finally:
+        save(label + "-memory.json", {**stamp(), **evidence})
+
+
+def _check_disposal_memory(memory):
+    _need(type(memory) is dict
+          and memory.get("cleanup_operation") == "torch._C._cuda_clearCublasWorkspaces"
+          and type(memory.get("workspace_clear_calls")) is int and memory["workspace_clear_calls"] == 1
+          and memory.get("workspace_clear_succeeded") is True and "cleanup_error" not in memory
+          and all(type(memory.get(k)) is int and memory[k] >= 0
+                  for k in ("before_allocated_bytes", "before_reserved_bytes",
+                            "after_workspace_clear_allocated_bytes", "after_workspace_clear_reserved_bytes",
+                            "allocated_bytes", "reserved_bytes")),
+          "missing or failed CUDA disposal cleanup metadata")
+    _need(memory["allocated_bytes"] == 0 and memory["reserved_bytes"] == 0,
+          "live/cached CUDA model memory remains between lifetimes")
+
+
 def _read(path):
     def pairs(items):
         result = {}
@@ -388,8 +434,7 @@ def validate_outputs(root, prepared):
     memory_phases = []
     for label in ("before-sft-reload", "before-final-reload", "after-final-inference"):
         memory = _read(root / (label + "-memory.json"))
-        _need(memory["allocated_bytes"] == 0 and memory["reserved_bytes"] == 0,
-              "live/cached CUDA model memory remains between lifetimes")
+        _check_disposal_memory(memory)
         memory_phases.append(memory)
     summary = _read(root / "summary.json")
     expected_summary = _summary_facts(prepared, terminal, checkpoints, steps, first, generations, root)
@@ -524,14 +569,7 @@ def run_training(prepared, model_directory, output_path, observer, journal):
             return {"peak_gpu_allocated_bytes": values[0], "peak_gpu_reserved_bytes": values[1]}
 
         def clear_cuda(label):
-            gc.collect()  # DecoderCheckpointing leaves cycles on the discarded model.
-            torch.cuda.synchronize()
-            torch.cuda.empty_cache()
-            evidence = {**stamp(), "allocated_bytes": torch.cuda.memory_allocated(),
-                        "reserved_bytes": torch.cuda.memory_reserved()}
-            save(label + "-memory.json", evidence)
-            _need(evidence["allocated_bytes"] == evidence["reserved_bytes"] == 0,
-                  "CUDA tensors/cache survived model disposal: " + label)
+            _clear_cuda_after_disposal(torch, label=label, save=save, stamp=stamp)
 
         def signatures(current):
             adapters = set(plan["expected_adapter_shapes"])

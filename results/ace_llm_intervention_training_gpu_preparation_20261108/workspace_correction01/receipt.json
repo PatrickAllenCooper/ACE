@@ -1,0 +1,123 @@
+{
+  "change": {
+    "failure_behavior": "Missing/noncallable API, API exception, or any final nonzero allocation/reservation rejects. Synchronize/cache cleanup and memory capture retained on API failure. No fixed-byte acceptance threshold.",
+    "lifecycle": "At the existing three model=None disposal boundaries: gc, synchronize, before memory, require callable bound workspace API, call once, synchronize, post-workspace memory, empty_cache, final memory, exact zero gate.",
+    "memory_receipt": "Existing label-memory.json only; explicit operation, attempted call count, success flag, before/post-workspace/final allocated and reserved bytes; error evidence saved before propagation where available.",
+    "old_fixture": "Only the three fabricated memory receipts gained required metadata; no existing test method changed.",
+    "ownership": "Existing inference/disposal stage ownership and clock wiring retained until measured cleanup returns; no residue reclassification.",
+    "unchanged": [
+      "GPU evidence file membership",
+      "backend/CUBLAS configuration",
+      "training plan",
+      "engine",
+      "score layouts",
+      "guide/ledger/reviews/launch scripts"
+    ],
+    "validator": "Requires successful once-only named operation, nonnegative integer memory measurements, no cleanup_error, and exact zero final allocated/reserved."
+  },
+  "created_utc": "2026-11-08T06:12:51.191613+00:00",
+  "external_evidence_directory": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-training-gpu-workspace-correction-20261108-01",
+  "final_source_directory": "final-source",
+  "limitations": [
+    "Pure fakes and fabricated evidence only; real allocator/workspace release remains unverified on GPU.",
+    "No GPU launch, remote execution, scientific generation, commit or unrelated old test replay."
+  ],
+  "repo_evidence_directory": "/Users/pat/code/ACE/results/ace_llm_intervention_training_gpu_preparation_20261108/workspace_correction01",
+  "resource_cost": {
+    "gpu_seconds": 0,
+    "limitation": "Only test child costs measured; reads, editing and evidence consolidation overhead unmetered.",
+    "preparation_overhead_cpu_seconds": null,
+    "remote_compute_operations": 0,
+    "scientific_responses": 0,
+    "test_child_cpu_seconds": 0.467202,
+    "test_child_peak_rss_bytes": 23527424,
+    "test_child_system_cpu_seconds": 0.064727,
+    "test_child_user_cpu_seconds": 0.402475,
+    "test_wall_seconds_sum": 0.475964959
+  },
+  "review": {
+    "status": "Halley active per user; final review outcome not asserted."
+  },
+  "schema": "ace-training-gpu-workspace-correction-v1",
+  "source_basis": [
+    {
+      "finding": "Documents explicit workspace release API.",
+      "url": "https://docs.pytorch.org/docs/2.9/notes/cuda.html#cublas-workspaces"
+    },
+    {
+      "finding": "clearCublasWorkspaces clears cuBLAS and cuBLASLt workspace maps.",
+      "url": "https://github.com/pytorch/pytorch/blob/v2.9.1/aten/src/ATen/cuda/CublasHandlePool.cpp#L98-L110"
+    },
+    {
+      "finding": "Exposes the Python binding.",
+      "url": "https://github.com/pytorch/pytorch/blob/v2.9.1/torch/csrc/cuda/Module.cpp#L1844-L1847"
+    }
+  ],
+  "source_diff_sha256": "4338909cb0ceb4e83ce02805a4be9cefb7e7c76ecbf152fa2ccc6858ec149a42",
+  "source_scope": [
+    "scripts/research/llm_intervention_training_gpu_worker.py",
+    "scripts/research/test_llm_intervention_training_gpu_workspace_cleanup.py",
+    "scripts/research/test_llm_intervention_training_gpu_worker.py"
+  ],
+  "source_sha256": {
+    "llm_intervention_training_gpu_worker.py": "faa3111ccfdbfb8004eb539a41dcc57df98183037a5ed25afd294fa2cec4f1bd",
+    "test_llm_intervention_training_gpu_worker.py": "354bc2864189245282b418ec68cc814941f9d8f4ad99ef6afab6110f2b4b6f60",
+    "test_llm_intervention_training_gpu_workspace_cleanup.py": "160ca9577a4d544915b16208b8ff1f8f18e96ef8079725b919b64ecd0da02f24"
+  },
+  "status": "implementation_complete_focused_tests_passed",
+  "testing": {
+    "actual_gpu_verification": false,
+    "assertion_correction": {
+      "directory": "test_assertion_correction01",
+      "methods": 1,
+      "only_failed_method_rerun": true,
+      "passed": 1
+    },
+    "authorized_changed_validator_methods_passed": 1,
+    "changed_validator": {
+      "directory": "workspace_measurement01/changed-validator",
+      "method": "ArtifactValidationTests.test_complete_bundle_rejects_repinned_surplus_evidence",
+      "methods": 1,
+      "passed": 1,
+      "reason": "Explicitly authorized fixture metadata update and one necessary changed-validator verification."
+    },
+    "coverage": [
+      "call order and exactly one workspace API call",
+      "before/post-workspace/post-cache measurements",
+      "live allocation and reserved residue rejection",
+      "missing binding/API and noncallable API even at zero memory",
+      "API exception propagation even if allocation becomes zero",
+      "fabricated metadata omissions/mutations and exact zero gate",
+      "source wiring at all three model=None boundaries",
+      "fabricated full bundle positive, repinned surplus negatives and changed-byte rejection"
+    ],
+    "distinct_new_methods_passed": 6,
+    "initial_attempt": {
+      "directory": ".",
+      "error": "New AST test treated an expression-valued body as iterable; no worker behavior failure.",
+      "errors": 1,
+      "methods": 6,
+      "passed": 5
+    },
+    "intermediate_memory_delta": {
+      "directory": "workspace_measurement01/focused-tests",
+      "methods": 5,
+      "passed": 5,
+      "reason": "User-requested added intermediate measurements affected these five new methods only."
+    },
+    "numeric_model_gpu_imports_or_execution": false,
+    "runtime": "Isolated stdlib-only Python (-I -S -B); worker captured-source import allowlist.",
+    "scope_check": "scope-check.json",
+    "test_child_processes": 4,
+    "total_method_executions": 13,
+    "unrelated_old_tests_run": 0
+  },
+  "trigger": {
+    "basis": "User-provided diagnosis; no remote job accessed or rerun.",
+    "job": "35378508",
+    "reported_after_gc_empty_cache_allocated_bytes": 67108864,
+    "reported_after_gc_empty_cache_reserved_bytes": 157286400,
+    "run": "GPU02"
+  },
+  "worker_before_sha256": "a22e725e7cf8a5ddca496fece6788c81cf95cf700fc61e18d50567fc50453a37"
+}

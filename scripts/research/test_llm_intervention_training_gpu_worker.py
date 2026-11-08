@@ -221,7 +221,10 @@ class ArtifactValidationTests(unittest.TestCase):
                   "signatures_before": signatures, "signatures_after": signatures, "tensor_versions_unchanged": True,
                   "inference_parameters_frozen": True, "monotonic_seconds": clock + 7})
         for label, clock in (("before-sft-reload", 32.), ("before-final-reload", 48.), ("after-final-inference", 59.)):
-            write(label + "-memory.json", {"allocated_bytes": 0, "reserved_bytes": 0, "monotonic_seconds": clock})
+            write(label + "-memory.json", {"allocated_bytes": 0, "reserved_bytes": 0, "monotonic_seconds": clock,
+                  "cleanup_operation": "torch._C._cuda_clearCublasWorkspaces", "workspace_clear_calls": 1,
+                  "workspace_clear_succeeded": True, "before_allocated_bytes": 100, "before_reserved_bytes": 200,
+                  "after_workspace_clear_allocated_bytes": 0, "after_workspace_clear_reserved_bytes": 200})
         summary = {"version": "ace-bounded-artificial-training-gpu-worker-v1", "status": "worker_complete", "scope": "artificial",
             "prepared_sha256": hashlib.sha256((json.dumps(self.prepared, sort_keys=True, separators=(",", ":")) + "\n").encode()).hexdigest(),
             "training_plan_sha256": self.prepared["training_plan_sha256"],

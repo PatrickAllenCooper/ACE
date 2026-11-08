@@ -2,7 +2,7 @@
 
 ## Current state: November 8, 2026
 
-GPU02 job **35378508 failed1:0** after all six updates and the corrected singleton final score pass completed. It stopped before the first checkpoint reload because the release check found64MiB allocated and150MiB reserved after garbage collection and cache clearing. This is a different failure from GPU01. Complete custody retains308raw files and66,951,929bytes in`terminal02` and its exclusive external mirror. All48 input pins match. Independent failure review is pending.
+GPU02 job **35378508 failed1:0** after all six updates and the corrected singleton final score pass completed. It stopped before the first checkpoint reload because the release check found64MiB allocated and150MiB reserved after garbage collection and cache clearing. This is a different failure from GPU01. Complete custody retains308raw files and66,951,929bytes in`terminal02` and its exclusive external mirror. All48 input pins match. Independent failure review accepts the complete failure custody and accounting with zero required findings, recorded in`failure_acceptance02`.
 
 The71second allocation adds284CPU seconds and71GPU-slice seconds. Closed totals are now **8778CPU/1239GPU**. With the unchanged3600CPU preparation allowance, admission is **12378/57600CPU and1239/7200GPU**, with no active ACE job. A proposed600second correction would bring admission to17178CPU/1839GPU and requires fresh reconciliation of30terminal jobs and62remote submission journals. No checkpoint inference or complete training qualification is claimed.
 
