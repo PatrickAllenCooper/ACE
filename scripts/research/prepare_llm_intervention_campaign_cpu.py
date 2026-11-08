@@ -403,12 +403,16 @@ def check_numeric_runtime(packet, stage, kind, loader=None):
             need(loader is not None and loader.loaded.get(name) is mod and getattr(mod,'__loader__',None) is loader,
                  'unapproved/cached numeric project module')
             projects[name+'.py'] = sha(loader.sources[name])
-        file = getattr(mod,'__file__',None)
+        # PyTorch's namespace modules may inherit or synthesize __file__.
+        # Only a concrete module-dictionary entry denotes an observed origin,
+        # as in the pinned full runtime diagnostic. Do not trigger __getattr__.
+        file = vars(mod).get('__file__') if isinstance(mod,types.ModuleType) else None
+        need(file is None or type(file) is str,'invalid direct module origin: '+name)
         if name.split('.')[0] in sys.stdlib_module_names and file and not file.startswith('<'):
-            need(prefix.resolve() in Path(file).resolve().parents,'used standard library escaped stage')
+            need(prefix.resolve() in Path(file).resolve().parents,'used standard library escaped stage: '+name+' '+file)
             stdlib[name] = str(Path(file).resolve())
         if name.split('.')[0] in {'numpy','torch'} and file:
-            need(prefix.resolve() in Path(file).resolve().parents,'used numerical module escaped stage')
+            need(prefix.resolve() in Path(file).resolve().parents,'used numerical module escaped stage: '+name+' '+file)
             used[name] = str(Path(file).resolve())
     if loader is None:
         need(not {'numpy','torch','scipy','transformers'}.intersection(sys.modules),'numeric imports preceded authentication')
@@ -532,7 +536,8 @@ def child(args, root, packet, data, service, cpu, diagnostic):
             packet_sha256=args.packet_sha256,runtime_stage_sha256=args.runtime_stage_sha256,
             phase_terminal_sha256=sha(read(loc['phase']/'terminal.json')),campaign_root=str(loc['campaign']),
             attempt_pins=result['attempt_pins'],numeric_training_updates=6,llm_training_updates=0,
-            model_weights_loaded=False,gpu_services_started=0,private_scores_computed=False,
+            llm_model_or_adapter_loaded=False,numerical_model_weights_loaded=True,
+            gpu_services_started=0,private_scores_computed=False,
             scientific_qualified=False,retry_allowed=False,external_acceptance_required=True))
     except BaseException as exc:
         journal.save('failure.json',failure(exc))
@@ -811,7 +816,8 @@ def validate_worker(root, packet, packet_pin, data, service, cpu, diagnostic, st
     need(terminal==dict(schema=VERSION,status='cpu_campaign_complete',packet_sha256=packet_pin,
         runtime_stage_sha256=stage_pin,phase_terminal_sha256=sha(read(phase/'terminal.json')),
         campaign_root=str(paths(packet)['campaign']),attempt_pins=attempts,numeric_training_updates=6,
-        llm_training_updates=0,model_weights_loaded=False,gpu_services_started=0,private_scores_computed=False,
+        llm_training_updates=0,llm_model_or_adapter_loaded=False,numerical_model_weights_loaded=True,
+        gpu_services_started=0,private_scores_computed=False,
         scientific_qualified=False,retry_allowed=False,external_acceptance_required=True),'worker terminal differs')
     events = [value(p.name) for p in sorted(out.glob('phase-*.json'))]
     ordered = ['service_cpu_import_start','service_cpu_import_complete','campaign_tokenizer_load_start',

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_02/inputs/prepare_llm_intervention_campaign_cpu.py", line 1060, in <module>
+    main()
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_02/inputs/prepare_llm_intervention_campaign_cpu.py", line 1050, in main
+    parent(args,*context)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_02/inputs/prepare_llm_intervention_campaign_cpu.py", line 931, in parent
+    session = supervise_child(command,training.cpu_environment(prefix,os.environ),out,deadline,started+580,probe.kill_owned)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_02/inputs/prepare_llm_intervention_campaign_cpu.py", line 866, in supervise_child
+    need(rc==0 and time.monotonic()<child_deadline,'CPU child failed or exceeded absolute deadline')
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_02/inputs/prepare_llm_intervention_campaign_cpu.py", line 114, in need
+    raise ValueError(message)
+ValueError: CPU child failed or exceeded absolute deadline

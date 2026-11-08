@@ -1,0 +1,37 @@
+**Independent CPU02 provenance-failure review — November 8, 2026**
+
+**Failure/custody disposition: accepted as a preserved failed attempt. Required source correction: 1 (P1); P0/P2/P3: 0.** This accepts the failure evidence and accounting, not CPU campaign execution, runtime adoption, policy success, or scientific qualification. The diagnosed source is the original executed CPU02 snapshot, before any subsequent correction.
+
+Scope is job `35385876`, the complete local custody at `/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal02`, its exclusive external counterpart `/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-campaign-cpu-terminal-20261108-02`, and the exact failing numerical-subprocess interface. Existing component reviews are reused. This review used local evidence/source reads, JSON parsing and byte hashing only. No models, numerical reruns, tests, remote actions, source corrections, private scoring, finalization or commits were performed. The only authorized additions are this review and matching exclusive `failure_acceptance.json` receipts outside the original `remote/` tree.
+
+**P1 — numerical provenance inspection mistakes synthetic namespace labels for file origins.** Both learned-ranker subprocesses returned from the CLI after computing scores and capturing `{"action_id":"x_plus"}`. They then raised `ValueError: used numerical module escaped stage` at the post-call check in [the executed wrapper, lines 406–411](/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal02/remote/inputs/prepare_llm_intervention_campaign_cpu.py:406), invoked at [line 464](/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal02/remote/inputs/prepare_llm_intervention_campaign_cpu.py:464). `getattr(mod, '__file__', None)` can resolve inherited or lazy namespace attributes; the checker treats every truthy NumPy/PyTorch result as a real file and resolves it against the working directory.
+
+The synthetic-label interface defect is confirmed against pinned source: the archive manifest records `torch/_classes.py` with SHA-256 `0db3dc302e28fd085065ea2883ce33fa4af406b9fd1439f2a431f053e9a764b9`. A locally available [byte-identical source copy, line 19](/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ace-foundation-synthesis-env-20261009/lib/python3.11/site-packages/torch/_classes.py:19) defines `_Classes(types.ModuleType)` with class-level `__file__ = "_classes.py"`. That inherited label is not the namespace object's file origin. The established [runtime diagnostic, lines 454–455](/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal02/remote/inputs/qualify_llm_intervention_runtime_metadata.py:454) instead inspects module dictionaries directly. The comparison authenticates the specific source bytes, not the separate local environment or its installed version.
+
+**The exact first offending module/name/path is unrecorded.** The generic failure message and absent post-call snapshot do not identify it. Neither the supplied source example nor the exception proves that a real numerical module loaded outside the stage. The correction must distinguish direct file origins from synthetic attributes while retaining real path, project-source, version and extension checks; this failure review does not accept an implementation of that correction.
+
+Successful captured inference is not an accepted policy action. [CLI lines 34–51](/Users/pat/code/ACE/results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal02/remote/inputs/llm_intervention_policy_cli.py:34) reload the numerical checkpoint, score candidates and print a decision. The wrapper saves captured output in its `finally` block but forwards it only after provenance/terminal checks succeed. Both recorded policy subprocesses exited 1 with empty externally returned stdout, and both failed arms record zero completed policy calls. Their numeric-call directories are `46c2903de873b26572dd8d1caef952773462408d031de5b7fbb9c6aa8a4829a9` and `f6511dbd4fd00cbf49c23ce94b5c01af6c8cb69ac450064a596771a509346528`; the captured `stdout.log` SHA-256 is `eddad79887ba59ab20cb4fbcd60fc71f5c676489b5b7aa19129a164aa4b2a409` in each.
+
+The eight arms for uniform random, menu coverage, local information and target risk have completed attempt records; both learned-ranker arms remain failed. All completed and failed trajectories are preserved. The ranker training receipt records six updates and export/reload evidence. Generic `model_weights_loaded=False` can only be interpreted as absence of Qwen/pretrained weights here, never absence of numerical model weights. There is no successful worker `artifacts/terminal.json` or supervisor terminal. The CPU-phase receipt instead says `cpu_phase_contains_failures`, with zero GPU services and no private scores; its policy-complete event does not establish arm success. Cleanup records return code 1, no remaining owned group, no kill sent and no cleanup errors.
+
+Custody and resource observations:
+
+- All **899 raw files / 87,742,308 bytes** match the saved fresh remote inventory by membership, size and SHA-256, and match the external raw mirror. All 72 input pins match. The original inventory and disposition remain unchanged; acceptance receipts are separate additions, not amendments to the raw manifest.
+- Scheduler evidence records **FAILED, exit 1:0, 116 seconds, 2 CPUs, zero GPUs**, charged as **232 allocated CPU-seconds / 0 GPU-slice-seconds**. Closed totals are **9464 CPU / 1347 GPU**; with the unchanged 3600 CPU-second preparation allowance, admission after release is **13064 CPU**. These are allocation charges, not measured process CPU consumption.
+- The saved batch accounting row reports **MaxRSS 7,862,160 KiB**, near the **7,864,320 KiB** limit (7680 MiB): only **2,160 KiB** separates the reported values. This is a material near-limit observation. No OOM cause or comfortable memory headroom is claimed. The worker's separate child-RSS receipt has a different measurement scope and does not replace the batch peak. The retained traceback establishes the provenance exception; the parent message combining child failure/deadline is not evidence of a timeout.
+
+Pinned provenance:
+
+| Evidence | SHA-256 / commit |
+|---|---|
+| Executed source commit | `1752684bd1dac4c42e3a84831ff4e6fccd05e02d` |
+| Submitted packet commit | `cfc1fc08ff1ccb35465016b578c6676c22f160c9` |
+| CPU02 packet | `663f1aa887c838a922061a834a41455d8356e89cc6c56a90a9e534798314e6d5` |
+| Exact failed wrapper | `cecc09fa6502b8098e706a4275681fc8f9c5f5054d2cf4a0f2684fa2311ea74a` |
+| Original `disposition.json` | `b87d1664216373fc5cb42906348b641de8cec69ff270b21b65796d3592198369` |
+| Original `inventory_transport.json` | `ea8e964a6d414d104f6c8eed781f8964d13d0d68972dd2f78137493896e3a36b` |
+| Original `transfer.json` | `1cc06c77b36d6a67de7e6a27fa83fa1af36f4705406c82fb9db560451d3bc067` |
+| Reviewed collector | `1cf2c3f911773a6f6fd828b3a6b6292ddddbbe0eb8105852e2c591da7f2c4a61` |
+| Runtime archive manifest | `b44610f638f0873da8588f1cf23039638203a855959a6ed12cf0ec6c2551d63a` |
+
+The failure receipts bind this review and these originals. No automatic retry, trajectory replacement, private finalization, GPU-service execution or scientific acceptance follows from this disposition. The scientific 32/24 worlds remain ungenerated. A separately reviewed correction and concrete successor packet remain distinct from acceptance of this failed attempt.

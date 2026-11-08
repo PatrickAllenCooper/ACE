@@ -1,10 +1,28 @@
 # Proposed artificial paired-campaign integration
 
-November 8, 2026. **CPU01 failed before staging. Its complete custody is local, with a narrow memory-format correction prepared. GPU phase not submitted.** The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
+November 8, 2026. **CPU02 failed after the four numerical controls. GPU phase not submitted.** CPU01 remains a preserved failure before staging. The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
 
 Training GPU03, job 35379434, is now independently accepted with zero required defects. It completed fresh four-step SFT and two-step DPO training, both exact checkpoint reloads, ten legal generations and clean shutdown. Its acceptance is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. The two failed predecessors remain unchanged.
 
-Current closed allocation after CPU01 is **9,232 CPU-seconds and 1,347 GPU-slice-seconds**. Its reservation is released. With the unchanged 3,600 CPU-second preparation allowance, current admission is 12,832/57,600 CPU and 1,347/7,200 GPU. A new 1,200 CPU-second attempt would bring CPU admission to 14,032. No new attempt is submitted at this entry.
+Current closed allocation after CPU02 is **9,464 CPU-seconds and 1,347 GPU-slice-seconds**. No job reservation remains outstanding. With the unchanged 3,600 CPU-second preparation allowance, current admission is 13,064/57,600 CPU and 1,347/7,200 GPU. A fresh 1,200 CPU-second attempt would raise admission to14,264. These are admission bounds, not whole-cycle process CPU.
+
+## CPU02 failure and direct module-origin correction
+
+Job35385876 failed1:0 after116seconds on two CPUs, adding232allocatedCPU seconds and zeroGPU. Complete899rawfiles totaling87,742,308bytes and all original input pins are preserved in exclusive `cpu-terminal02` custody. The worker staged the runtime, fitted the matched numerical ranker for six updates and completed all eight world/policy cells for the four numerical acquisition controls. Both learned-ranker cells failed. No LLM service or private finalization ran.
+
+Both failed numerical child calls captured a legal action after ranker inference, then failed the post-call provenance check. The wrapper used `getattr(module, '__file__')`, which can return a synthetic inherited label from a PyTorch namespace. Pinned PyTorch source confirms this behavior, but the old failure omitted the offending module, so its exact first offender is unknown. The failed arms remain failed even though an action was captured internally. The outer generic deadline/failure message does not establish a timeout.
+
+The correction reads concrete module-dictionary origins, matching the established full runtime diagnostic, and names any rejected origin in future failure evidence. Three new fabricated tests pass without numerical imports, models or responses. They cover inherited/lazy labels, real outside or malformed paths, and retained version/extension/captured-project guards. Receipt fields now distinguish numerical weights from LLM weights. Changed source and all predecessor receipts are preserved separately. Independent correction review is complete with zero required findings. The corrected source SHA-256 is850ca3d4d7ac4799f68d74bd2d0b1196d10809751a4bdf878633122fc6a9c2c4. A fresh exclusive packet still precedes execution.
+
+The scheduler reports56.983TotalCPU seconds and7,862,160KiB batchMaxRSS against a7,864,320KiB allocation. The worker child/cleanup receipt reports29.406548CPU seconds and977,424,384peakRSS bytes. These scopes overlap and must not be added. Memory is close to the scheduler limit, but the recorded failure is the provenance exception and cleanup confirms no owned group remains. Keep the same bounded CPU request for this correction, monitor it, and make no comfortable-memory-headroom or OOM attribution claim. Do not reuse failed trajectories as accepted cells, tune methods, alter private endpoints or restart CPU02.
+
+## CPU02 submitted after format correction
+
+Job **35385876** was submitted once at **2026-11-08T07:48:10.256910Z**. Source `1752684bd1dac4c42e3a84831ff4e6fccd05e02d`, packet commit `cfc1fc08ff1ccb35465016b578c6676c22f160c9`, packet SHA-256 `663f1aa887c838a922061a834a41455d8356e89cc6c56a90a9e534798314e6d5`. Distinct failure/correction review and the new packet delta review have zero required findings. Both locks,32terminal prior jobs,66journals, exact prior accounting, account/partition and scratch readiness, and all77transferpins matched. Remote submission intent is `d15ad0d9dd798f7eda54c81227ff5a882f02e738f4246e4c007b51a7f31da934`.
+
+The resource request remains two CPUs,7,680MiB,600seconds,`ucb736_asc2/acpu/cpu-normal`,zeroGPU,no-requeue. The same hand-written systems, numerical recipe, accepted checkpoints and runtime are used. No CPU01 responses or numerical fit existed to reuse or select on. Five input files differ: the one-line CPU wrapper correction, three launch contracts with new exclusive paths, and the packet containing their pins. CPU01 is never restarted.
+
+New repository custody is `results/ace_llm_intervention_campaign_artificial_20261108/cpu02`, with external `ACE-LLM-intervention-campaign-cpu-20261108-02`. Remote root is `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_02`, input directory `inputs`, CPU output `cpu02` and fixed future GPU output `gpu02`. Complete terminal custody, saved validation and independent CPU acceptance remain pending before a GPU successor.
 
 ## CPU01 failure and exact memory-format correction
 
@@ -12,7 +30,7 @@ Job35385156 failed1:0 after11seconds on two CPUs, adding22allocatedCPU seconds a
 
 The captured `scontrol` record matches every required job, account, partition, QOS, node/task/CPU, wall-time and requeue field. Its exact allocation is `cpu=2,mem=7.50G,node=1,billing=2`. The new wrapper accepted the equivalent strings `7680M` and `7.5G` but rejected `7.50G`. This stopped execution before archive staging, numerical training, a worker launch or any intervention. It is a formatting defect, not excess resource use or a scientific result.
 
-The correction adds only that exact equivalent memory literal. One new saved-record fixture passes the original allocation and rejects7.49G,7.51G and8G. It used0.189266childCPU seconds, excluding preparation/review. No model, fitting, response or submission occurred during the check. The old collector is retained, with a separately reviewed v2 that recognizes the same exact Slurm spelling. Distinct failure/correction review precedes a new exclusive CPU02 packet under existing blanket authorization. Do not rerun CPU01 or amend its command, source, outputs or future-service contracts.
+The correction adds only that exact equivalent memory literal. One new saved-record fixture passes the original allocation and rejects7.49G,7.51G and8G. It used0.189266childCPU seconds, excluding preparation/review. No model, fitting, response or submission occurred during the check. The old collector is retained, with a separately reviewed v2 that recognizes the same exact Slurm spelling. Distinct failure/correction review is complete with zero required findings. Failed-attempt disposition SHA-256 is `80d94efaf8b43c0684faef5e7ab5fc7dc285fde5f8fbb88b86e0f9be09093ad5`. Do not rerun CPU01 or amend its command, source, outputs or future-service contracts.
 
 ## CPU01 submitted
 

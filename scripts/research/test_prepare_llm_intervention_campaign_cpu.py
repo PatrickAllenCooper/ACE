@@ -21,6 +21,69 @@ spec.loader.exec_module(m)
 
 
 class CampaignCPUTests(unittest.TestCase):
+    def numeric_origin_fixture(self):
+        """Fabricated module registry. No NumPy/PyTorch import or model use."""
+        prefix=self.root/'stage'
+        modules={}
+        for name,file in [('numpy','numpy/__init__.py'),('numpy._core._multiarray_umath','numpy/core.so'),
+                          ('torch','torch/__init__.py'),('torch._C','torch/_C.so')]:
+            mod=types.ModuleType(name);mod.__file__=str(prefix/'lib/python3.10/site-packages'/file)
+            mod.__version__=self.packet['runtime']['imported_versions'][name.split('.')[0]]
+            modules[name]=mod
+        fake=types.SimpleNamespace(prefix=str(prefix),executable=str(prefix/'bin/python'),version_info=(3,10,19),
+            flags=types.SimpleNamespace(isolated=1),dont_write_bytecode=True,path=[str(prefix/'lib/python3.10')],
+            modules=modules,stdlib_module_names={'json'})
+        env=dict(CUDA_VISIBLE_DEVICES='',OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',
+            NUMEXPR_NUM_THREADS='1',HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1',TOKENIZERS_PARALLELISM='false',
+            PYTHONDONTWRITEBYTECODE='1',MKL_THREADING_LAYER='GNU',LD_LIBRARY_PATH=str(prefix/'lib'),ACE_CAMPAIGN_CPU_PGID='17')
+        for context in (patch.object(m,'sys',fake),patch.dict(m.os.environ,env,clear=True),
+                        patch.object(m.os,'getpgrp',return_value=17),patch.object(m.os,'getpid',return_value=18)):
+            context.start();self.addCleanup(context.stop)
+        stage=dict(staged_prefix=str(prefix),archive_sha256=self.packet['archive']['sha256'],
+                   manifest_sha256=self.packet['manifest']['sha256'])
+        return modules,stage,types.SimpleNamespace(loaded={},sources={})
+
+    def test_direct_origins_ignore_inherited_and_lazy_labels_without_lookup(self):
+        modules,stage,loader=self.numeric_origin_fixture()
+        class Classes(types.ModuleType):
+            __file__='_classes.py'
+        calls=[]
+        class Lazy(types.ModuleType):
+            def __getattr__(self,name):
+                calls.append(name)
+                raise AssertionError('dynamic module lookup must not run')
+        modules['torch.classes']=Classes('torch.classes')
+        modules['torch.ops.synthetic']=Lazy('torch.ops.synthetic')
+        result=m.check_numeric_runtime(self.packet,stage,'ranker',loader)
+        self.assertEqual(calls,[])
+        self.assertEqual(set(result['used_module_paths']),{'numpy','numpy._core._multiarray_umath','torch','torch._C'})
+        self.assertEqual(result['versions']['torch'],self.packet['runtime']['imported_versions']['torch'])
+
+    def test_direct_outside_or_invalid_origins_remain_rejected_and_named(self):
+        modules,stage,loader=self.numeric_origin_fixture()
+        for name,file in [('torch.escaped','/outside/torch.py'),('numpy.escaped','relative.py'),
+                          ('json','/outside/json.py'),('torch.invalid',17)]:
+            with self.subTest(name=name):
+                mod=types.ModuleType(name);mod.__file__=file;modules[name]=mod
+                try:
+                    with self.assertRaisesRegex(ValueError,name):
+                        m.check_numeric_runtime(self.packet,stage,'ranker',loader)
+                finally: del modules[name]
+
+    def test_direct_origins_still_require_extensions_versions_and_captured_project(self):
+        modules,stage,loader=self.numeric_origin_fixture()
+        del modules['torch._C']
+        with self.assertRaisesRegex(ValueError,'extension'):
+            m.check_numeric_runtime(self.packet,stage,'ranker',loader)
+        ext=types.ModuleType('torch._C');ext.__file__=stage['staged_prefix']+'/torch/_C.so';modules['torch._C']=ext
+        modules['torch'].__version__='wrong'
+        with self.assertRaisesRegex(ValueError,'version'):
+            m.check_numeric_runtime(self.packet,stage,'ranker',loader)
+        modules['torch'].__version__=self.packet['runtime']['imported_versions']['torch']
+        modules['llm_intervention_cached']=types.ModuleType('llm_intervention_cached')
+        with self.assertRaisesRegex(ValueError,'cached'):
+            m.check_numeric_runtime(self.packet,stage,'ranker',loader)
+
     def test_actual_cpu01_exact_memory_format_without_resource_relaxation(self):
         receipt=ROOT.parents[1]/'results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal01/remote/cpu01/allocation.json'
         captured=json.loads(receipt.read_bytes())
