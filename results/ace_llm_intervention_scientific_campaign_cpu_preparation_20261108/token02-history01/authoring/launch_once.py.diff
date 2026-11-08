@@ -1,0 +1,42 @@
+--- predecessor/launch_once.py
++++ launch_once.py
+@@ -62,6 +62,9 @@
+         b.need(packet['baseline_sha256']==ctx['pins']['baseline'] and packet['training_job_id']==m['gpu-training-acceptance']['job_id']
+                and packet['operational_amendment_sha256']==ctx['pins']['operational-amendment']
+                and packet['namespace_claim_sha256']==ctx['pins']['namespace-claim'],'accepted baseline/namespace differs')
++        b.need(packet['token_recovery']==ctx['token_recovery'] and packet['failed_token_root']==b.FAILED_TOKEN_ROOT
++               and packet['failed_token_job_id']==b.FAILED_TOKEN_JOB and packet['preserved_directories']==ctx['preserved_directories'],
++               'complete failed-token lineage differs')
+         claim_pin=ctx['pins']['namespace-claim']
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local claim changed; never recreate')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+@@ -73,7 +76,7 @@
+         b.need(packet['original_input_pins']==ctx['upstream_pins'],'complete original accepted inputs differ')
+         context=dict(root=b.ROOT,registry=b.REMOTE_REGISTRY,pins=pins,baseline=m['baseline'],
+             archive=stage['archive'],manifest=stage['manifest'],namespace_claim_sha256=claim_pin,
+-            original_inputs=ctx['upstream_pins'],original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA)
++            original_inputs=ctx['upstream_pins'],preserved_directories=ctx['preserved_directories'],original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA)
+         common='C='+repr(context)+'\n'+REMOTE_COMMON
+         save('controller.json',dict(pid=os.getpid(),utc=b.utc(),held=[str(b.BASE/n) for n in
+             ('ace-delivery-controller.lock','ace-foundation-controller.lock')]));started=True
+@@ -101,6 +104,7 @@
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+         intent=dict(utc=b.utc(),packet_commit=a.packet_commit,source_commit=b.SOURCE_COMMIT,
+             packet_sha256=a.packet_sha256,review_sha256=a.packet_review_sha256,pins=pins,remote_root=b.ROOT,
++            token_recovery=ctx['token_recovery'],failed_token_root=b.FAILED_TOKEN_ROOT,failed_token_job_id=b.FAILED_TOKEN_JOB,
+             baseline_sha256=ctx['pins']['baseline'],training_acceptance_sha256=ctx['pins']['gpu-training-acceptance'],
+             training_job_id=m['gpu-training-acceptance']['job_id'],operational_amendment_sha256=ctx['pins']['operational-amendment'],existing_namespace_claim_sha256=claim_pin,
+             namespace_admission_sha256=ctx['pins']['namespace-admission'],
+@@ -230,6 +234,12 @@
+       'accepted archive metadata changed')
+  need(sha(read(registry))==C['namespace_claim_sha256'],'existing accepted namespace claim changed')
+  need(sha(read(C['original_registry']))==C['original_namespace_claim_sha256'],'preserved original namespace changed')
++ for base,expected_dirs in C['preserved_directories'].items():
++  tree=pathlib.Path(base);need(tree.is_dir() and not tree.is_symlink(),'original upstream root missing')
++  entries=list(tree.rglob('*'));need(not any(p.is_symlink() for p in entries),'upstream symlink')
++  need(sorted(p.relative_to(tree).as_posix() for p in entries if p.is_dir())==expected_dirs,'whole original upstream directories changed')
++  expected={n[len(base)+1:]:h for n,h in C['original_inputs'].items() if n.startswith(base+'/')}
++  need({p.relative_to(tree).as_posix():sha(read(p,allow_hardlink=True)) for p in entries if p.is_file()}==expected,'whole original upstream files changed')
+  for path,h in C['original_inputs'].items():
+   need(sha(read(path,allow_hardlink=True))==h,'accepted CPU input changed: '+path)
+  return dict(utc=utc(),queue=queue,related_accounting=rows,journal_pins=journals,

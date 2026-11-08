@@ -1,0 +1,16 @@
+test_collector46_94_retains_failed43_and_rejects_count_only_substitute (__main__.NewCPUHistory) ... ok
+test_frozen_child_monitor_and_double_launch_reconciliation_preserved (__main__.NewCPUHistory) ... FAIL
+test_full_history_join_rejects_lost_failure_and_nested_authority_drift (__main__.NewCPUHistory) ... ok
+
+======================================================================
+FAIL: test_frozen_child_monitor_and_double_launch_reconciliation_preserved (__main__.NewCPUHistory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/.codex/tmp/ace-cpu-campaign-token02-tests-gvhlosb5/attempt01/source/test_history_delta.py", line 171, in test_frozen_child_monitor_and_double_launch_reconciliation_preserved
+    self.assertGreaterEqual((HERE/'launch_once.py').read_text().count('r=reconcile()'),2)
+AssertionError: 1 not greater than or equal to 2
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.035s
+
+FAILED (failures=1)

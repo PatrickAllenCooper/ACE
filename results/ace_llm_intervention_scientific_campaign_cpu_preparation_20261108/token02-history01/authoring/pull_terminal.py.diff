@@ -1,0 +1,202 @@
+--- predecessor/pull_terminal.py
++++ pull_terminal.py
+@@ -18,6 +18,7 @@
+ import subprocess
+ import time
+ import math
++import types
+ 
+ REPO=Path('/Users/pat/code/ACE')
+ BASE=Path('/Users/pat/ACE_Study_Results/2026-10-peter-baseline')
+@@ -27,7 +28,8 @@
+ EXT=BASE/'ACE-LLM-intervention-scientific-campaign-cpu-terminal-20261108-01'
+ ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108_01'
+ TRAIN_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01'
+-CPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_01'
++CPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_02'
++FAILED_TOKEN_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_01'
+ COMMON_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_02'
+ FAILED_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01'
+ REALIZATION_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_realization_20261108_02'
+@@ -36,6 +38,7 @@
+ OLD_LOCAL_NAMESPACE=BASE/'ACE-LLM-intervention-scientific-screen-20261107.namespace.json'
+ OLD_REMOTE_NAMESPACE=str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace.json')
+ OLD_CLAIM_SHA='58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29'
++BUILDER_SHA='3893a30ec2e652dac78529602564a4a295ddf9258461530ec7c74557df809025'
+ HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ TERMINAL={'COMPLETED','FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL',
+           'PREEMPTED','BOOT_FAIL','DEADLINE','REVOKED'}
+@@ -127,7 +130,7 @@
+  need(identity(before)==identity(after)==identity(path.lstat()),'remote file changed during capture')
+  return dict(bytes=after.st_size,sha256=h.hexdigest()),after
+ v=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),results={},files={},directories=[],
+-       root_present=root.exists(),training_present=Path(TRAIN_ROOT).exists(),cpu_present=Path(CPU_ROOT).exists(),common_present=Path(COMMON_ROOT).exists(),failed_present=Path(FAILED_ROOT).exists(),namespace_present=os.path.lexists(namespace),original_hardlink_groups=[],
++       root_present=root.exists(),training_present=Path(TRAIN_ROOT).exists(),cpu_present=Path(CPU_ROOT).exists(),failed_token_present=Path(FAILED_TOKEN_ROOT).exists(),common_present=Path(COMMON_ROOT).exists(),failed_present=Path(FAILED_ROOT).exists(),namespace_present=os.path.lexists(namespace),original_hardlink_groups=[],
+        original_namespace_present=os.path.lexists(original_namespace),upstream_pins={},upstream_errors={})
+ commands={
+  'related_accounting':['sacct','-X','-u','paco0228','-S','2026-11-02','--format',
+@@ -154,7 +157,7 @@
+  need(all(len(r)==5 and r[0]!=JOB and not r[1].lower().startswith('ace') for r in queue),'current/related ACE job active')
+  v['parent_accounting']=selected[0];v['related_accounting']=rows;v['terminal_gate']=True
+  links={}
+- for label,tree,present in (('launch',root,v['root_present']),('training',Path(TRAIN_ROOT),v['training_present']),('cpu',Path(CPU_ROOT),v['cpu_present']),('common',Path(COMMON_ROOT),v['common_present']),('failed01',Path(FAILED_ROOT),v['failed_present'])):
++ for label,tree,present in (('launch',root,v['root_present']),('training',Path(TRAIN_ROOT),v['training_present']),('cpu',Path(CPU_ROOT),v['cpu_present']),('failed-token01',Path(FAILED_TOKEN_ROOT),v['failed_token_present']),('common',Path(COMMON_ROOT),v['common_present']),('failed01',Path(FAILED_ROOT),v['failed_present'])):
+   if not present:continue
+   need(tree.is_dir() and tree==tree.resolve(),'ordinary remote root required')
+   v['directories'].append(label)
+@@ -375,16 +378,22 @@
+         training_qualified=False,scientific_qualified=False)
+ 
+ 
++def failed_token_label(files,packet_pin):
++    labels=[n.split('/')[0] for n,v in files.items() if n.count('/')==1 and n.endswith('/packet.json') and v['sha256']==packet_pin]
++    need(len(labels)==1,'unique original failed TOKEN01 raw root required')
++    return labels[0]
++
++
+ def accounting_extension(observation,baseline,job,intent_pin,result_pin):
+     prior=[r for r in observation['related_accounting'] if r[0]!=job]
+     current=[r for r in observation['related_accounting'] if r[0]==job]
+-    rows_ok=(len(prior)==44 and len(current)==1 and len(observation['related_accounting'])==45
++    rows_ok=(len(prior)==45 and len(current)==1 and len(observation['related_accounting'])==46
+         and normalize(prior)==normalize(baseline['related_accounting'])
+         and normalize(current)==normalize([observation['parent_accounting']])
+         and all(r[2].split()[0] in TERMINAL for r in observation['related_accounting']))
+     journals={**baseline['journal_pins'],ROOT+'/submission.intent.json':intent_pin,
+               ROOT+'/submission.result.json':result_pin}
+-    journals_ok=(len(baseline['journal_pins'])==90 and len(journals)==92 and observation['journal_pins']==journals)
++    journals_ok=(len(baseline['journal_pins'])==92 and len(journals)==94 and observation['journal_pins']==journals)
+     return rows_ok,journals_ok
+ 
+ 
+@@ -440,11 +449,24 @@
+                        cwd=REPO,capture_output=True,timeout=20)
+     need(review_raw.strip() and git.returncode==0 and git.stdout==review_raw and intent['review_sha256']==a.packet_review_sha256,
+          'independent original packet review/commit required')
++    # This exact reviewed stdlib coordinator performs metadata-only admission; no project imports.
++    builder_raw=read_metadata(LAUNCH/'build_packet.py',BUILDER_SHA)
++    need(pins['build_packet.py']==BUILDER_SHA,'reviewed history coordinator differs')
++    builder=types.ModuleType('cpu_campaign_history_coordinator')
++    builder.__file__=str(LAUNCH/'build_packet.py')
++    exec(compile(builder_raw,builder.__file__,'exec'),builder.__dict__)
++    supplied={n:read_metadata(LAUNCH/builder.metadata_name(n),pins[builder.metadata_name(n)]) for n in builder.METADATA}
++    history=builder.admit(supplied)
++    need(packet['token_recovery']==intent['token_recovery']==history['token_recovery']
++         and packet['failed_token_root']==intent['failed_token_root']==FAILED_TOKEN_ROOT
++         and packet['failed_token_job_id']==intent['failed_token_job_id']==builder.FAILED_TOKEN_JOB
++         and packet['original_input_pins']==history['upstream_pins']
++         and packet['preserved_directories']==history['preserved_directories'], 'current full token history binding differs')
+     baseline_pin=a.baseline_sha256;need(baseline_pin==pins['baseline.json'],'independent current baseline pin differs');baseline=decode(read_metadata(LAUNCH/'baseline.json',baseline_pin))
+-    need(packet['baseline_sha256']==intent['baseline_sha256']==baseline_pin and baseline['terminal_jobs']==44
+-         and baseline['submission_journals']==90 and len(baseline['related_accounting'])==44 and len(baseline['journal_pins'])==90
++    need(packet['baseline_sha256']==intent['baseline_sha256']==baseline_pin and baseline['terminal_jobs']==45
++         and baseline['submission_journals']==92 and len(baseline['related_accounting'])==45 and len(baseline['journal_pins'])==92
+          and baseline['preparation_allowance_cpu_seconds']==3600 and baseline['outstanding_reservation']==0,
+-         'independently pinned actual44-job/90-journal baseline required')
++         'independently pinned actual45-job/92-journal baseline required')
+     normalize(baseline['related_accounting'])
+     need(packet['resources']==intent['resources']==RESOURCES and packet['deadlines']==intent['deadlines']==DEADLINES,
+          'exact CPU campaign resource/deadline contract required')
+@@ -476,7 +498,7 @@
+          and a.job_id not in (accepted['job_id'],'35407428'), 'current/accepted original training lineage differs')
+     need(baseline['input_pins']['predecessor']==pins['previous-baseline.json']
+          and baseline['input_pins']['acceptance']==a.training_acceptance_sha256
+-         and baseline['input_pins']['disposition']==pins['training-disposition.json'], 'actual44/90 accepted baseline provenance differs')
++         and baseline['input_pins']['disposition']==pins['training-disposition.json'], 'actual45/92 accepted baseline provenance differs')
+     transport=decode(read_metadata(LAUNCH/'training-inventory.json',pins['training-inventory.json']))
+     need(transport['returncode']==0,'original accepted training inventory transport failed')
+     observation=decode(transport['stdout']);original_files=observation['files']
+@@ -487,8 +509,9 @@
+     need(original_files['launch/packet.json']['sha256']==pins['training-packet.json']
+          and original_files['launch/submission.result.json']['sha256']==pins['training-result.json']
+          and original_files['launch/submission.intent.json']['sha256']==result_before['intent_sha256'], 'original training packet/journal map differs')
++    failed_label=failed_token_label(original_files,pins['failed-token-packet.json'])
+     preserved={};preserved_directories={}
+-    for label,old_label in [('training','launch'),('cpu','cpu'),('common','common'),('failed01','failed01')]:
++    for label,old_label in [('training','launch'),('cpu','cpu'),('failed-token01',failed_label),('common','common'),('failed01','failed01')]:
+         prefix=old_label+'/'
+         preserved_directories[label]=sorted(n[len(prefix):] for n in observation['directories'] if n.startswith(prefix))
+         preserved[label]={n[len(prefix):]:v for n,v in original_files.items() if n.startswith(prefix)}
+@@ -504,6 +527,14 @@
+     for name,h in [('disposition.json',pins['training-disposition.json']),('inventory_transport.json',pins['training-inventory.json'])]:
+         need(prior_custody_before['files'][name]['sha256']==h,'training capsule metadata differs')
+     need(inventory(prior_custody/'remote')['files']==original_files,'complete accepted training raw capsule differs')
++    failed_capsule=prior_custody/'upstream-token01-custody'
++    failed_custody=decode(read_metadata(failed_capsule/'custody-inventory.json',pins['token-failure-custody-inventory.json']))
++    failed_view=inventory(failed_capsule)
++    failed_without_receipt=dict(files={n:v for n,v in failed_view['files'].items() if n!='custody-inventory.json'},directories=failed_view['directories'])
++    need(failed_custody['identical'] is True and len(failed_custody['copies'])==2
++         and all(view==failed_without_receipt for view in failed_custody['copies'].values()),
++         'complete original failed TOKEN01 archive/receipts/copies required inside training custody')
++
+     # Only the core's explicit24-descriptor+terminal readback, never an enumeration of realization worlds.
+     rt=decode(read_metadata(LAUNCH/'realization-terminal.json',pins['realization-terminal.json']))
+     ra=decode(read_metadata(LAUNCH/'realization-acceptance.json',pins['realization-acceptance.json']))
+@@ -523,7 +554,7 @@
+     for p,h in upstream_pins.items():
+         need(pin(h) and '..' not in Path(p).parts,'safe explicit upstream pin required')
+         if p in realization_pins:continue
+-        matches=[(label,root) for label,root in [('training',TRAIN_ROOT),('cpu',CPU_ROOT),('common',COMMON_ROOT),('failed01',FAILED_ROOT)] if p.startswith(root+'/')]
++        matches=[(label,root) for label,root in [('training',TRAIN_ROOT),('cpu',CPU_ROOT),('failed-token01',FAILED_TOKEN_ROOT),('common',COMMON_ROOT),('failed01',FAILED_ROOT)] if p.startswith(root+'/')]
+         need(len(matches)==1,'unexpected upstream readback scope')
+         label,root=matches[0];need(preserved[label][p[len(root)+1:]]['sha256']==h,'original input/readback map differs')
+     recovery_bindings=dict(recovery_authority_sha256=pins['recovery-authority.json'],original_namespace_claim_sha256=OLD_CLAIM_SHA)
+@@ -546,7 +577,7 @@
+         save(name,transport);need(transport['returncode']==0,'failed/partial custody retained: '+name)
+         return transport
+     source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,NAMESPACE=REMOTE_NAMESPACE,JOB=a.job_id,
+-        TERMINAL=TERMINAL,OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,UPSTREAM_PINS=upstream_pins,TRAIN_ROOT=TRAIN_ROOT,COMMON_ROOT=COMMON_ROOT,FAILED_ROOT=FAILED_ROOT,CPU_ROOT=CPU_ROOT).items())+'\n'+REMOTE_OBSERVATION
++        TERMINAL=TERMINAL,OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,UPSTREAM_PINS=upstream_pins,TRAIN_ROOT=TRAIN_ROOT,COMMON_ROOT=COMMON_ROOT,FAILED_ROOT=FAILED_ROOT,CPU_ROOT=CPU_ROOT,FAILED_TOKEN_ROOT=FAILED_TOKEN_ROOT).items())+'\n'+REMOTE_OBSERVATION
+     def observe(name):
+         transport=run_saved(name,['bash',HELPER,'run','python3 -'],source=source,timeout=240)
+         v=decode(transport['stdout'])
+@@ -572,6 +603,7 @@
+         save('collector-intent.json',dict(utc=utc(),job_id=a.job_id,packet_sha256=a.packet_sha256,
+             submission_result_sha256=a.submission_result_sha256,remote_root=ROOT,remote_namespace=REMOTE_NAMESPACE,
+             local_namespace=str(LOCAL_NAMESPACE),collector_sha256=sha(Path(__file__).read_bytes()),
++            token_recovery=history['token_recovery'],preserved_failed_token_root=FAILED_TOKEN_ROOT,
+             accepted_training_root=TRAIN_ROOT,accepted_token_root=CPU_ROOT,accepted_collection_root=COMMON_ROOT,preserved_failed_root=FAILED_ROOT,
+             collector_repository_path=a.collector_repository_path,collector_review_sha256=a.collector_review_sha256,
+             training_custody_inventory_sha256=a.training_custody_inventory_sha256,
+@@ -605,12 +637,12 @@
+         size=sum(v['bytes'] for v in before['files'].values())
+         for parent in (BASE,LOCAL.parent):
+             fs=os.statvfs(parent);need(fs.f_bavail*fs.f_frsize>size*2+2*1024**3,'insufficient complete-custody space')
+-        for label,remote_path,present in (('launch',ROOT,before['root_present']),('training',TRAIN_ROOT,before['training_present']),('cpu',CPU_ROOT,before['cpu_present']),
++        for label,remote_path,present in (('launch',ROOT,before['root_present']),('training',TRAIN_ROOT,before['training_present']),('cpu',CPU_ROOT,before['cpu_present']),('failed-token01',FAILED_TOKEN_ROOT,before['failed_token_present']),
+                     ('common',COMMON_ROOT,before['common_present']),('failed01',FAILED_ROOT,before['failed_present']),
+                     ('namespace.json',REMOTE_NAMESPACE,before['namespace_present']),
+                     ('original-namespace.json',OLD_REMOTE_NAMESPACE,before['original_namespace_present'])):
+             if not present:continue
+-            command=['scp',*(['-r'] if label in ('launch','training','cpu','common','failed01') else []),'-o','ControlPath=/tmp/defab-curc.sock',
++            command=['scp',*(['-r'] if label in ('launch','training','cpu','failed-token01','common','failed01') else []),'-o','ControlPath=/tmp/defab-curc.sock',
+                      '-o','BatchMode=yes','paco0228@login.rc.colorado.edu:'+remote_path,str(EXT/'remote'/label)]
+             run_saved('transfer-'+label+'.json',command,timeout=1800)
+         actual=inventory(EXT/'remote')
+@@ -618,6 +650,7 @@
+              'whole remote tree/namespace custody differs; keep all partial bytes')
+         after=observe('inventory_after_transport.json')
+         need(after['files']==before['files'] and sorted(after['directories'])==sorted(before['directories'])
++             and after['failed_token_present']==before['failed_token_present']
+              and after['training_present']==before['training_present'] and after['cpu_present']==before['cpu_present'] and after['common_present']==before['common_present'] and after['failed_present']==before['failed_present']
+              and after['root_present']==before['root_present'] and after['namespace_present']==before['namespace_present']
+              and after['original_namespace_present']==before['original_namespace_present']
+@@ -679,8 +712,8 @@
+                     and claim.get('retry_allowed') is False and claim.get('replacement_worlds') is False):
+                 errors.append('namespace recovery authority/failed-attempt binding differs')
+         accounting_ok,journal_ok=accounting_extension(before,baseline,a.job_id,result['intent_sha256'],a.submission_result_sha256)
+-        if not accounting_ok:errors.append('exact44 prior plus current45th accounting row differs')
+-        if not journal_ok:errors.append('exact90 prior plus current92 journals differ')
++        if not accounting_ok:errors.append('exact45 prior plus current46th accounting row differs')
++        if not journal_ok:errors.append('exact92 prior plus current94 journals differ')
+         steps=before['results']['steps']
+         step_parents=[r.split('|') for r in (steps.get('stdout') or '').splitlines() if r.startswith(a.job_id+'|')]
+         if steps['returncode']!=0 or len(step_parents)!=1 or normalize([step_parents[0][:8]])!=normalize([before['parent_accounting']]):
+@@ -729,6 +762,7 @@
+             namespace_remote_sha256=actual['files'].get('namespace.json',{}).get('sha256'),
+             recovery_bindings=recovery_bindings,training_acceptance_sha256=a.training_acceptance_sha256,
+             training_custody_inventory_sha256=a.training_custody_inventory_sha256,collection_acceptance_sha256=accepted['collection_acceptance_sha256'],cpu_preparation_acceptance_sha256=accepted['cpu_preparation_acceptance_sha256'],
++            token_recovery=history['token_recovery'],failed_token_root=FAILED_TOKEN_ROOT,
+             operational_amendment_sha256=pins['operational-amendment.json'],preserved_upstream_roots=preserved,preserved_upstream_directories=preserved_directories,
+             original_input_pins=upstream_pins,upstream_inputs_verified=before['upstream_pins']==upstream_pins and not before['upstream_errors'],
+             original_namespace_local_sha256=None if original_claim_raw is None else sha(original_claim_raw),
