@@ -1,0 +1,16 @@
+{
+  "archive_sha256": "6815ab9784b6025b8bb4439e40a1a012b9697d434bfc83bd5f36e27abc262d98",
+  "binding_path": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/gpu03/stage-binding.json",
+  "bootstrap": "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+  "bootstrap_sha256": "15234f98c00d87306d8033e871d156b09b8630e02d915749b4adae59a7dce0fe",
+  "entry": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/inputs/llm_intervention_model_service.py",
+  "entry_sha256": "a7735dd35f56d7653a5ff42520db7fd67b98395e62333cccce31583317f7134e",
+  "freeze": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/inputs/dpo_llm.freeze.json",
+  "freeze_sha256": "eea1cdcf0002f2fbfe747a52988aed0556c01093761f388cdeade930c8387847",
+  "launch_output": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/gpu03/services/dpo_llm/launch",
+  "manifest_sha256": "b44610f638f0873da8588f1cf23039638203a855959a6ed12cf0ec6c2551d63a",
+  "policy_id": "dpo_llm",
+  "schema": "ace-campaign-staged-launch-v1",
+  "stage_path": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/gpu03/stage.json",
+  "worker_output": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_03/gpu03/services/dpo_llm/worker"
+}
