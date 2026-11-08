@@ -88,6 +88,36 @@ def _pair_specs(plan):
             for s in plan["schedule"] if s["stage"] == "dpo"}
 
 
+def scoring_layout(record, commands, *, mode):
+    """Return unpadded command-call groups in exactly the supplied order.
+
+    Final comparisons always use fixed singleton calls, even for equal lengths.
+    The SFT reference must retain the engine's chosen/rejected two-row call;
+    unequal or empty command lengths fail closed instead of padding or regrouping.
+    This helper is pure: no packing, tensors, model calls or input mutation.
+    """
+    _need(type(mode) is str and mode in ("singletons", "reference_pair"),
+          "unknown scoring layout mode")
+    _need(type(record) is dict and type(record.get("commands")) is dict,
+          "scoring requires a command token table")
+    _need(type(commands) in (list, tuple) and len(commands) > 0
+          and all(type(c) is str and c and c in record["commands"] for c in commands),
+          "scoring requires nonempty ordered known commands")
+    _need(len(set(commands)) == len(commands), "duplicate scoring commands")
+    lengths = []
+    for command in commands:
+        tokens = record["commands"][command]
+        _need(type(tokens) in (list, tuple) and len(tokens) > 0
+              and all(type(t) is int and t >= 0 for t in tokens),
+              "scoring requires positive-length integer command tokens")
+        lengths.append(len(tokens))
+    if mode == "reference_pair":
+        _need(len(commands) == 2 and lengths[0] == lengths[1],
+              "reference scoring requires exactly two equal positive command lengths")
+        return (tuple(commands),)
+    return tuple((command,) for command in commands)
+
+
 def _score_difference(observed, expected):
     _need(type(observed) is dict and type(expected) is dict and set(observed) == set(expected),
           "score key membership differs")
@@ -480,6 +510,7 @@ def run_training(prepared, model_directory, output_path, observer, journal):
         pairs = _pair_specs(plan)
         records = plan["records"]
         command_order = {r["record_id"]: sorted(r["commands"]) for r in records}
+        final_specs = {r["record_id"]: (r, command_order[r["record_id"]]) for r in records}
         grammars = {r["record_id"]: FiniteActionGrammar(tuple(r["prompt_ids"]),
             tuple(tuple(r["commands"][c]) for c in command_order[r["record_id"]]), r["eos_token_id"]) for r in records}
         for rec in records:
@@ -513,14 +544,19 @@ def run_training(prepared, model_directory, output_path, observer, journal):
         def versions(current):
             return {n: t._version for n, t in [*current.named_parameters(), *current.named_buffers()]}
 
-        def scores(current, specs):
+        def scores(current, specs, *, mode="singletons"):
+            # Validate the complete requested layout before the first forward.
+            layouts = {key: scoring_layout(rec, commands, mode=mode)
+                       for key, (rec, commands) in specs.items()}
             result = {}
             with torch.no_grad():
                 for key, (rec, commands) in specs.items():
-                    batch = pack_actions(rec["prompt_ids"], [rec["commands"][c] for c in commands], rec["pad_token_id"], 8192)
-                    value = sequence_log_probs_canonical(current, batch, selected=True)
-                    _need(value.device.type == "cuda" and value.dtype == torch.float32, "CUDA FP32 scores required")
-                    result[key] = value.detach().cpu().tolist()
+                    result[key] = []
+                    for group in layouts[key]:
+                        batch = pack_actions(rec["prompt_ids"], [rec["commands"][c] for c in group], rec["pad_token_id"], 8192)
+                        value = sequence_log_probs_canonical(current, batch, selected=True)
+                        _need(value.device.type == "cuda" and value.dtype == torch.float32, "CUDA FP32 scores required")
+                        result[key].extend(value.detach().cpu().tolist())
             return result
 
         def load(stage_name, checkpoint=None):
@@ -644,7 +680,7 @@ def run_training(prepared, model_directory, output_path, observer, journal):
             model.zero_grad(set_to_none=True)
             model.requires_grad_(False)
             before_signatures = signatures(model)
-            final_scores = scores(model, {r["record_id"]: (r, command_order[r["record_id"]]) for r in records})
+            final_scores = scores(model, final_specs, mode="singletons")
             after_signatures = signatures(model)
             save("final-before-reload.json", {**stamp(), "commands": command_order, "scores": final_scores,
                 "signatures_before": before_signatures, "signatures_after": after_signatures, "optimizer_updates": 0})
@@ -656,8 +692,9 @@ def run_training(prepared, model_directory, output_path, observer, journal):
                 stage = checkpoint + "_reload"
                 model = load(checkpoint, checkpoints[checkpoint])
                 baseline, signature_before = versions(model), signatures(model)
-                specs = pairs if checkpoint == "sft" else {r["record_id"]: (r, command_order[r["record_id"]]) for r in records}
-                observed = scores(model, specs)
+                specs = pairs if checkpoint == "sft" else final_specs
+                mode = "reference_pair" if checkpoint == "sft" else "singletons"
+                observed = scores(model, specs, mode=mode)
                 expected = reference_scores if checkpoint == "sft" else final_scores
                 difference = _score_difference(observed, expected)
                 # Persist the actual discrepancy before any rejection, including
