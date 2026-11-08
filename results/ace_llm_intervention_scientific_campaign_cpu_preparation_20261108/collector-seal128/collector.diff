@@ -1,0 +1,46 @@
+--- predecessor/pull_terminal.py
++++ pull_terminal.py
+@@ -83,6 +83,25 @@
+     data=Path(path).read_bytes()
+     need(sha(data)==meta['sha256'],'metadata changed during read')
+     if expected is not None:need(pin(expected) and sha(data)==expected,'independent pin differs: '+str(path))
++    return data
++
++
++# Observed GPU training custody seal:72,434,765 bytes; not an acceptance claim.
++# Only complete independently pinned upstream seals receive the128MiB bound.
++UPSTREAM_CUSTODY_SEAL_MAX_BYTES=128*1024**2
++
++
++def read_upstream_custody_seal(path,expected):
++    path=Path(path)
++    need(path.name=='custody-inventory.json' and pin(expected),'independently pinned upstream custody seal required')
++    meta=fingerprint(path,sole_link=True)
++    need(meta['bytes']<=UPSTREAM_CUSTODY_SEAL_MAX_BYTES,'bounded128MiB upstream custody seal required')
++    with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
++        info=os.fstat(f.fileno())
++        need(stat.S_ISREG(info.st_mode) and info.st_nlink==1,'regular independent upstream custody seal required')
++        data=f.read(UPSTREAM_CUSTODY_SEAL_MAX_BYTES+1)
++    need(len(data)==meta['bytes'] and len(data)<=UPSTREAM_CUSTODY_SEAL_MAX_BYTES
++         and sha(data)==meta['sha256']==expected,'upstream custody seal changed or independent pin differs')
+     return data
+ 
+ 
+@@ -519,7 +538,7 @@
+              and type(v['bytes']) is int and v['bytes']>=0 for n,v in preserved[label].items()), 'safe complete accepted upstream root map required')
+     # Reuse the reviewed terminal capsule's inventory, not a newly manufactured acceptance.
+     prior_custody=Path(a.training_terminal_custody).resolve(strict=True)
+-    custody=decode(read_metadata(prior_custody/'custody-inventory.json',a.training_custody_inventory_sha256))
++    custody=decode(read_upstream_custody_seal(prior_custody/'custody-inventory.json',a.training_custody_inventory_sha256))
+     prior_custody_before=inventory(prior_custody)
+     actual_capsule=dict(files={n:v for n,v in prior_custody_before['files'].items() if n!='custody-inventory.json'},directories=prior_custody_before['directories'])
+     matches=[v for k,v in custody['copies'].items() if Path(k).resolve()==prior_custody]
+@@ -528,7 +547,7 @@
+         need(prior_custody_before['files'][name]['sha256']==h,'training capsule metadata differs')
+     need(inventory(prior_custody/'remote')['files']==original_files,'complete accepted training raw capsule differs')
+     failed_capsule=prior_custody/'upstream-token01-custody'
+-    failed_custody=decode(read_metadata(failed_capsule/'custody-inventory.json',pins['token-failure-custody-inventory.json']))
++    failed_custody=decode(read_upstream_custody_seal(failed_capsule/'custody-inventory.json',pins['token-failure-custody-inventory.json']))
+     failed_view=inventory(failed_capsule)
+     failed_without_receipt=dict(files={n:v for n,v in failed_view['files'].items() if n!='custody-inventory.json'},directories=failed_view['directories'])
+     need(failed_custody['identical'] is True and len(failed_custody['copies'])==2

@@ -1,0 +1,96 @@
+{
+  "expected_source": "from typing import *\n\nimport torch\nimport torch.distributed.rpc as rpc\nfrom torch import Tensor\nfrom torch._jit_internal import Future\nfrom torch.distributed.rpc import RRef\nfrom typing import Tuple  # pyre-ignore: unused import\n\n\nmodule_interface_cls = None\n\n\ndef forward_async(self, *args, **kwargs):\n    args = (self.module_rref, self.device, self.is_device_map_set, *args)\n    kwargs = {**kwargs}\n    return rpc.rpc_async(\n        self.module_rref.owner(),\n        _remote_forward,\n        args,\n        kwargs,\n    )\n\n\ndef forward(self, *args, **kwargs):\n    args = (self.module_rref, self.device, self.is_device_map_set, *args)\n    kwargs = {**kwargs}\n    ret_fut = rpc.rpc_async(\n        self.module_rref.owner(),\n        _remote_forward,\n        args,\n        kwargs,\n    )\n    return ret_fut.wait()\n\n\n_generated_methods = [\n    forward_async,\n    forward,\n]\n\n\n\n\ndef _remote_forward(\n    module_rref: RRef[module_interface_cls], device: str, is_device_map_set: bool, *args, **kwargs):\n    module = module_rref.local_value()\n    device = torch.device(device)\n\n    if device.type != \"cuda\":\n        return module.forward(*args, **kwargs)\n\n    # If the module is on a cuda device,\n    # move any CPU tensor in args or kwargs to the same cuda device.\n    # Since torch script does not support generator expression,\n    # have to use concatenation instead of\n    # ``tuple(i.to(device) if isinstance(i, Tensor) else i for i in *args)``.\n    args = (*args,)\n    out_args: Tuple[()] = ()\n    for arg in args:\n        arg = (arg.to(device),) if isinstance(arg, Tensor) else (arg,)\n        out_args = out_args + arg\n\n    kwargs = {**kwargs}\n    for k, v in kwargs.items():\n        if isinstance(v, Tensor):\n            kwargs[k] = kwargs[k].to(device)\n\n    if is_device_map_set:\n        return module.forward(*out_args, **kwargs)\n\n    # If the device map is empty, then only CPU tensors are allowed to send over wire,\n    # so have to move any GPU tensor to CPU in the output.\n    # Since torch script does not support generator expression,\n    # have to use concatenation instead of\n    # ``tuple(i.cpu() if isinstance(i, Tensor) else i for i in module.forward(*out_args, **kwargs))``.\n    ret: Tuple[()] = ()\n    for i in module.forward(*out_args, **kwargs):\n        i = (i.cpu(),) if isinstance(i, Tensor) else (i,)\n        ret = ret + i\n    return ret\n",
+  "expected_source_sha256": "8205b16956fb264841ecd8644784a0d157f87df79b17c16825dc1163433ce5d8",
+  "sources": {
+    "torch.distributed.nn": {
+      "path": "/scratch/local/35420219/ace-scientific-training-35420219/runtime/lib/python3.10/site-packages/torch/distributed/nn/__init__.py",
+      "sha256": "4dae25d09af680e2bb79047e7b7dacb5668328f3a557f2a28b4484c7275793f4",
+      "stat": {
+        "ctime_ns": 1794157312259564756,
+        "dev": 2051,
+        "gid": 348288,
+        "ino": 4457738,
+        "mode": 33188,
+        "mtime_ns": 1794157312259564756,
+        "nlink": 1,
+        "size": 145,
+        "uid": 348288
+      }
+    },
+    "torch.distributed.nn.api.remote_module": {
+      "path": "/scratch/local/35420219/ace-scientific-training-35420219/runtime/lib/python3.10/site-packages/torch/distributed/nn/api/remote_module.py",
+      "sha256": "d51779fdbafb1ca1d99d002e6f32cf17bc1fef730a6251e3ef0278d8078bd112",
+      "stat": {
+        "ctime_ns": 1794157312260564762,
+        "dev": 2051,
+        "gid": 348288,
+        "ino": 4457747,
+        "mode": 33188,
+        "mtime_ns": 1794157312260564762,
+        "nlink": 1,
+        "size": 31286,
+        "uid": 348288
+      }
+    },
+    "torch.distributed.nn.jit.instantiator": {
+      "path": "/scratch/local/35420219/ace-scientific-training-35420219/runtime/lib/python3.10/site-packages/torch/distributed/nn/jit/instantiator.py",
+      "sha256": "567d1314ee27ff0b3bd22e7c4d1157246469de25e7a3183d96debe167b193615",
+      "stat": {
+        "ctime_ns": 1794157312263564780,
+        "dev": 2051,
+        "gid": 348288,
+        "ino": 4457754,
+        "mode": 33188,
+        "mtime_ns": 1794157312263564780,
+        "nlink": 1,
+        "size": 5510,
+        "uid": 348288
+      }
+    },
+    "torch.distributed.nn.jit.templates.remote_module_template": {
+      "path": "/scratch/local/35420219/ace-scientific-training-35420219/runtime/lib/python3.10/site-packages/torch/distributed/nn/jit/templates/remote_module_template.py",
+      "sha256": "0ff1856bbd031b5298d46c06c0502abc20bd804f42c1949ed4127e8c773660cc",
+      "stat": {
+        "ctime_ns": 1794157312264564786,
+        "dev": 2051,
+        "gid": 348288,
+        "ino": 4457760,
+        "mode": 33188,
+        "mtime_ns": 1794157312264564786,
+        "nlink": 1,
+        "size": 3463,
+        "uid": 348288
+      }
+    },
+    "transformers": {
+      "path": "/scratch/local/35420219/ace-scientific-training-35420219/runtime/lib/python3.10/site-packages/transformers/__init__.py",
+      "sha256": "7eb0743ed843f24c1d4e8b8daf4b18249cb81403b4571a70c00be0a4c0a67bd4",
+      "stat": {
+        "ctime_ns": 1794157316709592072,
+        "dev": 2051,
+        "gid": 348288,
+        "ino": 4589741,
+        "mode": 33188,
+        "mtime_ns": 1794157316709592072,
+        "nlink": 1,
+        "size": 47000,
+        "uid": 348288
+      }
+    },
+    "transformers.utils.import_utils": {
+      "path": "/scratch/local/35420219/ace-scientific-training-35420219/runtime/lib/python3.10/site-packages/transformers/utils/import_utils.py",
+      "sha256": "66b2ac40be2c538dbd9409370c1f6bf769934b8b232edac365e16299c5ec1108",
+      "stat": {
+        "ctime_ns": 1794157317477596787,
+        "dev": 2051,
+        "gid": 348288,
+        "ino": 4850099,
+        "mode": 33188,
+        "mtime_ns": 1794157317477596787,
+        "nlink": 1,
+        "size": 108811,
+        "uid": 348288
+      }
+    }
+  }
+}

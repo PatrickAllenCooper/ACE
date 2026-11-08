@@ -1,0 +1,33 @@
+{
+  "absolute_supervisor_deadline": 2780066.194076333,
+  "absolute_worker_deadline": 2780016.194076333,
+  "command": [
+    "/scratch/local/35420219/ace-scientific-training-35420219/runtime/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import hashlib,sys\nfrom pathlib import Path\npath=Path(sys.argv[1]); expected=sys.argv[2]\nwith path.open('rb') as f: data=f.read(1024**2+1)\nif len(data)>1024**2 or hashlib.sha256(data).hexdigest()!=expected:\n    raise ValueError('independent bootstrap source pin differs')\nsys.argv=[str(path),*sys.argv[3:]]\nexec(compile(data,str(path),'exec'),{'__name__':'__main__','__file__':str(path)})\n",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01/inputs/supervise_llm_intervention_scientific_training_gpu.py",
+    "55be5ba74fa16f3e05d5632a1d0ff4ac1b0a3187507849e82d6594810f3545fd",
+    "--packet",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01/inputs/training.json",
+    "--packet-sha256",
+    "b12fd2d7c0879618b48232cdd46bada5a3c1c16a9773680d3769a24a99e7aaf0",
+    "--output",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01/training/session/worker",
+    "--worker",
+    "--runtime-stage",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01/training/stage.json",
+    "--runtime-stage-sha256",
+    "61f1264677f35c25fac5c907093996dd603cab38e4712bdd862f9bb40ed16414",
+    "--admission",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01/inputs/admission.json",
+    "--admission-sha256",
+    "4f098af6a35c629ce93d7cfc63bdd8400b65e25c8e52b92974b076718c9693ac",
+    "--handoff",
+    "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108_01/training/handoff.json",
+    "--handoff-sha256",
+    "8f42ffbf83ed218f2299024d2f6298571c623d793409fddb53c443af6bd02eff"
+  ],
+  "first_gpu_deadline_from_start_seconds": 240
+}
