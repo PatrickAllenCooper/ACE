@@ -41,7 +41,9 @@ FINALIZER = 'finalize_llm_intervention_campaign_cpu.py'
 CPU = 'qualify_llm_intervention_service_cpu.py'
 DIAGNOSTIC = 'qualify_llm_intervention_runtime_metadata.py'
 SERVICE = 'llm_intervention_model_service.py'
+OWNED = 'llm_intervention_cpu_owned_supervision.py'
 HELPER_PINS = {
+    OWNED: '1c08423bb8fdd69ad637fbf5366978ea4a630c7ef206cc1b89ab30e3617a14e8',
     OLD: 'b2b1425bcd010d5ddc5deeda0dc3bd89817c9fe4cae6c4cc6465ec9f7f998f43',
     FINALIZER: '88102baf56395e7ef06fc7e96aae3ed2d7b8eef4ecb8b71f77acfc7e4b8e813f',
     CPU: 'd658bedd192d5c3e92f8fc22a052c67d6524df296623ef74e2c5f38bf02fbeb5',
@@ -507,6 +509,8 @@ def validate_worker(ctx,args,stage,stage_pin,provenance,checks):
 
 def parent(args,ctx):
     p,d,b,out=ctx['packet'],ctx['diagnostic'],ctx['base'],Path(args.output)
+    ownership=load_module('_scientific_cpu_owned',ctx['root']/OWNED,ctx['data'][OWNED])
+    args.owned_child=ownership.OwnedChild(args.started+p['deadlines']['hard'])
     write(out/'packet.json',p)
     job=os.environ.get('SLURM_JOB_ID','')
     q=subprocess.run(['scontrol','show','job','-o',job],capture_output=True,text=True,timeout=10)
@@ -529,11 +533,11 @@ def parent(args,ctx):
         '--source-commit',args.source_commit,'--output',str(session/'worker'),'--worker',
         '--runtime-stage',str(out/'stage.json'),'--runtime-stage-sha256',stage_pin,
         '--parent-started',str(args.started)]
-    f=ctx['finalizer']
-    # The accepted supervisor's explicit deadline constants are configured on an
-    # isolated module instance; its cleanup/process-handle algorithm is reused.
-    for key in ('startup','work','cleanup','hard'):setattr(f,key.upper(),p['deadlines'][key])
-    cleanup=f.supervise(command,b.cpu_environment(prefix,os.environ),session,args.started,args.packet_sha256,probe.kill_owned)
+    session_result=ownership.supervise(command,b.cpu_environment(prefix,os.environ),session,
+        started=args.started,startup_deadline=args.started+p['deadlines']['startup'],
+        work_deadline=args.started+p['deadlines']['work'],packet_sha256=args.packet_sha256,
+        owned=args.owned_child,kill_owned=probe.kill_owned)
+    cleanup=session_result['cleanup']
     terminal_pin=validate_worker(ctx,args,stage,stage_pin,provenance,checks)
     recheck(ctx)
     need(time.monotonic()<args.started+p['deadlines']['hard'],'hard deadline exhausted before publication')
@@ -547,7 +551,7 @@ def main():
     for n in ('packet','packet-sha256','source-commit','output'):ap.add_argument('--'+n,required=True)
     ap.add_argument('--worker',action='store_true');ap.add_argument('--runtime-stage');ap.add_argument('--runtime-stage-sha256')
     ap.add_argument('--parent-started',type=float)
-    args=ap.parse_args();args.started,args.process_started=time.monotonic(),time.process_time()
+    args=ap.parse_args();args.started,args.process_started=time.monotonic(),time.process_time();args.owned_child=None
     def interrupted(sig,frame):raise InterruptedError('scientific preparation signal '+str(sig))
     for sig in (signal.SIGINT,signal.SIGTERM,signal.SIGALRM):signal.signal(sig,interrupted)
     out=Path(args.output).absolute()
@@ -567,8 +571,19 @@ def main():
             need(args.runtime_stage and pin(args.runtime_stage_sha256),'independently pinned runtime stage required');child(args,ctx)
         else:parent(args,ctx)
     except BaseException as exc:
-        failure(out,exc);raise
-    finally:signal.setitimer(signal.ITIMER_REAL,0)
+        try:failure(out,exc)
+        except BaseException as publication:
+            if args.owned_child is not None:args.owned_child.error('failure_publication',publication)
+            try:print('Failure publication:',repr(publication),'Original:',repr(exc),file=sys.stderr)
+            except BaseException:pass
+        raise
+    finally:
+        if args.owned_child is not None:
+            args.owned_child.hold_until_closed()
+            if args.owned_child.errors:
+                try:print('Lifecycle diagnostics:',args.owned_child.errors,file=sys.stderr)
+                except BaseException:pass
+        signal.setitimer(signal.ITIMER_REAL,0)
 
 
 if __name__=='__main__':main()

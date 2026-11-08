@@ -30,7 +30,9 @@ SERVICE = 'llm_intervention_model_service.py'
 CHECKS = 'llm_intervention_service_runtime.py'
 COLLECT = 'collect_llm_intervention_scientific_training_cpu.py'
 REALIZE = 'llm_intervention_screen_realization.py'
+OWNED = 'llm_intervention_cpu_owned_supervision.py'
 HELPER_PINS = {
+    OWNED: '1c08423bb8fdd69ad637fbf5366978ea4a630c7ef206cc1b89ab30e3617a14e8',
     FINALIZER: '88102baf56395e7ef06fc7e96aae3ed2d7b8eef4ecb8b71f77acfc7e4b8e813f',
     TRAINING: 'b2b1425bcd010d5ddc5deeda0dc3bd89817c9fe4cae6c4cc6465ec9f7f998f43',
     DIAGNOSTIC: '31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329',
@@ -349,6 +351,8 @@ def validate_worker(ctx, out, stage, stage_pin):
 
 def parent(args, ctx):
     p,d,out=ctx['packet'],ctx['diagnostic'],Path(args.output)
+    ownership=B.module('_scientific_cpu_owned',ctx['root']/OWNED,ctx['data'][OWNED])
+    args.owned_child=ownership.OwnedChild(args.started+p['deadlines']['hard'])
     job=os.environ.get('SLURM_JOB_ID','')
     q=subprocess.run(['scontrol','show','job','-o',job],capture_output=True,text=True,timeout=10)
     B.save(out/'allocation.json',dict(stdout=q.stdout,stderr=q.stderr,returncode=q.returncode))
@@ -374,11 +378,11 @@ def parent(args, ctx):
         '--packet',str(ctx['packet_path']),'--packet-sha256',ctx['packet_pin'],'--source-commit',p['source_commit'],
         '--admission',str(ctx['admission_path']),'--admission-sha256',ctx['admission_pin'],
         '--output',str(session/'worker'),'--worker','--handoff-sha256',handoff_pin]
-    # Constants configured only on this process's independently verified module.
-    for key,value in p['deadlines'].items():setattr(B,key.upper(),value)
-    signal.setitimer(signal.ITIMER_REAL,max(.001,args.started+p['deadlines']['work']-time.monotonic()))
-    cleanup=B.supervise(command,ctx['training'].cpu_environment(Path(stage['staged_prefix']),os.environ),
-        session,args.started,ctx['packet_pin'],probe.kill_owned)
+    session_result=ownership.supervise(command,ctx['training'].cpu_environment(Path(stage['staged_prefix']),os.environ),
+        session,started=args.started,startup_deadline=args.started+p['deadlines']['startup'],
+        work_deadline=args.started+p['deadlines']['work'],packet_sha256=ctx['packet_pin'],
+        owned=args.owned_child,kill_owned=probe.kill_owned)
+    cleanup=session_result['cleanup']
     terminal_pin=validate_worker(ctx,session/'worker',stage,stage_pin)
     recheck(ctx);B.need(time.monotonic()<args.started+p['deadlines']['hard'],'absolute hard deadline exceeded')
     publish(out,dict(schema=VERSION,status='complete',mode=p['mode'],packet_sha256=ctx['packet_pin'],
@@ -392,7 +396,7 @@ def main():
     for name in ('packet','packet-sha256','source-commit','admission','admission-sha256','output'):
         ap.add_argument('--'+name,required=True)
     ap.add_argument('--worker',action='store_true');ap.add_argument('--handoff-sha256')
-    args=ap.parse_args();args.started,args.process_started=time.monotonic(),time.process_time()
+    args=ap.parse_args();args.started,args.process_started=time.monotonic(),time.process_time();args.owned_child=None
     def interrupted(sig,frame):raise InterruptedError('scientific CPU stage interrupted')
     for sig in (signal.SIGINT,signal.SIGTERM,signal.SIGALRM):signal.signal(sig,interrupted)
     signal.setitimer(signal.ITIMER_REAL,120)
@@ -421,9 +425,20 @@ def main():
         if args.worker:child(args,ctx,handoff)
         else:parent(args,ctx)
     except BaseException as exc:
-        if claimed:preserve_failure(out,exc)
+        if claimed:
+            try:preserve_failure(out,exc)
+            except BaseException as publication:
+                if args.owned_child is not None:args.owned_child.error('failure_publication',publication)
+                try:print('Failure publication:',repr(publication),'Original:',repr(exc),file=sys.stderr)
+                except BaseException:pass
         raise
-    finally:signal.setitimer(signal.ITIMER_REAL,0)
+    finally:
+        if args.owned_child is not None:
+            args.owned_child.hold_until_closed()
+            if args.owned_child.errors:
+                try:print('Lifecycle diagnostics:',args.owned_child.errors,file=sys.stderr)
+                except BaseException:pass
+        signal.setitimer(signal.ITIMER_REAL,0)
 
 
 if __name__=='__main__':main()
