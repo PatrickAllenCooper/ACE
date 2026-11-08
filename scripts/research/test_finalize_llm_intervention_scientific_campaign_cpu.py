@@ -19,6 +19,19 @@ class ScientificFinalizerTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
+    def test_revised_report_cap_scheduler_and_absolute_offsets(self):
+        self.assertEqual(gate.RESOURCES['wall_seconds'], 1200)
+        self.assertEqual((gate.STARTUP, gate.WORK, gate.CLEANUP, gate.HARD), (120,1140,1170,1190))
+        text = ('JobId=17 JobState=RUNNING Account=ucb736_asc2 Partition=acpu QOS=cpu-normal '
+                'NumCPUs=2 NumTasks=1 NumNodes=1 TimeLimit=00:20:00 Requeue=0 Restarts=0 '
+                'UserId=paco0228(12) AllocTRES=cpu=2,node=1,mem=7680M ReqTRES=cpu=2,node=1,mem=7680M')
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(gate.allocation(text, '17')['TimeLimit'], '00:20:00')
+            for invalid in ('00:05:00','00:19:59','00:20:01','00:30:00'):
+                with self.subTest(limit=invalid), self.assertRaises(ValueError):
+                    gate.allocation(text.replace('00:20:00',invalid),'17')
+        self.assertFalse({'numpy','torch','transformers'} & set(sys.modules))
+
     def fixture(self):
         paths = {k: str(self.root / k) for k in ('cpu_inputs', 'cpu_output', 'gpu_inputs', 'gpu_output', 'output')}
         paths['campaign'] = str(Path(paths['cpu_output']) / 'worker/artifacts/campaign')

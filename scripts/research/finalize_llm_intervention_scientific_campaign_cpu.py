@@ -39,8 +39,8 @@ CAMPAIGN_SHA = '9a2717dd68c37ddde6d7fb63c6cc519c067f7b1d457d4f49f919c18342424bbe
 POLICIES = ('uniform_random', 'menu_coverage', 'local_information', 'target_risk',
             'learned_ranker', 'frozen_llm', 'sft_llm', 'dpo_llm')
 RESOURCES = dict(account='ucb736_asc2', partition='acpu', qos='cpu-normal', cpus=2,
-                 memory_mib=7680, wall_seconds=300, gpus=0, requeue=False)
-STARTUP, WORK, CLEANUP, HARD = 120, 260, 280, 290
+                 memory_mib=7680, wall_seconds=1200, gpus=0, requeue=False)
+STARTUP, WORK, CLEANUP, HARD = 120, 1140, 1170, 1190
 GPU_ACCEPTANCE_KEYS = {'schema', 'status', 'scope', 'gpu_packet_sha256', 'cpu_packet_sha256',
     'cpu_acceptance_sha256', 'job_id', 'allocation', 'gpu_output', 'campaign_root',
     'gpu_output_files', 'campaign_files',
@@ -362,7 +362,7 @@ def allocation(text, job):
     fields = dict(pairs)
     need(len(fields) == len(pairs) and re.fullmatch('[1-9][0-9]*', job), 'unique scheduler identity required')
     wanted = dict(JobId=job, JobState='RUNNING', Account='ucb736_asc2', Partition='acpu', QOS='cpu-normal',
-                  NumCPUs='2', NumTasks='1', NumNodes='1', TimeLimit='00:05:00', Requeue='0', Restarts='0')
+                  NumCPUs='2', NumTasks='1', NumNodes='1', TimeLimit='00:20:00', Requeue='0', Restarts='0')
     need(all(fields.get(k) == v for k, v in wanted.items()) and fields.get('UserId', '').startswith('paco0228('),
          'fixed CPU-only finalizer allocation differs')
     for name in ('AllocTRES', 'ReqTRES'):
