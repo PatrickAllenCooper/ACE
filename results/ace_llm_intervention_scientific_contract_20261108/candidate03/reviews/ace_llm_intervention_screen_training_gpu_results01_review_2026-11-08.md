@@ -1,0 +1,58 @@
+# Screen training GPU01 actual-results review — 2026-11-08
+
+**Required findings: 0 for this bounded artificial training execution, saved runtime evidence, resource accounting, cleanup and complete custody.** Job **35393751** supports the scoped qualification below. It does not establish scientific utility, scientific efficiency, general context capacity, or permission for a scientific run. The retained collector disposition remains unchanged and non-qualifying; independent acceptance is separate in `results/ace_llm_intervention_screen_training_gpu_20261108/acceptance01`.
+
+Review used saved artifacts only. No model, tokenizer, numerical imports, tensor deserialization, replay, tests, remote operations or submission occurred. The one-off checker is `/tmp/ace-audit-screen-training-gpu01-20261108.py`, SHA-256 `401ffeb0d5e3243b0c02f894fd97f23834ce5b86578f8557b6115d04ccc88697`. It directly reconciles custody, committed inputs, accounting, raw update/token/score receipts and telemetry, and reuses only the authenticated stdlib saved-record validation paths of the frozen worker/supervisor/runtime helpers. An audit hook blocks numerical/deserialization imports and subprocess/network actions during helper validation. Its first actual-custody audit completed without a failed attempt. Original component reviews/tests were not repeated.
+
+## Custody and lineage
+
+Both complete terminal packages contain **507 files/73,431,818 bytes** and match byte-for-byte. Their raw remote subtrees contain **436 files/70,153,198 bytes**, matching both saved remote inventories and the collector's full raw map. The evolving launch copy, all 40 transferred pins, submission journals and committed concrete review are retained. Independent comparison binds the accepted 37-job/76-journal baseline and the new job/journals to **38 terminal jobs/78 exact journal pins**, not merely matching counts. Collector conflicts and input mismatches are empty; the two saved queue observations have no related active campaign job. No claim is made about live queue state after those observations.
+
+The launch commit is `f5d452a7883e0aab7e86f4fdaf6a4ef5c2657e99`; component source commit is `01daec872ba5c2f4ac9466edf85a264524be143b`. All 33 inner inputs/28 sources match the frozen packet and committed bytes. The prepared file, canonical plan, actual CPU tokens, CPU acceptance and 18 preparation-source pins retain their independently accepted bindings. The captured worker is `ecf9d709…`, qualifier `4665d03e…`, collector `e4cd620b…`. Runtime/model identity is inherited from the accepted CPU packet; seven base-model/tokenizer file receipts match their pins. This audit hashes retained tensor files as opaque bytes and does not load them.
+
+## Actual artificial training and reload evidence
+
+The engine's saved plan equals the accepted prepared plan. Prompt lengths are **[4638, 4638, 4744, 4638]**, with exact original prompt and complete command IDs; the full 32-token generation reserve is retained. The schedule is exactly **four SFT updates followed by two DPO updates**. SFT command lengths are 8/9/6/8, and DPO ordered command lengths are **[8,9] and [9,8]**. Shape-2 supervises terminal stop. Shape-3's equal-length [8,8] pair remains present but has **zero DPO exposure**. It is not an equal-pair training qualification.
+
+All six raw start/loss/gradient/update-intent/optimizer-attempt/update-returned/completion chains match their schedule and record pins. Each step records 112 present, finite adapter-gradient matrices with the expected shapes, totaling **1,146,880 trainable parameters**; losses and positive gradient norms are finite and clipping remains within 1.000001. Recompute deltas are **28,28,28,28,56,56**, totaling exactly **224**. Checkpointing is explicit non-reentrant, preserves RNG state and does not enable native checkpointing. Observed training exposure is **37,275 input tokens/65 action tokens**, with 18,892 stored preparation tokens.
+
+Initial/SFT/final adapter signatures are distinct; step-3 and step-5 checkpoint signatures bind the corresponding SFT/final states. Base and fixed projection signatures are unchanged. The post-SFT reference snapshot is bound to the four-step SFT adapter and retained `reference.pt`; both ordered reference pairs use four singleton decoder forwards. Its signature agrees with the engine terminal, and fixed-reference score equality is checked after DPO. The authenticated engine uses one AdamW instance across SFT and DPO; all six update receipts and the SFT/final optimizer-file byte pins support that execution path. Optimizer moments and step tensors were **not independently deserialized or numerically compared**.
+
+All 95 payload files in the fit manifest hash correctly, and the exact fit roster contains 97 files including the manifest and summary. Fresh base loads occur three times: initial load with no restored adapter, then SFT and final checkpoint reloads. Fresh SFT reload reproduces the **four scheduled reference scores** exactly; it does not claim all 28 SFT command scores. Final pre-disposal scoring and fresh final reload each cover **all 28 legal per-record command scores**, with matching ordered commands and exact raw values, maximum difference zero. All reload adapter/receipt hashes, restored projection names, signatures and frozen-inference/version checks match.
+
+There are exactly **10 legal generations**, five per checkpoint: **8 actions and 2 stops**. Each raw sequence is exactly the bound full prompt plus one prepared legal command and EOS 151645, with no truncation or new environment response. Action availability and affordability are checked against the bound public state. Each checkpoint repeats shape-0 after the other four requests, at a later timestamp, with identical tokens/completion. No cross-request cache is supplied; inference records zero training updates and unchanged tensor signatures/versions. These are legal artificial outputs, not response-quality or utility measurements.
+
+## Runtime, GPU work and cleanup
+
+The stage receipt binds the qualified archive/manifest and all **49,966 objects/8,397,575,073 file bytes** under the job's isolated node-local runtime. Saved Python is **3.10.19**; all 27 imported project modules (entry excluded) match captured source hashes at service-import, model-load and final-request observations. Actual versions include torch 2.9.1+cu128, transformers 4.57.3, numpy 2.2.5, scipy 1.15.3, tokenizers 0.22.1, safetensors 0.7.0, huggingface_hub 0.36.0 and jinja2 3.1.6. Duplicate numpy metadata is distinguished from the imported version. Generated Torch-module content/provenance and cache/source receipts retain the established qualified limits; stale-cache source compilation is expected rather than traced, and historical cache hash differences remain unexplained.
+
+Before model load there are no mixed native paths. At model-load/final-request observations, the narrow exceptions are `/dev/nvidia0`, `/dev/nvidiactl`, `/dev/nvidia-uvm` and `/dev/zero`. The saved GPU mapping validator reconstructs these from complete raw maps/device inventories and preserves the original snapshots; no general library-path exemption is admitted. This establishes observed runtime consistency, not universal binary closure or independent device assignment from mapping names alone.
+
+All **74 NVIDIA queries succeed**, with **63 positive owned-process samples** for PID 3884375, reporting **280–3404 MiB**. The first CUDA forward is 401.216 ms; six update intervals total 7243.099 ms, and ten generation intervals total 5198.379 ms. These independent process/memory and framework/progress signals establish real GPU work. They do not measure SM-utilization percentage, and their sum omits other scoring/loading operations. There are 62 monotonic progress records. First jointly verified GPU work is **45.449 seconds** after supervisor start, inside the 240-second startup bound; supervisor completion is **111.679 seconds**, inside 580 seconds.
+
+Runtime staging spans approximately **10:14:19.539–10:14:50.977 UTC** (31.437 seconds). Initial model loading occurs 10:15:01–10:15:03; training 10:15:04–10:15:21 (engine duration 16.329 seconds). Fresh SFT/final inference and disposal finish by 10:16:07. The three measured loads total 3.763 seconds. This substantial staging/import overhead is reported rather than interpreted as efficient scientific throughput.
+
+At the three disposal boundaries, the recorded residual allocations before workspace clearing are **64/32/32 MiB**. Each boundary records exactly one successful workspace-clear call, allocated bytes zero immediately afterward, and **allocated/reserved bytes both zero** after cache release. This establishes the observed cleanup effect, not the precise composition of internal cuBLAS/allocator state. Owned process-group cleanup records natural exit 0, no remaining group, no TERM/KILL or errors; the post-exit NVIDIA query succeeds with no owned rows. No failure artifacts are retained. Scheduler stderr is empty; worker stderr contains only the retained Transformers-cache and torch_dtype deprecation warnings.
+
+## Resource observations and limits
+
+Saved Slurm records agree on **COMPLETED, 0:0**, four requested/allocated CPUs, **12 GiB host memory**, one A100 MIG 3g.20gb slice, **118 seconds**, `ucb736_asc2/aa100/gpu-testing`, ten-minute limit, no requeue/restarts. The worker reports **20,096 MiB** total CUDA device memory; maximum CUDA allocation is **2725.526 MiB**, reserve **3124 MiB**, and observed NVIDIA process memory **3404 MiB**. These measurements have different scopes and are not substituted for each other.
+
+Child/helper peak host RSS is **3865341952 bytes (3686.277 MiB)**, but scheduler batch MaxRSS is **12021404 KiB (11739.652 MiB)** against 12288 MiB requested, leaving only **548.348 MiB** by that metric. The saved evidence does not explain the process/scheduler discrepancy; this successful bounded run does not justify lowering host memory or extrapolating full-study demand. Worker process CPU is 64.162 seconds, supervisor CPU 28.944 seconds, child/helpers CPU 74.491 seconds, and scheduler TotalCPU 103.553 seconds; these scopes overlap and must not be summed indiscriminately.
+
+Actual allocation cost is **472 CPU-seconds/118 GPU-slice-seconds**. Exact cumulative closure is **11040 CPU/1601 GPU**, plus the existing 3600 preparation allowance gives **14640 CPU admission**, with no outstanding candidate reservation. These are allocated resource costs, not CPU utilization or efficiency scores. The local collector reports its own narrower process CPU separately.
+
+## Principal evidence pins
+
+| Evidence | SHA-256 |
+| --- | --- |
+| Outer packet | `8ce3b594b7c1161528e173e353975113dac867607d54765140086ddd44382c08` |
+| Inner packet | `390336e2af6d239f310f7d99560c1e6342b0a3b868f7ed4eae59501cc447f460` |
+| Collector disposition | `4cdef36adc3c9faae166d8cc3c767fd0dc770521302f2f032ec26dfd4eaff822` |
+| Supervisor terminal | `b230dcc223df3e89b2bc3f41243131cd5547509ec5ab36140472333534c8633c` |
+| Worker terminal | `612ceda18a739948eefe681a5a3495313295b24b66facf2eca73c4ff3f10911e` |
+| Engine terminal | `8190684b4c288ac0cf6607049acf86adece6a9df5631d8dd8fcdb2ef35e04773` |
+| Worker summary | `e360513a8914fb7ac85abee3b353fa01b11563f6a0dcfb6b941bb3bc8d9dce50` |
+| Independent saved-evidence audit | `bb7baa976ad1167ea14091bebc11842efc7009ad338d08237b556dcba41d93e5` |
+
+The acceptance sidecar binds this review, the audit and the complete immutable collector inventories. Optional suggestions: none. Scientific protocol freeze and any future execution admission remain separate decisions; this acceptance is limited to the observed artificial qualification.

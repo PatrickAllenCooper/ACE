@@ -1,0 +1,21 @@
+# Scientific screen mount-path recovery
+
+This is an operational amendment before the first scientific system draw. It does not change the research question, system identities, methods, training examples, intervention budgets, private endpoints or stopping rules in the original combined contract.
+
+Job35402725 failed at the strict output-path equality guard before creating its output, staging the runtime or starting its worker. The independently accepted source and traceback boundary establishes zero system draws and zero responses. Failure acceptance SHA256 is `5da56ce061706f29a23c9a37a898bcbac128d16421f6cfd30731655208021a8d`. Both original namespace claims remain `58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29`.
+
+## Diagnosed correction
+
+The current login observation preserves `/scratch/alpine`. A saved October23 observation on the same compute node, c3cpu-e2-u1, resolves that prefix to `/gpfs/alpine1/scratch`. The current failed job did not print its canonical path, so the historical alias is a plausible specific explanation rather than a new observation of that job. A fresh direct compute query was denied by pam_slurm_adopt because no job was active. Its failed output is preserved, and access was not bypassed.
+
+Two new CPU supervisors contained the same overly strict equality test. Their correction admits either an already canonical path or this exact mount-prefix mapping. For the mapping, both roots must resolve to the stated physical root and have identical device/inode identities. The suffix must remain unchanged. Any symlink below the mount root rejects. Unknown aliases, escapes and path overlaps still reject. Existing exclusive directory creation, captured input hashes, source pins, runtime checks and ownership cleanup remain in force. The original logical paths are retained in packets and code filenames. Each corrected start receipt records both logical and resolved output paths. This is not protection against a hostile same-user or root process changing the filesystem concurrently.
+
+The affected sources are the scientific realization/collection supervisor and the scientific CPU campaign supervisor. The scientific GPU campaign changes only its independent pin of that CPU campaign source. No scientific model or original protocol source changes. Seven new filesystem-only cases cover the changed behavior, including both copies of the guard. No completed runtime or scientific tests are repeated.
+
+## Explicit recovery authority
+
+The successor contract retains the original freeze and failure acceptance as predecessors. Its67-source closure changes only these three infrastructure files. All scientific fields, original12 protocol pins,32 training identities,24 development identities, model/runtime pins and seven stage resource profiles remain fixed. Only the realization stage receives a new exclusive attempt02 output root. It retains the same2CPU/7680MiB/300second bound, zeroGPU and no requeue.
+
+The original namespace files remain unchanged. New exclusive namespace-recovery02 claims link the original claim and accepted pre-draw failure. The coordinator must independently verify both original claims, the failure acceptance, the successor contract and its review/adoption before making those new claims. It must reconcile both controller locks, all39 terminal identities and80 journal hashes, source/input pins, scratch readiness and current scheduler state. This authorizes one specific corrected attempt under Patrick's existing blanket approval. It is not automatic retry authority, a replacement-world rule or permission to skip a claimed or ambiguous attempt.
+
+Closed allocation is11048CPU and1601GPU-slice seconds. Including the single3600CPU preparation allowance and every remaining stage at its unchanged cap projects55568CPU and7181GPU-slice seconds. Limits remain57600/7200. The immediate corrected realization reserves600CPU seconds, giving15248CPU admission and1601GPU. These are admission calculations, not actual processCPU or whole-cycle cost. No scientific result is implied by preparation, submission, exit code or initial runtime checks. Complete actual56-system realization, custody and independent acceptance still precede collection.

@@ -1,0 +1,36 @@
+# Scientific recovery-contract builder review — 2026-11-08
+
+**Disposition: 2 required findings on builder `b3e5f77c2c7b4657bd91b8b7cf38d5a1e5c48edee59ea6ab81539d96882b375b`.** This is a static review of successor metadata construction, not execution of the builder, adoption of candidate02, or authorization to submit a recovery job. No candidate02 output was inspected or manufactured here.
+
+Reviewed `/var/folders/rp/5fry8hzd6r79lbs65w92n8b00000gn/T/ace-scientific-mount-alias-preparation-krw3_3dg/build_recovery_contract.py`. The final mount implementation review is independently pinned to `7964e4d6874d14b4bfa372b47ed6db36da2ad6401d85893c31e8966bf8656b48`; the recovery guide is `d389f9a6309ec02f9b1b11fe8d655b255ec5f5c064d00df9a892863be9718f33`. Implementation review and its retained integration tests belong to that separate review; they were not repeated.
+
+## Required findings
+
+**R1 — Package authenticated captured bytes, including the predecessor closure (lines43,63,100).** Line43 authenticates and decodes the original proposal, but line100 reads the path again without comparing its hash and packages that later byte sequence. A changed file between those reads can therefore produce a successor with a proposal whose bytes do not match its inherited `original_proposal.sha256`, despite a successful inventory and mirror comparison. Retain the authenticated `proposal_raw` and reuse it in the payload. Line63 also hashes a fresh, unauthenticated `closure-map.json` while labelling it the preserved original complete map; it is not checked against the embedded authenticated predecessor closure. Capture and authenticate that map once (the original byte pin is `d1dc5643f3ba3acd118633aeb298328c39ac88d363619d4395a902f509bbdfaa`, and its decoded content currently equals `old['stage_closure']`), then use that capture for its predecessor identity. This finding concerns provenance of the packaged metadata; it does not assert that the current files have changed during an attempted build.
+
+**R2 — Remove contradictory inherited current-source metadata (lines51–68).** Replacing hash strings and updating selected top-level closure fields leaves `closure['metadata_semantics']` asserting that only the finalizer changed and that `observed_head` is a predecessor observation with final Git binding pending. Those claims contradict this four-file successor and the new `git_binding_final=True`. The same substitution associates new helper hashes with old `top_level_functions` lists: the supervisor and collection entries omit `_output_path_binding` and `output_path_binding`; the CPU campaign additionally omits its new `separate` adapter. Either regenerate those small descriptive lists from the captured bytes using static AST parsing, or explicitly preserve them as predecessor observations rather than metadata for the new hashes. Preserve historical metadata under a clearly labelled predecessor field and make current source/revision semantics unambiguous. The supplied `source-delta02.json` describes the new functions accurately but the builder does not consume it or otherwise repair these lists.
+
+## Preservation and authority checks
+
+The exact current production delta against candidate01 is four files, with no roster expansion beyond67:
+
+| Source | Reviewed successor SHA256 |
+|---|---|
+| `supervise_llm_intervention_scientific_cpu.py` | `e5235f16dd17c72e0310004e7bd8df636008c789db8f793212d528fabfd587f8` |
+| `collect_llm_intervention_scientific_training_cpu.py` | `2bc872349f9fbfbafe1564b751cde899705f487f3bf822cce5518e0865bd9a4d` |
+| `prepare_llm_intervention_scientific_campaign_cpu.py` | `ba439d819f49f6832c97181e4ff727c4813f29031e7b67f8085670f845b0f893` |
+| `qualify_llm_intervention_scientific_campaign_gpu.py` | `2694093512f8ce144bce7f33d6e2306bc251011b26567642c32006a7902e7db1` |
+
+The builder captures all67 production files through Git with replacement objects disabled, checks equality with current bytes, requires exactly this changed set, and checks all12 original protocol pins against the authenticated proposal. It similarly captures the guide and final implementation review from the supplied revision and verifies the review's independent caller pin. No project module is imported or executed. Final committed-revision and actual candidate-byte binding remain later checks.
+
+The original freeze is fixed to `57a3e6dd27ded5cec007be235b799a2bec711fc2c5630ff16fef87d74273cd28`. Failure acceptance `5da56ce061706f29a23c9a37a898bcbac128d16421f6cfd30731655208021a8d`, accounting `63cd36dfd9c0dcda4ef8ceec7b99d91ecfa696676cd1d99149256c6a0fdb3727`, and original claim `58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29` are independently byte-pinned. Explicit checks bind job35402725, accepted pre-draw failure, zero worlds/responses, no realizer invocation, complete custody,39 terminal jobs,80 journals,11048CPU/1601GPU and no outstanding reservation. This reuses the accepted no-draw boundary; it does not infer no draw merely from a short failed job or missing output.
+
+Construction deep-copies the predecessor freeze, replaces the declared source identities and operational metadata, appends the correction review, and changes only the realization remote/external attempt root to02. Scientific top-level fields are equality-checked against the predecessor; stage fields except entry pins and those two realization roots are equality-checked. Thus the original32/24 identities, scientific schedule, endpoints and seven resource caps are retained by this construction. Accounting changes only the baseline pin, closed CPU total and whole CPU projection; explicit cap arithmetic requires55568CPU/7181GPU including the single3600CPU preparation allowance. The failed8CPU seconds are charged once; there is no new resource entitlement.
+
+The original namespace claim is read and packaged, not overwritten or deleted. The amendment requires a distinct exclusive recovery claim linked to that original, disables automatic retry, and leaves independent candidate adoption, both-lock/journal/site admission and the one-shot launcher to subsequent work. Both candidate destinations must be absent, files are created exclusively, and the repository copy is compared with the external copy. Partial failures remain on disk. Mirror agreement alone is not a substitute for R1's authenticated input capture.
+
+## Retained scope and evidence
+
+The earlier three-file builder `265130a3be467107a90cdd121f8288a5d456d4473a235472872a9bea3838b7a5` and its source observations remain under `/Users/pat/.codex/tmp/ace-recovery-contract-source-review-ohhiu1w7`. The exact four-file builder, guide, final alias review, predecessor closure, source-delta02 and byte-pin manifest are retained in its exclusive `four-file01/` subdirectory. The two findings above apply to the four-file builder and were not resolved by expanding `CHANGED` or correcting descriptions from three to four.
+
+No builder or project code, tests, tokenizer/model, scientific draw, response generation, remote operation, allocation or commit was executed. Only local byte/JSON reads and review-evidence publication were used. Later correction review should append to this disposition; an actual candidate still needs its own exact-byte review before adoption.
