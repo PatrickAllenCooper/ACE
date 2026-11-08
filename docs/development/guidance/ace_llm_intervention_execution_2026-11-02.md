@@ -989,3 +989,10 @@ CPU04 independent saved-evidence acceptance complete, zero required findings. Ac
 ### GPU14 submitted once after restored transport
 
 Job35372844 submitted at2026-11-08T04:24:46.620229Z, packetcommit836d0aef, source6c93a9fff83507730cbdb9a8ada615557c79232a. Outerfcd27b5c891bd5bb57020b26ac5ba79ba573f7c2e1fc0dd91c37d748f8678f61, innerfef1f2ed103bb719d1572221b8899d0ec60a8332247d2093b10e14a62d0d23f8. Bothlocks,26terminaljobs54journals, exactclosedaccounting, renewedassociation/slice/scratch and33remotepins reconciled. Remoteintentd9f8336be39ee32d2ae9eaea7ba6373e635bc94cd0d6059b697c82114577d4ff. Same1x20GBslice4requested(max8)CPU12GiB600seconds,240/560/580timers, ucb736_asc2/aa100/gpu-testing, norequeue. Admission16104CPU1609GPU includes4800/600caps and3600cumulativepreparation. Require realforward/generation andindependentownedGPUevidence,8requests,raw/proof/source/runtime/scheduler/cleanup/custody acceptance. No scientificgeneration/training.
+
+
+### Complete-batch training-plan bridge prepared
+
+New llm_intervention_training_plan.py connects full collectedbatch bytes to the existing exposure rule and CPU tokenization/training-plan engine. It preserves4SFT/2DPO examples,2unusedstrictpairs and2ties on the saved artificialfixture. Five new initialmethods pass. Independent review identified two missing semantic checks, nowfixed: task/envelope receipt bindings andcomplete per-world accounting. Two newfocused methods,5negativecases plusunchangedpositive, pass. Finaldeltareview0required. No oldtests/components rerun. Source92c207e0a5fb6bd27faad77b05e0d407fd5fd2b9604386839ae35552e38f4924.
+
+Initial/delta/finalpreparations arepreserved inresults/ace_llm_intervention_training_plan_preparation_20261108 andexclusiveexternal01/02/03. Initial0.640512childCPU/.905194167elapsed/199294976peakRSS; delta.551701childCPU/.558357125elapsed/199426048peakRSS. These arepreparationonly, notwholecyclecost. No newresponses, modelweights, trainingupdates orGPUexecution. ActualQwentokenization, realtrainingengine/supervisor/reporter andcampaignqualification remainopen. No scientificworlds generated orchanged. The initial savedplan isartificialfixtureevidence only.
