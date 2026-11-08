@@ -53,3 +53,50 @@ artifact has SHA-256 `01b0349312a672e74e6caf40fca92a44ca2d1983934be718dfc39361aa
 The independent delta recheck is complete with zero required defects. It confirms
 all six corrections and actual helper-interface compatibility by inspection.
 This is not actual-runtime qualification.
+
+## Measured basis for the next training qualification
+
+GPU09 completed six real updates, including 7,343-token contexts, on one A100
+20 GB slice in 126 allocated seconds. Its peak allocation was 4,016,784,384 GPU
+bytes and peak reservation was 4,844,421,120 bytes. GPU14 separately qualified
+persistent inference in the copied runtime. These are sizing evidence, not
+qualification of the new integrated engine or its fresh initialization.
+
+The newly prepared batch has prompt lengths 517, 586, 517 and 571, with six or
+seven tokens per complete command including EOS. A proposed one-slice, four-CPU,
+12 GiB, ten-minute integration therefore has a measured basis. Reserve up to
+8 host CPUs if Slurm allocates that many. At the current closed totals, this
+would admit 16,586/57,600 CPU-seconds including the cumulative preparation
+allowance, and 1,691/7,200 GPU-slice seconds. It is not yet frozen or allocated.
+
+The new run must start from the pinned pretrained base and seed109 fresh rank8
+adapters. No prior artificial adapter may initialize it. Execute the prepared
+4SFT/2DPO schedule exactly, preserve the post-SFT reference and continuous AdamW
+state, then verify checkpoint inference after a fresh base reload. Reuse the
+qualified arithmetic and runtime guards. Record independent owned-process GPU
+memory, CUDA work and completed updates, with a fixed startup deadline. A new
+source/packet review and live lock/journal reconciliation precede submission.
+
+## Actual result and acceptance
+
+Job35374034 completed0:0 with twoCPUs for77seconds and noGPU. Full179rawfiles
+1,904,631bytes are retained in exclusive local custody. The real tokenizer
+produced2257storedtokens, comprising2191prompttokens and66complete-commandtokens.
+Allfour records and the fixed4SFT/2DPOschedule match the independent expectations.
+These are planned updates, not executed training. The worker exited0 and its
+process group was gone without a kill or cleanup error.
+
+A distinct saved-evidence review independently reconstructed custody, source,
+model/runtime observations, labels, unordered-pair selection, token counts,
+phase order, scheduler resources and cleanup. Required findings:0. Acceptance
+is `1b22a1588fdb846649a01b597e0ec705342a6328cf81929d361e639db0512f81`.
+The prepared-file pin is `ceb5847336cf664b215a97d0c8f56f86f2f696e02e44f684ec5c9277e364653e`.
+The embedded plan pin is `fc6c1f51e436c91125d70ffb1462732d32ef7ecd67b567e07ae9360f030eff9b`.
+
+Actual parent allocation adds154CPU-seconds. Closed totals8186CPU/1091GPU,
+plus the existing3600CPUpreparation allowance, give11786/57600CPU and1091/7200GPU.
+BatchMaxRSS6289292KiB remains near6GiB. Supervisor32.282140CPU seconds,
+child/cleanup12.576041CPU seconds and scheduler45.042TotalCPU have overlapping
+scopes. They are not additions to allocation or a whole-cycle compute total.
+The accepted scope is CPU preparation only. Scientific training, GPU execution
+of the integrated engine and intervention-efficiency results remain open.
