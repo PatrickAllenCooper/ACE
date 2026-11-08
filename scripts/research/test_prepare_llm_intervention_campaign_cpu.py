@@ -21,6 +21,18 @@ spec.loader.exec_module(m)
 
 
 class CampaignCPUTests(unittest.TestCase):
+    def test_actual_cpu01_exact_memory_format_without_resource_relaxation(self):
+        receipt=ROOT.parents[1]/'results/ace_llm_intervention_campaign_artificial_20261108/cpu-terminal01/remote/cpu01/allocation.json'
+        captured=json.loads(receipt.read_bytes())
+        self.assertEqual(captured['returncode'],0)
+        observed=captured['stdout']
+        self.assertIn('mem=7.50G',observed)
+        result=m.allocation_fields(observed,'35385156')
+        self.assertEqual(result['NumCPUs'],'2')
+        for memory in ('7.49G','7.51G','8G'):
+            with self.subTest(memory=memory),self.assertRaises(ValueError):
+                m.allocation_fields(observed.replace('mem=7.50G','mem='+memory),'35385156')
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

@@ -1,10 +1,26 @@
 # Proposed artificial paired-campaign integration
 
-November 8, 2026. **Proposed campaign, not yet frozen, submitted, run or accepted.** Routine bounded preparation is covered by the current user authorization. Concrete launcher qualification and resource admission still precede execution.
+November 8, 2026. **CPU01 failed before staging. Its complete custody is local, with a narrow memory-format correction prepared. GPU phase not submitted.** The latest execution entry below supersedes the preceding snapshots. Routine bounded recovery and this artificial integration are covered by the current user authorization.
 
 Training GPU03, job 35379434, is now independently accepted with zero required defects. It completed fresh four-step SFT and two-step DPO training, both exact checkpoint reloads, ten legal generations and clean shutdown. Its acceptance is in `results/ace_llm_intervention_training_gpu_20261108/acceptance03`. The two failed predecessors remain unchanged.
 
-Current closed allocation is **9,210 CPU-seconds and 1,347 GPU-slice-seconds**. With the unchanged 3,600 CPU-second preparation allowance, admission is 12,810/57,600 CPU and 1,347/7,200 GPU. No campaign resources are allocated. The prospective caps below would bring admission to 19,410 CPU seconds and 1,947 GPU-slice seconds. Reconcile current jobs and journals before any submission.
+Current closed allocation after CPU01 is **9,232 CPU-seconds and 1,347 GPU-slice-seconds**. Its reservation is released. With the unchanged 3,600 CPU-second preparation allowance, current admission is 12,832/57,600 CPU and 1,347/7,200 GPU. A new 1,200 CPU-second attempt would bring CPU admission to 14,032. No new attempt is submitted at this entry.
+
+## CPU01 failure and exact memory-format correction
+
+Job35385156 failed1:0 after11seconds on two CPUs, adding22allocatedCPU seconds and zeroGPU. All86rawfiles totaling10,207,946bytes and all original input pins match exclusive terminal custody under `cpu-terminal01`. The original source, packet, output and failed attempt remain unchanged.
+
+The captured `scontrol` record matches every required job, account, partition, QOS, node/task/CPU, wall-time and requeue field. Its exact allocation is `cpu=2,mem=7.50G,node=1,billing=2`. The new wrapper accepted the equivalent strings `7680M` and `7.5G` but rejected `7.50G`. This stopped execution before archive staging, numerical training, a worker launch or any intervention. It is a formatting defect, not excess resource use or a scientific result.
+
+The correction adds only that exact equivalent memory literal. One new saved-record fixture passes the original allocation and rejects7.49G,7.51G and8G. It used0.189266childCPU seconds, excluding preparation/review. No model, fitting, response or submission occurred during the check. The old collector is retained, with a separately reviewed v2 that recognizes the same exact Slurm spelling. Distinct failure/correction review precedes a new exclusive CPU02 packet under existing blanket authorization. Do not rerun CPU01 or amend its command, source, outputs or future-service contracts.
+
+## CPU01 submitted
+
+Job **35385156** was submitted once at **2026-11-08T07:37:56.979376Z**. Source commit `5a2d543f29eefde455f5b74c250fbe2d52b23ef6` and packet commit `f18947ce2e579b7f3e3d2b47f4d32d8671026b8d` are fixed. CPU packet SHA-256 is `e0fd09b926539c1a764894fb39e508d4aadd50de12aaecb7273bdd72ddcf9788`. The distinct concrete packet review found zero required defects. All 72 inputs and five additional launch objects matched remote bytes. Both controller locks, 31 terminal predecessor jobs, 64 predecessor journals, renewed account and CPU memory ratio, scratch stat/df and dedicated write/read/cleanup passed. Remote submission-intent SHA-256 is `dbb4955d2ed082d91dc36f964d5e7e1cf14b455c9b6e42cf6477684064f244b6`.
+
+The request is two CPUs, 7,680 MiB and 600 seconds on `ucb736_asc2/acpu/cpu-normal`, with zero GPUs and no requeue. It performs the one matched numerical training and the ten CPU policy cells described below. The three future model-service commands are already fixed. No private finalization or scientific descriptors are authorized by this job.
+
+Repository custody is `results/ace_llm_intervention_campaign_artificial_20261108/cpu01`, with exclusive external original `ACE-LLM-intervention-campaign-cpu-20261108-01`. Remote root is `/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_01`. Complete terminal custody, saved validation and independent CPU acceptance remain mandatory before any GPU successor. Never duplicate pending, running or ambiguous work.
 
 ## Next gate and scope
 

@@ -836,7 +836,7 @@ def allocation_fields(raw, job):
         NumCPUs='2',NumTasks='1',NumNodes='1',TimeLimit='00:10:00',Requeue='0',Restarts='0')
     tres = dict(x.split('=',1) for x in fields.get('AllocTRES','').split(',') if '=' in x)
     need(all(fields.get(k)==v for k,v in expected.items()) and tres.get('cpu')=='2'
-         and tres.get('mem') in ('7680M','7.5G') and not any(k.startswith('gres/') for k in tres),
+         and tres.get('mem') in ('7680M','7.5G','7.50G') and not any(k.startswith('gres/') for k in tres),
          'fixed two-CPU/7680MiB/600s/zero-GPU allocation differs')
     return fields
 

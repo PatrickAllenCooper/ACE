@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-I",
+    "-B",
+    "-c",
+    "import sys,unittest;sys.path.insert(0,'/Users/pat/code/ACE/scripts/research');s=unittest.defaultTestLoader.loadTestsFromName('test_prepare_llm_intervention_campaign_cpu.CampaignCPUTests.test_actual_cpu01_exact_memory_format_without_resource_relaxation');r=unittest.TextTestRunner(verbosity=2).run(s);sys.exit(not r.wasSuccessful())"
+  ],
+  "returncode": 0,
+  "child_cpu_seconds": 0.189266,
+  "elapsed_seconds": 0.195479541,
+  "peak_child_rss_bytes": 28704768,
+  "source_sha256": {
+    "prepare_llm_intervention_campaign_cpu.py": "cecc09fa6502b8098e706a4275681fc8f9c5f5054d2cf4a0f2684fa2311ea74a",
+    "test_prepare_llm_intervention_campaign_cpu.py": "5f445e3cfb8c7878e3246703538ef423565663751de6274639ac6e95f62c0594"
+  },
+  "fixture_sha256": "cc148ac31c86e028671475246c6407803b74ed1e47021f5982f88f56a5b92056",
+  "scope": "one actual saved allocation and three memory-negative variants; no fits, models, responses or submission"
+}

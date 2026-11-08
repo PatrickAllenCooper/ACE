@@ -1,0 +1,7 @@
+{
+  "utc": "2026-11-08T07:38:28.172535+00:00",
+  "source": "import subprocess,json,pathlib\nroot=pathlib.Path('/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_campaign_artificial_20261108_01')\nr={}\nfor k,c in {'queue':['squeue','-j','35385156','-h','-o','%i|%T|%R|%a'],'accounting':['sacct','-j','35385156','-n','-P','--format=JobID,State,ExitCode,ElapsedRaw,AllocCPUS,AllocTRES%120,MaxRSS,TotalCPU']}.items():\n p=subprocess.run(c,capture_output=True,text=True,timeout=15);r[k]={'stdout':p.stdout,'stderr':p.stderr,'returncode':p.returncode}\nfor name in ['cpu01/failure.json','cpu01/supervisor.json','cpu01/worker/failure.json','cpu01/worker/artifacts/terminal.json']:\n p=root/name\n if p.exists():r[name]=p.read_text()[:16000]\nfor rel in ['cpu01','cpu01/worker/artifacts']:\n d=root/rel\n if d.exists():r[rel+'/latest_phases']=[json.loads(p.read_text()) for p in sorted(d.glob('phase-*.json'))[-3:]]\nprint(json.dumps(r))\n",
+  "returncode": 0,
+  "stdout": "{\"queue\": {\"stdout\": \"35385156|RUNNING|c3cpu-e2-u1|ucb736_asc2\\n\", \"stderr\": \"\", \"returncode\": 0}, \"accounting\": {\"stdout\": \"35385156|RUNNING|0:0|2|2|billing=2,cpu=2,mem=7.50G,node=1||00:00:00\\n35385156.batch|RUNNING|0:0|2|2|cpu=2,mem=7.50G,node=1||00:00:00\\n35385156.extern|RUNNING|0:0|2|2|billing=2,cpu=2,mem=7.50G,node=1||00:00:00\\n\", \"stderr\": \"\", \"returncode\": 0}}\n",
+  "stderr": ""
+}
