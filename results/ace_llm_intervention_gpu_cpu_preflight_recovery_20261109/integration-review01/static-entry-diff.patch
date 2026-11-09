@@ -1,0 +1,196 @@
+--- original269409
++++ initial6678
+@@ -30,7 +30,7 @@
+ import traceback
+ import types
+ 
+-VERSION = 'ace-scientific-paired-campaign-gpu-v1'
++VERSION = 'ace-scientific-paired-campaign-gpu-cpu-history-v2'
+ ENTRY = 'qualify_llm_intervention_scientific_campaign_gpu.py'
+ CPU_ENTRY = 'prepare_llm_intervention_scientific_campaign_cpu.py'
+ CPU_ENTRY_SHA = 'ba439d819f49f6832c97181e4ff727c4813f29031e7b67f8085670f845b0f893'
+@@ -43,7 +43,15 @@
+ DIAGNOSTIC = 'qualify_llm_intervention_runtime_metadata.py'
+ DIAGNOSTIC_SHA = '31bb109e2ce9603e72fe97e1cb3fcfdff2b1a72b3f7eaf74431ca92f1cd7c329'
+ EXTRA_SOURCES = {ENTRY, GPU_HELPER, PROCESS_HELPER,
+-    'llm_intervention_scientific_gpu_phase.py', 'llm_intervention_scientific_service_evidence.py'}
++    'llm_intervention_scientific_gpu_phase.py', 'llm_intervention_scientific_service_evidence.py',
++    'llm_intervention_cpu_preflight_receipt.py', 'llm_intervention_cpu_history_admission.py'}
++PREFLIGHT = 'llm_intervention_cpu_preflight_receipt.py'
++PREFLIGHT_SHA = 'b9d0bf56e6c3174ad4ca2c21a43e3c13372c4755575a945437137dc2a1e942c8'
++HISTORY = 'llm_intervention_cpu_history_admission.py'
++HISTORY_SHA = '4ab59481dc3085fe43629cd5480d9cbff65b1c7d62ca96703b349788d4907a67'
++RECOVERY_FILES = {'authority':'gpu-recovery-authority.json',
++    'context':'cpu-history-expected.json', 'receipt':'cpu-history-preflight.json',
++    'read_set':'cpu-history-readset.json'}
+ POLICIES = ('uniform_random','menu_coverage','local_information','target_risk',
+             'learned_ranker','frozen_llm','sft_llm','dpo_llm')
+ RESOURCE_BASE = {'account':'ucb736_asc2','partition':'aa100','qos':'gpu-testing',
+@@ -195,9 +203,9 @@
+     need(acceptance['cpu_output']==paths['cpu_output']==cpu_packet['cpu_output']
+         and acceptance['campaign_root']==paths['campaign']==str(Path(paths['cpu_output'])/excluded)
+         and acceptance['cpu_output_excluded_directory']==excluded,'accepted CPU evidence roots differ')
+-    need(inventory(paths['cpu_output'],exclude=excluded)==acceptance['cpu_output_files'],
+-         'independent CPU output inventory differs')
+-    need(inventory(paths['campaign'])==acceptance['campaign_files'],'independent CPU campaign inventory differs')
++    # Full historical byte/membership checks are bound by recovery_contract
++    # before this call and must be repeated in external terminal custody.
++    # Current consumed metadata below still uses independently pinned reads.
+     for field,wanted in (('bundle_path','worker/artifacts/cpu-phase/campaign-bundle.json'),
+                          ('phase_terminal_path','worker/artifacts/cpu-phase/terminal.json')):
+         need(acceptance[field]==wanted and pin(acceptance[field.replace('_path','_sha256')])
+@@ -280,7 +288,7 @@
+     packet = decode(packet_raw)
+     fields = {'schema','files','source_names','cpu_packet_sha256','cpu_acceptance_sha256',
+               'paths','resources','services','contracts','lineage_files','scope','limits',
+-              'freeze_sha256','namespace_admission_sha256'}
++              'freeze_sha256','namespace_admission_sha256','recovery_files'}
+     need(type(packet) is dict and set(packet)==fields and packet['schema']==VERSION
+          and packet['scope']=='development', 'fixed scientific GPU packet required')
+     resource_contract(packet)
+@@ -305,7 +313,10 @@
+          and old['freeze_sha256']==packet['freeze_sha256']==files['scientific-freeze.json']
+          and old['namespace_admission_sha256']==packet['namespace_admission_sha256']
+          and pin(packet['namespace_admission_sha256']), 'original scientific CPU/freeze/namespace differs')
+-    expected_files = set(old['files'])|EXTRA_SOURCES|{'cpu-packet.json','cpu-acceptance.json'}
++    need(packet['recovery_files']==RECOVERY_FILES, 'exact operational recovery inputs required')
++    need(files.get(PREFLIGHT)==PREFLIGHT_SHA and files.get(HISTORY)==HISTORY_SHA,
++         'independently reviewed recovery helper sources differ')
++    expected_files = set(old['files'])|EXTRA_SOURCES|{'cpu-packet.json','cpu-acceptance.json'}|set(RECOVERY_FILES.values())
+     need(set(files)==expected_files and all(files[n]==p for n,p in old['files'].items())
+          and packet['source_names']==sorted(set(old['source_names'])|EXTRA_SOURCES)
+          and all(n in files and n.endswith('.py') for n in packet['source_names']),
+@@ -343,6 +354,7 @@
+     need(old['runtime_source']==diagnostic.RUNTIME_SOURCE and old['runtime']==service.RUNTIME,
+          'original accepted runtime differs')
+     acceptance = decode(data['cpu-acceptance.json'])
++    recovery = recovery_contract(packet,data,root,acceptance,old)
+     bundle = admit_cpu(acceptance,packet,old,decode(data['prepared.json']))
+     lineage_name = LINEAGE
+     need(files[lineage_name]==LINEAGE_SHA,
+@@ -418,8 +430,61 @@
+     return {'root':root,'packet':packet,'data':data,'old':old,'acceptance':acceptance,'bundle':bundle,
+             'service':service,'gpu':gpu,'helper':helper,'diagnostic':diagnostic,
+             'lineage':lineage,'launch':launch,'freezes':freezes,'contracts':contracts,'admission':admission,
++            'recovery':recovery,
+             'packet_path':Path(path).absolute(),'packet_pin':packet_pin,'packet_raw':packet_raw,
+             'admission_path':Path(admission_path).absolute(),'admission_pin':admission_pin,'admission_raw':admission_raw}
++
++
++def recovery_contract(packet,data,root,acceptance,old):
++    """Pinned historical preparation, not continuous immutability or acceptance."""
++    names=RECOVERY_FILES
++    checker=module('pinned_cpu_history_receipt',root/PREFLIGHT,data[PREFLIGHT])
++    preflight=checker.validate_receipt(data[names['receipt']],packet['files'][names['receipt']],
++        data[names['context']],packet['files'][names['context']])
++    expected=decode(data[names['context']]);context=expected['execution_context']
++    authority=decode(data[names['authority']])
++    need(authority.get('schema')=='ace-gpu-cpu-history-recovery-authority-v1'
++         and authority.get('status')=='operationally_adopted'
++         and authority.get('historical_postcustody_required') is True
++         and authority.get('unchanged_scientific_inputs') is True
++         and authority.get('original_entry_sha256')=='2694093512f8ce144bce7f33d6e2306bc251011b26567642c32006a7902e7db1'
++         and authority.get('original_source_commit')=='a9346022f145cc29439325b6f291597b2e6ec037'
++         and authority.get('original_gpu01_packet_sha256')=='436807328b4ee8ba0ec8cef3d5ff5b9c1d195b0b0165d5181a80356002f60fa7'
++         and authority.get('original_gpu01_job_id')=='35498218',
++         'independently adopted operational recovery authority required')
++    paths=packet['paths'];lineage=context['lineage']
++    need(lineage['cpu_acceptance_sha256']==packet['cpu_acceptance_sha256']
++         and lineage['recovery_authority_sha256']==packet['files'][names['authority']]
++         and lineage['checker_sha256']==PREFLIGHT_SHA,
++         'original CPU/recovery/checker authority differs')
++    need(context['control_root']==str(root.parent)==authority['control_root']
++         and context['gpu_output']==paths['gpu_output']==authority['allowed_new_output']
++         and context['failed_gpu01_root']==authority['failed_gpu01_root']
++         and context['cpu_roots']=={'cpu_output':paths['cpu_output'],'campaign':paths['campaign']},
++         'explicit new control and frozen output roots differ')
++    need(context['baseline']==authority['baseline']
++         and lineage['failed_gpu01_acceptance_sha256']==authority['failed_gpu01_acceptance_sha256']
++         and lineage['namespace_sha256']==authority['namespace_sha256']
++         and lineage['original_namespace_sha256']==authority['original_namespace_sha256']
++         and lineage['source_sha256']==authority['historical_verifier_sha256']
++         and context['proof_pins']==authority['historical_proof_pins']
++         and packet['cpu_acceptance_sha256']==authority['cpu_acceptance_sha256'],
++         'failure/accounting/namespace lineage differs')
++    digest=lambda value:sha(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode())
++    sources={n:packet['files'][n] for n in packet['source_names']}
++    need(sources==authority['operational_source_files']
++         and context['source_files_sha256']==digest(sources)
++         and context['model_files_sha256']==digest(old['model_files'])
++         and context['resources_sha256']==digest(packet['resources'])
++         and context['limits_sha256']==digest(packet['limits']),
++         'exact execution source/model/resource/clock binding differs')
++    need(context['proof_pins']['read_set_artifact_sha256']==packet['files'][names['read_set']],
++         'independent consumed read-set artifact differs')
++    inventories=expected['cpu_inventories']
++    for role,key in (('cpu_output','cpu_output_files'),('campaign','campaign_files')):
++        need({n:v['sha256'] for n,v in inventories[role]['files'].items()}==acceptance[key],
++             'complete preflight files differ from independent CPU acceptance')
++    return {'preflight':preflight,'authority_sha256':packet['files'][names['authority']]}
+ 
+ 
+ def recheck_inputs(ctx):
+@@ -520,6 +585,7 @@
+     directory.mkdir(mode=0o700,exist_ok=False)
+     captured = {n:data[n] for n in packet['source_names']}
+     loader = CapturedSources(captured,ctx['root'])
++    history_context = None
+     sys.meta_path.insert(0,loader)
+     try:
+         from llm_intervention_service_runtime import ServiceRuntime
+@@ -533,6 +599,17 @@
+         from llm_intervention_scientific_service_evidence import validate_campaign_service
+         from llm_intervention_contract import digest
+         bundle = ctx['bundle']
++        from llm_intervention_cpu_history_admission import capture_history
++        historical = capture_history(
++            acceptance_raw=data['cpu-acceptance.json'], acceptance_sha256=packet['cpu_acceptance_sha256'],
++            bundle_raw=read(Path(packet['paths']['cpu_output'])/ctx['acceptance']['bundle_path'],
++                            ctx['acceptance']['bundle_sha256']), bundle_sha256=ctx['acceptance']['bundle_sha256'],
++            readset_raw=data[RECOVERY_FILES['read_set']], readset_sha256=packet['files'][RECOVERY_FILES['read_set']],
++            campaign_source_raw=data['llm_intervention_campaign.py'],
++            campaign_source_sha256=packet['files']['llm_intervention_campaign.py'])
++        history_manager = historical.install(campaign)
++        history_manager.__enter__()
++        history_context = history_manager
+         c,campaign_root = campaign._root(bundle['campaign'],bundle['campaign_sha256'],
+             bundle['source_plan_pins'],packet['paths']['campaign'])
+         for pid,value in ctx['acceptance']['attempt_pins'].items():
+@@ -595,11 +672,11 @@
+                  and launch['contract_sha256']==packet['files'][packet['contracts'][pid]], 'executed shim binding differs')
+             validations[pid] = {'attempt_sha256':attempt_pin,'evidence_sha256':sha(read(directory/(pid+'-evidence.json'))),
+                 'runtime':runtime,'worker_inventory':inventory_now}
+-        need(inventory(packet['paths']['cpu_output'],exclude='worker/artifacts/campaign')==ctx['acceptance']['cpu_output_files'],
+-             'CPU output changed during GPU phase')
+-        final_campaign=inventory(packet['paths']['campaign'])
+-        need({n:h for n,h in final_campaign.items() if n.split('/')[0] not in {'policy-05','policy-06','policy-07'}}
+-             ==ctx['acceptance']['campaign_files'],'campaign changed outside three GPU attempts')
++        save(directory/'historical-postcustody-required.json', {
++            'preflight':ctx['recovery']['preflight'],
++            'authority_sha256':packet['files'][RECOVERY_FILES['authority']],
++            'historical_postcheck_performed_on_gpu':False,
++            'full_external_postcustody_required':True, 'acceptance':False})
+         recheck_inputs(ctx)
+         need(time.monotonic()<args.started+packet['limits']['final_seconds'], 'absolute campaign supervisor deadline exceeded')
+         save(out/'terminal.json',{'schema':VERSION,'status':'development_gpu_campaign_complete',
+@@ -612,12 +689,19 @@
+             'new_training_updates':0,'private_scores_computed':False,'scientific_qualified':False,
+             'response_accounting_source':'original charged campaign arm journals',
+             'token_decoding_replayed':False,'cpu_finalization_and_external_acceptance_required':True,
++            'operational_recovery_authority_sha256':packet['files'][RECOVERY_FILES['authority']],
++            'historical_preflight_receipt_sha256':packet['files'][RECOVERY_FILES['receipt']],
++            'historical_postcheck_performed_on_gpu':False,'full_external_postcustody_required':True,
+             'elapsed_seconds':time.monotonic()-args.started,
+             'supervisor_process_cpu_seconds':time.process_time()-args.process_started,
+             'helpers_and_service_cpu_seconds':resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime+
+                 resource.getrusage(resource.RUSAGE_CHILDREN).ru_stime})
+     finally:
+-        sys.meta_path.remove(loader)
++        try:
++            if history_context is not None:
++                history_context.__exit__(*sys.exc_info())
++        finally:
++            sys.meta_path.remove(loader)
+ 
+ 
+ def transfer_phase_deadline(started,limits):

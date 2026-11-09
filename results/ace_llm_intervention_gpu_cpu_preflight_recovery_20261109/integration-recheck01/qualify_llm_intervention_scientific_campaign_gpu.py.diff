@@ -1,0 +1,236 @@
+--- reviewed03/qualify_llm_intervention_scientific_campaign_gpu.py
++++ corrected04/qualify_llm_intervention_scientific_campaign_gpu.py
+@@ -48,7 +48,7 @@
+ PREFLIGHT = 'llm_intervention_cpu_preflight_receipt.py'
+ PREFLIGHT_SHA = 'b9d0bf56e6c3174ad4ca2c21a43e3c13372c4755575a945437137dc2a1e942c8'
+ HISTORY = 'llm_intervention_cpu_history_admission.py'
+-HISTORY_SHA = '997482f0bb9e86d3f3c0b721cf77ba55bb2570a0610445757a10e0836d3944d0'
++HISTORY_SHA = '674d114f496c63cd9891f6c2d47b0d74a9a657090c0751215f91e2580cc941c9'
+ RECOVERY_FILES = {'authority':'gpu-recovery-authority.json',
+     'context':'cpu-history-expected.json', 'receipt':'cpu-history-preflight.json',
+     'read_set':'cpu-history-readset.json'}
+@@ -354,7 +354,7 @@
+     need(old['runtime_source']==diagnostic.RUNTIME_SOURCE and old['runtime']==service.RUNTIME,
+          'original accepted runtime differs')
+     acceptance = decode(data['cpu-acceptance.json'])
+-    recovery = recovery_contract(packet,data,root,acceptance,old)
++    recovery = recovery_contract(packet,data,root,acceptance,old,admission)
+     bundle = admit_cpu(acceptance,packet,old,decode(data['prepared.json']))
+     lineage_name = LINEAGE
+     need(files[lineage_name]==LINEAGE_SHA,
+@@ -435,7 +435,7 @@
+             'admission_path':Path(admission_path).absolute(),'admission_pin':admission_pin,'admission_raw':admission_raw}
+ 
+ 
+-def recovery_contract(packet,data,root,acceptance,old):
++def recovery_contract(packet,data,root,acceptance,old,admission):
+     """Pinned historical preparation, not continuous immutability or acceptance."""
+     names=RECOVERY_FILES
+     checker=module('pinned_cpu_history_receipt',root/PREFLIGHT,data[PREFLIGHT])
+@@ -452,6 +452,8 @@
+          and authority.get('original_gpu01_packet_sha256')=='436807328b4ee8ba0ec8cef3d5ff5b9c1d195b0b0165d5181a80356002f60fa7'
+          and authority.get('original_gpu01_job_id')=='35498218',
+          'independently adopted operational recovery authority required')
++    need(admission['accounting_sha256']==context['baseline']['sha256'],
++         'stage admission differs from independently accepted recovery baseline')
+     paths=packet['paths'];lineage=context['lineage']
+     need(lineage['cpu_acceptance_sha256']==packet['cpu_acceptance_sha256']
+          and lineage['recovery_authority_sha256']==packet['files'][names['authority']]
+@@ -585,7 +587,6 @@
+     directory.mkdir(mode=0o700,exist_ok=False)
+     captured = {n:data[n] for n in packet['source_names']}
+     loader = CapturedSources(captured,ctx['root'])
+-    history_context = None
+     sys.meta_path.insert(0,loader)
+     try:
+         from llm_intervention_service_runtime import ServiceRuntime
+@@ -607,101 +608,95 @@
+             readset_raw=data[RECOVERY_FILES['read_set']], readset_sha256=packet['files'][RECOVERY_FILES['read_set']],
+             campaign_source_raw=data['llm_intervention_campaign.py'],
+             campaign_source_sha256=packet['files']['llm_intervention_campaign.py'])
+-        history_manager = historical.install(campaign)
+-        history_manager.__enter__()
+-        history_context = history_manager
+-        c,campaign_root = campaign._root(bundle['campaign'],bundle['campaign_sha256'],
+-            bundle['source_plan_pins'],packet['paths']['campaign'])
+-        for pid,value in ctx['acceptance']['attempt_pins'].items():
+-            attempt,closed = campaign._load_attempt(c,bundle['campaign_sha256'],
+-                campaign._attempt(campaign_root,c,pid),pid,value)
+-            need(closed is None and not attempt['errors'] and
+-                 all(a['status']=='completed' for a in attempt['arms']), 'CPU attempts not wholly successful')
+-        save(directory/'admitted.json',{'cpu_acceptance_sha256':packet['cpu_acceptance_sha256'],
+-            'campaign_sha256':bundle['campaign_sha256'],'cpu_attempt_pins':ctx['acceptance']['attempt_pins'],
+-            'lineage':ctx['lineage'],'scientific_qualified':False})
+-        # This function owns the actual persistent process handles, deadlines,
+-        # telemetry and fallback cleanup. It never calls private finalization.
+-        transfer_phase_deadline(args.started,packet['limits'])
+-        result = run_gpu_phase(
+-            campaign=c,campaign_sha256=bundle['campaign_sha256'],source_plan_pins=bundle['source_plan_pins'],
+-            campaign_root=campaign_root,supervision_root=directory/'phase',
+-            services={pid:{'worker_output_dir':contract['worker_output'],
+-                'freeze_sha256':packet['files'][packet['services'][pid]],
+-                'identity_sha256':digest(ctx['service'].identity(ctx['freezes'][pid]))}
+-                for pid,contract in ctx['contracts'].items()},
+-            outer_started=args.started,work_deadline=args.started+packet['limits']['work_seconds'],final_deadline=args.started+packet['limits']['final_seconds'],
+-            helper=ctx['helper'],helper_sha256=PROCESS_HELPER_SHA,
+-            deadline_helper=ctx['gpu'],deadline_helper_sha256=GPU_HELPER_SHA,limits=packet['limits'])
+-        need(result['status']=='gpu_phase_complete', 'GPU phase did not return complete closure')
+-        save(directory/'phase-result.candidate.json',result)
+-        signal.setitimer(signal.ITIMER_REAL,max(.01,args.started+packet['limits']['final_seconds']-time.monotonic()))
+-        observer.observe('after-campaign-host')
+-        cpu_checks = sys.modules['qualify_llm_intervention_service_cpu']
+-        runtime_checks = sys.modules['llm_intervention_service_runtime']
+-        provenance = decode(read(out/'independent-provenance-sources.json'))
+-        def controller_read(name):
+-            if name=='runtime-after-cpu-tokenization.json': name='runtime-after-campaign-host.json'
+-            return decode(read(journal.output/name))
+-        cpu_checks.validate_runtime_records(controller_read,stage,handoff['stage_sha256'],ctx['service'],
+-            ctx['diagnostic'],runtime_checks,provenance)
+-        need(controller_read('runtime-stage-binding.json')['gpu_mapping_enabled'] is False,
+-             'host controller cannot admit device mappings')
+-        expected = {Path(n).stem:packet['files'][n] for n in packet['source_names'] if n!=ENTRY}
+-        for phase in ('after-service-imports','after-campaign-host'):
+-            projects = decode(read(journal.output/('runtime-'+phase+'.json')))['captured_project_modules']
+-            need(set(expected)<=set(projects)<=set(expected)|{'__main__','__mp_main__'}
+-                 and all(projects[n]['sha256']==p for n,p in expected.items()), 'controller captured closure differs')
+-        validations = {}
+-        for pid in POLICIES[5:]:
+-            attempt_pin = result['attempt_pins'][pid]
+-            freeze = ctx['freezes'][pid]
+-            worker = Path(ctx['contracts'][pid]['worker_output'])
+-            inventory_now = inventory(worker)
+-            joined = validate_campaign_service(campaign=c,campaign_sha256=bundle['campaign_sha256'],
+-                source_plan_pins=bundle['source_plan_pins'],campaign_root=campaign_root,policy_id=pid,
+-                worker_output_dir=worker,freeze_sha256=packet['files'][packet['services'][pid]],
+-                identity_sha256=digest(ctx['service'].identity(freeze)),attempt_sha256=attempt_pin,
+-                worker_evidence_sha256=inventory_now)
+-            save(directory/(pid+'-evidence.json'),joined)
+-            need(joined['operational_success'], 'service did not complete successfully: '+pid)
+-            runtime = ctx['gpu'].validate_runtime(worker.parent,freeze,packet['files'],stage,
+-                handoff['stage_sha256'],cpu_checks,ctx['service'],ctx['diagnostic'],runtime_checks,provenance)
+-            launch = decode(read(Path(ctx['contracts'][pid]['launch_output'])/'execution.json'))
+-            need(launch['stage_binding_sha256']==handoff['binding_sha256']
+-                 and launch['contract_sha256']==packet['files'][packet['contracts'][pid]], 'executed shim binding differs')
+-            validations[pid] = {'attempt_sha256':attempt_pin,'evidence_sha256':sha(read(directory/(pid+'-evidence.json'))),
+-                'runtime':runtime,'worker_inventory':inventory_now}
+-        save(directory/'historical-postcustody-required.json', {
+-            'preflight':ctx['recovery']['preflight'],
+-            'authority_sha256':packet['files'][RECOVERY_FILES['authority']],
+-            'historical_postcheck_performed_on_gpu':False,
+-            'full_external_postcustody_required':True, 'acceptance':False})
+-        recheck_inputs(ctx)
+-        need(time.monotonic()<args.started+packet['limits']['final_seconds'], 'absolute campaign supervisor deadline exceeded')
+-        save(out/'terminal.json',{'schema':VERSION,'status':'development_gpu_campaign_complete',
+-            'packet_sha256':args.packet_sha256,'cpu_acceptance_sha256':packet['cpu_acceptance_sha256'],
+-            'admission_sha256':args.admission_sha256,'cpu_packet_sha256':packet['cpu_packet_sha256'],
+-            'campaign_sha256':bundle['campaign_sha256'],'stage_sha256':handoff['stage_sha256'],
+-            'attempt_pins':result['attempt_pins'],'service_validation':validations,
+-            'combined_attempt_pins':{**ctx['acceptance']['attempt_pins'],**result['attempt_pins']},
+-            'training_lineage':ctx['lineage'],'limits':packet['limits'],'resources':packet['resources'],
+-            'new_training_updates':0,'private_scores_computed':False,'scientific_qualified':False,
+-            'response_accounting_source':'original charged campaign arm journals',
+-            'token_decoding_replayed':False,'cpu_finalization_and_external_acceptance_required':True,
+-            'operational_recovery_authority_sha256':packet['files'][RECOVERY_FILES['authority']],
+-            'historical_preflight_receipt_sha256':packet['files'][RECOVERY_FILES['receipt']],
+-            'historical_postcheck_performed_on_gpu':False,'full_external_postcustody_required':True,
+-            'elapsed_seconds':time.monotonic()-args.started,
+-            'supervisor_process_cpu_seconds':time.process_time()-args.process_started,
+-            'helpers_and_service_cpu_seconds':resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime+
+-                resource.getrusage(resource.RUSAGE_CHILDREN).ru_stime})
++        with historical.install(campaign):
++            c,campaign_root = campaign._root(bundle['campaign'],bundle['campaign_sha256'],
++                bundle['source_plan_pins'],packet['paths']['campaign'])
++            for pid,value in ctx['acceptance']['attempt_pins'].items():
++                attempt,closed = campaign._load_attempt(c,bundle['campaign_sha256'],
++                    campaign._attempt(campaign_root,c,pid),pid,value)
++                need(closed is None and not attempt['errors'] and
++                     all(a['status']=='completed' for a in attempt['arms']), 'CPU attempts not wholly successful')
++            save(directory/'admitted.json',{'cpu_acceptance_sha256':packet['cpu_acceptance_sha256'],
++                'campaign_sha256':bundle['campaign_sha256'],'cpu_attempt_pins':ctx['acceptance']['attempt_pins'],
++                'lineage':ctx['lineage'],'scientific_qualified':False})
++            # This function owns the actual persistent process handles, deadlines,
++            # telemetry and fallback cleanup. It never calls private finalization.
++            transfer_phase_deadline(args.started,packet['limits'])
++            result = run_gpu_phase(
++                campaign=c,campaign_sha256=bundle['campaign_sha256'],source_plan_pins=bundle['source_plan_pins'],
++                campaign_root=campaign_root,supervision_root=directory/'phase',
++                services={pid:{'worker_output_dir':contract['worker_output'],
++                    'freeze_sha256':packet['files'][packet['services'][pid]],
++                    'identity_sha256':digest(ctx['service'].identity(ctx['freezes'][pid]))}
++                    for pid,contract in ctx['contracts'].items()},
++                outer_started=args.started,work_deadline=args.started+packet['limits']['work_seconds'],final_deadline=args.started+packet['limits']['final_seconds'],
++                helper=ctx['helper'],helper_sha256=PROCESS_HELPER_SHA,
++                deadline_helper=ctx['gpu'],deadline_helper_sha256=GPU_HELPER_SHA,limits=packet['limits'])
++            need(result['status']=='gpu_phase_complete', 'GPU phase did not return complete closure')
++            save(directory/'phase-result.candidate.json',result)
++            signal.setitimer(signal.ITIMER_REAL,max(.01,args.started+packet['limits']['final_seconds']-time.monotonic()))
++            observer.observe('after-campaign-host')
++            cpu_checks = sys.modules['qualify_llm_intervention_service_cpu']
++            runtime_checks = sys.modules['llm_intervention_service_runtime']
++            provenance = decode(read(out/'independent-provenance-sources.json'))
++            def controller_read(name):
++                if name=='runtime-after-cpu-tokenization.json': name='runtime-after-campaign-host.json'
++                return decode(read(journal.output/name))
++            cpu_checks.validate_runtime_records(controller_read,stage,handoff['stage_sha256'],ctx['service'],
++                ctx['diagnostic'],runtime_checks,provenance)
++            need(controller_read('runtime-stage-binding.json')['gpu_mapping_enabled'] is False,
++                 'host controller cannot admit device mappings')
++            expected = {Path(n).stem:packet['files'][n] for n in packet['source_names'] if n!=ENTRY}
++            for phase in ('after-service-imports','after-campaign-host'):
++                projects = decode(read(journal.output/('runtime-'+phase+'.json')))['captured_project_modules']
++                need(set(expected)<=set(projects)<=set(expected)|{'__main__','__mp_main__'}
++                     and all(projects[n]['sha256']==p for n,p in expected.items()), 'controller captured closure differs')
++            validations = {}
++            for pid in POLICIES[5:]:
++                attempt_pin = result['attempt_pins'][pid]
++                freeze = ctx['freezes'][pid]
++                worker = Path(ctx['contracts'][pid]['worker_output'])
++                inventory_now = inventory(worker)
++                joined = validate_campaign_service(campaign=c,campaign_sha256=bundle['campaign_sha256'],
++                    source_plan_pins=bundle['source_plan_pins'],campaign_root=campaign_root,policy_id=pid,
++                    worker_output_dir=worker,freeze_sha256=packet['files'][packet['services'][pid]],
++                    identity_sha256=digest(ctx['service'].identity(freeze)),attempt_sha256=attempt_pin,
++                    worker_evidence_sha256=inventory_now)
++                save(directory/(pid+'-evidence.json'),joined)
++                need(joined['operational_success'], 'service did not complete successfully: '+pid)
++                runtime = ctx['gpu'].validate_runtime(worker.parent,freeze,packet['files'],stage,
++                    handoff['stage_sha256'],cpu_checks,ctx['service'],ctx['diagnostic'],runtime_checks,provenance)
++                launch = decode(read(Path(ctx['contracts'][pid]['launch_output'])/'execution.json'))
++                need(launch['stage_binding_sha256']==handoff['binding_sha256']
++                     and launch['contract_sha256']==packet['files'][packet['contracts'][pid]], 'executed shim binding differs')
++                validations[pid] = {'attempt_sha256':attempt_pin,'evidence_sha256':sha(read(directory/(pid+'-evidence.json'))),
++                    'runtime':runtime,'worker_inventory':inventory_now}
++            save(directory/'historical-postcustody-required.json', {
++                'preflight':ctx['recovery']['preflight'],
++                'authority_sha256':packet['files'][RECOVERY_FILES['authority']],
++                'historical_postcheck_performed_on_gpu':False,
++                'full_external_postcustody_required':True, 'acceptance':False})
++            recheck_inputs(ctx)
++            need(time.monotonic()<args.started+packet['limits']['final_seconds'], 'absolute campaign supervisor deadline exceeded')
++            save(out/'terminal.json',{'schema':VERSION,'status':'development_gpu_campaign_complete',
++                'packet_sha256':args.packet_sha256,'cpu_acceptance_sha256':packet['cpu_acceptance_sha256'],
++                'admission_sha256':args.admission_sha256,'cpu_packet_sha256':packet['cpu_packet_sha256'],
++                'campaign_sha256':bundle['campaign_sha256'],'stage_sha256':handoff['stage_sha256'],
++                'attempt_pins':result['attempt_pins'],'service_validation':validations,
++                'combined_attempt_pins':{**ctx['acceptance']['attempt_pins'],**result['attempt_pins']},
++                'training_lineage':ctx['lineage'],'limits':packet['limits'],'resources':packet['resources'],
++                'new_training_updates':0,'private_scores_computed':False,'scientific_qualified':False,
++                'response_accounting_source':'original charged campaign arm journals',
++                'token_decoding_replayed':False,'cpu_finalization_and_external_acceptance_required':True,
++                'operational_recovery_authority_sha256':packet['files'][RECOVERY_FILES['authority']],
++                'historical_preflight_receipt_sha256':packet['files'][RECOVERY_FILES['receipt']],
++                'historical_postcheck_performed_on_gpu':False,'full_external_postcustody_required':True,
++                'elapsed_seconds':time.monotonic()-args.started,
++                'supervisor_process_cpu_seconds':time.process_time()-args.process_started,
++                'helpers_and_service_cpu_seconds':resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime+
++                    resource.getrusage(resource.RUSAGE_CHILDREN).ru_stime})
+     finally:
+-        try:
+-            if history_context is not None:
+-                history_context.__exit__(*sys.exc_info())
+-        finally:
+-            sys.meta_path.remove(loader)
++        sys.meta_path.remove(loader)
+ 
+ 
+ def transfer_phase_deadline(started,limits):

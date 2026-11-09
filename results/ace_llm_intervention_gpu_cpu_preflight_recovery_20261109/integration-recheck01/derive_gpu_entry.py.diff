@@ -1,0 +1,60 @@
+--- reviewed03/derive_gpu_entry.py
++++ corrected04/derive_gpu_entry.py
+@@ -49,7 +49,7 @@
+         "    expected_files = set(old['files'])|EXTRA_SOURCES|{'cpu-packet.json','cpu-acceptance.json'}|set(RECOVERY_FILES.values())")
+     source = replace_once(source,
+         "    bundle = admit_cpu(acceptance,packet,old,decode(data['prepared.json']))",
+-        "    recovery = recovery_contract(packet,data,root,acceptance,old)\n"
++        "    recovery = recovery_contract(packet,data,root,acceptance,old,admission)\n"
+         "    bundle = admit_cpu(acceptance,packet,old,decode(data['prepared.json']))")
+     source = replace_once(source,
+         "    need(inventory(paths['cpu_output'],exclude=excluded)==acceptance['cpu_output_files'],\n"
+@@ -74,19 +74,7 @@
+         "            readset_raw=data[RECOVERY_FILES['read_set']], readset_sha256=packet['files'][RECOVERY_FILES['read_set']],\n"
+         "            campaign_source_raw=data['llm_intervention_campaign.py'],\n"
+         "            campaign_source_sha256=packet['files']['llm_intervention_campaign.py'])\n"
+-        "        history_manager = historical.install(campaign)\n"
+-        "        history_manager.__enter__()\n"
+-        "        history_context = history_manager\n"
+         "        c,campaign_root = campaign._root(")
+-    # The installation spans the existing controller, GPU phase and new-GPU
+-    # validators. Its finally executes even if any existing guard interrupts.
+-    source = replace_once(source, "    loader = CapturedSources(captured,ctx['root'])\n    sys.meta_path.insert(0,loader)",
+-        "    loader = CapturedSources(captured,ctx['root'])\n    history_context = None\n    sys.meta_path.insert(0,loader)")
+-    source = replace_once(source,
+-        "    finally:\n        sys.meta_path.remove(loader)",
+-        "    finally:\n        try:\n            if history_context is not None:\n"
+-        "                history_context.__exit__(*sys.exc_info())\n"
+-        "        finally:\n            sys.meta_path.remove(loader)")
+     source = replace_once(source,
+         "        need(inventory(packet['paths']['cpu_output'],exclude='worker/artifacts/campaign')==ctx['acceptance']['cpu_output_files'],\n"
+         "             'CPU output changed during GPU phase')\n"
+@@ -104,12 +92,18 @@
+         "            'operational_recovery_authority_sha256':packet['files'][RECOVERY_FILES['authority']],\n"
+         "            'historical_preflight_receipt_sha256':packet['files'][RECOVERY_FILES['receipt']],\n"
+         "            'historical_postcheck_performed_on_gpu':False,'full_external_postcustody_required':True,")
++    # A language-level with registers cleanup before entering its body.
++    begin = source.index('        c,campaign_root = campaign._root(', source.index('def run_controller'))
++    end = source.index('    finally:\n        sys.meta_path.remove(loader)', begin)
++    body = source[begin:end]
++    source = (source[:begin] + '        with historical.install(campaign):\n' +
++              ''.join('    '+line if line.strip() else line for line in body.splitlines(keepends=True)) + source[end:])
+     ast.parse(source)
+     return source.encode('utf-8')
+ 
+ 
+ RECOVERY_FUNCTION = '''
+-def recovery_contract(packet,data,root,acceptance,old):
++def recovery_contract(packet,data,root,acceptance,old,admission):
+     """Pinned historical preparation, not continuous immutability or acceptance."""
+     names=RECOVERY_FILES
+     checker=module('pinned_cpu_history_receipt',root/PREFLIGHT,data[PREFLIGHT])
+@@ -126,6 +120,8 @@
+          and authority.get('original_gpu01_packet_sha256')=='436807328b4ee8ba0ec8cef3d5ff5b9c1d195b0b0165d5181a80356002f60fa7'
+          and authority.get('original_gpu01_job_id')=='35498218',
+          'independently adopted operational recovery authority required')
++    need(admission['accounting_sha256']==context['baseline']['sha256'],
++         'stage admission differs from independently accepted recovery baseline')
+     paths=packet['paths'];lineage=context['lineage']
+     need(lineage['cpu_acceptance_sha256']==packet['cpu_acceptance_sha256']
+          and lineage['recovery_authority_sha256']==packet['files'][names['authority']]

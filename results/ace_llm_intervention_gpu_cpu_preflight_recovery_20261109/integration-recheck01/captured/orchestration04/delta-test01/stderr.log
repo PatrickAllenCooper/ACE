@@ -1,0 +1,24 @@
+test_actual_entry_with_body_exception_preserves_identity (test_entry_boundary.BoundaryTests) ... ok
+test_assignment_boundary_restores_on_baseexception (test_entry_boundary.BoundaryTests) ... ERROR
+test_stage_admission_baseline_join (test_admission_delta.AuthorityBinding) ... ok
+
+======================================================================
+ERROR: test_assignment_boundary_restores_on_baseexception (test_entry_boundary.BoundaryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/orchestration04/delta-test01/test_entry_boundary.py", line 26, in test_assignment_boundary_restores_on_baseexception
+    with h.install(f.module):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 117, in __enter__
+    return next(self.gen)
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/orchestration04/delta-test01/llm_intervention_cpu_history_admission.py", line 262, in install
+    original = _verify_original(campaign_module, self._source)
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/orchestration04/delta-test01/llm_intervention_cpu_history_admission.py", line 231, in _verify_original
+    _need(type(module) is types.ModuleType and type(module.__file__) is str, 'captured campaign module required')
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/orchestration04/delta-test01/llm_intervention_cpu_history_admission.py", line 39, in _need
+    raise ValueError(message)
+ValueError: captured campaign module required
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.110s
+
+FAILED (errors=1)

@@ -1,0 +1,12 @@
+--- /Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/history-adapter02/llm_intervention_cpu_history_admission.py
++++ /Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/orchestration04/llm_intervention_cpu_history_admission.py
+@@ -288,8 +288,8 @@
+                 live.guards()
+                 return result
+ 
+-            campaign_module._load_attempt = admitted
+             try:
++                campaign_module._load_attempt = admitted
+                 yield self
+             finally:
+                 campaign_module._load_attempt = original
