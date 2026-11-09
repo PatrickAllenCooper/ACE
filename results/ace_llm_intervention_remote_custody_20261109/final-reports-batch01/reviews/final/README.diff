@@ -1,0 +1,49 @@
+--- 
++++ 
+@@ -18,8 +18,10 @@
+ 
+ extension = Path(EXTENSION_PATH).read_bytes()
+ backend = Path(BACKEND_PATH).read_bytes()
+-assert hashlib.sha256(extension).hexdigest() == EXTENSION_SHA256
+-assert hashlib.sha256(backend).hexdigest() == BACKEND_SHA256
++if hashlib.sha256(extension).hexdigest() != EXTENSION_SHA256:
++    raise ValueError("independent extension SHA differs before exec")
++if hashlib.sha256(backend).hexdigest() != BACKEND_SHA256:
++    raise ValueError("independent backend SHA differs before exec")
+ api = {"__name__": "captured_batch_reports", "__file__": "<captured-batch-reports>"}
+ exec(compile(extension, api["__file__"], "exec"), api)
+ api["bind_sources"](extension_source=extension, extension_sha256=EXTENSION_SHA256,
+@@ -27,10 +29,13 @@
+ b = api["_backend"]()
+ receipt_raw = Path(ORIGINAL_RECEIPT_PATH).read_bytes()
+ members_raw = Path(INDEPENDENT_MEMBERS_PATH).read_bytes()
+-assert hashlib.sha256(receipt_raw).hexdigest() == ORIGINAL_RECEIPT_SHA256
+-assert hashlib.sha256(members_raw).hexdigest() == MEMBERS_SHA256
++if hashlib.sha256(receipt_raw).hexdigest() != ORIGINAL_RECEIPT_SHA256:
++    raise ValueError("independent original receipt SHA differs")
++if hashlib.sha256(members_raw).hexdigest() != MEMBERS_SHA256:
++    raise ValueError("independent selection SHA differs")
+ receipt, members = b.decode(receipt_raw), b.decode(members_raw)
+-assert b.raw(receipt) == receipt_raw and b.raw(members) == members_raw
++if b.raw(receipt) != receipt_raw or b.raw(members) != members_raw:
++    raise ValueError("canonical pinned metadata bytes required")
+ result = api["fetch_reports"](
+     receipt=receipt, receipt_sha256=ORIGINAL_RECEIPT_SHA256,
+     members=members, members_sha256=MEMBERS_SHA256,
+@@ -57,8 +62,14 @@
+ 
+ ## New focused evidence
+ 
+-`evidence/attempt01`: six new methods passed once; 1.435903166s wall, 1.343798s child CPU, 32,587,776 bytes child maxRSS. Two-pass opaque readback, original bindings/receipt unchanged, exact roster/pins/bounds/exclusive destinations, both-source pre-exec tampering, malformed/truncated/extra/hash framing, and archive corruption after the first pass while retaining delivered report bytes.
++Original preparation (path pinned in `predecessor.json`), `evidence/attempt01`: six new methods passed once; 1.435903166s wall, 1.343798s child CPU, 32,587,776 bytes child maxRSS. Two-pass opaque readback, original bindings/receipt unchanged, exact roster/pins/bounds/exclusive destinations, both-source pre-exec tampering, malformed/truncated/extra/hash framing, and archive corruption after the first pass while retaining delivered report bytes.
+ 
+-`evidence/attempt02`: only one newly added primary/secondary evidence-publication failure method passed; 0.237958917s wall, 0.200332s child CPU, 26,722,304 bytes child maxRSS. Earlier six methods were not repeated. The source delta only preserves a cleanup exception if inventory publication also fails. All source snapshots, synthetic archives/payloads/partial failures and transcripts are retained. No failed test run, old test methods, SSH, real artifacts, models, tokenizers or project execution.
++Original preparation, `evidence/attempt02`: only one newly added primary/secondary evidence-publication failure method passed; 0.237958917s wall, 0.200332s child CPU, 26,722,304 bytes child maxRSS. Earlier six methods were not repeated. The source delta only preserves a cleanup exception if inventory publication also fails. All source snapshots, synthetic archives/payloads/partial failures and transcripts are retained. No failed test run, old test methods, SSH, real artifacts, models, tokenizers or project execution.
+ 
+ Frozen-source path observations are captured in `originals/` solely to establish the report path/conditional cost-report behavior; none were imported or executed. Independent source review is requested separately; preparation does not mark itself independently accepted.
++
++## Focused review correction
++
++Initial independent review SHA c7c4b92ed7fb7bc1d86efa1255e532878f4549a3ec0d599c705a506ca31479d0 is preserved in initial-review/. B1 now claims the report root with exclusive owned_dir before calling the original destination builder; an empty path appearing during begin is rejected. B2 now uses a narrow transcript context that retains the original transfer error across flush, fsync, buffered close and underlying-handle close; original backend Receiver/close_receiver own resource cleanup and save secondary errors under transcript-cleanup/. B3 captured invocation uses explicit conditional raises before any exec, unaffected by Python optimization. No original backend/source/receipt or archive behavior changed.
++
++This successor's `evidence/attempt01` runs only two NEW focused methods: raced empty destination and simultaneous stream + flush/fsync/close failures. Both passed in 0.293575250 wall seconds, 0.249391 child CPU seconds, 27,688,960 bytes child maxRSS. The previous seven methods were not repeated; all original source/test/evidence and review files remain intact. Nine distinct new methods passed across the preserved lineage; no actual retrieval or acceptance.

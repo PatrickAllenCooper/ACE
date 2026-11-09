@@ -1,0 +1,1 @@
+Source-only separate batch finalizer report adapter. Start with authoring/README.md for exact API, pins, boundaries and all seven new fabricated checks. Original backend527d and storage authority02a7 remain unchanged. No actual retrieval or scientific acceptance. Independent review pending in reviews/.

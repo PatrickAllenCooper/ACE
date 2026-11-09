@@ -1,0 +1,162 @@
+--- initial/batch_reports.py
++++ correction/batch_reports.py
+@@ -4,6 +4,7 @@
+ not manufacture it. The original 527d backend and its receipt remain unchanged.
+ """
+ import base64
++import contextlib
+ import hashlib
+ import json
+ import os
+@@ -160,6 +161,47 @@
+     return value
+ 
+ 
++@contextlib.contextmanager
++def _transcript(b, logs):
++    """Reuse backend owned-file cleanup without masking an earlier transfer error."""
++    cleanup = logs/'transcript-cleanup'
++    b.owned_dir(cleanup, True)
++    owner = b.Receiver({}, {}, lambda result: None)
++    primary = None
++    duplicate = None
++    try:
++        handle = b.opened(logs/'stdout.bin', os.O_WRONLY|os.O_CREAT|os.O_EXCL)
++        fd = handle.__enter__()
++        owner.handle = handle
++        duplicate = os.dup(fd)
++        owner.fd = os.fdopen(duplicate, 'wb')
++        duplicate = None
++        yield owner.fd
++    except BaseException as exc:
++        primary = exc
++        raise
++    finally:
++        first_cleanup = None
++        actions = []
++        if owner.fd is not None:
++            actions += [('transcript_flush', owner.fd.flush),
++                        ('transcript_fsync', lambda: os.fsync(owner.fd.fileno()))]
++        if duplicate is not None:
++            actions.append(('unadopted_duplicate_close', lambda: os.close(duplicate)))
++        for phase, action in actions:
++            try:
++                action()
++            except BaseException as exc:
++                if first_cleanup is None:
++                    first_cleanup = exc
++                owner.cleanup_errors.append(dict(phase=phase, type=type(exc).__name__, message=str(exc)))
++        # Original close_receiver attempts BOTH buffered and underlying-handle
++        # closes, publishes secondary errors, and preserves the supplied primary.
++        b.close_receiver(owner, cleanup, primary if primary is not None else first_cleanup)
++        if primary is None and first_cleanup is not None:
++            raise first_cleanup
++
++
+ def fetch_reports(*, receipt, receipt_sha256, members, members_sha256,
+                   finalizer_acceptance_sha256, finalizer_custody_sha256,
+                   destination, helper_path, log_dir):
+@@ -193,6 +235,9 @@
+         b.write_new(logs/'bootstrap.py', BOOTSTRAP.encode())
+         b.write_new(logs/'original-receipt.json', b.raw(request['receipt']))
+         b.write_new(logs/'members.json', b.raw(members))
++        # Do not inherit backend local_destinations' empty-directory adoption.
++        # This exclusive mkdir is the actual claim, after the earlier precheck.
++        b.owned_dir(dest, True)
+         destinations = b.local_destinations(dest, selection)
+         expected = _result(b, request, full, _verification(b, request, full))
+         def validate(result):
+@@ -200,19 +245,15 @@
+         receiver = b.Receiver(selection['files'], destinations, validate)
+         transport = _specialize(b.transport, BOOTSTRAP=BOOTSTRAP,
+                                 _BOUND_SOURCE=(bundle, b.sha(bundle)))
+-        with b.opened(logs/'stdout.bin', os.O_WRONLY|os.O_CREAT|os.O_EXCL) as fd:
+-            with os.fdopen(os.dup(fd), 'wb') as transcript:
+-                class RetainedReceiver:
+-                    allowed = receiver.allowed
+-                    def feed(self, data):
+-                        transcript.write(data); transcript.flush()
+-                        return receiver.feed(data)
+-                    def finish(self):
+-                        return receiver.finish()
+-                try:
+-                    transport(request, RetainedReceiver(), helper_path, logs)
+-                finally:
+-                    transcript.flush(); os.fsync(transcript.fileno())
++        with _transcript(b, logs) as transcript:
++            class RetainedReceiver:
++                allowed = receiver.allowed
++                def feed(self, data):
++                    transcript.write(data); transcript.flush()
++                    return receiver.feed(data)
++                def finish(self):
++                    return receiver.finish()
++            transport(request, RetainedReceiver(), helper_path, logs)
+         result = receiver.finish()
+         b.close_receiver(receiver, logs, None)
+         receiver = None
+--- initial/test_batch_reports.py
++++ correction/test_batch_reports.py
+@@ -235,6 +235,62 @@
+         self.assertTrue((logs/'failure.json').exists())
+         self.assertFalse((logs/'receipt.json').exists())
+ 
++    def test_raced_empty_destination_is_rejected_without_adoption(self):
++        begin = self.b.begin
++        raced = Path(self.args['destination'])
++        created = []
++        def insert_empty(*args, **kwargs):
++            logs = begin(*args, **kwargs)
++            raced.mkdir(mode=0o700)
++            created.append(raced.stat().st_ino)
++            return logs
++        with patch.object(self.b, 'begin', insert_empty), self.loopback():
++            with self.assertRaises(FileExistsError):
++                self.m.fetch_reports(**self.args)
++        self.assertEqual(self.calls, 0)
++        self.assertEqual(raced.stat().st_ino, created[0])
++        self.assertEqual(list(raced.iterdir()), [])
++        logs = Path(self.args['log_dir'])
++        self.assertTrue((logs/'failure.json').exists())
++        self.assertTrue((logs/'operation-records.json').exists())
++        self.assertFalse((logs/'receipt.json').exists())
++
++    def test_transfer_error_survives_transcript_flush_fsync_and_close_failures(self):
++        Receiver = self.b.Receiver
++        class BrokenStream:
++            def __init__(self, file):
++                self.file, self.flushes = file, 0
++            def write(self, data):
++                return self.file.write(data)
++            def flush(self):
++                self.flushes += 1
++                self.file.flush()
++                if self.flushes > 1:
++                    raise OSError('fabricated transcript flush failure')
++            def fileno(self):
++                raise OSError('fabricated transcript fsync failure')
++            def close(self):
++                self.file.close()
++                raise OSError('fabricated transcript close failure')
++        class BrokenTranscriptReceiver(Receiver):
++            @property
++            def fd(self):
++                return self._fd
++            @fd.setter
++            def fd(self, value):
++                self._fd = BrokenStream(value) if value is not None and self.allowed == {} else value
++        with patch.object(self.b, 'Receiver', BrokenTranscriptReceiver), self.loopback(lambda data: b'\0'*8 if len(data)==8 else data):
++            with self.assertRaisesRegex(ValueError, 'bounded stream metadata'):
++                self.m.fetch_reports(**self.args)
++        logs = Path(self.args['log_dir'])
++        self.assertEqual((logs/'stdout.bin').read_bytes(), b'\0'*8)
++        cleanup = self.b.decode((logs/'transcript-cleanup/receiver-cleanup-error.json').read_bytes())
++        self.assertEqual(cleanup['primary']['type'], 'ValueError')
++        self.assertEqual([x['phase'] for x in cleanup['cleanup_errors']],
++                         ['transcript_flush', 'transcript_fsync', 'buffered_file'])
++        self.assertFalse((logs/'receipt.json').exists())
++        self.assertTrue((logs/'operation-records.json').exists())
++
+ 
+ if __name__ == '__main__':
+     unittest.main(verbosity=2)

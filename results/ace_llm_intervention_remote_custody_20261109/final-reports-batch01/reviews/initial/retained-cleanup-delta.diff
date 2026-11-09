@@ -1,0 +1,27 @@
+--- 
++++ 
+@@ -226,17 +226,22 @@
+         b.safe_failure(logs, exc, partial_preserved=True, remote_outcome_ambiguous=True)
+         raise
+     finally:
++        cleanup_error = None
+         try:
+             b.close_receiver(receiver, logs, primary)
++        except BaseException as exc:
++            cleanup_error = exc
++            raise
+         finally:
+             try:
+                 b.write_new(logs/'operation-records.json', b.raw(b.local_inventory(logs)))
+             except BaseException as secondary:
+-                if primary is None:
++                first = primary if primary is not None else cleanup_error
++                if first is None:
+                     raise
+                 try:
+                     b.write_new(logs/'evidence-publication-error.json', b.raw(dict(
+-                        primary_type=type(primary).__name__, secondary_type=type(secondary).__name__,
++                        primary_type=type(first).__name__, secondary_type=type(secondary).__name__,
+                         secondary_message=str(secondary), acceptance=False)))
+                 except BaseException:
+                     pass

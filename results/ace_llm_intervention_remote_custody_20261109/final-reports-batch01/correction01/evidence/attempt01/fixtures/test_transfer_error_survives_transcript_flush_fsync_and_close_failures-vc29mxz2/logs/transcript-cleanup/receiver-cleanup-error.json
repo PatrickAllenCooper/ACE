@@ -1,0 +1,29 @@
+{
+  "acceptance": false,
+  "cleanup_errors": [
+    {
+      "message": "fabricated transcript flush failure",
+      "phase": "transcript_flush",
+      "type": "OSError"
+    },
+    {
+      "message": "fabricated transcript fsync failure",
+      "phase": "transcript_fsync",
+      "type": "OSError"
+    },
+    {
+      "message": "fabricated transcript close failure",
+      "phase": "buffered_file",
+      "type": "OSError"
+    }
+  ],
+  "primary": {
+    "message": "bounded stream metadata required",
+    "type": "ValueError"
+  },
+  "retry_allowed": false,
+  "secondary": {
+    "message": "fabricated transcript close failure",
+    "type": "OSError"
+  }
+}
