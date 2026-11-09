@@ -1,0 +1,37 @@
+test_initial_verification_failure_has_registered_pinned_partial_records (test_d1d2.EvidenceTests) ... FAIL
+test_later_fetch_failure_keeps_bytes_hashes_and_no_retry (test_d1d2.EvidenceTests) ... ok
+test_only_transport_evidence_and_lock_scopes_change_protected_code (test_d1d2.EvidenceTests) ... ok
+test_publication_failure_preserves_primary_and_original_manifest (test_d1d2.EvidenceTests) ... ok
+test_each_collector_lock_or_prior_attempt_rejects_before_backend (test_d1d2.GuardTests) ... ok
+
+======================================================================
+FAIL: test_initial_verification_failure_has_registered_pinned_partial_records (test_d1d2.EvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/test_d1d2.py", line 87, in test_initial_verification_failure_has_registered_pinned_partial_records
+    with self.assertRaisesRegex(RuntimeError,'initial verification'):bind()
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/test_d1d2.py", line 72, in bind
+    def bind():return evidence.run('binding',lambda:C.bind(ctx,s,predecessor='cpu',capsule=a,mirror=b,
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/compact_inputs.py", line 157, in run
+    result=action()
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/test_d1d2.py", line 72, in <lambda>
+    def bind():return evidence.run('binding',lambda:C.bind(ctx,s,predecessor='cpu',capsule=a,mirror=b,
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/compact_inputs.py", line 450, in bind
+    gate=Inputs(backend=backend,receipt_raw=supplied['storage-receipt.json'],receipt_sha256=receipt_pin,
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/compact_inputs.py", line 222, in __init__
+    self.recheck()
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/compact_inputs.py", line 177, in run
+    return self.evidence.run(operation,lambda:function(self,*args,**kwargs),details)
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/compact_inputs.py", line 157, in run
+    result=action()
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/compact_inputs.py", line 177, in <lambda>
+    return self.evidence.run(operation,lambda:function(self,*args,**kwargs),details)
+  File "/private/tmp/ace-downstream-compact-d1d2-1d_57cvu/attempt01/source/compact_inputs.py", line 229, in recheck
+    verification=self.backend.verify_backup(receipt=self.receipt,observation=self.observation,
+  File "remote_custody.py", line 7, in verify_backup
+AssertionError
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.466s
+
+FAILED (failures=1)

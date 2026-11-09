@@ -1,0 +1,10 @@
+--- before-remote-observation
++++ after-remote-observation
+@@ -72,6 +72,7 @@
+  # Explicit accepted upstream byte pins; never decode descriptors or outcomes.
+  for path in UPSTREAM_PINS:
+   try:v['upstream_pins'][path]=fingerprint(Path(path))[0]['sha256']
++  except TimeoutError:raise
+   except (OSError,ValueError) as exc:v['upstream_errors'][path]=dict(type=type(exc).__name__,message=str(exc))
+ 
+ except BaseException as exc:

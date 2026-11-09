@@ -1,0 +1,20 @@
+# CPU terminal collector: bounded metadata and split Git provenance
+
+Authoring only, 2026-11-09. Independent review pending. No collector/main, remote, backup, scientific workload, model, production helper or live launch was executed or changed.
+
+The original repository source622ead7fa8e9b659aece8337f437675cd7d666a19af7a6beda3d607e06e3293a remains unchanged. Exact predecessor bytes are under `predecessor622/`; the new derivative is `pull_terminal.py`.
+
+Changes are limited to:
+
+- One absolute1200-second SIGALRM for each original remote inventory observation, with1230-second local transport timeout. No per-file clock reset. A dedicated BaseException deadline bypasses the existing per-file OSError/ValueError handler; the existing outer handler retains the partial inventory/error, and local `observe` rejects it. If the alarm interrupts an earlier operation or output, the transport still retains its partial stdout/stderr. No retry or acceptance is inferred.
+- Stderr JSON progress after every1000 successful fingerprints, with elapsed monotonic time. Hashing, identity/alias checks, full membership, original roots, scheduler/job/history/namespace/source gates and both before/after observations remain unchanged.
+- A new REQUIRED `--collector-source-commit FULL40` authenticates the collector, backup helper and collector review against that commit. It checks a full commit object using `git --no-replace-objects cat-file -t`, then exact `show` bytes. Existing independent SHA arguments remain required.
+- Existing `--packet-commit FULL40` still authenticates original packet members and original packet review and must equal the saved local submission intent's packet_commit. Never substitute the new collector commit for the original434b83... identity. No default/future commit was invented. Both identities are recorded separately in collector-intent, disposition and collector_failure; original packet/intent are never rewritten.
+
+All other CLI arguments and output paths are unchanged. Parent must commit the reviewed derivative, unchanged independently pinned backend and new collector review, then supply that complete commit as `--collector-source-commit`. The executing source need not have lived in the original packet commit. `--collector-repository-path` identifies the new derivative's eventual repository path; `--collector-sha256` identifies these exact bytes. `--collector-review`/SHA and backend path/SHA bind exact bytes from the new collector-source commit. Original packet/intent/packet-review SHA and commit remain the actual submitted ones. No invocation was attempted here.
+
+Three NEW artificial methods passed once in `attempt01`; no old tests rerun. Tests AST-select only metadata functions: fake Git responses prove the distinct new source commit and reject crossed bytes/abbreviated/noncommit objects while original packet gates remain unchanged; a tiny local fabricated file tests progress and the synthetic deadline exception plus partial inventory; fake TimeoutExpired tests retained streams and rejection of partial observations. The remote body, real signal alarm, actual Git, collector import and main are never run. The exact original remote protected statements compare equal after removing only new progress/deadline instrumentation.
+
+Attempt01 reported child CPU0.135611s, elapsed0.181298083s, peak child RSS26,116,096bytes. Raw stdout/stderr, fixture artifacts, exact source/test copies and receipt are retained. No failures or reruns occurred. This validates artificial metadata wiring only, not actual host capacity, remote performance, full terminal custody, runtime or scientific acceptance. The finite1200s bound is the requested operational allowance, not a prediction of observed collection duration.
+
+The complete preparation is copied independently to the exclusive BASE directory in `handoff.json`; every file is read back and compared. Neither repository nor live launch was altered. Both original and derivative are retained for Leibniz's narrow review.

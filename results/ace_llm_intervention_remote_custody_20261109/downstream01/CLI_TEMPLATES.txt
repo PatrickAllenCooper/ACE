@@ -1,0 +1,322 @@
+# gpu build_packet.py — TEMPLATE ONLY, not executed
+python3 '<gpu-reviewed-authoring-directory>/build_packet.py' \
+  --freeze '<required:freeze>' \
+  --freeze-sha256 '<required:freeze-sha256>' \
+  --freeze-review '<required:freeze-review>' \
+  --freeze-review-sha256 '<required:freeze-review-sha256>' \
+  --adoption '<required:adoption>' \
+  --adoption-sha256 '<required:adoption-sha256>' \
+  --namespace-admission '<required:namespace-admission>' \
+  --namespace-admission-sha256 '<required:namespace-admission-sha256>' \
+  --recovery-authority '<required:recovery-authority>' \
+  --recovery-authority-sha256 '<required:recovery-authority-sha256>' \
+  --operational-amendment '<required:operational-amendment>' \
+  --operational-amendment-sha256 '<required:operational-amendment-sha256>' \
+  --operational-adoption-review '<required:operational-adoption-review>' \
+  --operational-adoption-review-sha256 '<required:operational-adoption-review-sha256>' \
+  --collection-failure-acceptance '<required:collection-failure-acceptance>' \
+  --collection-failure-acceptance-sha256 '<required:collection-failure-acceptance-sha256>' \
+  --no-response-proof '<required:no-response-proof>' \
+  --no-response-proof-sha256 '<required:no-response-proof-sha256>' \
+  --collection-failure-baseline '<required:collection-failure-baseline>' \
+  --collection-failure-baseline-sha256 '<required:collection-failure-baseline-sha256>' \
+  --namespace-claim '<required:namespace-claim>' \
+  --namespace-claim-sha256 '<required:namespace-claim-sha256>' \
+  --site-readiness '<required:site-readiness>' \
+  --site-readiness-sha256 '<required:site-readiness-sha256>' \
+  --cpu-review '<required:cpu-review>' \
+  --cpu-review-sha256 '<required:cpu-review-sha256>' \
+  --cpu-packet '<required:cpu-packet>' \
+  --cpu-packet-sha256 '<required:cpu-packet-sha256>' \
+  --cpu-phase-terminal '<required:cpu-phase-terminal>' \
+  --cpu-phase-terminal-sha256 '<required:cpu-phase-terminal-sha256>' \
+  --collection-acceptance '<required:collection-acceptance>' \
+  --collection-acceptance-sha256 '<required:collection-acceptance-sha256>' \
+  --collection-launch-packet '<required:collection-launch-packet>' \
+  --collection-launch-packet-sha256 '<required:collection-launch-packet-sha256>' \
+  --collection-result '<required:collection-result>' \
+  --collection-result-sha256 '<required:collection-result-sha256>' \
+  --collection-disposition '<required:collection-disposition>' \
+  --collection-disposition-sha256 '<required:collection-disposition-sha256>' \
+  --collection-inventory '<required:collection-inventory>' \
+  --collection-inventory-sha256 '<required:collection-inventory-sha256>' \
+  --collection-baseline '<required:collection-baseline>' \
+  --collection-baseline-sha256 '<required:collection-baseline-sha256>' \
+  --token-acceptance '<required:token-acceptance>' \
+  --token-acceptance-sha256 '<required:token-acceptance-sha256>' \
+  --token-launch-packet '<required:token-launch-packet>' \
+  --token-launch-packet-sha256 '<required:token-launch-packet-sha256>' \
+  --token-result '<required:token-result>' \
+  --token-result-sha256 '<required:token-result-sha256>' \
+  --token-disposition '<required:token-disposition>' \
+  --token-disposition-sha256 '<required:token-disposition-sha256>' \
+  --token-inventory '<required:token-inventory>' \
+  --token-inventory-sha256 '<required:token-inventory-sha256>' \
+  --token-baseline '<required:token-baseline>' \
+  --token-baseline-sha256 '<required:token-baseline-sha256>' \
+  --training-acceptance '<required:training-acceptance>' \
+  --training-acceptance-sha256 '<required:training-acceptance-sha256>' \
+  --training-launch-packet '<required:training-launch-packet>' \
+  --training-launch-packet-sha256 '<required:training-launch-packet-sha256>' \
+  --training-result '<required:training-result>' \
+  --training-result-sha256 '<required:training-result-sha256>' \
+  --training-disposition '<required:training-disposition>' \
+  --training-disposition-sha256 '<required:training-disposition-sha256>' \
+  --training-inventory '<required:training-inventory>' \
+  --training-inventory-sha256 '<required:training-inventory-sha256>' \
+  --training-baseline '<required:training-baseline>' \
+  --training-baseline-sha256 '<required:training-baseline-sha256>' \
+  --cpu-acceptance '<required:cpu-acceptance>' \
+  --cpu-acceptance-sha256 '<required:cpu-acceptance-sha256>' \
+  --cpu-launch-packet '<required:cpu-launch-packet>' \
+  --cpu-launch-packet-sha256 '<required:cpu-launch-packet-sha256>' \
+  --cpu-result '<required:cpu-result>' \
+  --cpu-result-sha256 '<required:cpu-result-sha256>' \
+  --cpu-disposition '<required:cpu-disposition>' \
+  --cpu-disposition-sha256 '<required:cpu-disposition-sha256>' \
+  --cpu-inventory '<required:cpu-inventory>' \
+  --cpu-inventory-sha256 '<required:cpu-inventory-sha256>' \
+  --cpu-baseline '<required:cpu-baseline>' \
+  --cpu-baseline-sha256 '<required:cpu-baseline-sha256>' \
+  --collection-failure-disposition '<required:collection-failure-disposition>' \
+  --collection-failure-disposition-sha256 '<required:collection-failure-disposition-sha256>' \
+  --failed-token-packet '<required:failed-token-packet>' \
+  --failed-token-packet-sha256 '<required:failed-token-packet-sha256>' \
+  --failed-token-stage '<required:failed-token-stage>' \
+  --failed-token-stage-sha256 '<required:failed-token-stage-sha256>' \
+  --failed-token-result '<required:failed-token-result>' \
+  --failed-token-result-sha256 '<required:failed-token-result-sha256>' \
+  --token-failure-acceptance '<required:token-failure-acceptance>' \
+  --token-failure-acceptance-sha256 '<required:token-failure-acceptance-sha256>' \
+  --token-no-learnedwork-proof '<required:token-no-learnedwork-proof>' \
+  --token-no-learnedwork-proof-sha256 '<required:token-no-learnedwork-proof-sha256>' \
+  --token-failure-disposition '<required:token-failure-disposition>' \
+  --token-failure-disposition-sha256 '<required:token-failure-disposition-sha256>' \
+  --token-failure-inventory '<required:token-failure-inventory>' \
+  --token-failure-inventory-sha256 '<required:token-failure-inventory-sha256>' \
+  --token-failure-readback '<required:token-failure-readback>' \
+  --token-failure-readback-sha256 '<required:token-failure-readback-sha256>' \
+  --token-failure-custody-inventory '<required:token-failure-custody-inventory>' \
+  --token-failure-custody-inventory-sha256 '<required:token-failure-custody-inventory-sha256>' \
+  --token-failure-baseline '<required:token-failure-baseline>' \
+  --token-failure-baseline-sha256 '<required:token-failure-baseline-sha256>' \
+  --token-operational-amendment '<required:token-operational-amendment>' \
+  --token-operational-amendment-sha256 '<required:token-operational-amendment-sha256>' \
+  --token-operational-review '<required:token-operational-review>' \
+  --token-operational-review-sha256 '<required:token-operational-review-sha256>' \
+  --token-operational-adoption-review '<required:token-operational-adoption-review>' \
+  --token-operational-adoption-review-sha256 '<required:token-operational-adoption-review-sha256>' \
+  --token-operational-guide '<required:token-operational-guide>' \
+  --token-operational-guide-sha256 '<required:token-operational-guide-sha256>' \
+  --token-diagnosis '<required:token-diagnosis>' \
+  --token-diagnosis-sha256 '<required:token-diagnosis-sha256>' \
+  --token-packet '<required:token-packet>' \
+  --token-packet-sha256 '<required:token-packet-sha256>' \
+  --cpu-remote-custody '<required:cpu-remote-custody>' \
+  --cpu-terminal-mirror '<required:cpu-terminal-mirror>' \
+  --storage-config '<required:storage-config>' \
+  --storage-config-sha256 '<required:storage-config-sha256>'
+
+# gpu launch_once.py — TEMPLATE ONLY, not executed
+python3 '<gpu-committed-concrete-packet-directory>/launch_once.py' \
+  --packet-commit '<required:packet-commit>' \
+  --packet-sha256 '<required:packet-sha256>' \
+  --packet-review '<required:packet-review>' \
+  --packet-review-sha256 '<required:packet-review-sha256>' \
+  --packet-directory '<required:packet-directory>'
+
+# gpu monitor_once.py — TEMPLATE ONLY, not executed
+python3 '<gpu-committed-concrete-packet-directory>/monitor_once.py' \
+  --job-id '<required:job-id>' \
+  --packet-sha256 '<required:packet-sha256>' \
+  --submission-result-sha256 '<required:submission-result-sha256>' \
+  --packet-directory '<required:packet-directory>' \
+  --evidence-directory '<required:evidence-directory>'
+
+# gpu pull_terminal.py — TEMPLATE ONLY, not executed
+python3 '<gpu-committed-standalone-collector-path>' \
+  --job-id '<required:job-id>' \
+  --packet-sha256 '<required:packet-sha256>' \
+  --submission-result-sha256 '<required:submission-result-sha256>' \
+  --local-intent-sha256 '<required:local-intent-sha256>' \
+  --packet-commit '<required:packet-commit>' \
+  --collector-sha256 '<required:collector-sha256>' \
+  --collector-repository-path '<required:collector-repository-path>' \
+  --collector-review '<required:collector-review>' \
+  --collector-review-sha256 '<required:collector-review-sha256>' \
+  --cpu-terminal-custody '<required:cpu-terminal-custody>' \
+  --cpu-custody-inventory-sha256 '<required:cpu-custody-inventory-sha256>' \
+  --packet-review '<required:packet-review>' \
+  --packet-review-sha256 '<required:packet-review-sha256>' \
+  --backup-root '<required:backup-root>'
+
+# finalizer build_packet.py — TEMPLATE ONLY, not executed
+python3 '<finalizer-reviewed-authoring-directory>/build_packet.py' \
+  --freeze '<required:freeze>' \
+  --freeze-sha256 '<required:freeze-sha256>' \
+  --freeze-review '<required:freeze-review>' \
+  --freeze-review-sha256 '<required:freeze-review-sha256>' \
+  --adoption '<required:adoption>' \
+  --adoption-sha256 '<required:adoption-sha256>' \
+  --namespace-admission '<required:namespace-admission>' \
+  --namespace-admission-sha256 '<required:namespace-admission-sha256>' \
+  --recovery-authority '<required:recovery-authority>' \
+  --recovery-authority-sha256 '<required:recovery-authority-sha256>' \
+  --operational-amendment '<required:operational-amendment>' \
+  --operational-amendment-sha256 '<required:operational-amendment-sha256>' \
+  --operational-adoption-review '<required:operational-adoption-review>' \
+  --operational-adoption-review-sha256 '<required:operational-adoption-review-sha256>' \
+  --collection-failure-acceptance '<required:collection-failure-acceptance>' \
+  --collection-failure-acceptance-sha256 '<required:collection-failure-acceptance-sha256>' \
+  --no-response-proof '<required:no-response-proof>' \
+  --no-response-proof-sha256 '<required:no-response-proof-sha256>' \
+  --collection-failure-baseline '<required:collection-failure-baseline>' \
+  --collection-failure-baseline-sha256 '<required:collection-failure-baseline-sha256>' \
+  --namespace-claim '<required:namespace-claim>' \
+  --namespace-claim-sha256 '<required:namespace-claim-sha256>' \
+  --site-readiness '<required:site-readiness>' \
+  --site-readiness-sha256 '<required:site-readiness-sha256>' \
+  --cpu-review '<required:cpu-review>' \
+  --cpu-review-sha256 '<required:cpu-review-sha256>' \
+  --cpu-packet '<required:cpu-packet>' \
+  --cpu-packet-sha256 '<required:cpu-packet-sha256>' \
+  --cpu-phase-terminal '<required:cpu-phase-terminal>' \
+  --cpu-phase-terminal-sha256 '<required:cpu-phase-terminal-sha256>' \
+  --gpu-review '<required:gpu-review>' \
+  --gpu-review-sha256 '<required:gpu-review-sha256>' \
+  --gpu-packet '<required:gpu-packet>' \
+  --gpu-packet-sha256 '<required:gpu-packet-sha256>' \
+  --gpu-inventory-after '<required:gpu-inventory-after>' \
+  --gpu-inventory-after-sha256 '<required:gpu-inventory-after-sha256>' \
+  --gpu-custody-inventory '<required:gpu-custody-inventory>' \
+  --gpu-custody-inventory-sha256 '<required:gpu-custody-inventory-sha256>' \
+  --collection-acceptance '<required:collection-acceptance>' \
+  --collection-acceptance-sha256 '<required:collection-acceptance-sha256>' \
+  --collection-launch-packet '<required:collection-launch-packet>' \
+  --collection-launch-packet-sha256 '<required:collection-launch-packet-sha256>' \
+  --collection-result '<required:collection-result>' \
+  --collection-result-sha256 '<required:collection-result-sha256>' \
+  --collection-disposition '<required:collection-disposition>' \
+  --collection-disposition-sha256 '<required:collection-disposition-sha256>' \
+  --collection-inventory '<required:collection-inventory>' \
+  --collection-inventory-sha256 '<required:collection-inventory-sha256>' \
+  --collection-baseline '<required:collection-baseline>' \
+  --collection-baseline-sha256 '<required:collection-baseline-sha256>' \
+  --token-acceptance '<required:token-acceptance>' \
+  --token-acceptance-sha256 '<required:token-acceptance-sha256>' \
+  --token-launch-packet '<required:token-launch-packet>' \
+  --token-launch-packet-sha256 '<required:token-launch-packet-sha256>' \
+  --token-result '<required:token-result>' \
+  --token-result-sha256 '<required:token-result-sha256>' \
+  --token-disposition '<required:token-disposition>' \
+  --token-disposition-sha256 '<required:token-disposition-sha256>' \
+  --token-inventory '<required:token-inventory>' \
+  --token-inventory-sha256 '<required:token-inventory-sha256>' \
+  --token-baseline '<required:token-baseline>' \
+  --token-baseline-sha256 '<required:token-baseline-sha256>' \
+  --training-acceptance '<required:training-acceptance>' \
+  --training-acceptance-sha256 '<required:training-acceptance-sha256>' \
+  --training-launch-packet '<required:training-launch-packet>' \
+  --training-launch-packet-sha256 '<required:training-launch-packet-sha256>' \
+  --training-result '<required:training-result>' \
+  --training-result-sha256 '<required:training-result-sha256>' \
+  --training-disposition '<required:training-disposition>' \
+  --training-disposition-sha256 '<required:training-disposition-sha256>' \
+  --training-inventory '<required:training-inventory>' \
+  --training-inventory-sha256 '<required:training-inventory-sha256>' \
+  --training-baseline '<required:training-baseline>' \
+  --training-baseline-sha256 '<required:training-baseline-sha256>' \
+  --cpu-acceptance '<required:cpu-acceptance>' \
+  --cpu-acceptance-sha256 '<required:cpu-acceptance-sha256>' \
+  --cpu-launch-packet '<required:cpu-launch-packet>' \
+  --cpu-launch-packet-sha256 '<required:cpu-launch-packet-sha256>' \
+  --cpu-result '<required:cpu-result>' \
+  --cpu-result-sha256 '<required:cpu-result-sha256>' \
+  --cpu-disposition '<required:cpu-disposition>' \
+  --cpu-disposition-sha256 '<required:cpu-disposition-sha256>' \
+  --cpu-inventory '<required:cpu-inventory>' \
+  --cpu-inventory-sha256 '<required:cpu-inventory-sha256>' \
+  --cpu-baseline '<required:cpu-baseline>' \
+  --cpu-baseline-sha256 '<required:cpu-baseline-sha256>' \
+  --gpu-acceptance '<required:gpu-acceptance>' \
+  --gpu-acceptance-sha256 '<required:gpu-acceptance-sha256>' \
+  --gpu-launch-packet '<required:gpu-launch-packet>' \
+  --gpu-launch-packet-sha256 '<required:gpu-launch-packet-sha256>' \
+  --gpu-result '<required:gpu-result>' \
+  --gpu-result-sha256 '<required:gpu-result-sha256>' \
+  --gpu-disposition '<required:gpu-disposition>' \
+  --gpu-disposition-sha256 '<required:gpu-disposition-sha256>' \
+  --gpu-inventory '<required:gpu-inventory>' \
+  --gpu-inventory-sha256 '<required:gpu-inventory-sha256>' \
+  --gpu-baseline '<required:gpu-baseline>' \
+  --gpu-baseline-sha256 '<required:gpu-baseline-sha256>' \
+  --collection-failure-disposition '<required:collection-failure-disposition>' \
+  --collection-failure-disposition-sha256 '<required:collection-failure-disposition-sha256>' \
+  --failed-token-packet '<required:failed-token-packet>' \
+  --failed-token-packet-sha256 '<required:failed-token-packet-sha256>' \
+  --failed-token-stage '<required:failed-token-stage>' \
+  --failed-token-stage-sha256 '<required:failed-token-stage-sha256>' \
+  --failed-token-result '<required:failed-token-result>' \
+  --failed-token-result-sha256 '<required:failed-token-result-sha256>' \
+  --token-failure-acceptance '<required:token-failure-acceptance>' \
+  --token-failure-acceptance-sha256 '<required:token-failure-acceptance-sha256>' \
+  --token-no-learnedwork-proof '<required:token-no-learnedwork-proof>' \
+  --token-no-learnedwork-proof-sha256 '<required:token-no-learnedwork-proof-sha256>' \
+  --token-failure-disposition '<required:token-failure-disposition>' \
+  --token-failure-disposition-sha256 '<required:token-failure-disposition-sha256>' \
+  --token-failure-inventory '<required:token-failure-inventory>' \
+  --token-failure-inventory-sha256 '<required:token-failure-inventory-sha256>' \
+  --token-failure-readback '<required:token-failure-readback>' \
+  --token-failure-readback-sha256 '<required:token-failure-readback-sha256>' \
+  --token-failure-custody-inventory '<required:token-failure-custody-inventory>' \
+  --token-failure-custody-inventory-sha256 '<required:token-failure-custody-inventory-sha256>' \
+  --token-failure-baseline '<required:token-failure-baseline>' \
+  --token-failure-baseline-sha256 '<required:token-failure-baseline-sha256>' \
+  --token-operational-amendment '<required:token-operational-amendment>' \
+  --token-operational-amendment-sha256 '<required:token-operational-amendment-sha256>' \
+  --token-operational-review '<required:token-operational-review>' \
+  --token-operational-review-sha256 '<required:token-operational-review-sha256>' \
+  --token-operational-adoption-review '<required:token-operational-adoption-review>' \
+  --token-operational-adoption-review-sha256 '<required:token-operational-adoption-review-sha256>' \
+  --token-operational-guide '<required:token-operational-guide>' \
+  --token-operational-guide-sha256 '<required:token-operational-guide-sha256>' \
+  --token-diagnosis '<required:token-diagnosis>' \
+  --token-diagnosis-sha256 '<required:token-diagnosis-sha256>' \
+  --token-packet '<required:token-packet>' \
+  --token-packet-sha256 '<required:token-packet-sha256>' \
+  --gpu-terminal-custody '<required:gpu-terminal-custody>' \
+  --gpu-terminal-mirror '<required:gpu-terminal-mirror>' \
+  --storage-config '<required:storage-config>' \
+  --storage-config-sha256 '<required:storage-config-sha256>'
+
+# finalizer launch_once.py — TEMPLATE ONLY, not executed
+python3 '<finalizer-committed-concrete-packet-directory>/launch_once.py' \
+  --packet-commit '<required:packet-commit>' \
+  --packet-sha256 '<required:packet-sha256>' \
+  --packet-review '<required:packet-review>' \
+  --packet-review-sha256 '<required:packet-review-sha256>' \
+  --packet-directory '<required:packet-directory>'
+
+# finalizer monitor_once.py — TEMPLATE ONLY, not executed
+python3 '<finalizer-committed-concrete-packet-directory>/monitor_once.py' \
+  --job-id '<required:job-id>' \
+  --packet-sha256 '<required:packet-sha256>' \
+  --submission-result-sha256 '<required:submission-result-sha256>' \
+  --packet-directory '<required:packet-directory>' \
+  --evidence-directory '<required:evidence-directory>'
+
+# finalizer pull_terminal.py — TEMPLATE ONLY, not executed
+python3 '<finalizer-committed-standalone-collector-path>' \
+  --job-id '<required:job-id>' \
+  --packet-sha256 '<required:packet-sha256>' \
+  --submission-result-sha256 '<required:submission-result-sha256>' \
+  --local-intent-sha256 '<required:local-intent-sha256>' \
+  --packet-commit '<required:packet-commit>' \
+  --collector-sha256 '<required:collector-sha256>' \
+  --collector-repository-path '<required:collector-repository-path>' \
+  --collector-review '<required:collector-review>' \
+  --collector-review-sha256 '<required:collector-review-sha256>' \
+  --packet-review '<required:packet-review>' \
+  --packet-review-sha256 '<required:packet-review-sha256>' \
+  --backup-root '<required:backup-root>'
+

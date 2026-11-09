@@ -1,0 +1,143 @@
+--- 44b8/remote_custody.py
++++ h1h2/remote_custody.py
+@@ -385,7 +385,7 @@
+     def __init__(self,allowed,destinations,validate):
+         self.allowed=allowed;self.destinations=destinations;self.validate=validate
+         self.prefix=bytearray();self.metadata=bytearray();self.length=None;self.result=None
+-        self.names=iter(sorted(allowed));self.current=None;self.fd=None;self.left=0;self.digest=None;self.done=False
++        self.names=iter(sorted(allowed));self.current=None;self.fd=None;self.handle=None;self.cleanup_errors=[];self.left=0;self.digest=None;self.done=False
+ 
+     def next_file(self):
+         while True:
+@@ -395,11 +395,11 @@
+             self.handle=opened(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL);fd=self.handle.__enter__()
+             self.fd=os.fdopen(os.dup(fd),'wb');self.left=self.allowed[self.current]['bytes'];self.digest=hashlib.sha256()
+             if self.left:return
+-            self.fd.flush();os.fsync(self.fd.fileno());self.fd.close();self.fd=None;self.handle.__exit__(None,None,None)
++            self.fd.flush();os.fsync(self.fd.fileno());self.close()
+             need(self.digest.hexdigest()==self.allowed[self.current]['sha256'],'empty file digest differs')
+ 
+     def end_file(self):
+-        self.fd.flush();os.fsync(self.fd.fileno());self.fd.close();self.fd=None;self.handle.__exit__(None,None,None)
++        self.fd.flush();os.fsync(self.fd.fileno());self.close()
+         need(self.digest.hexdigest()==self.allowed[self.current]['sha256'],'selected/fetched stream digest differs')
+         self.next_file()
+ 
+@@ -422,17 +422,50 @@
+     def finish(self):need(self.result is not None and self.done,'incomplete selected stream');return self.result
+ 
+     def close(self):
+-        if self.fd is not None:
+-            self.fd.close();self.fd=None;self.handle.__exit__(None,None,None)
+-
+-
+-BOOTSTRAP="""import sys,hashlib
+-n=int(sys.stdin.buffer.readline(32));assert 0<n<=1048576
+-s=sys.stdin.buffer.read(n);assert len(s)==n and hashlib.sha256(s).hexdigest()==sys.argv[1]
++        fileobj,self.fd=self.fd,None;handle,self.handle=self.handle,None
++        first=None
++        for phase,close in (('buffered_file',None if fileobj is None else fileobj.close),
++                            ('underlying_handle',None if handle is None else lambda:handle.__exit__(None,None,None))):
++            if close is None:continue
++            try:close()
++            except BaseException as exc:
++                if first is None:first=exc
++                self.cleanup_errors.append({'phase':phase,'type':type(exc).__name__,'message':str(exc)})
++        if first is not None:raise first
++
++
++def close_receiver(receiver,logs,primary):
++    if receiver is None:return
++    secondary=None
++    try:receiver.close()
++    except BaseException as exc:secondary=exc
++    errors=receiver.cleanup_errors
++    if not errors and secondary is None:return
++    record={'primary':None if primary is None else {'type':type(primary).__name__,'message':str(primary)},
++            'cleanup_errors':errors,'acceptance':False,'retry_allowed':False}
++    if secondary is not None:record['secondary']={'type':type(secondary).__name__,'message':str(secondary)}
++    try:write_new(Path(logs)/'receiver-cleanup-error.json',raw(record))
++    except BaseException:pass  # Cleanup evidence failure must not replace the primary exception.
++    if primary is None:
++        error=secondary if secondary is not None else RuntimeError('receiver cleanup failed')
++        safe_failure(logs,error,receiver_cleanup_failed=True)
++        raise error
++
++
++BOOTSTRAP=r"""import sys,hashlib
++def require(ok,message):
++ if not ok:raise ValueError(message)
++line=sys.stdin.buffer.readline(32)
++require(line.endswith(b'\n') and line[:-1].isdigit(),'bounded source length framing required')
++n=int(line);require(0<n<=1048576,'source length bound')
++s=sys.stdin.buffer.read(n)
++require(len(s)==n,'truncated helper source')
++require(hashlib.sha256(s).hexdigest()==sys.argv[1],'independent helper source SHA differs')
+ v={'__name__':'captured_remote_custody','__file__':'<independently-pinned-remote-custody>'}
+ exec(compile(s,v['__file__'],'exec'),v)
+ v['bind_source'](s,sys.argv[1])
+-b=sys.stdin.buffer.read(v['MAX_METADATA']+1);assert len(b)<=v['MAX_METADATA']
++b=sys.stdin.buffer.read(v['MAX_METADATA']+1)
++require(len(b)<=v['MAX_METADATA'],'request metadata bound')
+ v['remote_main'](v['decode'](b),sys.stdout.buffer)
+ """
+ 
+@@ -441,7 +474,7 @@
+     """ONE SSH transport via existing authenticated helper; never retry on ambiguity."""
+     source,source_pin=_BOUND_SOURCE;request_raw=raw(request);need(len(request_raw)<=MAX_METADATA,'bounded request metadata')
+     helper=absolute(helper_path);need(helper.is_file() and not helper.is_symlink(),'explicit existing CURC transport helper required')
+-    command=['bash',str(helper),'run',shlex.join(['python3','-B','-c',BOOTSTRAP,source_pin])]
++    command=['bash',str(helper),'run',shlex.join(['python3','-I','-B','-c',BOOTSTRAP,source_pin])]
+     write_new(logs/'command.json',raw(command));write_new(logs/'request.bin',str(len(source)).encode()+b'\n'+source+request_raw)
+     proc=None;start=time.monotonic();error=None;count=0;stderr_count=0;limit=8+MAX_METADATA+sum(v['bytes'] for v in receiver.allowed.values())
+     try:
+@@ -513,7 +546,7 @@
+     local=absolute(local_root);logs_path=absolute(log_dir)
+     need(local!=logs_path and local not in logs_path.parents and logs_path not in local.parents,'local subset and logs must be disjoint')
+     request={'action':'collect','observation':observation,'roots':roots,'backup_root':str(backup_root),'local_root':str(local),'helper_sha256':_BOUND_SOURCE[1]}
+-    logs=begin(log_dir,request,[('local_selected_payload',local if local.exists() else local.parent,sum(v['bytes'] for v in selection['files'].values()))]);receiver=None
++    logs=begin(log_dir,request,[('local_selected_payload',local if local.exists() else local.parent,sum(v['bytes'] for v in selection['files'].values()))]);receiver=None;primary=None
+     try:
+         destinations=local_destinations(local,selection)
+         def validate(result):
+@@ -521,9 +554,8 @@
+         receiver=Receiver(selection['files'],destinations,validate);transport(request,receiver,helper_path,logs);result=receiver.finish()
+         need(local_inventory(local)==selection,'local selected readback differs')
+         write_new(logs/'receipt.json',raw(result));return result
+-    except BaseException as exc:safe_failure(logs,exc,remote_outcome_ambiguous=True,partial_preserved=True);raise
+-    finally:
+-        if receiver:receiver.close()
++    except BaseException as exc:primary=exc;safe_failure(logs,exc,remote_outcome_ambiguous=True,partial_preserved=True);raise
++    finally:close_receiver(receiver,logs,primary)
+ 
+ 
+ def verify_backup(*,receipt,observation,helper_path,log_dir):
+@@ -532,12 +564,12 @@
+     request={'action':'verify','receipt':receipt,'observation':observation,'helper_sha256':_BOUND_SOURCE[1]};logs=begin(log_dir,request)
+     expected={'full_backup_verified':True,'full_inventory':full,'local_inventory':receipt['local_inventory'],'receipt_sha256':sha(raw(receipt)),'backup_archive_sha256':receipt['backup_archive_sha256'],'helper_sha256':_BOUND_SOURCE[1],'acceptance':False}
+     def validate(result):need(result==expected,'remote verification identity differs')
+-    receiver=Receiver({}, {}, validate)
++    receiver=Receiver({}, {}, validate);primary=None
+     try:
+         transport(request,receiver,helper_path,logs);result=receiver.finish();need(local_inventory(receipt['local_root'])==receipt['local_inventory'],'selected local custody changed during verification')
+         write_new(logs/'receipt.json',raw(result));return result
+-    except BaseException as exc:safe_failure(logs,exc,remote_outcome_ambiguous=True);raise
+-    finally:receiver.close()
++    except BaseException as exc:primary=exc;safe_failure(logs,exc,remote_outcome_ambiguous=True);raise
++    finally:close_receiver(receiver,logs,primary)
+ 
+ 
+ def fetch_exact(*,receipt,member,expected_sha256,destination,helper_path,log_dir):
+@@ -550,9 +582,9 @@
+     request={'action':'fetch','receipt':receipt,'member':member,'expected_sha256':expected_sha256,'destination':str(dest),'helper_sha256':_BOUND_SOURCE[1]};logs=begin(log_dir,request,[('local_fetch_payload',dest.parent,full['files'][member]['bytes'])])
+     expected={'verified':True,'member':member,'sha256':expected_sha256,'bytes':full['files'][member]['bytes'],'destination':str(dest),'backup_archive_sha256':receipt['backup_archive_sha256'],'helper_sha256':_BOUND_SOURCE[1],'acceptance':False}
+     def validate(result):need(result==expected,'remote fetch identity differs')
+-    receiver=Receiver({member:full['files'][member]},{member:dest},validate)
++    receiver=Receiver({member:full['files'][member]},{member:dest},validate);primary=None
+     try:
+         transport(request,receiver,helper_path,logs);result=receiver.finish();need(fingerprint(dest,True)[0]==full['files'][member],'fetched bytes differ on readback')
+         write_new(logs/'receipt.json',raw(result));return result
+-    except BaseException as exc:safe_failure(logs,exc,remote_outcome_ambiguous=True,partial_preserved=True);raise
+-    finally:receiver.close()
++    except BaseException as exc:primary=exc;safe_failure(logs,exc,remote_outcome_ambiguous=True,partial_preserved=True);raise
++    finally:close_receiver(receiver,logs,primary)

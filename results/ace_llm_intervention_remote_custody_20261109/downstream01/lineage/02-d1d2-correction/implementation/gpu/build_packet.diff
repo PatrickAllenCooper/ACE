@@ -1,0 +1,74 @@
+--- reviewed-draft/build_packet.py
++++ d1d2/build_packet.py
+@@ -541,7 +541,7 @@
+ 
+ 
+ # Explicit outer storage adapter; never added to frozen scientific child inputs.
+-COMPACT_ADAPTER_SHA='634979bb79542c0adc970f464cd445588a866815f11387d43ff64c664c12acb8'
++COMPACT_ADAPTER_SHA='6dc4fe9b95cb0452c801a9be3f0a2102de9bc6ea76e777725b823501e82dda46'
+ CURC_HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ 
+ def compact_adapter():
+@@ -558,10 +558,25 @@
+     return ('storage-config.json',*c.STORAGE_FILES.values(),'compact_inputs.py')
+ 
+ 
++def start_storage_operations(ctx, root, reference_roots, identity):
++    """Register durable caller evidence before the first archive verification."""
++    c=compact_adapter();roots=tuple(Path(p).resolve(strict=True) for p in reference_roots)
++    def publish(name,value):
++        errors=[]
++        for target in roots:
++            try:write(target/name,raw(value))
++            except BaseException as exc:errors.append(type(exc).__name__+': '+str(exc))
++        need(not errors,'storage operation reference publication failed: '+repr(errors))
++    identity={**identity,'coordinator_sha256':sha(read(Path(__file__))),
++              'source_commit':SOURCE_COMMIT,'reference_roots':[str(p) for p in roots]}
++    ctx['storage_operation_evidence']=c.OperationEvidence(root,identity,publish)
++    return ctx['storage_operation_evidence']
++
++
+ def configure_storage(ctx,supplied,capsule,mirror):
+     c=compact_adapter()
+-    gate=c.bind(ctx,supplied,predecessor='cpu',capsule=capsule,mirror=mirror,
+-        expected_roots=dict(launch=CPU_ROOT,training=TRAIN_ROOT,cpu=TOKEN_ROOT,**{'failed-token01':FAILED_TOKEN_ROOT},common=COLLECTION_ROOT,failed01=load_cpu_history().FAILED_COLLECTION_ROOT,**{'namespace.json':REMOTE_REGISTRY,'original-namespace.json':ORIGINAL_REMOTE_REGISTRY}),committed=committed,helper_path=CURC_HELPER)
++    gate=ctx['storage_operation_evidence'].run('binding',lambda:c.bind(ctx,supplied,predecessor='cpu',capsule=capsule,mirror=mirror,
++        expected_roots=dict(launch=CPU_ROOT,training=TRAIN_ROOT,cpu=TOKEN_ROOT,**{'failed-token01':FAILED_TOKEN_ROOT},common=COLLECTION_ROOT,failed01=load_cpu_history().FAILED_COLLECTION_ROOT,**{'namespace.json':REMOTE_REGISTRY,'original-namespace.json':ORIGINAL_REMOTE_REGISTRY}),committed=committed,helper_path=CURC_HELPER))
+     ctx['storage_supplied']=supplied
+     return gate
+ 
+@@ -571,7 +586,10 @@
+ 
+ 
+ def storage_packet_files(ctx):
+-    return {**ctx['storage_supplied'],'compact_inputs.py':read(Path(__file__).resolve().with_name('compact_inputs.py'),COMPACT_ADAPTER_SHA)}
++    return {**ctx['storage_supplied'],
++        'storage-preparation-intent.json':raw(ctx['storage_operation_evidence'].intent_reference),
++        'storage-preparation-reference.json':raw(ctx['storage_operation_evidence'].last_reference),
++        'compact_inputs.py':read(Path(__file__).resolve().with_name('compact_inputs.py'),COMPACT_ADAPTER_SHA)}
+ 
+ 
+ def storage_packet_binding(ctx):
+@@ -605,6 +623,13 @@
+         read(ORIGINAL_LOCAL_REGISTRY,ORIGINAL_CLAIM_SHA)
+         custody=Path(args.cpu_remote_custody).resolve(strict=True)
+         storage=compact_adapter().capture_config(args.storage_config,args.storage_config_sha256)
++        need(not any(os.path.lexists(p) for p in (LOCAL,EXT)),'exclusive new launch destinations required before storage use')
++        preparations=(EXT.with_name(EXT.name+'-storage-build-preparation'),LOCAL.parent/'storage-build-preparation01')
++        need(not any(os.path.lexists(p) for p in preparations),'existing storage preparation; never retry')
++        for path in preparations:path.mkdir(mode=0o700,exist_ok=False)
++        start_storage_operations(ctx,preparations[0]/'records',preparations,
++            dict(phase='build',storage_config_sha256=args.storage_config_sha256,
++                 intended_packet_roots=[str(EXT),str(LOCAL)]))
+         configure_storage(ctx,storage,custody.parent,args.cpu_terminal_mirror)
+         cpu_data=admit_cpu_bytes(ctx,custody)
+         stage,data,bootstrap=make_packet(ctx,cpu_data,supplied);stage_raw=raw(stage);gate=admission(ctx,stage)
+@@ -652,7 +677,7 @@
+             recheck_storage(ctx)
+             need(read(LOCAL_REGISTRY,ctx['pins']['namespace-claim'])==supplied['namespace-claim'],'claim changed during build')
+             read(ORIGINAL_LOCAL_REGISTRY,ORIGINAL_CLAIM_SHA)
+-            print(raw(dict(packet_sha256=sha(files['packet.json']),gpu_packet_sha256=sha(stage_raw),admission_sha256=sha(raw(gate)),submitted=False,scientific_qualified=False)).decode())
++            print(raw(dict(storage_operations=ctx['storage_operation_evidence'].last_reference,packet_sha256=sha(files['packet.json']),gpu_packet_sha256=sha(stage_raw),admission_sha256=sha(raw(gate)),submitted=False,scientific_qualified=False)).decode())
+         except BaseException as exc:
+             for root in created:
+                 try:write(root/'build-failure.json',raw(dict(type=type(exc).__name__,message=str(exc),retry_allowed=False)))

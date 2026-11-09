@@ -1,0 +1,93 @@
+--- reviewed-draft/pull_terminal.py
++++ d1d2/pull_terminal.py
+@@ -268,50 +268,54 @@
+          and packet['deadlines']==intent['deadlines']==b.DEADLINES,'frozen finalizer profile differs')
+     supplied={n:read_metadata(LAUNCH/b.metadata_name(n),pins[b.metadata_name(n)],128*1024**2 if n=='gpu-custody-inventory' else 32*1024**2) for n in b.METADATA}
+     ctx=b.authenticate(supplied);m=ctx['metadata'];base=m['gpu-baseline']
+-    gate=b.configure_packet_storage(ctx,LAUNCH,pins,packet)
+-    need(intent['storage_binding']==packet['storage_binding'],'original storage intent differs')
+-    b.admit_gpu_bytes(ctx,packet['gpu_terminal_custody'],packet['gpu_terminal_mirror'])
+-    need(packet['original_input_pins']==ctx['upstream_pins'] and packet['upstream_rosters']==ctx['upstream_rosters']
+-         and packet['token_recovery']==intent['token_recovery']==ctx['token_recovery']
+-         and packet['failed_token_root']==intent['failed_token_root']==b.FAILED_TOKEN_ROOT
+-         and packet['failed_token_job_id']==intent['failed_token_job_id']==b.FAILED_TOKEN_JOB
+-         and packet['baseline_sha256']==intent['baseline_sha256']==ctx['pins']['gpu-baseline']
+-         and packet['gpu_acceptance_sha256']==intent['gpu_acceptance_sha256']==ctx['pins']['gpu-acceptance']
+-         and intent['gpu_disposition_sha256']==ctx['pins']['gpu-disposition']
+-         and intent['gpu_custody_inventory_sha256']==ctx['pins']['gpu-custody-inventory']
+-         and packet['admission']==intent['admission']==b.budget(base)
+-         and intent['existing_namespace_claim_sha256']==packet['namespace_claim_sha256']==ctx['pins']['namespace-claim']
+-         and intent['namespace_admission_sha256']==ctx['pins']['namespace-admission']
+-         and intent['recovery_authority_sha256']==ctx['pins']['recovery-authority']
+-         and intent['original_namespace_claim_sha256']==b.ORIGINAL_CLAIM_SHA
+-         and intent['new_namespace_claimed'] is intent['replacement_worlds'] is False
+-         and packet['gpu_job_id']==intent['gpu_job_id']==m['gpu-acceptance']['job_id']
+-         and packet['prior_jobs']==47 and packet['prior_journals']==96,'complete original history joins differ')
+-    need(a.job_id not in {r[0] for r in base['related_accounting']},'new finalizer job required')
+-    backend=gate.backend;helper_source=gate.supplied['remote_custody.py'];helper_review=gate.supplied['storage-backend-review.md']
+-    ROOTS={'launch':ROOT,**{('gpu' if label=='launch' else label):root for label,root in b.RAW_ROOTS.items()}}
+-    REMOTE_NAMESPACE=b.REMOTE_REGISTRY;OLD_REMOTE_NAMESPACE=b.ORIGINAL_REMOTE_REGISTRY
+-    source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,JOB=a.job_id,NAMESPACE=REMOTE_NAMESPACE,
+-        OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,ROOTS=ROOTS,TERMINAL=TERMINAL,UPSTREAM_PINS=ctx['upstream_pins']).items())+'\n'+REMOTE_OBSERVATION
+     claimed=[];started=time.monotonic();cpu=time.process_time()
+     def save(name,value):
+         for dest in claimed:write(dest/name,raw(value))
+-    def observe(name):
+-        try:
+-            p=subprocess.run(['bash',HELPER,'run','python3 -'],input=source,capture_output=True,text=True,timeout=305)
+-            record=dict(returncode=p.returncode,stdout=p.stdout,stderr=p.stderr,python_source=source,utc=utc())
+-        except subprocess.TimeoutExpired as exc:
+-            txt=lambda v:v.decode(errors='replace') if isinstance(v,bytes) else v
+-            record=dict(returncode=None,timeout=True,stdout=txt(exc.stdout),stderr=txt(exc.stderr),python_source=source,utc=utc())
+-        save(name,record);need(record['returncode']==0,'failed original observation retained')
+-        obs=decode(record['stdout']);need(obs.get('terminal_gate') is True and not obs.get('observation_error'),'conclusive complete terminal observation required')
+-        return obs
+     with b.coordinator_locks():
+-        need(not any(os.path.lexists(p) for p in (EXT,LOCAL)),'exclusive terminal destinations; never retry')
++        need(not any(os.path.lexists(p) for p in (EXT,LOCAL,EXT.with_name(EXT.name+'-storage-collector-operations'))),'exclusive terminal destinations; never retry')
+         try:
+             for dest in (EXT,LOCAL):
+                 dest.mkdir(mode=0o700);claimed.append(dest)
+                 write(dest/'pull_terminal.py',self_bytes);write(dest/'collector-review.md',review)
++            b.start_storage_operations(ctx,EXT.with_name(EXT.name+'-storage-collector-operations'),(EXT,LOCAL),
++                dict(phase='collector',job_id=a.job_id,packet_sha256=a.packet_sha256,
++                     collector_sha256=a.collector_sha256,packet_commit=a.packet_commit))
++            gate=b.configure_packet_storage(ctx,LAUNCH,pins,packet)
++            need(intent['storage_binding']==packet['storage_binding'],'original storage intent differs')
++            b.admit_gpu_bytes(ctx,packet['gpu_terminal_custody'],packet['gpu_terminal_mirror'])
++            need(packet['original_input_pins']==ctx['upstream_pins'] and packet['upstream_rosters']==ctx['upstream_rosters']
++                 and packet['token_recovery']==intent['token_recovery']==ctx['token_recovery']
++                 and packet['failed_token_root']==intent['failed_token_root']==b.FAILED_TOKEN_ROOT
++                 and packet['failed_token_job_id']==intent['failed_token_job_id']==b.FAILED_TOKEN_JOB
++                 and packet['baseline_sha256']==intent['baseline_sha256']==ctx['pins']['gpu-baseline']
++                 and packet['gpu_acceptance_sha256']==intent['gpu_acceptance_sha256']==ctx['pins']['gpu-acceptance']
++                 and intent['gpu_disposition_sha256']==ctx['pins']['gpu-disposition']
++                 and intent['gpu_custody_inventory_sha256']==ctx['pins']['gpu-custody-inventory']
++                 and packet['admission']==intent['admission']==b.budget(base)
++                 and intent['existing_namespace_claim_sha256']==packet['namespace_claim_sha256']==ctx['pins']['namespace-claim']
++                 and intent['namespace_admission_sha256']==ctx['pins']['namespace-admission']
++                 and intent['recovery_authority_sha256']==ctx['pins']['recovery-authority']
++                 and intent['original_namespace_claim_sha256']==b.ORIGINAL_CLAIM_SHA
++                 and intent['new_namespace_claimed'] is intent['replacement_worlds'] is False
++                 and packet['gpu_job_id']==intent['gpu_job_id']==m['gpu-acceptance']['job_id']
++                 and packet['prior_jobs']==47 and packet['prior_journals']==96,'complete original history joins differ')
++            need(a.job_id not in {r[0] for r in base['related_accounting']},'new finalizer job required')
++            backend=gate.backend;helper_source=gate.supplied['remote_custody.py'];helper_review=gate.supplied['storage-backend-review.md']
++            ROOTS={'launch':ROOT,**{('gpu' if label=='launch' else label):root for label,root in b.RAW_ROOTS.items()}}
++            REMOTE_NAMESPACE=b.REMOTE_REGISTRY;OLD_REMOTE_NAMESPACE=b.ORIGINAL_REMOTE_REGISTRY
++            source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,JOB=a.job_id,NAMESPACE=REMOTE_NAMESPACE,
++                OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,ROOTS=ROOTS,TERMINAL=TERMINAL,UPSTREAM_PINS=ctx['upstream_pins']).items())+'\n'+REMOTE_OBSERVATION
++            def observe(name):
++                try:
++                    p=subprocess.run(['bash',HELPER,'run','python3 -'],input=source,capture_output=True,text=True,timeout=305)
++                    record=dict(returncode=p.returncode,stdout=p.stdout,stderr=p.stderr,python_source=source,utc=utc())
++                except subprocess.TimeoutExpired as exc:
++                    txt=lambda v:v.decode(errors='replace') if isinstance(v,bytes) else v
++                    record=dict(returncode=None,timeout=True,stdout=txt(exc.stdout),stderr=txt(exc.stderr),python_source=source,utc=utc())
++                save(name,record);need(record['returncode']==0,'failed original observation retained')
++                obs=decode(record['stdout']);need(obs.get('terminal_gate') is True and not obs.get('observation_error'),'conclusive complete terminal observation required')
++                return obs
++            for dest in claimed:
+                 write(dest/'remote_custody.py',helper_source);write(dest/'storage-backend-review.md',helper_review)
+             save('collector-intent.json',dict(job_id=a.job_id,packet_sha256=a.packet_sha256,packet_commit=a.packet_commit,
+                 submission_result_sha256=a.submission_result_sha256,local_intent_sha256=a.local_intent_sha256,

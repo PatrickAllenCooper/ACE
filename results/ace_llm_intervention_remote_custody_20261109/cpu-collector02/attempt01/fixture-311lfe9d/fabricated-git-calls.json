@@ -1,0 +1,56 @@
+[
+  {
+    "command": [
+      "git",
+      "--no-replace-objects",
+      "cat-file",
+      "-t",
+      "2222222222222222222222222222222222222222"
+    ],
+    "kwargs": {
+      "cwd": "/fabricated/repo",
+      "capture_output": "True",
+      "timeout": "20"
+    }
+  },
+  {
+    "command": [
+      "git",
+      "--no-replace-objects",
+      "show",
+      "2222222222222222222222222222222222222222:sidecars/collector.py"
+    ],
+    "kwargs": {
+      "cwd": "/fabricated/repo",
+      "capture_output": "True",
+      "timeout": "20"
+    }
+  },
+  {
+    "command": [
+      "git",
+      "--no-replace-objects",
+      "cat-file",
+      "-t",
+      "1111111111111111111111111111111111111111"
+    ],
+    "kwargs": {
+      "cwd": "/fabricated/repo",
+      "capture_output": "True",
+      "timeout": "20"
+    }
+  },
+  {
+    "command": [
+      "git",
+      "--no-replace-objects",
+      "show",
+      "1111111111111111111111111111111111111111:sidecars/collector.py"
+    ],
+    "kwargs": {
+      "cwd": "/fabricated/repo",
+      "capture_output": "True",
+      "timeout": "20"
+    }
+  }
+]

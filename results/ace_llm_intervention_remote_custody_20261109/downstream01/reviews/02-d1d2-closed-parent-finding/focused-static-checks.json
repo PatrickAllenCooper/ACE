@@ -1,0 +1,127 @@
+{
+  "attempt01": {
+    "receipt_sha256": "6535dbd97c0bd0f7e842ba7a462384f291c08aa303e11131e3a6596feec05a0e",
+    "returncode": 1,
+    "source_matches_record": {
+      "compact_inputs.py": true,
+      "finalizer/build_packet.py": true,
+      "finalizer/compact_inputs.py": true,
+      "finalizer/launch_once.py": true,
+      "finalizer/monitor_once.py": true,
+      "finalizer/pull_terminal.py": true,
+      "gpu/build_packet.py": true,
+      "gpu/compact_inputs.py": true,
+      "gpu/cpu_history_contract.py": true,
+      "gpu/launch_once.py": true,
+      "gpu/monitor_once.py": true,
+      "gpu/pull_terminal.py": true,
+      "test_compact_delta.py": true,
+      "test_compact_inputs.py": true,
+      "test_compact_wiring.py": true,
+      "test_d1d2.py": true
+    }
+  },
+  "attempt02-corrected-fixture": {
+    "receipt_sha256": "c4625c602f2ce9bdf2cc865f4f28ed44c72bd6d1f41499c928aef6c8e4bc0744",
+    "returncode": 0,
+    "source_matches_record": {
+      "compact_inputs.py": true,
+      "finalizer/build_packet.py": true,
+      "finalizer/compact_inputs.py": true,
+      "finalizer/launch_once.py": true,
+      "finalizer/monitor_once.py": true,
+      "finalizer/pull_terminal.py": true,
+      "gpu/build_packet.py": true,
+      "gpu/compact_inputs.py": true,
+      "gpu/cpu_history_contract.py": true,
+      "gpu/launch_once.py": true,
+      "gpu/monitor_once.py": true,
+      "gpu/pull_terminal.py": true,
+      "test_compact_delta.py": true,
+      "test_compact_inputs.py": true,
+      "test_compact_wiring.py": true,
+      "test_d1d2.py": true
+    }
+  },
+  "finalizer/build_packet.py": {
+    "byte_identical": false,
+    "changed_constants": [
+      "COMPACT_ADAPTER_SHA"
+    ],
+    "changed_definitions": [
+      "configure_storage",
+      "main",
+      "start_storage_operations",
+      "storage_packet_files"
+    ]
+  },
+  "finalizer/launch_once.py": {
+    "byte_identical": false,
+    "changed_constants": [],
+    "changed_definitions": [
+      "main"
+    ]
+  },
+  "finalizer/monitor_once.py": {
+    "byte_identical": true,
+    "changed_constants": [],
+    "changed_definitions": []
+  },
+  "finalizer/pull_terminal.py": {
+    "byte_identical": false,
+    "changed_constants": [],
+    "changed_definitions": [
+      "main"
+    ]
+  },
+  "fixture_delta": "--- \n+++ \n@@ -82,7 +82,7 @@\n   for p in owners:self.assertEqual(C.decode((p/'storage-use.intent.json').read_bytes()),evidence.intent_reference)\n   return manifest\n  def test_initial_verification_failure_has_registered_pinned_partial_records(self):\n-  backend=F.BACKEND.replace(b\" Path(log_dir).mkdir()\",b\" Path(log_dir).mkdir();Path(log_dir,'partial.log').write_bytes(b'partial verification')\\n assert (Path(log_dir).parents[2]/'intent.json').is_file()\\n raise RuntimeError('fabricated initial verification failure')\")\n+  backend=F.BACKEND.replace(b\" Path(log_dir).mkdir()\",b\" Path(log_dir).mkdir();Path(log_dir,'partial.log').write_bytes(b'partial verification')\\n assert (Path(log_dir).parents[1]/'intent.json').is_file() and (Path(log_dir).parents[2]/'owner-local/storage-use.intent.json').is_file()\\n raise RuntimeError('fabricated initial verification failure')\")\n   obj,ctx,evidence,owners,bind=self.fixture(backend)\n   with self.assertRaisesRegex(RuntimeError,'initial verification'):bind()\n   self.assertNotIn('compact_inputs',ctx)\n",
+  "gpu/build_packet.py": {
+    "byte_identical": false,
+    "changed_constants": [
+      "COMPACT_ADAPTER_SHA"
+    ],
+    "changed_definitions": [
+      "configure_storage",
+      "main",
+      "start_storage_operations",
+      "storage_packet_files"
+    ]
+  },
+  "gpu/launch_once.py": {
+    "byte_identical": false,
+    "changed_constants": [],
+    "changed_definitions": [
+      "main"
+    ]
+  },
+  "gpu/monitor_once.py": {
+    "byte_identical": true,
+    "changed_constants": [],
+    "changed_definitions": []
+  },
+  "gpu/pull_terminal.py": {
+    "byte_identical": false,
+    "changed_constants": [
+      "BUILDER_SHA"
+    ],
+    "changed_definitions": [
+      "main"
+    ]
+  },
+  "missing_stage_parents": {
+    "ace_llm_intervention_scientific_campaign_gpu_20261108": true,
+    "ace_llm_intervention_scientific_finalization_20261108": true
+  },
+  "source_pins": {
+    "finalizer/build_packet.py": "2f6318cbbf6f025e2c9d05f29fd55f153121ca05d7ddf8c2f97e849abc0dba88",
+    "finalizer/compact_inputs.py": "6dc4fe9b95cb0452c801a9be3f0a2102de9bc6ea76e777725b823501e82dda46",
+    "finalizer/launch_once.py": "5ae9ba4c4a9a69d49b7b3772e5160fae3e45857717b56f1758a2daedd97de6dc",
+    "finalizer/monitor_once.py": "8acbf213cba75c22c5ea83fdb997c198f80feaf071b6aff91b0eff6646e681c1",
+    "finalizer/pull_terminal.py": "c699a98dbb566b331a3d2d072e1f0ac8f9b57a9ef2b8c5f68c38f27a533070bc",
+    "gpu/build_packet.py": "4cc21179b634a4d84cdfb54834825cb096671dea7c1aa0299f6b2b3dd915215a",
+    "gpu/compact_inputs.py": "6dc4fe9b95cb0452c801a9be3f0a2102de9bc6ea76e777725b823501e82dda46",
+    "gpu/launch_once.py": "a773f1b660b0b6ae7a9731b70ea202c62e1259713783d297f360d3dec6574974",
+    "gpu/monitor_once.py": "220ba06cf4d3bb2ef40d09e7d41b59300a3ba93163d5ab73bdbf45f2adc24b32",
+    "gpu/pull_terminal.py": "4e392c0e40d71ebfe269eec6049cf8eb8be5cd500f677337ef0a06996ef8ca92"
+  }
+}

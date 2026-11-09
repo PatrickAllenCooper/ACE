@@ -1,0 +1,24 @@
+# Downstream metadata deadline — independent narrow review
+
+**1 required finding (M1, P2).** D1/D2/D3 remain independently closed. This review covers only the new metadata deadline/progress delta. No test, target callable, builder, remote command, project/model/tokenizer/scientific code or actual signal timer was run. Parent CPU recovery and actual submission status are outside this review.
+
+**M1 — do not swallow the absolute observation deadline in the per-input error handler.** In both collectors' REMOTE_OBSERVATION programs, deadline() raises TimeoutError while the UPSTREAM_PINS loop handles fingerprint failures with except (OSError, ValueError). TimeoutError is an OSError subclass. If the one-shot1200-second alarm fires inside that try, the code records an ordinary upstream_errors entry and continues reading later inputs after consuming the alarm. The new GPU observation alarm therefore does not establish the claimed absolute remote bound; finalizer's revised bound shares the same interaction. The unchanged1230-second local transport timeout does not restore the remote alarm. Explicitly propagate the deadline exception before ordinary file-error handling, allowing the existing outer failure/observation_error path to terminate this observation. A dedicated deadline exception outside the swallowed types is another minimal option. Add only a new fabricated nested-handler case that raises the deadline without an actual timer and proves no next input is visited while failure evidence is retained. Godel was notified directly. This concerns the modified observation deadline path, not a repetition of closed custody acceptance.
+
+Other delta findings: the launcher metadata alarm is1200 and local remote() transport bound1230; original file/source/namespace/accounting gates and once-only submission sequence are unchanged. Both collector observation transports use1230 and their remote programs install a single1200 alarm. Progress only emits a fixed phase, read-operation count and elapsed seconds to stderr every1000 completed protected read/fingerprint operations; it includes no path or payload, does not change stdout JSON, and never resets the alarm. Repeated reads are counted again. Hash comparison gates remain at their original callers; the progress counter alone is not an acceptance signal. Original timeout partial stdout/stderr handling is unchanged.
+
+Only four production files differ from the closed D3 tree. Builders, adapter, history helper and monitors remain byte-identical. Job/service/startup/work deadlines, Slurm resources, source closures, scientific inputs, methods, endpoints and acceptance gates are unchanged. The D1/D2/D3 closures are preserved, as are backend527d and authority02a7. The proposed1200 bound is operational metadata time per invocation; it grants no new scientific allocation.
+
+| Source | SHA256 |
+| --- | --- |
+| finalizer/launch_once.py | `93369b72270d9563450e9ce5dbf18158001765e0457dbf0c38842d70bc989f7b` |
+| finalizer/pull_terminal.py | `35266b2b094a12960d6f7f6601f1a43e42c145911645047a970ae8fc38db70d0` |
+| gpu/launch_once.py | `4f60e336085322f13663d300e64f844031ac20cc9caaf070abcb15d5a302feaf` |
+| gpu/pull_terminal.py | `25877ff854f59523eed009b3f5c5cc00779f5b19b7c86da1a74454dad360c735` |
+
+Author source: /tmp/ace-downstream-metadata-deadline-98ir1xyd/implementation. Full current source snapshots, exact byte diffs, extracted remote text (parsed only), and pins are retained beside this review.
+
+The retained three-method execution receipt2f95595ceba871f61ac316512fc635f3c363508ea8cf7d954adde3c7adc8f4a4 reports all pass once (0.174836 childCPU / 0.180929041 elapsed / 23,609,344 RSS bytes). New test source8e158117130534f5996ed00d85f930201cb30fdc296c3354505ddb4059bf12c1 checks progress/privacy, direct deadline-handler behavior and mocked transport partial-output retention, plus protected-source equality. It tests deadline() directly but does not exercise the enclosing per-input handler, so it does not close M1. Source hashes in the handoff, retained execution snapshots and current implementation match. The reviewer read those new fixtures and records only; no old method was repeated.
+
+The handoff's sizing basis—parent-observed48-second CPU preflight timeout before submission and completed36k-file backup974.6seconds—is recorded as parent diagnosis, not independently rerun here. The proposed bound is finite operational planning, not a guarantee of larger or slower history completion. Actual CPU recovery proof/backup acceptance remains with the parent. Review overhead is unmetered. No optional changes are requested.
+
+Predecessor0 review SHA23e5fdd54872cb7775c092ded23bc1ed6460166ab41cf07b2b01dc42eb169fa2 remains immutable. Current handoff JSON SHAb858510e7a3b828a083dadc5964eb6c3f1c17cf47eed1bf18494c9968d1458ec.

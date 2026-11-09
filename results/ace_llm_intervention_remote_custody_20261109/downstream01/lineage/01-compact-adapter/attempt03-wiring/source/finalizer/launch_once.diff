@@ -1,0 +1,27 @@
+--- predecessor/launch_once.py
++++ launch_once.py
+@@ -47,6 +47,7 @@
+         supplied={name:b.read(local/(b.metadata_name(name)),
+             pins[b.metadata_name(name)],256*1024**2) for name in b.METADATA}
+         ctx=b.authenticate(supplied);m=ctx['metadata']
++        b.configure_packet_storage(ctx,local,pins,packet)
+         gpu_data=b.admit_gpu_bytes(ctx,packet['gpu_terminal_custody'],packet['gpu_terminal_mirror'])
+         b.need(local==b.LOCAL and packet['source_commit']==b.SOURCE_COMMIT and packet['remote_root']==b.ROOT,
+             'amended frozen packet roots/source differ')
+@@ -85,6 +86,7 @@
+             original_inputs=ctx['upstream_pins'],upstream_rosters=ctx['upstream_rosters'],
+             original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA)
+         common='C='+repr(context)+'\n'+REMOTE_COMMON
++        save('storage-launch-use.json',dict(binding=b.storage_packet_binding(ctx),operations=str(ctx['compact_inputs'].staging),acceptance=False))
+         save('controller.json',dict(pid=os.getpid(),utc=b.utc(),held=[str(b.BASE/n) for n in
+             ('ace-delivery-controller.lock','ace-foundation-controller.lock')]));started=True
+         ready=remote('readiness_transport.json',common+r'''
+@@ -109,7 +111,7 @@
+         for name,h in pins.items():b.need(b.read(b.LOCAL/name,h,256*1024**2)==b.read(b.EXT/name,h,256*1024**2),'local pinned input changed')
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local namespace changed')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+-        intent=dict(utc=b.utc(),packet_commit=a.packet_commit,source_commit=b.SOURCE_COMMIT,
++        intent=dict(utc=b.utc(),packet_commit=a.packet_commit,source_commit=b.SOURCE_COMMIT,storage_binding=b.storage_packet_binding(ctx),
+             packet_sha256=a.packet_sha256,review_sha256=a.packet_review_sha256,pins=pins,remote_root=b.ROOT,
+             baseline_sha256=ctx['pins']['gpu-baseline'],gpu_acceptance_sha256=ctx['pins']['gpu-acceptance'],
+             gpu_disposition_sha256=ctx['pins']['gpu-disposition'],gpu_custody_inventory_sha256=ctx['pins']['gpu-custody-inventory'],

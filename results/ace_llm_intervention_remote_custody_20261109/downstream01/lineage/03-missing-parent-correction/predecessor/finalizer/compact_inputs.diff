@@ -1,0 +1,127 @@
+--- reviewed-draft/compact_inputs.py
++++ d1d2/compact_inputs.py
+@@ -114,10 +114,75 @@
+     return {'files':files,'directories':sorted(dirs)}
+ 
+ 
++
++class OperationEvidence:
++    """Durable caller-owned records; reference is published before any transport."""
++    def __init__(self, root, identity, publish):
++        self.root=Path(root);self.publish=publish;self.number=0;self.last_reference=None
++        need(self.root.parent==self.root.parent.resolve(strict=True),'canonical durable evidence parent required')
++        self.root.mkdir(mode=0o700,exist_ok=False)
++        self.intent={'schema':'ace-compact-input-use-intent-v1','path':str(self.root),
++            'identity':identity,'acceptance':False,'retry_allowed':False}
++        self.intent_raw=canonical(self.intent)
++        self._write('intent.json',self.intent_raw)
++        self.intent_reference={'path':str(self.root),'intent_sha256':sha(self.intent_raw),
++                               'acceptance':False,'retry_allowed':False}
++        # If publication fails, no backend method has run. Original intent stays.
++        self.publish('storage-use.intent.json',self.intent_reference)
++
++    def _write(self,name,data):
++        with (self.root/name).open('xb') as f:
++            f.write(data);f.flush();os.fsync(f.fileno())
++
++    def record(self, operation, error=None, details=None):
++        ordinal=self.number;self.number+=1
++        path=self.root/'operations'
++        view=selected_inventory(path) if path.exists() else {'files':{},'directories':[]}
++        manifest={'schema':'ace-compact-input-operation-inventory-v1',
++            'intent_sha256':sha(self.intent_raw),'operation':operation,'ordinal':ordinal,
++            'status':'completed' if error is None else 'failed',
++            'error':None if error is None else {'type':type(error).__name__,'message':str(error)},
++            'details':details,'operations_path':str(path),'inventory':view,'acceptance':False,'retry_allowed':False}
++        data=canonical(manifest);name=f'inventory-{ordinal:03d}.json';self._write(name,data)
++        reference={**self.intent_reference,'inventory_path':str(self.root/name),
++                   'inventory_sha256':sha(data),'status':manifest['status'],'operation':operation}
++        self._write(f'reference-{ordinal:03d}.json',canonical(reference))
++        self.last_reference=reference
++        # Always retain the original manifest/reference if caller publication fails.
++        self.publish(f'storage-use-{ordinal:03d}.json',reference)
++        return reference
++
++    def run(self, operation, action, details=None):
++        try:
++            result=action()
++        except BaseException as primary:
++            try:self.record(operation,primary,details)
++            except BaseException as secondary:
++                try:self._write(f'evidence-failure-{self.number:03d}.json',canonical({
++                    'primary':{'type':type(primary).__name__,'message':str(primary)},
++                    'secondary':{'type':type(secondary).__name__,'message':str(secondary)},
++                    'acceptance':False,'retry_allowed':False}))
++                except BaseException:pass
++            raise
++        self.record(operation,details=details)
++        return result
++
++
++def recorded(operation):
++    # Direct standalone Inputs tests may omit evidence; production bind cannot.
++    def decorate(function):
++        def run(self,*args,**kwargs):
++            if self.evidence is None:return function(self,*args,**kwargs)
++            details={'member':args[0],'expected_sha256':args[1]} if operation=='input-read' and len(args)>1 else None
++            return self.evidence.run(operation,lambda:function(self,*args,**kwargs),details)
++        return run
++    return decorate
++
++
+ class Inputs:
+     """One admitted predecessor use. Fetch/log destinations are always exclusive."""
+     def __init__(self, *, backend, receipt_raw, receipt_sha256, observation,
+-                 expected_roots, helper_sha256, local_roots, staging, helper_path):
++                 expected_roots, helper_sha256, local_roots, staging, helper_path, evidence=None):
+         need(pin(receipt_sha256) and sha(receipt_raw)==receipt_sha256,
+              'independently supplied receipt byte pin required')
+         self.receipt=decode(receipt_raw)
+@@ -152,9 +217,11 @@
+              not any(self.staging==p or p in self.staging.parents or self.staging in p.parents
+                      for p in self.local_roots), 'canonical disjoint staging required')
+         self.staging.mkdir(mode=0o700,exist_ok=False)
++        self.evidence=evidence
+         self.used={};self.captured={};self.attempted=set();self.ordinal=0
+         self.recheck()
+ 
++    @recorded("archive-verify")
+     def recheck(self):
+         # Backend verifies immutable receipt.local_root; second copy checked locally
+         # against the exact same selected map. The receipt is never rewritten.
+@@ -175,6 +242,7 @@
+                     need(not os.path.samestat((a/name).stat(),(b/name).stat()), 'selected mirrors alias same inode')
+         return verification
+ 
++    @recorded("input-read")
+     def read(self, name, expected_sha256, maximum=256*1024**2):
+         relative(name)
+         need(name.startswith('launch/inputs/') and name.count('/')==2 and pin(expected_sha256),
+@@ -317,7 +385,6 @@
+ 
+ def bind(ctx, supplied, *, predecessor, capsule, mirror, expected_roots, committed, helper_path):
+     """Bind outer authority, two compact seals, original archive and exact references."""
+-    import tempfile
+     import types
+     config=decode(supplied['storage-config.json'])
+     need(config['schema']=='ace-compact-downstream-inputs-v1' and config['predecessor']==predecessor and
+@@ -377,15 +444,14 @@
+          disp['complete_local_raw_copy'] is False and disp['remote_custody_receipt_sha256']==receipt_pin and
+          disp['backup_helper_sha256']==backend_sha and disp['remote_files']==obs['files'] and
+          sorted(disp['remote_directories'])==sorted(obs['directories']), 'explicit complete remote / partial local disposition required')
+-    parent=Path(tempfile.mkdtemp(prefix='ace-compact-input-use-',dir='/tmp')).resolve()
++    evidence=ctx['storage_operation_evidence']
++    parent=evidence.root
++    need(evidence.last_reference is None,'fresh registered predecessor-use scope required')
+     gate=Inputs(backend=backend,receipt_raw=supplied['storage-receipt.json'],receipt_sha256=receipt_pin,
+                 observation=obs,expected_roots=expected_roots,helper_sha256=backend_sha,
+-                local_roots=[p/'remote' for p in capsules],staging=parent/'operations',helper_path=helper_path)
++                local_roots=[p/'remote' for p in capsules],staging=parent/'operations',helper_path=helper_path,evidence=evidence)
+     chain=verify_ancestry(ctx,supplied['storage-predecessor.json'],predecessor)
+     gate.capsules=capsules;gate.capsule_seal=seal;gate.ancestry=chain;gate.supplied=supplied
+-    (parent/'use.json').write_bytes(canonical({'predecessor':predecessor,'receipt_sha256':receipt_pin,
+-        'storage_config_sha256':sha(supplied['storage-config.json']),'ancestry':chain,
+-        'local_full_copy':False,'acceptance':False,'operations':str(gate.staging)}))
+     ctx['compact_inputs']=gate
+     return gate
+ 

@@ -1,0 +1,31 @@
+--- closed remote
++++ delta remote
+@@ -1,8 +1,9 @@
+ 
+-import pathlib,json,hashlib,subprocess,datetime,os,stat,re,signal
++import pathlib,json,hashlib,subprocess,datetime,os,stat,re,signal,sys,time
+ os.umask(0o077)
+ def remote_deadline(signum,frame):raise TimeoutError('absolute remote coordinator deadline')
+-signal.signal(signal.SIGALRM,remote_deadline);signal.alarm(300)
++signal.signal(signal.SIGALRM,remote_deadline);signal.alarm(1200)
++_READ_COUNT=0;_READ_STARTED=time.monotonic()
+ root=pathlib.Path(C['root']); registry=pathlib.Path(C['registry'])
+ def need(ok,message):
+  if not ok:raise RuntimeError(message)
+@@ -10,6 +11,7 @@
+ def utc():return datetime.datetime.now(datetime.timezone.utc).isoformat()
+ def raw(value):return (json.dumps(value,indent=2,sort_keys=True,allow_nan=False)+'\n').encode()
+ def read(path,allow_hardlink=False):
++ global _READ_COUNT
+  path=pathlib.Path(path)
+  need(path.absolute()==path.resolve(),'unresolved/symlink path '+str(path))
+  with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
+@@ -18,6 +20,8 @@
+  identity=lambda x:(x.st_dev,x.st_ino,x.st_size,x.st_mtime_ns,x.st_ctime_ns,x.st_nlink)
+  need(identity(s)==identity(after)==identity(path.lstat()),'input changed during capture')
+  need(len(value)<=256*1024**2,'oversize metadata')
++ _READ_COUNT+=1
++ if _READ_COUNT%1000==0:print(json.dumps(dict(phase='upstream_input_verification',files_read=_READ_COUNT,elapsed_seconds=time.monotonic()-_READ_STARTED)),file=sys.stderr,flush=True)
+  return value
+ def write(path,value):
+  with pathlib.Path(path).open('xb') as f:f.write(raw(value));f.flush();os.fsync(f.fileno())

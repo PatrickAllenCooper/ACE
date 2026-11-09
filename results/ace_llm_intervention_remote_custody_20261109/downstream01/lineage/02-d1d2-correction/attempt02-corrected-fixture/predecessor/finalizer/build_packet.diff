@@ -1,0 +1,133 @@
+--- predecessor/build_packet.py
++++ build_packet.py
+@@ -692,26 +692,18 @@
+     for k in ('files','directories','related_accounting','journal_pins','parent_accounting','terminal_gate'):
+         need(after[k]==obs[k], 'remote custody changed before/after: '+k)
+     need(after['terminal_gate'] is True and not after.get('observation_error'), 'conclusive second terminal observation required')
+-    copies=[]
+-    for root in (capsule,mirror):
+-        value=tree(root);read(root/'custody-inventory.json',pins['gpu-custody-inventory'])
+-        del value['files']['custody-inventory.json']
+-        need(value==seal['copies'][str(root)], 'full original capsule seal mismatch')
+-        nested_failure_capsule(ctx,value)
+-        for name,key in [('disposition.json','gpu-disposition'),('inventory_transport.json','gpu-inventory'),
+-                         ('inventory_after_transport.json','gpu-inventory-after')]:read(root/name,pins[key])
+-        need(tree(root/'remote')==dict(files=obs['files'],directories=sorted(obs['directories'])), 'complete raw files/directories differ')
+-        copies.append(value)
+-    need(copies[0]==copies[1], 'complete independent capsule bytes differ')
+-    for n in copies[0]['files']:
+-        need(not os.path.samestat((capsule/n).stat(),(mirror/n).stat()), 'custody mirrors alias the same inode')
++    gate=ctx['compact_inputs']
++    need(gate.capsules==(capsule,mirror),'bound compact capsule identities differ')
++    need(sha(gate.supplied['storage-seal.json'])==pins['gpu-custody-inventory'] and
++         sha(gate.supplied['storage-after.json'])==pins['gpu-inventory-after'],'original independently pinned selected custody metadata differs')
++    recheck_storage(ctx)
+     ctx['upstream_rosters']=accepted_rosters(ctx)
+     gp=m['gpu-packet'];files=obs['files'];data={}
+     need(files['launch/inputs/packet.json']['sha256']==pins['gpu-packet'], 'raw GPU inner packet differs')
+     for n,h in gp['files'].items():
+         need(Path(n).name==n and n.endswith(('.py','.json','.pt')) and pin(h), 'flat original GPU file required')
+         need(files['launch/inputs/'+n]['sha256']==h, 'raw GPU input differs')
+-        data[n]=read(capsule/'remote/launch/inputs'/n,h,256*1024**2)
++        data[n]=gate.capture('launch/inputs/'+n,h,256*1024**2)
+     upstream={root+'/'+n:h for root,roster in ctx['upstream_rosters'].items() for n,h in roster['files'].items()}
+     for prefix,root,*_ in STAGES:
+         outer=m[prefix+'-launch-packet'];result=m[prefix+'-result']
+@@ -794,21 +786,77 @@
+         for f in reversed(handles):fcntl.flock(f,fcntl.LOCK_UN);f.close()
+ 
+ 
++
++# Explicit outer storage adapter; never added to frozen scientific child inputs.
++COMPACT_ADAPTER_SHA='634979bb79542c0adc970f464cd445588a866815f11387d43ff64c664c12acb8'
++CURC_HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
++
++def compact_adapter():
++    import types
++    path=Path(__file__).resolve().with_name('compact_inputs.py')
++    source=read(path,COMPACT_ADAPTER_SHA)
++    mod=types.ModuleType('captured_compact_inputs');mod.__file__=str(path)
++    exec(compile(source,str(path),'exec'),vars(mod))
++    return mod
++
++
++def storage_members():
++    c=compact_adapter()
++    return ('storage-config.json',*c.STORAGE_FILES.values(),'compact_inputs.py')
++
++
++def configure_storage(ctx,supplied,capsule,mirror):
++    c=compact_adapter()
++    gate=c.bind(ctx,supplied,predecessor='gpu',capsule=capsule,mirror=mirror,
++        expected_roots={**RAW_ROOTS,'namespace.json':REMOTE_REGISTRY,'original-namespace.json':ORIGINAL_REMOTE_REGISTRY},committed=committed,helper_path=CURC_HELPER)
++    ctx['storage_supplied']=supplied
++    return gate
++
++
++def recheck_storage(ctx):
++    compact_adapter().recheck_capsules(ctx['compact_inputs'])
++
++
++def storage_packet_files(ctx):
++    return {**ctx['storage_supplied'],'compact_inputs.py':read(Path(__file__).resolve().with_name('compact_inputs.py'),COMPACT_ADAPTER_SHA)}
++
++
++def storage_packet_binding(ctx):
++    gate=ctx['compact_inputs']
++    return dict(mode='curc_projects_full_backup_with_compact_local_evidence',
++        predecessor_remote_custody_sha256=gate.receipt_sha256,
++        storage_config_sha256=sha(ctx['storage_supplied']['storage-config.json']),
++        backend_sha256=gate.helper_sha256,compact_adapter_sha256=COMPACT_ADAPTER_SHA,
++        original_ancestor_references=gate.ancestry,complete_local_raw_copy=False)
++
++
++def configure_packet_storage(ctx,local,pins,packet):
++    c=compact_adapter();supplied=c.stored_config(local,pins)
++    gate=configure_storage(ctx,supplied,packet['gpu_terminal_custody'],packet['gpu_terminal_mirror'])
++    need(packet['storage_binding']==storage_packet_binding(ctx),'independent compact storage packet binding differs')
++    return gate
++
++
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+     for n in METADATA:ap.add_argument('--'+n,required=True);ap.add_argument('--'+n+'-sha256',required=True)
+     ap.add_argument('--gpu-terminal-custody',required=True,help='original complete repository terminal capsule')
+     ap.add_argument('--gpu-terminal-mirror',required=True,help='original complete independent external terminal capsule')
++    ap.add_argument('--storage-config',required=True)
++    ap.add_argument('--storage-config-sha256',required=True)
+     args=ap.parse_args()
+     with coordinator_locks():
+         supplied={n:read(getattr(args,n.replace('-','_')),getattr(args,n.replace('-','_')+'_sha256'),256*1024**2) for n in METADATA}
+         ctx=authenticate(supplied)
+         need(read(LOCAL_REGISTRY,ctx['pins']['namespace-claim'])==supplied['namespace-claim'], 'existing recovery claim changed')
+         read(ORIGINAL_LOCAL_REGISTRY,ORIGINAL_CLAIM_SHA)
++        storage=compact_adapter().capture_config(args.storage_config,args.storage_config_sha256)
++        configure_storage(ctx,storage,args.gpu_terminal_custody,args.gpu_terminal_mirror)
+         gpu_data=admit_gpu_bytes(ctx,args.gpu_terminal_custody,args.gpu_terminal_mirror)
+         stage,data,bootstrap=make_packet(ctx,gpu_data,supplied);stage_raw=raw(stage)
+         files={'inputs/'+n:v for n,v in data.items()};files['inputs/packet.json']=stage_raw
+         for n,v in supplied.items():files[metadata_name(n)]=v
++        files.update(storage_packet_files(ctx))
+         for n in ('build_packet.py','launch_once.py','monitor_once.py'):files[n]=read(Path(__file__).resolve().with_name(n))
+         files['job.sbatch']=job_script(ctx,stage,bootstrap)
+         outer=dict(schema=OUTER_VERSION,source_commit=SOURCE_COMMIT,remote_root=ROOT,resources=RESOURCES,deadlines=DEADLINES,
+@@ -818,7 +866,7 @@
+             operational_amendment_sha256=ctx['pins']['operational-amendment'],namespace_claim_sha256=ctx['pins']['namespace-claim'],
+             new_input_files={n:sha(v) for n,v in sorted(files.items())},original_input_pins=ctx['upstream_pins'],
+             upstream_rosters=ctx['upstream_rosters'],paths=stage['paths'],gpu_terminal_custody=str(ctx['custody_paths'][0]),
+-            gpu_terminal_mirror=str(ctx['custody_paths'][1]),prior_jobs=47,prior_journals=96,worlds=24,cells=192,comparisons=28,
++            gpu_terminal_mirror=str(ctx['custody_paths'][1]),storage_binding=storage_packet_binding(ctx),prior_jobs=47,prior_journals=96,worlds=24,cells=192,comparisons=28,
+             policy_ids=list(POLICIES),admission=budget(ctx['metadata']['gpu-baseline']),submitted=False,
+             new_training_updates=0,new_responses=0,new_worlds=0,scientific_qualified=False,execution_qualified=False,
+             sizing='Frozen CPU reporting cap1200s2CPU7.5GiB. Private saved-response reporting only in allocated worker. '
+@@ -831,9 +879,7 @@
+                 root.mkdir(parents=True,mode=0o700,exist_ok=False);created.append(root);(root/'inputs').mkdir(mode=0o700)
+                 for n,v in files.items():write(root/n,v)
+             for n,v in files.items():need(read(LOCAL/n,maximum=256*1024**2)==read(EXT/n,maximum=256*1024**2)==v, 'two-copy packet differs')
+-            for root in ctx['custody_paths']:
+-                now=tree(root);del now['files']['custody-inventory.json']
+-                need(now==ctx['metadata']['gpu-custody-inventory']['copies'][str(root)], 'original full custody changed during capture')
++            recheck_storage(ctx)
+             need(read(LOCAL_REGISTRY,ctx['pins']['namespace-claim'])==supplied['namespace-claim'], 'claim changed during build')
+             read(ORIGINAL_LOCAL_REGISTRY,ORIGINAL_CLAIM_SHA)
+             print(raw(dict(packet_sha256=sha(files['packet.json']),finalizer_packet_sha256=sha(stage_raw),submitted=False,scientific_qualified=False)).decode())

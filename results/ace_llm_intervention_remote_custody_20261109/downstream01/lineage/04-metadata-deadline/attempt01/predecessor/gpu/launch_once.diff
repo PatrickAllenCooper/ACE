@@ -1,0 +1,30 @@
+--- reviewed-draft/launch_once.py
++++ d1d2/launch_once.py
+@@ -50,7 +50,7 @@
+         b.need(local==b.LOCAL and packet['source_commit']==b.SOURCE_COMMIT and packet['remote_root']==b.ROOT,
+             'amended frozen packet roots/source differ')
+         b.need(not any(os.path.lexists(dest/name) for dest in (b.LOCAL,b.EXT) for name in
+-            ('controller.json','launcher_failure.json','build-failure.json','submission.intent.json','submission.result.json')),
++            ('controller.json','launcher_failure.json','build-failure.json','submission.intent.json','submission.result.json','storage-use.intent.json')),
+             'existing build/controller/submission attempt; no retry')
+         for name,h in pins.items():
+             value=b.read(b.LOCAL/name,h,256*1024**2)
+@@ -59,6 +59,9 @@
+         review=Path(a.packet_review).absolute();review_raw=b.read(review,a.packet_review_sha256)
+         b.need(review_raw.strip() and review_raw==b.committed(a.packet_commit,str(review.relative_to(b.REPO))),
+                'committed independently pinned packet review required')
++        started=True
++        b.start_storage_operations(ctx,b.EXT.with_name(b.EXT.name+'-storage-launch-operations'),(b.EXT,b.LOCAL),
++            dict(phase='launch',packet_sha256=a.packet_sha256,packet_commit=a.packet_commit))
+         b.configure_packet_storage(ctx,local,pins,packet)
+         cpu_data=b.admit_cpu_bytes(ctx,Path(packet['cpu_remote_custody']))
+         b.need(packet['baseline_sha256']==ctx['pins']['cpu-baseline'] and packet['cpu_job_id']==m['cpu-acceptance']['job_id']
+@@ -84,7 +87,7 @@
+             original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+             cpu_root=b.CPU_ROOT,cpu_roster={n.removeprefix('launch/'):v['sha256'] for n,v in ctx['observations']['cpu']['files'].items() if n.startswith('launch/')})
+         common='C='+repr(context)+'\n'+REMOTE_COMMON
+-        save('storage-launch-use.json',dict(binding=b.storage_packet_binding(ctx),operations=str(ctx['compact_inputs'].staging),acceptance=False))
++        save('storage-launch-use.json',dict(binding=b.storage_packet_binding(ctx),operation_reference=ctx['storage_operation_evidence'].last_reference,acceptance=False))
+         save('controller.json',dict(pid=os.getpid(),utc=b.utc(),held=[str(b.BASE/n) for n in
+             ('ace-delivery-controller.lock','ace-foundation-controller.lock')]));started=True
+         ready=remote('readiness_transport.json',common+r'''

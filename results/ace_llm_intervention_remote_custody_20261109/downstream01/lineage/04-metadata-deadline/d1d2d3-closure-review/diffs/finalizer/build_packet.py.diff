@@ -1,0 +1,13 @@
+--- previous/finalizer/build_packet.py
++++ current/finalizer/build_packet.py
+@@ -872,6 +872,10 @@
+         need(not any(os.path.lexists(p) for p in (LOCAL,EXT)),'exclusive new launch destinations required before storage use')
+         preparations=(EXT.with_name(EXT.name+'-storage-build-preparation'),LOCAL.parent/'storage-build-preparation01')
+         need(not any(os.path.lexists(p) for p in preparations),'existing storage preparation; never retry')
++        need(LOCAL.parent==LOCAL.parent.resolve(strict=False),'repository stage parent alias forbidden')
++        LOCAL.parent.mkdir(mode=0o700,exist_ok=True)
++        need(LOCAL.parent.is_dir() and not LOCAL.parent.is_symlink()
++             and LOCAL.parent==LOCAL.parent.resolve(strict=True),'ordinary repository stage parent required')
+         for path in preparations:path.mkdir(mode=0o700,exist_ok=False)
+         start_storage_operations(ctx,preparations[0]/'records',preparations,
+             dict(phase='build',storage_config_sha256=args.storage_config_sha256,

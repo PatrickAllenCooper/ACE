@@ -1,0 +1,10 @@
+--- before-remote-observation
++++ after-remote-observation
+@@ -73,6 +73,7 @@
+  # Explicit original pinned paths, including24 supplied development descriptor bytes; never enumerate realization or decode payloads.
+  for path in UPSTREAM_PINS:
+   try:v['upstream_pins'][path]=fingerprint(Path(path))[0]['sha256']
++  except TimeoutError:raise
+   except (OSError,ValueError) as exc:v['upstream_errors'][path]=dict(type=type(exc).__name__,message=str(exc))
+ 
+ except BaseException as exc:

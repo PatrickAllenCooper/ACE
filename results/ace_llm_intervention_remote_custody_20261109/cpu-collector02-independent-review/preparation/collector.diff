@@ -1,0 +1,135 @@
+--- predecessor622/pull_terminal.py
++++ pull_terminal.py
+@@ -1,6 +1,8 @@
+ """Complete scientific CPU campaign terminal custody, never runtime/scientific acceptance.
+ 
+ Standalone sidecar. Requires independent current job/outer packet/result pins.
++The original packet commit and the separate collector-source commit are explicit;
++new collector/helper/review bytes never relabel the submitted packet or intent.
+ Preserves the complete raw roots and namespace claims in a verified CURC /projects
+ backup. Local capsules contain selected evidence and verification records only.
+ Original local predecessor capsules remain pinned in place without recursive copies.
+@@ -133,13 +135,34 @@
+     return sorted(result,key=lambda r:int(r[0]))
+ 
+ 
++def require_collector_commit(revision,path,expected):
++    """Authenticate new sidecar bytes independently of the original packet commit."""
++    need(type(revision) is str and re.fullmatch('[0-9a-f]{40}',revision) is not None,
++         'full collector source commit required')
++    path=Path(path)
++    need(not path.is_absolute() and '..' not in path.parts,'safe collector provenance path required')
++    kind=subprocess.run(['git','--no-replace-objects','cat-file','-t',revision],
++                        cwd=REPO,capture_output=True,timeout=20)
++    need(kind.returncode==0 and kind.stdout.strip()==b'commit','collector source object must be a commit')
++    git=subprocess.run(['git','--no-replace-objects','show',revision+':'+path.as_posix()],
++                       cwd=REPO,capture_output=True,timeout=20)
++    need(git.returncode==0 and git.stdout==expected,'independently pinned collector source commit bytes differ: '+str(path))
++
++
+ REMOTE_OBSERVATION=r'''
+ from pathlib import Path
+-import subprocess,hashlib,json,datetime,stat,os
++import subprocess,hashlib,json,datetime,stat,os,signal,sys,time
++class RemoteObservationDeadline(BaseException):
++ pass
++def remote_deadline(signum,frame):
++ raise RemoteObservationDeadline('absolute remote metadata deadline')
++signal.signal(signal.SIGALRM,remote_deadline);signal.alarm(1200)
++_FINGERPRINT_COUNT=0;_OBSERVATION_STARTED=time.monotonic()
+ root=Path(ROOT);namespace=Path(NAMESPACE);original_namespace=Path(OLD_NAMESPACE)
+ def need(ok,message):
+  if not ok:raise ValueError(message)
+ def fingerprint(path):
++ global _FINGERPRINT_COUNT
+  need(not path.is_symlink(),'remote symlink forbidden')
+  with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
+   before=os.fstat(f.fileno());need(stat.S_ISREG(before.st_mode),'nonregular remote file')
+@@ -148,6 +171,8 @@
+   after=os.fstat(f.fileno())
+  identity=lambda s:(s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns,s.st_nlink)
+  need(identity(before)==identity(after)==identity(path.lstat()),'remote file changed during capture')
++ _FINGERPRINT_COUNT+=1
++ if _FINGERPRINT_COUNT%1000==0:print(json.dumps(dict(phase='terminal_inventory_fingerprint',files_read=_FINGERPRINT_COUNT,elapsed_seconds=time.monotonic()-_OBSERVATION_STARTED)),file=sys.stderr,flush=True)
+  return dict(bytes=after.st_size,sha256=h.hexdigest()),after
+ v=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),results={},files={},directories=[],
+        root_present=root.exists(),training_present=Path(TRAIN_ROOT).exists(),cpu_present=Path(CPU_ROOT).exists(),failed_token_present=Path(FAILED_TOKEN_ROOT).exists(),common_present=Path(COMMON_ROOT).exists(),failed_present=Path(FAILED_ROOT).exists(),namespace_present=os.path.lexists(namespace),original_hardlink_groups=[],
+@@ -469,7 +494,7 @@
+ 
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+-    for name in ('job-id','packet-sha256','submission-result-sha256','local-intent-sha256','packet-commit','collector-sha256','collector-repository-path','collector-review','collector-review-sha256','training-terminal-custody','training-custody-inventory-sha256','training-acceptance-sha256','baseline-sha256','packet-review','packet-review-sha256'):ap.add_argument('--'+name,required=True)
++    for name in ('job-id','packet-sha256','submission-result-sha256','local-intent-sha256','packet-commit','collector-source-commit','collector-sha256','collector-repository-path','collector-review','collector-review-sha256','training-terminal-custody','training-custody-inventory-sha256','training-acceptance-sha256','baseline-sha256','packet-review','packet-review-sha256'):ap.add_argument('--'+name,required=True)
+     for name in ('backup-root','backup-helper','backup-helper-sha256','backup-helper-repository-path'):
+         ap.add_argument('--'+name,required=True)
+     a=ap.parse_args();need(re.fullmatch('[1-9][0-9]*',a.job_id) is not None,'exact current job ID required')
+@@ -486,19 +511,17 @@
+     need(not collector_path.is_absolute() and '..' not in collector_path.parts and collector_path.suffix=='.py',
+          'explicit safe collector repository path required')
+     own=read_metadata(Path(__file__),a.collector_sha256)
+-    git=subprocess.run(['git','--no-replace-objects','show',a.packet_commit+':'+collector_path.as_posix()],cwd=REPO,capture_output=True,timeout=20)
+-    need(git.returncode==0 and git.stdout==own,'standalone collector must equal independently pinned full packet commit bytes')
++    require_collector_commit(a.collector_source_commit,collector_path,own)
+     helper_raw=read_metadata(a.backup_helper,a.backup_helper_sha256)
+     helper_path=Path(a.backup_helper_repository_path)
+     need(not helper_path.is_absolute() and '..' not in helper_path.parts and helper_path.suffix=='.py', 'safe backup helper Git path required')
+-    git=subprocess.run(['git','--no-replace-objects','show',a.packet_commit+':'+helper_path.as_posix()],cwd=REPO,capture_output=True,timeout=20)
+-    need(git.returncode==0 and git.stdout==helper_raw, 'independently pinned committed backup helper required')
++    require_collector_commit(a.collector_source_commit,helper_path,helper_raw)
+     backup=types.ModuleType('remote_custody');backup.__file__=str(Path(a.backup_helper).resolve())
+     exec(compile(helper_raw,backup.__file__,'exec'),backup.__dict__)
+     backup.bind_source(helper_raw,a.backup_helper_sha256)
+     collector_review=Path(a.collector_review).absolute();cr=read_metadata(collector_review,a.collector_review_sha256)
+-    git=subprocess.run(['git','--no-replace-objects','show',a.packet_commit+':'+str(collector_review.relative_to(REPO))],cwd=REPO,capture_output=True,timeout=20)
+-    need(cr.strip() and git.returncode==0 and git.stdout==cr,'independent collector review must be in packet commit')
++    need(cr.strip(),'independent collector review required')
++    require_collector_commit(a.collector_source_commit,collector_review.relative_to(REPO),cr)
+     need(intent['packet_sha256']==a.packet_sha256 and intent['remote_root']==ROOT and intent['pins']==pins
+          and intent['packet_commit']==a.packet_commit,'current local submission lineage differs')
+     need(all(type(n) is str and not Path(n).is_absolute() and '..' not in Path(n).parts and pin(h) for n,h in pins.items()),
+@@ -637,14 +660,15 @@
+             transport=dict(command=command,returncode=p.returncode,stdout=p.stdout,stderr=p.stderr,utc=utc())
+         except subprocess.TimeoutExpired as exc:
+             txt=lambda x:x.decode(errors='replace') if isinstance(x,bytes) else x
+-            transport=dict(command=command,returncode=None,timeout=True,stdout=txt(exc.stdout),stderr=txt(exc.stderr),utc=utc())
++            transport=dict(command=command,returncode=None,timeout=True,stdout=txt(exc.stdout),stderr=txt(exc.stderr),utc=utc(),
++                           retry_allowed=False,partial_custody_preserved=True)
+         if source is not None:transport['python_source']=source
+         save(name,transport);need(transport['returncode']==0,'failed/partial custody retained: '+name)
+         return transport
+     source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,NAMESPACE=REMOTE_NAMESPACE,JOB=a.job_id,
+         TERMINAL=TERMINAL,OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,UPSTREAM_PINS=upstream_pins,TRAIN_ROOT=TRAIN_ROOT,COMMON_ROOT=COMMON_ROOT,FAILED_ROOT=FAILED_ROOT,CPU_ROOT=CPU_ROOT,FAILED_TOKEN_ROOT=FAILED_TOKEN_ROOT).items())+'\n'+REMOTE_OBSERVATION
+     def observe(name):
+-        transport=run_saved(name,['bash',HELPER,'run','python3 -'],source=source,timeout=240)
++        transport=run_saved(name,['bash',HELPER,'run','python3 -'],source=source,timeout=1230)
+         v=decode(transport['stdout'])
+         need(v.get('terminal_gate') is True and not v.get('observation_error'),
+              'terminal inventory unavailable: '+str(v.get('observation_error')))
+@@ -676,7 +700,9 @@
+             accepted_training_root=TRAIN_ROOT,accepted_token_root=CPU_ROOT,accepted_collection_root=COMMON_ROOT,preserved_failed_root=FAILED_ROOT,
+             collector_repository_path=a.collector_repository_path,collector_review_sha256=a.collector_review_sha256,
+             training_custody_inventory_sha256=a.training_custody_inventory_sha256,
+-            packet_commit=a.packet_commit,local_intent_sha256=a.local_intent_sha256,original_local_namespace=str(OLD_LOCAL_NAMESPACE),
++            packet_commit=a.packet_commit,collector_source_commit=a.collector_source_commit,
++            remote_metadata_deadline_seconds=1200,local_observation_timeout_seconds=1230,
++            local_intent_sha256=a.local_intent_sha256,original_local_namespace=str(OLD_LOCAL_NAMESPACE),
+             original_remote_namespace=OLD_REMOTE_NAMESPACE,recovery_bindings=recovery_bindings,
+             retry_allowed=False,acceptance=False))
+         for dest in claimed:
+@@ -835,6 +861,8 @@
+         if errors:outcome='terminal_custody_with_binding_disagreements'
+         disposition=dict(schema='ace-scientific-cpu-campaign-terminal-custody-v1',utc=utc(),status=outcome,
+             job_id=a.job_id,packet_sha256=a.packet_sha256,submission_result_sha256=a.submission_result_sha256,
++            packet_commit=a.packet_commit,collector_source_commit=a.collector_source_commit,
++            remote_metadata_deadline_seconds=1200,local_observation_timeout_seconds=1230,
+             custody_bytes_verified=True,current_lineage_verified=not errors,errors=errors,input_pin_mismatches=mismatches,
+             remote_root=ROOT,output_root=ROOT+'/cpu',remote_files=actual['files'],remote_directories=actual['directories'],
+             raw_files=len(actual['files']),raw_bytes=size,original_hardlink_groups=before['original_hardlink_groups'],
+@@ -880,6 +908,7 @@
+         if claimed and not sealed:
+             partial_errors=mirror_partial_evidence(EXT,LOCAL,copy_file) if len(claimed)==2 else []
+             try:save('collector_failure.json',dict(utc=utc(),type=type(exc).__name__,message=str(exc),
++                packet_commit=a.packet_commit,collector_source_commit=a.collector_source_commit,
+                 retry_allowed=False,acceptance=False,partial_custody_preserved=True,partial_mirror_errors=partial_errors))
+             except BaseException:pass
+         raise

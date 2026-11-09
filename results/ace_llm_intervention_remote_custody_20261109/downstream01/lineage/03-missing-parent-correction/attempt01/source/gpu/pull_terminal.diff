@@ -1,0 +1,148 @@
+--- reviewed-draft/pull_terminal.py
++++ d1d2/pull_terminal.py
+@@ -41,7 +41,7 @@
+ OLD_REMOTE_NAMESPACE=str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace.json')
+ OLD_CLAIM_SHA='58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29'
+ HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+-BUILDER_SHA='8fe8d6affe97bdd3f6cde7b84dd263bbec8b90e764158c50668bacb252e0b5fd'
++BUILDER_SHA='4cc21179b634a4d84cdfb54834825cb096671dea7c1aa0299f6b2b3dd915215a'
+ POLICIES=('frozen_llm','sft_llm','dpo_llm')
+ UPSTREAM_ROOTS=dict(cpu=CPU_ROOT,training=TRAIN_ROOT,token=TOKEN_ROOT,common=COMMON_ROOT,failed01=FAILED_ROOT)
+ UPSTREAM_ROOTS['failed-token01']=FAILED_TOKEN_ROOT
+@@ -503,47 +503,6 @@
+          'exact frozen scientific campaign packet required')
+     need(a.job_id not in [ctx['metadata'][n+'-result']['job_id'] for n in ('collection','token','training','cpu')]+['35407428',b.FAILED_TOKEN_JOB],
+          'distinct current campaign job required')
+-    original_files=ctx['observations']['cpu']['files']
+-    # Bound compact CPU capsule; original full archive and failed ancestors remain explicit.
+-    gate=b.configure_packet_storage(ctx,LAUNCH,pins,packet)
+-    need(intent['storage_binding']==packet['storage_binding'],'original storage intent differs')
+-    cpu_custody=Path(a.cpu_terminal_custody).resolve(strict=True)
+-    need(cpu_custody==gate.capsules[0] and a.cpu_custody_inventory_sha256==pins['storage-seal.json'],
+-         'independent original selected CPU capsule/seal differs')
+-    cpu_custody_before=inventory(cpu_custody)
+-    # This existing pure byte validator checks complete120 CPU cells, opaque bundle/attempt/source bytes,
+-    # matching numerical plan and all five CPU attempts. It never decodes private outcomes or imports project code.
+-    opaque_cpu_inputs=b.admit_cpu_bytes(ctx,cpu_custody/'remote');del opaque_cpu_inputs
+-    upstream_pins=ctx['upstream_pins']
+-    need(packet['original_cpu_inputs']==upstream_pins,'complete original CPU/history input roster differs')
+-    preserved={};preserved_directories={}
+-    for label,stage in [('cpu','cpu'),('training','training'),('token','token'),('common','collection')]:
+-        observed=ctx['observations'][stage]['files']
+-        preserved[label]={n[len('launch/'):]:v for n,v in observed.items() if n.startswith('launch/')}
+-        preserved_directories[label]=[n[len('launch/'): ] for n in ctx['observations'][stage]['directories'] if n.startswith('launch/')]
+-        need(preserved[label],'complete upstream root required: '+label)
+-    # The accepted collection transport must preserve the failed first collection's whole original root.
+-    preserved['failed01']={n[len('failed01/'):]:v for n,v in ctx['observations']['collection']['files'].items() if n.startswith('failed01/')}
+-    preserved_directories['failed01']=[n[len('failed01/'): ] for n in ctx['observations']['collection']['directories'] if n.startswith('failed01/')]
+-    need(preserved['failed01'],'complete failed collection01 root required')
+-    failed=b.decode(ctx['metadata']['token-failure-inventory']['stdout'])
+-    preserved['failed-token01']={n[len('launch/'):]:v for n,v in failed['files'].items() if n.startswith('launch/')}
+-    preserved_directories['failed-token01']=[n[len('launch/'):] for n in failed['directories'] if n.startswith('launch/')]
+-    need(preserved['failed-token01'],'whole original failed TOKEN01 root required')
+-
+-    for path,h in upstream_pins.items():
+-        found=[(label,root) for label,root in UPSTREAM_ROOTS.items() if path.startswith(root+'/')]
+-        need(len(found)==1,'explicit upstream input root differs')
+-        label,root=found[0]
+-        need(preserved[label][path[len(root)+1:]]['sha256']==h,'upstream input/full original root differs')
+-    # Backend and review are independently captured/Git-bound outer storage members.
+-    backend=gate.backend;helper_source=gate.supplied['remote_custody.py']
+-    helper_review=gate.supplied['storage-backend-review.md']
+-    recovery_bindings=dict(recovery_authority_sha256=pins['recovery-authority.json'],original_namespace_claim_sha256=OLD_CLAIM_SHA)
+-    need(intent['existing_namespace_claim_sha256']==packet['namespace_claim_sha256']==pins['namespace-claim.json']
+-         and intent['namespace_admission_sha256']==pins['namespace-admission.json']
+-         and all(intent.get(k)==v for k,v in recovery_bindings.items()) and intent['new_namespace_claimed'] is False,
+-         'current GPU intent namespace/acceptance joins differ')
+     locks=[];claimed=[];sealed=False;started=time.monotonic();cpu=time.process_time()
+     def save(name,value):
+         data=raw(value)
+@@ -558,18 +517,6 @@
+         if source is not None:transport['python_source']=source
+         save(name,transport);need(transport['returncode']==0,'failed/partial custody retained: '+name)
+         return transport
+-    source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,NAMESPACE=REMOTE_NAMESPACE,JOB=a.job_id,
+-        TERMINAL=TERMINAL,OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,UPSTREAM_PINS=upstream_pins,COMMON_ROOT=COMMON_ROOT,FAILED_ROOT=FAILED_ROOT,CPU_ROOT=CPU_ROOT,TRAIN_ROOT=TRAIN_ROOT,TOKEN_ROOT=TOKEN_ROOT,FAILED_TOKEN_ROOT=FAILED_TOKEN_ROOT).items())+'\n'+REMOTE_OBSERVATION
+-    def observe(name):
+-        transport=run_saved(name,['bash',HELPER,'run','python3 -'],source=source,timeout=240)
+-        v=decode(transport['stdout'])
+-        need(v.get('terminal_gate') is True and not v.get('observation_error'),
+-             'terminal inventory unavailable: '+str(v.get('observation_error')))
+-        return v
+-    def copy_file(src,dst):
+-        with Path(src).open('rb') as source_file,Path(dst).open('xb') as target:
+-            shutil.copyfileobj(source_file,target,1024**2);target.flush();os.fsync(target.fileno())
+-        return str(dst)
+     try:
+         for name in ('ace-delivery-controller.lock','ace-foundation-controller.lock'):
+             lock=BASE/name;need(lock==lock.resolve(),'coordinator lock alias')
+@@ -577,11 +524,68 @@
+             try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)
+             except BaseException:f.close();raise
+             locks.append(f)
+-        need(all(not os.path.lexists(p) for p in (LOCAL,EXT)),'terminal custody already claimed; never retry')
++        need(all(not os.path.lexists(p) for p in (LOCAL,EXT,EXT.with_name(EXT.name+'-storage-collector-operations'))),'terminal custody already claimed; never retry')
+         for dest in (EXT,LOCAL):
+             dest.mkdir(mode=0o700);claimed.append(dest)
+             for sub in ('coordinator','namespaces'):(dest/sub).mkdir(mode=0o700)
+             write(dest/'pull_terminal.py',Path(__file__).read_bytes())
++        b.start_storage_operations(ctx,EXT.with_name(EXT.name+'-storage-collector-operations'),(EXT,LOCAL),
++            dict(phase='collector',job_id=a.job_id,packet_sha256=a.packet_sha256,
++                 collector_sha256=a.collector_sha256,packet_commit=a.packet_commit))
++        original_files=ctx['observations']['cpu']['files']
++        # Bound compact CPU capsule; original full archive and failed ancestors remain explicit.
++        gate=b.configure_packet_storage(ctx,LAUNCH,pins,packet)
++        need(intent['storage_binding']==packet['storage_binding'],'original storage intent differs')
++        cpu_custody=Path(a.cpu_terminal_custody).resolve(strict=True)
++        need(cpu_custody==gate.capsules[0] and a.cpu_custody_inventory_sha256==pins['storage-seal.json'],
++             'independent original selected CPU capsule/seal differs')
++        cpu_custody_before=inventory(cpu_custody)
++        # This existing pure byte validator checks complete120 CPU cells, opaque bundle/attempt/source bytes,
++        # matching numerical plan and all five CPU attempts. It never decodes private outcomes or imports project code.
++        opaque_cpu_inputs=b.admit_cpu_bytes(ctx,cpu_custody/'remote');del opaque_cpu_inputs
++        upstream_pins=ctx['upstream_pins']
++        need(packet['original_cpu_inputs']==upstream_pins,'complete original CPU/history input roster differs')
++        preserved={};preserved_directories={}
++        for label,stage in [('cpu','cpu'),('training','training'),('token','token'),('common','collection')]:
++            observed=ctx['observations'][stage]['files']
++            preserved[label]={n[len('launch/'):]:v for n,v in observed.items() if n.startswith('launch/')}
++            preserved_directories[label]=[n[len('launch/'): ] for n in ctx['observations'][stage]['directories'] if n.startswith('launch/')]
++            need(preserved[label],'complete upstream root required: '+label)
++        # The accepted collection transport must preserve the failed first collection's whole original root.
++        preserved['failed01']={n[len('failed01/'):]:v for n,v in ctx['observations']['collection']['files'].items() if n.startswith('failed01/')}
++        preserved_directories['failed01']=[n[len('failed01/'): ] for n in ctx['observations']['collection']['directories'] if n.startswith('failed01/')]
++        need(preserved['failed01'],'complete failed collection01 root required')
++        failed=b.decode(ctx['metadata']['token-failure-inventory']['stdout'])
++        preserved['failed-token01']={n[len('launch/'):]:v for n,v in failed['files'].items() if n.startswith('launch/')}
++        preserved_directories['failed-token01']=[n[len('launch/'):] for n in failed['directories'] if n.startswith('launch/')]
++        need(preserved['failed-token01'],'whole original failed TOKEN01 root required')
++
++        for path,h in upstream_pins.items():
++            found=[(label,root) for label,root in UPSTREAM_ROOTS.items() if path.startswith(root+'/')]
++            need(len(found)==1,'explicit upstream input root differs')
++            label,root=found[0]
++            need(preserved[label][path[len(root)+1:]]['sha256']==h,'upstream input/full original root differs')
++        # Backend and review are independently captured/Git-bound outer storage members.
++        backend=gate.backend;helper_source=gate.supplied['remote_custody.py']
++        helper_review=gate.supplied['storage-backend-review.md']
++        recovery_bindings=dict(recovery_authority_sha256=pins['recovery-authority.json'],original_namespace_claim_sha256=OLD_CLAIM_SHA)
++        need(intent['existing_namespace_claim_sha256']==packet['namespace_claim_sha256']==pins['namespace-claim.json']
++             and intent['namespace_admission_sha256']==pins['namespace-admission.json']
++             and all(intent.get(k)==v for k,v in recovery_bindings.items()) and intent['new_namespace_claimed'] is False,
++             'current GPU intent namespace/acceptance joins differ')
++        source='\n'.join(k+'='+repr(v) for k,v in dict(ROOT=ROOT,NAMESPACE=REMOTE_NAMESPACE,JOB=a.job_id,
++            TERMINAL=TERMINAL,OLD_NAMESPACE=OLD_REMOTE_NAMESPACE,UPSTREAM_PINS=upstream_pins,COMMON_ROOT=COMMON_ROOT,FAILED_ROOT=FAILED_ROOT,CPU_ROOT=CPU_ROOT,TRAIN_ROOT=TRAIN_ROOT,TOKEN_ROOT=TOKEN_ROOT,FAILED_TOKEN_ROOT=FAILED_TOKEN_ROOT).items())+'\n'+REMOTE_OBSERVATION
++        def observe(name):
++            transport=run_saved(name,['bash',HELPER,'run','python3 -'],source=source,timeout=240)
++            v=decode(transport['stdout'])
++            need(v.get('terminal_gate') is True and not v.get('observation_error'),
++                 'terminal inventory unavailable: '+str(v.get('observation_error')))
++            return v
++        def copy_file(src,dst):
++            with Path(src).open('rb') as source_file,Path(dst).open('xb') as target:
++                shutil.copyfileobj(source_file,target,1024**2);target.flush();os.fsync(target.fileno())
++            return str(dst)
++        for dest in claimed:
+             write(dest/'remote_custody.py',helper_source);write(dest/'storage-backend-review.md',helper_review)
+         save('collector-intent.json',dict(utc=utc(),job_id=a.job_id,packet_sha256=a.packet_sha256,
+             submission_result_sha256=a.submission_result_sha256,remote_root=ROOT,remote_namespace=REMOTE_NAMESPACE,

@@ -1,0 +1,29 @@
+--- closed remote
++++ delta remote
+@@ -1,13 +1,15 @@
+ import signal
+ def deadline(signum,frame):raise TimeoutError('bounded full terminal observation')
+-signal.signal(signal.SIGALRM,deadline);signal.alarm(300)
++signal.signal(signal.SIGALRM,deadline);signal.alarm(1200)
+ 
+ from pathlib import Path
+-import subprocess,hashlib,json,datetime,stat,os
++import subprocess,hashlib,json,datetime,stat,os,sys,time
++_READ_COUNT=0;_READ_STARTED=time.monotonic()
+ root=Path(ROOT);namespace=Path(NAMESPACE);original_namespace=Path(OLD_NAMESPACE)
+ def need(ok,message):
+  if not ok:raise ValueError(message)
+ def fingerprint(path):
++ global _READ_COUNT
+  need(not path.is_symlink(),'remote symlink forbidden')
+  with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
+   before=os.fstat(f.fileno());need(stat.S_ISREG(before.st_mode),'nonregular remote file')
+@@ -16,6 +18,8 @@
+   after=os.fstat(f.fileno())
+  identity=lambda s:(s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns,s.st_nlink)
+  need(identity(before)==identity(after)==identity(path.lstat()),'remote file changed during capture')
++ _READ_COUNT+=1
++ if _READ_COUNT%1000==0:print(json.dumps(dict(phase='terminal_inventory_verification',files_read=_READ_COUNT,elapsed_seconds=time.monotonic()-_READ_STARTED)),file=sys.stderr,flush=True)
+  return dict(bytes=after.st_size,sha256=h.hexdigest()),after
+ v=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),results={},files={},directories=[],
+  root_present=root.exists(),root_presence={label:Path(path).exists() for label,path in ROOTS.items()},

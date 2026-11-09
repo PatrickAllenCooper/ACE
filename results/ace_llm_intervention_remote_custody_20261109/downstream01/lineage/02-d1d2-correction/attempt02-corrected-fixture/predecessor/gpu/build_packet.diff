@@ -1,0 +1,124 @@
+--- predecessor/build_packet.py
++++ build_packet.py
+@@ -416,7 +416,8 @@
+ 
+ def admit_cpu_bytes(ctx,raw_root):
+     m,pins=ctx['metadata'],ctx['pins'];old=m['cpu-packet'];a=m['cpu-acceptance'];files=ctx['observations']['cpu']['files']
+-    observed=inventory(raw_root);need(observed==files,'complete original CPU raw custody differs')
++    gate=ctx['compact_inputs'];need(Path(raw_root).resolve(strict=True) in gate.local_roots,'bound selected CPU view required')
++    observed=gate.full['files'];need(observed==files,'complete remote CPU raw inventory differs')
+     need(files['launch/inputs/packet.json']['sha256']==pins['cpu-packet']
+          and m['cpu-launch-packet']['new_input_files']['inputs/packet.json']==pins['cpu-packet'],'original CPU inner packet differs')
+     need(old['cpu_output']==a['cpu_output']==CPU_ROOT+'/cpu'
+@@ -446,9 +447,9 @@
+     for n,h in old['files'].items():
+         need(Path(n).name==n and pin(h),'plain accepted CPU input required')
+         need(files['launch/inputs/'+n]['sha256']==h,'CPU input/original inventory differs')
+-        data[n]=read(Path(raw_root)/'launch/inputs'/n,h,256*1024**2)
++        data[n]=gate.capture('launch/inputs/'+n,h,256*1024**2)
+     upstream={CPU_ROOT+'/'+n.removeprefix('launch/'):v['sha256'] for n,v in files.items() if n.startswith('launch/')}
+-    need(inventory(raw_root)==observed,'complete original custody changed during capture')
++    recheck_storage(ctx)
+     for prefix,root,*_ in STAGES:
+         outer=m[prefix+'-launch-packet'];result=m[prefix+'-result']
+         for name,h in {**outer['new_input_files'],'packet.json':pins[prefix+'-launch-packet'],'submission.intent.json':result['intent_sha256'],'submission.result.json':pins[prefix+'-result']}.items():
+@@ -538,20 +539,78 @@
+     finally:
+         for f in reversed(handles):fcntl.flock(f,fcntl.LOCK_UN);f.close()
+ 
++
++# Explicit outer storage adapter; never added to frozen scientific child inputs.
++COMPACT_ADAPTER_SHA='634979bb79542c0adc970f464cd445588a866815f11387d43ff64c664c12acb8'
++CURC_HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
++
++def compact_adapter():
++    import types
++    path=Path(__file__).resolve().with_name('compact_inputs.py')
++    source=read(path,COMPACT_ADAPTER_SHA)
++    mod=types.ModuleType('captured_compact_inputs');mod.__file__=str(path)
++    exec(compile(source,str(path),'exec'),vars(mod))
++    return mod
++
++
++def storage_members():
++    c=compact_adapter()
++    return ('storage-config.json',*c.STORAGE_FILES.values(),'compact_inputs.py')
++
++
++def configure_storage(ctx,supplied,capsule,mirror):
++    c=compact_adapter()
++    gate=c.bind(ctx,supplied,predecessor='cpu',capsule=capsule,mirror=mirror,
++        expected_roots=dict(launch=CPU_ROOT,training=TRAIN_ROOT,cpu=TOKEN_ROOT,**{'failed-token01':FAILED_TOKEN_ROOT},common=COLLECTION_ROOT,failed01=load_cpu_history().FAILED_COLLECTION_ROOT,**{'namespace.json':REMOTE_REGISTRY,'original-namespace.json':ORIGINAL_REMOTE_REGISTRY}),committed=committed,helper_path=CURC_HELPER)
++    ctx['storage_supplied']=supplied
++    return gate
++
++
++def recheck_storage(ctx):
++    compact_adapter().recheck_capsules(ctx['compact_inputs'])
++
++
++def storage_packet_files(ctx):
++    return {**ctx['storage_supplied'],'compact_inputs.py':read(Path(__file__).resolve().with_name('compact_inputs.py'),COMPACT_ADAPTER_SHA)}
++
++
++def storage_packet_binding(ctx):
++    gate=ctx['compact_inputs']
++    return dict(mode='curc_projects_full_backup_with_compact_local_evidence',
++        predecessor_remote_custody_sha256=gate.receipt_sha256,
++        storage_config_sha256=sha(ctx['storage_supplied']['storage-config.json']),
++        backend_sha256=gate.helper_sha256,compact_adapter_sha256=COMPACT_ADAPTER_SHA,
++        original_ancestor_references=gate.ancestry,complete_local_raw_copy=False)
++
++
++def configure_packet_storage(ctx,local,pins,packet):
++    c=compact_adapter();supplied=c.stored_config(local,pins)
++    gate=configure_storage(ctx,supplied,Path(packet['cpu_remote_custody']).parent,packet['cpu_terminal_mirror'])
++    need(packet['storage_binding']==storage_packet_binding(ctx),'independent compact storage packet binding differs')
++    return gate
++
++
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+     for n in METADATA:ap.add_argument('--'+n,required=True);ap.add_argument('--'+n+'-sha256',required=True)
+-    ap.add_argument('--cpu-remote-custody',required=True,help='complete accepted CPU terminal remote/ tree, opaque bytes only')
++    ap.add_argument('--cpu-remote-custody',required=True,help='selected accepted CPU terminal remote/ view, opaque bytes only')
++    ap.add_argument('--cpu-terminal-mirror',required=True,help='independent selected CPU terminal capsule')
++    ap.add_argument('--storage-config',required=True)
++    ap.add_argument('--storage-config-sha256',required=True)
+     args=ap.parse_args()
+     with coordinator_locks():
+         supplied={n:read(getattr(args,n.replace('-','_')),getattr(args,n.replace('-','_')+'_sha256')) for n in METADATA}
+         ctx=authenticate(supplied)
+         need(read(LOCAL_REGISTRY,ctx['pins']['namespace-claim'])==supplied['namespace-claim'],'existing recovery claim changed')
+         read(ORIGINAL_LOCAL_REGISTRY,ORIGINAL_CLAIM_SHA)
+-        custody=Path(args.cpu_remote_custody).resolve(strict=True);cpu_data=admit_cpu_bytes(ctx,custody)
++        custody=Path(args.cpu_remote_custody).resolve(strict=True)
++        storage=compact_adapter().capture_config(args.storage_config,args.storage_config_sha256)
++        configure_storage(ctx,storage,custody.parent,args.cpu_terminal_mirror)
++        cpu_data=admit_cpu_bytes(ctx,custody)
+         stage,data,bootstrap=make_packet(ctx,cpu_data,supplied);stage_raw=raw(stage);gate=admission(ctx,stage)
+         files={'inputs/'+n:v for n,v in data.items()};files.update({'inputs/packet.json':stage_raw,'inputs/admission.json':raw(gate)})
+         for n,v in supplied.items():files[metadata_name(n)]=v
++        files.update(storage_packet_files(ctx))
+         for n in ('build_packet.py','launch_once.py','monitor_once.py','cpu_history_contract.py'):files[n]=read(Path(__file__).resolve().with_name(n))
+         command=[ctx['metadata']['cpu-packet']['runtime_source']+'/bin/python','-I','-B','-c',bootstrap,ROOT+'/inputs/'+ENTRY,ENTRY_SHA,
+             '--packet',ROOT+'/inputs/packet.json','--packet-sha256',sha(stage_raw),'--admission',ROOT+'/inputs/admission.json',
+@@ -571,7 +630,8 @@
+             new_input_files={n:sha(v) for n,v in sorted(files.items())},original_cpu_inputs=ctx['upstream_pins'],
+             token_recovery=ctx['token_recovery'],failed_token_root=FAILED_TOKEN_ROOT,failed_token_job_id=FAILED_TOKEN_JOB,
+             history_directories=ctx['history_directories'],
+-            paths=stage['paths'],cpu_remote_custody=str(custody),prior_jobs=46,prior_journals=94,worlds=24,cells=192,policy_ids=list(POLICIES),gpu_policy_ids=list(POLICIES[5:]),
++            paths=stage['paths'],cpu_remote_custody=str(custody),cpu_terminal_mirror=str(Path(args.cpu_terminal_mirror).resolve(strict=True)),
++            storage_binding=storage_packet_binding(ctx),prior_jobs=46,prior_journals=94,worlds=24,cells=192,policy_ids=list(POLICIES),gpu_policy_ids=list(POLICIES[5:]),
+             admission=dict(closed_cpu_seconds=base['closed_cpu_seconds'],closed_gpu_slice_seconds=base['closed_gpu_slice_seconds'],
+                 preparation_allowance_cpu_seconds=3600,candidate_cpu_reservation=11520,candidate_gpu_reservation=2880,
+                 total_cpu_seconds=base['closed_cpu_seconds']+15120,total_gpu_seconds=base['closed_gpu_slice_seconds']+2880,
+@@ -589,7 +649,7 @@
+                 root.mkdir(parents=True,mode=0o700,exist_ok=False);created.append(root);(root/'inputs').mkdir(mode=0o700)
+                 for n,v in files.items():write(root/n,v)
+             for n,v in files.items():need(read(LOCAL/n,maximum=256*1024**2)==read(EXT/n,maximum=256*1024**2)==v,'two-copy packet differs')
+-            need(inventory(custody)==ctx['observations']['cpu']['files'],'original CPU custody changed during build')
++            recheck_storage(ctx)
+             need(read(LOCAL_REGISTRY,ctx['pins']['namespace-claim'])==supplied['namespace-claim'],'claim changed during build')
+             read(ORIGINAL_LOCAL_REGISTRY,ORIGINAL_CLAIM_SHA)
+             print(raw(dict(packet_sha256=sha(files['packet.json']),gpu_packet_sha256=sha(stage_raw),admission_sha256=sha(raw(gate)),submitted=False,scientific_qualified=False)).decode())
