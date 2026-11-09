@@ -1,0 +1,279 @@
+--- predecessor527d/remote_custody.py
++++ traversal02/remote_custody.py
+@@ -28,6 +28,8 @@
+ LOCAL_MEMBER=32*1024**2
+ LOCAL_TOTAL=512*1024**2
+ TIMEOUT=1800
++MAX_SOURCE_DEPTH=128  # Absolute components; at most129 owned source FDs, including '/'.
++PROGRESS_MEMBERS=1000
+ CAPACITY_HEADROOM=64*1024**2
+ PROJECT_PARENT=Path('/projects/paco0228')
+ SCRATCH_PARENT=Path('/scratch/alpine/paco0228')
+@@ -164,23 +166,152 @@
+     need(len(set(paths))==len(paths) and not any(p in q.parents for p in paths for q in paths if p!=q),'duplicate/overlapping source roots')
+ 
+ 
++class Progress:
++    """Sparse public counters only; never names, contents, hashes or outcomes."""
++    def __init__(self,phase):
++        self.phase=phase;self.started=time.monotonic();self.cpu=time.process_time()
++        self.members=0;self.files=0;self.bytes=0
++
++    def emit(self,state):
++        value={'phase':self.phase,'state':state,'monotonic':time.monotonic(),
++               'elapsed_seconds':time.monotonic()-self.started,'process_seconds':time.process_time()-self.cpu,
++               'members':self.members,'files':self.files,'bytes':self.bytes}
++        sys.stderr.write(json.dumps(value,sort_keys=True,allow_nan=False)+'\n');sys.stderr.flush()
++
++    def member(self,size=None):
++        self.members+=1
++        if size is not None:self.files+=1;self.bytes+=size
++        if self.members%PROGRESS_MEMBERS==0:self.emit('progress')
++
++    def __enter__(self):self.emit('start');return self
++    def __exit__(self,kind,error,tb):
++        try:self.emit('failed' if error is not None else 'complete')
++        except BaseException:
++            if error is None:raise
++        return False
++
++
++def _binding(s):return (s.st_dev,s.st_ino,s.st_mode)
++
++
++class SourceCursor:
++    """Bounded no-follow ancestry, with parent-entry checks before releasing FDs.
++
++    Absolute ancestors remain open and are rechecked on close. Source directories
++    use full identity; ancestors outside the source use inode/type/mode binding,
++    allowing unrelated siblings to change. Cached FDs never substitute for a
++    check that the original pathname is still attached to the same object.
++    """
++    def __init__(self,path,expected=None):
++        p=absolute(path);parts=p.parts[1:]
++        need(parts and len(parts)<=MAX_SOURCE_DEPTH,'source depth bound')
++        self.frames=[];self.root_index=None
++        try:
++            fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
++            try:before=os.fstat(fd)
++            except BaseException:
++                try:os.close(fd)
++                except BaseException:pass
++                raise
++            self.frames.append((fd,None,None,before,False))
++            for i,part in enumerate(parts):
++                leaf=i==len(parts)-1
++                self.push(part,directory=None if leaf else True,full=leaf,expected=expected if leaf else None)
++            self.root_index=len(self.frames)-1
++        except BaseException:
++            self.close(sys.exc_info()[1]);raise
++
++    @property
++    def fd(self):return self.frames[-1][0]
++    @property
++    def before(self):return self.frames[-1][3]
++
++    def push(self,name,directory=None,full=True,expected=None):
++        need(len(self.frames)<=MAX_SOURCE_DEPTH,'source depth bound')
++        need(type(name) is str and name not in ('','.','..') and '/' not in name,'one source component required')
++        parent=self.fd;before=os.stat(name,dir_fd=parent,follow_symlinks=False)
++        isdir=stat.S_ISDIR(before.st_mode)
++        need(isdir or stat.S_ISREG(before.st_mode),'ordinary source file/directory required; aliases forbidden')
++        need(directory is None or isdir==directory,'source kind differs')
++        if expected is not None:need(identity(before)==expected,'source changed before open')
++        fd=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|(os.O_DIRECTORY if isdir else 0),dir_fd=parent)
++        try:
++            actual=os.fstat(fd)
++            key=identity if full else _binding
++            need(key(before)==key(actual),'source entry changed during open')
++        except BaseException:
++            try:os.close(fd)
++            except BaseException:pass  # Preserve the primary open/identity failure.
++            raise
++        self.frames.append((fd,parent,name,before,full))
++
++    def pop(self,primary=None):
++        fd,parent,name,before,full=self.frames.pop();failure=None
++        try:
++            if primary is None:
++                key=identity if full else _binding
++                need(key(before)==key(os.fstat(fd)),'source descriptor changed')
++                if parent is not None:
++                    need(key(before)==key(os.stat(name,dir_fd=parent,follow_symlinks=False)),'source pathname detached or replaced')
++        except BaseException as exc:failure=exc
++        finally:
++            try:os.close(fd)
++            except BaseException as exc:
++                if primary is None and failure is None:failure=exc
++                elif hasattr(primary or failure,'add_note'):(primary or failure).add_note('secondary source FD close failure: '+type(exc).__name__)
++        if primary is None and failure is not None:raise failure
++
++    def close(self,primary=None):
++        first=None
++        while self.frames:
++            try:self.pop(primary or first)
++            except BaseException as exc:
++                if first is None:first=exc
++        if primary is None and first is not None:raise first
++
++    @contextlib.contextmanager
++    def child(self,name,**kwargs):
++        self.push(name,**kwargs)
++        try:yield self.fd
++        finally:self.pop(sys.exc_info()[1])
++
++    def parent(self,parts,identities,label):
++        """Retain only the common directory prefix, preserving global tar order."""
++        current=[f[2] for f in self.frames[self.root_index+1:]];common=0
++        while common<min(len(current),len(parts)) and current[common]==parts[common]:common+=1
++        while len(self.frames)>self.root_index+1+common:self.pop()
++        for i in range(common,len(parts)):
++            key=label+'/'+('/'.join(parts[:i+1]))
++            self.push(parts[i],directory=True,expected=identities[key])
++
++    def __enter__(self):return self
++    def __exit__(self,kind,error,tb):self.close(error);return False
++
++
+ def scan(roots,sole=False):
+     files={};dirs=[];ids={};links={}
+-    for label,value in sorted(roots.items()):
+-        p=Path(value)
+-        with opened(p,directory=p.is_dir()):pass
+-        paths=[p]
+-        if p.is_dir():paths+=sorted(p.rglob('*'))
+-        for item in paths:
+-            name=label if item==p else label+'/'+item.relative_to(p).as_posix();name_ok(name)
+-            need(not item.is_symlink(),'source symlink forbidden')
+-            if item.is_dir():
+-                with opened(item,directory=True) as fd:s=os.fstat(fd)
+-                dirs.append(name);ids[name]=identity(s)
++    with Progress('source_scan') as progress:
++        def visit(cursor,name):
++            name_ok(name);s=cursor.before
++            need(len(files)+len(dirs)<MAX_MEMBERS,'member count bound')
++            if stat.S_ISDIR(s.st_mode):
++                dirs.append(name);ids[name]=identity(s);progress.member()
++                names=sorted(os.listdir(cursor.fd))
++                need(len(names)<=MAX_MEMBERS-len(files)-len(dirs),'member count bound')
++                for child in names:
++                    name_ok(name+'/'+child)
++                    with cursor.child(child):visit(cursor,name+'/'+child)
++                need(sorted(os.listdir(cursor.fd))==names,'source directory membership changed')
+             else:
+-                meta,ident=fingerprint(item,sole);files[name]=meta;ids[name]=ident
++                need(stat.S_ISREG(s.st_mode) and (not sole or s.st_nlink==1),'regular independent file required')
++                h=hashlib.sha256()
++                for b in iter(lambda:os.read(cursor.fd,CHUNK),b''):h.update(b)
++                ident=identity(s);files[name]={'bytes':s.st_size,'sha256':h.hexdigest()};ids[name]=ident
+                 if ident[-1]>1:links.setdefault((ident[0],ident[1],ident[-1]),[]).append(name)
+-            need(len(files)+len(dirs)<=MAX_MEMBERS,'member count bound')
++                progress.member(s.st_size)
++        for label,value in sorted(roots.items()):
++            name_ok(label)
++            with SourceCursor(value) as cursor:visit(cursor,label)
+     full=normalized({'files':files,'directories':dirs})
+     groups=sorted([{'paths':sorted(v),'link_count':k[2]} for k,v in links.items()],key=lambda v:v['paths'])
+     return full,ids,groups
+@@ -204,52 +335,64 @@
+ def make_tar(path,full,roots,identities):
+     for n in full['directories']:header(n)
+     for n,v in full['files'].items():header(n,v['bytes'])
+-    with opened(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL) as fd,os.fdopen(os.dup(fd),'wb') as out:
+-        for n in full['directories']:out.write(header(n))
+-        for n,v in full['files'].items():
+-            out.write(header(n,v['bytes']));p=source_path(roots,n);h=hashlib.sha256();count=0
+-            with opened(p) as source_fd:
+-                need(identity(os.fstat(source_fd))==identities[n],'source changed before archive')
+-                with os.fdopen(os.dup(source_fd),'rb') as src:
++    with Progress('archive_build') as progress,opened(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL) as fd,os.fdopen(os.dup(fd),'wb') as out:
++        for n in full['directories']:out.write(header(n));progress.member()
++        cursor=None;label=None
++        try:
++            for n,v in full['files'].items():
++                bits=n.split('/')
++                if bits[0]!=label:
++                    if cursor is not None:cursor.close();cursor=None
++                    label=bits[0];cursor=SourceCursor(roots[label],expected=identities[label])
++                out.write(header(n,v['bytes']));h=hashlib.sha256();count=0
++                cursor.parent(bits[1:-1],identities,label)
++                handle=cursor.child(bits[-1],directory=False,expected=identities[n]) if len(bits)>1 else contextlib.nullcontext(cursor.fd)
++                with handle as source_fd:
++                    need(identity(os.fstat(source_fd))==identities[n],'source changed before archive')
+                     while count<v['bytes']:
+-                        b=src.read(min(CHUNK,v['bytes']-count));need(b,'truncated source');count+=len(b);h.update(b);out.write(b)
+-                    need(not src.read(1),'source grew')
+-                need(identity(os.fstat(source_fd))==identity(p.lstat())==identities[n],'source changed during archive')
+-            need(h.hexdigest()==v['sha256'],'source digest changed');out.write(b'\0'*((-count)%512))
++                        b=os.read(source_fd,min(CHUNK,v['bytes']-count));need(b,'truncated source');count+=len(b);h.update(b);out.write(b)
++                    need(not os.read(source_fd,1),'source grew')
++                    need(identity(os.fstat(source_fd))==identities[n],'source changed during archive')
++                need(h.hexdigest()==v['sha256'],'source digest changed');out.write(b'\0'*((-count)%512));progress.member(count)
++        finally:
++            if cursor is not None:cursor.close(sys.exc_info()[1])
+         out.write(b'\0'*(tar_size(full)-out.tell()));out.flush();os.fsync(out.fileno())
+ 
+ 
+ def check_tar(path,full,emit=None,wanted=()):
+     """Canonical USTAR only; reject duplicate/extra/truncated headers and nonzero padding."""
+-    with opened(path) as fd,os.fdopen(os.dup(fd),'rb') as f:
++    with Progress('archive_verify') as progress,opened(path) as fd,os.fdopen(os.dup(fd),'rb') as f:
+         before=os.fstat(fd);need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_size==tar_size(full),'independent exact archive size required')
+         digest=hashlib.sha256();count=0
+         def read(n):
+             nonlocal count
+             b=f.read(n);need(len(b)==n,'truncated archive');digest.update(b);count+=len(b);return b
+-        for n in full['directories']:need(read(512)==header(n),'directory header/order differs')
++        for n in full['directories']:need(read(512)==header(n),'directory header/order differs');progress.member()
+         for n,v in full['files'].items():
+             need(read(512)==header(n,v['bytes']),'file header/order differs');h=hashlib.sha256();left=v['bytes']
+             while left:
+                 b=read(min(CHUNK,left));left-=len(b);h.update(b)
+                 if emit is not None and n in wanted:emit(b)
+             need(h.hexdigest()==v['sha256'],'archive member digest differs: '+n)
+-            padding=(-v['bytes'])%512;need(read(padding)==b'\0'*padding,'archive payload padding differs')
++            padding=(-v['bytes'])%512;need(read(padding)==b'\0'*padding,'archive payload padding differs');progress.member(v['bytes'])
+         left=before.st_size-count;need(left>=1024 and read(left)==b'\0'*left and not f.read(1),'archive trailing members/padding differ')
+         need(identity(before)==identity(os.fstat(fd))==identity(Path(path).lstat()),'archive changed during verification')
+     return {'bytes':count,'sha256':digest.hexdigest()}
+ 
+ 
+ def copy_archive(src,dst,expected):
+-    with opened(src) as a,opened(dst,os.O_WRONLY|os.O_CREAT|os.O_EXCL) as b:
++    with Progress('archive_copy') as progress,opened(src) as a,opened(dst,os.O_WRONLY|os.O_CREAT|os.O_EXCL) as b:
+         before=os.fstat(a);need(before.st_nlink==1 and stat.S_ISREG(before.st_mode),'ordinary scratch archive required')
+         need((before.st_dev,before.st_ino)!=(os.fstat(b).st_dev,os.fstat(b).st_ino),'archive alias forbidden')
+         h=hashlib.sha256();size=0
+         with os.fdopen(os.dup(a),'rb') as source,os.fdopen(os.dup(b),'wb') as target:
+-            for block in iter(lambda:source.read(CHUNK),b''):h.update(block);size+=len(block);target.write(block)
++            for block in iter(lambda:source.read(CHUNK),b''):
++                h.update(block);size+=len(block);target.write(block);progress.bytes=size
++                if size%(64*CHUNK)==0:progress.emit('progress')
+             target.flush();os.fsync(target.fileno())
+         need(identity(before)==identity(os.fstat(a))==identity(Path(src).lstat()),'scratch archive changed during copy')
+         need({'bytes':size,'sha256':h.hexdigest()}==expected,'project copy differs')
++        progress.members=progress.files=1
+ 
+ 
+ def backup_location(root):
+@@ -305,14 +448,17 @@
+         owned_dir(transfer,True);claimed.append(transfer);write_new(transfer/'intent.json',raw({'request':req,'capacity':capacity}));write_new(transfer/'capacity.json',raw(capacity))
+         owned_dir(backup,True);claimed.append(backup);write_new(backup/'intent.json',raw({'request':req,'capacity':capacity}));write_new(backup/'capacity.json',raw(capacity))
+         require_capacity(capacity)
+-        before,ids,groups=scan(roots);need(before==full,'original observation no longer matches')
++        with Progress('before_scan'):before,ids,groups=scan(roots)
++        need(before==full,'original observation no longer matches')
+         if 'original_hardlink_groups' in req['observation']:need(groups==req['observation']['original_hardlink_groups'],'original hardlink metadata differs')
+         archive=transfer/'raw.tar';make_tar(archive,full,roots,ids);a=check_tar(archive,full)
+-        after,after_ids,after_groups=scan(roots);need(after==before and ids==after_ids and groups==after_groups,'original tree changed across archive')
++        with Progress('after_archive_scan'):after,after_ids,after_groups=scan(roots)
++        need(after==before and ids==after_ids and groups==after_groups,'original tree changed across archive')
+         project_recheck=capacity_observation([('project_before_copy',PROJECT_BASE,archive_bytes,metadata_budget)])
+         write_new(backup/'capacity-before-copy.json',raw(project_recheck));require_capacity(project_recheck)
+         copy_archive(archive,backup/'raw.tar',a);b=check_tar(backup/'raw.tar',full);need(a==b,'project readback archive differs')
+-        final,final_ids,final_groups=scan(roots);need(final==full and final_ids==ids and final_groups==groups,'original tree changed across project copy')
++        with Progress('after_project_scan'):final,final_ids,final_groups=scan(roots)
++        need(final==full and final_ids==ids and final_groups==groups,'original tree changed across project copy')
+         local,omitted=selected_inventory(full)
+         receipt={'schema':'ace-remote-custody-v1','selection_policy':'current-launch-text-and-namespaces-v1','full_backup_verified':True,'full_inventory':full,'local_inventory':local,'local_root':req['local_root'],'omitted_files':omitted,'omitted_bytes':sum(v['bytes'] for v in omitted.values()),'full_local_copy':False,'backup_kind':'ustar','backup_root':str(backup),'backup_archive_path':str(backup/'raw.tar'),'backup_archive_sha256':b['sha256'],'backup_archive_bytes':b['bytes'],'scratch_transfer_root':str(transfer),'scratch_archive_path':str(archive),'roots':roots,'source_observation_sha256':sha(raw(req['observation'])),'helper_sha256':req['helper_sha256'],'original_hardlink_groups':groups,'trusted_project_parent':trusted,'capacity':{'remote_initial':capacity,'project_before_copy':project_recheck,'local':req.get('local_capacity')},'limits':{'total_source_bytes':MAX_TOTAL,'member_source_bytes':MAX_MEMBER,'local_member_bytes':LOCAL_MEMBER,'local_total_bytes':LOCAL_TOTAL},'original_before_inventory_sha256':sha(raw(before)),'original_after_inventory_sha256':sha(raw(final)),'project_readback_inventory_sha256':sha(raw(full)),'acceptance':False,'retry_allowed':False}
+         write_new(backup/'inventory.json',raw(full));write_new(backup/'receipt.json',raw(receipt));write_new(transfer/'receipt.json',raw(receipt))
