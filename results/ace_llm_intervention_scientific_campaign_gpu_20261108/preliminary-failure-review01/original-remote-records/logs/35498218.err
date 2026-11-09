@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py", line 700, in <module>
+    main()
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py", line 677, in main
+    ctx = authenticate(args.packet,args.packet_sha256,args.admission,args.admission_sha256)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py", line 346, in authenticate
+    bundle = admit_cpu(acceptance,packet,old,decode(data['prepared.json']))
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py", line 198, in admit_cpu
+    need(inventory(paths['cpu_output'],exclude=excluded)==acceptance['cpu_output_files'],
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py", line 151, in inventory
+    return {str(p.relative_to(root)):sha(read(p)) for p in files}
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py", line 151, in <dictcomp>
+    return {str(p.relative_to(root)):sha(read(p)) for p in files}
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py", line 98, in read
+    value = handle.read(maximum+1)
+  File "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py", line 673, in interrupted
+    raise TimeoutError('campaign supervisor signal '+str(sig))
+TimeoutError: campaign supervisor signal 14

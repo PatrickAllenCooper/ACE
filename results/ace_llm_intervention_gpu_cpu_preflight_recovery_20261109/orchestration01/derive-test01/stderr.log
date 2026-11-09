@@ -1,0 +1,35 @@
+test_changed_original_is_rejected (__main__.OperationalDelta) ... ERROR
+test_only_declared_operational_functions_change (__main__.OperationalDelta) ... ERROR
+
+======================================================================
+ERROR: test_changed_original_is_rejected (__main__.OperationalDelta)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/orchestration01/test_derive_gpu_entry.py", line 40, in test_changed_original_is_rejected
+    derive.derive_entry(ORIGINAL.read_bytes()+b'\n', b'# fixture', b'# fixture')
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1249, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/pat/code/ACE/ace_llm_intervention_scientific_campaign_gpu_20261108/launch01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py'
+
+======================================================================
+ERROR: test_only_declared_operational_functions_change (__main__.OperationalDelta)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/orchestration01/test_derive_gpu_entry.py", line 16, in test_only_declared_operational_functions_change
+    before = ORIGINAL.read_bytes()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1249, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/pat/code/ACE/ace_llm_intervention_scientific_campaign_gpu_20261108/launch01/inputs/qualify_llm_intervention_scientific_campaign_gpu.py'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (errors=2)
