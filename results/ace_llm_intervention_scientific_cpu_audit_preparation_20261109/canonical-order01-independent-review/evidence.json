@@ -1,0 +1,186 @@
+{
+  "actual_audit_reexecuted": false,
+  "actual_failure": {
+    "all_three_file_maps_exactly_equal": true,
+    "archive_top_level_directory_order": [
+      "common",
+      "cpu",
+      "failed-token01",
+      "failed01",
+      "launch",
+      "training"
+    ],
+    "authenticated_metadata_inputs": {
+      "after": {
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/inventory_after_transport.json",
+        "sha256": "ae12a78024b12ac963a5fdaaabb5d1d496ff2a9cf1966cb15acb24a987f7ca27"
+      },
+      "before": {
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/inventory_transport.json",
+        "sha256": "722782e08d15108bf1b0b9b9b4d7111d3432a19ead6e8cadb2a8f9dc8bff3b46"
+      },
+      "custody": {
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/custody-inventory.json",
+        "sha256": "24f97438d6787079514e1a40dd4ab18401e7028207913d21490af87b69ca72a4"
+      },
+      "disposition": {
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/disposition.json",
+        "sha256": "1e4ace7b320713b5c2f9bc36cf2705870657bdc1d0c432aaa04b784409858ef9"
+      },
+      "remote_custody": {
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/remote-custody.json",
+        "sha256": "f0f8a52c7f823b5a07041faf531382afa4d7c0364452413bbb17bd916dfc38e6"
+      }
+    },
+    "before_after_raw_directory_lists_equal": true,
+    "before_top_level_directory_order": [
+      "launch",
+      "training",
+      "cpu",
+      "failed-token01",
+      "common",
+      "failed01"
+    ],
+    "classification": "Observed first failure is order-only; later audit checks have not been established by this failed attempt.",
+    "completed_checks": [],
+    "config_sha256": "f7e08f2b048dec506efa360cc83d1b72665bce39f89db650e6b7c16884d52964",
+    "directory_counts": [
+      3534,
+      3534,
+      3534
+    ],
+    "directory_types": [
+      "list",
+      "list",
+      "list"
+    ],
+    "file_counts": [
+      72374,
+      72374,
+      72374
+    ],
+    "raw_observation_archive_lists_differ": true,
+    "report_sha256": "bf433fb8557f1b0073d9458265603d7009a435d21cf11a1bfd1c119a2f8f54f5",
+    "reported_error": "full original before/after archive inventory differs",
+    "scope_limit": "Only metadata pin and inventory-order comparison; no full local/raw/remote custody re-audit or private outcome decoding.",
+    "sorted_observation_lists_equal_canonical_archive_list": true,
+    "unique_directory_counts": [
+      3534,
+      3534,
+      3534
+    ]
+  },
+  "findings": [
+    {
+      "actual_snapshot_limit": "The inspected actual before/after/archive directories are valid lists; this defect does not invalidate the independently confirmed order-only diagnosis.",
+      "basis": "Static source reasoning only; no new test or target callable executed.",
+      "id": "R1",
+      "line_end": 167,
+      "line_start": 163,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/audit_saved_cpu.py",
+      "priority": "P2",
+      "problem": "sorted(observation['directories']) coerces JSON objects/strings to a list before validate_inventory can reject their original type. For example a directories object keyed by the expected directory names normalizes to the exact canonical list; arbitrary object values are discarded. The former raw-list equality rejected that object.",
+      "required_correction": "Require type(observation['directories']) is list before sorted(...), retaining existing uniqueness/name/file-map validation; then propagate the resulting exact core SHA into the supplement.",
+      "title": "Reject non-list directory metadata before canonicalizing"
+    }
+  ],
+  "input_pins": {
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-cpu-audit-20261109-01/core-attempt01/audit-source.py": {
+      "bytes": 49913,
+      "sha256": "6d56672582f8c41bdd01c64b446c1d1607316650c6357bec95a889c357ab7eb4"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-cpu-audit-20261109-01/core-attempt01/input-contract.json": {
+      "bytes": 4080,
+      "sha256": "f7e08f2b048dec506efa360cc83d1b72665bce39f89db650e6b7c16884d52964"
+    },
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-cpu-audit-20261109-01/core-attempt01/report.json": {
+      "bytes": 3168,
+      "sha256": "bf433fb8557f1b0073d9458265603d7009a435d21cf11a1bfd1c119a2f8f54f5"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/audit_saved_cpu.py": {
+      "bytes": 50170,
+      "sha256": "18d0255f4ae12ece4f3de86065c259626c880abceb2459ef9124b8a083560ba8"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/audit_supplement.py": {
+      "bytes": 27079,
+      "sha256": "5c922f8ef21b75b7896a1ffdc331475b473aa6d573a4f1228a1f6f7bfbd8f479"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/core.diff": {
+      "bytes": 1578,
+      "sha256": "aeffbb02e407253ec949fe8b1491ce81f38f69692717aa211e2681bebd0ad685"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/diagnosis.json": {
+      "bytes": 793,
+      "sha256": "91314b39d48a770a80aaf86af65fa9ab0f6c891e7349ac8b5169a3a01cadeff4"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/new-check01/result.json": {
+      "bytes": 335,
+      "sha256": "0036d6316c643cafdc8f9fe25080160c744dad3031797de246ea2f64155150a8"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/new-check01/stderr.log": {
+      "bytes": 101,
+      "sha256": "33060fd73862c5e1af97335504d5b45211fce6d229657f556d8deceeadc52ce4"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/new-check01/stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/supplement.diff": {
+      "bytes": 512,
+      "sha256": "b7111685f4a16708644845a98c8ac9fb5746cd3144e04df8347c2e696e2b54f3"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/canonical-order01/test_observation_order.py": {
+      "bytes": 2079,
+      "sha256": "46306b9c851126b80954f528838bc91c4b2448fd6876dbb55507f5dede61c9aa"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/preparation01/authoring/audit_saved_cpu.py": {
+      "bytes": 49913,
+      "sha256": "6d56672582f8c41bdd01c64b446c1d1607316650c6357bec95a889c357ab7eb4"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_cpu_audit_preparation_20261109/supplement01/audit_supplement.py": {
+      "bytes": 27079,
+      "sha256": "11230b7b9148809c844ce155cd5ab056fb1ca517cd75c9c1e78ef1e9dc5de3ef"
+    }
+  },
+  "private_outcomes_decoded": false,
+  "remote_actions": 0,
+  "required_findings": 1,
+  "retained_new_evidence": {
+    "child_cpu_seconds": 0.096521,
+    "covered": [
+      "order-insensitive positive and input nonmutation",
+      "duplicate and unsafe name rejection",
+      "missing directory and changed file hash mismatch"
+    ],
+    "elapsed_seconds": 0.101582041,
+    "gap": "No original directories-container type rejection case.",
+    "methods": 3,
+    "peak_child_rss_bytes": 20594688,
+    "result_sha256": "0036d6316c643cafdc8f9fe25080160c744dad3031797de246ea2f64155150a8",
+    "returncode": 0,
+    "test_sha256": "46306b9c851126b80954f528838bc91c4b2448fd6876dbb55507f5dede61c9aa"
+  },
+  "reviewed_at_utc": "2026-11-09T21:17:18.442591+00:00",
+  "reviewed_source_pins": {
+    "failed-attempt/audit-source.py": "6d56672582f8c41bdd01c64b446c1d1607316650c6357bec95a889c357ab7eb4",
+    "predecessor/audit_saved_cpu.py": "6d56672582f8c41bdd01c64b446c1d1607316650c6357bec95a889c357ab7eb4",
+    "predecessor/audit_supplement.py": "11230b7b9148809c844ce155cd5ab056fb1ca517cd75c9c1e78ef1e9dc5de3ef",
+    "preparation/audit_saved_cpu.py": "18d0255f4ae12ece4f3de86065c259626c880abceb2459ef9124b8a083560ba8",
+    "preparation/audit_supplement.py": "5c922f8ef21b75b7896a1ffdc331475b473aa6d573a4f1228a1f6f7bfbd8f479",
+    "preparation/test_observation_order.py": "46306b9c851126b80954f528838bc91c4b2448fd6876dbb55507f5dede61c9aa"
+  },
+  "scientific_acceptance": false,
+  "scientific_execution": false,
+  "scope": "Canonical directory-order delta and observed first failure classification only; no full actual CPU acceptance audit.",
+  "source_imports_or_execution": false,
+  "static_checks": {
+    "core_diff_matches_actual_predecessor_and_successor": true,
+    "new_function": "normalized_observation_inventory",
+    "only_changed_Audit_method": "custody",
+    "original_failed_attempt_source_and_config_authenticated": true,
+    "preparation_both_nine_file_mirrors_match": true,
+    "supplement_only_AID_SHA_change": true,
+    "validate_inventory_unchanged": true
+  },
+  "tests_run_by_reviewer": 0
+}

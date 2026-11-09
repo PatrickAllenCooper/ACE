@@ -1,0 +1,10 @@
+--- canonical-order01
++++ canonical-order02
+@@ -162,6 +162,7 @@
+ 
+ def normalized_observation_inventory(observation):
+     # Preserve original observation bytes and reject duplicate directory names.
++    need(type(observation['directories']) is list, 'original directory list required')
+     value = dict(files=observation['files'], directories=sorted(observation['directories']))
+     validate_inventory(value)
+     return value

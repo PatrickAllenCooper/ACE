@@ -1,0 +1,27 @@
+--- original6d566
++++ canonical-order
+@@ -160,6 +160,13 @@
+     need(not (set(v['directories']) & set(v['files'])), 'file/directory collision')
+ 
+ 
++def normalized_observation_inventory(observation):
++    # Preserve original observation bytes and reject duplicate directory names.
++    value = dict(files=observation['files'], directories=sorted(observation['directories']))
++    validate_inventory(value)
++    return value
++
++
+ def object_parts(data):
+     """Top-level lexical spans; unselected response/descriptor values stay opaque."""
+     text = data.decode('utf-8'); decoder = json.JSONDecoder(); i = 0; result = {}
+@@ -291,8 +298,8 @@
+                   if 'archive_verification' in self.c['artifacts'] else None)
+         full = self.receipt['full_inventory']; validate_inventory(full)
+         local = self.receipt['local_inventory']; validate_inventory(local)
+-        need(full == {k: self.before[k] for k in ('files', 'directories')}
+-             == {k: after[k] for k in ('files', 'directories')}, 'full original before/after archive inventory differs')
++        need(full == normalized_observation_inventory(self.before)
++             == normalized_observation_inventory(after), 'full original before/after archive inventory differs')
+         need(self.receipt['full_backup_verified'] is True and self.receipt['full_local_copy'] is False
+              and self.receipt['backup_kind'] == 'ustar', 'complete remote backup required; not full local custody')
+         need(self.receipt['helper_sha256'] == self.c['helper_sha256'], 'independent helper pin differs')
