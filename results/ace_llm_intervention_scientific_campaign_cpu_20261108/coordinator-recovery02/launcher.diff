@@ -1,0 +1,135 @@
+--- preserved-original-launcher
++++ separate-recovery02-controller
+@@ -6,16 +6,33 @@
+ sys.dont_write_bytecode=True
+ import build_packet as b
+ HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
++RECOVERY_SOURCE=b.REPO/'results/ace_llm_intervention_scientific_campaign_cpu_20261108/coordinator-recovery02/authoring/launch_once.py'
++RECOVERY_PROOF_SHA='423cb0a19fdbfcd4664ba17115a6a9f58e78d2a92719151a6e5d45f96a0bf0a4'
++RECOVERY_NAME='recovery02'
++CANONICAL_RECORDS={'readiness.json','remote_verified.json','submission.intent.json','submission.result.json'}
++
++
++def admit_recovery(proof,packet_pin):
++    b.need(proof['scientific_packet_unchanged']==packet_pin and proof['no_sbatch_reached'] is True and proof['no_new_allocation'] is True,'pre-submission recovery scope differs')
++    for dest in (b.LOCAL,b.EXT):
++        b.need(not any(os.path.lexists(dest/name) for name in (RECOVERY_NAME,'recovery02-reference.json','readiness.json','remote_verified.json','submission.intent.json','submission.result.json')),'existing new attempt or canonical submission; never retry')
++        for name,meta in proof['original_failed_members'].items():
++            data=b.read(dest/name,meta['sha256'],256*1024**2);b.need(len(data)==meta['bytes'],'preserved failed coordinator member differs')
++    failed=b.decode(b.read(b.LOCAL/'readiness_transport.json'))
++    b.need(failed['returncode']==1 and failed['stdout']=='' and 'TimeoutError: absolute remote coordinator deadline' in failed['stderr'],'only diagnosed preflight timeout is eligible')
++    b.need(b.decode(b.read(b.LOCAL/'controller_released.json'))['released'] is True,'prior local controller not released')
+ 
+ 
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+-    for name in ('packet-commit','packet-sha256','packet-review','packet-review-sha256'):
++    for name in ('packet-commit','packet-sha256','packet-review','packet-review-sha256','recovery-source-sha256','recovery-review','recovery-review-sha256','recovery-proof','recovery-proof-sha256'):
+         ap.add_argument('--'+name,required=True)
+     ap.add_argument('--packet-directory',required=True)
+     a=ap.parse_args();locks=[];started=False
+     def save(name,value):
+-        for dest in (b.EXT,b.LOCAL):b.write(dest/name,b.raw(value))
++        for dest in (b.EXT,b.LOCAL):
++            b.write(dest/RECOVERY_NAME/name,b.raw(value))
++            if name in CANONICAL_RECORDS:b.write(dest/name,b.raw(value))
+     def transport(name,command,*,source=None,timeout):
+         try:
+             p=subprocess.run(command,input=source,capture_output=True,text=True,timeout=timeout)
+@@ -27,7 +44,7 @@
+         if source is not None:result['python_source']=source
+         save(name,result);b.need(result['returncode']==0,'retained failed/ambiguous transport; no retry: '+name)
+         return result
+-    def remote(name,source):return b.decode(transport(name,['bash',HELPER,'run','python3 -'],source=source,timeout=55)['stdout'])
++    def remote(name,source):return b.decode(transport(name,['bash',HELPER,'run','python3 -'],source=source,timeout=1230)['stdout'])
+     try:
+         for name in ('ace-delivery-controller.lock','ace-foundation-controller.lock'):
+             path=b.BASE/name;b.need(path==path.resolve(),'coordinator lock alias')
+@@ -36,7 +53,14 @@
+             except BaseException:f.close();raise
+             locks.append(f)
+         local=Path(a.packet_directory).resolve(strict=True)
+-        b.need(Path(__file__).resolve()==local/'launch_once.py','use committed concrete launcher only')
++        b.need(Path(__file__).resolve()==RECOVERY_SOURCE,'use explicit recovery controller only')
++        recovery_source=b.read(RECOVERY_SOURCE,a.recovery_source_sha256)
++        b.need(recovery_source==b.committed(a.packet_commit,str(RECOVERY_SOURCE.relative_to(b.REPO))),'committed recovery source differs')
++        proof_raw=b.read(a.recovery_proof,a.recovery_proof_sha256);proof=b.decode(proof_raw)
++        proof_path=Path(a.recovery_proof).absolute()
++        b.need(a.recovery_proof_sha256==RECOVERY_PROOF_SHA and proof_raw==b.committed(a.packet_commit,str(proof_path.relative_to(b.REPO))),'independent committed recovery proof differs')
++        recovery_review=Path(a.recovery_review).absolute();recovery_review_raw=b.read(recovery_review,a.recovery_review_sha256)
++        b.need(recovery_review_raw.strip() and recovery_review_raw==b.committed(a.packet_commit,str(recovery_review.relative_to(b.REPO))),'independent committed recovery review required')
+         packet_raw=b.read(local/'packet.json',a.packet_sha256);packet=b.decode(packet_raw)
+         b.need(packet['schema']=='ace-scientific-cpu-campaign-launch-v1'
+             and packet['resources']==b.RESOURCES and packet['deadlines']==b.DEADLINES,
+@@ -49,9 +73,7 @@
+         ctx=b.admit(supplied);ctx['supplied']=supplied;m=ctx['metadata']
+         b.need(local==b.LOCAL and packet['source_commit']==b.SOURCE_COMMIT and packet['remote_root']==b.ROOT,
+             'amended frozen packet roots/source differ')
+-        b.need(not any(os.path.lexists(dest/name) for dest in (b.LOCAL,b.EXT) for name in
+-            ('controller.json','launcher_failure.json','build-failure.json','submission.intent.json','submission.result.json')),
+-            'existing build/controller/submission attempt; no retry')
++        admit_recovery(proof,a.packet_sha256)
+         for name,h in pins.items():
+             value=b.read(b.LOCAL/name,h,256*1024**2)
+             b.need(value==b.read(b.EXT/name,h,256*1024**2)==b.committed(a.packet_commit,str((b.LOCAL/name).relative_to(b.REPO))),
+@@ -78,8 +100,20 @@
+             archive=stage['archive'],manifest=stage['manifest'],namespace_claim_sha256=claim_pin,
+             original_inputs=ctx['upstream_pins'],preserved_directories=ctx['preserved_directories'],original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA)
+         common='C='+repr(context)+'\n'+REMOTE_COMMON
++        for dest in (b.EXT,b.LOCAL):
++            (dest/RECOVERY_NAME).mkdir(mode=0o700,exist_ok=False);started=True
++        binding=dict(source_sha256=a.recovery_source_sha256,source_path=str(RECOVERY_SOURCE),
++            review_sha256=a.recovery_review_sha256,proof_sha256=RECOVERY_PROOF_SHA,
++            predecessor_packet_sha256=a.packet_sha256,attempt_directories=[str(d/RECOVERY_NAME) for d in (b.EXT,b.LOCAL)],
++            scientific_child_unchanged=True,remote_metadata_deadline_seconds=1200,local_transport_deadline_seconds=1230,
++            original_failed_members=proof['original_failed_members'],retry_allowed=False)
++        for dest in (b.EXT,b.LOCAL):
++            b.write(dest/'recovery02-reference.json',b.raw(binding))
++            b.write(dest/RECOVERY_NAME/'controller-source.py',recovery_source)
++            b.write(dest/RECOVERY_NAME/'review.md',recovery_review_raw)
++            b.write(dest/RECOVERY_NAME/'recovery-proof.json',proof_raw)
+         save('controller.json',dict(pid=os.getpid(),utc=b.utc(),held=[str(b.BASE/n) for n in
+-            ('ace-delivery-controller.lock','ace-foundation-controller.lock')]));started=True
++            ('ace-delivery-controller.lock','ace-foundation-controller.lock')],recovery=binding))
+         ready=remote('readiness_transport.json',common+r'''
+ need(root.parent==root.parent.resolve() and root.parent.stat().st_uid==os.getuid(),'scratch parent differs')
+ need(not os.path.lexists(root) and not list(root.parent.glob('ace_llm_intervention_scientific_campaign_cpu*')),
+@@ -110,7 +144,7 @@
+             namespace_admission_sha256=ctx['pins']['namespace-admission'],
+             recovery_authority_sha256=ctx['pins']['recovery-authority'],original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+             resources=b.RESOURCES,deadlines=b.DEADLINES,admission=packet['admission'],
+-            blind_retry_forbidden=True,new_namespace_claimed=False,replacement_worlds=False)
++            blind_retry_forbidden=True,new_namespace_claimed=False,replacement_worlds=False,coordinator_recovery=binding)
+         save('submission.intent.json',intent)
+         result=remote('submission_transport.json',common+'\nintent='+repr(intent)+
+             '\nREADINESS_SHA='+repr(b.sha(b.raw(ready)))+r'''
+@@ -150,10 +184,11 @@
+             except BaseException:pass
+ 
+ REMOTE_COMMON=r'''
+-import pathlib,json,hashlib,subprocess,datetime,os,stat,re,signal
++import pathlib,json,hashlib,subprocess,datetime,os,stat,re,signal,sys,time
+ os.umask(0o077)
+ def remote_deadline(signum,frame):raise TimeoutError('absolute remote coordinator deadline')
+-signal.signal(signal.SIGALRM,remote_deadline);signal.alarm(48)
++signal.signal(signal.SIGALRM,remote_deadline);signal.alarm(1200)
++_READ_COUNT=0;_READ_STARTED=time.monotonic()
+ root=pathlib.Path(C['root']); registry=pathlib.Path(C['registry'])
+ def need(ok,message):
+  if not ok:raise RuntimeError(message)
+@@ -161,12 +196,15 @@
+ def utc():return datetime.datetime.now(datetime.timezone.utc).isoformat()
+ def raw(value):return (json.dumps(value,indent=2,sort_keys=True,allow_nan=False)+'\n').encode()
+ def read(path,allow_hardlink=False):
++ global _READ_COUNT
+  path=pathlib.Path(path)
+  need(path.absolute()==path.resolve(),'unresolved/symlink path '+str(path))
+  with os.fdopen(os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK),'rb') as f:
+   s=os.fstat(f.fileno());need(stat.S_ISREG(s.st_mode) and (allow_hardlink or s.st_nlink==1),'regular sole-linked input required')
+   value=f.read(256*1024**2+1)
+  need(len(value)<=256*1024**2,'oversize metadata')
++ _READ_COUNT+=1
++ if _READ_COUNT%1000==0:print(json.dumps(dict(phase='upstream_input_verification',files_read=_READ_COUNT,elapsed_seconds=time.monotonic()-_READ_STARTED)),file=sys.stderr,flush=True)
+  return value
+ def write(path,value):
+  with pathlib.Path(path).open('xb') as f:f.write(raw(value));f.flush();os.fsync(f.fileno())
