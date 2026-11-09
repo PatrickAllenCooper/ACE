@@ -119,14 +119,19 @@ def recovery_contract(packet,data,root,acceptance,old):
     authority=decode(data[names['authority']])
     need(authority.get('schema')=='ace-gpu-cpu-history-recovery-authority-v1'
          and authority.get('status')=='operationally_adopted'
-         and authority.get('historical_postcustody_required') is True,
+         and authority.get('historical_postcustody_required') is True
+         and authority.get('unchanged_scientific_inputs') is True
+         and authority.get('original_entry_sha256')=='2694093512f8ce144bce7f33d6e2306bc251011b26567642c32006a7902e7db1'
+         and authority.get('original_source_commit')=='a9346022f145cc29439325b6f291597b2e6ec037'
+         and authority.get('original_gpu01_packet_sha256')=='436807328b4ee8ba0ec8cef3d5ff5b9c1d195b0b0165d5181a80356002f60fa7'
+         and authority.get('original_gpu01_job_id')=='35498218',
          'independently adopted operational recovery authority required')
     paths=packet['paths'];lineage=context['lineage']
     need(lineage['cpu_acceptance_sha256']==packet['cpu_acceptance_sha256']
          and lineage['recovery_authority_sha256']==packet['files'][names['authority']]
          and lineage['checker_sha256']==PREFLIGHT_SHA,
          'original CPU/recovery/checker authority differs')
-    need(context['control_root']==str(root.parent)
+    need(context['control_root']==str(root.parent)==authority['control_root']
          and context['gpu_output']==paths['gpu_output']==authority['allowed_new_output']
          and context['failed_gpu01_root']==authority['failed_gpu01_root']
          and context['cpu_roots']=={'cpu_output':paths['cpu_output'],'campaign':paths['campaign']},
@@ -134,7 +139,10 @@ def recovery_contract(packet,data,root,acceptance,old):
     need(context['baseline']==authority['baseline']
          and lineage['failed_gpu01_acceptance_sha256']==authority['failed_gpu01_acceptance_sha256']
          and lineage['namespace_sha256']==authority['namespace_sha256']
-         and lineage['original_namespace_sha256']==authority['original_namespace_sha256'],
+         and lineage['original_namespace_sha256']==authority['original_namespace_sha256']
+         and lineage['source_sha256']==authority['historical_verifier_sha256']
+         and context['proof_pins']==authority['historical_proof_pins']
+         and packet['cpu_acceptance_sha256']==authority['cpu_acceptance_sha256'],
          'failure/accounting/namespace lineage differs')
     digest=lambda value:sha(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode())
     sources={n:packet['files'][n] for n in packet['source_names']}

@@ -1,0 +1,1 @@
+Unexecuted initial draft preserved. Before the first tests, parent-directory lookup now uses a precomputed set rather than repeatedly searching the complete directory list. No schema or accepted metadata changes.

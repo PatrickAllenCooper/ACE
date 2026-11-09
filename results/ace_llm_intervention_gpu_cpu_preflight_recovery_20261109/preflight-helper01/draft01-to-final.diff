@@ -1,0 +1,16 @@
+--- draft01
++++ tested-final
+@@ -90,10 +90,11 @@
+     _keys(value, {'files', 'directories'}, 'inventory')
+     files, dirs = value['files'], value['directories']
+     _need(type(files) is dict and type(dirs) is list and all(type(n) is str for n in dirs), 'original maps/list required')
+-    _need(dirs == sorted(set(dirs)) and not set(files).intersection(dirs), 'unique sorted noncolliding directory roster required')
++    directory_set = set(dirs)
++    _need(dirs == sorted(directory_set) and not set(files).intersection(directory_set), 'unique sorted noncolliding directory roster required')
+     for name in list(files) + dirs:
+         _path(name)
+-        _need(all('/'.join(name.split('/')[:i]) in dirs for i in range(1, len(name.split('/')))), 'missing parent directory')
++        _need(all('/'.join(name.split('/')[:i]) in directory_set for i in range(1, len(name.split('/')))), 'missing parent directory')
+     for info in files.values():
+         _file_info(info)
+ 
