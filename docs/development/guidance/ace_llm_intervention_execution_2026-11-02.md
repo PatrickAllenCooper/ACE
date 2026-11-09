@@ -2,6 +2,11 @@
 
 ## Current state: November 9, 2026
 
+**GPU comparison job35498218 was submitted ONCE at22:13:11.549293UTC.** Committed packet `41bda8e1d9e925eca68f1aa6b16f4d616d1cf7db` is pushed and independently remote-matched. Outer43680732/inner85d2607d/reviewe56bfb99 are unchanged. Local intent `0b77bc6ead153a34c90cd5993389056bbfa1cec08d4d9037fb73a0b382efb993`, remote intent `46998e9b8a2d5cc1017b2540cebd533ef1a2637c7b0dd440eb81230eb99b4ca4` and unambiguous submission result `7c484f72ecafe9188cf4a71cb7023844c46390eb200ffe7507123d473ba43b86` are retained in both launch copies. All178 remote packet files and original source/runtime/model/upstream pins,46jobs/94journals, namespaces, scratch/account/QoS/resource checks and final pre-submit reconciliation passed. Both controller locks were released. No duplicate or replacement job is permitted.
+
+At22:14:11UTC, Slurm reports RUNNING on c3gpu-c2-u13, start22:13:12UTC, exact4CPU/15GiB/one20GBMIG/48minutes/ucb736_asc2/aa100/gpu-testing/no-requeue. The first59-second snapshot has no GPU phase telemetry yet, so no GPU computation or scientific success is inferred. Current admission is44,381CPU/5,385GPU seconds including this capped reservation and preparation; actual47th-job costs remain pending. Parent launch command took1313.970009875elapsed/101.597321localchildCPU seconds with2,225,946,624peakchildRSS. These are preparation observations, not job allocation or whole-cycle cost. Full readiness verification took about784seconds before GPU allocation; transfer and remote byte verification then passed. Early/periodic GPU activity checks and complete terminalcustody/independent acceptance precede final reporting.
+
+
 The concrete GPU packet review is complete with zero required findings, `e56bfb99f894a798d36e71e2e01d9ac3cbc383d0cd3d4ee1dace464cfc8e24b0`. Both178-file mirrors, all102 inner input pins,72,372 absolute upstream pins plus two namespaces,46jobs/94journals and all99 completed storage-operation records match. Frozen sources/resources/checkpoints/intervention methods are unchanged. The reviewed packet is ready for commit/push and a fresh once-only launcher admission. No GPU job is yet submitted. The recorded2,929-second timing sensitivity exceeds the2,880-second cap, so completion is uncertain and no adaptive extension or truncation is implied.
 
 
