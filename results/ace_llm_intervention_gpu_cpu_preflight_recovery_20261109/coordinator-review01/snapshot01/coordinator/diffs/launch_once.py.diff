@@ -1,0 +1,101 @@
+--- predecessor/launch_once.py
++++ authoring/launch_once.py
+@@ -64,12 +64,14 @@
+             dict(phase='launch',packet_sha256=a.packet_sha256,packet_commit=a.packet_commit))
+         b.configure_packet_storage(ctx,local,pins,packet)
+         cpu_data=b.admit_cpu_bytes(ctx,Path(packet['cpu_remote_custody']))
+-        b.need(packet['baseline_sha256']==ctx['pins']['cpu-baseline'] and packet['cpu_job_id']==m['cpu-acceptance']['job_id']
++        b.need(packet['baseline_sha256']==ctx['pins']['gpu-failure-baseline'] and packet['cpu_job_id']==m['cpu-acceptance']['job_id']
+                and packet['operational_amendment_sha256']==ctx['pins']['operational-amendment']
+                and packet['namespace_claim_sha256']==ctx['pins']['namespace-claim'],'accepted baseline/namespace differs')
+         b.need(packet['token_recovery']==ctx['token_recovery'] and packet['failed_token_root']==b.FAILED_TOKEN_ROOT
+                and packet['failed_token_job_id']==b.FAILED_TOKEN_JOB and packet['history_directories']==ctx['history_directories'],
+                'complete original TOKEN02 recovery history differs')
++        b.need(packet['gpu_recovery']==ctx['gpu_recovery'] and packet['prior_jobs']==47 and packet['prior_journals']==96
++               and packet['operational_source_commit']==m['operational-source-manifest']['source_commit'], 'exact independent GPU02 authority/history differs')
+         claim_pin=ctx['pins']['namespace-claim']
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local claim changed; never recreate')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+@@ -81,7 +83,9 @@
+         b.need(b.raw(stage)==b.raw(expected),'captured campaign input/resource contract differs')
+         b.need(b.read(b.LOCAL/'inputs/admission.json',pins['inputs/admission.json'])==b.raw(b.admission(ctx,stage)), 'stage admission differs')
+         b.need(packet['original_cpu_inputs']==ctx['upstream_pins'],'complete original CPU input pins differ')
+-        context=dict(root=b.ROOT,registry=b.REMOTE_REGISTRY,pins=pins,baseline=m['cpu-baseline'],
++        context=dict(root=b.ROOT,registry=b.REMOTE_REGISTRY,pins=pins,baseline=m['gpu-failure-baseline'],
++            failed_gpu_root=b.OLDROOT,gpu_output=b.OUTPUT,failed_gpu_inventory=ctx['failed_gpu_inventory'],gpu_recovery=ctx['gpu_recovery'],
++            cpu_directories=sorted(n[7:] for n in ctx['observations']['cpu']['directories'] if n.startswith('launch/')),
+             archive=m['cpu-packet']['archive'],manifest=m['cpu-packet']['manifest'],namespace_claim_sha256=claim_pin,
+             cpu_inputs=ctx['upstream_pins'],history_directories=ctx['history_directories'],model_directory=m['cpu-packet']['model_directory'],model_files=m['cpu-packet']['model_files'],
+             original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+@@ -92,8 +96,9 @@
+             ('ace-delivery-controller.lock','ace-foundation-controller.lock')]));started=True
+         ready=remote('readiness_transport.json',common+r'''
+ need(root.parent==root.parent.resolve() and root.parent.stat().st_uid==os.getuid(),'scratch parent differs')
+-need(not os.path.lexists(root) and not list(root.parent.glob('ace_llm_intervention_scientific_campaign_gpu*')),
+-     'existing campaign GPU root; no adoption/retry')
++need(not os.path.lexists(root),'new control root already exists; no adoption/retry')
++need(set(root.parent.glob('ace_llm_intervention_scientific_campaign_gpu*'))=={pathlib.Path(C['failed_gpu_root'])},
++     'only exact independently accepted failed GPU01 sibling may exist')
+ r=reconcile()
+ root.mkdir(mode=0o700);(root/'logs').mkdir(mode=0o700);(root/'inputs').mkdir(mode=0o700)
+ probe=root/'write-read-probe'
+@@ -115,7 +120,8 @@
+         intent=dict(utc=b.utc(),packet_commit=a.packet_commit,source_commit=b.SOURCE_COMMIT,storage_binding=b.storage_packet_binding(ctx),
+             packet_sha256=a.packet_sha256,review_sha256=a.packet_review_sha256,pins=pins,remote_root=b.ROOT,
+             token_recovery=ctx['token_recovery'],failed_token_root=b.FAILED_TOKEN_ROOT,failed_token_job_id=b.FAILED_TOKEN_JOB,
+-            baseline_sha256=ctx['pins']['cpu-baseline'],cpu_acceptance_sha256=ctx['pins']['cpu-acceptance'],
++            baseline_sha256=ctx['pins']['gpu-failure-baseline'],gpu_recovery=ctx['gpu_recovery'],
++            operational_source_commit=m['operational-source-manifest']['source_commit'],cpu_acceptance_sha256=ctx['pins']['cpu-acceptance'],
+             cpu_job_id=m['cpu-acceptance']['job_id'],existing_namespace_claim_sha256=claim_pin,
+             namespace_admission_sha256=ctx['pins']['namespace-admission'],
+             recovery_authority_sha256=ctx['pins']['recovery-authority'],original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+@@ -127,7 +133,7 @@
+ need(not os.path.lexists(root/'submission.intent.json') and not os.path.lexists(root/'submission.result.json')
+      and not os.path.lexists(root/'gpu'),'existing GPU campaign attempt')
+ need(sha(read(root/'readiness.json'))==READINESS_SHA,'original readiness differs')
+-fresh=reconcile();verify()
++fresh=reconcile();verify();failed_gpu_unchanged()
+ intent.update(remote_utc=utc(),fresh_readiness=fresh)
+ write(root/'submission.intent.json',intent)
+ r=dict(utc=utc(),job_id=None,intent_sha256=sha(read(root/'submission.intent.json')))
+@@ -223,7 +229,23 @@
+  fields=s.split(':');need(len(fields)==3 and all(v.isdigit() for v in fields),'unreadable live wall limit')
+  h,m,sec=map(int,fields);return days*86400+h*3600+m*60+sec
+ def allows(value,name):return value=='ALL' or name in value.split(',')
++def failed_gpu_unchanged():
++ old=pathlib.Path(C['failed_gpu_root']);output=pathlib.Path(C['gpu_output'])
++ need(old!=root and output==old/'gpu' and old.is_dir() and old==old.resolve(),'exact original failed GPU root required')
++ need(not os.path.lexists(output),'frozen output exists, including alias/partial; never retry')
++ need(set(root.parent.glob('ace_llm_intervention_scientific_campaign_gpu*'))<={old,root},'unexpected GPU sibling')
++ entries=list(old.rglob('*'));need(len(entries)<=262144 and not any(p.is_symlink() for p in entries),'ordinary bounded failed root required')
++ want=C['failed_gpu_inventory']
++ need(sorted(p.relative_to(old).as_posix() for p in entries if p.is_dir())==want['directories'],'old failed directories changed')
++ actual={}
++ for p in entries:
++  if p.is_dir():continue
++  value=read(p,allow_hardlink=True);actual[p.relative_to(old).as_posix()]=dict(bytes=len(value),sha256=sha(value))
++ need(actual==want['files'],'old failed bytes/membership changed')
++ return True
++
+ def reconcile():
++ failed_gpu_unchanged()
+  queue=run(['squeue','-u','paco0228','-h','-o','%i|%j|%T|%R|%a'])
+  for line in queue.splitlines():
+   fields=line.split('|');need(len(fields)==5,'malformed queue row')
+@@ -275,6 +297,7 @@
+  members=list(cpu_root.rglob('*'))
+  need(len(members)<=262144 and not any(p.is_symlink() for p in members),'bounded ordinary CPU custody required')
+  need({str(p.relative_to(cpu_root)) for p in members if p.is_file()}==set(C['cpu_roster']),'complete original CPU custody roster changed')
++ need(sorted(str(p.relative_to(cpu_root)) for p in members if p.is_dir())==C['cpu_directories'],'complete original CPU directories changed')
+  for base,expected_dirs in C['history_directories'].items():
+   tree=pathlib.Path(base);need(tree.is_dir() and not tree.is_symlink(),'original upstream root missing')
+   entries=list(tree.rglob('*'));need(not any(p.is_symlink() for p in entries),'upstream symlink')
+@@ -297,7 +320,7 @@
+   need((before.st_ino,before.st_size,before.st_mtime_ns)==(after.st_ino,after.st_size,after.st_mtime_ns)
+        and h.hexdigest()==expected,'frozen model bytes differ')
+   model_verified[name]=expected
+- return dict(utc=utc(),queue=queue,related_accounting=rows,journal_pins=journals,
++ return dict(utc=utc(),gpu_recovery=C['gpu_recovery'],failed_gpu_original_bytes_verified=True,frozen_output_absent=True,queue=queue,related_accounting=rows,journal_pins=journals,
+              partition=partition,association=assoc,qos=qos,gpu_types=gpu_types,model_files=model_verified,manifest_sha256=C['manifest']['sha256'],
+              archive_size=st.st_size,archive_byte_check='allocated stage authenticates full bytes before execution',
+              existing_namespace_claim_sha256=C['namespace_claim_sha256'],

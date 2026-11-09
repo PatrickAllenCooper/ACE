@@ -1,0 +1,28 @@
+{
+  "findings": [
+    {
+      "blocking_for_operational_coordinator_use": true,
+      "evidence": {
+        "builder_file": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/coordinator-review01/snapshot01/coordinator/authoring/build_packet.py",
+        "builder_line": 673,
+        "builder_literal": "#SBATCH --job-name=ace_llm_scientific_campaign_gpu02",
+        "builder_source_sha256": "85691a9c7d52e40b334d9e42ea2da67762a955953c115de8a7d58be385935c5a",
+        "collector_expression": "normalized[1]=='ace_llm_scientific_campaign_gpu01'"
+      },
+      "file": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/coordinator01/authoring/pull_terminal.py",
+      "id": "R1",
+      "impact": "Every otherwise-correct GPU02 parent row fails resource_contract_matched. The collector appends its generic resource disagreement, writes terminal_custody_with_binding_disagreements, and raises at the final error gate instead of producing its normal successful custody seal. This unnecessarily forces another independent resource reconciliation even after a successful GPU02 run.",
+      "line": 187,
+      "priority": 1,
+      "requested_correction": "Require the new GPU02 job name in the current-job resource contract, preferably bound to the same reviewed job identity as the sbatch generator. Keep the old job name and failed allocation immutable in predecessor-history validation. Do not weaken or bypass resource/no-requeue checks.",
+      "snapshot_file": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/coordinator-review01/snapshot01/coordinator/authoring/pull_terminal.py",
+      "source_sha256": "e6a90ef9f1ed6df55e225a2c16dfe9a7279603ceb5a6ce3666b592fc6d6d542f",
+      "title": "Match the collector resource predicate to the GPU02 submission name",
+      "trigger": "Collect a correctly submitted ace_llm_scientific_campaign_gpu02 allocation produced by build_packet.py:673.",
+      "validation_scope": "A focused new artificial resource-contract case should cover the generated GPU02 name with exact requested/allocated fields and no-requeue evidence, and rejection of the predecessor name for the new job. No old suites, comparison runs or real GPU work are needed for this correction. Reviewer ran no tests."
+    }
+  ],
+  "required_findings": 1,
+  "schema": "ace-gpu02-coordinator-independent-findings-v1",
+  "status": "changes_required"
+}

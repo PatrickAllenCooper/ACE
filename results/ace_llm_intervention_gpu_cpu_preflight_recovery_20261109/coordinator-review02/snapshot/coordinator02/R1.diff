@@ -1,0 +1,11 @@
+--- coordinator01/authoring/pull_terminal.py
++++ coordinator02/authoring/pull_terminal.py
+@@ -184,7 +184,7 @@
+         fields=dict(re.findall(r'([^\s=]+)=(\S+)',observation['results']['job']['stdout']))
+     no_requeue=fields.get('JobId')==job and fields.get('Requeue')=='0' and fields.get('Restarts')=='0'
+     matched=(request_identity and resource_tres(requested) and resource_tres(allocated) and no_requeue
+-        and normalized[1]=='ace_llm_scientific_campaign_gpu01' and normalized[6]=='ucb736_asc2'
++        and normalized[1]=='ace_llm_scientific_campaign_gpu02' and normalized[6]=='ucb736_asc2'
+         and cpus==4 and gpu==1 and 0<=elapsed<=2880)
+     if not matched:errors.append('actual/requested GPU identity/resource/no-requeue/wall contract differs or unavailable')
+     if gpu is None:errors.append('unknown GPU charge; never infer zero')

@@ -1,0 +1,13 @@
+RECOVERY_FILES={'authority':'gpu-recovery-authority.json','context':'cpu-history-expected.json',
+ 'receipt':'cpu-history-preflight.json','read_set':'cpu-history-readset.json'}
+PREFLIGHT='llm_intervention_cpu_preflight_receipt.py'
+HISTORY='llm_intervention_cpu_history_admission.py'
+RECOVERY_METADATA=('gpu-failure-acceptance','gpu-failure-baseline','gpu-failure-packet','gpu-failure-result',
+ 'gpu-failure-disposition','gpu-failure-seal','gpu-failure-inventory','gpu-failure-inventory-after',
+ 'gpu-recovery-authority','gpu-recovery-review','operational-source-manifest','operational-source-review',
+ 'cpu-history-expected','cpu-history-preflight','cpu-history-readset','preflight-review')
+TEXT_METADATA|={'gpu-recovery-review','operational-source-review','preflight-review'}
+METADATA+=RECOVERY_METADATA
+FAILED_GPU_PACKET_SHA='436807328b4ee8ba0ec8cef3d5ff5b9c1d195b0b0165d5181a80356002f60fa7'
+FAILED_GPU_SEAL_SHA='8e0ce58a1e093eee1e94d89025e29ac09f97f8b1c4fc3f29751a782401f5a7c0'
+FAILED_GPU_DISPOSITION_SHA='545cee3c7ae4ce2eafa5f1e6fd7fd3f3566a9415e6b89d1a42a27d6640e94507'

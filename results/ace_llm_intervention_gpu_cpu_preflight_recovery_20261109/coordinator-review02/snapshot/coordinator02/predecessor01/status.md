@@ -1,0 +1,1 @@
+Stable authoring snapshot for independent review; source-only/artificial tests. Actual packet build, new source/helper qualification, independent authority/preflight adoption and submission remain unperformed. No source changes without concrete findings.

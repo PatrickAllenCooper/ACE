@@ -1,0 +1,142 @@
+{
+  "ast_structure": {
+    "build_packet.py": {
+      "added_functions": [
+        "authenticate_gpu_recovery",
+        "exact_inventory",
+        "failed_gpu_history",
+        "inject_recovery"
+      ],
+      "changed_functions": [
+        "admission",
+        "authenticate",
+        "main",
+        "make_packet"
+      ],
+      "embedded_programs": {}
+    },
+    "compact_inputs.py": {
+      "added_functions": [],
+      "changed_functions": [],
+      "embedded_programs": {}
+    },
+    "cpu_history_contract.py": {
+      "added_functions": [],
+      "changed_functions": [],
+      "embedded_programs": {}
+    },
+    "launch_once.py": {
+      "added_functions": [],
+      "changed_functions": [
+        "main"
+      ],
+      "embedded_programs": {
+        "REMOTE_COMMON": {
+          "ast_parse_ok": true,
+          "bytes": 11503,
+          "sha256": "733b6a62d7cd60006a4cf283fdedcb7ef788738b13e39ae97645197421db72c6"
+        }
+      }
+    },
+    "monitor_once.py": {
+      "added_functions": [],
+      "changed_functions": [
+        "main"
+      ],
+      "embedded_programs": {
+        "REMOTE": {
+          "ast_parse_ok": true,
+          "bytes": 3515,
+          "sha256": "bde1285f3d585fc304237610c5c96b47087d9757dc2e76f28eedbd8e4b65d0b0"
+        }
+      }
+    },
+    "pull_terminal.py": {
+      "added_functions": [],
+      "changed_functions": [
+        "accounting_extension",
+        "compare_observations",
+        "main",
+        "upstream_disagreements"
+      ],
+      "embedded_programs": {
+        "REMOTE_OBSERVATION": {
+          "ast_parse_ok": true,
+          "bytes": 6134,
+          "sha256": "0ae00d411e505c409506e1c10e53b8d3bf653ed095547b68d5c671fd3c958c2b"
+        }
+      }
+    }
+  },
+  "author_test_evidence": {
+    "attempt_method_counts": [
+      4,
+      3,
+      1
+    ],
+    "reported_returncodes": [
+      0,
+      0,
+      0
+    ],
+    "reviewer_reexecution": false,
+    "scope_limit": "Earlier methods used earlier captured source revisions. The final exact source attempt exercises one actual-failure-schema method. No retained method calls resources() for the newly named GPU02 job."
+  },
+  "copy_verification": {
+    "all_digests_sizes_membership_and_directories_verified": true,
+    "bytes_excluding_receipt": 1974106,
+    "copies": 2,
+    "independent_regular_inodes": true,
+    "members_per_copy_excluding_receipt": 83,
+    "members_per_copy_including_receipt": 84
+  },
+  "diffs": {
+    "build_packet.py": {
+      "bytes": 31342,
+      "independently_recomputed_equal": true,
+      "sha256": "2cda43feadc577db9ada04d23c8b0ce7cc0bb7d3e9689da4e96a139c1d127716"
+    },
+    "compact_inputs.py": {
+      "bytes": 0,
+      "independently_recomputed_equal": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cpu_history_contract.py": {
+      "bytes": 0,
+      "independently_recomputed_equal": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "launch_once.py": {
+      "bytes": 8397,
+      "independently_recomputed_equal": true,
+      "sha256": "249cab0629a4227ae734f374032b07bc200478e8c07aeec679732efd768f3ea7"
+    },
+    "monitor_once.py": {
+      "bytes": 3511,
+      "independently_recomputed_equal": true,
+      "sha256": "8abcab6dd76ff5d7c199f5dd3fd53573ab021a24dca5fa41d46b5b4fb6fe8cb3"
+    },
+    "pull_terminal.py": {
+      "bytes": 29650,
+      "independently_recomputed_equal": true,
+      "sha256": "554476fff9d29d2fb8c1be33ff82d7a6bae977da89ce8f6f2c03c769a4e924c3"
+    }
+  },
+  "logical_counterexample": {
+    "builder_job_name": "ace_llm_scientific_campaign_gpu02",
+    "collector_required_job_name": "ace_llm_scientific_campaign_gpu01",
+    "error_propagation": [
+      "resources:187 mismatched literal",
+      "resources:189 error append",
+      "main:651 errors.extend",
+      "main:669 binding-disagreement disposition",
+      "main:710 need(not errors) raises before normal seal"
+    ],
+    "method": "Literal source comparison only; resources() was not called.",
+    "predicate_result_for_generated_job": "false regardless of otherwise-correct resource fields"
+  },
+  "original_sources_executed": false,
+  "schema": "ace-gpu02-coordinator-static-review-checks-v1",
+  "source_parse_only": true,
+  "tests_run": 0
+}

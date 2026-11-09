@@ -1,0 +1,57 @@
+{
+  "account": "ucb736_asc2",
+  "alloc_tres": "billing=58,cpu=4,gres/gpu:a100_3g.20gb=1,mem=15G,node=1",
+  "allocated_cpu_seconds": 400,
+  "allocated_cpus": 4,
+  "allocated_tres": {
+    "billing": "58",
+    "cpu": "4",
+    "gres/gpu:a100_3g.20gb": "1",
+    "mem": "15G",
+    "node": "1"
+  },
+  "allocation_fields": {
+    "Account": "ucb736_asc2",
+    "AllocTRES": "billing=58,cpu=4,gres/gpu:a100_3g.20gb=1,mem=15G,node=1",
+    "JobId": "99999998",
+    "JobName": "ace_llm_scientific_campaign_gpu01",
+    "Partition": "aa100",
+    "QOS": "gpu-testing",
+    "ReqTRES": "billing=58,cpu=4,gres/gpu:a100_3g.20gb=1,mem=15360M,node=1",
+    "Requeue": "0",
+    "Restarts": "0",
+    "TimeLimit": "00:48:00"
+  },
+  "allocation_source_sha256": "bdf576bd0a2aa9562a23afff3c80e2b41bbdfb5ce080ce4212c223c883b9a9df",
+  "elapsed_seconds": 100,
+  "errors": [
+    "actual/requested GPU identity/resource/no-requeue/wall contract differs or unavailable"
+  ],
+  "expected": {
+    "account": "ucb736_asc2",
+    "gpu_type": "a100_3g.20gb",
+    "gpus": 1,
+    "max_allocated_cpus": 4,
+    "memory_mib": 15360,
+    "partition": "aa100",
+    "qos": "gpu-testing",
+    "requested_cpus": 4,
+    "requeue": false,
+    "wall_seconds": 2880
+  },
+  "gpu_count": 1,
+  "gpu_slice_seconds": 100,
+  "memory_note": "15GiB host request and typed20GB MIG are distinct; framework total device bytes reported separately.",
+  "no_requeue_verified": true,
+  "requested_mig_memory_gib": 20,
+  "requested_tres": {
+    "billing": "58",
+    "cpu": "4",
+    "gres/gpu:a100_3g.20gb": "1",
+    "mem": "15360M",
+    "node": "1"
+  },
+  "resource_contract_matched": false,
+  "scheduler_exit": "0:0",
+  "scheduler_state": "COMPLETED"
+}

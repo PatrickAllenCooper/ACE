@@ -1,0 +1,14 @@
+def failed_gpu_unchanged():
+ old=pathlib.Path(C['failed_gpu_root']);output=pathlib.Path(C['gpu_output'])
+ need(old!=root and output==old/'gpu' and old.is_dir() and old==old.resolve(),'exact original failed GPU root required')
+ need(not os.path.lexists(output),'frozen output exists, including alias/partial; never retry')
+ need(set(root.parent.glob('ace_llm_intervention_scientific_campaign_gpu*'))<={old,root},'unexpected GPU sibling')
+ entries=list(old.rglob('*'));need(len(entries)<=262144 and not any(p.is_symlink() for p in entries),'ordinary bounded failed root required')
+ want=C['failed_gpu_inventory']
+ need(sorted(p.relative_to(old).as_posix() for p in entries if p.is_dir())==want['directories'],'old failed directories changed')
+ actual={}
+ for p in entries:
+  if p.is_dir():continue
+  value=read(p,allow_hardlink=True);actual[p.relative_to(old).as_posix()]=dict(bytes=len(value),sha256=sha(value))
+ need(actual==want['files'],'old failed bytes/membership changed')
+ return True
