@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<string>", line 15, in <module>
+    v['remote_main'](v['decode'](b),sys.stdout.buffer)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<independently-pinned-remote-custody>", line 362, in remote_main
+  File "<independently-pinned-remote-custody>", line 370, in remote_emit
+  File "<independently-pinned-remote-custody>", line 310, in remote_collect
+  File "<independently-pinned-remote-custody>", line 211, in make_tar
+  File "/projects/paco0228/miniconda3/lib/python3.13/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "<independently-pinned-remote-custody>", line 110, in opened
+  File "<independently-pinned-remote-custody>", line 360, in expired
+TimeoutError: bounded remote custody deadline
