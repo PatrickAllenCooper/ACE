@@ -1,0 +1,20 @@
+--- predecessor/gpu/compact_inputs.py
++++ successor/gpu/compact_inputs.py
+@@ -299,7 +299,7 @@
+     supplied={'storage-config.json':data}
+     for key,name in STORAGE_FILES.items():
+         entry=config['members'][key];p=Path(entry['path'])
+-        maximum=128*1024**2 if key=='seal' else 32*1024**2
++        maximum=128*1024**2 if key in ('receipt','seal','after') else 32*1024**2
+         need(pin(entry['sha256']) and p.stat().st_size<=maximum,'bounded independently pinned storage input')
+         supplied[name]=read_exact(p,{'sha256':entry['sha256'],'bytes':p.stat().st_size},maximum)
+     return supplied
+@@ -308,7 +308,7 @@
+ def stored_config(directory, pins):
+     directory=Path(directory);supplied={}
+     for name in ['storage-config.json',*STORAGE_FILES.values()]:
+-        p=directory/name;maximum=128*1024**2 if name=='storage-seal.json' else 32*1024**2
++        p=directory/name;maximum=128*1024**2 if name in ('storage-receipt.json','storage-seal.json','storage-after.json') else 32*1024**2
+         need(name in pins and pin(pins[name]) and p.stat().st_size<=maximum,'pinned bounded outer storage member required')
+         supplied[name]=read_exact(p,{'sha256':pins[name],'bytes':p.stat().st_size},maximum)
+     return supplied

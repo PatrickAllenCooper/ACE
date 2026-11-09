@@ -1,0 +1,48 @@
+--- predecessor/cli/assemble_gpu_cli.py
++++ successor/cli/assemble_gpu_cli.py
+@@ -11,11 +11,17 @@
+ import re
+ import stat
+ 
+-KNOWN_SHA256 = '07b77331eaf27bd70d0cbb2d03a837ea6c3181261eb593932701f9a9477524a2'
++KNOWN_SHA256 = '4a62de3c6505a1f07c1ee44f811fe457f1c940212d3cf6f74fa624a595b01d28'
+ FUTURE = ('cpu-acceptance', 'cpu-baseline', 'cpu-review', 'cpu-phase-terminal',
+           'cpu-disposition', 'cpu-inventory', 'site-readiness')
+ STORAGE = ('receipt', 'seal', 'after', 'reference')
+ MIB = 1024**2
++
++
++FULL_MAP_METADATA = frozenset(('cpu-inventory', 'cpu-disposition', 'cpu-acceptance', 'gpu-inventory', 'gpu-inventory-after', 'gpu-custody-inventory', 'gpu-disposition', 'gpu-acceptance'))
++
++def metadata_maximum(name):
++    return 128*1024**2 if name in FULL_MAP_METADATA else 32*1024**2
+ 
+ 
+ def need(ok, message):
+@@ -80,13 +86,14 @@
+     need(known['schema'] == 'ace-gpu-cli-known-inputs-v1' and set(known['pending_metadata']) == set(FUTURE),
+          'known input map differs')
+     metadata = {name: {'path': v['path'], 'sha256': v['sha256']} for name, v in known['known_metadata'].items()}
+-    for entry in metadata.values():
+-        capture(entry['path'], entry['sha256'])  # Opaque bytes; no scientific input decode.
++    need(set(known['full_map_metadata']) == set(FULL_MAP_METADATA), 'known role bounds differ')
++    for name, entry in metadata.items():
++        capture(entry['path'], entry['sha256'], metadata_maximum(name))  # Opaque bytes; no scientific input decode.
+     pending = {}
+     for name in FUTURE:
+         attribute = name.replace('-', '_')
+         entry = dict(path=getattr(args, attribute), sha256=getattr(args, attribute+'_sha256'))
+-        pending[name] = capture(**dict(path=entry['path'], expected=entry['sha256']))
++        pending[name] = capture(entry['path'], entry['sha256'], metadata_maximum(name))
+         metadata[name] = entry
+     need(set(metadata) == set(known['metadata_order']) and len(metadata) == 56, 'exact 56 metadata pairs required')
+     need(pending['cpu-review'].strip() and pending['site-readiness'].strip(), 'explicit actual audit/readiness records required')
+@@ -134,7 +141,7 @@
+     for name in STORAGE:
+         entry = dict(path=getattr(args, 'storage_'+name), sha256=getattr(args, 'storage_'+name+'_sha256'))
+         need(Path(entry['path']).resolve() == (terminal/filenames[name]).resolve(), 'named storage record differs: '+name)
+-        storage_data[name] = capture(entry['path'], entry['sha256'], 128*MIB if name == 'seal' else 32*MIB)
++        storage_data[name] = capture(entry['path'], entry['sha256'], 128*MIB if name in ('receipt', 'seal', 'after') else 32*MIB)
+         members[name] = entry
+     receipt, seal = decode(storage_data['receipt']), decode(storage_data['seal'])
+     need(receipt['helper_sha256'] == members['backend']['sha256'] and receipt['full_backup_verified'] is True

@@ -1,0 +1,11 @@
+--- predecessor/gpu/launch_once.py
++++ successor/gpu/launch_once.py
+@@ -45,7 +45,7 @@
+         b.need(all(type(n) is str and not Path(n).is_absolute() and '..' not in Path(n).parts and b.pin(h)
+             for n,h in pins.items()),'safe pinned packet membership required')
+         supplied={name:b.read(local/(b.metadata_name(name)),
+-            pins[b.metadata_name(name)]) for name in b.METADATA}
++            pins[b.metadata_name(name)],b.metadata_maximum(name)) for name in b.METADATA}
+         ctx=b.authenticate(supplied);m=ctx['metadata']
+         b.need(local==b.LOCAL and packet['source_commit']==b.SOURCE_COMMIT and packet['remote_root']==b.ROOT,
+             'amended frozen packet roots/source differ')

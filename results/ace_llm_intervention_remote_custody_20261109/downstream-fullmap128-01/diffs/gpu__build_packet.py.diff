@@ -1,0 +1,33 @@
+--- predecessor/gpu/build_packet.py
++++ successor/gpu/build_packet.py
+@@ -76,6 +76,12 @@
+     for target,source in HISTORY_ALIASES.items():values[target]=m[source];hashes[target]=pins[source]
+     values['expected-training']=m['cpu-packet']['expected_training']
+     return values,hashes
++
++
++FULL_MAP_METADATA = frozenset(('cpu-inventory', 'cpu-disposition', 'cpu-acceptance', 'gpu-inventory', 'gpu-inventory-after', 'gpu-custody-inventory', 'gpu-disposition', 'gpu-acceptance'))
++
++def metadata_maximum(name):
++    return 128*1024**2 if name in FULL_MAP_METADATA else 32*1024**2
+ 
+ 
+ def need(ok,message):
+@@ -541,7 +547,7 @@
+ 
+ 
+ # Explicit outer storage adapter; never added to frozen scientific child inputs.
+-COMPACT_ADAPTER_SHA='6dc4fe9b95cb0452c801a9be3f0a2102de9bc6ea76e777725b823501e82dda46'
++COMPACT_ADAPTER_SHA='a0e601a7be0ec2144faf0956de003dbe19b1a0f538b22a36a3506d316b698245'
+ CURC_HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ 
+ def compact_adapter():
+@@ -617,7 +623,7 @@
+     ap.add_argument('--storage-config-sha256',required=True)
+     args=ap.parse_args()
+     with coordinator_locks():
+-        supplied={n:read(getattr(args,n.replace('-','_')),getattr(args,n.replace('-','_')+'_sha256')) for n in METADATA}
++        supplied={n:read(getattr(args,n.replace('-','_')),getattr(args,n.replace('-','_')+'_sha256'),metadata_maximum(n)) for n in METADATA}
+         ctx=authenticate(supplied)
+         need(read(LOCAL_REGISTRY,ctx['pins']['namespace-claim'])==supplied['namespace-claim'],'existing recovery claim changed')
+         read(ORIGINAL_LOCAL_REGISTRY,ORIGINAL_CLAIM_SHA)

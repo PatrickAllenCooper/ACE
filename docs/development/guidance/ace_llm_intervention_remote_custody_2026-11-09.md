@@ -2,6 +2,20 @@
 
 Patrick authorized this operational change on November 9: keep large artifacts backed up on CURC, retain reports and verification records locally, and continue the frozen 24-system comparison. This supersedes the proposed 85 GiB Mac capacity target. It does not change the scientific design, training, policies, source inputs, endpoints, resources or failure rules.
 
+## Current verified state
+
+The static-input, training and completed CPU-comparison archives are verified under `/projects/paco0228/ACE_evidence`. The CPU archive is `ace-llm-campaign-cpu-20261109-02/raw.tar`. It contains every original file and has passed full source, archive and projects readback checks. Its receipt and omitted-file inventory are retained in `results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02`, with a second local copy under `ACE_Study_Results`. The original scratch files and failed collection attempt remain preserved.
+
+| Stage | Full CURC archive | Selected local payload per copy |
+| --- | ---: | ---: |
+| Runtime and base-model inputs | 9,970,851,840 bytes | 0 bytes |
+| Scientific LLM training | 565,248,000 bytes | 136,764,246 bytes |
+| Five CPU comparison policies | 1,094,164,480 bytes | 417,049,845 bytes |
+
+Local inventories, logs and verification records add metadata beyond these payload sizes. Some archives contain shared predecessor evidence, so these figures are storage sizes rather than independent scientific data totals. About 29 GiB remained free on the Mac during collection. The CPU collection needed about 2.03 GiB of local headroom, so the former 85 GiB planning target no longer applies.
+
+CPU job 35482135 completed successfully. The corrected saved-evidence audit and its runtime/bundle supplement pass for all 120 CPU cells. Independent execution acceptance is pending before the remaining 72 LLM cells and final scoring. Backup verification alone does not establish intervention utility. The execution ledger records exact pins, attempts and accounting. Sections below retain the original preparation and failure history.
+
 ## Storage contract
 
 The computation continues to read and write its original scratch paths. After each stage is terminal, the collector preserves every original raw file, including failed and partial outputs, in an exclusive archive under `/projects/paco0228/ACE_evidence`. CURC documents `/projects` as regularly backed up. Scratch remains a working copy, with no backup guarantee and a 90-day purge policy. No attempt is made to extend that purge period. The archive is a retention copy, not a location for active model or campaign I/O.
@@ -14,7 +28,7 @@ Existing complete local capsules and failed transfers are preserved in place. Ne
 
 Consumers must authenticate the predecessor receipt, verify the remote archive again and verify the exact selected local subset before using it. The original source, input, namespace, submission, accounting and scientific acceptance checks remain required. A storage receipt never grants runtime or scientific acceptance. Interrupted or ambiguous transfers retain their evidence and require reconciliation before a new exclusive attempt.
 
-## Admission and current preparation
+## Original admission and preparation
 
 The November 9 live check found about 89 GB available in the user's `/projects` quota and 6.3 TB in scratch. A dedicated scratch write/read/cleanup succeeded. The two shared controller locks were acquired for that check. No ACE campaign was queued or running. Unrelated queued jobs were left untouched.
 
@@ -38,6 +52,6 @@ Training and static-input backups both passed complete source, archive and proje
 
 The original48-second full-input preflight timed out before any submission. A separately reviewed metadata-only coordinator allows1200seconds for verification and preserves the original failed records. It submitted the unchanged CPU packet once as35482135 at17:50:47UTC, using packet commit434b83e7a7b0bbe34ecef1caf939b591aad53494. The first bounded observation is PENDING/Priority. Job resources and all scientific settings are unchanged. Full terminal backup and actual acceptance remain pending.
 
-## CPU terminal collection follow-through
+## First CPU terminal collection attempt
 
 The CPU comparison completed as job35482135, 0:0. The first full inventory contains72,374files/1,038,644,069bytes, with417,049,845bytes selected per local copy. Local admission requires2,176,689,410bytes, replacing the earlier85GiB target. Collector02 timed out during archive construction at20:09:41UTC. Its complete failed records and426,142,208-byte partial archive are preserved, including a readback-verified copy under `/projects/paco0228/ACE_evidence/ace-llm-campaign-cpu-failed-backup-20261109-01`. No completed-backup or actual CPU-acceptance claim is made. The next reviewed correction targets redundant ancestor-directory traversal while retaining every source/byte/archive/readback check and the same timeout. It uses new exclusive output paths. The scientific CPU job is not rerun. See the execution ledger and `failure-followup01/followup.json` for exact pins, cost scope and remaining gates.

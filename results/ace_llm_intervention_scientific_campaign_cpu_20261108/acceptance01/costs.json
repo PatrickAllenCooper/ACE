@@ -1,0 +1,113 @@
+{
+  "allocation": {
+    "batch_maxrss_kib": 7861992,
+    "batch_maxrss_mib": 7677.7265625,
+    "charged_cpu_seconds": 11456,
+    "charged_gpu_slice_seconds": 0,
+    "cpus": 2,
+    "elapsed_seconds": 5728,
+    "gpus": 0,
+    "job_id": "35482135",
+    "memory_limit_claim": "No headroom claim; batch MaxRSS is near the allocation limit and is not a complete cgroup peak or future sizing guarantee.",
+    "memory_mib": 7680,
+    "observed_slurm_total_cpu_seconds": 2786.548,
+    "wall_limit_seconds": 6000
+  },
+  "cost_limit": "Local preparation, audit and custody measurements have different scopes; they are retained separately and not added as fictional Slurm allocations. The single3600 CPU-second preparation allowance remains unchanged. Remote storage work is not a new scientific allocation; no complete end-to-end remote CPU charge is inferred.",
+  "cumulative_accounting": {
+    "closed_cpu_seconds": 29261,
+    "closed_gpu_slice_seconds": 2505,
+    "cpu_admission_seconds": 32861,
+    "current_allocated_cpu_seconds": 11456,
+    "current_gpu_seconds": 0,
+    "jobs": 46,
+    "journals": 94,
+    "preparation_allowance_cpu_seconds": 3600,
+    "utilization_inferred": false
+  },
+  "ranker": {
+    "checkpoints": "full authenticated archive hashes; not tensor decoding",
+    "dpo_updates": 119,
+    "exposure_sha256": "dc1b774c5cbaff8912ad826e4453a5b11952fda6b10ee0d7d3317a2baa2eb11f",
+    "sft_updates": 160,
+    "total_updates": 279
+  },
+  "recorded_local_operations": {
+    "failed_collector": {
+      "acceptance": false,
+      "child_cpu_seconds": 21.161019,
+      "elapsed_seconds": 2475.026978334,
+      "peak_child_rss_bytes": 1222606848,
+      "returncode": 1,
+      "utc": "2026-11-09T20:09:41.886473+00:00"
+    },
+    "first_failed_core_audit": {
+      "acceptance": false,
+      "child_cpu_seconds": 0.97281,
+      "elapsed_seconds": 0.9849422090000001,
+      "peak_child_rss_bytes": 583057408,
+      "returncode": 1,
+      "utc": "2026-11-09T21:12:12.197571+00:00"
+    },
+    "successful_collector": {
+      "acceptance": false,
+      "child_cpu_seconds": 64.021653,
+      "elapsed_seconds": 2688.028786041,
+      "peak_child_rss_bytes": 1342226432,
+      "returncode": 0,
+      "utc": "2026-11-09T21:11:32.382097+00:00"
+    },
+    "successful_core_audit": {
+      "acceptance": false,
+      "child_cpu_seconds": 35.409219,
+      "elapsed_seconds": 40.353205958,
+      "peak_child_rss_bytes": 953155584,
+      "returncode": 0,
+      "utc": "2026-11-09T21:20:35.548899+00:00"
+    },
+    "successful_supplement": {
+      "acceptance": false,
+      "child_cpu_seconds": 0.8110649999999999,
+      "elapsed_seconds": 0.820064667,
+      "peak_child_rss_bytes": 202080256,
+      "returncode": 0,
+      "utc": "2026-11-09T21:21:17.396788+00:00"
+    }
+  },
+  "response_costs": {
+    "charged_cost_units": 3840,
+    "completed_cpu_cells": 120,
+    "decision_processes": 2673,
+    "declared_cells": 192,
+    "executed_methods": [
+      "uniform_random",
+      "menu_coverage",
+      "local_information",
+      "target_risk",
+      "learned_ranker"
+    ],
+    "methods": [
+      "uniform_random",
+      "menu_coverage",
+      "local_information",
+      "target_risk",
+      "learned_ranker",
+      "frozen_llm",
+      "sft_llm",
+      "dpo_llm"
+    ],
+    "responses": 3633,
+    "shared_initial_cost_units": 960,
+    "utility_or_attainment_evaluated": false
+  },
+  "response_scope": "3840 charged response-cost units and3633 recorded responses are distinct from Slurm CPU seconds.960 initial units are shared-initial per-cell charges, not960 independent world draws.2673 numeric decisions; no utility or attainment computed.",
+  "saved_runtime": {
+    "owned_group_closed": true,
+    "startup_elapsed_seconds": 74.11440185178071,
+    "supervisor_elapsed_seconds": 5716.439018748933,
+    "worker_child_and_cleanup_cpu_seconds": 2701.2392209999994,
+    "worker_cumulative_child_peak_rss_bytes": 1010511872,
+    "worker_elapsed_including_cleanup_seconds": 5591.333764202893,
+    "worker_peak_scope": "Worker child measurement only, not the full batch/runtime-staging peak."
+  }
+}

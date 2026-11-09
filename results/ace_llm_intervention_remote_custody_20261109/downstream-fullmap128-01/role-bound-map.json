@@ -1,0 +1,39 @@
+{
+  "backend_and_batch02_unchanged": true,
+  "full_map_maximum_bytes": 134217728,
+  "gpu_collector_packet_members_128_mib": [
+    "cpu-inventory.json",
+    "cpu-disposition.json",
+    "cpu-acceptance.json",
+    "gpu-inventory.json",
+    "gpu-inventory-after.json",
+    "gpu-custody-inventory.json",
+    "gpu-disposition.json",
+    "gpu-acceptance.json",
+    "storage-receipt.json",
+    "storage-seal.json",
+    "storage-after.json",
+    "inputs/cpu-acceptance.json",
+    "inputs/gpu-acceptance.json"
+  ],
+  "metadata_128_mib": [
+    "cpu-inventory",
+    "cpu-disposition",
+    "cpu-acceptance",
+    "gpu-inventory",
+    "gpu-inventory-after",
+    "gpu-custody-inventory",
+    "gpu-disposition",
+    "gpu-acceptance"
+  ],
+  "metadata_finalizer_admission_note": "Replaces old broad256MiB initial metadata reads with named128MiB/ordinary32MiB; later existing256MiB exact-byte mirror/opaque-input comparisons remain unchanged.",
+  "opaque_fetch_maximum_bytes_unchanged": 268435456,
+  "ordinary_default_bytes": 33554432,
+  "storage_128_mib": [
+    "receipt",
+    "seal",
+    "after"
+  ],
+  "storage_config_maximum_bytes": 131072,
+  "unchanged_lateral_reads": "Finalizer collector all-input loop already streams fingerprints and uses byte readback without a32MiB reader; no lateral32MiB cap there. Existing seal reference reads remain128MiB."
+}

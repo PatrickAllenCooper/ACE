@@ -1,0 +1,11 @@
+--- predecessor/finalizer/pull_terminal.py
++++ successor/finalizer/pull_terminal.py
+@@ -266,7 +266,7 @@
+          and packet['source_commit']==intent['source_commit']==b.SOURCE_COMMIT
+          and packet['resources']==intent['resources']==b.RESOURCES==RESOURCES
+          and packet['deadlines']==intent['deadlines']==b.DEADLINES,'frozen finalizer profile differs')
+-    supplied={n:read_metadata(LAUNCH/b.metadata_name(n),pins[b.metadata_name(n)],128*1024**2 if n=='gpu-custody-inventory' else 32*1024**2) for n in b.METADATA}
++    supplied={n:read_metadata(LAUNCH/b.metadata_name(n),pins[b.metadata_name(n)],b.metadata_maximum(n)) for n in b.METADATA}
+     ctx=b.authenticate(supplied);m=ctx['metadata'];base=m['gpu-baseline']
+     claimed=[];started=time.monotonic();cpu=time.process_time()
+     def save(name,value):

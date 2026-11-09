@@ -2,6 +2,11 @@
 
 ## Current state: November 9, 2026
 
+At21:30:27UTC, independent actual CPU execution/custody review accepts job35482135 with zero required findings. Exact16-key acceptance `3c5ce7375d0c64292553ded6ad3078e634745eb7996d83fd102e344eeab3f063`,46-job/94-journal baseline `c21f43194ff61b30c0322acff99c20e71158d980a00a34a1685b87eac7f27125` and review `396ef13d95db6f31d2d8708af55ced0c666e02c0add10ed664c75c33f6c7d653` preserve every original attempt and full archive file map. Both local acceptance packages match. Closed allocation is29,261CPU/2,505GPU-slice seconds,32,861CPU including the single3,600 preparation allowance, with zero outstanding reservation. All120 CPU cells are complete. Scientific utility and final192-cell reporting are not yet accepted. No scientific rerun occurred.
+
+The named full-map metadata reader correction is independently closed with zero required findings, review `18c3ef244ece5fb5d8ec55a326c15a248bb410fddd59aa4524a460755c1b6604`. Only eight explicitly named full-map metadata roles and storage receipt/seal/after use128MiB, ordinary metadata stays32MiB. Four new reader fixtures passed once. Sources, tests, predecessors and review are preserved under `downstream-fullmap128-01` and `downstream-fullmap128-independent-review01`. Scientific source, backend4161, job resources, deadlines, selectors and original journals are unchanged. This allows the observed33,829,045-byte complete backup receipt without relaxing byte authentication. Actual GPU packet construction is next, followed by concrete independent review and once-only admission. The three LLM policies cover72 remaining cells; no GPU comparison job has yet been submitted.
+
+
 
 The actual CPU saved-evidence audit now passes all nine checks. Core report `1033553c6c670872d4b743d96d3bed112c7a59275e0ca85daab596730ecde595` and supplement `d97a5c8b61e0627a852f84fefd79595aa0c6c6316fe70b9c0ce23e7f91a06db9` confirm120 cells,3840 charged response-cost units,3633 returned responses,960 shared-initial units and2673 numerical decision processes. The prescribed numerical ranker completed160 SFT and119 DPO updates. Saved runtime and24-world bundle/source-plan predicates also pass. No models were reloaded, scientific responses generated or private utility outcomes evaluated by these audits. Independent actual execution acceptance remains in progress before any GPU packet build.
 

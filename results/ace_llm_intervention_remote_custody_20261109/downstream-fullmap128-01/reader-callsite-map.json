@@ -1,0 +1,241 @@
+{
+  "call_sites": {
+    "cli/assemble_gpu_cli.py": [
+      {
+        "call": "capture(Path(__file__).resolve().with_name('known-inputs.json'), KNOWN_SHA256, MIB)",
+        "line": 85
+      },
+      {
+        "call": "capture(entry['path'], entry['sha256'], metadata_maximum(name))",
+        "line": 91
+      },
+      {
+        "call": "capture(entry['path'], entry['sha256'], metadata_maximum(name))",
+        "line": 96
+      },
+      {
+        "call": "capture(entry['path'], entry['sha256'])",
+        "line": 137
+      },
+      {
+        "call": "capture(entry['path'], entry['sha256'], 128 * MIB if name in ('receipt', 'seal', 'after') else 32 * MIB)",
+        "line": 144
+      },
+      {
+        "call": "capture(builder_dir / name, expected, MIB)",
+        "line": 155
+      }
+    ],
+    "finalizer/build_packet.py": [
+      {
+        "call": "c.stored_config(local, pins)",
+        "line": 858
+      },
+      {
+        "call": "f.read(maximum + 1)",
+        "line": 118
+      },
+      {
+        "call": "gate.capture('launch/inputs/' + n, h, 256 * 1024 ** 2)",
+        "line": 712
+      },
+      {
+        "call": "compact_adapter().capture_config(args.storage_config, args.storage_config_sha256)",
+        "line": 877
+      },
+      {
+        "call": "read(getattr(args, n.replace('-', '_')), getattr(args, n.replace('-', '_') + '_sha256'), metadata_maximum(n))",
+        "line": 873
+      },
+      {
+        "call": "read(LOCAL / n, maximum=256 * 1024 ** 2)",
+        "line": 916
+      },
+      {
+        "call": "read(EXT / n, maximum=256 * 1024 ** 2)",
+        "line": 916
+      }
+    ],
+    "finalizer/compact_inputs.py": [
+      {
+        "call": "stream.read(maximum + 1)",
+        "line": 85
+      },
+      {
+        "call": "self.read(name, expected_sha256, maximum)",
+        "line": 283
+      },
+      {
+        "call": "read_exact(p, {'sha256': entry['sha256'], 'bytes': p.stat().st_size}, maximum)",
+        "line": 304
+      },
+      {
+        "call": "read_exact(p, {'sha256': pins[name], 'bytes': p.stat().st_size}, maximum)",
+        "line": 313
+      },
+      {
+        "call": "read_exact(self.local_roots[0] / name, info, maximum)",
+        "line": 257
+      },
+      {
+        "call": "read_exact(destination, info, maximum)",
+        "line": 272
+      },
+      {
+        "call": "read_exact(root / name, info, maximum)",
+        "line": 259
+      }
+    ],
+    "finalizer/launch_once.py": [
+      {
+        "call": "b.read(local / b.metadata_name(name), pins[b.metadata_name(name)], b.metadata_maximum(name))",
+        "line": 47
+      },
+      {
+        "call": "b.read(b.LOCAL / name, h, 256 * 1024 ** 2)",
+        "line": 56
+      },
+      {
+        "call": "b.read(b.EXT / name, h, 256 * 1024 ** 2)",
+        "line": 57
+      },
+      {
+        "call": "b.read(local / 'inputs' / name, stage['files'][name], 256 * 1024 ** 2)",
+        "line": 78
+      },
+      {
+        "call": "b.read(b.LOCAL / name, h, 256 * 1024 ** 2)",
+        "line": 114
+      },
+      {
+        "call": "b.read(b.EXT / name, h, 256 * 1024 ** 2)",
+        "line": 114
+      }
+    ],
+    "finalizer/pull_terminal.py": [
+      {
+        "call": "read_metadata(LAUNCH / b.metadata_name(n), pins[b.metadata_name(n)], b.metadata_maximum(n))",
+        "line": 269
+      }
+    ],
+    "gpu/build_packet.py": [
+      {
+        "call": "c.stored_config(local, pins)",
+        "line": 611
+      },
+      {
+        "call": "f.read(maximum + 1)",
+        "line": 121
+      },
+      {
+        "call": "gate.capture('launch/inputs/' + n, h, 256 * 1024 ** 2)",
+        "line": 456
+      },
+      {
+        "call": "compact_adapter().capture_config(args.storage_config, args.storage_config_sha256)",
+        "line": 631
+      },
+      {
+        "call": "read(getattr(args, n.replace('-', '_')), getattr(args, n.replace('-', '_') + '_sha256'), metadata_maximum(n))",
+        "line": 626
+      },
+      {
+        "call": "read(LOCAL / n, maximum=256 * 1024 ** 2)",
+        "line": 686
+      },
+      {
+        "call": "read(EXT / n, maximum=256 * 1024 ** 2)",
+        "line": 686
+      }
+    ],
+    "gpu/compact_inputs.py": [
+      {
+        "call": "stream.read(maximum + 1)",
+        "line": 85
+      },
+      {
+        "call": "self.read(name, expected_sha256, maximum)",
+        "line": 283
+      },
+      {
+        "call": "read_exact(p, {'sha256': entry['sha256'], 'bytes': p.stat().st_size}, maximum)",
+        "line": 304
+      },
+      {
+        "call": "read_exact(p, {'sha256': pins[name], 'bytes': p.stat().st_size}, maximum)",
+        "line": 313
+      },
+      {
+        "call": "read_exact(self.local_roots[0] / name, info, maximum)",
+        "line": 257
+      },
+      {
+        "call": "read_exact(destination, info, maximum)",
+        "line": 272
+      },
+      {
+        "call": "read_exact(root / name, info, maximum)",
+        "line": 259
+      }
+    ],
+    "gpu/launch_once.py": [
+      {
+        "call": "b.read(local / b.metadata_name(name), pins[b.metadata_name(name)], b.metadata_maximum(name))",
+        "line": 47
+      },
+      {
+        "call": "b.read(b.LOCAL / name, h, 256 * 1024 ** 2)",
+        "line": 56
+      },
+      {
+        "call": "b.read(b.EXT / name, h, 256 * 1024 ** 2)",
+        "line": 57
+      },
+      {
+        "call": "b.read(local / 'inputs' / name, stage['files'][name], 256 * 1024 ** 2)",
+        "line": 79
+      },
+      {
+        "call": "b.read(b.LOCAL / name, h, 256 * 1024 ** 2)",
+        "line": 112
+      },
+      {
+        "call": "b.read(b.EXT / name, h, 256 * 1024 ** 2)",
+        "line": 112
+      }
+    ],
+    "gpu/pull_terminal.py": [
+      {
+        "call": "read_metadata(LAUNCH / n, h, packet_member_maximum(n))",
+        "line": 399
+      },
+      {
+        "call": "read_metadata(LAUNCH / b.metadata_name(n), pins[b.metadata_name(n)], b.metadata_maximum(n))",
+        "line": 414
+      },
+      {
+        "call": "read_metadata(LAUNCH_EXT / n, h, packet_member_maximum(n))",
+        "line": 402
+      }
+    ]
+  },
+  "frozen_child_reader_observations": [
+    {
+      "executed": false,
+      "modified": false,
+      "path": "/Users/pat/code/ACE/scripts/research/qualify_llm_intervention_scientific_campaign_gpu.py",
+      "read_function_line": 93,
+      "reader_default": "256 * 1024 ** 2",
+      "sha256": "2694093512f8ce144bce7f33d6e2306bc251011b26567642c32006a7902e7db1"
+    },
+    {
+      "executed": false,
+      "modified": false,
+      "path": "/Users/pat/code/ACE/scripts/research/finalize_llm_intervention_scientific_campaign_cpu.py",
+      "read_function_line": 82,
+      "reader_default": "256 * 1024 ** 2",
+      "sha256": "28c5fc6b426cac70cf4bae4895350c560cd43080937a32e41d936f072005b45a"
+    }
+  ],
+  "scope": "named outer readers only; no frozen source or backend/batch change"
+}

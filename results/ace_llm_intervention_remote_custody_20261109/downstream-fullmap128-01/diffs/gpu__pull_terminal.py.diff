@@ -1,0 +1,46 @@
+--- predecessor/gpu/pull_terminal.py
++++ successor/gpu/pull_terminal.py
+@@ -41,7 +41,7 @@
+ OLD_REMOTE_NAMESPACE=str(Path(ROOT).parent/'.ace-scientific-screen-20261107.namespace.json')
+ OLD_CLAIM_SHA='58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29'
+ HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+-BUILDER_SHA='e41b787fe0ede1191408b0941e7f9d806b9d4d38fcd0cf5718aebc2bfa16f8e1'
++BUILDER_SHA='44606908e80df1480bb80c465630a9ea96086ede67a40798f1e03827f0f808d5'
+ POLICIES=('frozen_llm','sft_llm','dpo_llm')
+ UPSTREAM_ROOTS=dict(cpu=CPU_ROOT,training=TRAIN_ROOT,token=TOKEN_ROOT,common=COMMON_ROOT,failed01=FAILED_ROOT)
+ UPSTREAM_ROOTS['failed-token01']=FAILED_TOKEN_ROOT
+@@ -81,6 +81,12 @@
+     identity=lambda s:(s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns,s.st_nlink)
+     need(identity(before)==identity(after)==identity(path.lstat()),'file changed during inventory')
+     return dict(bytes=after.st_size,sha256=digest.hexdigest())
++
++
++FULL_MAP_PACKET_MEMBERS = frozenset(('cpu-inventory.json', 'cpu-disposition.json', 'cpu-acceptance.json', 'gpu-inventory.json', 'gpu-inventory-after.json', 'gpu-custody-inventory.json', 'gpu-disposition.json', 'gpu-acceptance.json', 'storage-receipt.json', 'storage-seal.json', 'storage-after.json', 'inputs/cpu-acceptance.json', 'inputs/gpu-acceptance.json'))
++
++def packet_member_maximum(name):
++    return 128*1024**2 if name in FULL_MAP_PACKET_MEMBERS else 32*1024**2
+ 
+ 
+ def read_metadata(path,expected=None,maximum=32*1024**2):
+@@ -390,10 +396,10 @@
+          'safe complete input pin roster required')
+     # Verify immutable local packet/Git bytes without loading any project/author callable.
+     for n,h in pins.items():
+-        data=read_metadata(LAUNCH/n,h,128*1024**2 if n=='storage-seal.json' else 32*1024**2)
++        data=read_metadata(LAUNCH/n,h,packet_member_maximum(n))
+         git=subprocess.run(['git','--no-replace-objects','show',a.packet_commit+':'+str((LAUNCH/n).relative_to(REPO))],
+                            cwd=REPO,capture_output=True,timeout=20)
+-        need(git.returncode==0 and git.stdout==data==read_metadata(LAUNCH_EXT/n,h,128*1024**2 if n=='storage-seal.json' else 32*1024**2),'committed packet mirrors differ')
++        need(git.returncode==0 and git.stdout==data==read_metadata(LAUNCH_EXT/n,h,packet_member_maximum(n)),'committed packet mirrors differ')
+     review=Path(a.packet_review).absolute();review_raw=read_metadata(review,a.packet_review_sha256)
+     git=subprocess.run(['git','--no-replace-objects','show',a.packet_commit+':'+str(review.relative_to(REPO))],
+                        cwd=REPO,capture_output=True,timeout=20)
+@@ -405,7 +411,7 @@
+     need(pins['build_packet.py']==BUILDER_SHA,'reviewed corrected campaign coordinator required')
+     b=types.ModuleType('captured_campaign_metadata');b.__file__=str(LAUNCH/'build_packet.py')
+     exec(compile(builder_raw,b.__file__,'exec'),vars(b))
+-    supplied={n:read_metadata(LAUNCH/b.metadata_name(n),pins[b.metadata_name(n)]) for n in b.METADATA}
++    supplied={n:read_metadata(LAUNCH/b.metadata_name(n),pins[b.metadata_name(n)],b.metadata_maximum(n)) for n in b.METADATA}
+     need(pins['cpu_history_contract.py']==b.CPU_HISTORY_SHA,'captured CPU history sidecar differs')
+     ctx=b.authenticate(supplied)  # Pure original metadata; no builder main, science or source/model import.
+     need(packet['token_recovery']==intent['token_recovery']==ctx['token_recovery']

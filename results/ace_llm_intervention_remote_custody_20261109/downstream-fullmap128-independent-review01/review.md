@@ -1,0 +1,13 @@
+# Independent named full-map reader delta review — 2026-11-09
+
+**0 required findings.** Static review of the 13 captured GPU/finalizer/CLI files in the named fullmap128 preparation, relative only to its preserved predecessor. This does not accept a future packet, CPU result, GPU execution or scientific utility.
+
+The eight explicit CPU/GPU inventory, disposition and acceptance roles use 128 MiB at builder admission and launcher/collector rereads. The storage receipt/seal/after roles use 128 MiB at capture and stored-config reread; the GPU collector's pre-import Git/mirror loop names those exact packet members and the two acceptance input paths. No suffix-based or content-based widening is introduced. Unlisted metadata remains 32 MiB, config admission 128 KiB, and existing opaque fetch/mirror reads 256 MiB. Finalizer initial admission is narrowed from its former broad 256 MiB allowance to the explicit role map.
+
+I traced these limits through GPU/finalizer build, once-launch, terminal collection and CLI assembly, including the collector's lateral packet/Git comparisons. Existing byte-length, SHA-256, no-link/identity, complete membership, independent-copy and committed-byte checks remain intact. Both compact-adapter pins, GPU collector builder pin, CLI known-map pin and all known builder source pins match actual captured bytes. All 49 known metadata entries remain identical. All 13 executed-test source snapshots match the reviewed implementations, and every supplied diff exactly matches its predecessor/successor bytes.
+
+The published size observation matches the captured observation byte-for-byte (SHA fb2639459d59d2095af772859d2b831cb28c579b5d87d075567812a502abe590). It records receipt size 33,829,045 bytes / SHA f0f8a52c7f823b5a07041faf531382afa4d7c0364452413bbb17bd916dfc38e6. I read only that published metadata, not the active terminal capsule.
+
+The delta contains no frozen child, scientific source, resource/deadline, policy/selection, attempt/history gate, backend or batch-helper changes. Unchanged monitors/history sidecar are hash-identical. Tests inspected, not rerun: four new retained methods passed once (1.002760 child CPU seconds, 1.013433208 elapsed). They cover the actual size class, exact 128 MiB / +1 boundary, ordinary-role rejection, hash mismatch, storage capture/reread, collector comprehensions and internal pins. Their scope is reader-level artificial evidence, not runtime qualification.
+
+No source import, coordinator execution, test execution, lock, remote action, model/private-data access or authoring edit occurred. Exact before/after/test-snapshot and evidence hashes are in source-pins.json; reviewed-source contains independent byte copies. GPU audit source is untouched and outside this review.
