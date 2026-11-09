@@ -1,0 +1,124 @@
+{
+  "audit_evidence_pins": {
+    "custody01.json": "0f49bae1d27f984eaf35cef261dbb12346e7c878b39b707808540385784202b5",
+    "history06.json": "50679861cba7226767879749980103a9d77f999fe7389aa5fcf710533e06f88d",
+    "lifecycle04.json": "35e19468fbf89c64452967ebde106516e00e08b67bfcafc88451142e75024481",
+    "saved-validation-completed-before-driver-error.json": "b48289bfb2aa4248b5045cd61cdcc2b2e26fa17e8e0db1865bd9949e88a238c4",
+    "source01.json": "3ab0160a02546beb511ba51ad8b1dc2c61343cb881f21692ee62f1329c5b34dc"
+  },
+  "audit_models_loaded": false,
+  "audit_review_sha256": "ce17146f36cc47749721228ec1c449d1d08d9420a146a4281172d5d6050c8f7e",
+  "audit_tensors_deserialized": false,
+  "checkpoint_reload_inference_qualified": true,
+  "collection_acceptance_sha256": "e217199099b81480f0e85c09f0432b60dd5edb2aad1b6b30c8ed86ca736e34e5",
+  "complete_custody_verified": true,
+  "completed_steps": 279,
+  "cpu_preparation_acceptance_sha256": "f6fcac291d2f4031788db62c71cc7d87e26cc4fe427622aab7a8f6dcd3c8fb1e",
+  "custody_inventory_sha256": "4ad14f3985e31c9d3b7bb087055f7477d4db3da47aafaa2f71747c947248f616",
+  "disposition_sha256": "6342a1cb847ddc6c043792d0898de1864ca46f2cde2c235488afc857acaf65ac",
+  "dpo_steps": 119,
+  "engine_terminal_sha256": "6fa3bcf700cc7d29d7a361a3770980b055a30dc09c6dfeb8a922e630d41f6757",
+  "environment_responses": 0,
+  "exposure_sha256": "dc1b774c5cbaff8912ad826e4453a5b11952fda6b10ee0d7d3317a2baa2eb11f",
+  "final_adapter_sha256": "6f540dfef636391e9b2f3861265f3a72ed881a1c5e31604497b4409444f5d623",
+  "final_checkpoint_sha256": "edc1666387ba91052a364a9ebc72671d032d6e0aae8879564d1d3e8a8ce108e3",
+  "gpu_utilization_percentage": null,
+  "independent_actual_findings": {
+    "checkpoint_reload_inference_qualified": {
+      "evidence_pins": {
+        "launch/training/session/worker/artifacts/fit/final-reload-scores.json": "a5b3e66667db048ec7c13ab07c41e9fb0fd3bd12ea253b7e14ab6358524a4ed7",
+        "launch/training/session/worker/artifacts/fit/final-reload.json": "cc590c554d2912333d9f4952210f2dc41ba25b9f513413ec20564de695d41295",
+        "launch/training/session/worker/artifacts/fit/sft-reload-scores.json": "ead2173d73d5a564db817c97ac5ea7043f74e275d624353e52340aed4096513d",
+        "launch/training/session/worker/artifacts/fit/sft-reload.json": "899bc7b08d98bf82fbac9df0522643f1e02c84ef8e54fb8eba4529bcebd0ada7",
+        "launch/training/session/worker/artifacts/fit/summary.json": "05a4a3e2e0c85f83927c53be223b36757f930be90595992185de80c20e1d872e"
+      },
+      "passed": true,
+      "rationale": "Prescribed SFT160 and final279 role aliases and opaque bytes independently hashed; fresh base reloads, all119referencepair replays and1184final legal-command scores exact.322saved legal generations including two first-record repeats, unchanged inference signatures and zero added updates/environment responses. No checkpoint selected by outcome."
+    },
+    "complete_custody_verified": {
+      "evidence_pins": {
+        "launch/packet.json": "33fa6064bd224a64736bf466623bd3ae9399c81022dac6023c689515764a9ec0",
+        "launch/submission.intent.json": "2ee204a5bb644bacef1d033fc2fcd7df5b9728dcffa2af03308824c275f1e03f",
+        "launch/submission.result.json": "916ae493932ec509b96929ca8da06e1cde0757e0b383baf6b5252d76aa17ef32",
+        "namespace.json": "40c0937c623d9473a413347125d3bc35648955132c4cf2394f055d4b228fed6a",
+        "original-namespace.json": "58033e812390731ad08c83b7236e6e47893de3a3488cf4602d5c42809a51fa29"
+      },
+      "passed": true,
+      "rationale": "Independently streamed every file hash in both original complete sealed capsules, each131227members excluding its seal; exact36623rawfiles538401564bytes, directory rosters and both original remote inventories. Full prior failed/successful TOKEN and collection roots and capsules, original claims, all45jobs92journals retained. Original archive pin and565248000bytes verified."
+    },
+    "owned_process_cleanup_verified": {
+      "evidence_pins": {
+        "launch/training/cleanup.json": "69f66251663f1afdff9c56b35a31bbb5142dc1b8897a91ea879e639b5f55040e",
+        "launch/training/post-exit-gpu.json": "b8a109fd5d7a50197bc86e2b086b947b8aeff1b03b8296cfdeb5c2a558812afd",
+        "launch/training/session/worker/artifacts/terminal.json": "b92f1fcac8e0d4b928f7b055cc0b35150db0fa210bed5f6d44ed38a851f67a23",
+        "launch/training/terminal.json": "b6f05cf36e7924019de4a2c3bb2c0da414558b40badb2f3ebe5150e17fe1d4bb"
+      },
+      "passed": true,
+      "rationale": "Natural leader exit0 and owned group absent, TERM/KILL false, errors empty, parent/worker terminals consistent before absolute hard deadline; post-exit owned GPU rows empty. This qualifies process cleanup only, not node-local runtime-directory deletion."
+    },
+    "runtime_qualified": {
+      "evidence_pins": {
+        "launch/training/independent-provenance-sources.json": "e41ab18d31918b27330d89dd0dac6facb996e68eada2f7896aeb0a2244ed01c1",
+        "launch/training/session/worker/artifacts/authenticated.json": "85d311cb65261832af542405dfb7765c308e16b2696ef6a47f2817f8a4fc12f0",
+        "launch/training/session/worker/artifacts/runtime-after-model-load.json": "ade9edec1de86e56fac3f04f933741abbd56daedc848bf656a53909a2788ad6d",
+        "launch/training/session/worker/artifacts/runtime-after-requests.json": "9380f9754c0c735116749773d925c3db39574e875ed472b91b011c64c0967c9b",
+        "launch/training/session/worker/artifacts/runtime-after-service-imports.json": "20736e144a2eda6f237844c1f6ed130c8ed0fabf07e307f408ed9592af13c9ee",
+        "launch/training/session/worker/artifacts/runtime-stage-binding.json": "eca3d912000053e02765e81dd7033325730d6838ba8468dec7f3275e860ba794",
+        "launch/training/stage.json": "61f1264677f35c25fac5c907093996dd603cab38e4712bdd862f9bb40ed16414"
+      },
+      "passed": true,
+      "rationale": "All67frozen Git source hashes and actual committed child inputs independently matched. Exact runtime stage/archive/manifest, provenance, cache reconciliation, imported versions, captured project closure and native-map policy independently passed the original saved CPU/runtime validator for after-model-load and after-requests. No ambient model/runtime import was used in this audit."
+    },
+    "scheduler_verified": {
+      "evidence_pins": {
+        "launch/job.sbatch": "b27f5cb512e026e149e4232000ae369c3e7194aa6357ce40ca563ee1b988b1c3",
+        "launch/submission.intent.json": "2ee204a5bb644bacef1d033fc2fcd7df5b9728dcffa2af03308824c275f1e03f",
+        "launch/submission.result.json": "916ae493932ec509b96929ca8da06e1cde0757e0b383baf6b5252d76aa17ef32",
+        "launch/training/allocation.json": "ab25bacf2f7e3426ecf2e4614dc6ad7dfffbe7a66182cf8768dacf6d4d757a9e",
+        "launch/training/scheduler_raw.json": "141bf49b39c06245c32bfd96c50cd0c9a452eb984070cb816564c55f5562655f"
+      },
+      "passed": true,
+      "rationale": "Original before-child scontrol allocation independently reconstructed and joined to terminal scontrol/sacct: job35420219 COMPLETED0:0,ucb736_asc2/aa100/gpu-testing,4CPU15360MiB onea100_3g.20gb,2700sec cap,no-requeue/restarts.904actualseconds charges3616CPU904GPU once; prior44rows90journals unchanged."
+    },
+    "training_gpu_qualified": {
+      "evidence_pins": {
+        "launch/training/first-verified-gpu-work.json": "d173f873ed9010f31abd6ed9cbdcff170fa9635f198e02c078703d93eabc2a00",
+        "launch/training/gpu-sample-0020.json": "1502443549b1bb3abc112574bac9bc983e205461c3c9263e82ab3d81b55d3d3c",
+        "launch/training/session/worker/artifacts/first-gpu-work.json": "5a37e070abb40d2d8fc92461388f33c9e58eafb5ee00fc85d03251a41a2d8a00",
+        "launch/training/session/worker/artifacts/fit/training/plan.json": "6806137714f55c8073c1f598d1042d65d33d9365d476234e4085d05fbee9e4c5",
+        "launch/training/session/worker/artifacts/fit/training/terminal.json": "6fa3bcf700cc7d29d7a361a3770980b055a30dc09c6dfeb8a922e630d41f6757"
+      },
+      "passed": true,
+      "rationale": "Independently revalidated frozen stdlib saved-worker contract: exact160SFT+119DPO, all279seven-part update receipts,112adapter matrices,11144recompute calls, base/projection unchanged, fixed reference238forwards. First CUDA forward and actual step intervals paired with owned PID memory before240s; continuing progress/memory gaps within frozen bounds."
+    }
+  },
+  "inventory_after_transport_sha256": "e3f53efdbea2767e559c9946663309ba171155837a318fd1d2092d49fe647ac1",
+  "inventory_transport_sha256": "0e4fc693b224be3e6d91f63a824f830e3d315a794e4331b64fa8a162acbc8db3",
+  "job_id": "35420219",
+  "model_files_sha256": "052d8c0b8c31f61d79bcbbcca49c85414118746986773d57fb6a56f58e5a0c09",
+  "next_cpu_campaign_readiness_qualified": false,
+  "owned_process_cleanup_verified": true,
+  "parent_terminal_sha256": "b6f05cf36e7924019de4a2c3bb2c0da414558b40badb2f3ebe5150e17fe1d4bb",
+  "prepared_sha256": "edd8ffc6ccbbf487d30251b11944ae941273e1392e0a5cc547f52b0d7dfc3962",
+  "required_findings": 0,
+  "runtime_contract_sha256": "c98d899dee80663675b67c33c59fa29fb80bee5f827c86c7652e9c8895085a6b",
+  "runtime_directory_deletion_verified": false,
+  "runtime_qualified": true,
+  "scheduler_verified": true,
+  "schema": "ace-scientific-training-gpu-acceptance-v1",
+  "scientific_freeze_sha256": "15602614ef9d7e9a3e21027e7495f891c98ba32a2b6b0ee9857e5b71d5e5e66d",
+  "scientific_utility_qualified": false,
+  "scope": "policy_train",
+  "sft_adapter_sha256": "583b1659313348a4baa95ce28b46ebd419a2290fbe0fe075d20f4d5183c73611",
+  "sft_checkpoint_sha256": "dfb2eef3f88f03bf42199a228bfa74437a6f085f7af64245f90879072b8b3cef",
+  "sft_steps": 160,
+  "source_commit": "a9346022f145cc29439325b6f291597b2e6ec037",
+  "status": "scientific_training_gpu_accepted",
+  "storage_admission_qualified": false,
+  "submission_result_sha256": "916ae493932ec509b96929ca8da06e1cde0757e0b383baf6b5252d76aa17ef32",
+  "training_gpu_qualified": true,
+  "training_inner_packet_sha256": "b12fd2d7c0879618b48232cdd46bada5a3c1c16a9773680d3769a24a99e7aaf0",
+  "training_packet_sha256": "33fa6064bd224a64736bf466623bd3ae9399c81022dac6023c689515764a9ec0",
+  "training_plan_sha256": "d64c98463b8ae188c1dcea48496f4339affd10dbb8529ba587df408ef9c8c457",
+  "worker_terminal_sha256": "b92f1fcac8e0d4b928f7b055cc0b35150db0fa210bed5f6d44ed38a851f67a23"
+}

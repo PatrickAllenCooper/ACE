@@ -1,0 +1,1 @@
+Affected method failed before receiver feed: fixture precreated destination with default0755, backend correctly requires0700. Corrected only this fixture mkdir. Extension unchanged. Full original artifacts retained. Attempt03 reruns only this method.

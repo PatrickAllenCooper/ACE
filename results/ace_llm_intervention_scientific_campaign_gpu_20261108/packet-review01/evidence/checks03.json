@@ -1,0 +1,143 @@
+{
+  "checks": [
+    {
+      "check": "verify-000 complete archive readback equals accepted full map",
+      "passed": true
+    },
+    {
+      "check": "verify-000 isolated pinned source and successful unambiguous transport",
+      "passed": true
+    },
+    {
+      "check": "verify-001 complete archive readback equals accepted full map",
+      "passed": true
+    },
+    {
+      "check": "verify-001 isolated pinned source and successful unambiguous transport",
+      "passed": true
+    },
+    {
+      "check": "verify-002 complete archive readback equals accepted full map",
+      "passed": true
+    },
+    {
+      "check": "verify-002 isolated pinned source and successful unambiguous transport",
+      "passed": true
+    },
+    {
+      "check": "fetch-log-028 opaque requested member authenticated without decode",
+      "passed": true
+    },
+    {
+      "check": "fetch-log-091 opaque requested member authenticated without decode",
+      "passed": true
+    },
+    {
+      "check": "all56 explicit metadata argument pins match captured packet roles",
+      "passed": true
+    },
+    {
+      "check": "saved readiness commands completed and scratch probe succeeded",
+      "passed": true
+    },
+    {
+      "check": "saved readiness exact46 accepted rows retained",
+      "passed": true
+    },
+    {
+      "check": "exact sbatch isolated runtime source pin and argument joins",
+      "passed": true
+    },
+    {
+      "check": "exact sbatch resources and no requeue",
+      "passed": true
+    },
+    {
+      "check": "captured GPU coordinators in independently reviewed pin map",
+      "passed": false
+    },
+    {
+      "check": "no submission or build failure records present at review",
+      "passed": true
+    }
+  ],
+  "facts": {
+    "fetch-log-028": {
+      "bytes": 4622303,
+      "member": "launch/inputs/final.adapter.pt",
+      "sha256": "6f540dfef636391e9b2f3861265f3a72ed881a1c5e31604497b4409444f5d623",
+      "verified": true
+    },
+    "fetch-log-091": {
+      "bytes": 4622303,
+      "member": "launch/inputs/sft.adapter.pt",
+      "sha256": "583b1659313348a4baa95ce28b46ebd419a2290fbe0fe075d20f4d5183c73611",
+      "verified": true
+    },
+    "prior_source_pin_keys": [
+      "cli/assemble_gpu_cli.py",
+      "cli/known-inputs.json",
+      "finalizer/build_packet.py",
+      "finalizer/compact_inputs.py",
+      "finalizer/launch_once.py",
+      "finalizer/monitor_once.py",
+      "finalizer/pull_terminal.py",
+      "gpu/build_packet.py",
+      "gpu/compact_inputs.py",
+      "gpu/cpu_history_contract.py",
+      "gpu/launch_once.py",
+      "gpu/monitor_once.py",
+      "gpu/pull_terminal.py"
+    ],
+    "readiness_command_names": [
+      "accounting",
+      "association",
+      "df",
+      "gpu_nodes",
+      "gpu_partition",
+      "hostname",
+      "queue",
+      "quota"
+    ],
+    "readiness_small_outputs": {
+      "association": "paco0228|ucb736_asc2||compile,cpu-long,cpu-normal,cpu-testing,dtn,gpu-long,gpu-normal,gpu-testing,interactive,mem-long,mem-normal||\n",
+      "df": "Filesystem                                            1024-blocks          Used    Available Capacity Mounted on\nisilon1-data.rc.int.colorado.edu:/ifs/curc/projects     262144000     181271552     80872448      70% /projects\nc3nsd1.rc.int.colorado.edu:/gpfs/alpine1/scratch    2996053082112 2347225137152 648827944960      79% /scratch/alpine\n",
+      "gpu_nodes": "aa100|up|7-00:00:00|gpu:a100-40gb:3\naa100|up|7-00:00:00|gpu:a100_3g.20gb:6\naa100|up|7-00:00:00|gpu:a100_80gb:3(S:0-1)\n",
+      "gpu_partition": "PartitionName=aa100 AllowGroups=ALL AllowAccounts=ALL AllowQos=admin,gpu-normal,gpu-long,gpu-testing AllocNodes=ALL Default=NO QoS=N/A DefaultTime=01:00:00 DisableRootJobs=NO ExclusiveUser=NO ExclusiveTopo=NO GraceTime=120 Hidden=NO MaxNodes=1 MaxTime=7-00:00:00 MinNodes=0 LLN=NO MaxCPUsPerNode=UNLIMITED MaxCPUsPerSocket=UNLIMITED NodeSets=a100Nodes Nodes=c3gpu-a9-u29-1,c3gpu-a9-u31-1,c3gpu-a9-u33-1,c3gpu-a9-u35-1,c3gpu-c2-u[1,3,5,7,9,11,13,15] PriorityJobFactor=1 PriorityTier=1 RootOnly=NO ReqResv=NO OverSubscribe=NO OverTimeLimit=NONE PreemptMode=REQUEUE State=UP TotalCPUs=768 TotalNodes=12 SelectTypeParameters=NONE JobDefaults=(null) DefMemPerCPU=3840 MaxMemPerCPU=3840 TRES=cpu=768,mem=2880G,node=12,billing=4938,gres/gpu:a100-40gb=21,gres/gpu:a100_3g.20gb=6,gres/gpu:a100_80gb=12 TRESBillingWeights=CPU=0.5,Mem=0.133G,GRES/gpu:a100-40gb=108.6,GRES/gpu:a100_80gb=130.396,GRES/gpu:a100_3g.20gb=54.3 ResumeTimeout=GLOBAL SuspendTimeout=GLOBAL SuspendTime=GLOBAL PowerDownOnIdle=NO\n",
+      "hostname": "login-ci5\n",
+      "queue": "35342330_[0%1]|ecp1-continuation2-metadata|PENDING|(AssocMaxJobsLimit)|ucb736_asc1\n35342322|ecp1-continuation2-frontier|PENDING|(JobHeldUser)|ucb736_asc1\n35342318|ecp1-continuation2-close|PENDING|(JobHeldUser)|ucb736_asc1\n35342317_[12-863%2]|ecp1-continuation2|PENDING|(JobHeldUser)|ucb736_asc1\n35492617|kv-q3-crosswoz-full-cache-q0|RUNNING|c3gpu-a9-u19-1|ucb736_asc2\n",
+      "quota": "------------------------------------------------------------------------\n                                       Used         Avail    Quota Limit\n------------------------------------------------------------------------\n/home/paco0228                         354M          1.7G           2.0G\n/projects/paco0228                     173G           78G           250G\n/scratch/alpine1                      3291G         6246G          9537G\n\n"
+    },
+    "readiness_utc": "2026-11-09T21:12:56.663217+00:00",
+    "verify-000": {
+      "elapsed_seconds": 55.42273675,
+      "full_directories": 3534,
+      "full_files": 72374,
+      "receipt_sha256": "9603d43c163de4e7b5eae306c90ab13144a23e4c73c8ad732b567b9340adbcc4",
+      "transport_sha256": "0e30a29beb040f79ab2b4a1b7f4050b3d4ad1576df1002677b6a0bc20339011a"
+    },
+    "verify-001": {
+      "elapsed_seconds": 22.63900133300001,
+      "full_directories": 3534,
+      "full_files": 72374,
+      "receipt_sha256": "9603d43c163de4e7b5eae306c90ab13144a23e4c73c8ad732b567b9340adbcc4",
+      "transport_sha256": "3de590d6dca76629daf0532084e802663c303bbc17ea6a163e7c24fcba086552"
+    },
+    "verify-002": {
+      "elapsed_seconds": 23.17125645799996,
+      "full_directories": 3534,
+      "full_files": 72374,
+      "receipt_sha256": "9603d43c163de4e7b5eae306c90ab13144a23e4c73c8ad732b567b9340adbcc4",
+      "transport_sha256": "12c377f50c9100d001512485ce1cbbb8a76c41bf6fdad25ef54e2f5363eab9a1"
+    }
+  },
+  "failed_checks": [
+    {
+      "check": "captured GPU coordinators in independently reviewed pin map",
+      "passed": false
+    }
+  ],
+  "metadata_only": true,
+  "remote_actions": 0,
+  "scientific_execution": false
+}

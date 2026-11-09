@@ -1,0 +1,112 @@
+--- attempt01/source/audit_saved_gpu72.py
++++ audit_saved_gpu72.py
+@@ -172,6 +172,7 @@
+   for role,member in [('disposition','disposition.json'),('before','inventory_before_transport.json'),('after','inventory_after_transport.json'),('remote_custody','remote-custody.json')]:
+    need(views[0]['files'].get(member,{}).get('sha256')==self.c['artifacts'][role]['sha256'],'original sealed metadata role/pin differs')
+   d=self.d
++  self.facts['retained_collector_findings']=dict(errors=d.get('errors'),failure_marker_metadata=d.get('failure_marker_metadata'),input_pin_mismatches=d.get('input_pin_mismatches'))
+   need(d['schema']=='ace-scientific-campaign-gpu-terminal-custody-v1' and d['job_id']==self.c['job_id']
+        and d['errors']==d['input_pin_mismatches']==[] and d['failure_marker_metadata']=={}
+        and d['custody_bytes_verified'] is d['current_lineage_verified'] is d['upstream_inputs_verified'] is True
+@@ -191,11 +192,15 @@
+   closure=freeze['stage_closure']['stages']['GPUcampaign']
+   need(p['source_names']==closure['source_names'],'exact frozen stage source closure differs')
+   for name in p['source_names']:
+-   need(p['files'][name]==freeze['source_pins']['scripts/research/'+name],'captured source/freeze differs')
++   origins=[h for n,h in freeze['source_pins'].items() if PurePosixPath(n).name==name]
++   need(len(origins)==1 and origins[0]==p['files'][name]==closure['input_source_files'][name],'captured source/freeze basename/closure differs')
+    if name in self.oracle_pins:need(p['files'][name]==self.oracle_pins[name],'original source oracle differs')
+   for n,h in p['files'].items():self.h('launch/inputs/'+aid.name(n),h)
+   need(self.subtree('launch/inputs/')==dict(p['files'],**{'packet.json':self.packet_pin,'admission.json':self.c['artifacts']['admission']['sha256']}),'complete GPU inputs membership differs')
+   for n,h in self.outer['new_input_files'].items():self.h('launch/'+aid.name(n),h)
++  root=supp.constant(builder,'ROOT');cpu_root=supp.constant(builder,'CPU_ROOT')
++  need(p['paths']==dict(cpu_inputs=cpu_root+'/inputs',cpu_output=cpu_root+'/cpu',campaign=cpu_root+'/cpu/worker/artifacts/campaign',gpu_inputs=root+'/inputs',gpu_output=root+'/gpu')
++       and self.d['remote_root']==root and self.d['output_root']==root+'/gpu' and self.cpu['campaign_root']==p['paths']['campaign'],'frozen original endpoint/output roots')
+   admission=aid.decode(self.artifact('admission'))
+   need(admission['packet_sha256']==self.packet_pin and admission['resources']==resources and admission['limits']==limits
+        and admission['freeze_sha256']==FREEZE and admission['accounting_sha256']==self.c['artifacts']['baseline']['sha256'],'original admission binding')
+@@ -246,9 +251,7 @@
+   need(len(detail)==1 and detail[0][:4]==[job,'aa100','gpu-testing',str(resources['wall_seconds']//60)] and detail[0][5]=='paco0228','requested wall/owner/account differs')
+   requested=dict(v.split('=',1) for v in detail[0][4].split(',') if v)
+   need(requested.get('cpu')=='4' and requested.get('mem') in ('15G','15.0G','15360M') and requested.get('gres/gpu:a100_3g.20gb')=='1','requested GPU resources differ')
+-  allocation=self.j(G+'allocation.json');need(allocation['returncode']==0,'original running allocation missing')
+-  fields=dict(re.findall(r'([^\s=]+)=(\S+)',allocation['stdout']))
+-  need(all(fields.get(k)==v for k,v in dict(JobId=job,Account='ucb736_asc2',Partition='aa100',QOS='gpu-testing',NumCPUs='4',NumNodes='1',NumTasks='1',Requeue='0',Restarts='0',TimeLimit='00:48:00').items()),'original no-requeue allocation differs')
++  observed_allocation=allocation_facts(self.j(G+'allocation.json'),self.j(G+'scheduler_raw.json'),job,resources)
+   result=aid.decode(self.artifact('result'));local=aid.decode(self.artifact('local_intent'));remote=aid.decode(self.artifact('remote_intent'))
+   need(result['job_id']==job and result['returncode']==0 and result['intent_sha256']==self.c['artifacts']['remote_intent']['sha256'],'once-only submission result')
+   need(set(remote)==set(local)|{'remote_utc','fresh_readiness'} and {k:remote[k] for k in local}==local,'original intent semantic join')
+@@ -259,7 +262,7 @@
+        and baseline['outstanding_reservation']==0 and baseline['preparation_allowance_cpu_seconds']==3600,'actual accounting extension differs')
+   need(new[0]+3600<=57600 and new[1]<=7200 and self.d['closed_cpu_seconds']==new[0] and self.d['closed_gpu_slice_seconds']==new[1]
+        and self.d['cpu_admission_after_release']==new[0]+3600,'disposition costs/caps differ')
+-  self.facts['accounting']=dict(jobs=47,journals=96,elapsed_seconds=elapsed,allocated_cpu_seconds=4*elapsed,gpu_slice_seconds=elapsed,closed_cpu_seconds=new[0],closed_gpu_seconds=new[1],preparation_cpu_allowance=3600,utilization_inferred=False)
++  self.facts['accounting']=dict(requested_and_original_running=observed_allocation,steps=obs['results']['steps'],jobs=47,journals=96,elapsed_seconds=elapsed,allocated_cpu_seconds=4*elapsed,gpu_slice_seconds=elapsed,closed_cpu_seconds=new[0],closed_gpu_seconds=new[1],preparation_cpu_allowance=3600,utilization_inferred=False)
+  def runtime(self):
+   self.stage=self.j(G+'stage.json');self.stage_pin=self.h(G+'stage.json');self.handoff=self.j(G+'handoff.json')
+   stage=self.stage;h=self.handoff;contract=self.old['runtime'];prefix=supp.remote_path(stage['staged_prefix'])
+@@ -387,12 +390,13 @@
+   need(session==dict(kind='persistent',identity_sha256=identity,count_before=offset,request_before=offset-1,count_after=end,request_after=end-1,pid=pid),'cell session range/owned PID')
+   for n in receipt['input_sha256']:
+    if n.startswith('return-'):self.h(path+n,receipt['input_sha256'][n])
++  for rid in range(8):self.h(path+f'return-{rid:03d}.json',self.cpu['campaign_files'][f'policy-00/world-{index:02d}/return-{rid:03d}.json'])
+   task=self.j(path+'task.json');binding=self.j(base+f'service/task-binding-{index:04d}.json')
+   need(binding['binding_index']==index and binding['task']==task and binding['task_sha256']==digest(task)
+-       and binding['last_completed_session_request_id']==offset-1 and binding['worker_pid']==pid and binding['model_reloaded'] is False,'original task rebinding')
++       and binding['previous_task_sha256']==(None if index==0 else self.cells[-1]['task_sha256']) and binding['last_completed_session_request_id']==offset-1 and binding['worker_pid']==pid and binding['model_reloaded'] is False,'original task rebinding')
+   contexts=[dict(ordinal=offset+i,world_id=WORLDS[index],index=index,decision=i,proposal=p,history=rows,reserve=reserves.get(p['proposal_id']),task=task,menu=ep['menu']) for i,(p,rows) in enumerate(contexts)]
+   self.worlds(path,policy,index,events,counts)
+-  cell=dict(policy_id=policy,world_id=WORLDS[index],policy_decisions=len(contexts),**counts)
++  cell=dict(policy_id=policy,world_id=WORLDS[index],task_sha256=digest(task),policy_decisions=len(contexts),**counts)
+   self.cells.append(cell);return end,contexts
+  def services(self):
+   self.plan_pins=self.j(C+'source-plan-pins.json')
+@@ -431,6 +435,10 @@
+    need(type(n) is int and 24<=n<=576 and close['status']=='closed' and close['last_request_id']==n-1 and close['cleanup']==cleanup
+         and cleanup['errors']==[] and cleanup['group_still_exists'] is False and cleanup['leader_returncode']==0 and cleanup['term_sent'] is cleanup['kill_sent'] is False
+         and cleanup['pgid']==pid==process['pid']==process['pgid']==launch['pid'],'three natural owned sessions/cleanup')
++   need(attempt['service']==dict(status='recorded',file='service/closed.json',sha256=self.h(client+'closed.json')),'original attempt/closure authority')
++   client_launch=self.j(client+'launch.json');spec=self.old['persistent_specs'][policy];settings=self.old['services'][policy]
++   need(client_launch['command']==spec['command'] and client_launch['timeout_seconds']==spec['timeout_seconds'] and client_launch['identity_sha256']==ip
++        and client_launch['expected_identity']==identity and all(client_launch[k]==settings[k] for k in ('startup_seconds','cleanup_seconds','max_requests')),'original frozen service command/settings')
+    need(launch['contract_sha256']==self.p['files'][self.p['contracts'][policy]] and launch['stage_sha256']==self.stage_pin
+         and launch['stage_binding_sha256']==self.handoff['binding_sha256'],'launch source/stage/contract')
+    need(terminal['status']=='complete' and terminal['generation_count']==n and terminal['new_training_updates']==terminal['environment_responses']==0
+@@ -470,10 +478,11 @@
+    limits=self.p['limits'];work=self.origin+limits['work_seconds'];end=min(session['started_monotonic']+limits['session_cap_seconds'],work-(7-pi)*limits['session_reserve_seconds'])
+    facts=telemetry_facts(telemetry,session,self.j(G+'controller/phase/'+policy+'/post-exit-gpu.json'),self.origin,work,self.origin+limits['final_seconds'],end)
+    cells=self.cells[-24:];totals=dict(response_attempts=sum(c['responses'] for c in cells),returned_responses=sum(c['responses'] for c in cells),charged_units=sum(c['cost_units'] for c in cells),acquisition_charged_units=sum(c['acquisition_cost_units'] for c in cells))
++   need(evidence['limits']==dict(worlds=24,campaign_cells=192,service_requests=576,all_service_decisions=1728,campaign_response_attempts=6144,campaign_cost_units=6144),'scientific saved-validator limits differ')
+    counts=evidence['counts'];need(all(counts[k]==v for k,v in totals.items()) and counts['accepted_requests']==counts['attempted_requests']==counts['generations']==n
+-        and counts['task_bindings']==24 and counts['model_loads']==1 and counts['failed_cells']==counts['unstarted_cells']==0 and counts['policy_stops']==policy_stops
++        and counts['task_bindings']==24 and counts['model_loads']==1 and counts['failed_cells']==counts['unstarted_cells']==0 and counts['policy_stops']==policy_stops and counts['budget_stops']==sum(c['cost_units']==32 for c in cells) and counts['budget_stops']+policy_stops==24
+         and counts['feedback_to_next_decision']==sum(c['policy_decisions']-1 for c in cells),'saved aggregate counts disagree with all24 cells')
+-   sessions.append(dict(policy_id=policy,generations=n,cells=24,cuda_interval_ms=cuda,generated_tokens=sum(len(g['sequence_ids'])-len(g['prompt_ids']) for g in generated),
++   sessions.append(dict(policy_id=policy,framework_device=ready['device'],cuda_build=ready['cuda_build'],framework_total_device_memory_bytes=None,generations=n,cells=24,cuda_interval_ms=cuda,generated_tokens=sum(len(g['sequence_ids'])-len(g['prompt_ids']) for g in generated),
+        peak_framework_allocated_bytes=max(g['peak_gpu_allocated_bytes'] for g in generated),peak_framework_reserved_bytes=max(g['peak_gpu_reserved_bytes'] for g in generated),**facts,**totals));total_generations+=n
+   need(len(self.cells)==72 and self.phase['phase_counts']['services_started']==3 and self.phase['phase_counts']['positive_generations']==total_generations,'exact72 cells/3 sessions/phase work totals')
+   self.facts['sessions']=sessions;self.facts['campaign']=dict(cells=72,declared_cells=192,generations=total_generations,shared_initial_charged_responses=576,
+@@ -543,6 +552,23 @@
+     need(aid.decode(returned['request_id'])==rid and aid.decode(returned['returned_to_wrapper']) is True
+          and aid.decode(response['raw_json_available']) is True and opaque_compact(response['raw_json'])==responses[rid]['values'],'opaque original return bytes')
+ 
++def allocation_facts(record,raw_record,job,resources):
++ need(set(record)=={'fields','allocated_resources','requested_resources'} and raw_record['returncode']==0
++      and raw_record['job_id']==job and raw_record['command']==['scontrol','show','job','-o',job],'original scientific allocation record schema')
++ fields=dict(re.findall(r'([^\s=]+)=(\S+)',raw_record['stdout']))
++ need(record['fields']==fields,'raw/validated allocation fields differ')
++ wall=resources['wall_seconds']
++ expected=dict(JobId=job,Account='ucb736_asc2',Partition='aa100',QOS='gpu-testing',JobState='RUNNING',NumCPUs='4',NumNodes='1',NumTasks='1',Requeue='0',Restarts='0',TimeLimit=f'{wall//3600:02d}:{wall%3600//60:02d}:{wall%60:02d}')
++ expected['CPUs/Task']='4'
++ need(all(fields.get(k)==v for k,v in expected.items()) and fields.get('UserId','').startswith('paco0228('),'original exact running allocation')
++ for field,key in [('AllocTRES','allocated_resources'),('ReqTRES','requested_resources')]:
++  pairs=[v.split('=',1) for v in fields[field].split(',')];need(all(len(p)==2 for p in pairs) and len(dict(pairs))==len(pairs),'duplicate/invalid TRES')
++  tres=dict(pairs)
++  need(tres==record[key] and tres.get('cpu')=='4' and tres.get('node')=='1' and tres.get('mem') in ('15G','15.0G','15.00G','15360M')
++       and tres.get('gres/gpu:a100_3g.20gb')=='1' and tres.get('gres/gpu','1')=='1'
++       and all(k in ('gres/gpu','gres/gpu:a100_3g.20gb') for k in tres if k.startswith('gres/')),'actual/requested exact CPU15GiB/one20GBMIG')
++ return record
++
+ def world_chain(data):
+  need(data.endswith(b'\n'),'partial world journal');previous=None;result=[]
+  for line in data.splitlines():

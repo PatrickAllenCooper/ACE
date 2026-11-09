@@ -1,0 +1,1 @@
+Preserved unexecuted draft. Static schema inspection found GPU seal has copies/identical/excludes/acceptance, not CPU seal complete_local_raw_copy. Corrected before the first new fixture run. Added primary-preserving lock-release cleanup. No test or actual attempt occurred on this draft.
