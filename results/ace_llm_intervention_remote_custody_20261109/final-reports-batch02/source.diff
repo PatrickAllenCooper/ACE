@@ -1,0 +1,38 @@
+--- 0737/batch_reports.py
++++ batch02/batch_reports.py
+@@ -1,7 +1,7 @@
+ """Opaque, separately pinned finalizer report selection. No remote work at import.
+ 
+ Caller must first accept finalizer execution/custody; pins here bind that decision,
+-not manufacture it. The original 527d backend and its receipt remain unchanged.
++not manufacture it. The captured 4161 backend and its receipt remain unchanged.
+ """
+ import base64
+ import contextlib
+@@ -11,7 +11,7 @@
+ from pathlib import Path
+ import types
+ 
+-BACKEND_SHA256 = '527d225b8e859c67edb4eb5ca6203e9b38e31aca1e80c8544668ccc09c6dc24b'
++BACKEND_SHA256 = '4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f'
+ PREFIX = 'cpu/cpu/worker/artifacts/campaign/private/'
+ _BOUND = None
+ 
+@@ -43,7 +43,7 @@
+         _require(_BOUND[:4] == sources, 'source binding cannot change')
+         return
+     backend = types.ModuleType('captured_original_remote_custody')
+-    backend.__file__ = '<captured-original-527d-backend>'
++    backend.__file__ = '<captured-original-4161-backend>'
+     exec(compile(backend_source, backend.__file__, 'exec'), backend.__dict__)
+     backend.bind_source(backend_source, backend_sha256)
+     _BOUND = (*sources, backend)
+@@ -142,7 +142,7 @@
+ backend=base64.b64decode(bundle['backend'],validate=True)
+ for raw,pin in ((extension,bundle['extension_sha256']),(backend,bundle['backend_sha256'])):
+  need(0<len(raw)<=262144 and hashlib.sha256(raw).hexdigest()==pin,'individual source SHA differs before exec')
+-need(bundle['backend_sha256']=='527d225b8e859c67edb4eb5ca6203e9b38e31aca1e80c8544668ccc09c6dc24b','original backend SHA differs')
++need(bundle['backend_sha256']=='4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f','original backend SHA differs')
+ v={'__name__':'captured_batch_reports','__file__':'<captured-batch-reports>'}
+ exec(compile(extension,v['__file__'],'exec'),v)
+ v['bind_sources'](extension_source=extension,extension_sha256=bundle['extension_sha256'],
