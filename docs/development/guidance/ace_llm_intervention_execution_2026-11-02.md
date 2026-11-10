@@ -3,6 +3,13 @@
 ## Current state: November 9, 2026
 
 
+November 10, 06:32:53 UTC: finalizer35533604 was submitted ONCE by correctedlaunch02, with unambiguous result044b96cf3225439ecbb4716823a4b243391f5b2fdfeb8b7b4e952ce7d47d130d, localintent849c9610467de284b38daea5edd6fe27372269d22278d2f853058d22c05f121b and remoteintent7918cd533a5b72f24143d91a251296c4dca3a701043db75bf458aed8bb21512d. Committedpacketfc57d6d796b30a02e12b3c7fc32d9f6394638912 is pushed and independently remote-matched. Newouterdcd34d5c and innerc71 are unchanged. Handoffd7a7f4c87884e71a7fc0436d1d5c3471e38123bfc589d8025780e9c34026ad5c preserves both packet-record copies and exclusive launch-control02 evidence. Both locks were released. No retry or duplicate submission is permitted.
+
+Readiness completed1174.808seconds aftercontrollercreation, within the unchanged1200-second remote bound. Root/input transfers completed75.301/12.587seconds with owned-process cleanup, followed by complete remoteverification and fresh finalreconciliation. Full launcher1975.295340334elapsed/73.785489childCPU seconds and3633807360peakRSS are preparation observations, not job allocation or whole-cycle cost. Resources are2CPU/7680MiB/4200seconds, ucb736_asc2/acpu/cpu-normal, zeroGPU/no-requeue, with original phase deadlines. Maximum reservation is49073/57600CPU seconds including the singlepreparationallowance and4458/7200GPU-slice seconds. Actual new costs are pending.
+
+Kuhn owns freshbounded monitoring and one terminalcollector b199, preserving complete raw CURCbackup and selectedlocal evidence under capacity checks. Schedulerstate was notqueried in this submission handoff. Full actualexecution/custody and independent acceptance precede the242-report retrieval and scientific comparison. No privateutility is decoded by thelauncher or thishandoff. The original localpacket01 failure remains preserved and has no Slurm allocation.
+
+
 November 10, 05:58 UTC: concrete launch02 delta review is sealed with zero required findings, review1be40b72436b00898f2961c2748a0144b020cb7db2001cc49ced49057ebef319 and external mirror seala5d2a7d0e396dade71ec88613f0fd21f801e8066499eb22e783cfdb0c2a9208d. Both34-file review copies contain582952bytes. It verifies newouterdcd34d5c, unchanged innerc71 and both223-file packet copies, with only the three root coordinators and outer metadata changed. Original failure and prior review miss remain explicitly retained. Parent commits/pushes/matches this successor before one reviewed launcher invocation. Every live readiness, source/custody and once-only submission gate remains required. No job has yet been submitted.
 
 
