@@ -1,0 +1,96 @@
+{
+  "collector_whole_invocation_cost": {
+    "automatic_retry": false,
+    "child_cpu_seconds": 97.013593,
+    "command_config_sha256": "9835fdafb9f6e08a704113cde4594e2348370bcac26ba45599fc6281c6b95575",
+    "elapsed_seconds": 2765.272798125,
+    "ended_utc": "2026-11-10T07:49:51.966680+00:00",
+    "maxrss_platform_units": 4082024448,
+    "platform": "darwin",
+    "returncode": 0,
+    "started_utc": "2026-11-10T07:03:46.694960+00:00"
+  },
+  "monitor_limit_failure_retained": true,
+  "notes": [
+    "No remote observation was repeated. Current remote accessibility is outside this saved-evidence review.",
+    "One exploratory metadata-view command encountered an AttributeError when a command-list was formatted as a dict; original tool transcript retained. Both main independent audit scripts passed their first invocation without modification."
+  ],
+  "pins": {
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/launch-control01/failure-disposition.json": {
+      "bytes": 2184,
+      "sha256": "f4cff65cd1932670473d8f4a7538414c60d7ef106de735b98e7f7ab639e71f28"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/monitor-collection-control01/collector01.command.json": {
+      "bytes": 1773,
+      "sha256": "9835fdafb9f6e08a704113cde4594e2348370bcac26ba45599fc6281c6b95575"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/monitor-collection-control01/collector01/run.json": {
+      "bytes": 383,
+      "sha256": "2714d1fa3493e042bb98cd596a1997c247b40891528f257cec862520a9e3f09b"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/monitor-collection-control01/completion.json": {
+      "bytes": 4512,
+      "sha256": "bfc35146bd6eeb776fd61e5113335d07035096699a042f511b87ab93bf0ebe11"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/monitor-collection-control01/monitor06/run.json": {
+      "bytes": 378,
+      "sha256": "6244229dcc16b194bbd8c61e127e70c0dc77276ad2e2fff22eac4174f2d9966a"
+    },
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/monitor-collection-control01/terminal-collection-gate.json": {
+      "bytes": 1129,
+      "sha256": "1f655147e93e35108ece4a548882340409229b375e74717c8f49358ce32015c9"
+    }
+  },
+  "prior_local_failure_no_allocation": true,
+  "reviewer_attempts": [
+    {
+      "issue": "handoff capsule_pins entries are bytes/sha256 dicts, not SHA strings; no evidence contradiction",
+      "source": "close_control.py",
+      "status": "inspector_shape_error_after_initial_control_checks"
+    },
+    {
+      "issue": "Python -I -B script is command index 3, not 4",
+      "source": "close_control02.py",
+      "status": "inspector_command_index_error_after_capsule_and_accounting_pass"
+    },
+    {
+      "source": "close_control03.py",
+      "status": "remaining_checks_pass"
+    }
+  ],
+  "sole_collector_after_terminal": true,
+  "status": "actual_control_lineage_pass",
+  "terminal_gate": {
+    "acceptance": false,
+    "allocated_cpu_seconds": 3192,
+    "backup_root": "/projects/paco0228/ACE_evidence/ace-llm-finalization-20261110-01",
+    "collector_invocation_authorized_once": true,
+    "collector_sha256": "b1994191042e910923ffe23e504f2ecd9af6d5242ad6743a5537a2aa4e73e5c3",
+    "gpu_seconds": 0,
+    "job_id": "35533604",
+    "local_capacity": {
+      "available_bytes": 12660232192,
+      "full_archive_local": false,
+      "minimum_required_bytes": 6442450944,
+      "same_filesystem_two_copies_included": true,
+      "selected_tree_maximum_each": 536870912
+    },
+    "packet_commit": "fc57d6d796b30a02e12b3c7fc32d9f6394638912",
+    "parent_accounting": [
+      "35533604",
+      "ace_llm_scientific_finalization01",
+      "COMPLETED",
+      "0:0",
+      "2",
+      "1596",
+      "7.50G",
+      "billing=2,cpu=2,mem=7.50G,node=1",
+      ""
+    ],
+    "remote_exclusive_capacity_and_backup_checks": "reviewed collector/backend enforce before writes",
+    "retry_allowed": false,
+    "terminal_destinations_absent": true,
+    "terminal_observation_sha256": "3974ab4ee849e1cf593c6eefddc20687c373a7edf5874b4d5e8ae2c177882139",
+    "utc": "2026-11-10T07:03:46.629188+00:00"
+  }
+}
