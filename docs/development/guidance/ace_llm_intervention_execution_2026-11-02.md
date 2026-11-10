@@ -3,6 +3,11 @@
 ## Current state: November 9, 2026
 
 
+November 10, 05:41 UTC: the first finalizer launcher invocation failed at its initial local outer-packet read. Packet42123690bytes exceeded the ordinary32MiB reader bound. Failure dispositionf4cff65cd1932670473d8f4a7538414c60d7ef106de735b98e7f7ab639e71f28 and inventoryed1aaf5e6dda28c2ac3c36f3384817dd7b9784c7d87edb5124cb3bc406f39f6f preserve command, source and traceback in launch-control01 and its external mirror. The failure occurred before any remote operation, root creation, canonical intent or sbatch. No job or new allocation exists, no retry occurred, and both locks were released. Reviewed packet89fee6d2 remains unchanged and pushed.
+
+A narrow successor is authorized under existing routine-recovery approval: explicitly bound the named full-map outer packet in launcher, monitor and collector using the existing128MiB convention, with ordinary metadata bounds and every byte/source/journal gate unchanged. New focused size-bound fixtures and distinct source/lineage review precede a committed successor and one new launch. Prior packet review469874 is preserved with this newly observed runtime size gap, not relabeled as validating the correction. Original scientific inputs and all192completed cells remain unchanged. Known allocation remains37073CPU/4458GPU seconds,40673CPU including the singlepreparation allowance, with no scheduler reservation outstanding.
+
+
 November 10, 05:36 UTC: distinct concrete finalizer packet review is sealed with zero required findings, review4698740072ae466d813cbee8ae8454b1724db832a487cbb35c15b4b2d8bf3213 and mirror seal91843ba1c520127afcecc3eac48a6ec7d813f4d7fd8b6bb2c294a57b42e96163. Both 51-file review copies contain1,190,826 bytes. It verifies outer1a30/innerc71b, both223-file packet copies, actual acceptance and recovery lineage, storage and replica maps, bounded transfer and the adopted2CPU/zeroGPU70-minute profile. One reviewer encoding error and corrected unfinished checks are preserved without changing the packet. No component tests or scientific work were repeated. Parent will commit/push and independently match these exact bytes before the one reviewed launcher invocation. Fresh live readiness, both locks and original submission-journal reconciliation remain mandatory inside the launcher. No finalizer job has yet been submitted.
 
 
