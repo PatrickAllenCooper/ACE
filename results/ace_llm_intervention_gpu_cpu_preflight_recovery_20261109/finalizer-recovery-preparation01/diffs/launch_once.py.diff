@@ -1,0 +1,31 @@
+--- predecessor/launch_once.py
++++ implementation/launch_once.py
+@@ -69,6 +69,10 @@
+                and packet['namespace_claim_sha256']==ctx['pins']['namespace-claim'],'accepted baseline/namespace differs')
+         b.need(packet['token_recovery']==ctx['token_recovery'] and packet['failed_token_root']==b.FAILED_TOKEN_ROOT
+                and packet['failed_token_job_id']==b.FAILED_TOKEN_JOB,'exact failed TOKEN history required')
++        b.need(packet['gpu_recovery']==ctx['gpu_recovery']
++               and packet['gpu_recovery_acceptance_sha256']==ctx['pins']['gpu-recovery-acceptance']
++               and packet['operational_source_commit']==m['finalizer-source-manifest']['source_commit'],
++               'exact GPU02/finalizer operational source lineage required')
+         claim_pin=ctx['pins']['namespace-claim']
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local claim changed; never recreate')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)
+@@ -79,7 +83,7 @@
+         b.need(packet['finalizer_packet_sha256']==b.sha(b.raw(expected)), 'outer/inner finalizer packet join differs')
+         b.need(b.raw(stage)==b.raw(expected),'captured campaign input/resource contract differs')
+         b.need(b.read(local/'job.sbatch',pins['job.sbatch'])==b.job_script(ctx,stage,bootstrap),'exact finalizer job/bootstrap differs')
+-        b.need(packet['admission']==b.budget(m['gpu-baseline']) and packet['prior_jobs']==47 and packet['prior_journals']==96
++        b.need(packet['admission']==b.budget(m['gpu-baseline']) and packet['prior_jobs']==48 and packet['prior_journals']==98
+                and packet['worlds']==24 and packet['cells']==192 and packet['comparisons']==28
+                and packet['paths']==stage['paths'],'actual finalizer admission/reporting envelope differs')
+         b.need(packet['original_input_pins']==ctx['upstream_pins'],'complete original upstream byte pins differ')
+@@ -119,6 +123,8 @@
+             baseline_sha256=ctx['pins']['gpu-baseline'],gpu_acceptance_sha256=ctx['pins']['gpu-acceptance'],
+             gpu_disposition_sha256=ctx['pins']['gpu-disposition'],gpu_custody_inventory_sha256=ctx['pins']['gpu-custody-inventory'],
+             gpu_job_id=m['gpu-acceptance']['job_id'],token_recovery=ctx['token_recovery'],
++            gpu_recovery=ctx['gpu_recovery'],gpu_recovery_acceptance_sha256=ctx['pins']['gpu-recovery-acceptance'],
++            operational_source_commit=m['finalizer-source-manifest']['source_commit'],
+             failed_token_root=b.FAILED_TOKEN_ROOT,failed_token_job_id=b.FAILED_TOKEN_JOB,existing_namespace_claim_sha256=claim_pin,
+             namespace_admission_sha256=ctx['pins']['namespace-admission'],
+             recovery_authority_sha256=ctx['pins']['recovery-authority'],original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,

@@ -1,0 +1,83 @@
+def admit_recovery(packet, gp, data, gpu, terminal, api):
+    """Independent GPU02 postcustody acceptance, before the first private decode.
+
+    The unchanged17-field GPU acceptance remains the scheduler/runtime/cleanup
+    authority. This separate byte-pinned supplement closes the historical check
+    deliberately deferred by GPU02; its absence can never mean acceptance.
+    """
+    files=packet['files'];authority=decode(data[RECOVERY_FILES['authority']])
+    expected=decode(data[RECOVERY_FILES['context']]);context=expected['execution_context']
+    supplement=decode(data['gpu-recovery-acceptance.json'])
+    failed=decode(data['gpu-failure-acceptance.json']);prior=decode(data['gpu-failure-baseline.json'])
+    baseline=decode(data['gpu-success-baseline.json'])
+    need(gp.get('recovery_files')==RECOVERY_FILES
+         and all(sha(data[n])==files[n]==gp['files'][n] for n in RECOVERY_FILES.values())
+         and files[RECOVERY_FILES['authority']]==RECOVERY_AUTHORITY_SHA,
+         'independent original GPU02 recovery input bytes required')
+    need(authority['schema']=='ace-gpu-cpu-history-recovery-authority-v1'
+         and authority['status']=='operationally_adopted'
+         and authority['historical_postcustody_required'] is authority['unchanged_scientific_inputs'] is True
+         and authority['control_root']==GPU_CONTROL_ROOT and authority['failed_gpu01_root']==GPU_ORIGINAL_ROOT
+         and authority['allowed_new_output']==gp['paths']['gpu_output']==GPU_ORIGINAL_ROOT+'/gpu'
+         and gp['paths']['gpu_inputs']==GPU_CONTROL_ROOT+'/inputs'
+         and authority['cpu_acceptance_sha256']==packet['cpu_acceptance_sha256']
+         and authority['original_source_commit']==packet['source_commit'], 'original recovery authority/root differs')
+    need(gp['source_names']==sorted(authority['operational_source_files'])
+         and len(gp['source_names'])==56
+         and {n:gp['files'][n] for n in gp['source_names']}==authority['operational_source_files']
+         and context['source_files_sha256']==sha(raw(authority['operational_source_files']).rstrip(b'\n')),
+         'exact operational source closure differs')
+    scoped=api.check_preflight(data[RECOVERY_FILES['receipt']],files[RECOVERY_FILES['receipt']],
+        data[RECOVERY_FILES['context']],files[RECOVERY_FILES['context']])
+    need(scoped['full_external_postcustody_required'] is True,
+         'preflight receipt cannot establish historical postcustody')
+    need(authority['failed_gpu01_acceptance_sha256']==files['gpu-failure-acceptance.json']
+         and authority['baseline']==dict(sha256=files['gpu-failure-baseline.json'],terminal_jobs=47,submission_journals=96)
+         and failed['schema']=='ace-scientific-campaign-gpu-failure-acceptance-v1'
+         and failed['status']=='accepted_failed_prepolicy_attempt' and failed['acceptance'] is True
+         and type(failed['required_findings']) is int and failed['required_findings']==0
+         and failed['job_id']==authority['original_gpu01_job_id']=='35498218'
+         and prior['terminal_jobs']==47 and prior['submission_journals']==96
+         and prior['input_pins']['acceptance']==files['gpu-failure-acceptance.json']
+         and baseline['terminal_jobs']==48 and baseline['submission_journals']==98
+         and baseline['outstanding_reservation']==0
+         and baseline['input_pins']['predecessor']==files['gpu-failure-baseline.json']
+         and baseline['input_pins']['acceptance']==packet['gpu_acceptance_sha256'],
+         'independently accepted failed47/96 then successful48/98 lineage required')
+    required=dict(schema='ace-scientific-campaign-gpu-recovery-acceptance-v1',status='accepted',
+        scope='development',acceptance=True,required_findings=0,scientific_qualified=False,
+        historical_postcustody_verified=True,originals_preserved=True,job_id=gpu['job_id'],
+        gpu_acceptance_sha256=packet['gpu_acceptance_sha256'],gpu_packet_sha256=packet['gpu_packet_sha256'],
+        cpu_acceptance_sha256=packet['cpu_acceptance_sha256'],authority_sha256=files[RECOVERY_FILES['authority']],
+        preflight_context_sha256=files[RECOVERY_FILES['context']],preflight_receipt_sha256=files[RECOVERY_FILES['receipt']],
+        readset_sha256=files[RECOVERY_FILES['read_set']],failure_acceptance_sha256=files['gpu-failure-acceptance.json'],
+        failure_baseline_sha256=files['gpu-failure-baseline.json'],baseline_sha256=files['gpu-success-baseline.json'],
+        source_files_sha256=context['source_files_sha256'],gpu_terminal_sha256=gpu['terminal_pins']['terminal.json'],
+        phase_terminal_sha256=gpu['terminal_pins']['controller/phase/terminal.json'],
+        control_root=GPU_CONTROL_ROOT,output_root=GPU_ORIGINAL_ROOT+'/gpu',
+        raw_root_labels=dict(control=GPU_CONTROL_ROOT,launch=GPU_ORIGINAL_ROOT),cpu_campaign_root=gpu['campaign_root'],
+        original_source_commit=packet['source_commit'],original_gpu_entry_sha256=authority['original_entry_sha256'],
+        failed_gpu01_job_id=authority['original_gpu01_job_id'])
+    need(type(supplement) is dict and set(required)<=set(supplement)
+         and raw({k:supplement[k] for k in required})==raw(required),
+         'independent actual GPU02 historical postcustody acceptance required')
+    for name in ('before_observation_sha256','after_observation_sha256','custody_sha256','gpu_launch_packet_sha256',
+                 'archive_receipt_sha256','failed_archive_receipt_sha256'):
+        need(pin(supplement[name]),'independent full postcustody evidence pin required: '+name)
+    need(type(supplement['operational_source_commit']) is str
+         and re.fullmatch('[0-9a-f]{40}',supplement['operational_source_commit'])
+         and type(supplement['evidence_pins']) is dict and all(pin(v) for v in supplement['evidence_pins'].values())
+         and supplement['evidence_pins']['operational-source-review']==authority['source_review_sha256'],
+         'independent captured operational source/review provenance required')
+    marker_pin=gpu['gpu_output_files'].get(HISTORICAL_MARKER)
+    need(pin(marker_pin) and supplement['postcustody_marker_sha256']==marker_pin,
+         'actual deferred-postcustody marker must be in the full accepted GPU output inventory')
+    marker=decode(read(Path(packet['paths']['gpu_output'])/HISTORICAL_MARKER,marker_pin))
+    need(marker==dict(preflight=scoped,authority_sha256=RECOVERY_AUTHORITY_SHA,
+         historical_postcheck_performed_on_gpu=False,full_external_postcustody_required=True,acceptance=False),
+         'original GPU deferred-postcustody marker differs')
+    need(terminal['operational_recovery_authority_sha256']==RECOVERY_AUTHORITY_SHA
+         and terminal['historical_preflight_receipt_sha256']==files[RECOVERY_FILES['receipt']]
+         and terminal['historical_postcheck_performed_on_gpu'] is False
+         and terminal['full_external_postcustody_required'] is True,
+         'GPU terminal must retain its original deferred historical-check boundary')

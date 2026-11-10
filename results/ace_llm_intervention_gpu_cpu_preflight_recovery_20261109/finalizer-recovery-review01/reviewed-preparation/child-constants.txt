@@ -1,0 +1,10 @@
+PREFLIGHT = 'llm_intervention_cpu_preflight_receipt.py'
+HISTORY = 'llm_intervention_cpu_history_admission.py'
+RECOVERY_FILES = {'authority': 'gpu-recovery-authority.json', 'context': 'cpu-history-expected.json',
+    'receipt': 'cpu-history-preflight.json', 'read_set': 'cpu-history-readset.json'}
+RECOVERY_ADDITIONS = {'gpu-recovery-acceptance.json', 'gpu-success-baseline.json',
+    'gpu-failure-acceptance.json', 'gpu-failure-baseline.json'}
+RECOVERY_AUTHORITY_SHA = 'b3630d400649ecd186e35232b24e9020e5bced7ad616379c7eaf5eef84498603'
+GPU_CONTROL_ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02'
+GPU_ORIGINAL_ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01'
+HISTORICAL_MARKER = 'controller/historical-postcustody-required.json'

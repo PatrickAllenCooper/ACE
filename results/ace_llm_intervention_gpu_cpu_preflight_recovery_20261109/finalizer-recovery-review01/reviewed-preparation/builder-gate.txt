@@ -1,0 +1,107 @@
+def recovery_authority(supplied,m,pins,observations):
+    """Join the actual recovery, unchanged17-key acceptance, and full historical custody."""
+    a=m['gpu-recovery-authority'];gp=m['gpu-packet'];outer=m['gpu-launch-packet']
+    c=m['cpu-history-expected']['execution_context'];g=m['gpu-acceptance'];s=m['gpu-recovery-acceptance']
+    need(pins['gpu-recovery-authority']==RECOVERY_AUTHORITY_SHA
+         and a['schema']=='ace-gpu-cpu-history-recovery-authority-v1' and a['status']=='operationally_adopted'
+         and a['historical_postcustody_required'] is a['unchanged_scientific_inputs'] is True
+         and a['control_root']==GPU_ROOT and a['failed_gpu01_root']==GPU_OUTPUT_ROOT
+         and a['allowed_new_output']==GPU_OUTPUT_ROOT+'/gpu'
+         and a['original_source_commit']==SOURCE_COMMIT and a['original_entry_sha256']==ORIGINAL_GPU_ENTRY_SHA
+         and a['original_gpu01_packet_sha256']==pins['gpu-failure-packet']
+         and a['original_gpu01_job_id']==FAILED_GPU_JOB
+         and a['cpu_acceptance_sha256']==pins['cpu-acceptance']
+         and a['namespace_sha256']==pins['namespace-claim'] and a['original_namespace_sha256']==ORIGINAL_CLAIM_SHA,
+         'exact adopted operational authority required')
+    need(a['baseline']==c['baseline']==dict(sha256=pins['gpu-failure-baseline'],terminal_jobs=47,submission_journals=96)
+         and c['control_root']==GPU_ROOT and c['gpu_output']==GPU_OUTPUT_ROOT+'/gpu'
+         and c['failed_gpu01_root']==GPU_OUTPUT_ROOT
+         and c['cpu_roots']==dict(cpu_output=CPU_ROOT+'/cpu',campaign=CPU_ROOT+'/cpu/worker/artifacts/campaign'),
+         'original failed baseline/context roots differ')
+    need(gp['recovery_files']==RECOVERY_FILES
+         and all(gp['files'][n]==pins[n[:-5]] for n in RECOVERY_FILES.values())
+         and gp['source_names']==sorted(a['operational_source_files']) and len(gp['source_names'])==56
+         and {n:gp['files'][n] for n in gp['source_names']}==a['operational_source_files']
+         and c['source_files_sha256']==digest(a['operational_source_files'])
+         and c['model_files_sha256']==digest(m['freeze']['model_files'])
+         and c['resources_sha256']==digest(GPU_RESOURCES) and c['limits_sha256']==digest(GPU_LIMITS),
+         'complete recovery source/model/resource/preflight context differs')
+    for name in RECOVERY_METADATA:
+        need(outer['new_input_files'][metadata_name(name)]==pins[name], 'actual GPU02 captured recovery metadata differs: '+name)
+    manifest=m['operational-source-manifest']
+    need(set(manifest)=={'schema','source_commit','files'} and manifest['schema']=='ace-gpu02-operational-sources-v1'
+         and set(manifest['files'])=={SCIENTIFIC_GPU_ENTRY,PREFLIGHT,HISTORY}
+         and outer['operational_source_commit']==manifest['source_commit'], 'three original GPU02 operational sources required')
+    captured={}
+    for n,v in manifest['files'].items():
+        need(set(v)=={'repository_path','sha256'} and v['sha256']==gp['files'][n], 'original operational source pin differs')
+        safe_relative(v['repository_path']);captured[n]=committed(manifest['source_commit'],v['repository_path'])
+        need(sha(captured[n])==v['sha256'],'committed original GPU02 operational source differs')
+    lineage=c['lineage']
+    need(lineage['cpu_acceptance_sha256']==pins['cpu-acceptance']
+         and lineage['failed_gpu01_acceptance_sha256']==pins['gpu-failure-acceptance']
+         and lineage['recovery_authority_sha256']==pins['gpu-recovery-authority']
+         and lineage['checker_sha256']==gp['files'][PREFLIGHT]
+         and lineage['source_sha256']==a['historical_verifier_sha256']
+         and lineage['namespace_sha256']==pins['namespace-claim'] and lineage['original_namespace_sha256']==ORIGINAL_CLAIM_SHA
+         and c['proof_pins']==a['historical_proof_pins']==dict(custody_sha256=pins['gpu-failure-seal'],
+             before_observation_sha256=pins['gpu-failure-inventory'],after_observation_sha256=pins['gpu-failure-inventory-after'],
+             read_set_artifact_sha256=pins['cpu-history-readset']), 'original preflight provenance differs')
+    # This is the existing pure supplied-bytes checker. No scientific producer is imported.
+    import types
+    checker=types.ModuleType('captured_finalizer_preflight')
+    exec(compile(captured[PREFLIGHT],PREFLIGHT,'exec'),vars(checker))
+    scoped=checker.validate_receipt(supplied['cpu-history-preflight'],pins['cpu-history-preflight'],
+                                    supplied['cpu-history-expected'],pins['cpu-history-expected'])
+    need(scoped['full_external_postcustody_required'] is True,'original preflight boundary changed')
+    old=observations['failed-gpu-root'];obs=observations['gpu'];files=obs['files']
+    permitted=lambda n:n=='gpu' or n.startswith('gpu/')
+    current=exact_inventory({n[7:]:v for n,v in files.items() if n.startswith('launch/')},
+                           [n[7:] for n in obs['directories'] if n.startswith('launch/')])
+    preserved=dict(files={n:v for n,v in current['files'].items() if not permitted(n)},
+                   directories=[n for n in current['directories'] if not permitted(n)])
+    need(preserved==old,'failed GPU01 root may gain only the explicitly authorized gpu output')
+    marker='controller/historical-postcustody-required.json'
+    required=dict(schema='ace-scientific-campaign-gpu-recovery-acceptance-v1',status='accepted',scope='development',
+        required_findings=0,acceptance=True,scientific_qualified=False,historical_postcustody_verified=True,originals_preserved=True,
+        job_id=g['job_id'],gpu_acceptance_sha256=pins['gpu-acceptance'],gpu_packet_sha256=pins['gpu-packet'],
+        gpu_launch_packet_sha256=pins['gpu-launch-packet'],cpu_acceptance_sha256=pins['cpu-acceptance'],
+        authority_sha256=pins['gpu-recovery-authority'],preflight_context_sha256=pins['cpu-history-expected'],
+        preflight_receipt_sha256=pins['cpu-history-preflight'],readset_sha256=pins['cpu-history-readset'],
+        failure_acceptance_sha256=pins['gpu-failure-acceptance'],failure_baseline_sha256=pins['gpu-failure-baseline'],
+        baseline_sha256=pins['gpu-baseline'],source_files_sha256=c['source_files_sha256'],
+        gpu_terminal_sha256=g['terminal_pins']['terminal.json'],phase_terminal_sha256=g['terminal_pins']['controller/phase/terminal.json'],
+        postcustody_marker_sha256=g['gpu_output_files'].get(marker),
+        before_observation_sha256=pins['gpu-inventory'],after_observation_sha256=pins['gpu-inventory-after'],
+        custody_sha256=pins['gpu-custody-inventory'],control_root=GPU_ROOT,output_root=GPU_OUTPUT_ROOT+'/gpu',
+        raw_root_labels=dict(control=GPU_ROOT,launch=GPU_OUTPUT_ROOT),cpu_campaign_root=g['campaign_root'],
+        original_source_commit=SOURCE_COMMIT,original_gpu_entry_sha256=ORIGINAL_GPU_ENTRY_SHA,
+        operational_source_commit=manifest['source_commit'],failed_gpu01_job_id=FAILED_GPU_JOB,
+        archive_receipt_sha256=m['gpu-disposition']['remote_custody_receipt_sha256'],
+        failed_archive_receipt_sha256=m['gpu-failure-disposition']['remote_custody_receipt_sha256'],
+        evidence_pins={n:pins[n] for n in ('gpu-review','gpu-disposition','gpu-inventory','gpu-inventory-after',
+            'gpu-custody-inventory','gpu-recovery-review','preflight-review','operational-source-manifest',
+            'operational-source-review','gpu-failure-disposition','gpu-failure-seal',
+            'gpu-failure-inventory','gpu-failure-inventory-after')})
+    need(type(s) is dict and set(required)<=set(s) and raw({k:s[k] for k in required})==raw(required)
+         and pin(required['postcustody_marker_sha256'])
+         and files['launch/gpu/'+marker]['sha256']==required['postcustody_marker_sha256'],
+         'independent actual GPU02 full-postcustody acceptance and exact evidence pins required')
+    need(pin(s['archive_receipt_sha256']) and pin(s['failed_archive_receipt_sha256'])
+         and list(m['gpu-failure-seal']['copies'].values())[0]['files']['remote-custody.json']['sha256']==s['failed_archive_receipt_sha256'],
+         'original/current full archive receipt pins required')
+    fm=m['finalizer-source-manifest']
+    need(type(fm) is dict and set(fm)=={'schema','source_commit','entry'}
+         and fm['schema']=='ace-finalizer-gpu02-operational-source-v1'
+         and type(fm['source_commit']) is str and re.fullmatch('[0-9a-f]{40}',fm['source_commit'])
+         and set(fm['entry'])=={'repository_path','sha256'} and fm['entry']['sha256']==ENTRY_SHA,
+         'independent finalizer source manifest required')
+    safe_relative(fm['entry']['repository_path'])
+    need(sha(committed(fm['source_commit'],fm['entry']['repository_path']))==ENTRY_SHA,
+         'independent committed finalizer successor required')
+    return dict(authority_sha256=pins['gpu-recovery-authority'],acceptance_sha256=pins['gpu-recovery-acceptance'],
+        failed_job_id=FAILED_GPU_JOB,failed_root=GPU_OUTPUT_ROOT,failure_acceptance_sha256=pins['gpu-failure-acceptance'],
+        failure_baseline_sha256=pins['gpu-failure-baseline'],failure_seal_sha256=pins['gpu-failure-seal'],
+        control_root=GPU_ROOT,output_root=GPU_OUTPUT_ROOT+'/gpu',
+        preflight_receipt_sha256=pins['cpu-history-preflight'],execution_context_sha256=m['cpu-history-expected']['execution_context_sha256'],
+        full_historical_postcustody_verified=True,original_collector_status=m['gpu-failure-disposition']['status'])

@@ -1,0 +1,505 @@
+--- predecessor/build_packet.py
++++ implementation/build_packet.py
+@@ -9,7 +9,8 @@
+ LOCAL=REPO/'results/ace_llm_intervention_scientific_finalization_20261108/launch01'
+ EXT=BASE/'ACE-LLM-intervention-scientific-finalization-20261108-01'
+ ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_finalization_20261108_01'
+-GPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01'
++GPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02'
++GPU_OUTPUT_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01'
+ CPU_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108_01'
+ COLLECTION_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_02'
+ TOKEN_ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_tokenization_20261108_02'
+@@ -22,16 +23,17 @@
+ SOURCE_COMMIT='a9346022f145cc29439325b6f291597b2e6ec037'
+ ENTRY='finalize_llm_intervention_scientific_campaign_cpu.py'
+ OLD_GPU_ENTRY='qualify_llm_intervention_campaign_gpu.py'
+-ENTRY_SHA='28c5fc6b426cac70cf4bae4895350c560cd43080937a32e41d936f072005b45a'
+-VERSION='ace-scientific-campaign-finalizer-cpu-v1'
+-OUTER_VERSION='ace-scientific-finalization-launch-v1'
++FROZEN_ENTRY_SHA='28c5fc6b426cac70cf4bae4895350c560cd43080937a32e41d936f072005b45a'
++ENTRY_SHA='b4d18f4be2320069ffc5f2aed2060efcfb8d49bfcc6e8b00f8099b91598f8745'
++VERSION='ace-scientific-campaign-finalizer-gpu-history-v2'
++OUTER_VERSION='ace-scientific-finalization-gpu-recovery-launch-v2'
+ RESOURCES=dict(account='ucb736_asc2',partition='acpu',qos='cpu-normal',cpus=2,
+  memory_mib=7680,wall_seconds=1200,gpus=0,requeue=False)
+ DEADLINES=dict(startup=120,work=1140,cleanup=1170,hard=1190)
+ GPU_RESOURCES=dict(account='ucb736_asc2',partition='aa100',qos='gpu-testing',requested_cpus=4,
+  max_allocated_cpus=4,memory_mib=15360,wall_seconds=2880,gpus=1,gpu_type='a100_3g.20gb',requeue=False)
+ GPU_LIMITS=dict(session_reserve_seconds=600,session_cap_seconds=1200,work_seconds=2820,final_seconds=2860)
+-RAW_ROOTS=dict(launch=GPU_ROOT,cpu=CPU_ROOT,training=TRAIN_ROOT,token=TOKEN_ROOT,common=COLLECTION_ROOT,
++RAW_ROOTS=dict(control=GPU_ROOT,launch=GPU_OUTPUT_ROOT,cpu=CPU_ROOT,training=TRAIN_ROOT,token=TOKEN_ROOT,common=COLLECTION_ROOT,
+  failed01='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_collection_20261108_01')
+ GPU_ACCEPTANCE_KEYS={'schema','status','scope','gpu_packet_sha256','cpu_packet_sha256','cpu_acceptance_sha256',
+  'job_id','allocation','gpu_output','campaign_root','gpu_output_files','campaign_files','bundle_sha256',
+@@ -48,7 +50,7 @@
+  'no-response-proof':'59c21d63644cf7ae9765b3ff374538f2c614694dc383583f1e7661c301700998',
+  'collection-failure-baseline':'eeec362db1990d5cf1fb7945708293842dc9b9283a2777697e6840ad5a2c147b'}
+ STAGES=(('collection',COLLECTION_ROOT,42,86,2,0,900),('token',TOKEN_ROOT,44,90,3,0,600),
+- ('training',TRAIN_ROOT,45,92,4,1,2700),('cpu',CPU_ROOT,46,94,2,0,6000),('gpu',GPU_ROOT,47,96,4,1,2880))
++ ('training',TRAIN_ROOT,45,92,4,1,2700),('cpu',CPU_ROOT,46,94,2,0,6000),('gpu',GPU_ROOT,48,98,4,1,2880))
+ TEXT_METADATA={'freeze-review','operational-adoption-review','site-readiness','cpu-review','gpu-review'}
+ def metadata_name(n):return n+('.md' if n in TEXT_METADATA else '.json')
+ METADATA=tuple(FIXED)+('namespace-claim','site-readiness','cpu-review','cpu-packet','cpu-phase-terminal','gpu-review','gpu-packet','gpu-inventory-after','gpu-custody-inventory')+tuple(
+@@ -75,7 +77,32 @@
+ RAW_ROOTS['failed-token01']=FAILED_TOKEN_ROOT
+ 
+ 
++# Explicit operational successor. Original scientific freeze and entry remain preserved.
++OLDROOT=GPU_OUTPUT_ROOT
++FAILED_GPU_JOB='35498218'
++ORIGINAL_GPU_ENTRY_SHA='2694093512f8ce144bce7f33d6e2306bc251011b26567642c32006a7902e7db1'
++SCIENTIFIC_GPU_ENTRY='qualify_llm_intervention_scientific_campaign_gpu.py'
++PREFLIGHT='llm_intervention_cpu_preflight_receipt.py'
++HISTORY='llm_intervention_cpu_history_admission.py'
++FAILED_GPU_PACKET_SHA='436807328b4ee8ba0ec8cef3d5ff5b9c1d195b0b0165d5181a80356002f60fa7'
++FAILED_GPU_SEAL_SHA='8e0ce58a1e093eee1e94d89025e29ac09f97f8b1c4fc3f29751a782401f5a7c0'
++FAILED_GPU_DISPOSITION_SHA='545cee3c7ae4ce2eafa5f1e6fd7fd3f3566a9415e6b89d1a42a27d6640e94507'
++RECOVERY_AUTHORITY_SHA='b3630d400649ecd186e35232b24e9020e5bced7ad616379c7eaf5eef84498603'
++RECOVERY_FILES={'authority':'gpu-recovery-authority.json','context':'cpu-history-expected.json',
++ 'receipt':'cpu-history-preflight.json','read_set':'cpu-history-readset.json'}
++RECOVERY_METADATA=('gpu-failure-acceptance','gpu-failure-baseline','gpu-failure-packet','gpu-failure-result',
++ 'gpu-failure-disposition','gpu-failure-seal','gpu-failure-inventory','gpu-failure-inventory-after',
++ 'gpu-recovery-authority','gpu-recovery-review','operational-source-manifest','operational-source-review',
++ 'cpu-history-expected','cpu-history-preflight','cpu-history-readset','preflight-review')
++TEXT_METADATA|={'gpu-recovery-review','operational-source-review','preflight-review','finalizer-source-review'}
++METADATA+=RECOVERY_METADATA+('gpu-recovery-acceptance','finalizer-source-manifest','finalizer-source-review')
++
++
++
+ FULL_MAP_METADATA = frozenset(('cpu-inventory', 'cpu-disposition', 'cpu-acceptance', 'gpu-inventory', 'gpu-inventory-after', 'gpu-custody-inventory', 'gpu-disposition', 'gpu-acceptance'))
++
++FULL_MAP_METADATA |= frozenset(('gpu-failure-acceptance','gpu-failure-disposition',
++    'gpu-failure-inventory','gpu-failure-inventory-after','gpu-failure-seal','cpu-history-expected'))
+ 
+ def metadata_maximum(name):
+     return 128*1024**2 if name in FULL_MAP_METADATA else 32*1024**2
+@@ -427,13 +454,17 @@
+             failed_token_transition(m,pins)
+             previous=m['token-failure-baseline'];previous_pin=pins['token-failure-baseline']
+             jobs.append(FAILED_TOKEN_JOB)
++        if prefix=='gpu':
++            observations['failed-gpu-root']=failed_gpu_history(m,pins)
++            previous=m['gpu-failure-baseline'];previous_pin=pins['gpu-failure-baseline']
++            jobs.append(FAILED_GPU_JOB)
+         a,p,r,d,t,base=(m[prefix+'-'+kind] for kind in ('acceptance','launch-packet','result','disposition','inventory','baseline'))
+         job=r['job_id'];need(type(job) is str and re.fullmatch('[1-9][0-9]*',job) and job not in jobs+['35407428'],'distinct actual job required')
+         jobs.append(job)
+         need(r['returncode']==0 and r['ambiguous'] is False and pin(r['intent_sha256']) and a['job_id']==job,'accepted original submission differs')
+         need(p['remote_root']==root and p['source_commit']==SOURCE_COMMIT and p['baseline_sha256']==previous_pin,'original stage source/root/predecessor differs')
+         schemas=dict(collection='ace-scientific-collection-launch-v1',token='ace-scientific-tokenization-launch-v1',
+-                     training='ace-scientific-training-gpu-launch-v1',cpu='ace-scientific-cpu-campaign-launch-v1',gpu='ace-scientific-campaign-gpu-launch-v1')
++                     training='ace-scientific-training-gpu-launch-v1',cpu='ace-scientific-cpu-campaign-launch-v1',gpu='ace-scientific-campaign-gpu-recovery-launch-v2')
+         request=p['resources'];memory=dict(collection=7680,token=11520,training=15360,cpu=7680,gpu=15360)[prefix]
+         need(p['schema']==schemas[prefix] and request['wall_seconds']==wall and request['memory_mib']==memory
+              and request['gpus']==gpus and request['account']=='ucb736_asc2'
+@@ -453,7 +484,7 @@
+             safe_relative(n);need(set(v)=={'bytes','sha256'} and type(v['bytes']) is int and v['bytes']>=0 and pin(v['sha256']),'safe byte inventory required')
+         for n,h in {**p['new_input_files'],'packet.json':pins[prefix+'-launch-packet'],
+                     'submission.intent.json':r['intent_sha256'],'submission.result.json':pins[prefix+'-result']}.items():
+-            safe_relative(n);need(pin(h) and obs['files']['launch/'+n]['sha256']==h,'original stage inputs/journals differ')
++            safe_relative(n);need(pin(h) and obs['files'][('control/' if prefix=='gpu' else 'launch/')+n]['sha256']==h,'original stage inputs/journals differ')
+         need(base['terminal_jobs']==count and base['submission_journals']==journals and base['outstanding_reservation']==0
+              and base['preparation_allowance_cpu_seconds']==3600 and base['cpu_cap_seconds']==57600 and base['gpu_cap_seconds']==7200
+              and base['input_pins']['predecessor']==previous_pin and base['input_pins']['acceptance']==pins[prefix+'-acceptance']
+@@ -483,7 +514,7 @@
+          review_sha256=pins['freeze-review'],required_findings=0,adopted_before_first_draw=True),'original independent freeze adoption required')
+     need(f['source_commit']==SOURCE_COMMIT and f['stage_closure']['source_pins']==f['source_pins'] and len(f['source_pins'])==67,'original full frozen source authority required')
+     stages={s['stage']:s for s in f['stages']};s=stages['finalize']
+-    need(s['entry']==ENTRY and s['entry_sha256']==ENTRY_SHA and s['remote_root']==ROOT and s['deadlines']==DEADLINES
++    need(s['entry']==ENTRY and s['entry_sha256']==FROZEN_ENTRY_SHA and s['remote_root']==ROOT and s['deadlines']==DEADLINES
+          and s['cpus']==2 and s['memory_mib']==7680 and s['wall_seconds']==1200 and s['gpus']==0 and s['gpu_type'] is None
+          and s['account']=='ucb736_asc2' and s['partition']=='acpu' and s['qos']=='cpu-normal' and s['requeue'] is False,'frozen scientific finalizer profile differs')
+     claim=m['namespace-claim'];am=m['operational-amendment']
+@@ -578,13 +609,14 @@
+             need(recorded[file]==pins[name],'original immutable authority differs: '+prefix+'/'+file)
+     base=m['gpu-baseline'];remaining=[stages['finalize']]
+     gpu_authority(m,pins)
++    recovery=recovery_authority(supplied,m,pins,observations)
+     # The GPU producer captures every predecessor metadata argument byte unchanged.
+     for name in tuple(FIXED)+TOKEN_METADATA+('token-packet','namespace-claim','cpu-review','cpu-packet','cpu-phase-terminal')+tuple(
+         prefix+'-'+kind for prefix,*_ in STAGES[:-1] for kind in ('acceptance','launch-packet','result','disposition','inventory','baseline')):
+         need(m['gpu-launch-packet']['new_input_files'][metadata_name(name)]==pins[name], 'original GPU lineage capture differs: '+name)
+     need(base['closed_cpu_seconds']+3600+sum(s['cpus']*s['wall_seconds'] for s in remaining)<=57600
+          and base['closed_gpu_slice_seconds']+sum(s['gpus']*s['wall_seconds'] for s in remaining)<=7200,'full remaining frozen caps exceed budget')
+-    return dict(metadata=m,pins=pins,observations=observations,token_recovery=token_recovery)
++    return dict(metadata=m,pins=pins,observations=observations,token_recovery=token_recovery,gpu_recovery=recovery)
+ 
+ def gpu_authority(m,pins):
+     """Public acceptance/packet joins only. No attempt or report payload decoding."""
+@@ -599,7 +631,7 @@
+     need(g['allocation']==dict(account='ucb736_asc2',partition='aa100',qos='gpu-testing',requested_cpus=4,
+          allocated_cpus=4,memory_mib=15360,wall_seconds=2880,gpus=1,gpu_type='a100_3g.20gb',state='COMPLETED',exit_code='0:0'),
+          'actual frozen GPU allocation differs')
+-    need(gp['schema']=='ace-scientific-paired-campaign-gpu-v1' and gp['scope']=='development'
++    need(gp['schema']=='ace-scientific-paired-campaign-gpu-cpu-history-v2' and gp['scope']=='development'
+          and gp['resources']==GPU_RESOURCES and gp['limits']==GPU_LIMITS
+          and gp['freeze_sha256']==pins['freeze'] and gp['namespace_admission_sha256']==pins['namespace-admission']
+          and gp['cpu_packet_sha256']==pins['cpu-packet'] and gp['cpu_acceptance_sha256']==pins['cpu-acceptance'],
+@@ -607,7 +639,7 @@
+     need(m['gpu-launch-packet']['new_input_files']['inputs/packet.json']==pins['gpu-packet']
+          and m['gpu-launch-packet']['gpu_packet_sha256']==pins['gpu-packet'], 'original GPU inner packet differs')
+     paths=dict(cpu_inputs=CPU_ROOT+'/inputs',cpu_output=CPU_ROOT+'/cpu',campaign=CPU_ROOT+'/cpu/worker/artifacts/campaign',
+-               gpu_inputs=GPU_ROOT+'/inputs',gpu_output=GPU_ROOT+'/gpu')
++               gpu_inputs=GPU_ROOT+'/inputs',gpu_output=GPU_OUTPUT_ROOT+'/gpu')
+     need(gp['paths']==paths and g['gpu_output']==paths['gpu_output']
+          and g['campaign_root']==cpu['campaign_root']==paths['campaign'] and cpu['cpu_output']==old['cpu_output']==paths['cpu_output']
+          and cpu['cpu_output_excluded_directory']=='worker/artifacts/campaign', 'exact inherited evidence roots required')
+@@ -696,7 +728,11 @@
+          and literal(after_transport['python_source'],'JOB')==m['gpu-result']['job_id'], 'original second inventory identity differs')
+     after=decode(after_transport['stdout'])
+     for k in ('files','directories','related_accounting','journal_pins','parent_accounting','terminal_gate'):
+-        need(after[k]==obs[k], 'remote custody changed before/after: '+k)
++        if k=='directories':
++            need(type(after[k]) is list and type(obs[k]) is list
++                 and len(set(after[k]))==len(after[k]) and len(set(obs[k]))==len(obs[k])
++                 and sorted(after[k])==sorted(obs[k]), 'remote directories changed before/after')
++        else:need(after[k]==obs[k], 'remote custody changed before/after: '+k)
+     need(after['terminal_gate'] is True and not after.get('observation_error'), 'conclusive second terminal observation required')
+     gate=ctx['compact_inputs']
+     need(gate.capsules==(capsule,mirror),'bound compact capsule identities differ')
+@@ -705,11 +741,11 @@
+     recheck_storage(ctx)
+     ctx['upstream_rosters']=accepted_rosters(ctx)
+     gp=m['gpu-packet'];files=obs['files'];data={}
+-    need(files['launch/inputs/packet.json']['sha256']==pins['gpu-packet'], 'raw GPU inner packet differs')
++    need(files['control/inputs/packet.json']['sha256']==pins['gpu-packet'], 'raw GPU inner packet differs')
+     for n,h in gp['files'].items():
+         need(Path(n).name==n and n.endswith(('.py','.json','.pt')) and pin(h), 'flat original GPU file required')
+-        need(files['launch/inputs/'+n]['sha256']==h, 'raw GPU input differs')
+-        data[n]=gate.capture('launch/inputs/'+n,h,256*1024**2)
++        need(files['control/inputs/'+n]['sha256']==h, 'raw GPU input differs')
++        data[n]=gate.capture('control/inputs/'+n,h,256*1024**2)
+     upstream={root+'/'+n:h for root,roster in ctx['upstream_rosters'].items() for n,h in roster['files'].items()}
+     for prefix,root,*_ in STAGES:
+         outer=m[prefix+'-launch-packet'];result=m[prefix+'-result']
+@@ -726,39 +762,58 @@
+ def make_packet(ctx,gpu_data,supplied):
+     m,pins=ctx['metadata'],ctx['pins'];f=m['freeze'];gp=m['gpu-packet']
+     closure=f['stage_closure']['stages']['finalizer'];prior=f['stage_closure']['stages']['GPUcampaign']
++    authority=m['gpu-recovery-authority'];manifest=m['finalizer-source-manifest']
+     need(set(gpu_data)==set(gp['files']) and all(sha(v)==gp['files'][n] for n,v in gpu_data.items()), 'unchanged full GPU inputs required')
+-    need(gp['source_names']==prior['source_names'] and all(gp['files'][n]==h for n,h in prior['input_source_files'].items()), 'frozen GPU closure differs')
++    need(gp['source_names']==sorted(authority['operational_source_files'])
++         and all(gp['files'][n]==h for n,h in authority['operational_source_files'].items())
++         and set(gp['source_names'])==set(prior['source_names'])|{PREFLIGHT,HISTORY}
++         and all(gp['files'][n]==h for n,h in prior['input_source_files'].items() if n!=SCIENTIFIC_GPU_ENTRY),
++         'only the three independently authorized GPU operational source exceptions are permitted')
+     data=dict(gpu_data);captured={}
+     for origin,h in f['source_pins'].items():
+-        safe_relative(origin);value=committed(SOURCE_COMMIT,origin);need(sha(value)==h, 'full frozen67-source Git authority differs');captured[origin]=value
++        safe_relative(origin);value=committed(SOURCE_COMMIT,origin)
++        need(sha(value)==h,'full frozen67-source Git authority differs');captured[origin]=value
+     for n,h in closure['input_source_files'].items():
+         found=[v for origin,v in captured.items() if Path(origin).name==n and sha(v)==h]
+-        need(len(found)==1, 'unique frozen source origin required')
+-        need(n not in data or data[n]==found[0], 'finalizer must not replace inherited source bytes');data[n]=found[0]
+-    need(set(data)==set(gpu_data)|{ENTRY,OLD_GPU_ENTRY} and closure['source_names']==sorted(set(gp['source_names'])|{ENTRY,OLD_GPU_ENTRY}),
+-         'exact scientific finalizer source closure required')
+-    data.update({'gpu-packet.json':supplied['gpu-packet'],'gpu-acceptance.json':supplied['gpu-acceptance']})
+-    need(len(data)<=256 and sum(map(len,data.values()))<=768*1024**2 and all(len(v)<=256*1024**2 for v in data.values()), 'frozen finalizer input limits exceeded')
+-    entry=data[ENTRY]
+-    need(sha(entry)==ENTRY_SHA and literal(entry,'RESOURCES')==RESOURCES and literal(entry,'VERSION')==VERSION
+-         and literal(entry,'GPU_ACCEPTANCE_KEYS')==GPU_ACCEPTANCE_KEYS and closure['entrypoint_sha256']==ENTRY_SHA,
+-         'exact production finalizer contract differs')
+-    for n,h in closure['helper_pins'].items():need(sha(data[n])==h, 'finalizer helper pin differs')
++        need(len(found)==1,'unique frozen source origin required')
++        if n in data:
++            need(n==SCIENTIFIC_GPU_ENTRY or data[n]==found[0],'unexpected inherited source replacement')
++        else:data[n]=found[0]
++    need(sha(data[ENTRY])==FROZEN_ENTRY_SHA and closure['entrypoint_sha256']==FROZEN_ENTRY_SHA,
++         'preserved original finalizer source differs')
++    record=manifest['entry'];entry=committed(manifest['source_commit'],record['repository_path'])
++    need(sha(entry)==record['sha256']==ENTRY_SHA,'independently pinned committed finalizer successor differs')
++    data[ENTRY]=entry
++    need(set(data)==set(gpu_data)|{ENTRY,OLD_GPU_ENTRY},'exact operational finalizer source closure required')
++    data.update({'gpu-packet.json':supplied['gpu-packet'],'gpu-acceptance.json':supplied['gpu-acceptance'],
++        'gpu-recovery-acceptance.json':supplied['gpu-recovery-acceptance'],
++        'gpu-success-baseline.json':supplied['gpu-baseline'],
++        'gpu-failure-acceptance.json':supplied['gpu-failure-acceptance'],
++        'gpu-failure-baseline.json':supplied['gpu-failure-baseline']})
++    need(len(data)<=256 and sum(map(len,data.values()))<=768*1024**2
++         and all(len(v)<=256*1024**2 for v in data.values()),'frozen finalizer input limits exceeded')
++    need(literal(entry,'RESOURCES')==RESOURCES and literal(entry,'VERSION')==VERSION
++         and literal(entry,'GPU_ACCEPTANCE_KEYS')==GPU_ACCEPTANCE_KEYS,'exact finalizer operational contract differs')
++    for n,h in closure['helper_pins'].items():need(sha(data[n])==h,'finalizer helper pin differs')
+     bootstrap=literal(data['qualify_llm_intervention_runtime_metadata.py'],'BOOTSTRAP')
+     paths={**gp['paths'],'output':ROOT+'/finalization'}
+-    packet=dict(schema=VERSION,scope='development',files={n:sha(v) for n,v in sorted(data.items())},source_names=closure['source_names'],
+-        paths=paths,resources=RESOURCES,cpu_packet_sha256=pins['cpu-packet'],gpu_packet_sha256=pins['gpu-packet'],
+-        cpu_acceptance_sha256=pins['cpu-acceptance'],gpu_acceptance_sha256=pins['gpu-acceptance'],source_commit=SOURCE_COMMIT,
+-        freeze_sha256=pins['freeze'],namespace_admission_sha256=pins['namespace-admission'])
+-    need(set(packet)==literal(entry,'PACKET_KEYS') and len(raw(packet))<=256*1024, 'exact production packet keys/bound required')
++    packet=dict(schema=VERSION,scope='development',files={n:sha(v) for n,v in sorted(data.items())},
++        source_names=sorted(set(gp['source_names'])|{ENTRY,OLD_GPU_ENTRY}),paths=paths,resources=RESOURCES,
++        cpu_packet_sha256=pins['cpu-packet'],gpu_packet_sha256=pins['gpu-packet'],
++        cpu_acceptance_sha256=pins['cpu-acceptance'],gpu_acceptance_sha256=pins['gpu-acceptance'],
++        gpu_recovery_acceptance_sha256=pins['gpu-recovery-acceptance'],source_commit=SOURCE_COMMIT,
++        operational_source_commit=manifest['source_commit'],freeze_sha256=pins['freeze'],
++        namespace_admission_sha256=pins['namespace-admission'])
++    need(set(packet)==literal(entry,'PACKET_KEYS') and len(raw(packet))<=256*1024,'exact production packet keys/bound required')
+     return packet,data,bootstrap
+ 
+ 
++
+ def budget(base):
+-    need(base['terminal_jobs']==47 and base['submission_journals']==96 and base['outstanding_reservation']==0,
+-         'actual released47/96 baseline required')
++    need(base['terminal_jobs']==48 and base['submission_journals']==98 and base['outstanding_reservation']==0,
++         'actual released48/98 baseline required')
+     cpu,gpu=cost(base['related_accounting'])
+-    need(len(normalized(base['related_accounting']))==47 and len(base['journal_pins'])==96
++    need(len(normalized(base['related_accounting']))==48 and len(base['journal_pins'])==98
+          and (cpu,gpu)==(base['closed_cpu_seconds'],base['closed_gpu_slice_seconds'])
+          and base['preparation_allowance_cpu_seconds']==3600 and base['cpu_admission_seconds']==cpu+3600,
+          'actual complete baseline charge differs')
+@@ -794,7 +849,7 @@
+ 
+ 
+ # Explicit outer storage adapter; never added to frozen scientific child inputs.
+-COMPACT_ADAPTER_SHA='a0e601a7be0ec2144faf0956de003dbe19b1a0f538b22a36a3506d316b698245'
++COMPACT_ADAPTER_SHA='c0cdc46d81ea10958b9ff4ec5729570400fd55c0d56738f482f4adb0ff52a114'
+ CURC_HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ 
+ def compact_adapter():
+@@ -859,6 +914,220 @@
+     gate=configure_storage(ctx,supplied,packet['gpu_terminal_custody'],packet['gpu_terminal_mirror'])
+     need(packet['storage_binding']==storage_packet_binding(ctx),'independent compact storage packet binding differs')
+     return gate
++
++
++def exact_inventory(files,directories):
++    need(type(files) is dict and files and type(directories) is list,'full inventory maps required')
++    need(all(type(n) is str for n in directories) and len(set(directories))==len(directories),'unique inventory directories required')
++    for n,v in files.items():
++        safe_relative(n);need(type(v) is dict and set(v)=={'bytes','sha256'} and type(v['bytes']) is int
++             and v['bytes']>=0 and pin(v['sha256']),'exact file identity required')
++    for n in directories:safe_relative(n)
++    need(not set(files)&set(directories),'file/directory overlap')
++    for n in list(files)+directories:
++        need(all(str(p) in directories for p in Path(n).parents if str(p)!='.'),'inventory missing directory')
++    return dict(files=files,directories=sorted(directories))
++
++def failed_gpu_history(m,pins):
++    """Original nonzero collector is preserved; independent reconciliation is authority."""
++    a=m['gpu-failure-acceptance'];base=m['gpu-failure-baseline'];prior=m['cpu-baseline']
++    d=m['gpu-failure-disposition'];seal=m['gpu-failure-seal'];p=m['gpu-failure-packet'];r=m['gpu-failure-result']
++    need(pins['gpu-failure-packet']==FAILED_GPU_PACKET_SHA and pins['gpu-failure-seal']==FAILED_GPU_SEAL_SHA
++         and pins['gpu-failure-disposition']==FAILED_GPU_DISPOSITION_SHA,'original failed GPU capsule differs')
++    authority=m['gpu-recovery-authority']
++    required=dict(schema='ace-scientific-campaign-gpu-failure-acceptance-v1',status='accepted_failed_prepolicy_attempt',
++        job_id=FAILED_GPU_JOB,required_findings=0,acceptance=True,complete_CURC_backup_verified_from_saved_records=True,
++        all_selected_local_files_verified_in_both_copies=True,complete_local_raw_copy=False,
++        new_policy_attempts=0,new_scientific_responses=0,new_training_updates=0,new_world_realizations=0,
++        original_collector_returncode=1,retroactive_collector_success=False,originals_changed=False,
++        outstanding_reservation=0,related_terminal_jobs=47,submission_journals=96,
++        scheduler_state='FAILED',scheduler_exit_code='1:0',source_commit=SOURCE_COMMIT)
++    need(set(required)<=set(a) and raw({k:a[k] for k in required})==raw(required),
++         'independent accepted failed prepolicy attempt/no-work reconciliation required')
++    need(authority['failed_gpu01_acceptance_sha256']==pins['gpu-failure-acceptance'], 'failure acceptance pin differs')
++    for name,key in {'original_disposition':'gpu-failure-disposition','original_failure_seal':'gpu-failure-seal',
++        'original_submission_result':'gpu-failure-result','outer_packet':'gpu-failure-packet',
++        'predecessor_acceptance':'cpu-acceptance','predecessor_baseline':'cpu-baseline'}.items():
++        need(a['input_pins'][name]['sha256']==pins[key],'actual reconciliation original pin differs: '+name)
++    need(a['input_pins']['submitted_entry']['sha256']==ORIGINAL_GPU_ENTRY_SHA
++         and all(pin(a[k]) for k in ('no_policy_work_proof_sha256','resource_reconciliation_sha256','source_boundary_sha256')),
++         'actual reconciliation source/no-work/resource evidence pins required')
++    need(d['status']=='terminal_custody_with_binding_disagreements' and d['job_id']==FAILED_GPU_JOB
++         and d['remote_root']==OLDROOT and d['packet_sha256']==pins['gpu-failure-packet']
++         and d['submission_result_sha256']==pins['gpu-failure-result'] and d['custody_bytes_verified'] is True
++         and d['current_lineage_verified'] is False and d['input_pin_mismatches']==[]
++         and d['errors']==['actual/requested GPU identity/resource/no-requeue/wall contract differs or unavailable']
++         and d['allocation']['resource_contract_matched'] is False,'retain sole original collector disagreement verbatim')
++    need(p['schema']=='ace-scientific-campaign-gpu-launch-v1' and p['source_commit']==SOURCE_COMMIT
++         and p['remote_root']==OLDROOT and p['resources']==GPU_RESOURCES and p['limits']==GPU_LIMITS
++         and p['baseline_sha256']==pins['cpu-baseline'] and p['cpu_acceptance_sha256']==pins['cpu-acceptance']
++         and p['cpu_packet_sha256']==pins['cpu-packet'],'original failed GPU submission lineage differs')
++    need(r['job_id']==FAILED_GPU_JOB and r['returncode']==0 and r['ambiguous'] is False and pin(r['intent_sha256']),
++         'original once-submitted failed job differs')
++    observations=[]
++    for key in ('gpu-failure-inventory','gpu-failure-inventory-after'):
++        t=m[key];need(t['returncode']==0 and literal(t['python_source'],'ROOT')==OLDROOT
++             and literal(t['python_source'],'JOB')==FAILED_GPU_JOB,'complete original observation required')
++        o=decode(t['stdout']);need(o['terminal_gate'] is True and o['root_present'] is True
++             and not o.get('observation_error'),'failed GPU complete observation required')
++        observations.append(o)
++    before,after=observations
++    need(before['original_hardlink_groups']==after['original_hardlink_groups'], 'original failure alias metadata changed')
++    full=exact_inventory(before['files'],before['directories'])
++    need(full==exact_inventory(after['files'],after['directories'])
++         and full==exact_inventory(d['remote_files'],d['remote_directories']), 'failed original before/after/full custody differs')
++    copies=seal['copies'];need(seal['identical'] is True and len(copies)==2 and len(set(copies))==2,'two original failed seals required')
++    views=list(copies.values());need(views[0]==views[1],'original failed seal copies differ')
++    for n,key in {'disposition.json':'gpu-failure-disposition','inventory_transport.json':'gpu-failure-inventory',
++                  'inventory_after_transport.json':'gpu-failure-inventory-after'}.items():
++        need(views[0]['files'][n]['sha256']==pins[key],'original failed seal metadata differs')
++    for n,h in {**p['new_input_files'],'packet.json':pins['gpu-failure-packet'],
++                'submission.intent.json':r['intent_sha256'],'submission.result.json':pins['gpu-failure-result']}.items():
++        need(full['files']['launch/'+safe_relative(n)]['sha256']==h,'original failed source/input/journal differs')
++    old=exact_inventory({n[7:]:v for n,v in full['files'].items() if n.startswith('launch/')},
++                        [n[7:] for n in full['directories'] if n.startswith('launch/')])
++    need(not any(n=='gpu' or n.startswith('gpu/') for n in list(old['files'])+old['directories']),
++         'old output/phase already exists; no retry')
++    # Failure observation must retain the exact accepted CPU tree, including empty directories.
++    original=m['cpu-inventory'];cpu_before=decode(original['stdout'])
++    for new_label,old_label in [('cpu','launch'),('training','training'),('token','cpu'),
++                                 ('failed-token01','failed-token01'),('common','common'),('failed01','failed01')]:
++        want={n[len(old_label)+1:]:v for n,v in cpu_before['files'].items() if n.startswith(old_label+'/')}
++        got={n[len(new_label)+1:]:v for n,v in full['files'].items() if n.startswith(new_label+'/')}
++        wd=sorted(n[len(old_label)+1:] for n in cpu_before['directories'] if n.startswith(old_label+'/'))
++        gd=sorted(n[len(new_label)+1:] for n in full['directories'] if n.startswith(new_label+'/'))
++        need(want and want==got and wd==gd,'failed GPU changed accepted ancestor: '+new_label)
++    need(base['terminal_jobs']==47 and base['submission_journals']==96 and base['outstanding_reservation']==0
++         and base['preparation_allowance_cpu_seconds']==3600 and base['cpu_cap_seconds']==57600 and base['gpu_cap_seconds']==7200
++         and base['input_pins']['predecessor']==pins['cpu-baseline']
++         and base['input_pins']['acceptance']==pins['gpu-failure-acceptance']
++         and base['input_pins']['disposition']==pins['gpu-failure-disposition'],'actual failed47/96 baseline required')
++    rows=base['related_accounting'];oldrows=[v for v in rows if v[0]!=FAILED_GPU_JOB];current=[v for v in rows if v[0]==FAILED_GPU_JOB]
++    need(len(oldrows)==46 and len(current)==1 and normalized(oldrows)==normalized(prior['related_accounting'])
++         and normalized(rows)==normalized(before['related_accounting'])==normalized(after['related_accounting'])
++         and normalized(current)==normalized([before['parent_accounting']])==normalized([after['parent_accounting']]),
++         'exact failed job append differs')
++    row=normalized(current)[0];need(row[2:7]==['FAILED','1:0',4,245,'ucb736_asc2'] and cost(current)==(980,245),
++         'observed failed GPU allocation differs')
++    expected={**prior['journal_pins'],OLDROOT+'/submission.intent.json':r['intent_sha256'],
++              OLDROOT+'/submission.result.json':pins['gpu-failure-result']}
++    need(len(expected)==96 and expected==base['journal_pins']==before['journal_pins']==after['journal_pins'],
++         'complete96 failed-history journal pins differ')
++    oldcost=cost(prior['related_accounting']);newcost=cost(rows)
++    need(newcost==(a['closed_cpu_seconds'],a['closed_gpu_slice_seconds'])
++         and a['cpu_admission_seconds']==newcost[0]+3600, 'reconciliation actual costs differ from baseline')
++    need(newcost==(oldcost[0]+980,oldcost[1]+245)==(base['closed_cpu_seconds'],base['closed_gpu_slice_seconds'])
++         and base['cpu_admission_seconds']==newcost[0]+3600,'actual failed charge extension differs')
++    need(newcost[0]+17520<=57600 and newcost[1]+2880<=7200,'remaining frozen caps exceed actual budget')
++    return old
++
++def recovery_authority(supplied,m,pins,observations):
++    """Join the actual recovery, unchanged17-key acceptance, and full historical custody."""
++    a=m['gpu-recovery-authority'];gp=m['gpu-packet'];outer=m['gpu-launch-packet']
++    c=m['cpu-history-expected']['execution_context'];g=m['gpu-acceptance'];s=m['gpu-recovery-acceptance']
++    need(pins['gpu-recovery-authority']==RECOVERY_AUTHORITY_SHA
++         and a['schema']=='ace-gpu-cpu-history-recovery-authority-v1' and a['status']=='operationally_adopted'
++         and a['historical_postcustody_required'] is a['unchanged_scientific_inputs'] is True
++         and a['control_root']==GPU_ROOT and a['failed_gpu01_root']==GPU_OUTPUT_ROOT
++         and a['allowed_new_output']==GPU_OUTPUT_ROOT+'/gpu'
++         and a['original_source_commit']==SOURCE_COMMIT and a['original_entry_sha256']==ORIGINAL_GPU_ENTRY_SHA
++         and a['original_gpu01_packet_sha256']==pins['gpu-failure-packet']
++         and a['original_gpu01_job_id']==FAILED_GPU_JOB
++         and a['cpu_acceptance_sha256']==pins['cpu-acceptance']
++         and a['namespace_sha256']==pins['namespace-claim'] and a['original_namespace_sha256']==ORIGINAL_CLAIM_SHA,
++         'exact adopted operational authority required')
++    need(a['baseline']==c['baseline']==dict(sha256=pins['gpu-failure-baseline'],terminal_jobs=47,submission_journals=96)
++         and c['control_root']==GPU_ROOT and c['gpu_output']==GPU_OUTPUT_ROOT+'/gpu'
++         and c['failed_gpu01_root']==GPU_OUTPUT_ROOT
++         and c['cpu_roots']==dict(cpu_output=CPU_ROOT+'/cpu',campaign=CPU_ROOT+'/cpu/worker/artifacts/campaign'),
++         'original failed baseline/context roots differ')
++    need(gp['recovery_files']==RECOVERY_FILES
++         and all(gp['files'][n]==pins[n[:-5]] for n in RECOVERY_FILES.values())
++         and gp['source_names']==sorted(a['operational_source_files']) and len(gp['source_names'])==56
++         and {n:gp['files'][n] for n in gp['source_names']}==a['operational_source_files']
++         and c['source_files_sha256']==digest(a['operational_source_files'])
++         and c['model_files_sha256']==digest(m['freeze']['model_files'])
++         and c['resources_sha256']==digest(GPU_RESOURCES) and c['limits_sha256']==digest(GPU_LIMITS),
++         'complete recovery source/model/resource/preflight context differs')
++    for name in RECOVERY_METADATA:
++        need(outer['new_input_files'][metadata_name(name)]==pins[name], 'actual GPU02 captured recovery metadata differs: '+name)
++    manifest=m['operational-source-manifest']
++    need(set(manifest)=={'schema','source_commit','files'} and manifest['schema']=='ace-gpu02-operational-sources-v1'
++         and set(manifest['files'])=={SCIENTIFIC_GPU_ENTRY,PREFLIGHT,HISTORY}
++         and outer['operational_source_commit']==manifest['source_commit'], 'three original GPU02 operational sources required')
++    captured={}
++    for n,v in manifest['files'].items():
++        need(set(v)=={'repository_path','sha256'} and v['sha256']==gp['files'][n], 'original operational source pin differs')
++        safe_relative(v['repository_path']);captured[n]=committed(manifest['source_commit'],v['repository_path'])
++        need(sha(captured[n])==v['sha256'],'committed original GPU02 operational source differs')
++    lineage=c['lineage']
++    need(lineage['cpu_acceptance_sha256']==pins['cpu-acceptance']
++         and lineage['failed_gpu01_acceptance_sha256']==pins['gpu-failure-acceptance']
++         and lineage['recovery_authority_sha256']==pins['gpu-recovery-authority']
++         and lineage['checker_sha256']==gp['files'][PREFLIGHT]
++         and lineage['source_sha256']==a['historical_verifier_sha256']
++         and lineage['namespace_sha256']==pins['namespace-claim'] and lineage['original_namespace_sha256']==ORIGINAL_CLAIM_SHA
++         and c['proof_pins']==a['historical_proof_pins']==dict(custody_sha256=pins['gpu-failure-seal'],
++             before_observation_sha256=pins['gpu-failure-inventory'],after_observation_sha256=pins['gpu-failure-inventory-after'],
++             read_set_artifact_sha256=pins['cpu-history-readset']), 'original preflight provenance differs')
++    # This is the existing pure supplied-bytes checker. No scientific producer is imported.
++    import types
++    checker=types.ModuleType('captured_finalizer_preflight')
++    exec(compile(captured[PREFLIGHT],PREFLIGHT,'exec'),vars(checker))
++    scoped=checker.validate_receipt(supplied['cpu-history-preflight'],pins['cpu-history-preflight'],
++                                    supplied['cpu-history-expected'],pins['cpu-history-expected'])
++    need(scoped['full_external_postcustody_required'] is True,'original preflight boundary changed')
++    old=observations['failed-gpu-root'];obs=observations['gpu'];files=obs['files']
++    permitted=lambda n:n=='gpu' or n.startswith('gpu/')
++    current=exact_inventory({n[7:]:v for n,v in files.items() if n.startswith('launch/')},
++                           [n[7:] for n in obs['directories'] if n.startswith('launch/')])
++    preserved=dict(files={n:v for n,v in current['files'].items() if not permitted(n)},
++                   directories=[n for n in current['directories'] if not permitted(n)])
++    need(preserved==old,'failed GPU01 root may gain only the explicitly authorized gpu output')
++    marker='controller/historical-postcustody-required.json'
++    required=dict(schema='ace-scientific-campaign-gpu-recovery-acceptance-v1',status='accepted',scope='development',
++        required_findings=0,acceptance=True,scientific_qualified=False,historical_postcustody_verified=True,originals_preserved=True,
++        job_id=g['job_id'],gpu_acceptance_sha256=pins['gpu-acceptance'],gpu_packet_sha256=pins['gpu-packet'],
++        gpu_launch_packet_sha256=pins['gpu-launch-packet'],cpu_acceptance_sha256=pins['cpu-acceptance'],
++        authority_sha256=pins['gpu-recovery-authority'],preflight_context_sha256=pins['cpu-history-expected'],
++        preflight_receipt_sha256=pins['cpu-history-preflight'],readset_sha256=pins['cpu-history-readset'],
++        failure_acceptance_sha256=pins['gpu-failure-acceptance'],failure_baseline_sha256=pins['gpu-failure-baseline'],
++        baseline_sha256=pins['gpu-baseline'],source_files_sha256=c['source_files_sha256'],
++        gpu_terminal_sha256=g['terminal_pins']['terminal.json'],phase_terminal_sha256=g['terminal_pins']['controller/phase/terminal.json'],
++        postcustody_marker_sha256=g['gpu_output_files'].get(marker),
++        before_observation_sha256=pins['gpu-inventory'],after_observation_sha256=pins['gpu-inventory-after'],
++        custody_sha256=pins['gpu-custody-inventory'],control_root=GPU_ROOT,output_root=GPU_OUTPUT_ROOT+'/gpu',
++        raw_root_labels=dict(control=GPU_ROOT,launch=GPU_OUTPUT_ROOT),cpu_campaign_root=g['campaign_root'],
++        original_source_commit=SOURCE_COMMIT,original_gpu_entry_sha256=ORIGINAL_GPU_ENTRY_SHA,
++        operational_source_commit=manifest['source_commit'],failed_gpu01_job_id=FAILED_GPU_JOB,
++        archive_receipt_sha256=m['gpu-disposition']['remote_custody_receipt_sha256'],
++        failed_archive_receipt_sha256=m['gpu-failure-disposition']['remote_custody_receipt_sha256'],
++        evidence_pins={n:pins[n] for n in ('gpu-review','gpu-disposition','gpu-inventory','gpu-inventory-after',
++            'gpu-custody-inventory','gpu-recovery-review','preflight-review','operational-source-manifest',
++            'operational-source-review','gpu-failure-disposition','gpu-failure-seal',
++            'gpu-failure-inventory','gpu-failure-inventory-after')})
++    need(type(s) is dict and set(required)<=set(s) and raw({k:s[k] for k in required})==raw(required)
++         and pin(required['postcustody_marker_sha256'])
++         and files['launch/gpu/'+marker]['sha256']==required['postcustody_marker_sha256'],
++         'independent actual GPU02 full-postcustody acceptance and exact evidence pins required')
++    need(pin(s['archive_receipt_sha256']) and pin(s['failed_archive_receipt_sha256'])
++         and list(m['gpu-failure-seal']['copies'].values())[0]['files']['remote-custody.json']['sha256']==s['failed_archive_receipt_sha256'],
++         'original/current full archive receipt pins required')
++    fm=m['finalizer-source-manifest']
++    need(type(fm) is dict and set(fm)=={'schema','source_commit','entry'}
++         and fm['schema']=='ace-finalizer-gpu02-operational-source-v1'
++         and type(fm['source_commit']) is str and re.fullmatch('[0-9a-f]{40}',fm['source_commit'])
++         and set(fm['entry'])=={'repository_path','sha256'} and fm['entry']['sha256']==ENTRY_SHA,
++         'independent finalizer source manifest required')
++    safe_relative(fm['entry']['repository_path'])
++    need(sha(committed(fm['source_commit'],fm['entry']['repository_path']))==ENTRY_SHA,
++         'independent committed finalizer successor required')
++    return dict(authority_sha256=pins['gpu-recovery-authority'],acceptance_sha256=pins['gpu-recovery-acceptance'],
++        failed_job_id=FAILED_GPU_JOB,failed_root=GPU_OUTPUT_ROOT,failure_acceptance_sha256=pins['gpu-failure-acceptance'],
++        failure_baseline_sha256=pins['gpu-failure-baseline'],failure_seal_sha256=pins['gpu-failure-seal'],
++        control_root=GPU_ROOT,output_root=GPU_OUTPUT_ROOT+'/gpu',
++        preflight_receipt_sha256=pins['cpu-history-preflight'],execution_context_sha256=m['cpu-history-expected']['execution_context_sha256'],
++        full_historical_postcustody_verified=True,original_collector_status=m['gpu-failure-disposition']['status'])
+ 
+ 
+ def main():
+@@ -897,15 +1166,17 @@
+         outer=dict(schema=OUTER_VERSION,source_commit=SOURCE_COMMIT,remote_root=ROOT,resources=RESOURCES,deadlines=DEADLINES,
+             finalizer_packet_sha256=sha(stage_raw),gpu_packet_sha256=ctx['pins']['gpu-packet'],gpu_acceptance_sha256=ctx['pins']['gpu-acceptance'],
+             gpu_job_id=ctx['metadata']['gpu-acceptance']['job_id'],token_recovery=ctx['token_recovery'],
++            gpu_recovery=ctx['gpu_recovery'],operational_source_commit=stage['operational_source_commit'],
++            gpu_recovery_acceptance_sha256=ctx['pins']['gpu-recovery-acceptance'],
+             failed_token_root=FAILED_TOKEN_ROOT,failed_token_job_id=FAILED_TOKEN_JOB,baseline_sha256=ctx['pins']['gpu-baseline'],
+             operational_amendment_sha256=ctx['pins']['operational-amendment'],namespace_claim_sha256=ctx['pins']['namespace-claim'],
+             new_input_files={n:sha(v) for n,v in sorted(files.items())},original_input_pins=ctx['upstream_pins'],
+             upstream_rosters=ctx['upstream_rosters'],paths=stage['paths'],gpu_terminal_custody=str(ctx['custody_paths'][0]),
+-            gpu_terminal_mirror=str(ctx['custody_paths'][1]),storage_binding=storage_packet_binding(ctx),prior_jobs=47,prior_journals=96,worlds=24,cells=192,comparisons=28,
++            gpu_terminal_mirror=str(ctx['custody_paths'][1]),storage_binding=storage_packet_binding(ctx),prior_jobs=48,prior_journals=98,worlds=24,cells=192,comparisons=28,
+             policy_ids=list(POLICIES),admission=budget(ctx['metadata']['gpu-baseline']),submitted=False,
+             new_training_updates=0,new_responses=0,new_worlds=0,scientific_qualified=False,execution_qualified=False,
+             sizing='Frozen CPU reporting cap1200s2CPU7.5GiB. Private saved-response reporting only in allocated worker. '
+-                   'Future terminal accounting must preserve all47 prior rows/96journals and extend48/98 with actual charges, including failures.')
++                   'Future terminal accounting must preserve all48 prior rows/98journals and extend49/100 with actual charges, including failures.')
+         files['packet.json']=raw(outer)
+         need(not any(os.path.lexists(p) for p in (LOCAL,EXT)), 'exclusive new launch destinations required')
+         created=[]

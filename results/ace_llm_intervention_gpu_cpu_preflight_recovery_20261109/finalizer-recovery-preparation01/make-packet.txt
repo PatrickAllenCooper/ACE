@@ -1,0 +1,47 @@
+def make_packet(ctx,gpu_data,supplied):
+    m,pins=ctx['metadata'],ctx['pins'];f=m['freeze'];gp=m['gpu-packet']
+    closure=f['stage_closure']['stages']['finalizer'];prior=f['stage_closure']['stages']['GPUcampaign']
+    authority=m['gpu-recovery-authority'];manifest=m['finalizer-source-manifest']
+    need(set(gpu_data)==set(gp['files']) and all(sha(v)==gp['files'][n] for n,v in gpu_data.items()), 'unchanged full GPU inputs required')
+    need(gp['source_names']==sorted(authority['operational_source_files'])
+         and all(gp['files'][n]==h for n,h in authority['operational_source_files'].items())
+         and set(gp['source_names'])==set(prior['source_names'])|{PREFLIGHT,HISTORY}
+         and all(gp['files'][n]==h for n,h in prior['input_source_files'].items() if n!=SCIENTIFIC_GPU_ENTRY),
+         'only the three independently authorized GPU operational source exceptions are permitted')
+    data=dict(gpu_data);captured={}
+    for origin,h in f['source_pins'].items():
+        safe_relative(origin);value=committed(SOURCE_COMMIT,origin)
+        need(sha(value)==h,'full frozen67-source Git authority differs');captured[origin]=value
+    for n,h in closure['input_source_files'].items():
+        found=[v for origin,v in captured.items() if Path(origin).name==n and sha(v)==h]
+        need(len(found)==1,'unique frozen source origin required')
+        if n in data:
+            need(n==SCIENTIFIC_GPU_ENTRY or data[n]==found[0],'unexpected inherited source replacement')
+        else:data[n]=found[0]
+    need(sha(data[ENTRY])==FROZEN_ENTRY_SHA and closure['entrypoint_sha256']==FROZEN_ENTRY_SHA,
+         'preserved original finalizer source differs')
+    record=manifest['entry'];entry=committed(manifest['source_commit'],record['repository_path'])
+    need(sha(entry)==record['sha256']==ENTRY_SHA,'independently pinned committed finalizer successor differs')
+    data[ENTRY]=entry
+    need(set(data)==set(gpu_data)|{ENTRY,OLD_GPU_ENTRY},'exact operational finalizer source closure required')
+    data.update({'gpu-packet.json':supplied['gpu-packet'],'gpu-acceptance.json':supplied['gpu-acceptance'],
+        'gpu-recovery-acceptance.json':supplied['gpu-recovery-acceptance'],
+        'gpu-success-baseline.json':supplied['gpu-baseline'],
+        'gpu-failure-acceptance.json':supplied['gpu-failure-acceptance'],
+        'gpu-failure-baseline.json':supplied['gpu-failure-baseline']})
+    need(len(data)<=256 and sum(map(len,data.values()))<=768*1024**2
+         and all(len(v)<=256*1024**2 for v in data.values()),'frozen finalizer input limits exceeded')
+    need(literal(entry,'RESOURCES')==RESOURCES and literal(entry,'VERSION')==VERSION
+         and literal(entry,'GPU_ACCEPTANCE_KEYS')==GPU_ACCEPTANCE_KEYS,'exact finalizer operational contract differs')
+    for n,h in closure['helper_pins'].items():need(sha(data[n])==h,'finalizer helper pin differs')
+    bootstrap=literal(data['qualify_llm_intervention_runtime_metadata.py'],'BOOTSTRAP')
+    paths={**gp['paths'],'output':ROOT+'/finalization'}
+    packet=dict(schema=VERSION,scope='development',files={n:sha(v) for n,v in sorted(data.items())},
+        source_names=sorted(set(gp['source_names'])|{ENTRY,OLD_GPU_ENTRY}),paths=paths,resources=RESOURCES,
+        cpu_packet_sha256=pins['cpu-packet'],gpu_packet_sha256=pins['gpu-packet'],
+        cpu_acceptance_sha256=pins['cpu-acceptance'],gpu_acceptance_sha256=pins['gpu-acceptance'],
+        gpu_recovery_acceptance_sha256=pins['gpu-recovery-acceptance'],source_commit=SOURCE_COMMIT,
+        operational_source_commit=manifest['source_commit'],freeze_sha256=pins['freeze'],
+        namespace_admission_sha256=pins['namespace-admission'])
+    need(set(packet)==literal(entry,'PACKET_KEYS') and len(raw(packet))<=256*1024,'exact production packet keys/bound required')
+    return packet,data,bootstrap

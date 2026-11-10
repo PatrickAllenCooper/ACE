@@ -1,0 +1,50 @@
+--- predecessor/compact_inputs.py
++++ implementation/compact_inputs.py
+@@ -179,6 +179,13 @@
+     return decorate
+ 
+ 
++def observed_directories(values):
++    need(type(values) is list and all(type(n) is str for n in values)
++         and len(set(values))==len(values),'original unique directory list required')
++    for n in values:relative(n)
++    return sorted(values)
++
++
+ class Inputs:
+     """One admitted predecessor use. Fetch/log destinations are always exclusive."""
+     def __init__(self, *, backend, receipt_raw, receipt_sha256, observation,
+@@ -195,9 +202,12 @@
+              'explicit remote full / local selected custody required')
+         need(pin(helper_sha256) and r['helper_sha256']==helper_sha256 and
+              r['roots']==expected_roots, 'independent backend/root identity differs')
++        need(expected_roots.get('control')=='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02'
++             and expected_roots.get('launch')=='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01',
++             'explicit GPU02 control / original output roots required')
+         self.full=r['full_inventory'];self.selected=r['local_inventory']
+         inventory_shape(self.full);inventory_shape(self.selected)
+-        need(self.full=={'files':observation['files'],'directories':sorted(observation['directories'])},
++        need(self.full=={'files':observation['files'],'directories':observed_directories(observation['directories'])},
+              'complete original predecessor inventory differs')
+         need(all(self.full['files'].get(n)==v for n,v in self.selected['files'].items()) and
+              set(self.selected['directories'])<=set(self.full['directories']), 'selected view is not exact subset')
+@@ -245,7 +255,7 @@
+     @recorded("input-read")
+     def read(self, name, expected_sha256, maximum=256*1024**2):
+         relative(name)
+-        need(name.startswith('launch/inputs/') and name.count('/')==2 and pin(expected_sha256),
++        need(name.startswith('control/inputs/') and name.count('/')==2 and pin(expected_sha256),
+              'only explicit flat inherited input members may be fetched')
+         info=self.full['files'].get(name)
+         need(info is not None and info['sha256']==expected_sha256, 'independent inherited input pin differs')
+@@ -436,7 +446,9 @@
+     need(after['returncode']==0,'successful original second observation required')
+     after=decode(after['stdout'])
+     for key in ('files','directories','parent_accounting','journal_pins','terminal_gate'):
+-        need(after[key]==obs[key],'original remote before/after differs: '+key)
++        if key=='directories':
++            need(observed_directories(after[key])==observed_directories(obs[key]),'original remote directory sets differ')
++        else:need(after[key]==obs[key],'original remote before/after differs: '+key)
+     need(sorted(after['related_accounting'])==sorted(obs['related_accounting']) and after['terminal_gate'] is True and
+          not after.get('observation_error'),'conclusive original terminal observations required')
+     disp=m[predecessor+'-disposition'];receipt_pin=sha(supplied['storage-receipt.json'])
