@@ -1,0 +1,402 @@
+--- predecessor/finalize_llm_intervention_scientific_campaign_cpu.py
++++ implementation/finalize_llm_intervention_scientific_campaign_cpu.py
+@@ -8,6 +8,7 @@
+ from __future__ import annotations
+ 
+ import argparse
++import contextlib
+ from datetime import datetime, timezone
+ import hashlib
+ import itertools
+@@ -25,7 +26,7 @@
+ import traceback
+ import types
+ 
+-VERSION = 'ace-scientific-campaign-finalizer-gpu-history-v2'
++VERSION = 'ace-scientific-campaign-finalizer-phase-clock-v3'
+ ENTRY = 'finalize_llm_intervention_scientific_campaign_cpu.py'
+ WORLD_IDS = tuple(range(202611070100, 202611070124))
+ SCIENTIFIC_CPU_ENTRY = 'prepare_llm_intervention_scientific_campaign_cpu.py'
+@@ -39,14 +40,16 @@
+ POLICIES = ('uniform_random', 'menu_coverage', 'local_information', 'target_risk',
+             'learned_ranker', 'frozen_llm', 'sft_llm', 'dpo_llm')
+ RESOURCES = dict(account='ucb736_asc2', partition='acpu', qos='cpu-normal', cpus=2,
+-                 memory_mib=7680, wall_seconds=1200, gpus=0, requeue=False)
+-STARTUP, WORK, CLEANUP, HARD = 120, 1140, 1170, 1190
++                 memory_mib=7680, wall_seconds=3600, gpus=0, requeue=False)
++PREPARATION, REPORT_STARTUP, REPORT_STARTUP_CAP, WORK, CLEANUP, HARD = 1200, 120, 1320, 2820, 2850, 3590
++DEADLINES = dict(preparation=PREPARATION, report_startup=REPORT_STARTUP,
++    report_startup_cap=REPORT_STARTUP_CAP, work=WORK, cleanup=CLEANUP, hard=HARD)
+ PREFLIGHT = 'llm_intervention_cpu_preflight_receipt.py'
+ HISTORY = 'llm_intervention_cpu_history_admission.py'
+ RECOVERY_FILES = {'authority': 'gpu-recovery-authority.json', 'context': 'cpu-history-expected.json',
+     'receipt': 'cpu-history-preflight.json', 'read_set': 'cpu-history-readset.json'}
+ RECOVERY_ADDITIONS = {'gpu-recovery-acceptance.json', 'gpu-success-baseline.json',
+-    'gpu-failure-acceptance.json', 'gpu-failure-baseline.json'}
++    'gpu-failure-acceptance.json', 'gpu-failure-baseline.json', 'finalizer-clock-adoption.json'}
+ RECOVERY_AUTHORITY_SHA = 'b3630d400649ecd186e35232b24e9020e5bced7ad616379c7eaf5eef84498603'
+ GPU_CONTROL_ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02'
+ GPU_ORIGINAL_ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01'
+@@ -59,7 +62,7 @@
+ PACKET_KEYS = {'schema', 'scope', 'files', 'source_names', 'paths', 'resources',
+     'cpu_packet_sha256', 'gpu_packet_sha256', 'cpu_acceptance_sha256', 'gpu_acceptance_sha256',
+     'source_commit', 'freeze_sha256', 'namespace_admission_sha256',
+-    'operational_source_commit', 'gpu_recovery_acceptance_sha256'}
++    'operational_source_commit', 'gpu_recovery_acceptance_sha256', 'clock_adoption_sha256'}
+ 
+ 
+ def need(ok, message):
+@@ -113,6 +116,90 @@
+         handle.flush()
+         os.fsync(handle.fileno())
+     return sha(value)
++
++
++def clock_deadlines(started, authenticated=None):
++    """One allocation origin; the worker's completed authentication opens startup."""
++    def finite(value):
++        return type(value) in (int, float) and math.isfinite(value)
++    need(finite(started) and started >= 0, 'finite original monotonic origin required')
++    result = {k: started+v for k, v in DEADLINES.items() if k != 'report_startup'}
++    if authenticated is not None:
++        need(finite(authenticated) and started <= authenticated < result['preparation'],
++             'authentication did not finish within original preparation budget')
++        result['report_startup'] = min(authenticated+REPORT_STARTUP, result['report_startup_cap'])
++    return result
++
++
++def arm_until(deadline):
++    remaining = deadline-time.monotonic()
++    need(remaining > 0, 'absolute phase deadline exhausted')
++    signal.setitimer(signal.ITIMER_REAL, remaining)
++
++
++def authentication_deadlines(value, started, packet_pin, pid):
++    need(value['schema'] == VERSION and value['packet_sha256'] == packet_pin
++         and type(value['pid']) is int and value['pid'] == pid
++         and type(value['started_monotonic']) in (int, float) and value['started_monotonic'] == started,
++         'owned worker authentication receipt differs')
++    return clock_deadlines(started, value['monotonic'])
++
++
++class PhaseTimings:
++    """Exclusive diagnostic records; nested CPU durations must not be summed."""
++    def __init__(self, output, started, role):
++        self.output, self.started, self.role, self.sequence = Path(output), started, role, 0
++
++    @contextlib.contextmanager
++    def phase(self, name):
++        index = self.sequence
++        self.sequence += 1
++        wall, cpu = time.monotonic(), time.process_time()
++        details = {}
++        record = dict(schema='ace-finalizer-phase-timing-v1', phase=name, role=self.role,
++            pid=os.getpid(), sequence=index, origin_monotonic=self.started, started_monotonic=wall,
++            started_elapsed_seconds=wall-self.started, started_process_cpu_seconds=cpu,
++            started_utc=datetime.now(timezone.utc).isoformat(), scientific_acceptance=False)
++        save(self.output/f'timing-{index:03d}.start.json', record)
++        failure = None
++        try:
++            yield details
++        except BaseException as exc:
++            failure = dict(type=type(exc).__name__, message=str(exc))
++            raise
++        finally:
++            end, end_cpu = time.monotonic(), time.process_time()
++            try:
++                save(self.output/f'timing-{index:03d}.end.json', dict(record,
++                    finished_monotonic=end, finished_elapsed_seconds=end-self.started,
++                    elapsed_seconds=end-wall, process_cpu_seconds=end_cpu-cpu,
++                    completed_utc=datetime.now(timezone.utc).isoformat(), details=details,
++                    failure=failure, completed=failure is None))
++            except BaseException:
++                if failure is None:
++                    raise
++                traceback.print_exc(file=sys.stderr)
++
++
++def admit_clock(packet, data):
++    authority = decode(data['finalizer-clock-adoption.json'])
++    need(sha(data['finalizer-clock-adoption.json']) == packet['clock_adoption_sha256']
++         and authority['schema'] == 'ace-finalizer-clock-adoption-v1' and authority['status'] == 'adopted'
++         and authority['scope'] == 'operational_finalization'
++         and raw(authority['resources']) == raw(RESOURCES) and raw(authority['deadlines']) == raw(DEADLINES)
++         and authority['entry_sha256'] == packet['files'][ENTRY]
++         and authority['source_commit'] == packet['operational_source_commit']
++         and authority['freeze_sha256'] == packet['freeze_sha256']
++         and authority['cpu_acceptance_sha256'] == packet['cpu_acceptance_sha256']
++         and authority['gpu_acceptance_sha256'] == packet['gpu_acceptance_sha256']
++         and authority['gpu_recovery_acceptance_sha256'] == packet['gpu_recovery_acceptance_sha256']
++         and authority['baseline_sha256'] == sha(data['gpu-success-baseline.json'])
++         and authority['full_path_timing_supported'] is True
++         and type(authority['required_findings']) is int and authority['required_findings'] == 0
++         and all(pin(authority[k]) for k in ('timing_evidence_sha256', 'timing_review_sha256'))
++         and authority['scientific_inputs_unchanged'] is True
++         and authority['scientific_qualified'] is False and authority['execution_qualified'] is False,
++         'independently adopted, timing-supported operational clock required')
+ 
+ 
+ def module(name, path, value):
+@@ -419,7 +506,7 @@
+          'exact captured finalizer/source closure required')
+ 
+ 
+-def authenticate(path, expected, output):
++def authenticate(path, expected, output, timings):
+     root, packet = packet_destination(path, expected, output)
+     files = packet['files']
+     need(type(files) is dict and len(files) <= 256 and all(Path(n).name == n and
+@@ -435,6 +522,7 @@
+         data[n] = read(root/n, p)
+         total += len(data[n])
+         need(total <= 768*1024**2, 'total captured input bound exceeded')
++    admit_clock(packet, data)
+     need(Path(__file__).absolute() == root/ENTRY, 'captured finalizer required')
+     cpu = module('finalizer_cpu_helpers', root/CPU_ENTRY, data[CPU_ENTRY])
+     gpu = module('finalizer_inventory_helpers', root/GPU_ENTRY, data[GPU_ENTRY])
+@@ -452,10 +540,17 @@
+         for n, p in previous['files'].items():
+             need(read(origin/n, p) == data[n], 'original upstream input changed: '+n)
+     checker = module('finalizer_preflight_checker', root/PREFLIGHT, data[PREFLIGHT])
+-    api = types.SimpleNamespace(inventory=inventory, check_preflight=checker.validate_receipt)
++    def timed_inventory(tree, **kwargs):
++        label = next((k for k in ('cpu_output', 'gpu_output', 'campaign') if str(tree) == paths[k]), None)
++        need(label is not None, 'explicit inventory timing root required')
++        with timings.phase('inventory_'+label) as metrics:
++            observed = inventory(tree, **kwargs)
++            metrics['files'] = len(observed)
++            return observed
++    api = types.SimpleNamespace(inventory=timed_inventory, check_preflight=checker.validate_receipt)
+     ca, ga, bundle = admit_evidence(packet, old, gp, data, api)
+     return dict(root=root, packet=packet, data=data, cpu=cpu, api=api, old=old, diagnostic=diagnostic,
+-                training=training, cpu_acceptance=ca, gpu_acceptance=ga, bundle=bundle)
++                training=training, cpu_acceptance=ca, gpu_acceptance=ga, bundle=bundle, timings=timings)
+ 
+ 
+ def allocation(text, job):
+@@ -463,7 +558,7 @@
+     fields = dict(pairs)
+     need(len(fields) == len(pairs) and re.fullmatch('[1-9][0-9]*', job), 'unique scheduler identity required')
+     wanted = dict(JobId=job, JobState='RUNNING', Account='ucb736_asc2', Partition='acpu', QOS='cpu-normal',
+-                  NumCPUs='2', NumTasks='1', NumNodes='1', TimeLimit='00:20:00', Requeue='0', Restarts='0')
++                  NumCPUs='2', NumTasks='1', NumNodes='1', TimeLimit='01:00:00', Requeue='0', Restarts='0')
+     need(all(fields.get(k) == v for k, v in wanted.items()) and fields.get('UserId', '').startswith('paco0228('),
+          'fixed CPU-only finalizer allocation differs')
+     for name in ('AllocTRES', 'ReqTRES'):
+@@ -552,21 +647,27 @@
+     loader = ctx['cpu'].CapturedSources(captured, ctx['root'])
+     sys.meta_path.insert(0, loader)
+     try:
+-        save(out/'runtime-before.json', runtime_record(ctx, loader, stage, after=False))
+-        import llm_intervention_campaign as campaign
+-        save(out/'runtime-ready.json', runtime_record(ctx, loader, stage, after=True))
+-        need(time.monotonic() < handoff['started_monotonic']+STARTUP, 'finalizer startup deadline exceeded')
++        with ctx['timings'].phase('report_runtime_startup'):
++            save(out/'runtime-before.json', runtime_record(ctx, loader, stage, after=False))
++            import llm_intervention_campaign as campaign
++            save(out/'runtime-ready.json', runtime_record(ctx, loader, stage, after=True))
++        deadlines = clock_deadlines(args.started, args.authenticated)
++        need(time.monotonic() < deadlines['report_startup'], 'finalizer reporting startup deadline exceeded')
+         save(out/'work-start.json', dict(packet_sha256=args.packet_sha256, utc=datetime.now(timezone.utc).isoformat(),
+-            monotonic=time.monotonic(), pid=os.getpid(), private_finalization_calls=1))
+-        signal.setitimer(signal.ITIMER_REAL, max(.001, handoff['started_monotonic']+WORK-time.monotonic()))
++            monotonic=time.monotonic(), pid=os.getpid(), private_finalization_calls=1,
++            authentication_sha256=args.authentication_sha256, report_startup_deadline=deadlines['report_startup']))
++        arm_until(deadlines['work'])
+         bundle = ctx['bundle']
+         # The existing engine gates all attempts/closures and claims its own
+         # once-only intent. Never rebuild or relocate the completed campaign.
+-        campaign.finalize_campaign(campaign=bundle['campaign'], campaign_sha256=bundle['campaign_sha256'],
+-            source_plan_pins=bundle['source_plan_pins'], output=ctx['packet']['paths']['campaign'],
+-            attempt_pins=ctx['gpu_acceptance']['attempt_pins'])
+-        save(out/'runtime-after.json', runtime_record(ctx, loader, stage, after=True))
+-        report = validate_report(ctx)
++        with ctx['timings'].phase('scientific_reporting'):
++            campaign.finalize_campaign(campaign=bundle['campaign'], campaign_sha256=bundle['campaign_sha256'],
++                source_plan_pins=bundle['source_plan_pins'], output=ctx['packet']['paths']['campaign'],
++                attempt_pins=ctx['gpu_acceptance']['attempt_pins'])
++        with ctx['timings'].phase('runtime_after'):
++            save(out/'runtime-after.json', runtime_record(ctx, loader, stage, after=True))
++        with ctx['timings'].phase('worker_validate_report'):
++            report = validate_report(ctx)
+         save(out/'terminal.json', dict(schema=VERSION, status='descriptive_finalization_complete',
+             packet_sha256=args.packet_sha256, completed_utc=datetime.now(timezone.utc).isoformat(),
+             report=report, retry_allowed=False, independent_acceptance_required=True))
+@@ -620,25 +721,40 @@
+ 
+ 
+ def supervise(command, env, out, started, packet_pin, kill_owned, owned):
+-    """Independent absolute startup/work/cleanup deadlines with failure custody."""
++    """Parent independently observes preparation, reporting startup and work."""
+     proc, cleanup, ready = None, None, False
++    authenticated, authentication_pin = None, None
++    deadlines = clock_deadlines(started)
+     primary, cleanup_error, record_error = None, None, None
+     usage = resource.getrusage(resource.RUSAGE_CHILDREN)
+     try:
+         with (out/'worker.stdout.log').open('xb') as stdout, (out/'worker.stderr.log').open('xb') as stderr:
+-            need(time.monotonic() < started+STARTUP, 'no startup budget remains')
++            arm_until(deadlines['preparation'])
+             proc = subprocess.Popen(command, env=env, stdout=stdout, stderr=stderr, start_new_session=True)
+             owned.process = proc
+             save(out/'worker.started.json', dict(command=command, pid=proc.pid, pgid=proc.pid,
+-                started_monotonic=started, startup_deadline=started+STARTUP, work_deadline=started+WORK))
++                started_monotonic=started, preparation_deadline=deadlines['preparation'],
++                report_startup_cap=deadlines['report_startup_cap'], work_deadline=deadlines['work']))
+             while True:
++                authentication = out/'worker/authentication-complete.json'
++                if authenticated is None and authentication.exists():
++                    captured = read(authentication)
++                    value = decode(captured)
++                    deadlines = authentication_deadlines(value, started, packet_pin, proc.pid)
++                    authenticated, authentication_pin = value['monotonic'], sha(captured)
++                    arm_until(deadlines['report_startup'])
+                 marker = out/'worker/work-start.json'
+                 if not ready and marker.exists():
+                     value = decode(read(marker))
+-                    need(value['packet_sha256'] == packet_pin and value['pid'] == proc.pid
+-                         and started <= value['monotonic'] < started+STARTUP, 'worker startup receipt differs')
++                    need(authenticated is not None and value['packet_sha256'] == packet_pin and value['pid'] == proc.pid
++                         and type(value['monotonic']) in (int, float)
++                         and authenticated <= value['monotonic'] < deadlines['report_startup']
++                         and value['authentication_sha256'] == authentication_pin
++                         and value['report_startup_deadline'] == deadlines['report_startup'], 'worker startup receipt differs')
+                     ready = True
+-                need(time.monotonic() < started+(WORK if ready else STARTUP), 'finalizer startup/work deadline exceeded')
++                    arm_until(deadlines['work'])
++                limit = deadlines['work'] if ready else deadlines['report_startup'] if authenticated is not None else deadlines['preparation']
++                need(time.monotonic() < limit, 'finalizer preparation/startup/work deadline exceeded')
+                 rc = proc.poll()
+                 if rc is not None:
+                     need(rc == 0 and ready, 'finalizer worker failed or never began reporting')
+@@ -648,6 +764,7 @@
+         primary = exc
+     # No return or exception may discard the actual owned handle. main() holds
+     # it through every subsequent publication failure until closure or HARD.
++    cleanup_started, cleanup_cpu_started = time.monotonic(), time.process_time()
+     previous = {sig: signal.signal(sig, signal.SIG_IGN) for sig in (signal.SIGINT, signal.SIGTERM)}
+     signal.setitimer(signal.ITIMER_REAL, max(.001, started+CLEANUP-time.monotonic()))
+     try:
+@@ -669,6 +786,9 @@
+             return None if exc is None else dict(type=type(exc).__name__, message=str(exc))
+         try:
+             save(out/'worker.resources.json', dict(elapsed_seconds=time.monotonic()-started,
++                cleanup_elapsed_seconds=time.monotonic()-cleanup_started,
++                cleanup_parent_cpu_seconds=time.process_time()-cleanup_cpu_started,
++                cleanup_deadline=started+CLEANUP, postcheck_deadline=started+HARD,
+                 child_and_cleanup_cpu_seconds=after.ru_utime+after.ru_stime-usage.ru_utime-usage.ru_stime,
+                 cumulative_child_peak_rss_bytes=after.ru_maxrss*(1 if sys.platform == 'darwin' else 1024),
+                 first_failure=error(primary), cleanup_failure=error(cleanup_error)))
+@@ -700,10 +820,11 @@
+     probe = module('finalizer_cleanup', ctx['root']/'probe.py', ctx['data']['probe.py'])
+     event = d.events(out, args.started, args.process_started, 7680*1024**2)
+     event('stage_start')
+-    stage = d.stage_runtime(ctx['old'], archive, local/'runtime', event)
++    with ctx['timings'].phase('runtime_staging'):
++        stage = d.stage_runtime(ctx['old'], archive, local/'runtime', event)
+     stage_pin = save(out/'stage.json', stage)
+     event('stage_complete', staged_prefix=stage['staged_prefix'])
+-    need(time.monotonic() < args.started+STARTUP, 'staging consumed startup budget')
++    need(time.monotonic() < args.started+PREPARATION, 'staging consumed preparation budget')
+     handoff = dict(schema=VERSION, packet_sha256=args.packet_sha256, stage_sha256=stage_pin,
+                    started_monotonic=args.started, parent_pid=os.getpid(), job_id=job)
+     handoff_pin = save(out/'handoff.json', handoff)
+@@ -712,17 +833,20 @@
+         ctx['packet']['files'][ENTRY], '--packet', str(Path(args.packet).absolute()), '--packet-sha256', args.packet_sha256,
+         '--output', args.output, '--worker', '--handoff-sha256', handoff_pin]
+     env = ctx['training'].cpu_environment(prefix, os.environ)
+-    signal.setitimer(signal.ITIMER_REAL, max(.001, args.started+WORK-time.monotonic()))
+-    cleanup = supervise(command, env, out, args.started, args.packet_sha256, probe.kill_owned, args.owned_child)
++    arm_until(args.started+PREPARATION)
++    with ctx['timings'].phase('worker_supervision_and_cleanup'):
++        cleanup = supervise(command, env, out, args.started, args.packet_sha256, probe.kill_owned, args.owned_child)
+     terminal = decode(read(out/'worker/terminal.json'))
+-    report = validate_report(ctx)
++    with ctx['timings'].phase('parent_validate_report'):
++        report = validate_report(ctx)
+     need(terminal['schema'] == VERSION and terminal['status'] == 'descriptive_finalization_complete'
+          and terminal['packet_sha256'] == args.packet_sha256 and terminal['report'] == report,
+          'worker terminal differs from retained report')
+     # Frozen upstream inventories must also remain unchanged after reporting.
+     ca, ga, paths = ctx['cpu_acceptance'], ctx['gpu_acceptance'], ctx['packet']['paths']
+-    checked_inventory(ctx['api'], paths['cpu_output'], ca['cpu_output_files'], exclude='worker/artifacts/campaign')
+-    checked_inventory(ctx['api'], paths['gpu_output'], ga['gpu_output_files'])
++    with ctx['timings'].phase('parent_postchecks'):
++        checked_inventory(ctx['api'], paths['cpu_output'], ca['cpu_output_files'], exclude='worker/artifacts/campaign')
++        checked_inventory(ctx['api'], paths['gpu_output'], ga['gpu_output_files'])
+     need(time.monotonic() < args.started+HARD, 'finalizer hard deadline exceeded')
+     return dict(job_id=job, report=report, cleanup=cleanup, stage_sha256=stage_pin)
+ 
+@@ -737,11 +861,25 @@
+     args.started, args.process_started = time.monotonic(), time.process_time()
+     claimed, error, result = None, None, None
+ 
++    def hard_stop(sig=None, frame=None):
++        owned = getattr(args, 'owned_child', None)
++        if owned is not None:
++            owned.hard_exit()
++        os._exit(124)
++
++    def reserve_publication():
++        signal.signal(signal.SIGALRM, hard_stop)
++        remaining = args.started+HARD-time.monotonic()
++        if remaining <= 0:
++            hard_stop()
++        signal.setitimer(signal.ITIMER_REAL, remaining)
++
+     def interrupted(sig, frame):
++        reserve_publication()
+         raise TimeoutError('finalizer signal '+str(sig))
+ 
+     previous = {s: signal.signal(s, interrupted) for s in (signal.SIGALRM, signal.SIGINT, signal.SIGTERM)}
+-    signal.setitimer(signal.ITIMER_REAL, STARTUP)
++    arm_until(args.started+PREPARATION)
+     try:
+         _, packet = packet_destination(args.packet, args.packet_sha256, args.output)
+         handoff = None
+@@ -751,9 +889,9 @@
+             start = handoff['started_monotonic']
+             need(handoff['schema'] == VERSION and handoff['packet_sha256'] == args.packet_sha256
+                  and type(start) in (int, float) and math.isfinite(start)
+-                 and 0 <= args.started-start < STARTUP, 'original absolute startup clock required')
++                 and 0 <= args.started-start < PREPARATION, 'original absolute preparation clock required')
+             args.started = start
+-            signal.setitimer(signal.ITIMER_REAL, max(.001, start+STARTUP-time.monotonic()))
++            arm_until(start+PREPARATION)
+         else:
+             need(args.handoff_sha256 is None, 'parent cannot accept a runtime handoff')
+         candidate = Path(args.output)/'worker' if args.worker else Path(args.output)
+@@ -761,11 +899,22 @@
+         claimed = candidate
+         save(claimed/'start.json', dict(schema=VERSION, packet_sha256=args.packet_sha256, resources=RESOURCES,
+             started_utc=datetime.now(timezone.utc).isoformat(), started_monotonic=args.started,
+-            deadlines=dict(startup=args.started+STARTUP, work=args.started+WORK,
+-                           cleanup=args.started+CLEANUP, hard=args.started+HARD), retry_allowed=False))
+-        ctx = authenticate(args.packet, args.packet_sha256, args.output)
++            deadlines=clock_deadlines(args.started), report_startup_seconds=REPORT_STARTUP, retry_allowed=False))
++        timings = PhaseTimings(claimed, args.started, 'worker' if args.worker else 'parent')
++        with timings.phase('full_authentication'):
++            ctx = authenticate(args.packet, args.packet_sha256, args.output, timings)
++        if args.worker:
++            args.authenticated = time.monotonic()
++            deadlines = clock_deadlines(args.started, args.authenticated)
++            arm_until(deadlines['report_startup'])
++            args.authentication_sha256 = save(claimed/'authentication-complete.json', dict(schema=VERSION,
++                packet_sha256=args.packet_sha256, started_monotonic=args.started, monotonic=args.authenticated,
++                pid=os.getpid(), utc=datetime.now(timezone.utc).isoformat(),
++                process_cpu_seconds=time.process_time()-args.process_started,
++                report_startup_deadline=deadlines['report_startup']))
+         result = worker(args, ctx, handoff) if args.worker else parent(args, ctx)
+     except BaseException as exc:
++        reserve_publication()
+         error = dict(type=type(exc).__name__, message=str(exc), traceback=traceback.format_exc())
+         if claimed is not None:
+             try:
+@@ -776,6 +925,7 @@
+                 traceback.print_exc(file=sys.stderr)
+         raise
+     finally:
++        reserve_publication()
+         try:
+             if claimed is not None:
+                 save(claimed/'attempt.json', dict(schema=VERSION, status='failed' if error else 'completed',

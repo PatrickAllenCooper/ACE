@@ -1,0 +1,131 @@
+--- predecessor/build_packet.py
++++ implementation/build_packet.py
+@@ -24,12 +24,13 @@
+ ENTRY='finalize_llm_intervention_scientific_campaign_cpu.py'
+ OLD_GPU_ENTRY='qualify_llm_intervention_campaign_gpu.py'
+ FROZEN_ENTRY_SHA='28c5fc6b426cac70cf4bae4895350c560cd43080937a32e41d936f072005b45a'
+-ENTRY_SHA='b4d18f4be2320069ffc5f2aed2060efcfb8d49bfcc6e8b00f8099b91598f8745'
+-VERSION='ace-scientific-campaign-finalizer-gpu-history-v2'
+-OUTER_VERSION='ace-scientific-finalization-gpu-recovery-launch-v2'
++ENTRY_SHA='ec812c0688d04cc5239fe12bbcbb750a3492cfffb119b16d455559b24e674f37'
++VERSION='ace-scientific-campaign-finalizer-phase-clock-v3'
++OUTER_VERSION='ace-scientific-finalization-phase-clock-launch-v3'
+ RESOURCES=dict(account='ucb736_asc2',partition='acpu',qos='cpu-normal',cpus=2,
+- memory_mib=7680,wall_seconds=1200,gpus=0,requeue=False)
+-DEADLINES=dict(startup=120,work=1140,cleanup=1170,hard=1190)
++ memory_mib=7680,wall_seconds=3600,gpus=0,requeue=False)
++DEADLINES=dict(preparation=1200,report_startup=120,report_startup_cap=1320,work=2820,cleanup=2850,hard=3590)
++FROZEN_DEADLINES=dict(startup=120,work=1140,cleanup=1170,hard=1190)
+ GPU_RESOURCES=dict(account='ucb736_asc2',partition='aa100',qos='gpu-testing',requested_cpus=4,
+  max_allocated_cpus=4,memory_mib=15360,wall_seconds=2880,gpus=1,gpu_type='a100_3g.20gb',requeue=False)
+ GPU_LIMITS=dict(session_reserve_seconds=600,session_cap_seconds=1200,work_seconds=2820,final_seconds=2860)
+@@ -96,6 +97,8 @@
+  'cpu-history-expected','cpu-history-preflight','cpu-history-readset','preflight-review')
+ TEXT_METADATA|={'gpu-recovery-review','operational-source-review','preflight-review','finalizer-source-review'}
+ METADATA+=RECOVERY_METADATA+('gpu-recovery-acceptance','finalizer-source-manifest','finalizer-source-review')
++METADATA+=('finalizer-clock-adoption','finalizer-timing-evidence','finalizer-timing-review')
++TEXT_METADATA|={'finalizer-timing-evidence','finalizer-timing-review'}
+ 
+ 
+ 
+@@ -514,7 +517,7 @@
+          review_sha256=pins['freeze-review'],required_findings=0,adopted_before_first_draw=True),'original independent freeze adoption required')
+     need(f['source_commit']==SOURCE_COMMIT and f['stage_closure']['source_pins']==f['source_pins'] and len(f['source_pins'])==67,'original full frozen source authority required')
+     stages={s['stage']:s for s in f['stages']};s=stages['finalize']
+-    need(s['entry']==ENTRY and s['entry_sha256']==FROZEN_ENTRY_SHA and s['remote_root']==ROOT and s['deadlines']==DEADLINES
++    need(s['entry']==ENTRY and s['entry_sha256']==FROZEN_ENTRY_SHA and s['remote_root']==ROOT and s['deadlines']==FROZEN_DEADLINES
+          and s['cpus']==2 and s['memory_mib']==7680 and s['wall_seconds']==1200 and s['gpus']==0 and s['gpu_type'] is None
+          and s['account']=='ucb736_asc2' and s['partition']=='acpu' and s['qos']=='cpu-normal' and s['requeue'] is False,'frozen scientific finalizer profile differs')
+     claim=m['namespace-claim'];am=m['operational-amendment']
+@@ -616,6 +619,7 @@
+         need(m['gpu-launch-packet']['new_input_files'][metadata_name(name)]==pins[name], 'original GPU lineage capture differs: '+name)
+     need(base['closed_cpu_seconds']+3600+sum(s['cpus']*s['wall_seconds'] for s in remaining)<=57600
+          and base['closed_gpu_slice_seconds']+sum(s['gpus']*s['wall_seconds'] for s in remaining)<=7200,'full remaining frozen caps exceed budget')
++    clock_admission(m,pins)
+     return dict(metadata=m,pins=pins,observations=observations,token_recovery=token_recovery,gpu_recovery=recovery)
+ 
+ def gpu_authority(m,pins):
+@@ -789,7 +793,8 @@
+         'gpu-recovery-acceptance.json':supplied['gpu-recovery-acceptance'],
+         'gpu-success-baseline.json':supplied['gpu-baseline'],
+         'gpu-failure-acceptance.json':supplied['gpu-failure-acceptance'],
+-        'gpu-failure-baseline.json':supplied['gpu-failure-baseline']})
++        'gpu-failure-baseline.json':supplied['gpu-failure-baseline'],
++        'finalizer-clock-adoption.json':supplied['finalizer-clock-adoption']})
+     need(len(data)<=256 and sum(map(len,data.values()))<=768*1024**2
+          and all(len(v)<=256*1024**2 for v in data.values()),'frozen finalizer input limits exceeded')
+     need(literal(entry,'RESOURCES')==RESOURCES and literal(entry,'VERSION')==VERSION
+@@ -803,10 +808,34 @@
+         cpu_acceptance_sha256=pins['cpu-acceptance'],gpu_acceptance_sha256=pins['gpu-acceptance'],
+         gpu_recovery_acceptance_sha256=pins['gpu-recovery-acceptance'],source_commit=SOURCE_COMMIT,
+         operational_source_commit=manifest['source_commit'],freeze_sha256=pins['freeze'],
+-        namespace_admission_sha256=pins['namespace-admission'])
++        namespace_admission_sha256=pins['namespace-admission'],clock_adoption_sha256=pins['finalizer-clock-adoption'])
+     need(set(packet)==literal(entry,'PACKET_KEYS') and len(raw(packet))<=256*1024,'exact production packet keys/bound required')
+     return packet,data,bootstrap
+ 
++
++
++def clock_admission(metadata, pins):
++    """No default/adoption is manufactured by this prospective coordinator."""
++    a=metadata['finalizer-clock-adoption'];manifest=metadata['finalizer-source-manifest']
++    need(a['schema']=='ace-finalizer-clock-adoption-v1' and a['status']=='adopted'
++         and a['scope']=='operational_finalization' and a['remote_root']==ROOT
++         and a['freeze_sha256']==pins['freeze'] and a['source_commit']==manifest['source_commit']
++         and a['source_manifest_sha256']==pins['finalizer-source-manifest']
++         and a['source_review_sha256']==pins['finalizer-source-review']
++         and a['entry_sha256']==ENTRY_SHA and a['predecessor_entry_sha256']=='b4d18f4be2320069ffc5f2aed2060efcfb8d49bfcc6e8b00f8099b91598f8745'
++         and raw(a['original_deadlines'])==raw(FROZEN_DEADLINES) and a['original_wall_seconds']==1200
++         and raw(a['resources'])==raw(RESOURCES) and raw(a['deadlines'])==raw(DEADLINES)
++         and a['cpu_acceptance_sha256']==pins['cpu-acceptance']
++         and a['gpu_acceptance_sha256']==pins['gpu-acceptance']
++         and a['gpu_recovery_acceptance_sha256']==pins['gpu-recovery-acceptance']
++         and a['baseline_sha256']==pins['gpu-baseline']
++         and a['timing_evidence_sha256']==pins['finalizer-timing-evidence']
++         and a['timing_review_sha256']==pins['finalizer-timing-review']
++         and a['full_path_timing_supported'] is True
++         and type(a['required_findings']) is int and a['required_findings']==0
++         and a['scientific_inputs_unchanged'] is True
++         and a['scientific_qualified'] is False and a['execution_qualified'] is False,
++         'explicit independently reviewed timing-supported clock adoption required')
+ 
+ 
+ def budget(base):
+@@ -817,9 +846,9 @@
+          and (cpu,gpu)==(base['closed_cpu_seconds'],base['closed_gpu_slice_seconds'])
+          and base['preparation_allowance_cpu_seconds']==3600 and base['cpu_admission_seconds']==cpu+3600,
+          'actual complete baseline charge differs')
+-    need(cpu+3600+2400<=57600 and gpu<=7200, 'bounded finalizer allocation exceeds full caps')
++    need(cpu+3600+7200<=57600 and gpu<=7200, 'bounded finalizer allocation exceeds full caps')
+     return dict(closed_cpu_seconds=cpu,closed_gpu_slice_seconds=gpu,preparation_allowance_cpu_seconds=3600,
+-        candidate_cpu_reservation=2400,candidate_gpu_reservation=0,total_cpu_seconds=cpu+6000,total_gpu_seconds=gpu,
++        candidate_cpu_reservation=7200,candidate_gpu_reservation=0,total_cpu_seconds=cpu+10800,total_gpu_seconds=gpu,
+         ceiling_cpu_seconds=57600,ceiling_gpu_seconds=7200)
+ 
+ 
+@@ -828,7 +857,7 @@
+         '--packet',ROOT+'/inputs/packet.json','--packet-sha256',sha(raw(stage)),'--output',ROOT+'/finalization']
+     return ('\n'.join(['#!/bin/bash','#SBATCH --job-name=ace_llm_scientific_finalization01',
+         '#SBATCH --account=ucb736_asc2','#SBATCH --partition=acpu','#SBATCH --qos=cpu-normal','#SBATCH --nodes=1','#SBATCH --ntasks=1',
+-        '#SBATCH --cpus-per-task=2','#SBATCH --mem=7680M','#SBATCH --time=00:20:00','#SBATCH --no-requeue',
++        '#SBATCH --cpus-per-task=2','#SBATCH --mem=7680M','#SBATCH --time=01:00:00','#SBATCH --no-requeue',
+         '#SBATCH --output='+ROOT+'/logs/%j.out','#SBATCH --error='+ROOT+'/logs/%j.err','set -euo pipefail','umask 077',
+         'export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 MKL_THREADING_LAYER=GNU',
+         'export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false PYTHONDONTWRITEBYTECODE=1',
+@@ -1164,6 +1193,7 @@
+         for n in ('build_packet.py','launch_once.py','monitor_once.py'):files[n]=read(Path(__file__).resolve().with_name(n))
+         files['job.sbatch']=job_script(ctx,stage,bootstrap)
+         outer=dict(schema=OUTER_VERSION,source_commit=SOURCE_COMMIT,remote_root=ROOT,resources=RESOURCES,deadlines=DEADLINES,
++            clock_adoption_sha256=ctx['pins']['finalizer-clock-adoption'],
+             finalizer_packet_sha256=sha(stage_raw),gpu_packet_sha256=ctx['pins']['gpu-packet'],gpu_acceptance_sha256=ctx['pins']['gpu-acceptance'],
+             gpu_job_id=ctx['metadata']['gpu-acceptance']['job_id'],token_recovery=ctx['token_recovery'],
+             gpu_recovery=ctx['gpu_recovery'],operational_source_commit=stage['operational_source_commit'],
+@@ -1175,7 +1205,7 @@
+             gpu_terminal_mirror=str(ctx['custody_paths'][1]),storage_binding=storage_packet_binding(ctx),prior_jobs=48,prior_journals=98,worlds=24,cells=192,comparisons=28,
+             policy_ids=list(POLICIES),admission=budget(ctx['metadata']['gpu-baseline']),submitted=False,
+             new_training_updates=0,new_responses=0,new_worlds=0,scientific_qualified=False,execution_qualified=False,
+-            sizing='Frozen CPU reporting cap1200s2CPU7.5GiB. Private saved-response reporting only in allocated worker. '
++            sizing='Operational CPU reporting cap3600s2CPU7.5GiB requires separately adopted measured clock support. Private saved-response reporting only in allocated worker. '
+                    'Future terminal accounting must preserve all48 prior rows/98journals and extend49/100 with actual charges, including failures.')
+         files['packet.json']=raw(outer)
+         need(not any(os.path.lexists(p) for p in (LOCAL,EXT)), 'exclusive new launch destinations required')
