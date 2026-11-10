@@ -1,0 +1,155 @@
+--- predecessor02/e2f50
++++ final/a699
+@@ -6,6 +6,7 @@
+ import argparse
+ import ast
+ import base64
++import contextlib
+ import datetime
+ import fcntl
+ import hashlib
+@@ -51,6 +52,55 @@
+ DESIGN_REVIEW_SHA = '9231ec51d64fb87df5c99055225ba0f56783fcf4cf8498ccde0d4e93b10bcc75'
+ MAX_META = 128*1024**2
+ MEMBER_MAX = 256*1024**2
++
++class TerminationRequested(BaseException):
++    pass
++
++@contextlib.contextmanager
++def termination_guard():
++    def terminate(signum,frame):
++        raise TerminationRequested('SIGTERM requested bounded owned cleanup')
++    previous=signal.signal(signal.SIGTERM,terminate)
++    try:yield
++    finally:signal.signal(signal.SIGTERM,previous)
++
++@contextlib.contextmanager
++def cleanup_signals(primary):
++    """Defer SIGTERM and SIGINT until cleanup finishes; preserve the primary."""
++    pending=[];error=primary
++    previous={sig:signal.signal(sig,lambda signum,frame:pending.append(signum))
++              for sig in (signal.SIGTERM,signal.SIGINT)}
++    try:
++        yield
++    except BaseException as exc:
++        error=exc;raise
++    finally:
++        for sig,handler in previous.items():signal.signal(sig,handler)
++        if pending and error is not None and hasattr(error,'add_note'):
++            error.add_note('Additional SIGTERM/SIGINT deferred during owned cleanup')
++    if pending and error is None:raise TerminationRequested('SIGTERM/SIGINT deferred until owned cleanup completed')
++
++def preservation_state():
++    return dict(phase='not_started',projects_readback=None,local_readbacks={},original_move='not_requested')
++
++def failure_record(exc,preservation):
++    saved=decode(raw(preservation))
++    verified=saved['projects_readback'] is not None and len(saved['local_readbacks'])==2
++    return dict(utc=utc(),type=type(exc).__name__,message=str(exc),retry_allowed=False,
++                partial_preserved=True if verified else (False if saved['phase']=='not_started' else None),
++                partial_preservation=saved,remote_outcome_ambiguous=True)
++
++def confirm_owned_group_closed(pgid, seconds=5):
++    deadline=time.monotonic()+seconds;observations=[];count=0
++    while True:
++        count+=1
++        try:os.killpg(pgid,0);state='present'
++        except ProcessLookupError:
++            return dict(closed=True,probes=count,observations=observations+['ESRCH'])
++        except OSError as exc:state=type(exc).__name__+': '+str(exc)
++        if len(observations)<12:observations.append(state)
++        if time.monotonic()>=deadline:return dict(closed=False,probes=count,observations=observations)
++        time.sleep(.02)
+ 
+ def need(ok, message):
+     if not ok: raise ValueError(message)
+@@ -345,6 +395,7 @@
+         result.update(type=type(exc).__name__,message=str(exc))
+         raise
+     finally:
++      with cleanup_signals(primary):
+         if proc is not None:
+             # Owned local group only; remote source has its own absolute alarm.
+             try:os.killpg(proc.pid,signal.SIGKILL)
+@@ -354,6 +405,8 @@
+             except BaseException as exc:result['local_wait_error']=repr(exc)
+             for t in threads:t.join(timeout=5)
+             result['stream_threads_closed']=not any(t.is_alive() for t in threads)
++            result['owned_group_probe']=confirm_owned_group_closed(proc.pid)
++            result['owned_process_group_closed']=result['owned_group_probe']['closed']
+         result['elapsed_seconds']=time.monotonic()-start;result['stream_errors']=errors
+         publication_errors=[]
+         actions=[(out/(phase+'.transport.json'),raw(result)) for out in outputs]
+@@ -368,7 +421,7 @@
+         if publication_errors:
+             if primary is None:raise RuntimeError('transport evidence publication failed: '+repr(publication_errors))
+             if hasattr(primary,'add_note'):primary.add_note('secondary evidence publication errors: '+repr(publication_errors))
+-    need(result['returncode']==0 and result['stream_threads_closed'] and not any(k.endswith('_error') for k in result),'failed or ambiguous transport; never retry')
++    need(result['returncode']==0 and result['stream_threads_closed'] and result['owned_process_group_closed'] is True and not any(k.endswith('_error') for k in result),'failed or ambiguous transport; never retry')
+     return decode(read(logs/(phase+'.stdout'),maximum=MAX_META))
+ 
+ def committed(revision,path):
+@@ -398,7 +451,7 @@
+ def no_local_intents():
+     need(not any(os.path.lexists(p/n) for p in (LOCAL,EXT) for n in ('submission.intent.json','submission.result.json')),'original canonical submission already claimed')
+ 
+-def main():
++def run_main():
+     ap=argparse.ArgumentParser(description=__doc__)
+     for name in ('self-sha256','driver-commit','driver-review','driver-review-sha256','projects-backup'):
+         ap.add_argument('--'+name,required=True)
+@@ -407,7 +460,7 @@
+     review_path=Path(a.driver_review).resolve(strict=True);review=read(review_path,a.driver_review_sha256)
+     need(review.strip() and review==committed(a.driver_commit,review_path),'independent committed continuation review required')
+     need(read(REPO/DESIGN_REVIEW_PATH,DESIGN_REVIEW_SHA)==committed(a.driver_commit,REPO/DESIGN_REVIEW_PATH),'new driver commit must contain the pinned operational design review')
+-    locks=[];outputs=[];primary=None
++    locks=[];outputs=[];primary=None;preservation=preservation_state()
+     try:
+         for name in ('ace-delivery-controller.lock','ace-foundation-controller.lock'):
+             p=BASE/name;need(p==p.resolve(strict=True),'lock alias')
+@@ -450,14 +503,21 @@
+             model_directory=m['cpu-packet']['model_directory'],model_files=m['cpu-packet']['model_files'],original_registry=b.ORIGINAL_REMOTE_REGISTRY,original_namespace_claim_sha256=b.ORIGINAL_CLAIM_SHA,
+             cpu_root=b.CPU_ROOT,cpu_roster={n.removeprefix('launch/'):v['sha256'] for n,v in ctx['observations']['cpu']['files'].items() if n.startswith('launch/')})
+         req=dict(context=context,launcher_source=base64.b64encode(launcher).decode(),observation=proofs['observation'],lineage=lineage,projects_backup=a.projects_backup,members=members)
++        preservation['phase']='remote_preservation_requested_outcome_unknown'
+         preserved=transport(dict(req,phase='preserve'),source,outputs)
+         partial=base64.b64decode(preserved['partial_base64'],validate=True);need(len(partial)==PARTIAL_BYTES and sha(partial)==PARTIAL_SHA and sha(raw(preserved['record']))==preserved['record_sha256'],'remote preserved partial identity differs')
+-        for out in outputs:write(out/'partial.original',partial)
+-        ack=dict(partial_sha256=PARTIAL_SHA,partial_bytes=PARTIAL_BYTES,local_copies={str(out/'partial.original'):dict(bytes=len(read(out/'partial.original',PARTIAL_SHA)),sha256=PARTIAL_SHA) for out in outputs},preservation_sha256=preserved['record_sha256'])
++        preservation.update(phase='projects_verified_local_copies_in_progress',projects_readback=dict(path=preserved['record']['projects_backup'],bytes=PARTIAL_BYTES,sha256=PARTIAL_SHA,record_sha256=preserved['record_sha256']))
++        for out in outputs:
++            write(out/'partial.original',partial)
++            preservation['local_readbacks'][str(out/'partial.original')]=dict(bytes=len(read(out/'partial.original',PARTIAL_SHA)),sha256=PARTIAL_SHA)
++        preservation['phase']='projects_and_both_local_copies_verified'
++        ack=dict(partial_sha256=PARTIAL_SHA,partial_bytes=PARTIAL_BYTES,local_copies=decode(raw(preservation['local_readbacks'])),preservation_sha256=preserved['record_sha256'])
+         save('partial-local-readback.json',ack)
+         req.update(preservation_sha256=preserved['record_sha256'],local_ack=ack,members=members)
++        preservation['original_move']='requested_outcome_unknown'
+         completed=transport(dict(req,phase='complete'),source,outputs,members=members)
+         need(completed['completed_members']==members and completed['matching_original_members_unchanged'] is True,'remote completion disagrees')
++        preservation['original_move']='verified_by_completed_remote_phase'
+         req['completion_sha256']=sha(raw(completed));save('completion.json',completed)
+         preflight=transport(dict(req,phase='preflight'),source,outputs);req['preflight_sha256']=sha(raw(preflight));save('pre-submission.json',preflight)
+         for n,h in pins.items():need(read(LOCAL/n,h)==read(EXT/n,h),'original local packet changed')
+@@ -478,10 +538,11 @@
+     except BaseException as exc:
+         primary=exc
+         for out in outputs:
+-            try:write(out/'failure.json',raw(dict(utc=utc(),type=type(exc).__name__,message=str(exc),retry_allowed=False,partial_preserved=True,remote_outcome_ambiguous=True)))
++            try:write(out/'failure.json',raw(failure_record(exc,preservation)))
+             except BaseException:pass
+         raise
+     finally:
++      with cleanup_signals(primary):
+         errors=[]
+         for fd in reversed(locks):
+             for fn in (lambda:fcntl.flock(fd,fcntl.LOCK_UN),lambda:os.close(fd)):
+@@ -490,4 +551,7 @@
+         if errors and primary is None:raise RuntimeError('owned lock release errors: '+repr(errors))
+         if errors and hasattr(primary,'add_note'):primary.add_note('owned lock release errors: '+repr(errors))
+ 
++def main():
++    with termination_guard():return run_main()
++
+ if __name__=='__main__':main()

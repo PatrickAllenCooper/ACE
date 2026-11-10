@@ -1,0 +1,25 @@
+{
+  "ambiguous": true,
+  "command": [
+    "bash",
+    "/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh",
+    "run",
+    "python3 -I -B -c 'import sys,hashlib,json\ndef need(ok,message):\n if not ok:raise ValueError(message)\nn=int(sys.argv[2]);need(0<n<=1048576,'\"'\"'bounded driver source'\"'\"')\nsource=sys.stdin.buffer.read(n);need(len(source)==n and hashlib.sha256(source).hexdigest()==sys.argv[1],'\"'\"'independent driver source pin'\"'\"')\nheader=sys.stdin.buffer.read(8);need(len(header)==8,'\"'\"'request frame truncated'\"'\"')\nn=int.from_bytes(header,'\"'\"'big'\"'\"');need(0<n<=134217728,'\"'\"'bounded request'\"'\"')\ndata=sys.stdin.buffer.read(n);need(len(data)==n,'\"'\"'truncated request'\"'\"')\nv={'\"'\"'__name__'\"'\"':'\"'\"'captured_transfer_continuation'\"'\"','\"'\"'__file__'\"'\"':'\"'\"'<pinned-continuation>'\"'\"'}\nexec(compile(source,v['\"'\"'__file__'\"'\"'],'\"'\"'exec'\"'\"'),v)\nv['\"'\"'remote_entry'\"'\"'](v['\"'\"'decode'\"'\"'](data),sys.stdin.buffer)\n' 3ceabd2f43e7f5e3387cfe7fcc7daca2aabbe1dacb685f6820a0add2cbbe22f0 36"
+  ],
+  "elapsed_seconds": 0.11661225,
+  "message": "SIGTERM requested bounded owned cleanup",
+  "owned_group_probe": {
+    "closed": true,
+    "observations": [
+      "ESRCH"
+    ],
+    "probes": 1
+  },
+  "owned_process_group_closed": true,
+  "retry_allowed": false,
+  "returncode": null,
+  "stream_errors": [],
+  "stream_threads_closed": true,
+  "type": "TerminationRequested",
+  "utc": "2026-11-10T02:05:31.166062+00:00"
+}

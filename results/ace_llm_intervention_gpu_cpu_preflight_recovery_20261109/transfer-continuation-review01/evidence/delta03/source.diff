@@ -1,0 +1,27 @@
+--- 2b851
++++ a6996
+@@ -66,18 +66,19 @@
+ 
+ @contextlib.contextmanager
+ def cleanup_signals(primary):
+-    """Defer another SIGTERM until cleanup finishes; never replace its primary."""
++    """Defer SIGTERM and SIGINT until cleanup finishes; preserve the primary."""
+     pending=[];error=primary
+-    previous=signal.signal(signal.SIGTERM,lambda signum,frame:pending.append(signum))
++    previous={sig:signal.signal(sig,lambda signum,frame:pending.append(signum))
++              for sig in (signal.SIGTERM,signal.SIGINT)}
+     try:
+         yield
+     except BaseException as exc:
+         error=exc;raise
+     finally:
+-        signal.signal(signal.SIGTERM,previous)
++        for sig,handler in previous.items():signal.signal(sig,handler)
+         if pending and error is not None and hasattr(error,'add_note'):
+-            error.add_note('Additional SIGTERM deferred during owned cleanup')
+-    if pending and error is None:raise TerminationRequested('SIGTERM deferred until owned cleanup completed')
++            error.add_note('Additional SIGTERM/SIGINT deferred during owned cleanup')
++    if pending and error is None:raise TerminationRequested('SIGTERM/SIGINT deferred until owned cleanup completed')
+ 
+ def preservation_state():
+     return dict(phase='not_started',projects_readback=None,local_readbacks={},original_move='not_requested')
