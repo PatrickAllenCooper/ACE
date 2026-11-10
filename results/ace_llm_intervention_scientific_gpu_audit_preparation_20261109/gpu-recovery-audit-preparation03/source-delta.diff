@@ -1,0 +1,36 @@
+--- preparation02/dependencies/gpu_recovery_delta.py
++++ preparation03/dependencies/gpu_recovery_delta.py
+@@ -74,8 +74,20 @@
+     old=closure['input_source_files']
+     need(ENTRY in old and old[ENTRY]==ORIGINAL_ENTRY and not {CHECKER,HISTORY}&set(old),
+          'original frozen entry/closure differs')
+-    need(set(old)==set(closure['source_names']) and packet['source_names']==sorted(set(old)|{CHECKER,HISTORY}),
+-         'exact original scientific plus three operational source roster required')
++    declared=closure['source_names']
++    need(type(declared) is list and all(type(n) is str for n in declared)
++         and declared==sorted(set(declared)) and ENTRY in declared and set(declared)<=set(old),
++         'unique exact frozen declared source roster required')
++    outside={n:h for n,h in old.items() if n not in declared}
++    need(closure['helpers_outside_source_names']==outside
++         and closure['entrypoint']==ENTRY and closure['entrypoint_sha256']==ORIGINAL_ENTRY
++         and closure['loaded_work_source_roster']==sorted(set(declared)-{ENTRY})
++         and closure['loaded_work_source_pins']=={n:old[n] for n in declared if n!=ENTRY},
++         'frozen captured helpers and declared/loaded source relationships differ')
++    need(packet['source_names']==sorted(set(declared)|{CHECKER,HISTORY}),
++         'exact original declared roster plus two operational additions required')
++    need({n for n in packet['files'] if n.endswith('.py')}==set(old)|{CHECKER,HISTORY},
++         'exact original Python capture roster plus two operational additions required')
+     for name,pin in old.items():
+         origins=[h for n,h in freeze_pins.items() if PurePosixPath(n).name==name]
+         need(origins==[pin], 'frozen scientific source basename/pin differs')
+--- preparation02/audit_saved_gpu72.py
++++ preparation03/audit_saved_gpu72.py
+@@ -10,7 +10,7 @@
+ AID_SHA='6d56672582f8c41bdd01c64b446c1d1607316650c6357bec95a889c357ab7eb4'
+ SUPPLEMENT_SHA='e2da9858fe137c653a96a3650ec0377f4d4d9721891dda73fe5727cddb292d13'
+ ORACLES_SHA='b4dd283396a6da3f8f90d5e6ea2bd8587a5dc55c91d67eea56ab3e7756103c84'
+-RECOVERY_SHA='1d72953472d00eda134546697f256bc0104cb0e0750edef080d5896e66347f6d'
++RECOVERY_SHA='e508f20eaec5f8a94c7638dc6183f5e46e9798918e8877a75c527fed6d4bb098'
+ PREFLIGHT_SHA='b9d0bf56e6c3174ad4ca2c21a43e3c13372c4755575a945437137dc2a1e942c8'
+ BACKEND_SHA='4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f'
+ SOURCE='a9346022f145cc29439325b6f291597b2e6ec037'

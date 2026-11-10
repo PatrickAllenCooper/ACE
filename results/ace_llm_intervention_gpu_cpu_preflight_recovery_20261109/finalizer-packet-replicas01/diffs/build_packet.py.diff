@@ -1,0 +1,72 @@
+--- predecessor/build_packet.py
++++ implementation/build_packet.py
+@@ -749,7 +749,7 @@
+     for n,h in gp['files'].items():
+         need(Path(n).name==n and n.endswith(('.py','.json','.pt')) and pin(h), 'flat original GPU file required')
+         need(files['control/inputs/'+n]['sha256']==h, 'raw GPU input differs')
+-        data[n]=gate.capture('control/inputs/'+n,h,256*1024**2)
++        data[n]=ctx['packet_replicas'].capture('control/inputs/'+n,h,256*1024**2)
+     upstream={root+'/'+n:h for root,roster in ctx['upstream_rosters'].items() for n,h in roster['files'].items()}
+     for prefix,root,*_ in STAGES:
+         outer=m[prefix+'-launch-packet'];result=m[prefix+'-result']
+@@ -878,7 +878,7 @@
+ 
+ 
+ # Explicit outer storage adapter; never added to frozen scientific child inputs.
+-COMPACT_ADAPTER_SHA='c0cdc46d81ea10958b9ff4ec5729570400fd55c0d56738f482f4adb0ff52a114'
++COMPACT_ADAPTER_SHA='d810468058111c02466c3579ee4311ad0b14e5d78297f43f8773919c40bbea0e'
+ CURC_HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ 
+ def compact_adapter():
+@@ -920,6 +920,18 @@
+ 
+ def recheck_storage(ctx):
+     compact_adapter().recheck_capsules(ctx['compact_inputs'])
++    ctx['storage_operation_evidence'].run('packet-replica-recheck',ctx['packet_replicas'].recheck)
++
++
++def configure_packet_replicas(ctx,roots):
++    """Bind explicit original packet copies after the unchanged full storage gate."""
++    gate=ctx['compact_inputs'];pins=ctx['pins'];c=compact_adapter()
++    replicas=ctx['storage_operation_evidence'].run('packet-replica-binding',lambda:c.PacketReplicas(
++        roots=roots,outer_sha256=pins['gpu-launch-packet'],inner_sha256=pins['gpu-packet'],
++        after_raw=ctx['storage_supplied']['storage-after.json'],after_sha256=pins['gpu-inventory-after'],
++        control_root=GPU_ROOT,protected_roots=[*gate.capsules,gate.staging]),details={'roots':list(roots)})
++    ctx['packet_replicas']=replicas
++    return replicas
+ 
+ 
+ def storage_packet_files(ctx):
+@@ -935,12 +947,14 @@
+         predecessor_remote_custody_sha256=gate.receipt_sha256,
+         storage_config_sha256=sha(ctx['storage_supplied']['storage-config.json']),
+         backend_sha256=gate.helper_sha256,compact_adapter_sha256=COMPACT_ADAPTER_SHA,
+-        original_ancestor_references=gate.ancestry,complete_local_raw_copy=False)
++        original_ancestor_references=gate.ancestry,complete_local_raw_copy=False,
++        input_replica_binding=ctx['packet_replicas'].binding())
+ 
+ 
+ def configure_packet_storage(ctx,local,pins,packet):
+     c=compact_adapter();supplied=c.stored_config(local,pins)
+     gate=configure_storage(ctx,supplied,packet['gpu_terminal_custody'],packet['gpu_terminal_mirror'])
++    configure_packet_replicas(ctx,packet['storage_binding']['input_replica_binding']['roots'])
+     need(packet['storage_binding']==storage_packet_binding(ctx),'independent compact storage packet binding differs')
+     return gate
+ 
+@@ -1164,6 +1178,8 @@
+     for n in METADATA:ap.add_argument('--'+n,required=True);ap.add_argument('--'+n+'-sha256',required=True)
+     ap.add_argument('--gpu-terminal-custody',required=True,help='original complete repository terminal capsule')
+     ap.add_argument('--gpu-terminal-mirror',required=True,help='original complete independent external terminal capsule')
++    ap.add_argument('--gpu-packet-replica',required=True,help='original GPU02 repository packet root')
++    ap.add_argument('--gpu-packet-replica-mirror',required=True,help='original GPU02 independent external packet root')
+     ap.add_argument('--storage-config',required=True)
+     ap.add_argument('--storage-config-sha256',required=True)
+     args=ap.parse_args()
+@@ -1185,6 +1201,7 @@
+             dict(phase='build',storage_config_sha256=args.storage_config_sha256,
+                  intended_packet_roots=[str(EXT),str(LOCAL)]))
+         configure_storage(ctx,storage,args.gpu_terminal_custody,args.gpu_terminal_mirror)
++        configure_packet_replicas(ctx,[args.gpu_packet_replica,args.gpu_packet_replica_mirror])
+         gpu_data=admit_gpu_bytes(ctx,args.gpu_terminal_custody,args.gpu_terminal_mirror)
+         stage,data,bootstrap=make_packet(ctx,gpu_data,supplied);stage_raw=raw(stage)
+         files={'inputs/'+n:v for n,v in data.items()};files['inputs/packet.json']=stage_raw

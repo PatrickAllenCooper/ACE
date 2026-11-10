@@ -1,0 +1,13 @@
+Two new mandatory builder-only CLI arguments:
+--gpu-packet-replica /Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02
+--gpu-packet-replica-mirror /Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-20261109-02
+
+All88 metadata pairs, the independently pinned8-member storage config, custody roots, launcher/monitor/collector CLI, child input schema and finalizer ENTRY remain unchanged.
+
+Outer packet storage_binding gains input_replica_binding, schema ace-original-gpu-packet-replicas-v1. It records both canonical roots, GPU control root, independently supplied gpu-launch-packet/gpu-packet/gpu-inventory-after pins, exact complete flat input_members size/hash map plus canonical digest/count/bytes, acceptance:false and fallback_allowed:false. No future packet hash is embedded and no source/adoption cycle is introduced. The binding is reproduced and compared on launch and collection through unchanged configure_packet_storage callers; both paths must remain available and unchanged through finalizer collection.
+
+The adapter PacketReplicas accepts roots, outer_sha256, inner_sha256, after_raw, after_sha256, control_root, protected_roots. It authenticates both packet.json headers, both inputs/packet.json headers, complete outer+inner+AFTER flat membership (including admission.json), and every input byte using existing bounded nofollow/regular/single-link stable reads. Directories must be canonical, independent, disjoint from custody/staging, and stable before/after. It captures detached bytes only after all checks pass. capture(member,sha,maximum) returns only an exact original inner input. recheck() rereads both original replicas and rejects changes; failure latches the object unusable. Missing/conflicting/alias/extra files do not fall back to remote or audit staging.
+
+The original full archive verify, selected-capsule membership/aliases, ancestor seals, independently accepted BEFORE/AFTER comparison, historical/source/admission and once-only submission checks remain mandatory. The new replica capture only replaces per-member gate.capture calls; no sealed capsule is modified and backend APIs are unchanged. Existing OperationEvidence records binding/recheck successes and failures. The original Inputs API remains unchanged for other callers.
+
+Actual mapping found108 payload members/38,832,348 bytes in two original packet replicas. Their110 flat input files also include original packet/admission headers. Tests here use only newly fabricated tiny source/metadata/opaque bytes; actual replicas were NOT passed through this new code and no remote backend was called. No packet/adoption/readiness is claimed.

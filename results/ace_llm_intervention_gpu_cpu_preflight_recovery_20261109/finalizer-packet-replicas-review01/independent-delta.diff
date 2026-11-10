@@ -1,0 +1,201 @@
+--- predecessor/build_packet.py
++++ implementation/build_packet.py
+@@ -749,7 +749,7 @@
+     for n,h in gp['files'].items():
+         need(Path(n).name==n and n.endswith(('.py','.json','.pt')) and pin(h), 'flat original GPU file required')
+         need(files['control/inputs/'+n]['sha256']==h, 'raw GPU input differs')
+-        data[n]=gate.capture('control/inputs/'+n,h,256*1024**2)
++        data[n]=ctx['packet_replicas'].capture('control/inputs/'+n,h,256*1024**2)
+     upstream={root+'/'+n:h for root,roster in ctx['upstream_rosters'].items() for n,h in roster['files'].items()}
+     for prefix,root,*_ in STAGES:
+         outer=m[prefix+'-launch-packet'];result=m[prefix+'-result']
+@@ -878,7 +878,7 @@
+ 
+ 
+ # Explicit outer storage adapter; never added to frozen scientific child inputs.
+-COMPACT_ADAPTER_SHA='c0cdc46d81ea10958b9ff4ec5729570400fd55c0d56738f482f4adb0ff52a114'
++COMPACT_ADAPTER_SHA='d810468058111c02466c3579ee4311ad0b14e5d78297f43f8773919c40bbea0e'
+ CURC_HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ 
+ def compact_adapter():
+@@ -920,6 +920,18 @@
+ 
+ def recheck_storage(ctx):
+     compact_adapter().recheck_capsules(ctx['compact_inputs'])
++    ctx['storage_operation_evidence'].run('packet-replica-recheck',ctx['packet_replicas'].recheck)
++
++
++def configure_packet_replicas(ctx,roots):
++    """Bind explicit original packet copies after the unchanged full storage gate."""
++    gate=ctx['compact_inputs'];pins=ctx['pins'];c=compact_adapter()
++    replicas=ctx['storage_operation_evidence'].run('packet-replica-binding',lambda:c.PacketReplicas(
++        roots=roots,outer_sha256=pins['gpu-launch-packet'],inner_sha256=pins['gpu-packet'],
++        after_raw=ctx['storage_supplied']['storage-after.json'],after_sha256=pins['gpu-inventory-after'],
++        control_root=GPU_ROOT,protected_roots=[*gate.capsules,gate.staging]),details={'roots':list(roots)})
++    ctx['packet_replicas']=replicas
++    return replicas
+ 
+ 
+ def storage_packet_files(ctx):
+@@ -935,12 +947,14 @@
+         predecessor_remote_custody_sha256=gate.receipt_sha256,
+         storage_config_sha256=sha(ctx['storage_supplied']['storage-config.json']),
+         backend_sha256=gate.helper_sha256,compact_adapter_sha256=COMPACT_ADAPTER_SHA,
+-        original_ancestor_references=gate.ancestry,complete_local_raw_copy=False)
++        original_ancestor_references=gate.ancestry,complete_local_raw_copy=False,
++        input_replica_binding=ctx['packet_replicas'].binding())
+ 
+ 
+ def configure_packet_storage(ctx,local,pins,packet):
+     c=compact_adapter();supplied=c.stored_config(local,pins)
+     gate=configure_storage(ctx,supplied,packet['gpu_terminal_custody'],packet['gpu_terminal_mirror'])
++    configure_packet_replicas(ctx,packet['storage_binding']['input_replica_binding']['roots'])
+     need(packet['storage_binding']==storage_packet_binding(ctx),'independent compact storage packet binding differs')
+     return gate
+ 
+@@ -1164,6 +1178,8 @@
+     for n in METADATA:ap.add_argument('--'+n,required=True);ap.add_argument('--'+n+'-sha256',required=True)
+     ap.add_argument('--gpu-terminal-custody',required=True,help='original complete repository terminal capsule')
+     ap.add_argument('--gpu-terminal-mirror',required=True,help='original complete independent external terminal capsule')
++    ap.add_argument('--gpu-packet-replica',required=True,help='original GPU02 repository packet root')
++    ap.add_argument('--gpu-packet-replica-mirror',required=True,help='original GPU02 independent external packet root')
+     ap.add_argument('--storage-config',required=True)
+     ap.add_argument('--storage-config-sha256',required=True)
+     args=ap.parse_args()
+@@ -1185,6 +1201,7 @@
+             dict(phase='build',storage_config_sha256=args.storage_config_sha256,
+                  intended_packet_roots=[str(EXT),str(LOCAL)]))
+         configure_storage(ctx,storage,args.gpu_terminal_custody,args.gpu_terminal_mirror)
++        configure_packet_replicas(ctx,[args.gpu_packet_replica,args.gpu_packet_replica_mirror])
+         gpu_data=admit_gpu_bytes(ctx,args.gpu_terminal_custody,args.gpu_terminal_mirror)
+         stage,data,bootstrap=make_packet(ctx,gpu_data,supplied);stage_raw=raw(stage)
+         files={'inputs/'+n:v for n,v in data.items()};files['inputs/packet.json']=stage_raw
+--- predecessor/compact_inputs.py
++++ implementation/compact_inputs.py
+@@ -291,6 +291,126 @@
+             need(sha(data)==expected_sha256 and len(data)<=maximum, 'captured input pin/bound differs')
+             return data
+         return self.read(name,expected_sha256,maximum)
++
++
++class PacketReplicas:
++    """Detached opaque bytes from two explicit original packet copies; no fallback.
++
++    Full archive/capsule admission remains the caller's separate mandatory gate.
++    Only the exact outer-pinned, AFTER-observed flat input set is readable here.
++    """
++    def __init__(self, *, roots, outer_sha256, inner_sha256, after_raw,
++                 after_sha256, control_root, protected_roots):
++        need(type(roots) in (list, tuple) and len(roots)==2,
++             'two explicit packet replicas required')
++        self.roots=tuple(Path(p) for p in roots)
++        need(all(p.is_absolute() and p==p.resolve(strict=True) and p.is_dir()
++                 and not p.is_symlink() for p in self.roots),
++             'canonical ordinary packet replica roots required')
++        protected=tuple(Path(p).resolve(strict=True) for p in protected_roots)
++        overlap=lambda a,b:a==b or a in b.parents or b in a.parents
++        need(not overlap(*self.roots) and
++             all(not overlap(a,b) for a in self.roots for b in protected),
++             'packet replicas must be disjoint from each other and custody/staging')
++        need(all(pin(p) for p in (outer_sha256,inner_sha256,after_sha256))
++             and type(after_raw) is bytes and sha(after_raw)==after_sha256,
++             'independent replica/AFTER pins required')
++        transport=decode(after_raw)
++        need(transport['returncode']==0, 'successful original AFTER transport required')
++        after=decode(transport['stdout'])
++        need(after['terminal_gate'] is True and not after.get('observation_error'),
++             'conclusive original AFTER observation required')
++        self.outer_sha256=outer_sha256;self.inner_sha256=inner_sha256
++        self.after_sha256=after_sha256;self.control_root=control_root
++        self.outer_info=after['files']['control/packet.json']
++        self.inner_info=after['files']['control/inputs/packet.json']
++        record(self.outer_info);record(self.inner_info)
++        need(self.outer_info['sha256']==outer_sha256 and
++             self.inner_info['sha256']==inner_sha256, 'AFTER packet pins differ')
++        self._dirs=self._directories()
++        outer=decode(read_exact(self.roots[0]/'packet.json',self.outer_info,32*1024**2))
++        inner=decode(read_exact(self.roots[0]/'inputs/packet.json',self.inner_info,32*1024**2))
++        need(outer['remote_root']==control_root and outer['gpu_packet_sha256']==inner_sha256,
++             'original control/inner packet binding differs')
++        declared={n[len('inputs/'):]:h for n,h in outer['new_input_files'].items()
++                  if n.startswith('inputs/')}
++        need(declared and all(relative(n)==n and Path(n).name==n and pin(h)
++                              for n,h in declared.items()), 'flat outer input map required')
++        need(set(declared)==set(inner['files'])|{'packet.json','admission.json'}
++             and declared['packet.json']==inner_sha256 and
++             all(declared[n]==h for n,h in inner['files'].items()),
++             'complete original inner/outer input map differs')
++        self.members={n[len('control/inputs/'):]:v for n,v in after['files'].items()
++                      if n.startswith('control/inputs/')}
++        need(set(self.members)==set(declared), 'AFTER flat input membership differs')
++        directories=observed_directories(after['directories'])
++        need('control/inputs' in directories and
++             not any(n.startswith('control/inputs/') for n in directories),
++             'AFTER input directory membership differs')
++        for n,v in self.members.items():
++            record(v)
++            need(v['sha256']==declared[n] and v['bytes']<=256*1024**2,
++                 'outer/AFTER input pin or bound differs: '+n)
++        self.requested=dict(inner['files']);self.captured={};self._usable=False
++        self.recheck()
++
++    def _directories(self):
++        result=[]
++        for root in self.roots:
++            for path in (root,root/'inputs'):
++                need(path==path.resolve(strict=True) and not path.is_symlink(),
++                     'packet directory alias forbidden')
++                s=path.lstat();need(stat.S_ISDIR(s.st_mode),'packet directory required')
++                result.append((s.st_dev,s.st_ino,s.st_mtime_ns,s.st_ctime_ns,s.st_mode))
++        need(result[0][:2]!=result[2][:2] and result[1][:2]!=result[3][:2],
++             'independent packet directories required')
++        return tuple(result)
++
++    def recheck(self):
++        need(not self.captured or self._usable,'failed replica recheck cannot be retried')
++        self._usable=False
++        need(self._directories()==self._dirs,'packet directory changed')
++        copies=[]
++        for root in self.roots:
++            read_exact(root/'packet.json',self.outer_info,32*1024**2)
++            need({p.name for p in (root/'inputs').iterdir()}==set(self.members),
++                 'packet replica input membership changed')
++            copies.append({n:read_exact(root/'inputs'/n,info,256*1024**2)
++                           for n,info in sorted(self.members.items())})
++        need(copies[0]==copies[1],'packet replica bytes differ')
++        for name in ['packet.json',*('inputs/'+n for n in self.members)]:
++            need(not os.path.samestat((self.roots[0]/name).stat(),(self.roots[1]/name).stat()),
++                 'packet replicas must not alias files')
++        need(self._directories()==self._dirs,'packet directory changed during capture')
++        captured={n:copies[0][n] for n in self.requested}
++        need(not self.captured or self.captured==captured,'captured packet input changed')
++        self.captured=captured
++        self._usable=True
++        return self.binding()
++
++    def binding(self):
++        return {'schema':'ace-original-gpu-packet-replicas-v1',
++                'roots':[str(p) for p in self.roots], 'control_root':self.control_root,
++                'outer_sha256':self.outer_sha256,'inner_sha256':self.inner_sha256,
++                'after_sha256':self.after_sha256,
++                'input_members':decode(canonical(self.members)),
++                'input_members_sha256':sha(canonical(self.members)),
++                'input_files':len(self.members),
++                'input_bytes':sum(v['bytes'] for v in self.members.values()),
++                'acceptance':False,'fallback_allowed':False}
++
++    def capture(self, member, expected_sha256, maximum=256*1024**2):
++        need(self._usable,'packet replica admission failed')
++        relative(member)
++        need(member.startswith('control/inputs/') and member.count('/')==2,
++             'only exact control flat inputs may use packet replicas')
++        name=Path(member).name
++        need(name in self.requested and pin(expected_sha256) and
++             self.requested[name]==expected_sha256,'independent requested replica pin differs')
++        data=self.captured[name]
++        need(type(maximum) is int and 0<=len(data)<=maximum and
++             sha(data)==expected_sha256,'detached replica bytes differ or exceed bound')
++        return data
+ 
+ 
+ # Outer-coordinator bindings only. These members never enter scientific children.
