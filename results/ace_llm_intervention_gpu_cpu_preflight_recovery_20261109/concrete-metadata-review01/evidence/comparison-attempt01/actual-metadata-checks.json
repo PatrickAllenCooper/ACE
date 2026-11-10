@@ -1,0 +1,263 @@
+{
+  "actual_scientific_values_interpreted": false,
+  "checks": [
+    {
+      "check": "output/source pin cpu-history-expected.json",
+      "passed": true,
+      "sha256": "e3c8b4be09558e5f9d182c4e2264d5f51a2497457546020d57a855543b8fa789"
+    },
+    {
+      "check": "output/source pin cpu-history-preflight.json",
+      "passed": true,
+      "sha256": "ab9d0ac13e2cbb17cc7c32c9ac0ba07a6e6a988e890402c02757807a519f1421"
+    },
+    {
+      "check": "output/source pin assembly-record.json",
+      "passed": true,
+      "sha256": "108fbf4996ad35f624cb75e89474d68cb595e93b9c3b3e15b8bff4701419a634"
+    },
+    {
+      "check": "output/source pin assemble_cpu_preflight.py",
+      "passed": true,
+      "sha256": "eb5894f449c30d3da5c57e4772117cd7f63835822cbd00484506d598e89cd6c7"
+    },
+    {
+      "check": "output/source pin source-review.md",
+      "passed": true,
+      "sha256": "9c486e51ed6db5fc5cdfc27af74e9a3926556dc33edffbf09fbae19677b4b52d"
+    },
+    {
+      "check": "output/source pin llm_intervention_cpu_preflight_receipt.py",
+      "passed": true,
+      "sha256": "b9d0bf56e6c3174ad4ca2c21a43e3c13372c4755575a945437137dc2a1e942c8"
+    },
+    {
+      "check": "all twelve independently supplied input bytes",
+      "inputs": {
+        "after_observation": {
+          "bytes": 53377671,
+          "matches": true,
+          "sha256": "4303d7d4ef775ac133dde12b3d2ac875b7c31ed2382b45abd0c6cc6a55a188ac"
+        },
+        "authority": {
+          "bytes": 8619,
+          "matches": true,
+          "sha256": "b3630d400649ecd186e35232b24e9020e5bced7ad616379c7eaf5eef84498603"
+        },
+        "baseline": {
+          "bytes": 26948,
+          "matches": true,
+          "sha256": "cf0982dc0ac3f482c32665e710f06b98eef679d2a4b74ecdf989a7acaa3360ef"
+        },
+        "before_observation": {
+          "bytes": 53377715,
+          "matches": true,
+          "sha256": "f9c7dc2ecf1e0c91990e2c7d787abea37187fa520675ad580a1a7f5359f8d9d3"
+        },
+        "cpu_acceptance": {
+          "bytes": 5483561,
+          "matches": true,
+          "sha256": "3c5ce7375d0c64292553ded6ad3078e634745eb7996d83fd102e344eeab3f063"
+        },
+        "custody": {
+          "bytes": 107163,
+          "matches": true,
+          "sha256": "8e0ce58a1e093eee1e94d89025e29ac09f97f8b1c4fc3f29751a782401f5a7c0"
+        },
+        "failure_acceptance": {
+          "bytes": 5767,
+          "matches": true,
+          "sha256": "cacfe32add5d056c0870e58f4aac69ef2afcf2265171d9320bf96c2c2980bca0"
+        },
+        "failure_proof": {
+          "bytes": 3890,
+          "matches": true,
+          "sha256": "164ab63397e6dec86f0b811dfde192d11d3983b507fb742bf2d2f6adaba2b349"
+        },
+        "original_cpu_packet": {
+          "bytes": 27901,
+          "matches": true,
+          "sha256": "ad046a726e3a3a7744e54a860f8cf1a30947a198e8be3bc25ae06ec7b2909344"
+        },
+        "original_gpu_packet": {
+          "bytes": 15159,
+          "matches": true,
+          "sha256": "85d2607d94114109819ca5e8150c5849c13f1bbf4b37765d3f7ee2ff64e77c58"
+        },
+        "readset": {
+          "bytes": 5817073,
+          "matches": true,
+          "sha256": "9be8223034cadedb0a3ff885236f923519b81f8c98bd46a7ffbcd2dafd9812b0"
+        },
+        "remote_custody": {
+          "bytes": 33045289,
+          "matches": true,
+          "sha256": "5224bf51110996d0a72f334dc976db7644f24d99e7500b99730ddf00eff19214"
+        }
+      },
+      "passed": true
+    },
+    {
+      "check": "assembly record binds all twelve original pins",
+      "passed": true
+    },
+    {
+      "check": "exact concrete context and receipt field sets",
+      "passed": true
+    },
+    {
+      "check": "exact metadata schemas",
+      "passed": true
+    },
+    {
+      "check": "independent failure and accounting lineage reused",
+      "passed": true
+    },
+    {
+      "check": "failure semantics never rewritten",
+      "passed": true
+    },
+    {
+      "check": "before_observation transport success",
+      "passed": true
+    },
+    {
+      "check": "after_observation transport success",
+      "passed": true
+    },
+    {
+      "check": "seal contains exact original observations and backup receipt in both copies",
+      "passed": true
+    },
+    {
+      "check": "complete before after backup file maps equal",
+      "files": 72557,
+      "passed": true
+    },
+    {
+      "check": "complete unique directory rosters equal",
+      "directories": 3537,
+      "passed": true
+    },
+    {
+      "check": "archive and independent readback inventory joins",
+      "full_inventory_sha256": "70cfa7801604f4041f934ed74a36d54bd39817397a68dc09649e532e5391b483",
+      "passed": true
+    },
+    {
+      "campaign_prefix": "cpu/cpu/worker/artifacts/campaign/",
+      "check": "full CPU output and campaign partition exact",
+      "counts": {
+        "campaign": {
+          "bytes": 58574147,
+          "directories": 365,
+          "files": 15030
+        },
+        "cpu_output": {
+          "bytes": 301378319,
+          "directories": 2678,
+          "files": 20564
+        }
+      },
+      "passed": true,
+      "prefix": "cpu/cpu/"
+    },
+    {
+      "check": "both full hash maps exactly match independent CPU acceptance",
+      "passed": true
+    },
+    {
+      "check": "root bundle terminal and original packet bindings",
+      "passed": true
+    },
+    {
+      "bytes": 5548472,
+      "check": "all133 saved read-set byte metadata joins",
+      "files": 133,
+      "passed": true
+    },
+    {
+      "check": "original five accepted policy attempt pins",
+      "passed": true
+    },
+    {
+      "check": "saved exclusive output and CPU service absences",
+      "passed": true
+    },
+    {
+      "check": "all context authority and namespace joins",
+      "passed": true
+    },
+    {
+      "check": "exact source model resource and limits digests",
+      "digests": {
+        "limits_sha256": "682c46047a674cd598284dd743e3b6f338e07ed48c2fb3b298b176581c599102",
+        "model_files_sha256": "052d8c0b8c31f61d79bcbbcca49c85414118746986773d57fb6a56f58e5a0c09",
+        "resources_sha256": "aba6888303ce602d6e76c0203364c870587fc115cfd5a074d0685b18825912e8",
+        "source_files_sha256": "bc6bf66ecfb42aa20e992c1f5c3241b9e835c89aff1cb1113b052c6e35490d46"
+      },
+      "model_files": 7,
+      "passed": true
+    },
+    {
+      "check": "all computed context inventory and readset summaries",
+      "inventory": {
+        "canonical_sha256": "a3cf184cf12a7cee9c3a411f15d42a389b9643b2869a0b129952647898c5bb89",
+        "directory_count": 3043,
+        "file_count": 35594,
+        "total_bytes": 359952466
+      },
+      "passed": true,
+      "readset": {
+        "canonical_sha256": "78922d0bd678e5cc6e5efa99cc6d28999c6bb7bbffccdb5ee4707d25ee4dfefe",
+        "file_count": 133,
+        "total_bytes": 5548472
+      }
+    },
+    {
+      "check": "context digest and output byte pin joins",
+      "context_sha256": "b67399b5a09f287ba4c0d2f5dbbf11d1fadc456fdc8e7855f138cdcd3432dc54",
+      "passed": true
+    },
+    {
+      "assembled_utc": "2026-11-09T23:20:54.487854Z",
+      "authority_upper": "2026-11-09T23:13:52.123713Z",
+      "check": "saved timestamps not assembly time",
+      "passed": false,
+      "times": {
+        "after_scan": "2026-11-09T22:40:30.982223+00:00",
+        "after_transport": "2026-11-09T22:46:32.850513+00:00",
+        "before_scan": "2026-11-09T22:24:12.370227+00:00",
+        "before_transport": "2026-11-09T22:29:09.685429+00:00"
+      }
+    },
+    {
+      "check": "false qualification and historical-only scope",
+      "passed": true
+    },
+    {
+      "check": "single saved metadata assembly result",
+      "child_cpu_seconds": 5.809118,
+      "elapsed_seconds": 5.8274177499999995,
+      "passed": true,
+      "peak_child_rss_bytes": 812154880
+    },
+    {
+      "bytes": 6461885,
+      "check": "both actual metadata copies identical",
+      "files": 13,
+      "passed": true
+    },
+    {
+      "check": "actual package inventory complete and correct",
+      "passed": true
+    }
+  ],
+  "remote_actions": 0,
+  "required_findings": [
+    "saved timestamps not assembly time"
+  ],
+  "scope": "independent pure saved-metadata comparison; no project calls",
+  "source_functions_called": 0,
+  "tests_run": 0
+}

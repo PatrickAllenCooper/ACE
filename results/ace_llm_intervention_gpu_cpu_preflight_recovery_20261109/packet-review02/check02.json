@@ -1,0 +1,149 @@
+{
+  "actual_execution": false,
+  "checks": [
+    "exact multiline sbatch bootstrap and new entry/packet/admission/frozen output argv",
+    "no local submission/controller markers at review",
+    "all99 completed storage operations, three verification transports and two opaque adapter fetches; final record inventory and capacity",
+    "collector3697547 and closed review2d75 both match explicit bb3a full Git commit",
+    "both original packet copies unchanged at final readback"
+  ],
+  "corrected_checker_issue": "check01 selected only first line of valid multiline shell-quoted bootstrap; this continuation parses the whole exec tail. Original check01/source preserved.",
+  "facts": {
+    "collector": {
+      "collector_sha256": "3697547ddace45fda812c069c08d2d299e75b61fe9db717807a5379645771c27",
+      "repository_path": "results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/coordinator02/authoring/pull_terminal.py",
+      "review_path": "results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/coordinator-review02/review.md",
+      "review_sha256": "2d75c6ef17bc1b4b807efe2e3ce76505dfbf4261380a19f99bd251b764ce2523",
+      "source_commit": "bb3a3d29d715cf718503013838cd5fc450e09053"
+    },
+    "saved_site_command_summaries": {
+      "association": {
+        "returncode": 0,
+        "stdout": "paco0228|ucb736_asc2||compile,cpu-long,cpu-normal,cpu-testing,dtn,gpu-long,gpu-normal,gpu-testing,interactive,mem-long,mem-normal||\n"
+      },
+      "queue": {
+        "returncode": 0,
+        "stdout": "35342330_[0%1]|ecp1-continuation2-metadata|PENDING|(AssocMaxJobsLimit)|ucb736_asc1\n35342322|ecp1-continuation2-frontier|PENDING|(JobHeldUser)|ucb736_asc1\n35342318|ecp1-continuation2-close|PENDING|(JobHeldUser)|ucb736_asc1\n35342317_[12-863%2]|ecp1-continuation2|PENDING|(JobHeldUser)|ucb736_asc1\n35492617|kv-q3-crosswoz-full-cache-q0|RUNNING|c3gpu-a9-u19-1|ucb736_asc2\n"
+      }
+    },
+    "saved_site_headroom": {
+      "/projects/paco0228": {
+        "available_bytes": 82813386752,
+        "canonical": "/projects/paco0228",
+        "mode": "0o2770",
+        "uid": 348288
+      },
+      "/scratch/alpine/paco0228/ACE/results": {
+        "available_bytes": 664399765307392,
+        "canonical": "/scratch/alpine/paco0228/ACE/results",
+        "mode": "0o2755",
+        "uid": 348288
+      },
+      "scratch_write_read_cleanup": true,
+      "utc": "2026-11-09T21:12:56.663217+00:00"
+    },
+    "sbatch_directives": [
+      "#SBATCH --job-name=ace_llm_scientific_campaign_gpu02",
+      "#SBATCH --account=ucb736_asc2",
+      "#SBATCH --partition=aa100",
+      "#SBATCH --qos=gpu-testing",
+      "#SBATCH --nodes=1",
+      "#SBATCH --ntasks=1",
+      "#SBATCH --cpus-per-task=4",
+      "#SBATCH --mem=15360M",
+      "#SBATCH --gres=gpu:a100_3g.20gb:1",
+      "#SBATCH --time=00:48:00",
+      "#SBATCH --no-requeue",
+      "#SBATCH --output=/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02/logs/%j.out",
+      "#SBATCH --error=/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02/logs/%j.err"
+    ],
+    "storage_operations": {
+      "all_retained_operation_bytes": 591501069,
+      "all_retained_operation_files": 47,
+      "captured_reference": {
+        "acceptance": false,
+        "intent_sha256": "4a24bbff6c268e0c0a0b2660f342a7f29a914df8ed813e4cfec0a2d8c3d5b9ff",
+        "inventory_path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-20261109-02-storage-build-preparation/records/inventory-097.json",
+        "inventory_sha256": "556f2107db97004b12842e21fb6df6d6efc54986fa81ef5cb7e81abf7aedbb65",
+        "operation": "archive-verify",
+        "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-20261109-02-storage-build-preparation/records",
+        "retry_allowed": false,
+        "status": "completed"
+      },
+      "counts": {
+        "archive-verify": 3,
+        "binding": 1,
+        "input-read": 95
+      },
+      "final_inventory_path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-20261109-02-storage-build-preparation/records/inventory-098.json",
+      "final_inventory_sha256": "73e7d952cecafe89b0e36e86ea677b1116cb3b6df64141d93b3866e937ee58a7",
+      "intent_sha256": "4a24bbff6c268e0c0a0b2660f342a7f29a914df8ed813e4cfec0a2d8c3d5b9ff",
+      "transports": [
+        {
+          "capacity": {
+            "16777230": {
+              "available_bytes": 22852898816,
+              "required_bytes": 546575661
+            }
+          },
+          "name": "fetch-log-028",
+          "receipt_sha256": "4663cc46b23d1d0b101f3ecf06dd20ad63c433722f4716e28bc3dc59e322828d",
+          "transport_sha256": "ccb1f27c6dfcdf12e7c6f3fe2aec6bafe8fec6b98625fe5fca17e0db64b1903d",
+          "wall_seconds": 27.914994166
+        },
+        {
+          "capacity": {
+            "16777230": {
+              "available_bytes": 22771830784,
+              "required_bytes": 546575653
+            }
+          },
+          "name": "fetch-log-091",
+          "receipt_sha256": "734989de2abab2a206202d218f7a4de3b66a913b47dbffa4290afc82d10e743a",
+          "transport_sha256": "4783ad5c84edbe75b4d6fed5e39c2ac81513d2f7e3529f4f40199ca3b802ae2f",
+          "wall_seconds": 29.106751833999994
+        },
+        {
+          "capacity": {
+            "16777230": {
+              "available_bytes": 22566436864,
+              "required_bytes": 526492402
+            }
+          },
+          "name": "verify-000",
+          "receipt_sha256": "9603d43c163de4e7b5eae306c90ab13144a23e4c73c8ad732b567b9340adbcc4",
+          "transport_sha256": "c7524c0b872a7b59e09328982aa0aab2f965e6895c6c9a9bb74b1395b6602536",
+          "wall_seconds": 28.894028667000008
+        },
+        {
+          "capacity": {
+            "16777230": {
+              "available_bytes": 22683869184,
+              "required_bytes": 526492402
+            }
+          },
+          "name": "verify-001",
+          "receipt_sha256": "9603d43c163de4e7b5eae306c90ab13144a23e4c73c8ad732b567b9340adbcc4",
+          "transport_sha256": "588c1c5560d375d92d852e3688add80b14911df4a26df92c78f5b392adba1f8c",
+          "wall_seconds": 23.222747416999994
+        },
+        {
+          "capacity": {
+            "16777230": {
+              "available_bytes": 21443248128,
+              "required_bytes": 526492402
+            }
+          },
+          "name": "verify-002",
+          "receipt_sha256": "9603d43c163de4e7b5eae306c90ab13144a23e4c73c8ad732b567b9340adbcc4",
+          "transport_sha256": "52b3607e96b469630fa2b9f8a9681f16d3679a67d1774817512f7f96f4ce71bf",
+          "wall_seconds": 21.840780959
+        }
+      ]
+    }
+  },
+  "remote_actions": 0,
+  "status": "remaining_checks_passed",
+  "tests_run": 0,
+  "wall_seconds": 0.923640209
+}

@@ -1,0 +1,260 @@
+--- preparation02/audit_saved_gpu72.py
++++ gpu-recovery-audit-preparation01/audit_saved_gpu72.py
+@@ -1,6 +1,6 @@
+ """Prospective read-only stdlib GPU72 saved-evidence aid. NEVER acceptance.
+ 
+-Only pinned pure audit dependencies execute. Frozen producer/collector/backend
++Only pinned pure audit/receipt metadata dependencies execute. Frozen producer/collector/backend
+ sources are text/AST oracles, never imported. No remote, model or tensor calls.
+ """
+ import argparse,collections,hashlib,json,math,os,re,resource,stat,struct,time,traceback,types
+@@ -10,6 +10,8 @@
+ AID_SHA='6d56672582f8c41bdd01c64b446c1d1607316650c6357bec95a889c357ab7eb4'
+ SUPPLEMENT_SHA='11230b7b9148809c844ce155cd5ab056fb1ca517cd75c9c1e78ef1e9dc5de3ef'
+ ORACLES_SHA='b4dd283396a6da3f8f90d5e6ea2bd8587a5dc55c91d67eea56ab3e7756103c84'
++RECOVERY_SHA='1d72953472d00eda134546697f256bc0104cb0e0750edef080d5896e66347f6d'
++PREFLIGHT_SHA='b9d0bf56e6c3174ad4ca2c21a43e3c13372c4755575a945437137dc2a1e942c8'
+ BACKEND_SHA='4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f'
+ SOURCE='a9346022f145cc29439325b6f291597b2e6ec037'
+ FREEZE='15602614ef9d7e9a3e21027e7495f891c98ba32a2b6b0ee9857e5b71d5e5e66d'
+@@ -40,6 +42,8 @@
+ 
+ aid=dependency('audit_saved_cpu.py',AID_SHA)
+ supp=dependency('audit_supplement.py',SUPPLEMENT_SHA)
++recovery=dependency('gpu_recovery_delta.py',RECOVERY_SHA)
++preflight=dependency('llm_intervention_cpu_preflight_receipt.py',PREFLIGHT_SHA)
+ 
+ def opaque_compact(data):
+  """Remove only JSON whitespace outside strings; never interpret payload values.
+@@ -105,7 +109,7 @@
+           'namespace.json':'namespace.json','original-namespace.json':'original-namespace.json'}
+  need(type(previous['roots']) is dict and type(current['roots']) is dict
+       and set(previous['roots'])==set(mapping)
+-      and set(current['roots'])==set(mapping.values())|{'launch'},'exact original ancestor root labels required')
++      and set(current['roots'])==set(mapping.values())|{'launch','control'},'exact original ancestor root labels required')
+  for old,new in mapping.items():
+   path=previous['roots'][old]
+   need(type(path) is str and PurePosixPath(path).is_absolute() and '..' not in PurePosixPath(path).parts
+@@ -121,7 +125,7 @@
+  need(dirs<=set(now['directories']),'original ancestor directory missing')
+  append={C+f'policy-{i:02d}' for i in (5,6,7)}
+  def allowed(name):
+-  return name=='launch' or name.startswith('launch/') or any(name==a or name.startswith(a+'/') for a in append)
++  return name=='control' or name.startswith('control/') or name=='launch' or name.startswith('launch/') or any(name==a or name.startswith(a+'/') for a in append)
+  need(all(allowed(n) for n in set(now['files'])-set(files))
+       and all(allowed(n) for n in set(now['directories'])-dirs),'ancestor changed outside three-policy append/current launch')
+ 
+@@ -168,6 +172,8 @@
+ class Audit(aid.Audit):
+  def __init__(self,cfg):
+   super().__init__(cfg);self.oracles,self.oracle_pins=load_oracles();self.completed=[];self.cells=[]
++  for filename,name in [('host-entry04.py',recovery.ENTRY),('history-adapter04.py',recovery.HISTORY),('preflight-checker.py',recovery.CHECKER)]:
++   aid.file_bytes(HERE/'recovery-references'/filename,recovery.OPERATIONAL[name],maximum=1024**2)
+  def j(self,n):
+   need(PurePosixPath(n).name not in {'world.json','paired-plan.json','campaign.json','campaign-bundle.json'}
+        and not PurePosixPath(n).name.startswith('return-'),'opaque science payload decode forbidden')
+@@ -176,7 +182,7 @@
+   r=self.c['artifacts'][key];need(set(r)=={'path','sha256'},'independent path/pin pair required')
+   return aid.file_bytes(Path(r['path']),r['sha256'],maximum)
+  def custody(self):
+-  need(self.c['schema']=='ace-prospective-gpu72-saved-audit-input-v1' and re.fullmatch('[1-9][0-9]*',self.c['job_id']), 'actual job/config required')
++  need(self.c['schema']=='ace-prospective-gpu72-recovery-saved-audit-input-v2' and re.fullmatch('[1-9][0-9]*',self.c['job_id']), 'actual job/config required')
+   need(self.c['helper_sha256']==BACKEND_SHA,'independently pinned traversal backend required')
+   self.d=aid.decode(self.artifact('disposition'));seal=aid.decode(self.artifact('custody'))
+   observations=[];inventories=[]
+@@ -185,10 +191,15 @@
+    v=aid.decode(transport['stdout']);need(v['terminal_gate'] is True and v.get('observation_error') is None,'incomplete terminal observation')
+    inventories.append(saved_inventory(v['files'],v['directories']))
+    observations.append(v)
+-  self.before,after=observations
++  self.before,after=observations;self.after=after
+   for key in ('files','original_hardlink_groups','parent_accounting','related_accounting','journal_pins','upstream_pins','upstream_errors'):
+    need(self.before[key]==after[key],'original second observation differs: '+key)
+   need(inventories[0]==inventories[1],'original second directory inventory differs')
++  for key in ('root_present','failed_gpu_root_present','cpu_present','training_present','token_present',
++              'failed_token_present','common_present','failed_present','namespace_present','original_namespace_present',
++              'current_control_intent_base64'):
++   need(self.before[key]==after[key],'second recovery observation differs: '+key)
++  need(self.before['results']['details']==after['results']['details'],'second saved scheduler request differs')
+   receipt=aid.decode(self.artifact('remote_custody'));self.receipt=receipt
+   full=receipt['full_inventory'];local=receipt['local_inventory'];aid.validate_inventory(full);aid.validate_inventory(local)
+   need(local==selected(full,self.oracles['references/remote_custody4161.py']),'exact current-launch text selection differs')
+@@ -227,44 +238,70 @@
+      full_local_copy=False,remote_archive_sha256=receipt['backup_archive_sha256'],archive_path=receipt['backup_archive_path'],separate_saved_archive_verification=verify is not None)
+  def packet(self):
+   self.p=aid.decode(self.artifact('inner'));self.outer=aid.decode(self.artifact('outer'));self.packet_pin=self.c['artifacts']['inner']['sha256']
+-  self.cpu=aid.decode(self.artifact('cpu_acceptance'));self.old=self.j('launch/inputs/cpu-packet.json')
++  self.cpu=aid.decode(self.artifact('cpu_acceptance'));self.old=self.j('control/inputs/cpu-packet.json')
+   p=self.p;builder=self.oracles['references/gpu_builder.py'];resources=supp.constant(builder,'RESOURCES');limits=supp.constant(builder,'LIMITS')
+-  need(p['schema']=='ace-scientific-paired-campaign-gpu-v1' and p['scope']=='development' and p['freeze_sha256']==FREEZE
+-       and p['resources']==resources and p['limits']==limits and self.outer['source_commit']==SOURCE,'frozen scientific GPU contract')
+-  for key,member in [('outer','launch/packet.json'),('inner','launch/inputs/packet.json'),('admission','launch/inputs/admission.json'),('result','launch/submission.result.json'),('remote_intent','launch/submission.intent.json'),('cpu_acceptance','launch/inputs/cpu-acceptance.json'),('baseline','launch/cpu-baseline.json'),('freeze','launch/freeze.json'),('training_acceptance','launch/training-acceptance.json')]:self.h(member,self.c['artifacts'][key]['sha256'])
++  need(p['schema']=='ace-scientific-paired-campaign-gpu-cpu-history-v2' and p['scope']=='development' and p['freeze_sha256']==FREEZE
++       and p['resources']==resources and p['limits']==limits and self.outer['source_commit']==SOURCE
++       and self.outer['schema']=='ace-scientific-campaign-gpu-recovery-launch-v2'
++       and self.outer['gpu_packet_sha256']==self.packet_pin
++       and self.outer['baseline_sha256']==self.c['artifacts']['baseline']['sha256']
++       and p['recovery_files']==recovery.RECOVERY_FILES,'explicit recovery with frozen scientific GPU contract')
++  for key,member in [('outer','control/packet.json'),('inner','control/inputs/packet.json'),('admission','control/inputs/admission.json'),('result','control/submission.result.json'),('remote_intent','control/submission.intent.json'),('cpu_acceptance','control/inputs/cpu-acceptance.json'),('baseline','control/gpu-failure-baseline.json'),('freeze','control/freeze.json'),('training_acceptance','control/training-acceptance.json')]:self.h(member,self.c['artifacts'][key]['sha256'])
+   freeze=aid.decode(self.artifact('freeze'));need(sha(self.artifact('freeze'))==FREEZE and freeze['source_commit']==SOURCE,'frozen source metadata')
+   closure=freeze['stage_closure']['stages']['GPUcampaign']
+-  need(p['source_names']==closure['source_names'],'exact frozen stage source closure differs')
++  authority=aid.decode(self.artifact('recovery_authority'));context=aid.decode(self.artifact('recovery_context'))['execution_context']
++  manifest=aid.decode(self.artifact('operational_manifest'))
++  recovery.validate_sources(p,closure,authority,context,manifest,freeze['source_pins'])
++  need(self.outer['operational_source_commit']==manifest['source_commit'],'outer operational Git identity differs')
+   for name in p['source_names']:
+-   origins=[h for n,h in freeze['source_pins'].items() if PurePosixPath(n).name==name]
+-   need(len(origins)==1 and origins[0]==p['files'][name]==closure['input_source_files'][name],'captured source/freeze basename/closure differs')
+-   if name in self.oracle_pins:need(p['files'][name]==self.oracle_pins[name],'original source oracle differs')
+-  for n,h in p['files'].items():self.h('launch/inputs/'+aid.name(n),h)
+-  need(self.subtree('launch/inputs/')==dict(p['files'],**{'packet.json':self.packet_pin,'admission.json':self.c['artifacts']['admission']['sha256']}),'complete GPU inputs membership differs')
+-  for n,h in self.outer['new_input_files'].items():self.h('launch/'+aid.name(n),h)
+-  root=supp.constant(builder,'ROOT');cpu_root=supp.constant(builder,'CPU_ROOT')
+-  need(p['paths']==dict(cpu_inputs=cpu_root+'/inputs',cpu_output=cpu_root+'/cpu',campaign=cpu_root+'/cpu/worker/artifacts/campaign',gpu_inputs=root+'/inputs',gpu_output=root+'/gpu')
+-       and self.d['remote_root']==root and self.d['output_root']==root+'/gpu' and self.cpu['campaign_root']==p['paths']['campaign'],'frozen original endpoint/output roots')
++   if name in self.oracle_pins and name!=ENTRY:need(p['files'][name]==self.oracle_pins[name],'original scientific oracle differs')
++  for role,key in [('authority','recovery_authority'),('context','recovery_context'),('receipt','preflight_receipt'),('read_set','readset')]:
++   need(p['files'][p['recovery_files'][role]]==self.c['artifacts'][key]['sha256'],'independent recovery role differs')
++  for n,h in p['files'].items():self.h('control/inputs/'+aid.name(n),h)
++  need(self.subtree('control/inputs/')==dict(p['files'],**{'packet.json':self.packet_pin,'admission.json':self.c['artifacts']['admission']['sha256']}),'complete GPU inputs membership differs')
++  for n,h in self.outer['new_input_files'].items():self.h('control/'+aid.name(n),h)
++  root=recovery.CONTROL;cpu_root=supp.constant(builder,'CPU_ROOT')
++  need(p['paths']==dict(cpu_inputs=cpu_root+'/inputs',cpu_output=cpu_root+'/cpu',campaign=cpu_root+'/cpu/worker/artifacts/campaign',gpu_inputs=root+'/inputs',gpu_output=recovery.OUTPUT)
++       and self.d['remote_root']==self.outer['remote_root']==root and self.d['output_root']==recovery.OUTPUT and self.cpu['campaign_root']==p['paths']['campaign'],'frozen original endpoint/output roots')
+   admission=aid.decode(self.artifact('admission'))
+   need(admission['packet_sha256']==self.packet_pin and admission['resources']==resources and admission['limits']==limits
+        and admission['freeze_sha256']==FREEZE and admission['accounting_sha256']==self.c['artifacts']['baseline']['sha256'],'original admission binding')
+   need(set(self.cpu)==set(supp.constant(builder,'CPU_ACCEPTANCE_KEYS')) and self.cpu['schema']=='ace-scientific-campaign-cpu-acceptance-v1'
+        and self.cpu['status']=='development_cpu_phase_accepted' and self.cpu['scientific_qualified'] is False
+        and self.cpu['cpu_packet_sha256']==p['cpu_packet_sha256'] and p['cpu_acceptance_sha256']==self.c['artifacts']['cpu_acceptance']['sha256'],'independent accepted CPU authority differs')
+-  self.h('launch/inputs/cpu-packet.json',p['cpu_packet_sha256'])
++  self.h('control/inputs/cpu-packet.json',p['cpu_packet_sha256'])
+   for n,h in self.old['files'].items():need(p['files'].get(n)==h,'original CPU input changed');self.h('cpu/inputs/'+n,h)
+   need({n:h for n,h in self.subtree(CPU).items() if not n.startswith('worker/artifacts/campaign/')}==self.cpu['cpu_output_files'],'original CPU output changed')
+   need({n:h for n,h in self.subtree(C).items() if n.split('/')[0] not in {'policy-05','policy-06','policy-07'}}==self.cpu['campaign_files'],'CPU campaign changed outside three GPU attempts')
+   self.h(CPU+self.cpu['bundle_path'],self.cpu['bundle_sha256'])
+   previous=aid.decode(self.artifact('cpu_remote_custody'));previous_d=aid.decode(self.artifact('cpu_disposition'))
+-  self.h('launch/cpu-disposition.json',self.c['artifacts']['cpu_disposition']['sha256'])
++  self.h('control/cpu-disposition.json',self.c['artifacts']['cpu_disposition']['sha256'])
+   need(previous_d['job_id']==self.cpu['job_id'] and previous_d['remote_custody_receipt_sha256']==sha(raw(previous))
+        and saved_inventory(previous_d['remote_files'],previous_d['remote_directories'])==previous['full_inventory'],'independent accepted CPU receipt/disposition join')
+   need(previous['full_backup_verified'] is True and previous['full_local_copy'] is False,'accepted original CPU archive required')
+   cpu_ancestor_inventory(previous,self.receipt)
+   for n,h in [('namespace.json',self.c['artifacts']['namespace_claim']['sha256']),('original-namespace.json',self.c['artifacts']['original_namespace_claim']['sha256'])]:self.h(n,h)
+   need(self.d['cpu_acceptance_sha256']==p['cpu_acceptance_sha256'],'collector CPU acceptance join')
++  recovery.recovery(self,preflight,aid.decode,raw,aid.validate_inventory)
+   self.facts['packet']=dict(source_commit=SOURCE,source_files=len(p['source_names']),inputs=len(p['files']),inner_sha256=self.packet_pin,reused_cpu_acceptance=True)
++ def recovery_fetch_requirements(self):
++  p=aid.decode(self.artifact('inner'))
++  need(p['schema']=='ace-scientific-paired-campaign-gpu-cpu-history-v2','new packet schema required')
++  wanted={'control/inputs/cpu-packet.json'}
++  need(set(p['services'])==set(LLMS),'exact three service freezes required')
++  wanted.update('control/inputs/'+aid.name(p['services'][policy]) for policy in LLMS)
++  logs={'control/logs/'+self.c['job_id']+suffix for suffix in ('.out','.err')}
++  wanted.update(logs)
++  need({n for n in self.full if n.startswith('control/logs/')}==logs,'exact current-job stdout/stderr custody required')
++  for n in sorted(wanted):
++   need(n in self.full,'required control metadata/log member absent: '+n)
++   need(self.full[n]['bytes']<=32*1024**2,'control member exceeds bounded exact materialization; separate reviewed path needed')
++   if n not in self.local and n not in self.c.get('fetched',{}):self.missing[n]=self.full[n]
++  need(sum(self.full[n]['bytes'] for n in wanted)<=512*1024**2,'control fetch aggregate exceeds bound')
++  self.facts['control_selection']={'required_members':{n:self.full[n] for n in sorted(wanted)},
++      'collector_selects_control':False,'batch03_selects_control':False,'control_log_content_interpreted':False}
++  need(not self.missing,'new control metadata/log exact fetches required; batch03 is insufficient')
++  for n in sorted(logs):self.b(n)  # Hash opaque log bytes; do not parse outcomes.
+  def fetch_requirements(self):
+   wanted={C+'source-plan-pins.json'}
+   for i in range(24):wanted.add(C+f'policy-00/world-{i:02d}/episode/plan.json')
+@@ -280,11 +317,11 @@
+  def accounting(self):
+   baseline=aid.decode(self.artifact('baseline'));job=self.c['job_id'];obs=self.before;rows=obs['related_accounting']
+   prior=[r for r in rows if r[0]!=job];current=[r for r in rows if r[0]==job]
+-  need(baseline['terminal_jobs']==len(prior)==46 and len(rows)==47 and len(current)==1
+-       and baseline['submission_journals']==len(baseline['journal_pins'])==94 and aid.normalize(prior)==aid.normalize(baseline['related_accounting']),'exact46+1 actual history differs')
++  need(baseline['terminal_jobs']==len(prior)==47 and len(rows)==48 and len(current)==1
++       and baseline['submission_journals']==len(baseline['journal_pins'])==96 and aid.normalize(prior)==aid.normalize(baseline['related_accounting']),'exact47+1 actual history differs')
+   need(all(r[2].split()[0] in {'COMPLETED','FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL','PREEMPTED','BOOT_FAIL','DEADLINE','REVOKED'} for r in aid.normalize(rows)),'active/nonterminal history')
+   r=aid.normalize(current)[0];resources=self.p['resources'];elapsed=r[5];t=r[7]
+-  need(r==aid.normalize([obs['parent_accounting']])[0] and r[2:4]==['COMPLETED','0:0'] and r[4]==4 and 0<elapsed<=resources['wall_seconds']
++  need(r==aid.normalize([obs['parent_accounting']])[0] and r[2:4]==['COMPLETED','0:0'] and r[1]=='ace_llm_scientific_campaign_gpu02' and r[4]==4 and 0<elapsed<=resources['wall_seconds']
+        and r[6]=='ucb736_asc2' and t.get('cpu')=='4' and t.get('node')=='1' and t.get('mem') in ('15G','15.0G','15360M')
+        and t.get('gres/gpu:a100_3g.20gb')=='1' and all(k in ('gres/gpu','gres/gpu:a100_3g.20gb') for k in t if k.startswith('gres/'))
+        and t.get('gres/gpu','1')=='1','actual4CPU15GiB/one20GB allocation differs')
+@@ -298,13 +335,14 @@
+   need(result['job_id']==job and result['returncode']==0 and result['intent_sha256']==self.c['artifacts']['remote_intent']['sha256'],'once-only submission result')
+   need(set(remote)==set(local)|{'remote_utc','fresh_readiness'} and {k:remote[k] for k in local}==local,'original intent semantic join')
+   journals=dict(baseline['journal_pins']);journals[self.d['remote_root']+'/submission.intent.json']=result['intent_sha256'];journals[self.d['remote_root']+'/submission.result.json']=self.c['artifacts']['result']['sha256']
+-  need(len(journals)==96 and obs['journal_pins']==journals,'full94+2 journals differ')
++  need(len(journals)==98 and obs['journal_pins']==journals,'full96+2 journals differ')
++  recovery.history_extension(baseline,rows,obs['journal_pins'],job,result['intent_sha256'],self.c['artifacts']['result']['sha256'],aid.normalize)
+   old=aid.costs(prior);new=aid.costs(rows)
+   need(old==(baseline['closed_cpu_seconds'],baseline['closed_gpu_slice_seconds']) and new==(old[0]+4*elapsed,old[1]+elapsed)
+        and baseline['outstanding_reservation']==0 and baseline['preparation_allowance_cpu_seconds']==3600,'actual accounting extension differs')
+   need(new[0]+3600<=57600 and new[1]<=7200 and self.d['closed_cpu_seconds']==new[0] and self.d['closed_gpu_slice_seconds']==new[1]
+        and self.d['cpu_admission_after_release']==new[0]+3600,'disposition costs/caps differ')
+-  self.facts['accounting']=dict(requested_and_original_running=observed_allocation,steps=obs['results']['steps'],jobs=47,journals=96,elapsed_seconds=elapsed,allocated_cpu_seconds=4*elapsed,gpu_slice_seconds=elapsed,closed_cpu_seconds=new[0],closed_gpu_seconds=new[1],preparation_cpu_allowance=3600,utilization_inferred=False)
++  self.facts['accounting']=dict(requested_and_original_running=observed_allocation,steps=obs['results']['steps'],jobs=48,journals=98,elapsed_seconds=elapsed,allocated_cpu_seconds=4*elapsed,gpu_slice_seconds=elapsed,closed_cpu_seconds=new[0],closed_gpu_seconds=new[1],preparation_cpu_allowance=3600,utilization_inferred=False)
+  def runtime(self):
+   self.stage=self.j(G+'stage.json');self.stage_pin=self.h(G+'stage.json');self.handoff=self.j(G+'handoff.json')
+   stage=self.stage;h=self.handoff;contract=self.old['runtime'];prefix=supp.remote_path(stage['staged_prefix'])
+@@ -339,7 +377,7 @@
+          and row['source_sha256']==stage['cache_source_sha256'][s] and row['matches_stage_pins'] is row['admissible_for_diagnosis'] is True
+          and row['cache_executed_by_comparison'] is False and (row.get('cpython_timestamp_reject_expected') is True or row.get('code_equivalent') is True),'cache reconciliation')
+    phases=('after-service-imports','after-campaign-host') if pid is None else ('after-service-imports','after-model-load','after-requests')
+-   freeze=None if pid is None else self.j('launch/inputs/'+self.p['services'][pid])
++   freeze=None if pid is None else self.j('control/inputs/'+self.p['services'][pid])
+    expected={PurePosixPath(n).stem:self.p['files'][n] for n in self.p['source_names'] if n!=ENTRY} if pid is None else {PurePosixPath(n).stem:v for n,v in freeze['sources'].items() if n!='llm_intervention_model_service.py'}
+    original_input=self.p['paths']['gpu_inputs'] if pid is None else self.p['paths']['cpu_inputs']
+    for phase in phases:
+@@ -396,6 +434,7 @@
+   need([s['policy_id'] for s in phase['sessions']]==list(LLMS) and len({s['registered_pid'] for s in phase['sessions']})==3,'three fixed original sessions')
+   need(phase['sessions'][0]['first_verified_monotonic']-origin<240,'first global GPU work later than240')
+   for prior,next_session in zip(phase['sessions'],phase['sessions'][1:]):need(prior['closed_monotonic']<=next_session['started_monotonic'],'overlapping/reloaded sessions')
++  recovery.recovery_terminal(self)
+   self.facts['terminal']=dict(combined_attempt_pins=t['combined_attempt_pins'],outer_seconds=t['elapsed_seconds'],scientific_qualified=False,training_updates=0)
+  def cell(self,base,arm,index,policy,identity,offset,pid):
+   path=base+f'world-{index:02d}/';receipt=self.j(path+'arm-receipt.json');self.h(path+'arm-receipt.json',arm['receipt_sha256']);self.h(path+'arm-receipt.candidate.json',arm['receipt_sha256'])
+@@ -450,7 +489,7 @@
+   need(training['schema']=='ace-scientific-training-gpu-acceptance-v1' and training['status']=='scientific_training_gpu_accepted'
+        and training['required_findings']==0 and training['training_gpu_qualified'] is training['complete_custody_verified'] is True
+        and training['scientific_utility_qualified'] is False and training['source_commit']==SOURCE and training['scientific_freeze_sha256']==FREEZE,'independent accepted training lineage')
+-  self.h('launch/inputs/gpu-training-acceptance.json',self.c['artifacts']['training_acceptance']['sha256'])
++  self.h('control/inputs/gpu-training-acceptance.json',self.c['artifacts']['training_acceptance']['sha256'])
+   for pi,policy in enumerate(LLMS,5):
+    base=C+f'policy-{pi:02d}/';worker=G+'services/'+policy+'/worker/';client=base+'service/'
+    attempt=self.j(base+'attempt.json');pin=self.t['attempt_pins'][policy]
+@@ -458,7 +497,7 @@
+    need(attempt['policy_id']==policy and attempt['phase']=='gpu' and attempt['campaign_sha256']==self.t['campaign_sha256']
+         and attempt['source_plan_pins']==self.plan_pins and attempt['errors']==[] and attempt['retry_allowed'] is attempt['private_scores_computed'] is False
+         and len(attempt['arms'])==24 and attempt['evidence_sha256']==self.subtree(base,('attempt.json','attempt.candidate.json')),'whole original GPU attempt failure/membership')
+-   freeze=self.j('launch/inputs/'+self.p['services'][policy]);auth=self.j(worker+'authenticated.json');identity=auth['identity'];ip=digest(identity)
++   freeze=self.j('control/inputs/'+self.p['services'][policy]);auth=self.j(worker+'authenticated.json');identity=auth['identity'];ip=digest(identity)
+    expected_identity=dict(model_sha256=digest(freeze['model_files']),source_sha256=digest(freeze['sources']),
+       adapter_sha256=freeze['adapter']['sha256'] if freeze['adapter'] else digest(dict(treatment='frozen',adapter=None)),
+       numeric_recipe=freeze['recipe'],numeric_recipe_sha256=digest(freeze['recipe']))
+@@ -471,7 +510,7 @@
+     role='sft' if policy=='sft_llm' else 'final';adapter=freeze['adapter'];restored=self.j(worker+'adapter_restoration.json')
+     need(adapter['sha256']==training[role+'_adapter_sha256'] and adapter['training_receipt_sha256']==training[role+'_checkpoint_sha256']
+          and restored['adapter_sha256']==adapter['sha256'] and restored['training_receipt_sha256']==adapter['training_receipt_sha256'],'accepted checkpoint role/restoration')
+-    self.h('launch/inputs/'+adapter['file'],adapter['sha256']);self.h('launch/inputs/'+adapter['training_receipt'],adapter['training_receipt_sha256'])
++    self.h('control/inputs/'+adapter['file'],adapter['sha256']);self.h('control/inputs/'+adapter['training_receipt'],adapter['training_receipt_sha256'])
+    session=self.phase['sessions'][pi-5];process=self.j(client+'process.json');close=self.j(client+'closed.json');cleanup=self.j(client+'close-cleanup.json')
+    launch=self.j(G+'services/'+policy+'/launch/execution.json');terminal=self.j(worker+'terminal.json');n=close['completed_requests'];pid=session['registered_pid']
+    need(type(n) is int and 24<=n<=576 and close['status']=='closed' and close['last_request_id']==n-1 and close['cleanup']==cleanup
+@@ -628,12 +667,12 @@
+  need(all(out!=p and out not in p.parents and p not in out.parents for p in inputs),'output overlaps original evidence')
+  out.mkdir(mode=0o700,exist_ok=False);(out/'audit_saved_gpu72.py').write_bytes(source);(out/'config.json').write_bytes(config_raw)
+  start=time.monotonic();cpu=time.process_time();view=None
+- report=dict(schema='ace-gpu72-saved-audit-report-v1',acceptance=False,scientific_qualified=False,runtime_qualified=False,
+-      source_sha256=sha(source),config_sha256=sha(config_raw),dependency_sha256={'aid':AID_SHA,'supplement':SUPPLEMENT_SHA},oracle_manifest_sha256=ORACLES_SHA,
++ report=dict(schema='ace-gpu72-recovery-saved-audit-report-v2',acceptance=False,scientific_qualified=False,runtime_qualified=False,
++      source_sha256=sha(source),config_sha256=sha(config_raw),dependency_sha256={'aid':AID_SHA,'supplement':SUPPLEMENT_SHA,'recovery':RECOVERY_SHA,'preflight_metadata_checker':PREFLIGHT_SHA},oracle_manifest_sha256=ORACLES_SHA,
+       facts={},errors=[],completed_checks=[],missing_exact_fetches={},remaining_independent_gates=list(REMAINING),new_responses=0,new_updates=0,remote_actions=0,models_or_tokenizers_executed=0,all_checker_attempts_must_be_preserved=True)
+  try:
+   view=Audit(cfg)
+-  for name in ('custody','packet','accounting','runtime','terminals','fetch_requirements','services'):
++  for name in ('custody','recovery_fetch_requirements','packet','accounting','runtime','terminals','fetch_requirements','services'):
+    getattr(view,name)();report['completed_checks'].append(name)
+   report['status']='saved_checks_complete_independent_review_required'
+  except BaseException as exc:
