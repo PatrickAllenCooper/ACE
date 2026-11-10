@@ -1,0 +1,216 @@
+--- replica01/launch_once.py
++++ transfer01/launch_once.py
+@@ -2,10 +2,173 @@
+ Requires accepted actual CPU preparation, full actual baseline and reviewed packet.
+ """
+ from pathlib import Path
+-import argparse, fcntl, os, subprocess, sys
++import argparse, contextlib, fcntl, os, signal, subprocess, sys, threading, time
+ sys.dont_write_bytecode=True
+ import build_packet as b
+ HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
++TRANSFER_RATE_BYTES=1024**2
++TRANSFER_HEADROOM_SECONDS=120
++TRANSFER_MAX_SECONDS=900
++TRANSFER_LOG_CAP=16*1024**2
++# GPU02's45s failure left118237280B in the partial tree (including readiness).
++# 1MiB/s is a conservative planning allowance, not a measured throughput floor.
++TRANSFER_OBSERVATION_SHA='2ab4613717329ee35e2a7a58c79cfbe196bd9eb7d579ef5617b2b8270e8b3da4'
++
++
++class TerminationRequested(BaseException):
++    pass
++
++
++@contextlib.contextmanager
++def termination_guard():
++    def terminate(signum,frame):
++        raise TerminationRequested('SIGTERM requested bounded owned cleanup')
++    previous=signal.signal(signal.SIGTERM,terminate)
++    try:yield
++    finally:signal.signal(signal.SIGTERM,previous)
++
++
++@contextlib.contextmanager
++def cleanup_signals(primary):
++    """Defer SIGTERM and SIGINT until cleanup finishes; preserve the primary."""
++    pending=[];error=primary
++    previous={sig:signal.signal(sig,lambda signum,frame:pending.append(signum))
++              for sig in (signal.SIGTERM,signal.SIGINT)}
++    try:
++        yield
++    except BaseException as exc:
++        error=exc;raise
++    finally:
++        for sig,handler in previous.items():signal.signal(sig,handler)
++        if pending and error is not None and hasattr(error,'add_note'):
++            error.add_note('Additional SIGTERM/SIGINT deferred during owned cleanup')
++    if pending and error is None:raise TerminationRequested('SIGTERM/SIGINT deferred until owned cleanup completed')
++
++
++def confirm_owned_group_closed(pgid, seconds=5):
++    deadline=time.monotonic()+seconds;observations=[];count=0
++    while True:
++        count+=1
++        try:os.killpg(pgid,0);state='present'
++        except ProcessLookupError:
++            return dict(closed=True,probes=count,observations=observations+['ESRCH'])
++        except OSError as exc:state=type(exc).__name__+': '+str(exc)
++        if len(observations)<12:observations.append(state)
++        if time.monotonic()>=deadline:return dict(closed=False,probes=count,observations=observations)
++        time.sleep(.02)
++
++
++def transfer_plan(files):
++    """Size both groups from already authenticated actual packet bytes before mutation."""
++    groups={}
++    for name,info in files.items():
++        b.need(type(name) is str and name and
++               ((name.startswith('inputs/') and name.count('/')==1) or '/' not in name)
++               and Path(name).name not in ('','.','..') and not name.startswith('/'),
++               'flat packet transfer member required')
++        b.need(type(info) is dict and set(info)=={'bytes','sha256'} and
++               type(info['bytes']) is int and info['bytes']>=0 and b.pin(info['sha256']),
++               'authenticated transfer size/hash required')
++    for group in ('root','inputs'):
++        members={n:dict(v) for n,v in sorted(files.items()) if n.startswith('inputs/')==(group=='inputs')}
++        b.need(members,'both original packet transfer groups required')
++        size=sum(v['bytes'] for v in members.values())
++        seconds=TRANSFER_HEADROOM_SECONDS+(size+TRANSFER_RATE_BYTES-1)//TRANSFER_RATE_BYTES
++        b.need(seconds<=TRANSFER_MAX_SECONDS,'packet transfer group exceeds reviewed900s bound: '+group)
++        groups[group]=dict(group=group,members=members,member_map_sha256=b.sha(b.raw(members)),
++            files=len(members),bytes=size,timeout_seconds=seconds,maximum_seconds=TRANSFER_MAX_SECONDS,
++            planning_bytes_per_second=TRANSFER_RATE_BYTES,headroom_seconds=TRANSFER_HEADROOM_SECONDS,
++            observed_partial_tree_sha256=TRANSFER_OBSERVATION_SHA,retry_allowed=False)
++    return groups
++
++
++def scp_transfer(name,command,plan,save):
++    with termination_guard():
++        return owned_scp_transfer(name,command,plan,save)
++
++
++def owned_scp_transfer(name,command,plan,save):
++    """One owned local group; keep partial diagnostics and fail on uncertain cleanup."""
++    limit=plan['timeout_seconds']
++    b.need(type(limit) is int and TRANSFER_HEADROOM_SECONDS<=limit<=TRANSFER_MAX_SECONDS,
++           'bounded planned SCP timeout required')
++    outputs=(b.LOCAL,b.EXT);logs=outputs[0];start=time.monotonic()
++    proc=None;threads=[];errors=[];primary=None
++    result=dict(command=command,plan=plan,utc=b.utc(),returncode=None,ambiguous=True,
++                retry_allowed=False,remote_verification_pending=True)
++    save(name+'.start.json',dict(utc=b.utc(),command=command,plan=plan,retry_allowed=False))
++    def drain(pipe,path):
++        try:
++            total=0
++            with path.open('xb') as f:
++                while True:
++                    data=os.read(pipe.fileno(),65536)
++                    if not data:break
++                    total+=len(data);b.need(total<=TRANSFER_LOG_CAP,'bounded SCP diagnostics exceeded')
++                    f.write(data);f.flush()
++                os.fsync(f.fileno())
++        except BaseException as exc:errors.append(('reader',repr(exc)))
++    try:
++        proc=subprocess.Popen(command,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,
++                              stderr=subprocess.PIPE,start_new_session=True)
++        result['owned_pgid']=proc.pid;last=-30
++        threads=[threading.Thread(target=drain,args=(proc.stdout,logs/(name+'.stdout')),daemon=True),
++                 threading.Thread(target=drain,args=(proc.stderr,logs/(name+'.stderr')),daemon=True)]
++        for t in threads:t.start()
++        while proc.poll() is None:
++            b.need(not errors,'SCP diagnostic error: '+repr(errors))
++            elapsed=time.monotonic()-start
++            if elapsed>=limit:raise TimeoutError('absolute planned SCP transport deadline')
++            if elapsed-last>=30:
++                print(b.raw(dict(phase=name,elapsed_seconds=elapsed,planned_bytes=plan['bytes'],
++                                 timeout_seconds=limit,owned_pgid=proc.pid)).decode().strip(),file=sys.stderr,flush=True)
++                last=elapsed
++            time.sleep(.05)
++        for t in threads:t.join(timeout=2)
++        b.need(not any(t.is_alive() for t in threads) and not errors,
++               'SCP diagnostic completion uncertain: '+repr(errors))
++        result.update(returncode=proc.returncode)
++    except BaseException as exc:
++        primary=exc;result.update(type=type(exc).__name__,message=str(exc),timeout=isinstance(exc,TimeoutError))
++        raise
++    finally:
++      with cleanup_signals(primary):
++        if proc is not None:
++            # Kill only the new local SCP/SSH group, even if its leader exited.
++            try:os.killpg(proc.pid,signal.SIGKILL)
++            except ProcessLookupError:pass
++            except OSError as exc:result['local_group_cleanup_error']=repr(exc)
++            try:proc.wait(timeout=5)
++            except BaseException as exc:result['local_wait_error']=repr(exc)
++            for t in threads:
++                try:t.join(timeout=5)
++                except BaseException as exc:errors.append(('cleanup_join',repr(exc)))
++            result['stream_threads_closed']=not any(t.is_alive() for t in threads)
++            try:result['owned_group_probe']=confirm_owned_group_closed(proc.pid)
++            except BaseException as exc:result['owned_group_probe']=dict(closed=False,error=repr(exc))
++            result['owned_process_group_closed']=result['owned_group_probe']['closed']
++        result.update(elapsed_seconds=time.monotonic()-start,stream_errors=errors)
++        result['ambiguous']=(primary is not None or result['returncode']!=0 or bool(errors) or
++            result.get('owned_process_group_closed') is not True or result.get('stream_threads_closed') is not True or
++            any(k.endswith('_error') for k in result))
++        publication_errors=[]
++        for suffix in ('stdout','stderr'):
++            path=logs/(name+'.'+suffix)
++            try:
++                if path.exists():
++                    data=b.read(path,maximum=TRANSFER_LOG_CAP)
++                    result[suffix]=data.decode(errors='replace')
++                    result[suffix+'_raw']=dict(bytes=len(data),sha256=b.sha(data),path=str(path))
++                    b.write(outputs[1]/path.name,data)
++            except BaseException as exc:publication_errors.append(repr(exc))
++        if publication_errors:result['evidence_publication_errors']=list(publication_errors);result['ambiguous']=True
++        try:save(name+'.json',result)
++        except BaseException as exc:publication_errors.append(repr(exc))
++        if publication_errors:
++            if primary is None:raise RuntimeError('SCP evidence publication failed: '+repr(publication_errors))
++            if hasattr(primary,'add_note'):primary.add_note('secondary evidence publication errors: '+repr(publication_errors))
++    b.need(result['returncode']==0 and result['ambiguous'] is False,'failed/ambiguous SCP retained; never retry')
++    return result
+ 
+ 
+ def main():
+@@ -52,16 +215,20 @@
+         b.need(local==b.LOCAL and packet['source_commit']==b.SOURCE_COMMIT and packet['remote_root']==b.ROOT,
+             'amended frozen packet roots/source differ')
+         b.need(not any(os.path.lexists(dest/name) for dest in (b.LOCAL,b.EXT) for name in
+-            ('controller.json','launcher_failure.json','build-failure.json','submission.intent.json','submission.result.json','storage-use.intent.json')),
++            ('controller.json','launcher_failure.json','build-failure.json','submission.intent.json','submission.result.json','storage-use.intent.json','transfer-plan.json')),
+             'existing build/controller/submission attempt; no retry')
++        transfer_members={}
+         for name,h in pins.items():
+             value=b.read(b.LOCAL/name,h,256*1024**2)
+             b.need(value==b.read(b.EXT/name,h,256*1024**2)==b.committed(a.packet_commit,str((b.LOCAL/name).relative_to(b.REPO))),
+                    'committed two-copy packet differs: '+name)
++            transfer_members[name]=dict(bytes=len(value),sha256=h)
++        planned_transfers=transfer_plan(transfer_members)
+         review=Path(a.packet_review).absolute();review_raw=b.read(review,a.packet_review_sha256)
+         b.need(review_raw.strip() and review_raw==b.committed(a.packet_commit,str(review.relative_to(b.REPO))),
+                'committed independently pinned packet review required')
+         started=True
++        save('transfer-plan.json',planned_transfers)
+         b.start_storage_operations(ctx,b.EXT.with_name(b.EXT.name+'-storage-launch-operations'),(b.EXT,b.LOCAL),
+             dict(phase='launch',packet_sha256=a.packet_sha256,packet_commit=a.packet_commit))
+         b.configure_packet_storage(ctx,local,pins,packet)
+@@ -113,10 +280,12 @@
+ ''')
+         save('readiness.json',ready)
+         for group,subdir in (('root',''),('inputs','inputs/')):
+-            names=[n for n in pins if n.startswith('inputs/')==(group=='inputs')]
+-            transport('transfer-'+group+'.json',['scp','-o','ControlPath=/tmp/defab-curc.sock','-o','BatchMode=yes',
+-                *[str(b.LOCAL/n) for n in names],'paco0228@login.rc.colorado.edu:'+b.ROOT+'/'+subdir],timeout=45)
+-        verified=remote('verification_transport.json',common+'\nprint(json.dumps(verify()))\n');save('remote_verified.json',verified)
++            names=list(planned_transfers[group]['members'])
++            scp_transfer('transfer-'+group,['scp','-o','ControlPath=/tmp/defab-curc.sock','-o','BatchMode=yes',
++                *[str(b.LOCAL/n) for n in names],'paco0228@login.rc.colorado.edu:'+b.ROOT+'/'+subdir],planned_transfers[group],save)
++        verified=remote('verification_transport.json',common+
++            '\nfresh=reconcile();checked=verify();checked["fresh_readiness"]=fresh;print(json.dumps(checked))\n')
++        save('remote_verified.json',verified)
+         for name,h in pins.items():b.need(b.read(b.LOCAL/name,h,256*1024**2)==b.read(b.EXT/name,h,256*1024**2),'local pinned input changed')
+         b.need(b.read(b.LOCAL_REGISTRY,claim_pin)==supplied['namespace-claim'],'existing local namespace changed')
+         b.read(b.ORIGINAL_LOCAL_REGISTRY,b.ORIGINAL_CLAIM_SHA)

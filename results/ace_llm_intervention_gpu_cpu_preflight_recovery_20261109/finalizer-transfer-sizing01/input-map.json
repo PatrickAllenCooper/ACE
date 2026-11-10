@@ -1,0 +1,1332 @@
+{
+  "actual_custody_not_acceptance": {
+    "accepted_baseline_required": true,
+    "candidate_finalizer_reservation_cpu_seconds": 8400,
+    "closed_cpu_seconds": 37073,
+    "closed_gpu_seconds": 4458,
+    "errors": [],
+    "job_id": "35516125",
+    "no_duplicate_jobs": true,
+    "preparation_allowance_cpu_seconds": 3600,
+    "prospective_total_cpu_seconds": 49073,
+    "status": "terminal_custody_review_pending",
+    "submission_journals": 98,
+    "terminal_jobs": 48
+  },
+  "approval": false,
+  "build_ready": false,
+  "clock_adoption_contract": {
+    "dependency_roles": [
+      "finalizer-source-manifest",
+      "finalizer-source-review",
+      "cpu-acceptance",
+      "gpu-acceptance",
+      "gpu-recovery-acceptance",
+      "gpu-baseline",
+      "finalizer-timing-evidence",
+      "finalizer-timing-review"
+    ],
+    "interface": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation02/interface.md",
+    "interface_numeric_profile_superseded_by_clock03": true,
+    "note": "Source review39ef reuses887; neither is actual timing adoption. Explicit readiness must be supplied later.",
+    "required_profile": {
+      "deadlines": {
+        "cleanup": 3350,
+        "hard": 4190,
+        "preparation": 1500,
+        "report_startup": 120,
+        "report_startup_cap": 1620,
+        "work": 3320
+      },
+      "resources": {
+        "account": "ucb736_asc2",
+        "cpus": 2,
+        "gpus": 0,
+        "memory_mib": 7680,
+        "partition": "acpu",
+        "qos": "cpu-normal",
+        "requeue": false,
+        "wall_seconds": 4200
+      }
+    },
+    "schema": "ace-finalizer-clock-adoption-v1",
+    "source_oracle": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/build_packet.py:817"
+  },
+  "directories": {
+    "--gpu-terminal-custody": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02",
+    "--gpu-terminal-mirror": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02"
+  },
+  "finalizer": {
+    "cells": 192,
+    "comparisons": 28,
+    "deadlines": {
+      "cleanup": 3350,
+      "hard": 4190,
+      "preparation": 1500,
+      "report_startup": 120,
+      "report_startup_cap": 1620,
+      "work": 3320
+    },
+    "external_launch": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-finalization-20261108-01",
+    "freeze_sha256": "15602614ef9d7e9a3e21027e7495f891c98ba32a2b6b0ee9857e5b71d5e5e66d",
+    "output_suffix": "finalization",
+    "remote_root": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_finalization_20261108_01",
+    "repository_launch": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/launch01",
+    "resources": {
+      "account": "ucb736_asc2",
+      "cpus": 2,
+      "gpus": 0,
+      "memory_mib": 7680,
+      "partition": "acpu",
+      "qos": "cpu-normal",
+      "requeue": false,
+      "wall_seconds": 4200
+    },
+    "source_commit_scientific": "a9346022f145cc29439325b6f291597b2e6ec037",
+    "worlds": 24
+  },
+  "flat_input_replicas_file": "flat-input-replicas.json",
+  "git_commit_bytes_rechecked": false,
+  "gpu_core_acceptance_contract": {
+    "keys": [
+      "accepted_checks",
+      "allocation",
+      "attempt_pins",
+      "bundle_sha256",
+      "campaign_files",
+      "campaign_root",
+      "cpu_acceptance_sha256",
+      "cpu_packet_sha256",
+      "gpu_output",
+      "gpu_output_files",
+      "gpu_packet_sha256",
+      "job_id",
+      "schema",
+      "scientific_qualified",
+      "scope",
+      "status",
+      "terminal_pins"
+    ],
+    "schema": "ace-scientific-campaign-gpu-acceptance-v1",
+    "source_oracle": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/build_packet.py:39",
+    "status": "development_gpu_phase_accepted"
+  },
+  "implementation_source_commit_supplied": "255b75fe37b28c302fb57821c0cc09a60a6cd3ea",
+  "implementation_sources": {
+    "build_packet.py": {
+      "bytes": 98638,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/build_packet.py",
+      "sha256": "5d41e6b1c7b883eab73e6faea1e595ba3e66d75b595d556bdeb47f4642b0232f"
+    },
+    "compact_inputs.py": {
+      "bytes": 32284,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/compact_inputs.py",
+      "sha256": "c0cdc46d81ea10958b9ff4ec5729570400fd55c0d56738f482f4adb0ff52a114"
+    },
+    "finalize_llm_intervention_scientific_campaign_cpu.py": {
+      "bytes": 57460,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/finalize_llm_intervention_scientific_campaign_cpu.py",
+      "sha256": "8a26ada2fc4778981237ca547fa437c620e6510080e93ab334e9762ebee2cf6f"
+    },
+    "launch_once.py": {
+      "bytes": 22285,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/launch_once.py",
+      "sha256": "11fae52bfcd13171f33d566202339e309fe0c2a9d2955ce326e3a4e601a2909b"
+    },
+    "monitor_once.py": {
+      "bytes": 6107,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/monitor_once.py",
+      "sha256": "8acbf213cba75c22c5ea83fdb997c198f80feaf071b6aff91b0eff6646e681c1"
+    },
+    "pull_terminal.py": {
+      "bytes": 36079,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/pull_terminal.py",
+      "sha256": "c58738e9fc85ff640b96eb6686f92893ab360056013dedcd4c1317baf0462112"
+    }
+  },
+  "metadata_role_count": 88,
+  "metadata_roles": {
+    "adoption": {
+      "argument": "--adoption",
+      "bytes": 314,
+      "captured_filename": "adoption.json",
+      "full_inventory_member": "control/adoption.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "adoption.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/adoption.json",
+      "pin_argument": "--adoption-sha256",
+      "sha256": "ea0457db2d927101366bdd3763aadf7fe4884bb91ef16d5efeb8e91d0b6e5a07",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-acceptance": {
+      "argument": "--collection-acceptance",
+      "bytes": 4337352,
+      "captured_filename": "collection-acceptance.json",
+      "full_inventory_member": "control/collection-acceptance.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-acceptance.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-acceptance.json",
+      "pin_argument": "--collection-acceptance-sha256",
+      "sha256": "e217199099b81480f0e85c09f0432b60dd5edb2aad1b6b30c8ed86ca736e34e5",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-baseline": {
+      "argument": "--collection-baseline",
+      "bytes": 25271,
+      "captured_filename": "collection-baseline.json",
+      "full_inventory_member": "control/collection-baseline.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-baseline.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-baseline.json",
+      "pin_argument": "--collection-baseline-sha256",
+      "sha256": "ab8efc04b63d1598b5416a1c62f2c346b3fef5ab46842119b3a62ed89c3de62b",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-disposition": {
+      "argument": "--collection-disposition",
+      "bytes": 7227852,
+      "captured_filename": "collection-disposition.json",
+      "full_inventory_member": "control/collection-disposition.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-disposition.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-disposition.json",
+      "pin_argument": "--collection-disposition-sha256",
+      "sha256": "9ab4b1f7fd8aff0e29ec3a8dc2849483d27a3da4071b397d60b95ee46b4e79a9",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-failure-acceptance": {
+      "argument": "--collection-failure-acceptance",
+      "bytes": 4831,
+      "captured_filename": "collection-failure-acceptance.json",
+      "full_inventory_member": "control/collection-failure-acceptance.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-failure-acceptance.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-failure-acceptance.json",
+      "pin_argument": "--collection-failure-acceptance-sha256",
+      "sha256": "00c4557a5c681904e823441ac8bb99f4dc5e169c0c7e41e764018a1e4e7af5ee",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-failure-baseline": {
+      "argument": "--collection-failure-baseline",
+      "bytes": 24724,
+      "captured_filename": "collection-failure-baseline.json",
+      "full_inventory_member": "control/collection-failure-baseline.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-failure-baseline.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-failure-baseline.json",
+      "pin_argument": "--collection-failure-baseline-sha256",
+      "sha256": "eeec362db1990d5cf1fb7945708293842dc9b9283a2777697e6840ad5a2c147b",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-failure-disposition": {
+      "argument": "--collection-failure-disposition",
+      "bytes": 34535,
+      "captured_filename": "collection-failure-disposition.json",
+      "full_inventory_member": "control/collection-failure-disposition.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-failure-disposition.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-failure-disposition.json",
+      "pin_argument": "--collection-failure-disposition-sha256",
+      "sha256": "fd3a52be3054c1dd8d0d2b324dea3e64bdf8bc3676c28e7367cc0bbf06a3c685",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-inventory": {
+      "argument": "--collection-inventory",
+      "bytes": 6846085,
+      "captured_filename": "collection-inventory.json",
+      "full_inventory_member": "control/collection-inventory.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-inventory.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-inventory.json",
+      "pin_argument": "--collection-inventory-sha256",
+      "sha256": "0e28a057408e2a372fdddb42f45a8e9a6abc535518a4cf2feea23a8c3b0c8cb3",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-launch-packet": {
+      "argument": "--collection-launch-packet",
+      "bytes": 14228,
+      "captured_filename": "collection-launch-packet.json",
+      "full_inventory_member": "control/collection-launch-packet.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-launch-packet.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-launch-packet.json",
+      "pin_argument": "--collection-launch-packet-sha256",
+      "sha256": "a5c36ddfd72de17965bc828d870fc352d1d40dbe86b1d473c8a67fd0bea4ae90",
+      "status": "gpu02_captured_metadata"
+    },
+    "collection-result": {
+      "argument": "--collection-result",
+      "bytes": 242,
+      "captured_filename": "collection-result.json",
+      "full_inventory_member": "control/collection-result.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "collection-result.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/collection-result.json",
+      "pin_argument": "--collection-result-sha256",
+      "sha256": "669fc7544078afbc532813a71bca4644743dd9172aef3f0458c6f1bf5397bb46",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-acceptance": {
+      "argument": "--cpu-acceptance",
+      "bytes": 5483561,
+      "captured_filename": "cpu-acceptance.json",
+      "full_inventory_member": "control/cpu-acceptance.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "cpu-acceptance.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-acceptance.json",
+      "pin_argument": "--cpu-acceptance-sha256",
+      "sha256": "3c5ce7375d0c64292553ded6ad3078e634745eb7996d83fd102e344eeab3f063",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-baseline": {
+      "argument": "--cpu-baseline",
+      "bytes": 26352,
+      "captured_filename": "cpu-baseline.json",
+      "full_inventory_member": "control/cpu-baseline.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "cpu-baseline.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-baseline.json",
+      "pin_argument": "--cpu-baseline-sha256",
+      "sha256": "c21f43194ff61b30c0322acff99c20e71158d980a00a34a1685b87eac7f27125",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-disposition": {
+      "argument": "--cpu-disposition",
+      "bytes": 33414507,
+      "captured_filename": "cpu-disposition.json",
+      "full_inventory_member": "control/cpu-disposition.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "cpu-disposition.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-disposition.json",
+      "pin_argument": "--cpu-disposition-sha256",
+      "sha256": "1e4ace7b320713b5c2f9bc36cf2705870657bdc1d0c432aaa04b784409858ef9",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-history-expected": {
+      "argument": "--cpu-history-expected",
+      "bytes": 6405397,
+      "captured_filename": "cpu-history-expected.json",
+      "full_inventory_member": "control/cpu-history-expected.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "cpu-history-expected.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-history-expected.json",
+      "pin_argument": "--cpu-history-expected-sha256",
+      "sha256": "e3c8b4be09558e5f9d182c4e2264d5f51a2497457546020d57a855543b8fa789",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-history-preflight": {
+      "argument": "--cpu-history-preflight",
+      "bytes": 1591,
+      "captured_filename": "cpu-history-preflight.json",
+      "full_inventory_member": "control/cpu-history-preflight.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "cpu-history-preflight.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-history-preflight.json",
+      "pin_argument": "--cpu-history-preflight-sha256",
+      "sha256": "ab9d0ac13e2cbb17cc7c32c9ac0ba07a6e6a988e890402c02757807a519f1421",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-history-readset": {
+      "argument": "--cpu-history-readset",
+      "bytes": 5817073,
+      "captured_filename": "cpu-history-readset.json",
+      "full_inventory_member": "control/cpu-history-readset.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "cpu-history-readset.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-history-readset.json",
+      "pin_argument": "--cpu-history-readset-sha256",
+      "sha256": "9be8223034cadedb0a3ff885236f923519b81f8c98bd46a7ffbcd2dafd9812b0",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-inventory": {
+      "argument": "--cpu-inventory",
+      "bytes": 32644997,
+      "captured_filename": "cpu-inventory.json",
+      "full_inventory_member": "control/cpu-inventory.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "cpu-inventory.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-inventory.json",
+      "pin_argument": "--cpu-inventory-sha256",
+      "sha256": "722782e08d15108bf1b0b9b9b4d7111d3432a19ead6e8cadb2a8f9dc8bff3b46",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-launch-packet": {
+      "argument": "--cpu-launch-packet",
+      "bytes": 8665107,
+      "captured_filename": "cpu-launch-packet.json",
+      "full_inventory_member": "control/cpu-launch-packet.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "cpu-launch-packet.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-launch-packet.json",
+      "pin_argument": "--cpu-launch-packet-sha256",
+      "sha256": "b98873cae0e04221abcce02856ea7c610319f27f4c07e8275cc9bcfce1c2cd40",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-packet": {
+      "argument": "--cpu-packet",
+      "bytes": 27901,
+      "captured_filename": "cpu-packet.json",
+      "full_inventory_member": "control/cpu-packet.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "cpu-packet.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-packet.json",
+      "pin_argument": "--cpu-packet-sha256",
+      "sha256": "ad046a726e3a3a7744e54a860f8cf1a30947a198e8be3bc25ae06ec7b2909344",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-phase-terminal": {
+      "argument": "--cpu-phase-terminal",
+      "bytes": 928,
+      "captured_filename": "cpu-phase-terminal.json",
+      "full_inventory_member": "control/cpu-phase-terminal.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "cpu-phase-terminal.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-phase-terminal.json",
+      "pin_argument": "--cpu-phase-terminal-sha256",
+      "sha256": "e22044828ebbdc9b610ae794b896c15522674aa83af149789fd0353f90c4ed6f",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-result": {
+      "argument": "--cpu-result",
+      "bytes": 242,
+      "captured_filename": "cpu-result.json",
+      "full_inventory_member": "control/cpu-result.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "cpu-result.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-result.json",
+      "pin_argument": "--cpu-result-sha256",
+      "sha256": "c4de71132a1b39edbee7d3ea4fbc9f0318efaf8da160fe0153baf93a08f00262",
+      "status": "gpu02_captured_metadata"
+    },
+    "cpu-review": {
+      "argument": "--cpu-review",
+      "bytes": 8625,
+      "captured_filename": "cpu-review.md",
+      "full_inventory_member": "control/cpu-review.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "cpu-review.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/cpu-review.md",
+      "pin_argument": "--cpu-review-sha256",
+      "sha256": "396ef13d95db6f31d2d8708af55ced0c666e02c0add10ed664c75c33f6c7d653",
+      "status": "gpu02_captured_metadata"
+    },
+    "failed-token-packet": {
+      "argument": "--failed-token-packet",
+      "bytes": 22311,
+      "captured_filename": "failed-token-packet.json",
+      "full_inventory_member": "control/failed-token-packet.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "failed-token-packet.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/failed-token-packet.json",
+      "pin_argument": "--failed-token-packet-sha256",
+      "sha256": "a831737c6bc24a3b38269e36fa347ed3934c7803e7e18b0738881ac0b8fc323d",
+      "status": "gpu02_captured_metadata"
+    },
+    "failed-token-result": {
+      "argument": "--failed-token-result",
+      "bytes": 242,
+      "captured_filename": "failed-token-result.json",
+      "full_inventory_member": "control/failed-token-result.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "failed-token-result.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/failed-token-result.json",
+      "pin_argument": "--failed-token-result-sha256",
+      "sha256": "39f045ab33f30d07126745bbc27edf41776b4ae96284f166da93256abc479f94",
+      "status": "gpu02_captured_metadata"
+    },
+    "failed-token-stage": {
+      "argument": "--failed-token-stage",
+      "bytes": 4343520,
+      "captured_filename": "failed-token-stage.json",
+      "full_inventory_member": "control/failed-token-stage.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "failed-token-stage.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/failed-token-stage.json",
+      "pin_argument": "--failed-token-stage-sha256",
+      "sha256": "101d88f3ff15ed322273d63ad281de05afd921754102a907f7232ac000801e7b",
+      "status": "gpu02_captured_metadata"
+    },
+    "finalizer-clock-adoption": {
+      "argument": "--finalizer-clock-adoption",
+      "captured_filename": "finalizer-clock-adoption.json",
+      "maximum_bytes": 33554432,
+      "path": null,
+      "pin_argument": "--finalizer-clock-adoption-sha256",
+      "reason": "Explicit operational adoption pending actual GPU acceptance, recovery supplement, baseline and independent timing review.",
+      "sha256": null,
+      "status": "unresolved"
+    },
+    "finalizer-source-manifest": {
+      "argument": "--finalizer-source-manifest",
+      "captured_filename": "finalizer-source-manifest.json",
+      "maximum_bytes": 33554432,
+      "path": null,
+      "pin_argument": "--finalizer-source-manifest-sha256",
+      "reason": "Required ace-finalizer-gpu02-operational-source-v1 record not supplied. finalizer-clock-review03/source-manifest.json is a preparation file inventory, NOT this schema.",
+      "sha256": null,
+      "status": "unresolved"
+    },
+    "finalizer-source-review": {
+      "argument": "--finalizer-source-review",
+      "bytes": 4587,
+      "captured_filename": "finalizer-source-review.md",
+      "maximum_bytes": 33554432,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-review03/review.md",
+      "pin_argument": "--finalizer-source-review-sha256",
+      "sha256": "39ef3af657fd64e8174d6c0b462fdb1519c1978ee3ea9d5288f11c998d4a5bc9",
+      "status": "available_saved_metadata"
+    },
+    "finalizer-timing-evidence": {
+      "argument": "--finalizer-timing-evidence",
+      "bytes": 8489,
+      "captured_filename": "finalizer-timing-evidence.md",
+      "maximum_bytes": 33554432,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-sizing03/DISPOSITION.md",
+      "pin_argument": "--finalizer-timing-evidence-sha256",
+      "sha256": "be3fe18e35c5a6f5af7d2b59e3099e79660e522b42fbe0ae443f7fd64da401fd",
+      "status": "available_author_sizing_awaiting_independent_review"
+    },
+    "finalizer-timing-review": {
+      "argument": "--finalizer-timing-review",
+      "captured_filename": "finalizer-timing-review.md",
+      "maximum_bytes": 33554432,
+      "path": null,
+      "pin_argument": "--finalizer-timing-review-sha256",
+      "reason": "Independent sizing03 full-path timing review pending; source review39ef is not timing adoption.",
+      "sha256": null,
+      "status": "unresolved"
+    },
+    "freeze": {
+      "argument": "--freeze",
+      "bytes": 222852,
+      "captured_filename": "freeze.json",
+      "full_inventory_member": "control/freeze.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "freeze.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/freeze.json",
+      "pin_argument": "--freeze-sha256",
+      "sha256": "15602614ef9d7e9a3e21027e7495f891c98ba32a2b6b0ee9857e5b71d5e5e66d",
+      "status": "gpu02_captured_metadata"
+    },
+    "freeze-review": {
+      "argument": "--freeze-review",
+      "bytes": 13001,
+      "captured_filename": "freeze-review.md",
+      "full_inventory_member": "control/freeze-review.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "freeze-review.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/freeze-review.md",
+      "pin_argument": "--freeze-review-sha256",
+      "sha256": "088b1bc2cdf5855b1b2f285b3ac751813cd5655844ced202fd956cccb29ff416",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-acceptance": {
+      "argument": "--gpu-acceptance",
+      "captured_filename": "gpu-acceptance.json",
+      "maximum_bytes": 134217728,
+      "path": null,
+      "pin_argument": "--gpu-acceptance-sha256",
+      "reason": "Independent exact17-key GPU02 core acceptance pending; collector/aid are not acceptance.",
+      "sha256": null,
+      "status": "unresolved"
+    },
+    "gpu-baseline": {
+      "argument": "--gpu-baseline",
+      "captured_filename": "gpu-baseline.json",
+      "maximum_bytes": 33554432,
+      "path": null,
+      "pin_argument": "--gpu-baseline-sha256",
+      "reason": "Independent accepted48-job/98-journal baseline pending; collector totals are not a baseline substitute.",
+      "sha256": null,
+      "status": "unresolved"
+    },
+    "gpu-custody-inventory": {
+      "argument": "--gpu-custody-inventory",
+      "bytes": 4780967,
+      "captured_filename": "gpu-custody-inventory.json",
+      "maximum_bytes": 134217728,
+      "mirror_path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/custody-inventory.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/custody-inventory.json",
+      "pin_argument": "--gpu-custody-inventory-sha256",
+      "sha256": "66ddd22d4a1f287df3f2beaaa962eef238e1c94e0690dd81b1db6c27424aebc1",
+      "status": "available_saved_metadata"
+    },
+    "gpu-disposition": {
+      "argument": "--gpu-disposition",
+      "bytes": 57094085,
+      "captured_filename": "gpu-disposition.json",
+      "maximum_bytes": 134217728,
+      "mirror_path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/disposition.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/disposition.json",
+      "pin_argument": "--gpu-disposition-sha256",
+      "sha256": "df246a23b4cadd6971e190d16deca72dcddd0a8e0c7e6a43c7ed8608dbaf9a62",
+      "status": "available_saved_metadata"
+    },
+    "gpu-failure-acceptance": {
+      "argument": "--gpu-failure-acceptance",
+      "bytes": 5767,
+      "captured_filename": "gpu-failure-acceptance.json",
+      "full_inventory_member": "control/gpu-failure-acceptance.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "gpu-failure-acceptance.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-failure-acceptance.json",
+      "pin_argument": "--gpu-failure-acceptance-sha256",
+      "sha256": "cacfe32add5d056c0870e58f4aac69ef2afcf2265171d9320bf96c2c2980bca0",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-failure-baseline": {
+      "argument": "--gpu-failure-baseline",
+      "bytes": 26948,
+      "captured_filename": "gpu-failure-baseline.json",
+      "full_inventory_member": "control/gpu-failure-baseline.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "gpu-failure-baseline.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-failure-baseline.json",
+      "pin_argument": "--gpu-failure-baseline-sha256",
+      "sha256": "cf0982dc0ac3f482c32665e710f06b98eef679d2a4b74ecdf989a7acaa3360ef",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-failure-disposition": {
+      "argument": "--gpu-failure-disposition",
+      "bytes": 52047666,
+      "captured_filename": "gpu-failure-disposition.json",
+      "full_inventory_member": "control/gpu-failure-disposition.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "gpu-failure-disposition.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-failure-disposition.json",
+      "pin_argument": "--gpu-failure-disposition-sha256",
+      "sha256": "545cee3c7ae4ce2eafa5f1e6fd7fd3f3566a9415e6b89d1a42a27d6640e94507",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-failure-inventory": {
+      "argument": "--gpu-failure-inventory",
+      "bytes": 53377715,
+      "captured_filename": "gpu-failure-inventory.json",
+      "full_inventory_member": "control/gpu-failure-inventory.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "gpu-failure-inventory.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-failure-inventory.json",
+      "pin_argument": "--gpu-failure-inventory-sha256",
+      "sha256": "f9c7dc2ecf1e0c91990e2c7d787abea37187fa520675ad580a1a7f5359f8d9d3",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-failure-inventory-after": {
+      "argument": "--gpu-failure-inventory-after",
+      "bytes": 53377671,
+      "captured_filename": "gpu-failure-inventory-after.json",
+      "full_inventory_member": "control/gpu-failure-inventory-after.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "gpu-failure-inventory-after.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-failure-inventory-after.json",
+      "pin_argument": "--gpu-failure-inventory-after-sha256",
+      "sha256": "4303d7d4ef775ac133dde12b3d2ac875b7c31ed2382b45abd0c6cc6a55a188ac",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-failure-packet": {
+      "argument": "--gpu-failure-packet",
+      "bytes": 19159796,
+      "captured_filename": "gpu-failure-packet.json",
+      "full_inventory_member": "control/gpu-failure-packet.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "gpu-failure-packet.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-failure-packet.json",
+      "pin_argument": "--gpu-failure-packet-sha256",
+      "sha256": "436807328b4ee8ba0ec8cef3d5ff5b9c1d195b0b0165d5181a80356002f60fa7",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-failure-result": {
+      "argument": "--gpu-failure-result",
+      "bytes": 242,
+      "captured_filename": "gpu-failure-result.json",
+      "full_inventory_member": "control/gpu-failure-result.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "gpu-failure-result.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-failure-result.json",
+      "pin_argument": "--gpu-failure-result-sha256",
+      "sha256": "7c484f72ecafe9188cf4a71cb7023844c46390eb200ffe7507123d473ba43b86",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-failure-seal": {
+      "argument": "--gpu-failure-seal",
+      "bytes": 107163,
+      "captured_filename": "gpu-failure-seal.json",
+      "full_inventory_member": "control/gpu-failure-seal.json",
+      "maximum_bytes": 134217728,
+      "packet_member": "gpu-failure-seal.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-failure-seal.json",
+      "pin_argument": "--gpu-failure-seal-sha256",
+      "sha256": "8e0ce58a1e093eee1e94d89025e29ac09f97f8b1c4fc3f29751a782401f5a7c0",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-inventory": {
+      "argument": "--gpu-inventory",
+      "bytes": 58101524,
+      "captured_filename": "gpu-inventory.json",
+      "maximum_bytes": 134217728,
+      "mirror_path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/inventory_transport.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/inventory_transport.json",
+      "pin_argument": "--gpu-inventory-sha256",
+      "sha256": "2ca9bf1fd7f73a6964d9a10e3e4b239329c4bd4b53b2723a0131ded9a0395d66",
+      "status": "available_saved_metadata"
+    },
+    "gpu-inventory-after": {
+      "argument": "--gpu-inventory-after",
+      "bytes": 58101570,
+      "captured_filename": "gpu-inventory-after.json",
+      "maximum_bytes": 134217728,
+      "mirror_path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/inventory_after_transport.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/inventory_after_transport.json",
+      "pin_argument": "--gpu-inventory-after-sha256",
+      "sha256": "53b4fc606be2fd900adba72f8729efb3b7f665217ca7450a2275f57cba8bf371",
+      "status": "available_saved_metadata"
+    },
+    "gpu-launch-packet": {
+      "argument": "--gpu-launch-packet",
+      "bytes": 19163708,
+      "captured_filename": "gpu-launch-packet.json",
+      "full_inventory_member": "control/packet.json",
+      "maximum_bytes": 33554432,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/packet.json",
+      "pin_argument": "--gpu-launch-packet-sha256",
+      "sha256": "25fb597c6f475fa0bbfe924062bc439bb197ca0b646cecdae2be1a080010d684",
+      "status": "available_saved_metadata"
+    },
+    "gpu-packet": {
+      "argument": "--gpu-packet",
+      "bytes": 16116,
+      "captured_filename": "gpu-packet.json",
+      "full_inventory_member": "control/inputs/packet.json",
+      "maximum_bytes": 33554432,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/inputs/packet.json",
+      "pin_argument": "--gpu-packet-sha256",
+      "sha256": "7d37d1ed4aca9b6471ec2e9a54984ada29c0bc7b36a59e03f10aea51b9998205",
+      "status": "available_saved_metadata"
+    },
+    "gpu-recovery-acceptance": {
+      "argument": "--gpu-recovery-acceptance",
+      "captured_filename": "gpu-recovery-acceptance.json",
+      "maximum_bytes": 33554432,
+      "path": null,
+      "pin_argument": "--gpu-recovery-acceptance-sha256",
+      "reason": "Independent actual historical-postcustody recovery supplement pending; pins core acceptance and accepted baseline.",
+      "sha256": null,
+      "status": "unresolved"
+    },
+    "gpu-recovery-authority": {
+      "argument": "--gpu-recovery-authority",
+      "bytes": 8619,
+      "captured_filename": "gpu-recovery-authority.json",
+      "full_inventory_member": "control/gpu-recovery-authority.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "gpu-recovery-authority.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-recovery-authority.json",
+      "pin_argument": "--gpu-recovery-authority-sha256",
+      "sha256": "b3630d400649ecd186e35232b24e9020e5bced7ad616379c7eaf5eef84498603",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-recovery-review": {
+      "argument": "--gpu-recovery-review",
+      "bytes": 8485,
+      "captured_filename": "gpu-recovery-review.md",
+      "full_inventory_member": "control/gpu-recovery-review.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "gpu-recovery-review.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/gpu-recovery-review.md",
+      "pin_argument": "--gpu-recovery-review-sha256",
+      "sha256": "bf069359dc24b1785e700d69131984e46ad8c66a09adb6f997e74abf0d3c1caa",
+      "status": "gpu02_captured_metadata"
+    },
+    "gpu-result": {
+      "argument": "--gpu-result",
+      "bytes": 242,
+      "captured_filename": "gpu-result.json",
+      "full_inventory_member": "control/submission.result.json",
+      "maximum_bytes": 33554432,
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/submission.result.json",
+      "pin_argument": "--gpu-result-sha256",
+      "sha256": "ab4719a46cb68901829bc5617d1321a94021ffca7be89046554c69e9518f51fc",
+      "status": "available_saved_metadata"
+    },
+    "gpu-review": {
+      "argument": "--gpu-review",
+      "captured_filename": "gpu-review.md",
+      "maximum_bytes": 33554432,
+      "path": null,
+      "pin_argument": "--gpu-review-sha256",
+      "reason": "Independent actual GPU02 execution review pending Leibniz.",
+      "sha256": null,
+      "status": "unresolved"
+    },
+    "namespace-admission": {
+      "argument": "--namespace-admission",
+      "bytes": 2296,
+      "captured_filename": "namespace-admission.json",
+      "full_inventory_member": "control/namespace-admission.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "namespace-admission.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/namespace-admission.json",
+      "pin_argument": "--namespace-admission-sha256",
+      "sha256": "5027bca99d1c1cdfc9cf89dd5639593308e8eb37f7f7ad2fb8aacb6ded5c0e36",
+      "status": "gpu02_captured_metadata"
+    },
+    "namespace-claim": {
+      "argument": "--namespace-claim",
+      "bytes": 2556,
+      "captured_filename": "namespace-claim.json",
+      "full_inventory_member": "control/namespace-claim.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "namespace-claim.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/namespace-claim.json",
+      "pin_argument": "--namespace-claim-sha256",
+      "sha256": "40c0937c623d9473a413347125d3bc35648955132c4cf2394f055d4b228fed6a",
+      "status": "gpu02_captured_metadata"
+    },
+    "no-response-proof": {
+      "argument": "--no-response-proof",
+      "bytes": 5551,
+      "captured_filename": "no-response-proof.json",
+      "full_inventory_member": "control/no-response-proof.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "no-response-proof.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/no-response-proof.json",
+      "pin_argument": "--no-response-proof-sha256",
+      "sha256": "59c21d63644cf7ae9765b3ff374538f2c614694dc383583f1e7661c301700998",
+      "status": "gpu02_captured_metadata"
+    },
+    "operational-adoption-review": {
+      "argument": "--operational-adoption-review",
+      "bytes": 5476,
+      "captured_filename": "operational-adoption-review.md",
+      "full_inventory_member": "control/operational-adoption-review.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "operational-adoption-review.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/operational-adoption-review.md",
+      "pin_argument": "--operational-adoption-review-sha256",
+      "sha256": "db2a672a4f0222a06a46d1e61ebc5bdc22b869640f570e19d36a0f699a1ddbaf",
+      "status": "gpu02_captured_metadata"
+    },
+    "operational-amendment": {
+      "argument": "--operational-amendment",
+      "bytes": 2795,
+      "captured_filename": "operational-amendment.json",
+      "full_inventory_member": "control/operational-amendment.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "operational-amendment.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/operational-amendment.json",
+      "pin_argument": "--operational-amendment-sha256",
+      "sha256": "fa94858dfc19c8b15c82acde167ad8fe9991d0c863c32444d017743079617855",
+      "status": "gpu02_captured_metadata"
+    },
+    "operational-source-manifest": {
+      "argument": "--operational-source-manifest",
+      "bytes": 1027,
+      "captured_filename": "operational-source-manifest.json",
+      "full_inventory_member": "control/operational-source-manifest.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "operational-source-manifest.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/operational-source-manifest.json",
+      "pin_argument": "--operational-source-manifest-sha256",
+      "sha256": "7eceb8f0fb61696d5c42024a981f5e97dde683e58f2e24427b30a9e7703470f8",
+      "status": "gpu02_captured_metadata"
+    },
+    "operational-source-review": {
+      "argument": "--operational-source-review",
+      "bytes": 4136,
+      "captured_filename": "operational-source-review.md",
+      "full_inventory_member": "control/operational-source-review.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "operational-source-review.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/operational-source-review.md",
+      "pin_argument": "--operational-source-review-sha256",
+      "sha256": "77ab1d1d58572703711ebe37040613ab8f45448a0db14238b11cdd9ae570335a",
+      "status": "gpu02_captured_metadata"
+    },
+    "preflight-review": {
+      "argument": "--preflight-review",
+      "bytes": 8485,
+      "captured_filename": "preflight-review.md",
+      "full_inventory_member": "control/preflight-review.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "preflight-review.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/preflight-review.md",
+      "pin_argument": "--preflight-review-sha256",
+      "sha256": "bf069359dc24b1785e700d69131984e46ad8c66a09adb6f997e74abf0d3c1caa",
+      "status": "gpu02_captured_metadata"
+    },
+    "recovery-authority": {
+      "argument": "--recovery-authority",
+      "bytes": 1428,
+      "captured_filename": "recovery-authority.json",
+      "full_inventory_member": "control/recovery-authority.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "recovery-authority.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/recovery-authority.json",
+      "pin_argument": "--recovery-authority-sha256",
+      "sha256": "ba6ef3937d4aa3cad68a64ae7f02e098041c5bddff5e68d5e5b0833f30cd2a50",
+      "status": "gpu02_captured_metadata"
+    },
+    "site-readiness": {
+      "argument": "--site-readiness",
+      "captured_filename": "site-readiness.md",
+      "historical_reference_only": {
+        "bytes": 31606,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/site-readiness.md",
+        "sha256": "09f8fb9657929acbcfbb4691fa1a87271a0ac7088e4bd5559f05df471a19ce3a"
+      },
+      "maximum_bytes": 33554432,
+      "path": null,
+      "pin_argument": "--site-readiness-sha256",
+      "reason": "Current finalizer acpu/cpu-normal/ucb736_asc2/4200-second readiness input not supplied; captured site-readiness.md is prior GPU readiness.",
+      "sha256": null,
+      "status": "unresolved"
+    },
+    "token-acceptance": {
+      "argument": "--token-acceptance",
+      "bytes": 1110,
+      "captured_filename": "token-acceptance.json",
+      "full_inventory_member": "control/token-acceptance.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-acceptance.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-acceptance.json",
+      "pin_argument": "--token-acceptance-sha256",
+      "sha256": "f6fcac291d2f4031788db62c71cc7d87e26cc4fe427622aab7a8f6dcd3c8fb1e",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-baseline": {
+      "argument": "--token-baseline",
+      "bytes": 26370,
+      "captured_filename": "token-baseline.json",
+      "full_inventory_member": "control/token-baseline.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-baseline.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-baseline.json",
+      "pin_argument": "--token-baseline-sha256",
+      "sha256": "0443c128767022579041b4e303f7ff7a3616859026fb2f8772ebdcb8e16f4054",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-diagnosis": {
+      "argument": "--token-diagnosis",
+      "bytes": 3909,
+      "captured_filename": "token-diagnosis.json",
+      "full_inventory_member": "control/token-diagnosis.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-diagnosis.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-diagnosis.json",
+      "pin_argument": "--token-diagnosis-sha256",
+      "sha256": "d4cb918b048b9fdc0dc843dc303ca4bbf436094b697fc8833e9b83114afbfb63",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-disposition": {
+      "argument": "--token-disposition",
+      "bytes": 14637330,
+      "captured_filename": "token-disposition.json",
+      "full_inventory_member": "control/token-disposition.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-disposition.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-disposition.json",
+      "pin_argument": "--token-disposition-sha256",
+      "sha256": "8d83f99a69e33d7444c4f8eb7559ebb59a06127622912af609fc84446553dfd6",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-failure-acceptance": {
+      "argument": "--token-failure-acceptance",
+      "bytes": 19242,
+      "captured_filename": "token-failure-acceptance.json",
+      "full_inventory_member": "control/token-failure-acceptance.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-failure-acceptance.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-failure-acceptance.json",
+      "pin_argument": "--token-failure-acceptance-sha256",
+      "sha256": "bde58f25694c63b9f77ca427a2940582bb06f46178bd5fd111c7f5f70a49d9dd",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-failure-baseline": {
+      "argument": "--token-failure-baseline",
+      "bytes": 26025,
+      "captured_filename": "token-failure-baseline.json",
+      "full_inventory_member": "control/token-failure-baseline.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-failure-baseline.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-failure-baseline.json",
+      "pin_argument": "--token-failure-baseline-sha256",
+      "sha256": "7a80a2300afde1ef71f8b303815b51fc2bb347515b78c40d972b4ec10138daf5",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-failure-custody-inventory": {
+      "argument": "--token-failure-custody-inventory",
+      "bytes": 16014005,
+      "captured_filename": "token-failure-custody-inventory.json",
+      "full_inventory_member": "control/token-failure-custody-inventory.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-failure-custody-inventory.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-failure-custody-inventory.json",
+      "pin_argument": "--token-failure-custody-inventory-sha256",
+      "sha256": "b02ecbbd83a3d9f48a3e7248fbb2512be66ffadac723a05bb2fb038465035cc9",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-failure-disposition": {
+      "argument": "--token-failure-disposition",
+      "bytes": 14463745,
+      "captured_filename": "token-failure-disposition.json",
+      "full_inventory_member": "control/token-failure-disposition.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-failure-disposition.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-failure-disposition.json",
+      "pin_argument": "--token-failure-disposition-sha256",
+      "sha256": "2f55409dce3d44e7ee2e5eed6a359ffa1b46cdec03a7672e23eaca73f52fd679",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-failure-inventory": {
+      "argument": "--token-failure-inventory",
+      "bytes": 6875386,
+      "captured_filename": "token-failure-inventory.json",
+      "full_inventory_member": "control/token-failure-inventory.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-failure-inventory.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-failure-inventory.json",
+      "pin_argument": "--token-failure-inventory-sha256",
+      "sha256": "cd6da887c378ac54c83e4fb6732bd249141e9a2629e63d7d2ba6bac899c8e751",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-failure-readback": {
+      "argument": "--token-failure-readback",
+      "bytes": 6873885,
+      "captured_filename": "token-failure-readback.json",
+      "full_inventory_member": "control/token-failure-readback.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-failure-readback.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-failure-readback.json",
+      "pin_argument": "--token-failure-readback-sha256",
+      "sha256": "d473e204b199c8efbd25f9afe562a0cf33d29fe353b3f485712b2c3c84fcac61",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-inventory": {
+      "argument": "--token-inventory",
+      "bytes": 6970513,
+      "captured_filename": "token-inventory.json",
+      "full_inventory_member": "control/token-inventory.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-inventory.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-inventory.json",
+      "pin_argument": "--token-inventory-sha256",
+      "sha256": "e48caaddc6fd313f6306a989c6f64820b84d131b9be0eeea963f30c7e17f41bf",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-launch-packet": {
+      "argument": "--token-launch-packet",
+      "bytes": 25254,
+      "captured_filename": "token-launch-packet.json",
+      "full_inventory_member": "control/token-launch-packet.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-launch-packet.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-launch-packet.json",
+      "pin_argument": "--token-launch-packet-sha256",
+      "sha256": "69aaaccdf9f20b11665f4708638db9ba621df4c9881befc1d4bb4225a46f912f",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-no-learnedwork-proof": {
+      "argument": "--token-no-learnedwork-proof",
+      "bytes": 20570,
+      "captured_filename": "token-no-learnedwork-proof.json",
+      "full_inventory_member": "control/token-no-learnedwork-proof.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-no-learnedwork-proof.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-no-learnedwork-proof.json",
+      "pin_argument": "--token-no-learnedwork-proof-sha256",
+      "sha256": "14c1872765315c9162b1182290c4db631fa99e7878b81fff72b8c5f25e1b606a",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-operational-adoption-review": {
+      "argument": "--token-operational-adoption-review",
+      "bytes": 4143,
+      "captured_filename": "token-operational-adoption-review.md",
+      "full_inventory_member": "control/token-operational-adoption-review.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-operational-adoption-review.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-operational-adoption-review.md",
+      "pin_argument": "--token-operational-adoption-review-sha256",
+      "sha256": "56f139e529a4b4e4b474dd564a8d84c0f9fd39db4a26aaef284fafa7631640ea",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-operational-amendment": {
+      "argument": "--token-operational-amendment",
+      "bytes": 2899,
+      "captured_filename": "token-operational-amendment.json",
+      "full_inventory_member": "control/token-operational-amendment.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-operational-amendment.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-operational-amendment.json",
+      "pin_argument": "--token-operational-amendment-sha256",
+      "sha256": "a77f63dab7f495bee1c00f81027d9cc6c5743b2c3c9df9341901bbe54a019c84",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-operational-guide": {
+      "argument": "--token-operational-guide",
+      "bytes": 4593,
+      "captured_filename": "token-operational-guide.md",
+      "full_inventory_member": "control/token-operational-guide.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-operational-guide.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-operational-guide.md",
+      "pin_argument": "--token-operational-guide-sha256",
+      "sha256": "89f296f5d778b269e97338078feafe4333b9f61ded5d6870853e3633dd8d5d54",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-operational-review": {
+      "argument": "--token-operational-review",
+      "bytes": 4454,
+      "captured_filename": "token-operational-review.md",
+      "full_inventory_member": "control/token-operational-review.md",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-operational-review.md",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-operational-review.md",
+      "pin_argument": "--token-operational-review-sha256",
+      "sha256": "1344da8db41bc41022d49aa326281969f5a2c017b4f3adcfda631f71fb5aec09",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-packet": {
+      "argument": "--token-packet",
+      "bytes": 4343520,
+      "captured_filename": "token-packet.json",
+      "full_inventory_member": "control/token-packet.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-packet.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-packet.json",
+      "pin_argument": "--token-packet-sha256",
+      "sha256": "cab514d59959dd64c080d1414bd1dea6a47da59a93c55d3d23fe3b2fc338ee1c",
+      "status": "gpu02_captured_metadata"
+    },
+    "token-result": {
+      "argument": "--token-result",
+      "bytes": 242,
+      "captured_filename": "token-result.json",
+      "full_inventory_member": "control/token-result.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "token-result.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/token-result.json",
+      "pin_argument": "--token-result-sha256",
+      "sha256": "6efcd47104ead43413043697846595bb831774e793f5ad5923e47cc9731bfa73",
+      "status": "gpu02_captured_metadata"
+    },
+    "training-acceptance": {
+      "argument": "--training-acceptance",
+      "bytes": 10231,
+      "captured_filename": "training-acceptance.json",
+      "full_inventory_member": "control/training-acceptance.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "training-acceptance.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/training-acceptance.json",
+      "pin_argument": "--training-acceptance-sha256",
+      "sha256": "f2a6778ad6fe6a81271fe5fc66bcd045414759b679948671b322efd982e134fe",
+      "status": "gpu02_captured_metadata"
+    },
+    "training-baseline": {
+      "argument": "--training-baseline",
+      "bytes": 25775,
+      "captured_filename": "training-baseline.json",
+      "full_inventory_member": "control/training-baseline.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "training-baseline.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/training-baseline.json",
+      "pin_argument": "--training-baseline-sha256",
+      "sha256": "b0cf5af00e63afd56bf96fe9a20be538ef28d2bdf499fd0f0782b71deeebb5ae",
+      "status": "gpu02_captured_metadata"
+    },
+    "training-disposition": {
+      "argument": "--training-disposition",
+      "bytes": 15681352,
+      "captured_filename": "training-disposition.json",
+      "full_inventory_member": "control/training-disposition.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "training-disposition.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/training-disposition.json",
+      "pin_argument": "--training-disposition-sha256",
+      "sha256": "6342a1cb847ddc6c043792d0898de1864ca46f2cde2c235488afc857acaf65ac",
+      "status": "gpu02_captured_metadata"
+    },
+    "training-inventory": {
+      "argument": "--training-inventory",
+      "bytes": 7950553,
+      "captured_filename": "training-inventory.json",
+      "full_inventory_member": "control/training-inventory.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "training-inventory.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/training-inventory.json",
+      "pin_argument": "--training-inventory-sha256",
+      "sha256": "0e4fc693b224be3e6d91f63a824f830e3d315a794e4331b64fa8a162acbc8db3",
+      "status": "gpu02_captured_metadata"
+    },
+    "training-launch-packet": {
+      "argument": "--training-launch-packet",
+      "bytes": 90878,
+      "captured_filename": "training-launch-packet.json",
+      "full_inventory_member": "control/training-launch-packet.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "training-launch-packet.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/training-launch-packet.json",
+      "pin_argument": "--training-launch-packet-sha256",
+      "sha256": "33fa6064bd224a64736bf466623bd3ae9399c81022dac6023c689515764a9ec0",
+      "status": "gpu02_captured_metadata"
+    },
+    "training-result": {
+      "argument": "--training-result",
+      "bytes": 242,
+      "captured_filename": "training-result.json",
+      "full_inventory_member": "control/training-result.json",
+      "maximum_bytes": 33554432,
+      "packet_member": "training-result.json",
+      "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/training-result.json",
+      "pin_argument": "--training-result-sha256",
+      "sha256": "916ae493932ec509b96929ca8da06e1cde0757e0b383baf6b5252d76aa17ef32",
+      "status": "gpu02_captured_metadata"
+    }
+  },
+  "readiness_boundary": "Do not invoke builder until independent actual GPU acceptance/recovery/baseline and timing review/adoption are supplied and parent explicitly signals readiness. Current adapter fetch behavior is recorded, not weakened.",
+  "recovery_acceptance_contract": {
+    "core_acceptance_then_baseline_then_supplement": true,
+    "interface": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-recovery-preparation01/interface.md",
+    "schema": "ace-scientific-campaign-gpu-recovery-acceptance-v1",
+    "source_oracle": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/build_packet.py:1110"
+  },
+  "required_source_manifest_shape_not_published": {
+    "entry": {
+      "repository_path": "results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-implementation03/implementation/finalize_llm_intervention_scientific_campaign_cpu.py",
+      "sha256": "8a26ada2fc4778981237ca547fa437c620e6510080e93ab334e9762ebee2cf6f"
+    },
+    "schema": "ace-finalizer-gpu02-operational-source-v1",
+    "source_commit": "255b75fe37b28c302fb57821c0cc09a60a6cd3ea"
+  },
+  "reused_source_review": {
+    "bytes": 7987,
+    "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-review02/review.md",
+    "sha256": "887050a312db58c3964874233a8f0b854dc36b0a8188bc4151647df7ea7297f1"
+  },
+  "schema": "ace-finalizer-clock03-prospective-input-role-map-v1",
+  "scope": "Local metadata/static source inspection and opaque replica hashes only; no producer imports, tests, Git commands, remote activity, packet build or adoption",
+  "source_review": {
+    "bytes": 4587,
+    "path": "/Users/pat/code/ACE/results/ace_llm_intervention_gpu_cpu_preflight_recovery_20261109/finalizer-clock-review03/review.md",
+    "sha256": "39ef3af657fd64e8174d6c0b462fdb1519c1978ee3ea9d5288f11c998d4a5bc9"
+  },
+  "storage": {
+    "cli": {
+      "--storage-config": null,
+      "--storage-config-sha256": null
+    },
+    "member_count": 8,
+    "proposed_config_content_not_published": {
+      "members": {
+        "after": {
+          "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/inventory_after_transport.json",
+          "sha256": "53b4fc606be2fd900adba72f8729efb3b7f665217ca7450a2275f57cba8bf371"
+        },
+        "authority": {
+          "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/storage-authority.json",
+          "sha256": "011c2d3bce9ac28e388b5dc91de73076ad42bbdf97819b20850554e8a9a8c29a"
+        },
+        "authority_review": {
+          "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/storage-review.md",
+          "sha256": "8f858bef11028623627858020d00d4850d0c9afadd1de9a2472b386b5f65959a"
+        },
+        "backend": {
+          "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/remote_custody.py",
+          "repository_path": "results/ace_llm_intervention_remote_custody_20261109/traversal02/remote_custody.py",
+          "sha256": "4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f",
+          "source_commit": "b7a44809604822d979c1ed05c3c0ce0128a597c0"
+        },
+        "backend_review": {
+          "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/storage-backend-review.md",
+          "repository_path": "results/ace_llm_intervention_remote_custody_20261109/traversal02-independent-review/review.md",
+          "sha256": "8f858bef11028623627858020d00d4850d0c9afadd1de9a2472b386b5f65959a"
+        },
+        "receipt": {
+          "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/remote-custody.json",
+          "sha256": "e59bca378f54b0225eb8c74b73bfeebdad830faf5d3fd62fedfc56593de8e27c"
+        },
+        "reference": {
+          "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/predecessor-reference.json",
+          "sha256": "598ef348f5fa40d731abe0e26a0b108d60dcc543b042e4a94f370f71d7e7ab40"
+        },
+        "seal": {
+          "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/custody-inventory.json",
+          "sha256": "66ddd22d4a1f287df3f2beaaa962eef238e1c94e0690dd81b1db6c27424aebc1"
+        }
+      },
+      "predecessor": "gpu",
+      "schema": "ace-compact-downstream-inputs-v1"
+    },
+    "roles": {
+      "after": {
+        "bytes": 58101570,
+        "captured_filename": "storage-after.json",
+        "maximum_bytes": 134217728,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/inventory_after_transport.json",
+        "sha256": "53b4fc606be2fd900adba72f8729efb3b7f665217ca7450a2275f57cba8bf371"
+      },
+      "authority": {
+        "bytes": 2091,
+        "captured_filename": "storage-authority.json",
+        "maximum_bytes": 33554432,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/storage-authority.json",
+        "sha256": "011c2d3bce9ac28e388b5dc91de73076ad42bbdf97819b20850554e8a9a8c29a"
+      },
+      "authority_review": {
+        "bytes": 7181,
+        "captured_filename": "storage-review.md",
+        "maximum_bytes": 33554432,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/storage-review.md",
+        "sha256": "8f858bef11028623627858020d00d4850d0c9afadd1de9a2472b386b5f65959a"
+      },
+      "backend": {
+        "bytes": 44255,
+        "captured_filename": "remote_custody.py",
+        "maximum_bytes": 33554432,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/remote_custody.py",
+        "repository_path": "results/ace_llm_intervention_remote_custody_20261109/traversal02/remote_custody.py",
+        "sha256": "4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f",
+        "source_commit": "b7a44809604822d979c1ed05c3c0ce0128a597c0"
+      },
+      "backend_review": {
+        "bytes": 7181,
+        "captured_filename": "storage-backend-review.md",
+        "maximum_bytes": 33554432,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/storage-backend-review.md",
+        "repository_path": "results/ace_llm_intervention_remote_custody_20261109/traversal02-independent-review/review.md",
+        "sha256": "8f858bef11028623627858020d00d4850d0c9afadd1de9a2472b386b5f65959a"
+      },
+      "receipt": {
+        "bytes": 43340846,
+        "captured_filename": "storage-receipt.json",
+        "maximum_bytes": 134217728,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/remote-custody.json",
+        "sha256": "e59bca378f54b0225eb8c74b73bfeebdad830faf5d3fd62fedfc56593de8e27c"
+      },
+      "reference": {
+        "bytes": 584,
+        "captured_filename": "storage-predecessor.json",
+        "maximum_bytes": 33554432,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/predecessor-reference.json",
+        "sha256": "598ef348f5fa40d731abe0e26a0b108d60dcc543b042e4a94f370f71d7e7ab40"
+      },
+      "seal": {
+        "bytes": 4780967,
+        "captured_filename": "storage-seal.json",
+        "maximum_bytes": 134217728,
+        "path": "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/custody-inventory.json",
+        "sha256": "66ddd22d4a1f287df3f2beaaa962eef238e1c94e0690dd81b1db6c27424aebc1"
+      }
+    },
+    "status": "content mapped only; parent must publish/pin actual config in a separate authorized step"
+  },
+  "unresolved_metadata_roles": [
+    "gpu-review",
+    "gpu-acceptance",
+    "gpu-baseline",
+    "gpu-recovery-acceptance",
+    "finalizer-source-manifest",
+    "finalizer-clock-adoption",
+    "finalizer-timing-review",
+    "site-readiness"
+  ],
+  "utc": "2026-11-10T04:11:10.915780+00:00"
+}
