@@ -1,0 +1,100 @@
+{
+  "slower_group_seconds": {
+    "arm_files": 102.64314685802674,
+    "arm_receipts": 102.64314685802674,
+    "attempt_hashes": 141.93444695603102,
+    "campaign": 141.93444695603102,
+    "cpu_inputs": 7.429560168995522,
+    "cpu_output_excluding_campaign": 100.08414389693644,
+    "gpu_inputs": 17.133175904978998,
+    "gpu_output": 304.74280284397537,
+    "sealed_input_rereads": 77.43465925101191
+  },
+  "per_authentication_payload_proxy_seconds": 546.7613936969428,
+  "original_input_reread_proxy_seconds": 49.12547214794904,
+  "worker_existing_io_proxy_seconds": 566.5898468791274,
+  "allowances": {
+    "preparation_staging_seconds": 150,
+    "preparation_flat_capture_metadata_seconds": 100,
+    "preparation_directory_handoff_seconds": 60,
+    "reporting_startup_seconds": 90,
+    "worker_report_growth_fsync_seconds": 100,
+    "worker_runtime_envelope_seconds": 50,
+    "worker_sealing_dimension_variation_seconds": 100,
+    "cleanup_seconds": 30,
+    "parent_report_growth_seconds": 100,
+    "parent_report_metadata_seconds": 50,
+    "parent_directory_publication_variation_seconds": 100
+  },
+  "scenarios": {
+    "point_count": {
+      "io_multiplier": 1,
+      "report_component_seconds": 209.0350105263158,
+      "preparation_seconds": 1452.6482595418347,
+      "startup_seconds": 90,
+      "worker_seconds": 1025.6248574054432,
+      "cleanup_seconds": 30,
+      "parent_post_seconds": 796.7613936969428,
+      "preparation_residual_seconds": 47.351740458165295,
+      "startup_relative_residual_seconds": 30,
+      "worker_residual_at_latest_start_seconds": 674.3751425945568,
+      "parent_post_residual_seconds": 43.23860630305717,
+      "joint_schedule": {
+        "auth_complete": 1452.6482595418347,
+        "report_start": 1542.6482595418347,
+        "worker_end": 2568.273116947278,
+        "cleanup_end": 2598.273116947278,
+        "parent_end": 3395.034510644221
+      },
+      "joint_hard_residual_seconds": 794.965489355779,
+      "latest_start_joint_parent_end": 3472.3862511023863,
+      "latest_start_joint_hard_residual_seconds": 717.6137488976137
+    },
+    "selected_slower_group_and_point_query": {
+      "io_multiplier": 1,
+      "report_component_seconds": 836.1400421052632,
+      "preparation_seconds": 1452.6482595418347,
+      "startup_seconds": 90,
+      "worker_seconds": 1652.7298889843905,
+      "cleanup_seconds": 30,
+      "parent_post_seconds": 796.7613936969428,
+      "preparation_residual_seconds": 47.351740458165295,
+      "startup_relative_residual_seconds": 30,
+      "worker_residual_at_latest_start_seconds": 47.27011101560947,
+      "parent_post_residual_seconds": 43.23860630305717,
+      "joint_schedule": {
+        "auth_complete": 1452.6482595418347,
+        "report_start": 1542.6482595418347,
+        "worker_end": 3195.3781485262252,
+        "cleanup_end": 3225.3781485262252,
+        "parent_end": 4022.139542223168
+      },
+      "joint_hard_residual_seconds": 167.86045777683194,
+      "latest_start_joint_parent_end": 4099.491282681333,
+      "latest_start_joint_hard_residual_seconds": 90.50871731866664
+    },
+    "extra_25_percent_io_stress": {
+      "io_multiplier": 1.25,
+      "report_component_seconds": 836.1400421052632,
+      "preparation_seconds": 1738.3103244272934,
+      "startup_seconds": 90,
+      "worker_seconds": 1794.3773507041724,
+      "cleanup_seconds": 30,
+      "parent_post_seconds": 933.4517421211785,
+      "preparation_residual_seconds": -238.31032442729338,
+      "startup_relative_residual_seconds": 30,
+      "worker_residual_at_latest_start_seconds": -94.37735070417239,
+      "parent_post_residual_seconds": -93.45174212117854,
+      "joint_schedule": {
+        "auth_complete": 1738.3103244272934,
+        "report_start": 1828.3103244272934,
+        "worker_end": 3622.6876751314658,
+        "cleanup_end": 3652.6876751314658,
+        "parent_end": 4586.139417252644
+      },
+      "joint_hard_residual_seconds": -396.1394172526443,
+      "latest_start_joint_parent_end": 4377.829092825351,
+      "latest_start_joint_hard_residual_seconds": -187.82909282535093
+    }
+  }
+}

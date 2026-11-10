@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-gpu02-35516125-postcustody-01/sources/aid/audit_saved_gpu72.py", line 676, in main
+    getattr(view,name)();report['completed_checks'].append(name)
+  File "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-gpu02-35516125-postcustody-01/sources/aid/audit_saved_gpu72.py", line 242, in packet
+    p=self.p;builder=self.oracles['references/gpu_builder.py'];resources=supp.constant(builder,'RESOURCES');limits=supp.constant(builder,'LIMITS')
+  File "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-gpu02-35516125-postcustody-01/sources/aid/dependencies/audit_supplement.py", line 101, in constant
+    return value(ast.Name(id=key, ctx=ast.Load()))
+  File "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-gpu02-35516125-postcustody-01/sources/aid/dependencies/audit_supplement.py", line 91, in value
+    result = value(assignments[node.id]); active.remove(node.id); return result
+  File "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-gpu02-35516125-postcustody-01/sources/aid/dependencies/audit_supplement.py", line 100, in value
+    raise ValueError('nonliteral static oracle node')
+ValueError: nonliteral static oracle node

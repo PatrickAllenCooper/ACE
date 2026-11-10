@@ -1,0 +1,45 @@
+--- predecessor/dependencies/audit_supplement.py
++++ successor/dependencies/audit_supplement.py
+@@ -75,7 +75,8 @@
+ def constant(source, key):
+     """Only literal containers and referenced literal assignments; no source execution."""
+     assignments = {}
+-    for node in ast.parse(source).body:
++    tree = ast.parse(source)
++    for node in tree.body:
+         if isinstance(node, ast.Assign):
+             for target in node.targets:
+                 if isinstance(target, ast.Name):
+@@ -97,6 +98,21 @@
+             pairs = [(value(k), value(v)) for k, v in zip(node.keys, node.values)]
+             need(len(dict(pairs)) == len(pairs), 'duplicate static oracle key')
+             return dict(pairs)
++        if isinstance(node, ast.Call):
++            need(isinstance(node.func, ast.Name) and node.func.id == 'dict' and not node.args,
++                 'only keyword-only dict literal construction allowed')
++            names = [kw.arg for kw in node.keywords]
++            need(all(type(name) is str for name in names) and len(set(names)) == len(names),
++                 'dict literal unpacking or duplicate keyword forbidden')
++            need(all(isinstance(kw.value, ast.Constant) for kw in node.keywords),
++                 'dict construction requires literal keyword values')
++            # Interpret only the frozen builtin spelling, never call source code.
++            for binding in ast.walk(tree):
++                need(not ((isinstance(binding, ast.Name) and isinstance(binding.ctx, ast.Store) and binding.id == 'dict')
++                          or (isinstance(binding, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and binding.name == 'dict')
++                          or (isinstance(binding, ast.alias) and (binding.asname or binding.name.split('.')[0]) in ('dict', '*'))),
++                     'shadowed or wildcard-imported dict constructor forbidden')
++            return {kw.arg: value(kw.value) for kw in node.keywords}
+         raise ValueError('nonliteral static oracle node')
+     return value(ast.Name(id=key, ctx=ast.Load()))
+ 
+--- predecessor/audit_saved_gpu72.py
++++ successor/audit_saved_gpu72.py
+@@ -8,7 +8,7 @@
+ 
+ HERE=Path(__file__).resolve().parent
+ AID_SHA='6d56672582f8c41bdd01c64b446c1d1607316650c6357bec95a889c357ab7eb4'
+-SUPPLEMENT_SHA='11230b7b9148809c844ce155cd5ab056fb1ca517cd75c9c1e78ef1e9dc5de3ef'
++SUPPLEMENT_SHA='e2da9858fe137c653a96a3650ec0377f4d4d9721891dda73fe5727cddb292d13'
+ ORACLES_SHA='b4dd283396a6da3f8f90d5e6ea2bd8587a5dc55c91d67eea56ab3e7756103c84'
+ RECOVERY_SHA='1d72953472d00eda134546697f256bc0104cb0e0750edef080d5896e66347f6d'
+ PREFLIGHT_SHA='b9d0bf56e6c3174ad4ca2c21a43e3c13372c4755575a945437137dc2a1e942c8'

@@ -1,0 +1,197 @@
+{
+  "allowances": {
+    "cleanup_seconds": 30,
+    "parent_directory_publication_variation_seconds": 100,
+    "parent_report_growth_seconds": 100,
+    "parent_report_metadata_seconds": 50,
+    "preparation_directory_handoff_seconds": 60,
+    "preparation_flat_capture_metadata_seconds": 100,
+    "preparation_staging_seconds": 150,
+    "reporting_startup_seconds": 90,
+    "worker_report_growth_fsync_seconds": 100,
+    "worker_runtime_envelope_seconds": 50,
+    "worker_sealing_dimension_variation_seconds": 100
+  },
+  "closed_timing_evidence_sha256": "6324fcd1ffa2961d441f146f4f29d4078ad281cfb392c7940164251904e17f3b",
+  "collector_reported_accounting": {
+    "closed_cpu_seconds": 37073,
+    "closed_gpu_seconds": 4458,
+    "final_jobs": 49,
+    "final_journals": 100,
+    "finalizer_reservation_cpu_seconds": 8400,
+    "independent_actual_baseline_pending": true,
+    "predecessor_jobs": 48,
+    "predecessor_journals": 98,
+    "preparation_cpu_seconds": 3600,
+    "projected_cpu_seconds": 49073,
+    "remaining_cpu_seconds": 8527
+  },
+  "entry_sha256": "8a26ada2fc4778981237ca547fa437c620e6510080e93ab334e9762ebee2cf6f",
+  "execution_qualified": false,
+  "full_path_timing_supported": false,
+  "input_pins": {
+    "custody-inventory.json": {
+      "bytes": 4780967,
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/custody-inventory.json",
+      "sha256": "66ddd22d4a1f287df3f2beaaa962eef238e1c94e0690dd81b1db6c27424aebc1"
+    },
+    "disposition.json": {
+      "bytes": 57094085,
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/disposition.json",
+      "sha256": "df246a23b4cadd6971e190d16deca72dcddd0a8e0c7e6a43c7ed8608dbaf9a62"
+    },
+    "inventory_after_transport.json": {
+      "bytes": 58101570,
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/inventory_after_transport.json",
+      "sha256": "53b4fc606be2fd900adba72f8729efb3b7f665217ca7450a2275f57cba8bf371"
+    },
+    "inventory_transport.json": {
+      "bytes": 58101524,
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/inventory_transport.json",
+      "sha256": "2ca9bf1fd7f73a6964d9a10e3e4b239329c4bd4b53b2723a0131ded9a0395d66"
+    },
+    "remote-custody.json": {
+      "bytes": 43340846,
+      "path": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-intervention-scientific-campaign-gpu-terminal-20261109-02/remote-custody.json",
+      "sha256": "e59bca378f54b0225eb8c74b73bfeebdad830faf5d3fd62fedfc56593de8e27c"
+    }
+  },
+  "limits": [
+    "Coarse intersecting progress bins can overlap and include unrelated edge reads; they are observed proxies, not isolated finalizer benchmarks.",
+    "Per-group maxima deliberately retain slower BEFORE GPU/campaign and slower AFTER CPU/input observations.",
+    "150/100/60 and other explicit allowances are sizing judgments, not measured latency maxima.",
+    "Existing836-second report sensitivity scales old validation too; adding current full I/O proxies is conservative and can double count.",
+    "3-node/8-query arithmetic, future report bytes and filesystem latency remain uncertain; no universal upper bound or completion guarantee.",
+    "Known240-second incomplete CPU scan and the stress scenario demonstrate possible failure under fixed limits; retain original failure/custody, no automatic retry.",
+    "Actual GPU acceptance is pending; supplied seals establish the saved sizing evidence association only."
+  ],
+  "metadata_joins": {
+    "before_after_disposition_archive_file_maps_equal": true,
+    "directory_sets_equal": true,
+    "errors_empty": true,
+    "scope": "sizing metadata association only; no remote archive reread or actual GPU acceptance",
+    "supplied_metadata_pins_in_both_sealed_copy_maps": true
+  },
+  "new_probe_recommended": false,
+  "original_input_reread_proxy_seconds": 49.12547214794904,
+  "paired_derivation_sha256": "5a913ad8d2dfc90300e089f658f4ea5b192a08acf47ca2a112aacee48cf35c66",
+  "per_authentication_payload_proxy_seconds": 546.7613936969428,
+  "preparation_payload_proxy_seconds": 1142.6482595418347,
+  "profile": {
+    "cleanup": 3350,
+    "cpus": 2,
+    "gpus": 0,
+    "hard": 4190,
+    "memory_mib": 7680,
+    "preparation": 1500,
+    "report_startup": 120,
+    "report_startup_cap": 1620,
+    "wall_seconds": 4200,
+    "work": 3320
+  },
+  "remaining": [
+    "independent narrow timing disposition",
+    "actual GPU core acceptance/recovery supplement/baseline",
+    "explicit operational adoption",
+    "concrete finalizer packet review"
+  ],
+  "resource_admission_accepted": false,
+  "retained_failure": {
+    "allocated_cpu_seconds": 980,
+    "elapsed_seconds": 245,
+    "job_id": "35498218",
+    "latency_cause_identified": false,
+    "no_complete_first_inventory_timing": true,
+    "process_total_cpu_seconds": 6.755,
+    "startup_alarm_seconds": 240
+  },
+  "scenarios": {
+    "extra_25_percent_io_stress": {
+      "cleanup_seconds": 30,
+      "io_multiplier": 1.25,
+      "joint_hard_residual_seconds": -396.1394172526443,
+      "joint_schedule": {
+        "auth_complete": 1738.3103244272934,
+        "cleanup_end": 3652.6876751314658,
+        "parent_end": 4586.139417252644,
+        "report_start": 1828.3103244272934,
+        "worker_end": 3622.6876751314658
+      },
+      "latest_start_joint_hard_residual_seconds": -187.82909282535093,
+      "latest_start_joint_parent_end": 4377.829092825351,
+      "parent_post_residual_seconds": -93.45174212117854,
+      "parent_post_seconds": 933.4517421211785,
+      "preparation_residual_seconds": -238.31032442729338,
+      "preparation_seconds": 1738.3103244272934,
+      "report_component_seconds": 836.1400421052632,
+      "startup_relative_residual_seconds": 30,
+      "startup_seconds": 90,
+      "worker_residual_at_latest_start_seconds": -94.37735070417239,
+      "worker_seconds": 1794.3773507041724
+    },
+    "point_count": {
+      "cleanup_seconds": 30,
+      "io_multiplier": 1,
+      "joint_hard_residual_seconds": 794.965489355779,
+      "joint_schedule": {
+        "auth_complete": 1452.6482595418347,
+        "cleanup_end": 2598.273116947278,
+        "parent_end": 3395.034510644221,
+        "report_start": 1542.6482595418347,
+        "worker_end": 2568.273116947278
+      },
+      "latest_start_joint_hard_residual_seconds": 717.6137488976137,
+      "latest_start_joint_parent_end": 3472.3862511023863,
+      "parent_post_residual_seconds": 43.23860630305717,
+      "parent_post_seconds": 796.7613936969428,
+      "preparation_residual_seconds": 47.351740458165295,
+      "preparation_seconds": 1452.6482595418347,
+      "report_component_seconds": 209.0350105263158,
+      "startup_relative_residual_seconds": 30,
+      "startup_seconds": 90,
+      "worker_residual_at_latest_start_seconds": 674.3751425945568,
+      "worker_seconds": 1025.6248574054432
+    },
+    "selected_slower_group_and_point_query": {
+      "cleanup_seconds": 30,
+      "io_multiplier": 1,
+      "joint_hard_residual_seconds": 167.86045777683194,
+      "joint_schedule": {
+        "auth_complete": 1452.6482595418347,
+        "cleanup_end": 3225.3781485262252,
+        "parent_end": 4022.139542223168,
+        "report_start": 1542.6482595418347,
+        "worker_end": 3195.3781485262252
+      },
+      "latest_start_joint_hard_residual_seconds": 90.50871731866664,
+      "latest_start_joint_parent_end": 4099.491282681333,
+      "parent_post_residual_seconds": 43.23860630305717,
+      "parent_post_seconds": 796.7613936969428,
+      "preparation_residual_seconds": 47.351740458165295,
+      "preparation_seconds": 1452.6482595418347,
+      "report_component_seconds": 836.1400421052632,
+      "startup_relative_residual_seconds": 30,
+      "startup_seconds": 90,
+      "worker_residual_at_latest_start_seconds": 47.27011101560947,
+      "worker_seconds": 1652.7298889843905
+    }
+  },
+  "schema": "ace-finalizer-sizing03-author-disposition-v1",
+  "scientific_qualified": false,
+  "slower_group_seconds": {
+    "arm_files": 102.64314685802674,
+    "arm_receipts": 102.64314685802674,
+    "attempt_hashes": 141.93444695603102,
+    "campaign": 141.93444695603102,
+    "cpu_inputs": 7.429560168995522,
+    "cpu_output_excluding_campaign": 100.08414389693644,
+    "gpu_inputs": 17.133175904978998,
+    "gpu_output": 304.74280284397537,
+    "sealed_input_rereads": 77.43465925101191
+  },
+  "source_commit": "255b75fe37b28c302fb57821c0cc09a60a6cd3ea",
+  "source_review_sha256": "39ef3af657fd64e8174d6c0b462fdb1519c1978ee3ea9d5288f11c998d4a5bc9",
+  "source_sha256": "46d035841f886dc13c19d651c74135da78c63e0fb8ced33b74444de57eaf2fe7",
+  "status": "recommended_bounded_attempt_pending_independent_review_and_actual_gpu_acceptance",
+  "worker_existing_io_proxy_seconds": 566.5898468791274
+}
