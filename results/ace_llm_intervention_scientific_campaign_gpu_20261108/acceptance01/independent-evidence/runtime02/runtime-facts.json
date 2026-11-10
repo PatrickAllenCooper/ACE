@@ -1,0 +1,141 @@
+{
+  "accepted": false,
+  "checks": 38365,
+  "owned_cleanup": [
+    {
+      "cleanup_sha256": "4ec505cdeb851409bf936ee54285943cd4c995ab8e60e104eea24076a9c60d54",
+      "pid": 310755,
+      "policy_id": "frozen_llm",
+      "post_exit_record": {
+        "monotonic": 2899212.697137774,
+        "process_group_closed": true,
+        "registered_pid": 310755,
+        "sample": {
+          "owned_rows": [],
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "post_exit_sha256": "7e2b751c52d3cb77e8dbb19d7430606c549fed50dd9fa598f94667f7406dec9c"
+    },
+    {
+      "cleanup_sha256": "42b3a660049e13f378592fa167a8926f3ffe0b3017bb67a41b9546159c24311e",
+      "pid": 313018,
+      "policy_id": "sft_llm",
+      "post_exit_record": {
+        "monotonic": 2899630.202844623,
+        "process_group_closed": true,
+        "registered_pid": 313018,
+        "sample": {
+          "owned_rows": [],
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "post_exit_sha256": "dc3593b1333036a3af5248570e9a6d5495780b6b0f43cccdca1706ef851a0964"
+    },
+    {
+      "cleanup_sha256": "9adf2ff4f1ac4e582f022b4454a2dcf4c1c62cfb3db61e7e71b627ae708c8af0",
+      "pid": 314997,
+      "policy_id": "dpo_llm",
+      "post_exit_record": {
+        "monotonic": 2900330.363141532,
+        "process_group_closed": true,
+        "registered_pid": 314997,
+        "sample": {
+          "owned_rows": [],
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "post_exit_sha256": "371a6758f63a4745344f41a01d11c7845b0b3d58c7a9affa223e19a17cd19f79"
+    }
+  ],
+  "records": [
+    {
+      "device_rows": 0,
+      "phase": "after-service-imports",
+      "policy": null,
+      "snapshot_sha256": "722fe19798eddb291b9a4ee9fd9ca620c9072a86bab347d3287e0f07ee5591a9"
+    },
+    {
+      "device_rows": 0,
+      "phase": "after-campaign-host",
+      "policy": null,
+      "snapshot_sha256": "51fb93eb9074ff812883acbbcaee62944d608349d62d5ead2ae67333930e146d"
+    },
+    {
+      "device_rows": 0,
+      "phase": "after-service-imports",
+      "policy": "frozen_llm",
+      "snapshot_sha256": "503674916f42a0c0989cf9deabf9b4186193bbdcc4994204e6599ce2634e68bd"
+    },
+    {
+      "device_rows": 37,
+      "phase": "after-model-load",
+      "physical_minor": 1,
+      "physical_node": "/dev/nvidia1",
+      "policy": "frozen_llm",
+      "snapshot_sha256": "fc74ace7d06d50f5e2518a697da7ebea8e8d5ab6c1c74b21a1391252245c9519",
+      "uvm_major": 238
+    },
+    {
+      "device_rows": 37,
+      "phase": "after-requests",
+      "physical_minor": 1,
+      "physical_node": "/dev/nvidia1",
+      "policy": "frozen_llm",
+      "snapshot_sha256": "334530f19f2a0295d10336b7cd10a8472afc77480703c72c57344e79cf5321f7",
+      "uvm_major": 238
+    },
+    {
+      "device_rows": 0,
+      "phase": "after-service-imports",
+      "policy": "sft_llm",
+      "snapshot_sha256": "570bb9b00a601616743616eba1877a1358b7552fbf35fcd82a3a18b71a67fbc6"
+    },
+    {
+      "device_rows": 37,
+      "phase": "after-model-load",
+      "physical_minor": 1,
+      "physical_node": "/dev/nvidia1",
+      "policy": "sft_llm",
+      "snapshot_sha256": "191eb39e520b66842c771c1db02924731484fba9fa8b38a00f476c8c87782e43",
+      "uvm_major": 238
+    },
+    {
+      "device_rows": 37,
+      "phase": "after-requests",
+      "physical_minor": 1,
+      "physical_node": "/dev/nvidia1",
+      "policy": "sft_llm",
+      "snapshot_sha256": "5c0d6395cb67877c43164e150adbb8baf1366ddbe804d7d4940509f54a46bbec",
+      "uvm_major": 238
+    },
+    {
+      "device_rows": 0,
+      "phase": "after-service-imports",
+      "policy": "dpo_llm",
+      "snapshot_sha256": "f8760039d547185c6d6ff167bc873e6d1536c94cc83011dd5db13453b81753b2"
+    },
+    {
+      "device_rows": 37,
+      "phase": "after-model-load",
+      "physical_minor": 1,
+      "physical_node": "/dev/nvidia1",
+      "policy": "dpo_llm",
+      "snapshot_sha256": "09c4b2bcc260b9e2e714b1670a6d01bedb434fecce43319becdecfe0274cb039",
+      "uvm_major": 238
+    },
+    {
+      "device_rows": 37,
+      "phase": "after-requests",
+      "physical_minor": 1,
+      "physical_node": "/dev/nvidia1",
+      "policy": "dpo_llm",
+      "snapshot_sha256": "04d80c8c3237e98a0b01ab23e54dc7926848c28db159c53af399f41d9e8c74f4",
+      "uvm_major": 238
+    }
+  ],
+  "scope": "Saved native map/stat/driver/loader provenance and owned cleanup metadata only; no runtime functions executed or live process claims"
+}
