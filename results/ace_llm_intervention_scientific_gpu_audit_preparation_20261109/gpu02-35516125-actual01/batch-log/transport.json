@@ -1,0 +1,14 @@
+{
+  "command": [
+    "bash",
+    "/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh",
+    "run",
+    "python3 -I -B -c 'import sys,hashlib,json,base64\ndef need(ok,message):\n if not ok:raise ValueError(message)\nline=sys.stdin.buffer.readline(32)\nneed(line.endswith(b'\"'\"'\\n'\"'\"') and line[:-1].isdigit(),'\"'\"'bounded source bundle framing required'\"'\"')\nn=int(line);need(0<n<=1048576,'\"'\"'source bundle size bound'\"'\"')\nsource=sys.stdin.buffer.read(n)\nneed(len(source)==n and hashlib.sha256(source).hexdigest()==sys.argv[1],'\"'\"'independent source bundle SHA differs'\"'\"')\ndef pairs(items):\n out={}\n for k,v in items:\n  need(k not in out,'\"'\"'duplicate source bundle key'\"'\"');out[k]=v\n return out\nbundle=json.loads(source,object_pairs_hook=pairs)\nneed(set(bundle)=={'\"'\"'extension'\"'\"','\"'\"'extension_sha256'\"'\"','\"'\"'backend'\"'\"','\"'\"'backend_sha256'\"'\"'},'\"'\"'source bundle keys differ'\"'\"')\nextension=base64.b64decode(bundle['\"'\"'extension'\"'\"'],validate=True)\nbackend=base64.b64decode(bundle['\"'\"'backend'\"'\"'],validate=True)\nfor raw,pin in ((extension,bundle['\"'\"'extension_sha256'\"'\"']),(backend,bundle['\"'\"'backend_sha256'\"'\"'])):\n need(0<len(raw)<=262144 and hashlib.sha256(raw).hexdigest()==pin,'\"'\"'individual source SHA differs before exec'\"'\"')\nneed(bundle['\"'\"'backend_sha256'\"'\"']=='\"'\"'4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f'\"'\"','\"'\"'original backend SHA differs'\"'\"')\nv={'\"'\"'__name__'\"'\"':'\"'\"'captured_batch_reports'\"'\"','\"'\"'__file__'\"'\"':'\"'\"'<captured-batch-reports>'\"'\"'}\nexec(compile(extension,v['\"'\"'__file__'\"'\"'],'\"'\"'exec'\"'\"'),v)\nv['\"'\"'bind_sources'\"'\"'](extension_source=extension,extension_sha256=bundle['\"'\"'extension_sha256'\"'\"'],\n backend_source=backend,backend_sha256=bundle['\"'\"'backend_sha256'\"'\"'])\nb=v['\"'\"'_backend'\"'\"']();data=sys.stdin.buffer.read(b.MAX_METADATA+1)\nneed(len(data)<=b.MAX_METADATA,'\"'\"'bounded request metadata required'\"'\"')\nv['\"'\"'_specialize'\"'\"'](b.remote_main,remote_emit=v['\"'\"'_remote_emit'\"'\"'])(b.decode(data),sys.stdout.buffer)\n' 0f103978860f4145475df508392c79cd3742733e6603a36df4e93e67e9c0c509"
+  ],
+  "remote_outcome_ambiguous": false,
+  "retry_allowed": false,
+  "returncode": 0,
+  "stderr_bytes": 43632,
+  "stdout_bytes": 26836313,
+  "wall_seconds": 61.775756959000006
+}

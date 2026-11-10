@@ -1,0 +1,116 @@
+--- predecessor/audit_saved_gpu72.py
++++ corrected/audit_saved_gpu72.py
+@@ -88,6 +88,43 @@
+  need(set(found)==set(range(count)),'missing/noncontiguous generation family')
+  return found
+ 
++def saved_inventory(files,directories):
++ """Validate the original directory container, then make a semantic comparison view.
++ Never mutate an authenticated observation or change its original digest.
++ """
++ need(type(directories) is list,'original directory inventory must be a list')
++ need(all(type(n) is str for n in directories),'directory names must be strings')
++ value=dict(files=files,directories=sorted(directories))
++ aid.validate_inventory(value)
++ return value
++
++def cpu_ancestor_inventory(previous,current):
++ """Exact original CPU roots/pins, with only the existing three GPU append roots."""
++ mapping={'launch':'cpu','cpu':'token','training':'training','common':'common',
++          'failed01':'failed01','failed-token01':'failed-token01',
++          'namespace.json':'namespace.json','original-namespace.json':'original-namespace.json'}
++ need(type(previous['roots']) is dict and type(current['roots']) is dict
++      and set(previous['roots'])==set(mapping)
++      and set(current['roots'])==set(mapping.values())|{'launch'},'exact original ancestor root labels required')
++ for old,new in mapping.items():
++  path=previous['roots'][old]
++  need(type(path) is str and PurePosixPath(path).is_absolute() and '..' not in PurePosixPath(path).parts
++       and current['roots'][new]==path,'original ancestor physical root changed: '+old)
++ old=saved_inventory(previous['full_inventory']['files'],previous['full_inventory']['directories'])
++ now=saved_inventory(current['full_inventory']['files'],current['full_inventory']['directories'])
++ def mapped(name):
++  head,sep,tail=name.partition('/')
++  need(head in mapping,'ancestor member outside original root map')
++  return mapping[head]+sep+tail
++ files={mapped(n):v for n,v in old['files'].items()};dirs={mapped(n) for n in old['directories']}
++ need(all(now['files'].get(n)==v for n,v in files.items()),'whole original ancestor/failure bytes changed')
++ need(dirs<=set(now['directories']),'original ancestor directory missing')
++ append={C+f'policy-{i:02d}' for i in (5,6,7)}
++ def allowed(name):
++  return name=='launch' or name.startswith('launch/') or any(name==a or name.startswith(a+'/') for a in append)
++ need(all(allowed(n) for n in set(now['files'])-set(files))
++      and all(allowed(n) for n in set(now['directories'])-dirs),'ancestor changed outside three-policy append/current launch')
++
+ def telemetry_facts(telemetry,session,post,origin,work,final,session_deadline):
+  pid=session['registered_pid'];count=session['positive_generations']
+  need(type(pid) is int and pid>0 and type(count) is int and 1<=count<=576,'owned PID/count required')
+@@ -95,15 +132,20 @@
+  start=session['started_monotonic'];first=session['first_verified_monotonic'];closed=session['closed_monotonic']
+  need(all(finite(v) for v in (origin,start,first,closed,session_deadline)) and origin<=start<=first<closed<final
+       and first-start<120 and first<work,'service absolute startup/close deadline differs')
+- memory=[];previous=None;first_seen=None
++ memory=[];previous=None;first_seen=None;registered=False
+  for i,t in enumerate(telemetry):
+   now=t['monotonic'];n=t['positive_generations'];sample=t['gpu_process_sample']
+   need(finite(now) and start<=now<=closed and type(n) is int and 0<=n<=count and t['registered_pid'] in (None,pid)
+        and t['policy_id']==session['policy_id'] and abs(t['service_elapsed_seconds']-(now-start))<1e-6
+        and abs(t['outer_elapsed_seconds']-(now-origin))<1e-6,'telemetry clock/owner differs')
+   if previous:need(now>previous['monotonic'] and n>=previous['positive_generations'] and (previous['first_verified_monotonic'] is None or now-previous['monotonic']<90),'missing/stale periodic observation')
+-  if sample is None:need(i==0 and t['registered_pid'] is None and n==0,'only pre-registration observation can omit sample')
++  if sample is None:
++   need(not registered and t['registered_pid'] is None and n==0
++        and all(t[k] is None for k in ('first_verified_monotonic','last_gpu_monotonic','last_generation_monotonic'))
++        and t['uncertainties']==[],'only contiguous unregistered zero-progress prefix can omit samples')
+   else:
++   need(t['registered_pid']==pid,'sample requires original registered process')
++   registered=True
+    need(sample['returncode']==0 and type(sample['owned_rows']) is list,'NVIDIA observation failed')
+    for line in sample['owned_rows']:
+     cols=[v.strip() for v in line.split(',')]
+@@ -137,18 +179,20 @@
+   need(self.c['schema']=='ace-prospective-gpu72-saved-audit-input-v1' and re.fullmatch('[1-9][0-9]*',self.c['job_id']), 'actual job/config required')
+   need(self.c['helper_sha256']==BACKEND_SHA,'independently pinned traversal backend required')
+   self.d=aid.decode(self.artifact('disposition'));seal=aid.decode(self.artifact('custody'))
+-  observations=[]
++  observations=[];inventories=[]
+   for key in ('before','after'):
+    transport=aid.decode(self.artifact(key));need(transport['returncode']==0,'inventory transport failed')
+    v=aid.decode(transport['stdout']);need(v['terminal_gate'] is True and v.get('observation_error') is None,'incomplete terminal observation')
++   inventories.append(saved_inventory(v['files'],v['directories']))
+    observations.append(v)
+   self.before,after=observations
+-  for key in ('files','directories','original_hardlink_groups','parent_accounting','related_accounting','journal_pins','upstream_pins','upstream_errors'):
++  for key in ('files','original_hardlink_groups','parent_accounting','related_accounting','journal_pins','upstream_pins','upstream_errors'):
+    need(self.before[key]==after[key],'original second observation differs: '+key)
++  need(inventories[0]==inventories[1],'original second directory inventory differs')
+   receipt=aid.decode(self.artifact('remote_custody'));self.receipt=receipt
+   full=receipt['full_inventory'];local=receipt['local_inventory'];aid.validate_inventory(full);aid.validate_inventory(local)
+   need(local==selected(full,self.oracles['references/remote_custody4161.py']),'exact current-launch text selection differs')
+-  need(full==dict(files=self.before['files'],directories=sorted(self.before['directories'])),'full archive/original inventory differs')
++  need(full==inventories[0],'full archive/original inventory differs')
+   need(receipt['schema']=='ace-remote-custody-v1' and receipt['full_backup_verified'] is True
+        and receipt['full_local_copy'] is receipt['acceptance'] is receipt['retry_allowed'] is False
+        and receipt['backup_kind']=='ustar' and receipt['helper_sha256']==BACKEND_SHA
+@@ -169,7 +213,7 @@
+    v=aid.inventory(p);need(v['files'].pop('custody-inventory.json')['sha256']==self.c['artifacts']['custody']['sha256'],'original seal differs')
+    need(seal['copies'].get(str(p))==v and aid.inventory(p/'remote')==local,'whole compact copy/selected inventory differs');views.append(v)
+   need(views[0]==views[1],'independent copies differ')
+-  for role,member in [('disposition','disposition.json'),('before','inventory_before_transport.json'),('after','inventory_after_transport.json'),('remote_custody','remote-custody.json')]:
++  for role,member in [('disposition','disposition.json'),('before','inventory_transport.json'),('after','inventory_after_transport.json'),('remote_custody','remote-custody.json')]:
+    need(views[0]['files'].get(member,{}).get('sha256')==self.c['artifacts'][role]['sha256'],'original sealed metadata role/pin differs')
+   d=self.d
+   self.facts['retained_collector_findings']=dict(errors=d.get('errors'),failure_marker_metadata=d.get('failure_marker_metadata'),input_pin_mismatches=d.get('input_pin_mismatches'))
+@@ -215,11 +259,9 @@
+   previous=aid.decode(self.artifact('cpu_remote_custody'));previous_d=aid.decode(self.artifact('cpu_disposition'))
+   self.h('launch/cpu-disposition.json',self.c['artifacts']['cpu_disposition']['sha256'])
+   need(previous_d['job_id']==self.cpu['job_id'] and previous_d['remote_custody_receipt_sha256']==sha(raw(previous))
+-       and previous_d['remote_files']==previous['full_inventory']['files'] and sorted(previous_d['remote_directories'])==previous['full_inventory']['directories'],'independent accepted CPU receipt/disposition join')
++       and saved_inventory(previous_d['remote_files'],previous_d['remote_directories'])==previous['full_inventory'],'independent accepted CPU receipt/disposition join')
+   need(previous['full_backup_verified'] is True and previous['full_local_copy'] is False,'accepted original CPU archive required')
+-  for n,v in previous['full_inventory']['files'].items():
+-   target='cpu/'+n[len('launch/'):] if n.startswith('launch/') else n
+-   need(self.full.get(target)==v,'whole original ancestor/failure bytes changed')
++  cpu_ancestor_inventory(previous,self.receipt)
+   for n,h in [('namespace.json',self.c['artifacts']['namespace_claim']['sha256']),('original-namespace.json',self.c['artifacts']['original_namespace_claim']['sha256'])]:self.h(n,h)
+   need(self.d['cpu_acceptance_sha256']==p['cpu_acceptance_sha256'],'collector CPU acceptance join')
+   self.facts['packet']=dict(source_commit=SOURCE,source_files=len(p['source_names']),inputs=len(p['files']),inner_sha256=self.packet_pin,reused_cpu_acceptance=True)

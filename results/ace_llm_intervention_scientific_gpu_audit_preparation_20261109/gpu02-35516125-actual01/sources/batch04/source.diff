@@ -1,0 +1,187 @@
+--- batch03/batch_gpu_audit.py
++++ batch04/batch_gpu_audit.py
+@@ -15,6 +15,12 @@
+ import types
+ 
+ BACKEND_SHA256 = '4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f'
++CONTROL_ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02'
++FAILED_GPU_ROOT = '/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01'
++GPU_OUTPUT = FAILED_GPU_ROOT+'/gpu'
++RECOVERY_FILES = {'authority':'gpu-recovery-authority.json','context':'cpu-history-expected.json',
++                  'receipt':'cpu-history-preflight.json','read_set':'cpu-history-readset.json'}
++SERVICES = {p:p+'.freeze.json' for p in ('frozen_llm','sft_llm','dpo_llm')}
+ CAMPAIGN = 'cpu/cpu/worker/artifacts/campaign/'
+ LOCK_BASE = Path('/Users/pat/ACE_Study_Results/2026-10-peter-baseline')
+ CPU_KEYS = {'schema','status','cpu_packet_sha256','job_id','allocation','cpu_output','campaign_root',
+@@ -55,10 +61,12 @@
+     return tuple(sorted(wanted))
+ 
+ 
+-def select_members(full_inventory):
++def select_members(full_inventory, *, control_binding, control_binding_sha256):
+     """Pure prospective map; caller must independently pin it before transfer."""
+     b = _backend(); full = b.normalized(full_inventory)
+-    members = {name:full['files'][name] for name in audit_names(full)}
++    control = _control_binding(b, full, control_binding, control_binding_sha256)
++    names = set(audit_names(full)) | set(control['members'])
++    members = {name:full['files'][name] for name in sorted(names)}
+     b.need(all(info['bytes'] <= b.LOCAL_MEMBER for info in members.values()), 'audit member over32MiB')
+     b.need(sum(v['bytes'] for v in members.values()) <= b.LOCAL_TOTAL, 'audit batch over512MiB')
+     return members
+@@ -131,9 +139,70 @@
+     return payload
+ 
+ 
++def _control_binding(b, full, binding, binding_sha256):
++    """Pure exact-byte joins for current control. No audit or authority execution."""
++    _pinned_object(b,binding,binding_sha256,'GPU02 control binding')
++    b.need(type(binding) is dict and set(binding)=={'schema','outer','outer_sha256','inner','inner_sha256','result','result_sha256'}
++           and binding['schema']=='ace-gpu02-audit-batch-control-v1', 'explicit recovery control binding required')
++    for role,member in [('outer','control/packet.json'),('inner','control/inputs/packet.json'),
++                        ('result','control/submission.result.json')]:
++        payload=_pinned_object(b,binding[role],binding[role+'_sha256'],role+' control artifact')
++        b.need(full['files'].get(member)==dict(bytes=len(payload),sha256=binding[role+'_sha256']),
++               'current control artifact absent or different: '+member)
++    outer,inner,result=(binding[k] for k in ('outer','inner','result'))
++    b.need(outer['schema']=='ace-scientific-campaign-gpu-recovery-launch-v2'
++           and inner['schema']=='ace-scientific-paired-campaign-gpu-cpu-history-v2'
++           and outer['remote_root']==CONTROL_ROOT and inner['scope']=='development'
++           and outer['gpu_packet_sha256']==binding['inner_sha256']
++           and outer['cpu_acceptance_sha256']==inner['cpu_acceptance_sha256']
++           and outer['cpu_packet_sha256']==inner['cpu_packet_sha256'], 'current recovery packet/CPU identities differ')
++    b.need(type(outer['prior_jobs']) is int and outer['prior_jobs']==47
++           and type(outer['prior_journals']) is int and outer['prior_journals']==96,
++           'current control must descend from failed47/96')
++    paths=inner['paths']
++    b.need(outer['paths']==paths and paths['gpu_inputs']==CONTROL_ROOT+'/inputs'
++           and paths['gpu_output']==GPU_OUTPUT and paths['campaign']==paths['cpu_output']+'/worker/artifacts/campaign'
++           and inner['services']==SERVICES and inner['recovery_files']==RECOVERY_FILES,
++           'frozen output and exact three control freezes required')
++    def captured(member,pin):
++        b.need(b.pin(pin) and full['files'].get(member,{}).get('sha256')==pin,
++               'current control captured pin differs: '+member)
++    for name,pin in inner['files'].items():
++        b.name_ok(name);captured('control/inputs/'+name,pin)
++    for name,pin in outer['new_input_files'].items():
++        b.name_ok(name);captured('control/'+name,pin)
++    b.need(outer['new_input_files']['inputs/packet.json']==binding['inner_sha256'], 'outer inner-member pin differs')
++    captured('control/inputs/cpu-acceptance.json',inner['cpu_acceptance_sha256'])
++    captured('control/inputs/cpu-packet.json',inner['cpu_packet_sha256'])
++    captured('control/gpu-failure-baseline.json',outer['baseline_sha256'])
++    lineage=outer['gpu_recovery']
++    b.need(lineage['control_root']==CONTROL_ROOT and lineage['failed_root']==FAILED_GPU_ROOT
++           and lineage['output_root']==GPU_OUTPUT and lineage['failed_job_id']=='35498218'
++           and lineage['historical_postcustody_required'] is True
++           and lineage['authority_sha256']==inner['files'][RECOVERY_FILES['authority']]
++           and lineage['preflight_receipt_sha256']==inner['files'][RECOVERY_FILES['receipt']],
++           'explicit old-failure/new-control recovery binding differs')
++    for field,name in [('failure_acceptance_sha256','gpu-failure-acceptance.json'),
++                       ('failure_seal_sha256','gpu-failure-seal.json'),
++                       ('failure_disposition_sha256','gpu-failure-disposition.json')]:
++        captured('control/'+name,lineage[field])
++    job=result['job_id']
++    b.need(type(job) is str and re.fullmatch('[1-9][0-9]*',job) is not None and job!='35498218'
++           and type(result['returncode']) is int and result['returncode']==0 and result['ambiguous'] is False,
++           'one unambiguous new submission identity required')
++    captured('control/submission.intent.json',result['intent_sha256'])
++    logs={'control/logs/'+job+suffix for suffix in ('.out','.err')}
++    b.need({n for n in full['files'] if n.startswith('control/logs/')}==logs,
++           'exact current-job stdout/stderr roster required')
++    members={'control/inputs/cpu-packet.json',*('control/inputs/'+n for n in SERVICES.values()),*logs}
++    b.need(members<=set(full['files']), 'required exact current control metadata/log member missing')
++    return dict(job_id=job,members=tuple(sorted(members)),cpu_acceptance_sha256=inner['cpu_acceptance_sha256'],
++                cpu_output=paths['cpu_output'],campaign_root=paths['campaign'])
++
++
+ def _selection(b, request):
+     receipt=request['receipt']
+-    b.need(request['action']=='batch_gpu72_audit' and request['helper_sha256']==BACKEND_SHA256
++    b.need(request['action']=='batch_gpu72_recovery_audit' and request['helper_sha256']==BACKEND_SHA256
+            and request['extension_sha256']==_BOUND[1], 'bound audit operation differs')
+     receipt_raw=_pinned_object(b,receipt,request['receipt_sha256'],'GPU custody receipt')
+     full=b.validate_receipt(receipt)
+@@ -149,12 +218,17 @@
+     remote={'files':{n[7:]:v for n,v in view['files'].items() if n.startswith('remote/')},
+             'directories':sorted(n[7:] for n in view['directories'] if n.startswith('remote/'))}
+     b.need(remote==receipt['local_inventory'], 'seal selected subtree differs')
++    b.need(receipt['roots'].get('control')==CONTROL_ROOT and receipt['roots'].get('launch')==FAILED_GPU_ROOT,
++           'receipt must distinguish new control from frozen old launch')
++    control=_control_binding(b,full,request['control_binding'],request['control_binding_sha256'])
++    b.need(control['cpu_output']==receipt['roots']['cpu']+'/cpu', 'control packet CPU physical root differs')
+     cpu=request['cpu_acceptance'];cpu_raw=_pinned_object(b,cpu,request['cpu_acceptance_sha256'],'accepted CPU')
+     b.need(set(cpu)==CPU_KEYS and cpu['schema']=='ace-scientific-campaign-cpu-acceptance-v1'
+            and cpu['status']=='development_cpu_phase_accepted' and cpu['scientific_qualified'] is False,
+            'independently accepted CPU development record required; no GPU acceptance prerequisite')
+-    b.need(full['files'].get('launch/inputs/cpu-acceptance.json')==dict(bytes=len(cpu_raw),sha256=request['cpu_acceptance_sha256']),
+-           'GPU captured accepted CPU bytes differ')
++    b.need(full['files'].get('control/inputs/cpu-acceptance.json')==dict(bytes=len(cpu_raw),sha256=request['cpu_acceptance_sha256']),
++           'current GPU02 control captured accepted CPU bytes differ')
++    b.need(control['cpu_acceptance_sha256']==request['cpu_acceptance_sha256'], 'control/independent CPU acceptance pin differs')
+     b.need(cpu['campaign_root']==receipt['roots']['cpu']+'/cpu/worker/artifacts/campaign', 'accepted CPU campaign root differs')
+     for name,h in cpu['campaign_files'].items():
+         b.name_ok(name)
+@@ -166,7 +240,7 @@
+            'exact independently reviewed GPU audit source required; never import it')
+     b.need(0<len(review)<=128*1024 and review.strip() and b.pin(request['gpu_audit_review_sha256'])
+            and b.sha(review)==request['gpu_audit_review_sha256'], 'independent GPU audit review bytes/pin required')
+-    members=request['members'];expected=select_members(full)
++    members=request['members'];expected=select_members(full,control_binding=request['control_binding'],control_binding_sha256=request['control_binding_sha256'])
+     b.need(type(members) is dict and members==expected, 'exact complete inventory-derived GPU audit selection differs')
+     _pinned_object(b,members,request['members_sha256'],'member map')
+     directories=sorted({'/'.join(n.split('/')[:i]) for n in members for i in range(1,len(n.split('/')))})
+@@ -174,7 +248,11 @@
+ 
+ 
+ def _result(b,request,full,verification):
+-    return dict(schema='ace-gpu72-audit-batch-transfer-v1',
++    return dict(schema='ace-gpu72-recovery-audit-batch-transfer-v2',
++        control_binding_sha256=request['control_binding_sha256'],
++        job_id=request['control_binding']['result']['job_id'],
++        inner_packet_sha256=request['control_binding']['inner_sha256'],outer_packet_sha256=request['control_binding']['outer_sha256'],
++        control_root=CONTROL_ROOT,failed_gpu01_root=FAILED_GPU_ROOT,gpu_output=GPU_OUTPUT,
+         receipt_sha256=request['receipt_sha256'],members_sha256=request['members_sha256'],
+         extension_sha256=request['extension_sha256'],helper_sha256=BACKEND_SHA256,
+         custody_seal_sha256=request['custody_seal_sha256'],cpu_acceptance_sha256=request['cpu_acceptance_sha256'],
+@@ -300,7 +378,7 @@
+ def fetch_audit(*, receipt, receipt_sha256, custody_seal, custody_seal_sha256,
+                 cpu_acceptance, cpu_acceptance_sha256, gpu_audit_source, gpu_audit_sha256,
+                 gpu_audit_review, gpu_audit_review_sha256, members, members_sha256,
+-                destination, helper_path, log_dir):
++                control_binding, control_binding_sha256, destination, helper_path, log_dir):
+     """ONE exclusive batch under both existing locks. No GPU acceptance required.
+ 
+     Caller pins canonical metadata bytes and independently reviewed audit source.
+@@ -312,6 +390,7 @@
+             cpu_acceptance_sha256=cpu_acceptance_sha256,gpu_audit_source=gpu_audit_source,
+             gpu_audit_sha256=gpu_audit_sha256,gpu_audit_review=gpu_audit_review,
+             gpu_audit_review_sha256=gpu_audit_review_sha256,members=members,members_sha256=members_sha256,
++            control_binding=control_binding,control_binding_sha256=control_binding_sha256,
+             destination=destination,helper_path=helper_path,log_dir=log_dir)
+ 
+ 
+@@ -334,7 +413,7 @@
+ 
+ def _fetch_audit(**args):
+     b=_backend()
+-    request=dict(args,action='batch_gpu72_audit',helper_sha256=BACKEND_SHA256,extension_sha256=_BOUND[1])
++    request=dict(args,action='batch_gpu72_recovery_audit',helper_sha256=BACKEND_SHA256,extension_sha256=_BOUND[1])
+     request['gpu_audit_source']=base64.b64encode(request['gpu_audit_source']).decode()
+     request['gpu_audit_review']=base64.b64encode(request['gpu_audit_review']).decode()
+     destination=request['destination']=str(request['destination'])
+@@ -365,6 +444,7 @@
+         b.write_new(logs/'gpu-audit-review.md', base64.b64decode(request['gpu_audit_review']))
+         b.write_new(logs/'custody-seal.json', b.raw(request['custody_seal']))
+         b.write_new(logs/'accepted-cpu.json', b.raw(request['cpu_acceptance']))
++        b.write_new(logs/'recovery-control-binding.json', b.raw(request['control_binding']))
+         # Do not inherit backend local_destinations' empty-directory adoption.
+         # This exclusive mkdir is the actual claim, after the earlier precheck.
+         b.owned_dir(dest, True)
+@@ -389,7 +469,7 @@
+         receiver = None
+         b.need(b.local_inventory(dest) == selection, 'opaque report readback differs')
+         result = dict(result, local_inventory=selection, original_selected_inventory_modified=False,
+-                      source_bundle_sha256=b.sha(bundle), schema='ace-gpu72-audit-batch-retrieval-v1')
++                      source_bundle_sha256=b.sha(bundle), schema='ace-gpu72-recovery-audit-batch-retrieval-v2')
+         b.write_new(logs/'fetched.json', b.raw({n:dict(path=str(dest/n),sha256=v['sha256']) for n,v in members.items()}))
+         b.write_new(logs/'receipt.json', b.raw(result))
+         return result

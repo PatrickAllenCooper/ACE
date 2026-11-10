@@ -1,0 +1,11 @@
+# GPU02 audit-attempt02: source-roster consistency note
+
+The observed failure is an audit predicate/schema mismatch, not evidence of missing or modified scientific source. No production validator was executed or changed, and no actual acceptance is issued.
+
+`gpu_recovery_delta.validate_sources` lines77–78 requires `set(input_source_files)==set(source_names)` and constructs the successor source_names from the former. The frozen GPUcampaign contract intentionally distinguishes these:56 captured Python input files,54 declared source_names, and53 controller loaded-work roster names (the latter excludes the entrypoint). `llm_intervention_runtime_archive.py` and `probe.py` are explicitly pinned in helpers_outside_source_names.
+
+The independently pinned actual inner packet has58 Python inputs and56 declared source_names: the inherited input/declared rosters respectively plus the two operational helper additions, with the separately authorized entry replacement. No extra/missing Python input or frozen non-entry pin mismatch was found. Authorityb363's operational_source_files exactly equals the56-name declared source map; canonical digest bc6bf66ecfb42aa20e992c1f5c3241b9e835c89aff1cb1113b052c6e35490d46 matches the execution context in e3c8. The full58-input map has a different digest by design. These are declared/captured metadata counts, not an attestation of actual runtime imports.
+
+A strict successor gate can check the two distinct exact sets, their frozen pins and the entry/helper exceptions separately; it must preserve capture-only helper authentication and the existing exact authority/context digest. Subset-only admission, removing the roster check, changing actual packet/freeze/authority bytes, or widening accepted exceptions is not justified. Any implementation correction and new fabricated evidence needs its own independent review before a new retained local aid attempt. The original batch, inputs, job, outputs and both failed aid attempts stay unchanged.
+
+This note is an early source/context consistency finding only. Actual source byte custody/runtime, scientific72-cell results, full historical post-custody, transfer control joins, exact17-key core acceptance,48/98baseline and affirmative recovery supplement remain pending the complete independent actual review.

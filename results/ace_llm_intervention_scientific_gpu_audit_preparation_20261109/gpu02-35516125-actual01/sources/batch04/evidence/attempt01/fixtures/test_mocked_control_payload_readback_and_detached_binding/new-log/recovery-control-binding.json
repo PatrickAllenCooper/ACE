@@ -1,0 +1,92 @@
+{
+  "inner": {
+    "cpu_acceptance_sha256": "bb3a93b6a8db94667d8f8107a9dd4424b91ee9228742509e1446c75b69022719",
+    "cpu_packet_sha256": "0b80b5961409cecc6efbd0ff9b8ef70b096f0e896758ecb5dded5c82fec91f5d",
+    "files": {
+      "cpu-acceptance.json": "bb3a93b6a8db94667d8f8107a9dd4424b91ee9228742509e1446c75b69022719",
+      "cpu-history-expected.json": "58fe13e8b5b55f24d144d40e2880343865e4db0a06a549aeea7c7ad9b3fa7bd9",
+      "cpu-history-preflight.json": "245ceac8205e5c1b01428e5132b975ada27da347befb13a2d76c0ca83b506741",
+      "cpu-history-readset.json": "822e8ab636bf8e250482e0122b82dc42ffa7edaf069b1c2ae2e41ea383252f2d",
+      "cpu-packet.json": "0b80b5961409cecc6efbd0ff9b8ef70b096f0e896758ecb5dded5c82fec91f5d",
+      "dpo_llm.freeze.json": "c2c00dd77318bb388210c218190445d7ed7ca08482a79579e603e57c12f4f31c",
+      "frozen_llm.freeze.json": "f5ccfd28bb9f2f93e64220d4f9e03095f1a7472d87a7844ded24ca90c4d5aa53",
+      "gpu-recovery-authority.json": "d4e17ad2c3474c7b5407c5045a92c1a8daecc10c4cdb6e9dc55a34dbeebf2523",
+      "sft_llm.freeze.json": "cb44033b449539e9bb9edc2bd57837aeb1bbb91a440578f984485cb50d6473d0"
+    },
+    "paths": {
+      "campaign": "/scratch/FAKE_BATCH04_CPU/cpu/worker/artifacts/campaign",
+      "cpu_inputs": "/scratch/FAKE_BATCH04_CPU/inputs",
+      "cpu_output": "/scratch/FAKE_BATCH04_CPU/cpu",
+      "gpu_inputs": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02/inputs",
+      "gpu_output": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/gpu"
+    },
+    "recovery_files": {
+      "authority": "gpu-recovery-authority.json",
+      "context": "cpu-history-expected.json",
+      "read_set": "cpu-history-readset.json",
+      "receipt": "cpu-history-preflight.json"
+    },
+    "schema": "ace-scientific-paired-campaign-gpu-cpu-history-v2",
+    "scope": "development",
+    "services": {
+      "dpo_llm": "dpo_llm.freeze.json",
+      "frozen_llm": "frozen_llm.freeze.json",
+      "sft_llm": "sft_llm.freeze.json"
+    }
+  },
+  "inner_sha256": "0a434325051248e2860b2e36d7a84f41b9cf9d97cc6a44f51839205e504125c7",
+  "outer": {
+    "baseline_sha256": "c779f1e99d9e3ce71dad09f1f5cec362bc3d56ff54535799759d61317010d8e2",
+    "cpu_acceptance_sha256": "bb3a93b6a8db94667d8f8107a9dd4424b91ee9228742509e1446c75b69022719",
+    "cpu_packet_sha256": "0b80b5961409cecc6efbd0ff9b8ef70b096f0e896758ecb5dded5c82fec91f5d",
+    "gpu_packet_sha256": "0a434325051248e2860b2e36d7a84f41b9cf9d97cc6a44f51839205e504125c7",
+    "gpu_recovery": {
+      "authority_sha256": "d4e17ad2c3474c7b5407c5045a92c1a8daecc10c4cdb6e9dc55a34dbeebf2523",
+      "control_root": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02",
+      "failed_job_id": "35498218",
+      "failed_root": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01",
+      "failure_acceptance_sha256": "e307773b514057bd15f7e3cb3f92249430d43495f549a4704d48917fbcc94dfd",
+      "failure_disposition_sha256": "4ed10ff6e1cb6f194991e1de7439d5fa789b3ff88463f19bbf3cdbeb89cbcc61",
+      "failure_seal_sha256": "23445f0fc04f3d3bd6a650aaf474cec30dadbd13ee2ed2396a572f6e03236712",
+      "historical_postcustody_required": true,
+      "output_root": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/gpu",
+      "preflight_receipt_sha256": "245ceac8205e5c1b01428e5132b975ada27da347befb13a2d76c0ca83b506741"
+    },
+    "new_input_files": {
+      "gpu-failure-acceptance.json": "e307773b514057bd15f7e3cb3f92249430d43495f549a4704d48917fbcc94dfd",
+      "gpu-failure-baseline.json": "c779f1e99d9e3ce71dad09f1f5cec362bc3d56ff54535799759d61317010d8e2",
+      "gpu-failure-disposition.json": "4ed10ff6e1cb6f194991e1de7439d5fa789b3ff88463f19bbf3cdbeb89cbcc61",
+      "gpu-failure-seal.json": "23445f0fc04f3d3bd6a650aaf474cec30dadbd13ee2ed2396a572f6e03236712",
+      "inputs/cpu-acceptance.json": "bb3a93b6a8db94667d8f8107a9dd4424b91ee9228742509e1446c75b69022719",
+      "inputs/cpu-history-expected.json": "58fe13e8b5b55f24d144d40e2880343865e4db0a06a549aeea7c7ad9b3fa7bd9",
+      "inputs/cpu-history-preflight.json": "245ceac8205e5c1b01428e5132b975ada27da347befb13a2d76c0ca83b506741",
+      "inputs/cpu-history-readset.json": "822e8ab636bf8e250482e0122b82dc42ffa7edaf069b1c2ae2e41ea383252f2d",
+      "inputs/cpu-packet.json": "0b80b5961409cecc6efbd0ff9b8ef70b096f0e896758ecb5dded5c82fec91f5d",
+      "inputs/dpo_llm.freeze.json": "c2c00dd77318bb388210c218190445d7ed7ca08482a79579e603e57c12f4f31c",
+      "inputs/frozen_llm.freeze.json": "f5ccfd28bb9f2f93e64220d4f9e03095f1a7472d87a7844ded24ca90c4d5aa53",
+      "inputs/gpu-recovery-authority.json": "d4e17ad2c3474c7b5407c5045a92c1a8daecc10c4cdb6e9dc55a34dbeebf2523",
+      "inputs/packet.json": "0a434325051248e2860b2e36d7a84f41b9cf9d97cc6a44f51839205e504125c7",
+      "inputs/sft_llm.freeze.json": "cb44033b449539e9bb9edc2bd57837aeb1bbb91a440578f984485cb50d6473d0"
+    },
+    "paths": {
+      "campaign": "/scratch/FAKE_BATCH04_CPU/cpu/worker/artifacts/campaign",
+      "cpu_inputs": "/scratch/FAKE_BATCH04_CPU/inputs",
+      "cpu_output": "/scratch/FAKE_BATCH04_CPU/cpu",
+      "gpu_inputs": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02/inputs",
+      "gpu_output": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108_01/gpu"
+    },
+    "prior_jobs": 47,
+    "prior_journals": 96,
+    "remote_root": "/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261109_02",
+    "schema": "ace-scientific-campaign-gpu-recovery-launch-v2"
+  },
+  "outer_sha256": "0875b8f5bc85cf61db3af68c8f72770e1f7887815b845e9b05ce7db067191243",
+  "result": {
+    "ambiguous": false,
+    "intent_sha256": "40630664f3012e99deb0b2cb2390174d140877ed0219135ee2a22b14ad2492b9",
+    "job_id": "99999998",
+    "returncode": 0
+  },
+  "result_sha256": "bbc5dddde285d4258eb47ed3db1fadff95150c7bdd599ba8a3ca2900dbe147ab",
+  "schema": "ace-gpu02-audit-batch-control-v1"
+}

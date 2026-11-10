@@ -1,0 +1,20 @@
+# GPU72 batch B1–B3 corrected successor
+
+Source `555b571486500043118b730eb1a46f67886c01ef7af5734313da2b5c3df7abfd` is ready for independent delta recheck. This preparation does not approve or run an actual transfer. The API is unchanged. Prior pin-only35541 and original5c918 sources, all original evidence, failed attempts and review33394ee8 are preserved under predecessor/; no ancestor files were edited.
+
+B1 removes the fixed audit SHA constant. The independently supplied audit source must still have valid64-hex SHA, exact matching bounded bytes (256KiB), and independently supplied nonempty reviewed bytes/pin (128KiB); both are durably captured and bound into the result. Source is never imported. The batch's inventory-derived selection and allowlist remain fixed. Confirmed that corrected aid e28392 has identical fetch_requirements AST to9e3d. Caller authority must establish review of the exact source and matching fetch semantics; this helper does not manufacture approval from arbitrary review text.
+
+The recommended actual reviewed pair is captured in references/ and recommended-aid-binding.json:
+- aid e28392bb02adc2441c68be9279704cfec795f6af8d9d587a2bf2b41157318908
+- closed R1–R4 review ee0cec6c87d5d6de966034c14268ebbbb8158c234d66b59570ff4c1a5a78b71e
+The original review is results/ace_llm_intervention_scientific_gpu_audit_preparation_20261109/review02/review.md. This is source qualification only, not actual GPU acceptance.
+
+B2 now takes members from the canonically detached request AFTER validation. Capacity, members.json and fetched.json therefore use the same authenticated map as the transport/result. Mutating the caller's dictionary after validation or during transfer cannot change these records.
+
+B3 validates canonical existing paths for both sealed capsule copies and the receipt's selected local_root, joined to one copy's remote/ subtree. Before begin() or any output/log claim, both new paths must be disjoint from every protected root (equal, ancestor and descendant overlap rejected). The existing absent/exclusive no-adoption rules and both-lock ownership remain. No actual capsule is inspected during this preparation.
+
+Only _selection and _fetch_audit change, with one small _protect_original_roots helper and removal of the fixed aid constant. Static-scope.json/diff preserve all other function ASTs: backend4161, selector, source binder, bootstrap, two complete archive passes, framing/cleanup,1770/1800-second bounds,32MiB/member512MiB selection and128MiB full-map limits unchanged. No scientific/child/resource/attempt/acceptance schema change. Use bind_sources/select_members/fetch_audit exactly as documented in the original preserved preparation, with the new independently reviewed extension pin and actual caller metadata.
+
+Three NEW methods passed once (test `92ed4e724325c32867e26305d528396440072f028e8d9f09b83ce5484185454f`, receipt `d8b350e2876738c036e5c16cdf053412ea3419cfd1d60f8fee0b5b9175b19372`): flexible exact source/review byte binding with no imports and fixed selection; mocked transport with caller map cleared after detach then injected during transport, checking capacity/members/fetched/result and unchanged original copies;18equal/ancestor/child boundaries across both capsule roots plus selected root, both output fields, and one symlink-path negative, all before begin(). The mocked transfer uses only fabricated local metadata/payloads, never SSH or real coordinator locks. No old methods/suites, actual audit/main, model/tokenizer/scientific calls or remote action ran. Costs .212135 child CPU seconds/.269571792 elapsed,28,770,304 maxRSS bytes. No new failed attempt.
+
+Original fixture directories remain under evidence/attempt01/fixtures. They include one intentional alias used only for the symlink-negative test; its target is recorded as fixture metadata. External custody stores a verified lossless fixtures.tar.gz plus exact file/directory/symlink inventory, without materializing a live alias in the external preparation. All partial/mock stdout and operation records remain in that archive and the original fixture tree.

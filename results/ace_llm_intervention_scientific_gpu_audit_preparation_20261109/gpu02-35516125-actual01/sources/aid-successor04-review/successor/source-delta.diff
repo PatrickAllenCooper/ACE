@@ -1,0 +1,102 @@
+--- prep03/dependencies/gpu_recovery_delta.py
++++ prep04/dependencies/gpu_recovery_delta.py
+@@ -107,6 +107,56 @@
+              and not path.is_absolute() and str(path)==row['repository_path'] and '..' not in path.parts,
+              'operational source manifest path/pin differs')
+     return sources
++
++
++
++def output_path_proof(proof, info, packet, cpu, old_packet, prior_files, current_files):
++    """Derive one exact recorded root from independently accepted saved CPU proof.
++
++    Never resolve remote paths locally, substitute a generic prefix, or infer
++    live alias/namespace/runtime qualification from this historical record.
++    """
++    producer='prepare_llm_intervention_scientific_campaign_cpu.py'
++    producer_pin='ba439d819f49f6832c97181e4ff727c4813f29031e7b67f8085670f845b0f893'
++    need(packet['files'].get(producer)==producer_pin, 'accepted path-binding producer differs')
++    need(set(info)=={'bytes','sha256'} and type(info['bytes']) is int and info['bytes']>0,
++         'exact saved path-binding byte identity required')
++    need(set(proof)=={'schema','packet_sha256','resources','deadlines','retry_allowed','output_path_binding'}
++         and proof['schema']==old_packet['schema']
++         and proof['packet_sha256']==packet['cpu_packet_sha256']==cpu['cpu_packet_sha256']
++         and proof['resources']==old_packet['resources'] and proof['deadlines']==old_packet['deadlines']
++         and proof['retry_allowed'] is False, 'accepted CPU start schema/packet contract differs')
++    for name in ('start.json','worker/start.json'):
++        need(cpu['cpu_output_files'].get(name)==info['sha256']
++             and prior_files.get('launch/cpu/'+name)==info
++             and current_files.get('cpu/cpu/'+name)==info,
++             'both accepted CPU start proofs must survive full current custody')
++    binding=proof['output_path_binding']
++    need(set(binding)=={'logical','resolved','mount_alias','root_device','root_inode'}
++         and binding['mount_alias'] is True
++         and type(binding['root_device']) is int and binding['root_device']>=0
++         and type(binding['root_inode']) is int and binding['root_inode']>0,
++         'exact saved accepted mount binding required')
++    logical=PurePosixPath(binding['logical']);resolved=PurePosixPath(binding['resolved'])
++    need(logical.is_absolute() and resolved.is_absolute()
++         and str(logical)==binding['logical'] and str(resolved)==binding['resolved']
++         and '..' not in logical.parts and '..' not in resolved.parts,
++         'normalized absolute saved root spellings required')
++    logical_mount=PurePosixPath('/scratch/alpine');physical_mount=PurePosixPath('/gpfs/alpine1/scratch')
++    need(logical_mount in logical.parents
++         and resolved==physical_mount/logical.relative_to(logical_mount),
++         'saved resolution differs from the frozen producer exact mount contract')
++    need(str(logical)==packet['paths']['cpu_output']==old_packet['cpu_output']==cpu['cpu_output'],
++         'accepted resolved proof belongs to another logical CPU output')
++    suffix='worker/artifacts/campaign'
++    need(str(logical/suffix)==packet['paths']['campaign']==cpu['campaign_root'],
++         'accepted logical campaign endpoint differs')
++    return dict(logical_cpu_output=str(logical),resolved_cpu_output=str(resolved),
++                logical_campaign_root=str(logical/suffix),resolved_campaign_root=str(resolved/suffix),
++                proof_sha256=info['sha256'],producer_sha256=producer_pin,
++                root_device=binding['root_device'],root_inode=binding['root_inode'],
++                scope='accepted_saved_CPU_path_binding_plus_current_full_custody',
++                acceptance=False,live_resolution_performed=False)
+ 
+ 
+ def inventory_extension(previous,current):
+--- prep03/audit_saved_gpu72.py
++++ prep04/audit_saved_gpu72.py
+@@ -10,9 +10,10 @@
+ AID_SHA='6d56672582f8c41bdd01c64b446c1d1607316650c6357bec95a889c357ab7eb4'
+ SUPPLEMENT_SHA='e2da9858fe137c653a96a3650ec0377f4d4d9721891dda73fe5727cddb292d13'
+ ORACLES_SHA='b4dd283396a6da3f8f90d5e6ea2bd8587a5dc55c91d67eea56ab3e7756103c84'
+-RECOVERY_SHA='e508f20eaec5f8a94c7638dc6183f5e46e9798918e8877a75c527fed6d4bb098'
++RECOVERY_SHA='0991abb13267cac61c954d87c0bc510fddb256259118dde882a14b1812f09bb6'
+ PREFLIGHT_SHA='b9d0bf56e6c3174ad4ca2c21a43e3c13372c4755575a945437137dc2a1e942c8'
+ BACKEND_SHA='4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f'
++CPU_PATH_BINDING_SHA='02ff21af91dec84b82bc0e46411c479eeb27cf694c01dccbad676fb6e15527f1'
+ SOURCE='a9346022f145cc29439325b6f291597b2e6ec037'
+ FREEZE='15602614ef9d7e9a3e21027e7495f891c98ba32a2b6b0ee9857e5b71d5e5e66d'
+ ENTRY='qualify_llm_intervention_scientific_campaign_gpu.py'
+@@ -283,6 +284,11 @@
+   for n,h in [('namespace.json',self.c['artifacts']['namespace_claim']['sha256']),('original-namespace.json',self.c['artifacts']['original_namespace_claim']['sha256'])]:self.h(n,h)
+   need(self.d['cpu_acceptance_sha256']==p['cpu_acceptance_sha256'],'collector CPU acceptance join')
+   recovery.recovery(self,preflight,aid.decode,raw,aid.validate_inventory)
++  proof_raw=aid.file_bytes(HERE/'recovery-references'/'accepted-cpu-output-start.json',CPU_PATH_BINDING_SHA,maximum=64*1024)
++  proof=recovery.output_path_proof(aid.decode(proof_raw),dict(bytes=len(proof_raw),sha256=sha(proof_raw)),
++      p,self.cpu,self.old,previous['full_inventory']['files'],self.full)
++  self.recorded_campaign_root=proof['resolved_campaign_root']
++  self.facts['recorded_path_binding']=proof
+   self.facts['packet']=dict(source_commit=SOURCE,source_files=len(p['source_names']),inputs=len(p['files']),inner_sha256=self.packet_pin,reused_cpu_acceptance=True)
+  def recovery_fetch_requirements(self):
+   p=aid.decode(self.artifact('inner'))
+@@ -538,6 +544,7 @@
+    need(all(name in known_client for name in self.full if name.startswith(client) and PurePosixPath(name).name.startswith('request-')),'unknown client request member')
+    rows_by_ordinal(self.full,client,r'task-binding-(\d{4})\.json',24)
+    evidence=self.j(G+'controller/'+policy+'-evidence.json');validation=self.t['service_validation'][policy]
++   need(evidence['recorded_campaign_root']==self.recorded_campaign_root,'validator recorded campaign root differs from accepted saved path proof')
+    need(evidence['operational_success'] is evidence['counts_complete'] is evidence['clean_close'] is evidence['closure_confirmed'] is True
+         and evidence['issues']==[] and evidence['worker_evidence_sha256']==validation['worker_inventory']==self.subtree(worker)
+         and validation['attempt_sha256']==evidence['attempt_sha256']==pin and validation['evidence_sha256']==self.h(G+'controller/'+policy+'-evidence.json')
+@@ -593,7 +600,7 @@
+   wire=self.j(clients['wire'][i]);accepted=self.j(clients['accepted'][i]);mapping=self.j(clients['mapping'][i]);ip=digest(identity)
+   need(wire==dict(type='completion',request_id=i,identity_sha256=ip,envelope_sha256=envelope_pin,completion=g['completion'])
+        and accepted==dict(request_id=i,response_sha256=digest(wire),completion=g['completion']) and ctx['proposal']['completion']==g['completion'],'wire/accepted/executor completion join')
+-  need(mapping==dict(episode_directory=self.p['paths']['campaign']+f'/policy-{POLICIES.index(session["policy_id"]):02d}/world-{ctx["index"]:02d}/episode',decision_index=ctx['decision'],session_request_id=i,
++  need(mapping==dict(episode_directory=self.recorded_campaign_root+f'/policy-{POLICIES.index(session["policy_id"]):02d}/world-{ctx["index"]:02d}/episode',decision_index=ctx['decision'],session_request_id=i,
+        task_sha256=g['task_sha256'],task_binding_index=ctx['index'],identity_sha256=ip,status='planned_before_transmission',scope='client_only_episode_to_session_mapping'),'exact episode/session mapping')
+   need(session['generation_evidence'][str(i)]==dict(sha256=self.h(families['generation'][i]),cuda_interval_ms=g['cuda_interval_ms'],peak_gpu_allocated_bytes=g['peak_gpu_allocated_bytes']),'session generation original pin')
+   need(rg['status']=='returned_unaccepted' and rg['tokens_available'] is True and rg['returned_type']=='Tensor' and rg['dtype']=='torch.int64'
