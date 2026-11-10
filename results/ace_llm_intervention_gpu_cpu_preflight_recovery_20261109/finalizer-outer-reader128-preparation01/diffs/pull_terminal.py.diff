@@ -1,0 +1,11 @@
+--- predecessor/pull_terminal.py
++++ successor/pull_terminal.py
+@@ -244,7 +244,7 @@
+     committed(a.packet_commit,a.collector_repository_path,self_bytes)
+     review=read_metadata(a.collector_review,a.collector_review_sha256);need(review.strip(),'independent collector review required')
+     committed(a.packet_commit,str(Path(a.collector_review).absolute().relative_to(REPO)),review)
+-    packet_raw=read_metadata(LAUNCH/'packet.json',a.packet_sha256);packet=decode(packet_raw)
++    packet_raw=read_metadata(LAUNCH/'packet.json',a.packet_sha256,maximum=128*1024**2);packet=decode(packet_raw)
+     pins={**packet['new_input_files'],'packet.json':a.packet_sha256}
+     for name,h in pins.items():
+         need(not Path(name).is_absolute() and all(p not in ('','.','..') for p in name.split('/')) and pin(h),'safe pinned input roster required')

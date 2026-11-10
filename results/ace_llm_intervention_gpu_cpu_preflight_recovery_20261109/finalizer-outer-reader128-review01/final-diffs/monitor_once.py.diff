@@ -1,0 +1,11 @@
+--- predecessor/monitor_once.py
++++ successor/monitor_once.py
+@@ -56,7 +56,7 @@
+     ap=argparse.ArgumentParser(description=__doc__)
+     for n in ('job-id','packet-sha256','submission-result-sha256','packet-directory','evidence-directory'):ap.add_argument('--'+n,required=True)
+     a=ap.parse_args();local=Path(a.packet_directory).resolve(strict=True)
+-    p=b.decode(b.read(local/'packet.json',a.packet_sha256));r=b.decode(b.read(local/'submission.result.json',a.submission_result_sha256))
++    p=b.decode(b.read(local/'packet.json',a.packet_sha256,maximum=128*1024**2));r=b.decode(b.read(local/'submission.result.json',a.submission_result_sha256))
+     b.need(local==b.LOCAL and p['schema']==b.OUTER_VERSION and p['remote_root']==b.ROOT and p['resources']==b.RESOURCES and p['deadlines']==b.DEADLINES,'exact reviewed scientific finalizer packet required')
+     b.need(a.job_id.isdigit() and r['job_id']==a.job_id and r['returncode']==0 and r['ambiguous'] is False and b.pin(r['intent_sha256']),'exact unambiguous original job required')
+     intent=b.decode(b.read(local/'submission.intent.json'))

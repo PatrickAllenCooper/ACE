@@ -1,0 +1,11 @@
+--- packet01/launch_once.py
++++ packet02/launch_once.py
+@@ -200,7 +200,7 @@
+             locks.append(f)
+         local=Path(a.packet_directory).resolve(strict=True)
+         b.need(Path(__file__).resolve()==local/'launch_once.py','use committed concrete launcher only')
+-        packet_raw=b.read(local/'packet.json',a.packet_sha256);packet=b.decode(packet_raw)
++        packet_raw=b.read(local/'packet.json',a.packet_sha256,maximum=128*1024**2);packet=b.decode(packet_raw)
+         b.need(packet['schema']==b.OUTER_VERSION
+             and packet['resources']==b.RESOURCES and packet['deadlines']==b.DEADLINES,
+             'exact frozen scientific campaign packet required')

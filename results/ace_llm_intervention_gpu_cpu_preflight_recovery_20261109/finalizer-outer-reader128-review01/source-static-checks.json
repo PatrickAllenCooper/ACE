@@ -1,0 +1,69 @@
+{
+  "boundary_evidence_pending": true,
+  "changes": {
+    "launch_once.py": {
+      "added": "        packet_raw=b.read(local/'packet.json',a.packet_sha256,maximum=128*1024**2);packet=b.decode(packet_raw)",
+      "ast_call": {
+        "expression": "b.read(local/'packet.json',a.packet_sha256,maximum=128*1024**2)",
+        "line": 203
+      },
+      "removed": "        packet_raw=b.read(local/'packet.json',a.packet_sha256);packet=b.decode(packet_raw)"
+    },
+    "monitor_once.py": {
+      "added": "    p=b.decode(b.read(local/'packet.json',a.packet_sha256,maximum=128*1024**2));r=b.decode(b.read(local/'submission.result.json',a.submission_result_sha256))",
+      "ast_call": {
+        "expression": "b.read(local/'packet.json',a.packet_sha256,maximum=128*1024**2)",
+        "line": 59
+      },
+      "removed": "    p=b.decode(b.read(local/'packet.json',a.packet_sha256));r=b.decode(b.read(local/'submission.result.json',a.submission_result_sha256))"
+    },
+    "pull_terminal.py": {
+      "added": "    packet_raw=read_metadata(LAUNCH/'packet.json',a.packet_sha256,maximum=128*1024**2);packet=decode(packet_raw)",
+      "ast_call": {
+        "expression": "read_metadata(LAUNCH/'packet.json',a.packet_sha256,maximum=128*1024**2)",
+        "line": 247
+      },
+      "removed": "    packet_raw=read_metadata(LAUNCH/'packet.json',a.packet_sha256);packet=decode(packet_raw)"
+    }
+  },
+  "named_outer_maximum_bytes": 134217728,
+  "ordinary_defaults_bytes": 33554432,
+  "publication_lineage_pending": true,
+  "remote_actions": 0,
+  "required_findings_to_date": 0,
+  "source_execution": false,
+  "source_pins": {
+    "build_packet.py": {
+      "after": "c2890210a996d75070aea7df64696562218c9a22f1fe2fecee0e12847518a418",
+      "before": "c2890210a996d75070aea7df64696562218c9a22f1fe2fecee0e12847518a418",
+      "bytes": 99894
+    },
+    "compact_inputs.py": {
+      "after": "d810468058111c02466c3579ee4311ad0b14e5d78297f43f8773919c40bbea0e",
+      "before": "d810468058111c02466c3579ee4311ad0b14e5d78297f43f8773919c40bbea0e",
+      "bytes": 39298
+    },
+    "finalize_llm_intervention_scientific_campaign_cpu.py": {
+      "after": "8a26ada2fc4778981237ca547fa437c620e6510080e93ab334e9762ebee2cf6f",
+      "before": "8a26ada2fc4778981237ca547fa437c620e6510080e93ab334e9762ebee2cf6f",
+      "bytes": 57460
+    },
+    "launch_once.py": {
+      "after": "4508ff44bd2a7c0d8de678bfc18d54b73cf6c2829dfe62835285e1a344e2991c",
+      "before": "aaf4f431576b657b8adbe09d9c1f02fea5cb7d8f7ca6608009ef49052822bdb4",
+      "bytes": 31346
+    },
+    "monitor_once.py": {
+      "after": "4d22fb95146f6e308fab021f35023a491909d03af49b9b5ea4d4bc5c618cf373",
+      "before": "8acbf213cba75c22c5ea83fdb997c198f80feaf071b6aff91b0eff6646e681c1",
+      "bytes": 6127
+    },
+    "pull_terminal.py": {
+      "after": "886cff5acc75668cbfdd385e119104c77fc49c6d919564209ec9a0698eceea15",
+      "before": "c58738e9fc85ff640b96eb6686f92893ab360056013dedcd4c1317baf0462112",
+      "bytes": 36099
+    }
+  },
+  "status": "passed",
+  "tests_rerun": 0
+}
