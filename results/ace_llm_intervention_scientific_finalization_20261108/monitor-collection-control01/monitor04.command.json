@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "-I",
+    "-B",
+    "-c",
+    "import sys,hashlib,types\nfrom pathlib import Path\np=Path(sys.argv[1]);ms=sys.argv[2];bs=sys.argv[3]\nm=p.read_bytes();b=p.with_name(\"build_packet.py\").read_bytes()\nif hashlib.sha256(m).hexdigest()!=ms or hashlib.sha256(b).hexdigest()!=bs:raise ValueError(\"independent monitor/builder source pin mismatch\")\nv=types.ModuleType(\"build_packet\");v.__file__=str(p.with_name(\"build_packet.py\"));sys.modules[\"build_packet\"]=v\nexec(compile(b,v.__file__,\"exec\"),vars(v))\nsys.argv=[str(p),*sys.argv[4:]]\nexec(compile(m,str(p),\"exec\"),{\"__name__\":\"__main__\",\"__file__\":str(p)})\n",
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/launch02/monitor_once.py",
+    "4d22fb95146f6e308fab021f35023a491909d03af49b9b5ea4d4bc5c618cf373",
+    "e46cd29633c9dcd83db174fb77ff5c7acf751553bfb46963129cdb1129a255cb",
+    "--job-id",
+    "35533604",
+    "--packet-sha256",
+    "dcd34d5c040b7a9bf2769736a8ee5fa103090c4ef1af3f7c663cd961eabbc433",
+    "--submission-result-sha256",
+    "044b96cf3225439ecbb4716823a4b243391f5b2fdfeb8b7b4e952ce7d47d130d",
+    "--packet-directory",
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/launch02",
+    "--evidence-directory",
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-finalizer-monitor-20261110-04"
+  ],
+  "cwd": "/Users/pat/code/ACE",
+  "evidence": "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-finalizer-monitor-20261110-04",
+  "scope": "one bounded read-only public marker/scheduler observation, coordinator locks held internally"
+}

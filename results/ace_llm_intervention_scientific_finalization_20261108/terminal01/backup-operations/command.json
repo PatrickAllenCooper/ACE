@@ -1,0 +1,6 @@
+[
+  "bash",
+  "/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh",
+  "run",
+  "python3 -I -B -c 'import sys,hashlib\ndef require(ok,message):\n if not ok:raise ValueError(message)\nline=sys.stdin.buffer.readline(32)\nrequire(line.endswith(b'\"'\"'\\n'\"'\"') and line[:-1].isdigit(),'\"'\"'bounded source length framing required'\"'\"')\nn=int(line);require(0<n<=1048576,'\"'\"'source length bound'\"'\"')\ns=sys.stdin.buffer.read(n)\nrequire(len(s)==n,'\"'\"'truncated helper source'\"'\"')\nrequire(hashlib.sha256(s).hexdigest()==sys.argv[1],'\"'\"'independent helper source SHA differs'\"'\"')\nv={'\"'\"'__name__'\"'\"':'\"'\"'captured_remote_custody'\"'\"','\"'\"'__file__'\"'\"':'\"'\"'<independently-pinned-remote-custody>'\"'\"'}\nexec(compile(s,v['\"'\"'__file__'\"'\"'],'\"'\"'exec'\"'\"'),v)\nv['\"'\"'bind_source'\"'\"'](s,sys.argv[1])\nb=sys.stdin.buffer.read(v['\"'\"'MAX_METADATA'\"'\"']+1)\nrequire(len(b)<=v['\"'\"'MAX_METADATA'\"'\"'],'\"'\"'request metadata bound'\"'\"')\nv['\"'\"'remote_main'\"'\"'](v['\"'\"'decode'\"'\"'](b),sys.stdout.buffer)\n' 4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f"
+]

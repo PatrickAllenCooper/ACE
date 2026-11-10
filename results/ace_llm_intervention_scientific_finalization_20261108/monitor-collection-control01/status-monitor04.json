@@ -1,0 +1,126 @@
+{
+  "acceptance": false,
+  "job_id": "35533604",
+  "markers": {
+    "campaign/finalization-intent.json": {
+      "present": false
+    },
+    "campaign/finalization.candidate.json": {
+      "present": false
+    },
+    "campaign/finalization.json": {
+      "present": false
+    },
+    "finalization/allocation.json": {
+      "bytes": 1585,
+      "mtime_ns": 1794293274678942153,
+      "present": true,
+      "sha256": "38c8b21d0037c9fdaad349d3ea29fd8fb0ce45bc5d25a2a5cb8922347389d203"
+    },
+    "finalization/attempt.json": {
+      "present": false
+    },
+    "finalization/failure.json": {
+      "present": false
+    },
+    "finalization/handoff.json": {
+      "bytes": 305,
+      "mtime_ns": 1794293358399049509,
+      "present": true,
+      "sha256": "a4df0e55a19bc760eb3192355ef2dc911600a1558f7353f096c1c508cc1ec235"
+    },
+    "finalization/stage.json": {
+      "bytes": 1198,
+      "mtime_ns": 1794293358358591628,
+      "present": true,
+      "sha256": "a58d668f5de49e0c01d7c7ca706ce8ee5a0b0c12109b2a8d09e38143dea0d9f8"
+    },
+    "finalization/start.json": {
+      "bytes": 588,
+      "mtime_ns": 1794292404047151477,
+      "present": true,
+      "sha256": "e2640e8a48b3b29c1d9e487434149b0ac296400e0cbe8a8ec39fd366270f3268"
+    },
+    "finalization/worker.cleanup.json": {
+      "present": false
+    },
+    "finalization/worker.resources.json": {
+      "present": false
+    },
+    "finalization/worker.started.json": {
+      "bytes": 1334,
+      "mtime_ns": 1794293358454087105,
+      "present": true,
+      "sha256": "225e656fe9d9adb7cd1d667de78f3f9f4ad7f785c91beb8b3f5cb9824353ca96"
+    },
+    "finalization/worker/attempt.json": {
+      "present": false
+    },
+    "finalization/worker/failure.json": {
+      "present": false
+    },
+    "finalization/worker/runtime-after.json": {
+      "present": false
+    },
+    "finalization/worker/runtime-before.json": {
+      "present": false
+    },
+    "finalization/worker/runtime-ready.json": {
+      "present": false
+    },
+    "finalization/worker/start.json": {
+      "bytes": 588,
+      "mtime_ns": 1794293359410753940,
+      "present": true,
+      "sha256": "90c29837b52d3102a728b873403a8e73a0d793207c223eec9d972ed8b55ce002"
+    },
+    "finalization/worker/terminal.json": {
+      "present": false
+    },
+    "finalization/worker/work-start.json": {
+      "present": false
+    }
+  },
+  "observations": [
+    {
+      "command": [
+        "squeue",
+        "-j",
+        "35533604",
+        "-h",
+        "-o",
+        "%i|%j|%T|%M|%R"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "35533604|ace_llm_scientific_finalization01|RUNNING|18:07|c3cpu-e2-u8\n"
+    },
+    {
+      "command": [
+        "sacct",
+        "-j",
+        "35533604",
+        "--format",
+        "JobIDRaw,JobName%80,State,ExitCode,AllocCPUS,ElapsedRaw,ReqMem,AllocTRES%180,MaxRSS",
+        "-n",
+        "-P"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "35533604|ace_llm_scientific_finalization01|RUNNING|0:0|2|1087|7.50G|billing=2,cpu=2,mem=7.50G,node=1|\n35533604.batch|batch|RUNNING|0:0|2|1087||cpu=2,mem=7.50G,node=1|\n35533604.extern|extern|RUNNING|0:0|2|1087||billing=2,cpu=2,mem=7.50G,node=1|\n"
+    },
+    {
+      "command": [
+        "scontrol",
+        "show",
+        "job",
+        "35533604",
+        "-o"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "JobId=35533604 JobName=ace_llm_scientific_finalization01 UserId=paco0228(348288) GroupId=paco0228pgrp(348288) MCS_label=N/A Priority=17484 Nice=0 Account=ucb736_asc2 QOS=cpu-normal JobState=RUNNING Reason=None Dependency=(null) Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 RunTime=00:18:07 TimeLimit=01:10:00 TimeMin=N/A SubmitTime=2026-11-09T23:32:53 EligibleTime=2026-11-09T23:32:53 AccrueTime=2026-11-09T23:32:53 StartTime=2026-11-09T23:33:18 EndTime=2026-11-10T00:43:18 Deadline=N/A PreemptEligibleTime=2026-11-09T23:33:18 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-11-09T23:33:18 Scheduler=Backfill Partition=acpu AllocNode:Sid=login-ci5:3343208 ReqNodeList=(null) ExcNodeList=(null) NodeList=c3cpu-e2-u8 BatchHost=c3cpu-e2-u8 NumNodes=1 NumCPUs=2 NumTasks=1 CPUs/Task=2 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=2,mem=7.50G,node=1,billing=2 AllocTRES=cpu=2,mem=7.50G,node=1,billing=2 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=2 MinMemoryNode=7.50G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null) Command=/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_finalization_20261108_01/job.sbatch WorkDir=/home/paco0228 StdErr=/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_finalization_20261108_01/logs/35533604.err StdIn=/dev/null StdOut=/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_finalization_20261108_01/logs/35533604.out Switches=1@7-00:00:00 TresPerTask=cpu=2 \n"
+    }
+  ],
+  "utc": "2026-11-10T06:51:25.577086+00:00"
+}

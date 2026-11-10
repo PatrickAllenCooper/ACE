@@ -1,6 +1,17 @@
 # Execution of the renewed ACE intervention research agenda
 
-## Current state: November 9, 2026
+## Current state: November 10, 2026
+
+November 10, 07:51 UTC: the sole finalizer collector completed with exit 0 and zero custody errors. Handoff bfc35146bd6eeb776fd61e5113335d07035096699a042f511b87ab93bf0ebe11 and seal 8b05d07c16d9702107cdd984c8d4c0d0d8603c123ec011b7072d4cc08b3b6d62 preserve the original monitor failure, scheduler reconciliation, complete CURC backup, selected local evidence and all source and command records. Both controller locks are released. This supersedes the active-collector state below.
+
+The complete archive contains 107,284 original files totaling 3,308,319,856 bytes. Its 3,390,535,680-byte projects copy is `/projects/paco0228/ACE_evidence/ace-llm-finalization-20261110-01/raw.tar`, SHA 413c38d990cd7f6a807d8280b8c44ba181da6b59c651faf614643d06f56ea3f9. Original-before, original-after and archive-readback inventories agree. Each local capsule retains 379 selected files totaling 306,334,884 bytes plus verification records. This is selective local custody with a verified full CURC copy, not a claim of full raw storage on the Mac or institutional backup service.
+
+The saved 49-job/100-journal reconciliation records 40,265 allocated CPU seconds and 4,458 GPU-slice seconds, or 43,865 CPU seconds including the single 3,600-second preparation allowance. No compute reservation remains outstanding. The collector used 97.013593 child CPU seconds and 2,765.272798125 elapsed seconds, separate from scheduler allocation and not a whole-cycle cost. Independent finalizer execution and accounting acceptance is now in progress. It must precede the existing 242-report retrieval and interpretation of scientific outcomes. No private utility result has been decoded in this handoff.
+
+
+November 10, 07:03 UTC: scheduler observation3974ab4ee849e1cf593c6eefddc20687c373a7edf5874b4d5e8ae2c177882139 records finalizer35533604 as COMPLETED with exit0:0, 1596 seconds elapsed, 2 allocated CPUs and no GPU. This adds3192 allocated CPU seconds. Full execution acceptance and final accounting remain pending. The sixth ordinary monitor exceeded its1MiB metadata limit. That failure is retained, and a separate bounded scheduler observation established terminal status without changing the job or widening the monitor.
+
+The sole terminal collector b199 is active under both controller locks. It targets the new CURC projects backup `/projects/paco0228/ACE_evidence/ace-llm-finalization-20261110-01` and first finalizer terminal01 capsules. The local capacity check passed with12,660,232,192 bytes available against6,442,450,944 bytes required for the two selected evidence copies. The full archive stays on CURC. Do not duplicate the collector or treat its partial files as complete custody. Independent execution/custody acceptance precedes the242-report retrieval and outcome interpretation.
 
 
 November 10, 06:32:53 UTC: finalizer35533604 was submitted ONCE by correctedlaunch02, with unambiguous result044b96cf3225439ecbb4716823a4b243391f5b2fdfeb8b7b4e952ce7d47d130d, localintent849c9610467de284b38daea5edd6fe27372269d22278d2f853058d22c05f121b and remoteintent7918cd533a5b72f24143d91a251296c4dca3a701043db75bf458aed8bb21512d. Committedpacketfc57d6d796b30a02e12b3c7fc32d9f6394638912 is pushed and independently remote-matched. Newouterdcd34d5c and innerc71 are unchanged. Handoffd7a7f4c87884e71a7fc0436d1d5c3471e38123bfc589d8025780e9c34026ad5c preserves both packet-record copies and exclusive launch-control02 evidence. Both locks were released. No retry or duplicate submission is permitted.
