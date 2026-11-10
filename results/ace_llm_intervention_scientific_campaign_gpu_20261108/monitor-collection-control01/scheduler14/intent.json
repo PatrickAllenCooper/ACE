@@ -1,0 +1,12 @@
+{
+  "automatic_retry": false,
+  "command": [
+    "bash",
+    "/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh",
+    "run",
+    "python3 -I -B -c 'import subprocess,json,signal,datetime\nsignal.signal(signal.SIGALRM,lambda s,f: (_ for _ in ()).throw(TimeoutError(\"scheduler-only monitor deadline\")))\nsignal.alarm(45)\nrows=[]\nfor cmd in [[\"squeue\",\"-j\",\"35516125\",\"-h\",\"-o\",\"%i|%j|%T|%M|%R\"],[\"sacct\",\"-j\",\"35516125\",\"--format\",\"JobIDRaw,JobName%80,State,ExitCode,AllocCPUS,ElapsedRaw,ReqMem,AllocTRES%180,MaxRSS\",\"-n\",\"-P\"],[\"scontrol\",\"show\",\"job\",\"35516125\",\"-o\"]]:\n p=subprocess.run(cmd,capture_output=True,text=True,timeout=12)\n rows.append(dict(command=cmd,returncode=p.returncode,stdout=p.stdout,stderr=p.stderr))\nprint(json.dumps(dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),job_id=\"35516125\",observations=rows,scope=\"scheduler-only after monitor13 bounded evidence failure\",acceptance=False)))\n'"
+  ],
+  "config_sha256": "d1da4d5a9d9cfa367b2d0931a230d996e4f4344704dcdcc2558d2e36b6a6c17b",
+  "utc": "2026-11-10T03:13:04.723428+00:00",
+  "wrapper_sha256": "f7f5aa50ba770f261a6b589aa8fc399d85e66778c58aa4e7e6ddd067cb152d10"
+}

@@ -1,0 +1,73 @@
+{
+  "utc": "2026-11-10T02:56:00.745982+00:00",
+  "scheduler": {
+    "command": [
+      "squeue",
+      "-j",
+      "35516125",
+      "-h",
+      "-o",
+      "%i|%j|%T|%M|%R"
+    ],
+    "returncode": 0,
+    "stdout": "35516125|ace_llm_scientific_campaign_gpu02|RUNNING|13:38|c3gpu-c2-u13\n",
+    "stderr": ""
+  },
+  "telemetry": {
+    "frozen_llm": {
+      "utc": "2026-11-10T02:51:38.583326+00:00",
+      "outer_elapsed_seconds": 551.0100522800349,
+      "service_elapsed_seconds": 466.3611075761728,
+      "policy_id": "frozen_llm",
+      "registered_pid": 310755,
+      "gpu_process_sample": {
+        "owned_rows": [],
+        "returncode": 0,
+        "stderr": ""
+      },
+      "positive_generations": 576,
+      "first_verified_monotonic": 2898764.902441918,
+      "last_gpu_monotonic": 2899210.591308118,
+      "last_generation_monotonic": 2899210.591308118,
+      "uncertainties": [
+        "no current positive owned-process GPU observation"
+      ]
+    },
+    "sft_llm": {
+      "utc": "2026-11-10T02:55:59.107255+00:00",
+      "outer_elapsed_seconds": 811.8175075990148,
+      "service_elapsed_seconds": 259.72082513431087,
+      "policy_id": "sft_llm",
+      "registered_pid": 313018,
+      "gpu_process_sample": {
+        "owned_rows": [
+          "313018, GPU-6913e19b-41a8-03a9-1f48-aae5f6b3c881, 3356"
+        ],
+        "returncode": 0,
+        "stderr": ""
+      },
+      "positive_generations": 350,
+      "first_verified_monotonic": 2899227.229725544,
+      "last_gpu_monotonic": 2899472.781679916,
+      "last_generation_monotonic": 2899472.781679916,
+      "uncertainties": []
+    }
+  },
+  "present_terminals_or_failures": {
+    "gpu/controller/phase/frozen_llm/summary.json": {
+      "present": true,
+      "bytes": 92214,
+      "sha256": "47a6555fb1baa609f7a296a9eea0516edb3702b848d312ff2dbb83fbc0a296fd",
+      "mtime_ns": 1794279098988835000
+    },
+    "gpu/services/frozen_llm/worker/terminal.json": {
+      "present": true,
+      "bytes": 331,
+      "sha256": "983c4125f46e5028059252ea397dc6a490330bfebb153c740221024bae0a040d",
+      "mtime_ns": 1794279096565942540
+    }
+  },
+  "monitor_sha256": "b3ae5c8ddbcaba7b79a8abbc0147604273cafd27f65f772ee230fcca31b448fe",
+  "collector_invocations": 0,
+  "acceptance": false
+}

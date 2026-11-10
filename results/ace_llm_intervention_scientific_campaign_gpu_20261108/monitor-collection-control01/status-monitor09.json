@@ -1,0 +1,104 @@
+{
+  "utc": "2026-11-10T02:59:06.238899+00:00",
+  "scheduler": {
+    "command": [
+      "squeue",
+      "-j",
+      "35516125",
+      "-h",
+      "-o",
+      "%i|%j|%T|%M|%R"
+    ],
+    "returncode": 0,
+    "stdout": "35516125|ace_llm_scientific_campaign_gpu02|RUNNING|16:44|c3gpu-c2-u13\n",
+    "stderr": ""
+  },
+  "telemetry": {
+    "frozen_llm": {
+      "utc": "2026-11-10T02:51:38.583326+00:00",
+      "outer_elapsed_seconds": 551.0100522800349,
+      "service_elapsed_seconds": 466.3611075761728,
+      "policy_id": "frozen_llm",
+      "registered_pid": 310755,
+      "gpu_process_sample": {
+        "owned_rows": [],
+        "returncode": 0,
+        "stderr": ""
+      },
+      "positive_generations": 576,
+      "first_verified_monotonic": 2898764.902441918,
+      "last_gpu_monotonic": 2899210.591308118,
+      "last_generation_monotonic": 2899210.591308118,
+      "uncertainties": [
+        "no current positive owned-process GPU observation"
+      ]
+    },
+    "sft_llm": {
+      "utc": "2026-11-10T02:58:36.092739+00:00",
+      "outer_elapsed_seconds": 968.5379112549126,
+      "service_elapsed_seconds": 416.4412287902087,
+      "policy_id": "sft_llm",
+      "registered_pid": 313018,
+      "gpu_process_sample": {
+        "owned_rows": [],
+        "returncode": 0,
+        "stderr": ""
+      },
+      "positive_generations": 546,
+      "first_verified_monotonic": 2899227.229725544,
+      "last_gpu_monotonic": 2899627.973376815,
+      "last_generation_monotonic": 2899627.973376815,
+      "uncertainties": [
+        "no current positive owned-process GPU observation"
+      ]
+    },
+    "dpo_llm": {
+      "utc": "2026-11-10T02:59:04.910957+00:00",
+      "outer_elapsed_seconds": 997.9955507246777,
+      "service_elapsed_seconds": 28.28095711907372,
+      "policy_id": "dpo_llm",
+      "registered_pid": 314997,
+      "gpu_process_sample": {
+        "owned_rows": [
+          "314997, GPU-6913e19b-41a8-03a9-1f48-aae5f6b3c881, 3356"
+        ],
+        "returncode": 0,
+        "stderr": ""
+      },
+      "positive_generations": 18,
+      "first_verified_monotonic": 2899644.564199488,
+      "last_gpu_monotonic": 2899658.959723042,
+      "last_generation_monotonic": 2899658.959723042,
+      "uncertainties": []
+    }
+  },
+  "present_terminals_or_failures": {
+    "gpu/controller/phase/frozen_llm/summary.json": {
+      "present": true,
+      "bytes": 92214,
+      "sha256": "47a6555fb1baa609f7a296a9eea0516edb3702b848d312ff2dbb83fbc0a296fd",
+      "mtime_ns": 1794279098988835000
+    },
+    "gpu/services/frozen_llm/worker/terminal.json": {
+      "present": true,
+      "bytes": 331,
+      "sha256": "983c4125f46e5028059252ea397dc6a490330bfebb153c740221024bae0a040d",
+      "mtime_ns": 1794279096565942540
+    },
+    "gpu/controller/phase/sft_llm/summary.json": {
+      "present": true,
+      "bytes": 87312,
+      "sha256": "560a2336677d415022c88a4d5839c481e2d25624df26db5003515dad5378ad7c",
+      "mtime_ns": 1794279516513531000
+    },
+    "gpu/services/sft_llm/worker/terminal.json": {
+      "present": true,
+      "bytes": 331,
+      "sha256": "b1902abd304bac84152c0049a9fb589ab52995e787454e9059d7250bc83687bc",
+      "mtime_ns": 1794279514224573861
+    }
+  },
+  "monitor_sha256": "10eee9a0b72f863ce533fa1dd7fb486a4889f3c444534f9bcd932b10f9290aa8",
+  "collector_invocations": 0,
+  "acceptance": false
+}

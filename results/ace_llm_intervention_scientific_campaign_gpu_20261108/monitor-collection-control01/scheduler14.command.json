@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh",
+    "run",
+    "python3 -I -B -c 'import subprocess,json,signal,datetime\nsignal.signal(signal.SIGALRM,lambda s,f: (_ for _ in ()).throw(TimeoutError(\"scheduler-only monitor deadline\")))\nsignal.alarm(45)\nrows=[]\nfor cmd in [[\"squeue\",\"-j\",\"35516125\",\"-h\",\"-o\",\"%i|%j|%T|%M|%R\"],[\"sacct\",\"-j\",\"35516125\",\"--format\",\"JobIDRaw,JobName%80,State,ExitCode,AllocCPUS,ElapsedRaw,ReqMem,AllocTRES%180,MaxRSS\",\"-n\",\"-P\"],[\"scontrol\",\"show\",\"job\",\"35516125\",\"-o\"]]:\n p=subprocess.run(cmd,capture_output=True,text=True,timeout=12)\n rows.append(dict(command=cmd,returncode=p.returncode,stdout=p.stdout,stderr=p.stderr))\nprint(json.dumps(dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),job_id=\"35516125\",observations=rows,scope=\"scheduler-only after monitor13 bounded evidence failure\",acceptance=False)))\n'"
+  ],
+  "cwd": "/Users/pat/code/ACE",
+  "scope": "bounded read-only scheduler fallback after retained monitor13 failure; no output decode or job mutation"
+}

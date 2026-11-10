@@ -1,0 +1,26 @@
+{
+  "automatic_retry": false,
+  "command": [
+    "python3",
+    "-I",
+    "-B",
+    "-c",
+    "import sys,hashlib,types\nfrom pathlib import Path\np=Path(sys.argv[1]);ms=sys.argv[2];bs=sys.argv[3]\nm=p.read_bytes();b=p.with_name(\"build_packet.py\").read_bytes()\nif hashlib.sha256(m).hexdigest()!=ms or hashlib.sha256(b).hexdigest()!=bs:raise ValueError(\"independent monitor/builder source pin mismatch\")\nv=types.ModuleType(\"build_packet\");v.__file__=str(p.with_name(\"build_packet.py\"));sys.modules[\"build_packet\"]=v\nexec(compile(b,v.__file__,\"exec\"),vars(v))\nsys.argv=[str(p),*sys.argv[4:]]\nexec(compile(m,str(p),\"exec\"),{\"__name__\":\"__main__\",\"__file__\":str(p)})\n",
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02/monitor_once.py",
+    "e9d5273f3eb000de9d73f2dc7bb3ee55e1fdc4585fce3e34123afd9bd9248903",
+    "85691a9c7d52e40b334d9e42ea2da67762a955953c115de8a7d58be385935c5a",
+    "--job-id",
+    "35516125",
+    "--packet-sha256",
+    "25fb597c6f475fa0bbfe924062bc439bb197ca0b646cecdae2be1a080010d684",
+    "--submission-result-sha256",
+    "ab4719a46cb68901829bc5617d1321a94021ffca7be89046554c69e9518f51fc",
+    "--packet-directory",
+    "/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/launch02",
+    "--evidence-directory",
+    "/Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-LLM-GPU02-monitor-20261110-08"
+  ],
+  "config_sha256": "24b379ea355da805920b36c2b65cff2f774d121b17136bebad122dd7b2ca6ae1",
+  "utc": "2026-11-10T02:55:56.383093+00:00",
+  "wrapper_sha256": "f7f5aa50ba770f261a6b589aa8fc399d85e66778c58aa4e7e6ddd067cb152d10"
+}
