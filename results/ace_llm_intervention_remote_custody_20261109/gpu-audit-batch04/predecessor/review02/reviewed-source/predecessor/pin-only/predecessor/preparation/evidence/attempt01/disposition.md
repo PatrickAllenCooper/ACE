@@ -1,0 +1,1 @@
+Selection and authority methods passed. Framing method failed before receiver feed because the fixture used macOS /var alias; backend no-follow guard correctly rejected it. Original source/transcripts/fixtures remain. Only fixture root canonicalization changed; extension unchanged. Rerun only affected framing method in attempt02.

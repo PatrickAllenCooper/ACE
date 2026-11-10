@@ -1,0 +1,60 @@
+--- predecessor35541/batch_gpu_audit.py
++++ corrected/batch_gpu_audit.py
+@@ -16,7 +16,6 @@
+ 
+ BACKEND_SHA256 = '4161aa5829d49b6b43e77bb0c3a23b4cfef9c9c5f7e56290d8b94b2444b7df9f'
+ CAMPAIGN = 'cpu/cpu/worker/artifacts/campaign/'
+-GPU_AUDIT_SHA256 = 'e28392bb02adc2441c68be9279704cfec795f6af8d9d587a2bf2b41157318908'
+ LOCK_BASE = Path('/Users/pat/ACE_Study_Results/2026-10-peter-baseline')
+ CPU_KEYS = {'schema','status','cpu_packet_sha256','job_id','allocation','cpu_output','campaign_root',
+  'cpu_output_files','cpu_output_excluded_directory','campaign_files','bundle_path','bundle_sha256',
+@@ -162,7 +161,8 @@
+         b.need(full['files'].get(CAMPAIGN+name,{}).get('sha256')==h, 'accepted CPU campaign input changed')
+     source=base64.b64decode(request['gpu_audit_source'],validate=True)
+     review=base64.b64decode(request['gpu_audit_review'],validate=True)
+-    b.need(0<len(source)<=256*1024 and b.sha(source)==request['gpu_audit_sha256']==GPU_AUDIT_SHA256,
++    b.need(0<len(source)<=256*1024 and b.pin(request['gpu_audit_sha256'])
++           and b.sha(source)==request['gpu_audit_sha256'],
+            'exact independently reviewed GPU audit source required; never import it')
+     b.need(0<len(review)<=128*1024 and review.strip() and b.pin(request['gpu_audit_review_sha256'])
+            and b.sha(review)==request['gpu_audit_review_sha256'], 'independent GPU audit review bytes/pin required')
+@@ -315,19 +315,38 @@
+             destination=destination,helper_path=helper_path,log_dir=log_dir)
+ 
+ 
++def _protect_original_roots(b,request,dest,logs):
++    """No claim may overlap either original capsule or its selected evidence root."""
++    copies=tuple(b.absolute(p) for p in request['custody_seal']['copies'])
++    selected=b.absolute(request['receipt']['local_root'])
++    b.need(len(copies)==2 and copies[0]!=copies[1], 'two distinct original capsule roots required')
++    protected=(*copies,selected)
++    for root in protected:
++        b.need(root==root.resolve(strict=True) and root.is_dir(), 'canonical existing custody directory required')
++        with b.opened(root,directory=True) as fd:
++            b.need(os.path.samestat(os.fstat(fd),root.lstat()), 'original custody directory identity changed')
++    b.need(selected in tuple(p/'remote' for p in copies), 'recorded selected root outside original capsule copies')
++    for candidate in (dest,logs):
++        b.need(candidate==candidate.resolve(strict=False), 'canonical new output/log spelling required')
++        b.need(all(candidate!=root and candidate not in root.parents and root not in candidate.parents
++                   for root in protected), 'output/log overlaps original compact custody or selected evidence')
++
++
+ def _fetch_audit(**args):
+     b=_backend()
+     request=dict(args,action='batch_gpu72_audit',helper_sha256=BACKEND_SHA256,extension_sha256=_BOUND[1])
+     request['gpu_audit_source']=base64.b64encode(request['gpu_audit_source']).decode()
+     request['gpu_audit_review']=base64.b64encode(request['gpu_audit_review']).decode()
+     destination=request['destination']=str(request['destination'])
+-    helper_path=request.pop('helper_path');log_dir=request.pop('log_dir');members=request['members']
++    helper_path=request.pop('helper_path');log_dir=request.pop('log_dir')
+     request=b.decode(b.raw(request))  # detach all caller containers
+     b.need(len(b.raw(request))<=b.MAX_METADATA,'unchanged256MiB combined request bound')
+     full, selection = _selection(b, request)
++    members=request['members']  # validated detached map, never the caller's mutable dictionary
+     dest, logs = b.absolute(destination), b.absolute(log_dir)
+     b.need(not os.path.lexists(dest) and not os.path.lexists(logs), 'exclusive new destinations required')
+     b.need(dest != logs and dest not in logs.parents and logs not in dest.parents, 'disjoint destinations required')
++    _protect_original_roots(b,request,dest,logs)
+     bundle = _bundle(b)
+     # Retain sources, framed stdout (including malformed/partial frames), request,
+     # original receipt and operation records. Account on each actual filesystem.
