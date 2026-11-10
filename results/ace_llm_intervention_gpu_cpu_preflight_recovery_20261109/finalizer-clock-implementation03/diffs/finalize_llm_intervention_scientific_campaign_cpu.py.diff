@@ -1,0 +1,22 @@
+--- clock02/finalize_llm_intervention_scientific_campaign_cpu.py
++++ clock03/finalize_llm_intervention_scientific_campaign_cpu.py
+@@ -40,8 +40,8 @@
+ POLICIES = ('uniform_random', 'menu_coverage', 'local_information', 'target_risk',
+             'learned_ranker', 'frozen_llm', 'sft_llm', 'dpo_llm')
+ RESOURCES = dict(account='ucb736_asc2', partition='acpu', qos='cpu-normal', cpus=2,
+-                 memory_mib=7680, wall_seconds=3600, gpus=0, requeue=False)
+-PREPARATION, REPORT_STARTUP, REPORT_STARTUP_CAP, WORK, CLEANUP, HARD = 1200, 120, 1320, 2820, 2850, 3590
++                 memory_mib=7680, wall_seconds=4200, gpus=0, requeue=False)
++PREPARATION, REPORT_STARTUP, REPORT_STARTUP_CAP, WORK, CLEANUP, HARD = 1500, 120, 1620, 3320, 3350, 4190
+ DEADLINES = dict(preparation=PREPARATION, report_startup=REPORT_STARTUP,
+     report_startup_cap=REPORT_STARTUP_CAP, work=WORK, cleanup=CLEANUP, hard=HARD)
+ PREFLIGHT = 'llm_intervention_cpu_preflight_receipt.py'
+@@ -558,7 +558,7 @@
+     fields = dict(pairs)
+     need(len(fields) == len(pairs) and re.fullmatch('[1-9][0-9]*', job), 'unique scheduler identity required')
+     wanted = dict(JobId=job, JobState='RUNNING', Account='ucb736_asc2', Partition='acpu', QOS='cpu-normal',
+-                  NumCPUs='2', NumTasks='1', NumNodes='1', TimeLimit='01:00:00', Requeue='0', Restarts='0')
++                  NumCPUs='2', NumTasks='1', NumNodes='1', TimeLimit='01:10:00', Requeue='0', Restarts='0')
+     need(all(fields.get(k) == v for k, v in wanted.items()) and fields.get('UserId', '').startswith('paco0228('),
+          'fixed CPU-only finalizer allocation differs')
+     for name in ('AllocTRES', 'ReqTRES'):

@@ -1,0 +1,48 @@
+--- clock02/build_packet.py
++++ clock03/build_packet.py
+@@ -24,12 +24,12 @@
+ ENTRY='finalize_llm_intervention_scientific_campaign_cpu.py'
+ OLD_GPU_ENTRY='qualify_llm_intervention_campaign_gpu.py'
+ FROZEN_ENTRY_SHA='28c5fc6b426cac70cf4bae4895350c560cd43080937a32e41d936f072005b45a'
+-ENTRY_SHA='ec812c0688d04cc5239fe12bbcbb750a3492cfffb119b16d455559b24e674f37'
++ENTRY_SHA='8a26ada2fc4778981237ca547fa437c620e6510080e93ab334e9762ebee2cf6f'
+ VERSION='ace-scientific-campaign-finalizer-phase-clock-v3'
+ OUTER_VERSION='ace-scientific-finalization-phase-clock-launch-v3'
+ RESOURCES=dict(account='ucb736_asc2',partition='acpu',qos='cpu-normal',cpus=2,
+- memory_mib=7680,wall_seconds=3600,gpus=0,requeue=False)
+-DEADLINES=dict(preparation=1200,report_startup=120,report_startup_cap=1320,work=2820,cleanup=2850,hard=3590)
++ memory_mib=7680,wall_seconds=4200,gpus=0,requeue=False)
++DEADLINES=dict(preparation=1500,report_startup=120,report_startup_cap=1620,work=3320,cleanup=3350,hard=4190)
+ FROZEN_DEADLINES=dict(startup=120,work=1140,cleanup=1170,hard=1190)
+ GPU_RESOURCES=dict(account='ucb736_asc2',partition='aa100',qos='gpu-testing',requested_cpus=4,
+  max_allocated_cpus=4,memory_mib=15360,wall_seconds=2880,gpus=1,gpu_type='a100_3g.20gb',requeue=False)
+@@ -846,9 +846,9 @@
+          and (cpu,gpu)==(base['closed_cpu_seconds'],base['closed_gpu_slice_seconds'])
+          and base['preparation_allowance_cpu_seconds']==3600 and base['cpu_admission_seconds']==cpu+3600,
+          'actual complete baseline charge differs')
+-    need(cpu+3600+7200<=57600 and gpu<=7200, 'bounded finalizer allocation exceeds full caps')
++    need(cpu+3600+8400<=57600 and gpu<=7200, 'bounded finalizer allocation exceeds full caps')
+     return dict(closed_cpu_seconds=cpu,closed_gpu_slice_seconds=gpu,preparation_allowance_cpu_seconds=3600,
+-        candidate_cpu_reservation=7200,candidate_gpu_reservation=0,total_cpu_seconds=cpu+10800,total_gpu_seconds=gpu,
++        candidate_cpu_reservation=8400,candidate_gpu_reservation=0,total_cpu_seconds=cpu+12000,total_gpu_seconds=gpu,
+         ceiling_cpu_seconds=57600,ceiling_gpu_seconds=7200)
+ 
+ 
+@@ -857,7 +857,7 @@
+         '--packet',ROOT+'/inputs/packet.json','--packet-sha256',sha(raw(stage)),'--output',ROOT+'/finalization']
+     return ('\n'.join(['#!/bin/bash','#SBATCH --job-name=ace_llm_scientific_finalization01',
+         '#SBATCH --account=ucb736_asc2','#SBATCH --partition=acpu','#SBATCH --qos=cpu-normal','#SBATCH --nodes=1','#SBATCH --ntasks=1',
+-        '#SBATCH --cpus-per-task=2','#SBATCH --mem=7680M','#SBATCH --time=01:00:00','#SBATCH --no-requeue',
++        '#SBATCH --cpus-per-task=2','#SBATCH --mem=7680M','#SBATCH --time=01:10:00','#SBATCH --no-requeue',
+         '#SBATCH --output='+ROOT+'/logs/%j.out','#SBATCH --error='+ROOT+'/logs/%j.err','set -euo pipefail','umask 077',
+         'export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 MKL_THREADING_LAYER=GNU',
+         'export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false PYTHONDONTWRITEBYTECODE=1',
+@@ -1205,7 +1205,7 @@
+             gpu_terminal_mirror=str(ctx['custody_paths'][1]),storage_binding=storage_packet_binding(ctx),prior_jobs=48,prior_journals=98,worlds=24,cells=192,comparisons=28,
+             policy_ids=list(POLICIES),admission=budget(ctx['metadata']['gpu-baseline']),submitted=False,
+             new_training_updates=0,new_responses=0,new_worlds=0,scientific_qualified=False,execution_qualified=False,
+-            sizing='Operational CPU reporting cap3600s2CPU7.5GiB requires separately adopted measured clock support. Private saved-response reporting only in allocated worker. '
++            sizing='Operational CPU reporting cap4200s2CPU7.5GiB requires separately adopted measured clock support. Private saved-response reporting only in allocated worker. '
+                    'Future terminal accounting must preserve all48 prior rows/98journals and extend49/100 with actual charges, including failures.')
+         files['packet.json']=raw(outer)
+         need(not any(os.path.lexists(p) for p in (LOCAL,EXT)), 'exclusive new launch destinations required')

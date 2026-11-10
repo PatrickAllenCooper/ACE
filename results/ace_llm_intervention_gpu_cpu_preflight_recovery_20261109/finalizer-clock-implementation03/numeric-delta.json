@@ -1,0 +1,100 @@
+{
+  "build_packet.py": [
+    {
+      "after": "memory_mib=7680,wall_seconds=4200,gpus=0",
+      "before": "memory_mib=7680,wall_seconds=3600,gpus=0",
+      "occurrences": 1
+    },
+    {
+      "after": "DEADLINES=dict(preparation=1500,report_startup=120,report_startup_cap=1620,work=3320,cleanup=3350,hard=4190)",
+      "before": "DEADLINES=dict(preparation=1200,report_startup=120,report_startup_cap=1320,work=2820,cleanup=2850,hard=3590)",
+      "occurrences": 1
+    },
+    {
+      "after": "cpu+3600+8400<=57600",
+      "before": "cpu+3600+7200<=57600",
+      "occurrences": 1
+    },
+    {
+      "after": "candidate_cpu_reservation=8400",
+      "before": "candidate_cpu_reservation=7200",
+      "occurrences": 1
+    },
+    {
+      "after": "total_cpu_seconds=cpu+12000",
+      "before": "total_cpu_seconds=cpu+10800",
+      "occurrences": 1
+    },
+    {
+      "after": "#SBATCH --time=01:10:00",
+      "before": "#SBATCH --time=01:00:00",
+      "occurrences": 1
+    },
+    {
+      "after": "Operational CPU reporting cap4200s2CPU7.5GiB",
+      "before": "Operational CPU reporting cap3600s2CPU7.5GiB",
+      "occurrences": 1
+    },
+    {
+      "after": "ENTRY_SHA='8a26ada2fc4778981237ca547fa437c620e6510080e93ab334e9762ebee2cf6f'",
+      "before": "ENTRY_SHA='ec812c0688d04cc5239fe12bbcbb750a3492cfffb119b16d455559b24e674f37'",
+      "occurrences": 1
+    }
+  ],
+  "finalize_llm_intervention_scientific_campaign_cpu.py": [
+    {
+      "after": "memory_mib=7680, wall_seconds=4200, gpus=0",
+      "before": "memory_mib=7680, wall_seconds=3600, gpus=0",
+      "occurrences": 1
+    },
+    {
+      "after": "= 1500, 120, 1620, 3320, 3350, 4190",
+      "before": "= 1200, 120, 1320, 2820, 2850, 3590",
+      "occurrences": 1
+    },
+    {
+      "after": "TimeLimit='01:10:00'",
+      "before": "TimeLimit='01:00:00'",
+      "occurrences": 1
+    }
+  ],
+  "launch_once.py": [
+    {
+      "after": "C['baseline']['closed_cpu_seconds']+12000",
+      "before": "C['baseline']['closed_cpu_seconds']+10800",
+      "occurrences": 2
+    },
+    {
+      "after": "duration(fields.get('MaxTime',''))>=4200",
+      "before": "duration(fields.get('MaxTime',''))>=3600",
+      "occurrences": 1
+    },
+    {
+      "after": "2CPU7680M4200s",
+      "before": "2CPU7680M3600s",
+      "occurrences": 1
+    },
+    {
+      "after": "duration(qr[0][1])>=4200",
+      "before": "duration(qr[0][1])>=3600",
+      "occurrences": 1
+    }
+  ],
+  "pull_terminal.py": [
+    {
+      "after": "memory_mib=7680,wall_seconds=4200,gpus=0",
+      "before": "memory_mib=7680,wall_seconds=3600,gpus=0",
+      "occurrences": 1
+    },
+    {
+      "after": "[job,'acpu','cpu-normal','70']",
+      "before": "[job,'acpu','cpu-normal','60']",
+      "occurrences": 1
+    },
+    {
+      "after": "0<=elapsed<=4200",
+      "before": "0<=elapsed<=3600",
+      "occurrences": 1
+    }
+  ]
+}

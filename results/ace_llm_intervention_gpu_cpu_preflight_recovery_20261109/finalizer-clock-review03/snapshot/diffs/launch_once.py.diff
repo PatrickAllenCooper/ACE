@@ -1,0 +1,38 @@
+--- clock02/launch_once.py
++++ clock03/launch_once.py
+@@ -247,7 +247,7 @@
+  need(all(r[2].split()[0] in ('COMPLETED','FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL') for r in rows),
+       'nonterminal historical job')
+  need(cost(rows)==(C['baseline']['closed_cpu_seconds'],C['baseline']['closed_gpu_slice_seconds']),'closed costs changed')
+- need(C['baseline']['closed_cpu_seconds']+10800<=57600 and C['baseline']['closed_gpu_slice_seconds']<=7200,'full finalizer cap exceed budget')
++ need(C['baseline']['closed_cpu_seconds']+12000<=57600 and C['baseline']['closed_gpu_slice_seconds']<=7200,'full finalizer cap exceed budget')
+  journals={str(p):sha(read(p)) for d in root.parent.glob('ace_llm_intervention*')
+            for p in d.glob('submission.*.json')}
+  need(len(journals)==C['baseline']['submission_journals'] and journals==C['baseline']['journal_pins'],
+@@ -255,7 +255,7 @@
+  partition=run(['scontrol','show','partition','acpu','-o'])
+  fields=dict(x.split('=',1) for x in partition.split() if '=' in x)
+  need(fields.get('PartitionName')=='acpu' and fields.get('State')=='UP' and fields.get('MaxMemPerCPU')=='3840'
+-      and duration(fields.get('MaxTime',''))>=3600,'2CPU7680M3600s partition feasibility changed')
++      and duration(fields.get('MaxTime',''))>=4200,'2CPU7680M4200s partition feasibility changed')
+  need(allows(fields.get('AllowAccounts',''),'ucb736_asc2') and allows(fields.get('AllowQos',''),'cpu-normal')
+       and 'ucb736_asc2' not in fields.get('DenyAccounts','').split(',') and 'cpu-normal' not in fields.get('DenyQos','').split(','),
+       'partition account/QoS admission differs')
+@@ -265,7 +265,7 @@
+       and ar[0][4]!='0' and 'cpu-normal' in ar[0][5].split(','),'account CPU QoS differs')
+  qos=run(['sacctmgr','-n','-P','show','qos','where','name=cpu-normal','format=Name,MaxWall'])
+  qr=[l.split('|') for l in qos.splitlines() if l.strip()]
+- need(len(qr)==1 and qr[0][0]=='cpu-normal' and (qr[0][1]=='' or duration(qr[0][1])>=3600),'live CPU QoS wall insufficient')
++ need(len(qr)==1 and qr[0][0]=='cpu-normal' and (qr[0][1]=='' or duration(qr[0][1])>=4200),'live CPU QoS wall insufficient')
+  manifest=pathlib.Path(C['manifest']['path']);archive=pathlib.Path(C['archive']['path'])
+  need(sha(read(manifest))==C['manifest']['sha256'],'accepted runtime manifest changed')
+  st=archive.lstat()
+@@ -290,7 +290,7 @@
+              existing_namespace_claim_sha256=C['namespace_claim_sha256'],
+              original_namespace_claim_sha256=C['original_namespace_claim_sha256'],
+              closed_cpu_seconds=C['baseline']['closed_cpu_seconds'],closed_gpu_slice_seconds=C['baseline']['closed_gpu_slice_seconds'],
+-             cpu_reserved_total=C['baseline']['closed_cpu_seconds']+10800,gpu_reserved_total=C['baseline']['closed_gpu_slice_seconds'])
++             cpu_reserved_total=C['baseline']['closed_cpu_seconds']+12000,gpu_reserved_total=C['baseline']['closed_gpu_slice_seconds'])
+ def verify():
+  need(root.is_dir() and root==root.resolve() and root.stat().st_uid==os.getuid(),'exclusive owned scratch root changed')
+  fs=os.statvfs(root);need(fs.f_bavail*fs.f_frsize>=10*1024**3,'fresh scratch headroom insufficient')

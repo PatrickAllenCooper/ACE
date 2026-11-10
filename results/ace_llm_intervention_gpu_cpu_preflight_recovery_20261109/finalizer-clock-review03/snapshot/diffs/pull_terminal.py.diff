@@ -1,0 +1,29 @@
+--- clock02/pull_terminal.py
++++ clock03/pull_terminal.py
+@@ -12,7 +12,7 @@
+ ROOT='/scratch/alpine/paco0228/ACE/results/ace_llm_intervention_scientific_finalization_20261108_01'
+ HELPER='/Users/pat/.codex/skills/curc-access/scripts/curc-access.sh'
+ TERMINAL={'COMPLETED','FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL','PREEMPTED','BOOT_FAIL','DEADLINE','REVOKED'}
+-RESOURCES=dict(account='ucb736_asc2',partition='acpu',qos='cpu-normal',cpus=2,memory_mib=7680,wall_seconds=3600,gpus=0,requeue=False)
++RESOURCES=dict(account='ucb736_asc2',partition='acpu',qos='cpu-normal',cpus=2,memory_mib=7680,wall_seconds=4200,gpus=0,requeue=False)
+ 
+ def need(ok,message):
+     if not ok:raise ValueError(message)
+@@ -133,7 +133,7 @@
+             r=rows[0]
+             try:requested=tres(r[4])
+             except ValueError as exc:errors.append(str(exc))
+-            request_identity=r[:4]==[job,'acpu','cpu-normal','60'] and r[5]=='paco0228'
++            request_identity=r[:4]==[job,'acpu','cpu-normal','70'] and r[5]=='paco0228'
+     fields={};allocation_pin=files.get('launch/finalization/allocation.json',{}).get('sha256')
+     if allocation_pin:
+         try:
+@@ -146,7 +146,7 @@
+     no_requeue=fields.get('JobId')==job and fields.get('Requeue')=='0' and fields.get('Restarts')=='0'
+     matched=(request_identity and cpu_tres(requested) and cpu_tres(allocated) and no_requeue
+         and normalized[1]=='ace_llm_scientific_finalization01' and normalized[6]=='ucb736_asc2'
+-        and cpus==2 and gpu==0 and 0<=elapsed<=3600)
++        and cpus==2 and gpu==0 and 0<=elapsed<=4200)
+     if not matched:errors.append('CPU finalizer identity/request/allocation/no-requeue/wall differs or unavailable')
+     if gpu is None:errors.append('unknown accelerator charge; never infer zero')
+     return dict(resource_contract_matched=matched,errors=errors,expected=RESOURCES,requested_tres=requested,

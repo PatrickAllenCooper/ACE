@@ -1,0 +1,174 @@
+{
+  "accepted_artificial_finalization": {
+    "after_terminal_to_outer_end_seconds": 0.3712340639882217,
+    "cell_count_linear_scenario_seconds": 88.38807627898724,
+    "cells": 16,
+    "curve_point_linear_scenario_seconds": 257.70643480530305,
+    "curve_points": 76,
+    "curve_points_per_cell": {
+      "max": 5,
+      "mean": 4.75,
+      "min": 3,
+      "n": 16,
+      "sum": 76
+    },
+    "outer_wall_seconds": 51.98114527898724,
+    "point_query_linear_sensitivity_seconds": 884.8114663842505,
+    "point_query_predictions": 152,
+    "readiness_offset_seconds": 48.30019021499902,
+    "report_through_terminal_utc_seconds": 3.309721,
+    "runtime_stage_seconds": 32.35920544000692,
+    "warning": "UTC report interval includes after-report validation/publication. Monotonic cleanup interval is a cross-check, not pure evaluator time. 4800 points means192*(initial+24 acquisitions); reports use only actually retained points. 8 vs2 queries,2/3-node artificial to all3-node graphs and larger input inventories are unmeasured costs. Point-query sensitivity assumes ALL report time scales with predictions, though validation/fitting/IO differ; neither scenario is a bound.",
+    "work_start_through_child_cleanup_monotonic_seconds": 3.3605660909961443
+  },
+  "accepted_scientific_cpu_runtime_staging": {
+    "elapsed_seconds": 48.009518578182906,
+    "end_utc": "2026-11-09T17:52:10.641760+00:00",
+    "process_cpu_seconds": 25.532201128,
+    "start_utc": "2026-11-09T17:51:22.632245+00:00"
+  },
+  "all_input_pins": {
+    "results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/remote/launch/cpu/phase-0000.json": {
+      "bytes": 186,
+      "sha256": "437ab587b3801b76c35361239acf4cfec4249dae17074d918a18e08d3016b3cb"
+    },
+    "results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/remote/launch/cpu/phase-0101.json": {
+      "bytes": 192,
+      "sha256": "481ed7c207367ab4f1105674fc498561220bf9bb16964084d5c477154c6b1125"
+    },
+    "results/ace_llm_intervention_scientific_campaign_gpu_20261108/failure-acceptance01/baseline.json": {
+      "bytes": 26948,
+      "sha256": "cf0982dc0ac3f482c32665e710f06b98eef679d2a4b74ecdf989a7acaa3360ef"
+    },
+    "results/ace_llm_intervention_scientific_campaign_gpu_20261108/failure-acceptance01/resource-reconciliation.json": {
+      "bytes": 8573,
+      "sha256": "bb437f154a0617c17b545b62e48ad5fc9b5a4c2f54fd4ee783d5d0528fa61182"
+    },
+    "results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal01/inventory_after_transport.json": {
+      "bytes": 53377671,
+      "sha256": "4303d7d4ef775ac133dde12b3d2ac875b7c31ed2382b45abd0c6cc6a55a188ac"
+    },
+    "results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal01/inventory_transport.json": {
+      "bytes": 53377715,
+      "sha256": "f9c7dc2ecf1e0c91990e2c7d787abea37187fa520675ad580a1a7f5359f8d9d3"
+    },
+    "results/ace_llm_intervention_scientific_resource_preparation_20261108/preparation01/saved-timing-analysis/attempt03/derived/receipt.json": {
+      "bytes": 20333,
+      "sha256": "b131faa64dcbf0e1e68838f831399e3d5e5b30fc0e1be29f40a73b4591ba5f72"
+    }
+  },
+  "allocation_authorized": false,
+  "conservative_budget": {
+    "available_cpu_seconds_for_finalizer_and_any_new_cpu_job": 12239,
+    "closed_cpu_seconds": 30241,
+    "closed_gpu_seconds": 2750,
+    "existing_1200_cap_cpu_reservation": 2400,
+    "existing_cap_remaining_cpu_seconds": 9839,
+    "gpu02_max_cpu_reservation": 11520,
+    "gpu02_max_gpu_reservation": 2880,
+    "gpu_remaining_after_max": 1570,
+    "illustrative_4800_cap_cpu_reservation": 9600,
+    "illustrative_900_second_2cpu_measurement_reservation": 1800,
+    "illustrative_combined_remaining_cpu_seconds": 839,
+    "preparation_allowance_cpu_seconds": 3600
+  },
+  "created_utc": "2026-11-10T01:37:03.164164+00:00",
+  "gpu01_failure": {
+    "allocated_cpu_seconds": 980,
+    "elapsed_seconds": 245,
+    "job_id": "35498218",
+    "latency_cause_identified": false,
+    "no_complete_first_inventory_timing": true,
+    "process_total_cpu_seconds": 6.755,
+    "startup_alarm_seconds": 240
+  },
+  "limits": [
+    "Login metadata reads are not a compute-node benchmark; the failed compute read did not complete.",
+    "No GPU02 output inventory or actual report-demand count is supplied; those remain future.",
+    "885-second reporting value is an old sensitivity, not a measured upper bound.",
+    "No runtime staging, source execution, model or private outcome was performed."
+  ],
+  "resource_admission_accepted": false,
+  "saved_login_inventory_observations": {
+    "inventory_after_transport.json": {
+      "counter_scope": "root walk followed by separately pinned file/journal rereads; last sample is not a unique-file count or final completion timestamp",
+      "cpu_root_counter_interval": [
+        184,
+        35934
+      ],
+      "cpu_root_read_count": 35751,
+      "cpu_root_saved_segment_seconds_lower": 74.10566231596749,
+      "cpu_root_saved_segment_seconds_upper": 93.59995537099894,
+      "full_raw_files": 72557,
+      "last_progress_elapsed_seconds": 359.7844513080199,
+      "last_progress_files": 145000,
+      "observation_utc": "2026-11-09T22:40:30.982223+00:00",
+      "outer_sample_counters": [
+        0,
+        36000
+      ],
+      "progress_samples": 145,
+      "root_file_counts": {
+        "common": 30693,
+        "cpu": 35751,
+        "failed-token01": 200,
+        "failed01": 144,
+        "launch": 183,
+        "token": 569,
+        "training": 5015
+      },
+      "root_order": [
+        "launch",
+        "cpu",
+        "training",
+        "token",
+        "failed-token01",
+        "common",
+        "failed01"
+      ],
+      "transport_utc": "2026-11-09T22:46:32.850513+00:00"
+    },
+    "inventory_transport.json": {
+      "counter_scope": "root walk followed by separately pinned file/journal rereads; last sample is not a unique-file count or final completion timestamp",
+      "cpu_root_counter_interval": [
+        184,
+        35934
+      ],
+      "cpu_root_read_count": 35751,
+      "cpu_root_saved_segment_seconds_lower": 66.50179207697511,
+      "cpu_root_saved_segment_seconds_upper": 89.23381718096789,
+      "full_raw_files": 72557,
+      "last_progress_elapsed_seconds": 295.429893070017,
+      "last_progress_files": 145000,
+      "observation_utc": "2026-11-09T22:24:12.370227+00:00",
+      "outer_sample_counters": [
+        0,
+        36000
+      ],
+      "progress_samples": 145,
+      "root_file_counts": {
+        "common": 30693,
+        "cpu": 35751,
+        "failed-token01": 200,
+        "failed01": 144,
+        "launch": 183,
+        "token": 569,
+        "training": 5015
+      },
+      "root_order": [
+        "launch",
+        "cpu",
+        "training",
+        "token",
+        "failed-token01",
+        "common",
+        "failed01"
+      ],
+      "transport_utc": "2026-11-09T22:29:09.685429+00:00"
+    }
+  },
+  "schema": "ace-finalizer-clock-saved-evidence-v1",
+  "scientific_qualified": false,
+  "scope": "new read-only timing derivation, not custody re-audit or workload replay",
+  "throughput_bound": false
+}
