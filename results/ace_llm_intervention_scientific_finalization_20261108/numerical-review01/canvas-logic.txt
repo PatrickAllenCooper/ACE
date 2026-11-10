@@ -1,0 +1,84 @@
+;
+const POLICIES = DATA.groups[0].policies;
+const NAMES: Record<string,string> = Object.fromEntries(POLICIES.map(p=>[p.policy_id,p.label]));
+const ACTIONS: Record<string,string> = {observe_all:"Observe X, Y, Z",set_x_neg:"Intervene X = −1",set_x_zero:"Intervene X = 0",set_x_pos:"Intervene X = 1",set_y_neg:"Intervene Y = −1",set_y_zero:"Intervene Y = 0",set_y_pos:"Intervene Y = 1",set_xy:"Intervene X = −1, Y = 1"};
+const f=(x:number,n=3)=>x.toFixed(n);
+function ErrorPoints({world,left,right}:{world:number;left:string;right:string}) {
+ const t=useHostTheme();
+ const sets=[left,right].map(p=>DATA.curves.filter(x=>x.world_id===world && x.policy_id===p));
+ const maximum=Math.max(.05,...sets.flatMap(s=>s.map(p=>p.normalized_mse)))*1.08;
+ const x=(v:number)=>70+(v-8)/24*650;
+ const y=(v:number)=>260-v/maximum*220;
+ return <Stack gap={8}>
+  <Row wrap gap={20}><Text><span style={{color:t.accent.primary}}>●</span> {NAMES[left]}</Text><Text><span style={{color:t.text.secondary}}>■</span> {NAMES[right]}</Text></Row>
+  <svg viewBox="0 0 780 315" style={{width:"100%",maxWidth:900}} role="img" aria-label={`Saved error at each evaluated total cost for system ${world}. Points only, no interpolation.`}>
+   <text x={70} y={18} fontSize={12} fill={t.text.secondary}>Normalized mean squared error, lower is better</text>
+   {[0,.25,.5,.75,1].map(a=><g key={a}><line x1={70} y1={y(a*maximum)} x2={720} y2={y(a*maximum)} stroke={t.stroke.tertiary}/><text x={60} y={y(a*maximum)+4} textAnchor="end" fontSize={11} fill={t.text.secondary}>{(a*maximum).toFixed(maximum<1?3:2)}</text></g>)}
+   {[8,12,16,20,24,28,32].map(v=><g key={v}><line x1={x(v)} y1={40} x2={x(v)} y2={260} stroke={t.stroke.tertiary}/><text x={x(v)} y={280} textAnchor="middle" fontSize={11} fill={t.text.secondary}>{v}</text></g>)}
+   <line x1={70} x2={720} y1={y(.04)} y2={y(.04)} stroke={t.text.tertiary} strokeDasharray="5 4"/>
+   <text x={725} y={y(.04)+4} fill={t.text.secondary} fontSize={11}>0.04</text>
+   {sets[0].map(p=><circle key={p.total_cost_units} cx={x(p.total_cost_units)} cy={y(p.normalized_mse)} r={4.5} fill={t.accent.primary}><title>{NAMES[left]} · cost {p.total_cost_units} · NMSE {p.normalized_mse} · {p.action_id?ACTIONS[p.action_id]:"Shared initialization"}</title></circle>)}
+   {sets[1].map(p=><rect key={p.total_cost_units} x={x(p.total_cost_units)-3} y={y(p.normalized_mse)-3} width={6} height={6} fill={t.text.secondary}><title>{NAMES[right]} · cost {p.total_cost_units} · NMSE {p.normalized_mse} · {p.action_id?ACTIONS[p.action_id]:"Shared initialization"}</title></rect>)}
+   <text x={395} y={306} textAnchor="middle" fontSize={12} fill={t.text.secondary}>Total paid cost units, including 8 initial units</text>
+  </svg>
+  <Text tone="secondary" size="small">Source: all saved evaluated prefixes for the selected system, November 8–10, 2026. Points are not interpolated. The dashed line is the 0.04 target. Axes rescale to include every displayed error.</Text>
+ </Stack>;
+}
+export default function ACEComparison() {
+ const theme=useHostTheme();
+ const [groupId,setGroupId]=useState("all");
+ const [left,setLeft]=useState("dpo_llm");
+ const [right,setRight]=useState("target_risk");
+ const [worldId,setWorldId]=useState(String(DATA.worlds[0].id));
+ const [actionPolicy,setActionPolicy]=useState("dpo_llm");
+ const group=DATA.groups.find(x=>x.id===groupId)!;
+ const pair=group.pairs.find(x=>x.left===left && x.right===right || x.left===right && x.right===left)!;
+ const sign=pair.left===left?1:-1;
+ const diff=pair.differences.map(v=>v*sign);
+ const lwin=diff.filter(v=>v<0).length, ties=diff.filter(v=>v===0).length, loss=diff.filter(v=>v>0).length;
+ const world=DATA.worlds.find(w=>String(w.id)===worldId)!;
+ const wcells=DATA.cells.filter(x=>String(x.world_id)===worldId);
+ const options=POLICIES.map(p=>({value:p.policy_id,label:p.label}));
+ const pairRows=group.pairs.map(p=>[NAMES[p.left],NAMES[p.right],f(p.mean_difference),p.wins,p.ties,p.losses]);
+ const actionRows=Object.keys(ACTIONS).map(a=>[ACTIONS[a],DATA.actions.find(x=>x.policy_id===actionPolicy && x.action_id===a)?.accepted_acquisitions??0]);
+ const actionTotal=DATA.actions.filter(x=>x.policy_id===actionPolicy).reduce((a,x)=>a+x.accepted_acquisitions,0);
+ const choice=DATA.curves.filter(x=>x.world_id===world.id && x.policy_id===left);
+ return <Stack gap={20} style={{maxWidth:1150,margin:"0 auto",padding:24}}>
+  <H1>The trained LLM did not improve intervention efficiency</H1>
+  <Text>All 192 runs completed across 24 synthetic systems and eight policies. Direct SCM target-risk planning had the lowest average capped cost to target. DPO always chose X = −1 in the recorded acquired actions.</Text>
+  <Callout tone="info">This is a development screen, not confirmation or a real compressor study. Every policy uses the same SCM learner. There is no SCM-free comparison. Cost to first crossing is evaluated retrospectively and does not describe autonomous stopping.</Callout>
+  <H2>Cost and accuracy across all policies</H2>
+  <Row wrap><Text>Predeclared group</Text><Select value={groupId} onChange={setGroupId} options={DATA.groups.map(g=>({value:g.id,label:g.label}))}/><Text tone="secondary">{group.world_ids.length} systems, equal weight per system</Text></Row>
+  <Text weight="semibold">Mean capped total cost to the 0.04 error target</Text>
+  <Text tone="secondary" size="small">Vertical axis: intervention policy. Horizontal axis: total cost units including initialization. Lower is better.</Text>
+  <BarChart categories={group.policies.map(p=>p.label)} series={[{name:"Mean capped total cost units",data:group.policies.map(p=>p.mean_capped_total_cost),tone:"neutral"}]} horizontal height={330} yMin={0} yMax={32} showValues/>
+  <Text tone="secondary" size="small">Source: frozen campaign summary 3f17abf3, November 8–10, 2026. Nonattainment uses the 32-unit cap. Ten of the 24 systems already met the target at initialization. All policies and systems remain included.</Text>
+  <Table headers={["Policy","Capped cost","Ever target","Final target","Final NMSE","Actual paid cost"]} rows={group.policies.map(p=>[p.label,f(p.mean_capped_total_cost),`${p.ever_attained}/${p.world_count}`,`${p.final_attained}/${p.world_count}`,f(p.mean_final_error,5),f(p.actual_total_cost/p.world_count)])} columnAlign={["left","right","right","right","right","right"]}/>
+  <Text tone="secondary" size="small">Cost and NMSE columns are equal-system means. Ever and final target columns are counts. Final NMSE uses the final evaluable SCM state. No failed or unresolved cells occur. Actual paid cost is separate from first crossing.</Text>
+  <Divider/>
+  <H2>Paired differences on the same systems</H2>
+  <Row wrap><Text>Left policy</Text><Select value={left} options={options} onChange={v=>{setLeft(v);if(v===right)setRight(left)}}/><Text>Right policy</Text><Select value={right} options={options} onChange={v=>{setRight(v);if(v===left)setLeft(right)}}/></Row>
+  <Text>{NAMES[left]} has lower capped cost on {lwin}, ties on {ties}, and higher cost on {loss} systems in this group. Mean left-minus-right difference: {f(pair.mean_difference*sign)} cost units.</Text>
+  <Text tone="secondary" size="small">Horizontal axis: system ID suffix. Vertical axis: left minus right total cost units. Negative values favor the left policy. A cap tie is not proof of success.</Text>
+  <BarChart categories={pair.world_ids.map(w=>String(w).slice(-3))} series={[{name:"Left minus right cost units",data:diff,tone:"info"}]} height={250} yMin={-24} yMax={24} showValues={false} referenceLines={[{value:0,label:"Equal cost"}]}/>
+  <Text tone="secondary" size="small">Source: all paired saved reports in the selected predeclared group. No significance tests or outcome-based system filtering.</Text>
+  <details><summary style={{cursor:"pointer",color:theme.text.secondary}}>All 28 paired comparisons for this group</summary><Table headers={["Left","Right","Mean left − right","Left lower","Ties","Left higher"]} rows={pairRows}/></details>
+  <Divider/>
+  <H2>Inspect any system and its recorded interventions</H2>
+  <Row wrap><Text>System</Text><Select value={worldId} onChange={setWorldId} options={DATA.worlds.map(w=>({value:String(w.id),label:`${w.index.toString().padStart(2,"0")} · ${w.regime} · ${w.graph_stratum} · ${w.cost_stratum}`}))}/></Row>
+  <Text>System {world.id}. Graph: {world.graph_stratum === "chain"?"X → Y → Z":world.graph_stratum === "fork"?"X → Y and X → Z":"X → Z and Y → Z"}. Cost menu: {world.cost_stratum}. The two policies selected above are shown below.</Text>
+  <ErrorPoints world={world.id} left={left} right={right}/>
+  <Table headers={["Policy","Capped cost","Final NMSE","Final target","Actually paid","Ending"]} rows={wcells.map(c=>[NAMES[c.policy_id],c.capped_total_cost,f(c.final_error,5),c.final_attained?"Met":"Not met",c.actual_total_cost,c.termination_reason.replaceAll("_"," ")])}/>
+  <details><summary style={{cursor:"pointer",color:theme.text.secondary}}>Recorded sequence for {NAMES[left]} in this system</summary><Table headers={["Total cost units","Action","Private NMSE"]} rows={choice.map(p=>[p.total_cost_units,p.action_id?ACTIONS[p.action_id]:"Eight initial observations",f(p.normalized_mse,6)])}/></details>
+  <Divider/>
+  <H2>What the policies actually selected</H2>
+  <Row wrap><Select value={actionPolicy} options={options} onChange={setActionPolicy}/><Text>{actionTotal} accepted acquired actions across all 24 systems</Text></Row>
+  <Table headers={["Acquisition","Count"]} rows={actionRows} columnAlign={["left","right"]}/>
+  <Text tone="secondary" size="small">Source: action IDs in all saved cost curves. Counts exclude prescribed initial observations and stop commands. Action counts are not cost units under heterogeneous costs. DPO: 576/576 actions set X = −1. Frozen LLM: 574/576 observations. SFT: 481/523 actions set X = −1.</Text>
+  <H2>What this means for ACE</H2>
+  <Text>The present DPO recipe is not ready to support an intervention-efficiency headline. The useful next diagnostic is whether the policy responds to changes in the SCM posterior, task and costs. Keep the target-risk planner and the other numerical controls. A new training recipe needs fresh held-out systems and a separate freeze.</Text>
+  <Text>The adapters received 160 supervised and 119 preference updates on 32 separate training systems. Policy weights remained fixed during development episodes while the SCM updated online. Training collection cost 10,240 response-cost units. DPO spent the full deployment budget, so retrospective first-crossing values are not actual budget savings.</Text>
+  <Text tone="secondary" size="small">Large artifacts remain in the verified CURC projects archive. The local report set is 242 files / 4,403,819 bytes. Execution acceptance is separate from this display. The original reports and their scope flags are unchanged. Full paired data, all curves and verification lineage accompany the writeup.</Text>
+  <Link href="/Users/pat/code/ACE/docs/development/guidance/ace_llm_intervention_24_system_results_2026-11-10.md">Open the results writeup and evidence links</Link>
+ </Stack>;
+}
