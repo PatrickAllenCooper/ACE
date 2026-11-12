@@ -1,0 +1,172 @@
+# results-analysis
+## SUMMARY
+Read-only re-analysis of the saved 24-system data (cells.csv, 192 runs; curves.csv, 4,540 points). Scripts and outputs are in /private/tmp/claude-501/-Users-pat--claude-spares-spare-
+  Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/results-analysis/. Every documented number reproduces. Main conclusion: this screen could neither support nor refute an LLM benefit. Ten of 24 systems are at
+  target after initialization, the absolute ceiling above target risk (TR) is 3.04 cost units per system, the hindsight best-of-8 envelope (2.04) is plausibly mostly selection among noisy runs, and the minimum detectable
+  difference at 24 systems (3.7 units) exceeds the ceiling. Single runs carry large replicate noise. TR is separated only from dpo, random and sft. The ranker and the three LLM arms are indistinguishable from random and
+  from each other. TR and local_info cannot be ranked. Strong-policy behavior is an action mix plus one sign bit, and a fixed coverage cycle is within noise of TR. All statistics are descriptive, post hoc, development-
+  data numbers.
+
+## KEY FACTS
+[1] (verified) policies.csv, all 28 pairs.csv rows, actions.csv and every figure quoted in the handoff and results report reproduce from cells.csv and curves.csv. 0 of 192 runs are inconsistent.
+    EVIDENCE: a01_sanity.py on /Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/reporting01/data01/
+[2] (verified) The 10 systems at target after initialization are 5/8 chains, 5/8 forks, 0/8 colliders; 7/12 matched and 3/12 shifted regime; 6/12 uniform and 4/12 heterogeneous menu. Three more start within 12.5 percent
+  of the threshold. On 3 systems an all-zero prediction already meets 0.04.
+    EVIDENCE: a02_persystem.py, a21_scale.py; true target means reconstructed by least squares in a09_truth.py (max residual 3e-15)
+[3] (verified) Headroom: TR totals 279 cost units, the best-of-8 envelope 230 (saves 49, of which 42 on five systems), the trivial floor 206 (ceiling 73, or 3.04 per system). Some arm beats TR on 8 systems.
+    EVIDENCE: a03_headroom.py
+[4] (verified) At the median paired SD (6.2) the 24-system minimum detectable difference is 3.7 cost units, above the 3.04 ceiling. An oracle at the floor would have had power 0.68.
+    EVIDENCE: a15_threshold.py, a16_sensitivity.py (noncentral-t computation)
+[5] (verified) Arms do not share measurement noise (0 of 293 same-first-action pairs give identical predictions). dpo and sft ran an identical x- prefix of at least 10 actions in every system; their capped costs at cap
+  18 differ on 7 of 14 informative systems, and log10 NMSE at equal cost differs with SD 0.35 to 0.58.
+    EVIDENCE: a04_noise_twins.py, a05_twin_cost.py; /Users/pat/code/ACE/scripts/research/llm_intervention_screen_protocol.py lines 148-152
+[6] (inferred) The best-of-8 envelope is largely selection: best-of-two runs of one policy already gains 0.63 units per system at cap 18, against 1.29 for the envelope over TR.
+    EVIDENCE: a16_sensitivity.py, a22_misc.py
+[7] (verified) Predeclared endpoint, policy minus TR (exact sign-flip p): dpo +3.54 (0.0068, Holm 0.048), random +2.63 (0.011), sft +3.00 (0.022), local_info +0.33 (0.84), coverage, ranker and frozen 0.18 to 0.23. Among
+  random, ranker, frozen, sft and dpo, 1 of 70 pairwise tests is below 0.05.
+    EVIDENCE: a06_endpoints.py, a19_contrasts.py, a26_weakpairs.py
+[8] (verified) Curve-area and fixed-cost endpoints are less sensitive than capped cost (standardized effect for random versus TR 0.37 against 0.48). Capped cost at threshold 0.02 gives 0.68. Under sustained attainment
+  the order changes (coverage first, dpo tied fifth).
+    EVIDENCE: a16_sensitivity.py, a06_endpoints.py
+[9] (verified) TR and local_info open with X at the extreme farther from the estimated natural X mean in 23/24 and 24/24 runs, then observe (38 and 56 percent of actions). Y-involving actions are 42 percent of TR's
+  choices in the uniform menu and 6 percent in the heterogeneous menu. Leave-one-out agreement with a per-cell fixed sequence is 0.41 and 0.58 (shuffle baseline 0.38 and 0.47).
+    EVIDENCE: a07_actions.py, a08_actions2.py, a18_perm.py
+[10] (verified) The state-independent coverage cycle is within noise of TR at threshold 0.04 (+0.83 units, p 0.23; log-area +0.05, p 0.50) and worse at 0.02 (+2.17, p 0.035).
+    EVIDENCE: a19_contrasts.py
+[11] (verified) dpo minus TR is +7.0 cost units on colliders, +2.5 on forks, +1.1 on chains. Its log-area deficit is +0.54 on the 7 systems where X=-1 is the near side and -0.03 on the other 17 (permutation p 0.0055).
+  The recovered X-mean estimate never changes in 24/24 dpo and 24/24 ranker runs.
+    EVIDENCE: a10_dpo_strata.py, a17_xroot.py, a24_sign2.py; llm_intervention_scm.py lines 83-85
+[12] (verified) Error rose after 1,909 of 4,348 acquisitions (43.9 percent). 61 of 172 crossing runs later left the target. On the 10 at-target systems 20 of 80 runs left it.
+    EVIDENCE: a11_nonmono.py
+[13] (verified) sft stopped in 23 systems after 21 to 23 actions at total cost 29 to 31 (47 units unspent). Five stops were above target (w10, w11, w12, w19, w21; errors 0.047 to 0.199). Stop cost correlates 0.14 with
+  log error.
+    EVIDENCE: a12_sft.py
+
+## NUMBERS
+Per policy [capped cost | sustained cost | log-area | geo-mean final NMSE]: random 14.25|18.42|-1.709|.0109; coverage 12.46|15.13|-1.842|.0072; local_info 11.96|17.75|-1.861|.0095; TR 11.63|15.67|-1.892|.0085; ranker
+  13.58|15.71|-1.761|.0128; frozen 13.63|17.00|-1.700|.0105; sft 14.63|16.21|-1.790|.0115; dpo 15.17|17.00|-1.760|.0108.
+Policy minus TR, capped cost: mean (SD; -/0/+; sign-flip p): random +2.63 (5.43; 2/12/10; .011); coverage +0.83 (3.07; 3/13/8; .23); local_info +0.33 (6.21; 5/13/6; .84); ranker +1.96 (6.63; 4/14/6; .19); frozen +2.00
+  (6.76; 4/11/9; .18); sft +3.00 (6.06; 2/12/10; .022); dpo +3.54 (6.43; 2/13/9; .0068).
+Policy minus TR, log-area (log10 units): mean (SD; p): random +.183 (.490; .080); coverage +.050 (.351; .50); local_info +.031 (.490; .76); ranker +.132 (.478; .19); frozen +.192 (.385; .023); sft +.102 (.356; .17); dpo
+  +.132 (.481; .19).
+Systems needed (paired t, two-sided .05, 80%/90% power). Cost, SD 6.21: 1 unit 305/408; 2 units 78/104; noninferiority margin 1 (true difference 0) 305/408. Log-area, SD .478: 10% lower 859/1150; 20% lower 193/258. With
+  8 replicates and replicate share .5 to .8: 172 to 93 systems for 1 unit.
+Threshold sweep [at target after init / TR never attains / TR minus floor]: .01: 3/4/7.29; .02: 5/1/4.75; .04: 10/1/3.04.
+Init NMSE: min .00028, median .0440, max .5449. TR acquisition cost on the informative 14: 1,1,1,1,1,2,2,3,6,7,9,14,15,24.
+dpo minus TR by stratum (cost units): chain +1.1, fork +2.5, collider +7.0; matched_low +5.5, matched_high +3.7, shifted_low +2.2, shifted_high +2.8; uniform +2.5, heterogeneous +4.6.
+
+## SURPRISES / CONTRADICTIONS
+- No numerical disagreement with the documents. But the ordering among weak arms flips with the endpoint: dpo minus frozen is +1.54 units at threshold 0.04 and -1.04 at 0.02.
+- local_info beats TR on the informative 14 for log-area and for error at costs 16, 24 and 32.
+- On the 17 systems where X=-1 is the high-leverage side, the constant x- policy matches TR on log-area.
+- The per-system best policy is close to uniform: dpo has the lowest log-area on 4 systems, as many as TR.
+- The eight true target means of every system are recoverable from saved predictions plus errors. Confirmation reports should stay sealed until methods are frozen.
+- The executed budget (8 + 24) is far shorter than the agenda's design values (16 + 64). The handoff declares the agenda counts superseded.
+- Summed per-query error decompositions are dominated by two systems per graph (w19 and w12 hold 98 percent of dpo's X-mean-dependent error in chains), so medians are reported alongside.
+
+## IMPLICATIONS FOR AGENDA
+- Do not run another 24-system single-run screen as evidence. It cannot detect any attainable improvement over the planner. Plan about 300 systems for a 1-unit claim, or use replicates.
+- Before any new policy, recalibrate initialization and threshold on non-evaluation systems (threshold near 0.02 or fewer than 8 initial observations, at most about 10 percent at target after initialization) and replace
+  the fixed scale of 2 by a public per-family scale.
+- Add within-system replicates (about 8), common random numbers keyed by action occurrence instead of by arm, and a deliberate twin arm to measure replicate variance.
+- Keep capped cost as primary and declare sustained cost and log-area as secondary. Curve-area endpoints should not be expected to add power.
+- Superiority over the planner is close to unattainable in the linear-Gaussian known-noise family, where a static design is nearly optimal. Either target noninferiority at lower compute, or move to environments where
+  adaptivity or semantic information matters.
+- Add cheap decisive controls: always-x-, always-observe, the coverage cycle, a static far-side-X-then-observe heuristic and an oracle design. Keep both TR and local_info as references. The ranker is not a credible
+  learned-numerical control.
+- First state-sensitivity diagnostic: flip the sign of the posterior X mean in otherwise identical prompts and test whether set_x_neg and set_x_pos scores swap. Second: whether observe_all rises after two or three X
+  interventions.
+- Word paper claims carefully: 'planner best' and 'DPO worst' hold for the mean of one endpoint only.
+
+## OPEN QUESTIONS
+- What share of the paired variance is replicate noise for the strong policies? Only the constant x- policy has accidental twins (point estimates 0.47 for log-area, 0.81 for cost, wide ranges).
+- Does any real headroom above TR survive replication in this family?
+- Would a static 'far-side X, then alternate with observation' design match TR? This cannot be evaluated from saved data.
+- Which initialization size and threshold leave at least 90 percent of systems informative across the three graphs?
+- Does the near-side versus far-side split of the dpo deficit replicate on fresh systems? It rests on 7 against 17 systems and was found post hoc.
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/results-analysis.md
+
+## VERIFICATION
+OVERALL: The earlier analysis is numerically sound. Every count, mean, SD, p-value and sample size I re-derived from cells.csv and curves.csv matches, and the CSVs match the original 192 reports. I found no arithmetic
+  error. Three statements are worded more strongly than the data allow. First, the "opens with the far X extreme" figures (23/24, 24/24) describe the first pure X-extreme action anywhere in the run. The literal first
+  action gives 17/24 and 22/24. Second, the two shuffle baselines for the fixed-sequence agreement do not reproduce under one definition. Sequences are indeed far from fixed, but target risk is more state dependent than
+  "an action mix plus one sign bit". Third, "power 0.68 for an oracle at the floor" is a normal-theory figure. A policy that dominated target risk system by system would very probably have been detected (exact sign-flip
+  p 0.0039 on the realized floor contrast). What the screen could not detect is a noisy policy with a modestly better mean, because the 3.04-unit ceiling is about the size of the detectable difference. All statistics are
+  descriptive, post hoc and development-data only. Full notes: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/results-analysis-verify.md. Scripts and
+  logs: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/results-analysis-verify/ (v00 to v20).
+* [confirmed] Saved CSVs are internally consistent: 0 of 192 runs inconsistent, and policies.csv, all 28 pairs.csv rows and actions.csv reproduce from cells.csv and curves.csv.
+    MY VALUE: 0 of 192 inconsistent. policies.csv max abs diff 4.5e-17. 28/28 pair rows and 38/38 action rows match. 4,348 acquisitions, 5,884 responses, 6,097 cost units. Also matches the original summary.json and all
+      192 cost-report.json curves exactly (4,540 points).
+    HOW: v01_consistency.py: recomputed first crossing, capped cost, final error and attainment per run from curves.csv.
+* [confirmed] Ten systems are at target after initialization: 5/8 chains, 5/8 forks, 0/8 colliders. 7/12 matched, 3/12 shifted. 6/12 uniform, 4/12 heterogeneous. Init NMSE min .00028, median .0440, max .5449.
+    MY VALUE: 10 systems: w00, w01, w02, w06, w07, w08, w09, w15, w18, w20 (world id 2026110701NN). Strata counts identical. Init NMSE 0.000284 / 0.044010 / 0.544896. At thresholds 0.01 / 0.02 / 0.04: 3 / 5 / 10 systems.
+    HOW: v02_init.py: NMSE at total cost 8, identical across the 8 arms within each system.
+* [confirmed] Three more systems start within 12.5 percent of the threshold. An all-zero prediction already meets 0.04 on 3 systems (truth reconstructed, residual 3e-15).
+    MY VALUE: w14 +2.80%, w05 +7.55%, w04 +12.503% (true only to rounding). All-zero NMSE: w02 0.0232, w06 0.0244, w18 0.0391. Max residual 2.9e-15.
+    HOW: v03_truth.py: least squares on 32*NMSE - |p|^2 = -2 p.t + |t|^2 per system.
+* [confirmed] Headroom: target risk totals 279, best-of-8 envelope 230 (saves 49, 42 on five systems), trivial floor 206 (ceiling 73, 3.04 per system). Some arm beats target risk on 8 systems.
+    MY VALUE: 279 / 230 / 206. Saving 49 (2.0417 per system), top five 42 (w12 10, w23 10, w19 9, w16 7, w21 6). Ceiling 73 (3.0417). 8 systems. Target-risk acquisition costs 1,1,1,1,1,2,2,3,6,7,9,14,15,24.
+    HOW: v04_headroom.py: per-system minimum over the 8 capped costs. Floor = 8 if at target after init, else 9.
+* [confirmed] Median paired SD 6.2. Minimum detectable difference at 24 systems 3.7. Systems needed at SD 6.21: 1 unit 305/408, 2 units 78/104, noninferiority 305/408. Log-area SD .478: 859/1150 and 193/258.
+    MY VALUE: Median of the seven policy-minus-target-risk SDs is 6.2113. MDD 3.709 (80%), 4.293 (90%). 305/408, 78/104, 305/408. Log-area SD 0.4781: 859/1150, 193/258. Caveat: the median over all 28 pairs is 6.98 (range
+      3.07 to 9.03), giving 77 to 643 systems for 1 unit.
+    HOW: v05_power.py, v07_endpoints.py: noncentral-t paired power, fresh implementation.
+* [confirmed] With 8 replicates and replicate share .5 to .8, 172 to 93 systems detect 1 unit.
+    MY VALUE: 173 and 93 at SD 6.2113. 172 and 93 at SD rounded to 6.2. Twin data at cap 18 put the replicate share at 0.53 to 1.01 for six of seven contrasts against target risk.
+    HOW: v14_power_extra.py: variance factor (1-r)+r/8.
+* [partially_confirmed] An oracle at the floor would have had power 0.68.
+    MY VALUE: Formula value 0.676 reproduces (mean 3.04, SD 5.91). But the realized contrast has exact sign-flip p 0.0039, and a system bootstrap gives power 0.84 (t-test) and 0.93 (sign-flip).
+    HOW: v05_power.py, v14_power_extra.py: noncentral t, exact sign-flip, 2,000 bootstrap resamples of 24 systems.
+* [confirmed] Policy minus target risk on capped cost: dpo +3.54 (p .0068, Holm .048), random +2.63 (.011), sft +3.00 (.022), local_info +0.33 (.84), others .18 to .23, with stated SDs and win/tie/loss counts.
+    MY VALUE: Means, SDs (5.43, 3.07, 6.21, 6.63, 6.76, 6.06, 6.43), counts and exact sign-flip p-values all match. Holm for DPO 0.0479.
+    HOW: v05_power.py: full enumeration of sign patterns over nonzero differences.
+* [confirmed] Curve-area ranking and log-area values (TR -1.892, local_info -1.861, coverage -1.842, sft -1.790, ranker -1.761, dpo -1.760, random -1.709, frozen -1.700), with paired statistics.
+    MY VALUE: Matches to 0.0005 using mean log10 NMSE on cost grid 9..32 with last value carried forward. Same order on three other grids. Ranking changes under raw-NMSE area (local information first) and on the 14
+      informative systems (local information -1.755 vs target risk -1.624).
+    HOW: v06_area.py, v07_endpoints.py, v19_area_split.py.
+* [confirmed] Sustained-attainment order changes (coverage first, dpo tied fifth). Threshold sweep .01: 3/4/7.29, .02: 5/1/4.75, .04: 10/1/3.04. Coverage vs target risk +0.83 (p .23), +2.17 at 0.02 (p .035). Random vs TR
+  effect 0.48, 0.37 on log-area, 0.68 at 0.02.
+    MY VALUE: All values match. Qualification: log-area is more sensitive than capped cost for frozen vs target risk (0.50 vs 0.30), so 'less sensitive' is contrast specific.
+    HOW: v07_endpoints.py.
+* [partially_confirmed] Target risk and local information open with X at the extreme farther from the estimated natural X mean in 23/24 and 24/24 runs.
+    MY VALUE: 23/24 and 24/24 hold only for the first pure X-extreme action appearing anywhere in the run. The literal first action is the far pure X extreme in 17/24 and 22/24 runs (22/24 and 22/24 if set_xy counts as X
+      = -1).
+    HOW: v08_actions.py, v09_fixedness.py: X-mean estimate recovered as (q0-q2)/(q3-q2) from saved predictions.
+* [partially_confirmed] Leave-one-out agreement with a per-cell fixed sequence is 0.41 (TR) and 0.58 (local_info), shuffle baseline 0.38 and 0.47.
+    MY VALUE: Agreement 0.409 and 0.570 (graph x cost cells, sign-normalized). Order-shuffle baseline 0.337 and 0.478. Cell-label shuffle baseline 0.381 and 0.587. The two claimed baselines match two different shuffle
+      definitions. All 24 target-risk sequences are distinct.
+    HOW: v09, v10, v11, v20 scripts: 48 definitional variants, 2,000 order shuffles, 500 label shuffles.
+* [confirmed] Observation is 38 and 56 percent of TR and local_info actions. Y-involving actions are 42 percent (uniform) and 6 percent (heterogeneous) of TR choices. X-mean estimate never changes in 24/24 dpo and ranker
+  runs. DPO log-area deficit +0.54 on 7 near-side systems vs -0.03 on 17 (p 0.0055). DPO stratum contrasts.
+    MY VALUE: 38.4% and 55.8%. 42.4% and 5.9%. 24/24 and 24/24. +0.535 vs -0.033, exact permutation p 0.00547 over 346,104 label sets. Collider +7.0, fork +2.5, chain +1.125. Regime and menu contrasts match strata.csv.
+    HOW: v08_actions.py, v13_strata_sign.py.
+* [partially_confirmed] Arms do not share measurement noise (0 of 293). DPO and SFT share an X=-1 prefix of at least 10 actions everywhere, differ on 7 of 14 informative systems at cap 18, log NMSE difference SD 0.35 to
+  0.58. Best-of-two gains 0.63 against 1.29 for the envelope, so the envelope is largely selection.
+    MY VALUE: All numbers reproduce: 0 of 293, minimum prefix 10, 7 of 14, SD 0.351 to 0.580, 0.625 and 1.2917. The selection reading is an untested inference from one twin pair of a weak policy.
+    HOW: v12_noise_twins.py.
+* [confirmed] Error rose after 1,909 of 4,348 acquisitions. 61 of 172 crossing runs later left the target, 20 of 80 on at-target systems. SFT stopped in 23 systems at cost 29 to 31 (47 unspent), five above target,
+  correlation 0.14.
+    MY VALUE: 1,909 of 4,348 (43.91%). 61 of 172. 20 of 80. 23 stops, 21 to 23 actions, cost 29 to 31, 47 unspent. w10, w11, w12, w19, w21 at 0.047 to 0.199. Pearson 0.143.
+    HOW: v12_noise_twins.py.
+* [could_not_check] Among random, ranker, frozen, sft and dpo, 1 of 70 pairwise tests is below 0.05.
+    MY VALUE: The seven endpoints were not specified. I get 0 of 90 over nine endpoints (minimum p 0.061) and 1 of 240 scanning log NMSE at every cost 9..32 (frozen vs supervised at cost 12, p 0.043). The substance
+      holds.
+    HOW: v13_strata_sign.py, v17_weakpairs_scan.py.
+
+### ADDITIONAL FINDINGS (verifier)
+- Target risk's first place on curve area comes from the 10 systems already at target. On the 14 informative systems local information leads (mean log-area -1.755 vs -1.624, lower on 9 of 14, sign-flip p 0.32). On the 10
+  at-target systems local information is last of eight (+0.259 vs target risk, p 0.088). Neither is resolved.
+- Tighter thresholds discriminate more, post hoc. At 0.02 target risk separates from random, coverage, ranker, frozen, supervised and DPO (p 0.0004 to 0.035) but not local information (0.20). At 0.01 all seven are below
+  0.05, including coverage (+3.875, p 0.0007). Final NMSE and sustained cost separate nothing.
+- Restricting to the 14 informative systems, the median paired SD is 7.53 and the equivalent of a 1-unit mixed-system difference needs 154 informative systems instead of 305 mixed ones. Excluding at-target systems by
+  design roughly halves the number of systems.
+- Replicate noise is policy dependent. The DPO/SFT twin difference variance at cap 18 (7.82) is 2.2 times the whole coverage-minus-target-risk variance, so the weak always-X policy is noisier than the strong ones.
+  Replicate variance has not been measured for target risk itself.
+- Target risk's action mix varies strongly between systems inside a graph-by-menu cell (chain/uniform observation share 0.25 to 0.71, Y share 0 to 0.58). Cell membership adds nothing to step prediction (label-shuffle p
+  0.11). Step position adds a little (order-shuffle p 0.003). A constant 'always observe' guess matches local information as well as a per-cell fixed sequence (0.558 vs 0.570).
+- The near-side split is not specific to DPO. The frozen LLM, which never intervenes, shows a similar deficit on the same 7 systems (+0.426 vs +0.096, p 0.055), and DPO minus frozen does not split (p 0.32). The pattern
+  separates arms that never set X at the far extreme from arms that do. It is post hoc on 7 systems.
+- On w02, w03 and w21 the initialized SCM predicts worse than the all-zero prior mean. The ranker's majority X choice matches the far extreme in only 10 of 24 systems.
+- The noncentral-t power formula is roughly calibrated for realistic two-sided contrasts (bootstrap vs formula at n = 24: random 0.76 vs 0.62, coverage 0.23 vs 0.25, DPO 0.88 vs 0.73), so the 300 to 400 system estimates
+  stand given SD near 6.2.

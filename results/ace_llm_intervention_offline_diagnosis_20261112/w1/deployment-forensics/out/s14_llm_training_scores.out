@@ -1,0 +1,182 @@
+plan keys: ['checkpoint_steps', 'declared_adapter_parameters', 'dpo_rows', 'dpo_steps', 'execution_kind', 'expected_adapter_shapes', 'exposures', 'max_trainable_parameters', 'numeric_recipe', 'one_pass_dpo', 'one_pass_sft', 'outer_provenance_receipt_sha256', 'provenance_qualified', 'record_pins', 'records', 'retry_allowed', 'schedule', 'scope', 'sft_rows', 'sft_steps', 'stored_tokens', 'version']
+recipe: {"activation_checkpointing": "explicit_nonreentrant_decoder_v1", "adam_betas": [0.9, 0.999], "adam_eps": 1e-08, "adapter_dtype": "float32", "alpha": 16.0, "amsgrad": false, "attention": "sdpa", "base_dtype": "bfloat16", "beta": 0.1, "capturable": false, "clip_gradient_norm": 1.0, "differentiable": false, "float32_matmul": "highest", "foreach": null, "fused": null, "learning_rate": 0.0001, "max_new_tokens": 32, "max_tokens": 8192, "maximize": false, "optimizer": "AdamW", "optimizer_state": "continuous_across_sft_dpo", "output_projection": "fixed_row_fp32_action_reduction_v1", "rank": 8, "scoring_path": "canonical_selected_unpadded", "sdpa_backend": "flash_attention_only", "seed": 109, "strict_determinism": true, "weight_decay": 0.0}
+schedule len 279 first {"pair_index": null, "record_id": "policy_train/202611070000/snapshot-000", "stage": "sft"}
+dpo example {"pair_index": 1, "record_id": "policy_train/202611070000/snapshot-000", "stage": "dpo"}
+exposed pairs in numeric plan 119 reference score keys 119 key match True
+beta 0.1 lr 0.0001
+
+SFT per-step loss = mean per-token NLL of the label command+EOS (before that update). 160 single-example steps, one pass.
+   steps   0- 19 mean loss 0.597 (implied mean command log-lik ~ -5.37 for an 9-token command)
+   steps  20- 39 mean loss 0.366 (implied mean command log-lik ~ -3.30 for an 9-token command)
+   steps  40- 79 mean loss 0.273 (implied mean command log-lik ~ -2.46 for an 9-token command)
+   steps  80-119 mean loss 0.248 (implied mean command log-lik ~ -2.23 for an 9-token command)
+   steps 120-159 mean loss 0.214 (implied mean command log-lik ~ -1.93 for an 9-token command)
+   by label (all steps; last-80-steps mean):
+     STOP        n=32 mean 0.267 ; late n=16 mean 0.056
+     set_x_neg   n=32 mean 0.163 ; late n=18 mean 0.138
+     set_x_pos   n=29 mean 0.301 ; late n=12 mean 0.157
+     observe_all n=24 mean 0.293 ; late n=12 mean 0.305
+     set_xy      n=12 mean 0.523 ; late n= 6 mean 0.509
+     set_y_pos   n=10 mean 0.359 ; late n= 6 mean 0.347
+     set_y_neg   n=10 mean 0.350 ; late n= 6 mean 0.357
+     set_x_zero  n= 7 mean 0.449 ; late n= 2 mean 0.397
+     set_y_zero  n= 4 mean 0.665 ; late n= 2 mean 0.743
+
+SFT reference log-likelihoods (full command + EOS, nats) at the 119 exposed DPO training pairs:
+   SFT prefers the preference-chosen command in 66 of 119 pairs (55.5%) ; mean margin (chosen - rejected) 0.269, median 0.641, sd 2.304
+   binomial test vs 0.5: p=0.271
+   per-command SFT log-lik across training states: n, mean, sd (between-state), min, max, mean prob
+     observe_all n=19 mean -1.092 sd 0.344 min -1.901 max -0.660  mean p 0.353
+     set_x_neg   n=23 mean -0.952 sd 0.386 min -1.861 max -0.361  mean p 0.413
+     set_x_zero  n=32 mean -4.899 sd 1.066 min -6.884 max -2.938  mean p 0.012
+     set_x_pos   n=37 mean -3.220 sd 0.791 min -4.323 max -1.918  mean p 0.053
+     set_y_neg   n=33 mean -2.256 sd 0.265 min -2.986 max -1.855  mean p 0.108
+     set_y_zero  n=29 mean -5.561 sd 0.784 min -6.939 max -4.161  mean p 0.005
+     set_y_pos   n=29 mean -4.328 sd 0.955 min -5.555 max -2.687  mean p 0.020
+     set_xy      n=36 mean -3.877 sd 0.502 min -5.281 max -3.010  mean p 0.023
+   SD of the 8 command means (between-command gaps): 1.713 ; pooled within-command between-state SD: 0.696 ; ratio state/command = 0.41
+   SFT log-lik of set_x_neg and set_x_pos by training snapshot index (0: remaining 24, 1: ~18, 2: ~12, 3: ~6):
+     set_x_neg   {0: (4, -0.42), 1: (10, -0.9), 2: (5, -1.16), 3: (4, -1.35)}
+     set_x_pos   {0: (12, -4.11), 1: (11, -2.68), 2: (8, -3.02), 3: (6, -2.69)}
+     observe_all {0: (2, -1.86), 1: (7, -1.2), 2: (3, -0.96), 3: (7, -0.82)}
+     set_xy      {0: (8, -3.62), 1: (7, -3.57), 2: (12, -4.04), 3: (9, -4.13)}
+     set_y_neg   {0: (10, -2.28), 1: (8, -2.17), 2: (6, -2.44), 3: (9, -2.19)}
+
+DPO stage: 119 single-pair steps. Delta = policy log-odds(chosen vs rejected) minus SFT-reference log-odds, at the time of the step (before the update).
+   dpo steps   0-  9: mean loss 0.695 ; Delta mean   -0.03 median   -0.01 min   -1.50 max   +0.73 ; Delta>0 in 4/10 ; policy prefers chosen in 6/10 (SFT ref: 7/10)
+   dpo steps  10- 29: mean loss 0.711 ; Delta mean   -0.22 median   -0.24 min   -4.53 max   +6.44 ; Delta>0 in 7/20 ; policy prefers chosen in 10/20 (SFT ref: 10/20)
+   dpo steps  30- 59: mean loss 0.813 ; Delta mean   -1.62 median   -0.80 min  -13.85 max  +12.26 ; Delta>0 in 13/30 ; policy prefers chosen in 17/30 (SFT ref: 18/30)
+   dpo steps  60- 89: mean loss 0.759 ; Delta mean   -0.96 median   -0.31 min   -8.17 max   +4.58 ; Delta>0 in 14/30 ; policy prefers chosen in 16/30 (SFT ref: 14/30)
+   dpo steps  90-118: mean loss 0.679 ; Delta mean   +1.21 median   +1.45 min   -9.51 max  +15.91 ; Delta>0 in 17/29 ; policy prefers chosen in 17/29 (SFT ref: 17/29)
+   loss: first 0.6931 (=ln2 0.6931), min 0.1854, max 1.6082, last 0.1854
+
+   Delta by role of each command in the pair (late DPO steps 60-118 only): mean Delta when command is CHOSEN vs when REJECTED
+     observe_all chosen n= 2 mean   +1.13 | rejected n= 8 mean   -6.13
+     set_x_neg   chosen n= 9 mean   +3.71 | rejected n= 7 mean   -4.60
+     set_x_zero  chosen n= 6 mean   -3.69 | rejected n=10 mean   +2.22
+     set_x_pos   chosen n=10 mean   +0.72 | rejected n= 3 mean   -2.31
+     set_y_neg   chosen n= 8 mean   +1.33 | rejected n= 9 mean   +0.29
+     set_y_zero  chosen n= 8 mean   -5.55 | rejected n= 6 mean   +6.57
+     set_y_pos   chosen n= 5 mean   -4.50 | rejected n=11 mean   +3.43
+     set_xy      chosen n=11 mean   +3.81 | rejected n= 5 mean   -1.49
+
+   all 119 DPO steps (n, loss, Delta, SFT ref margin, chosen > rejected, record):
+       0 loss 0.6931 Delta    -0.00 refmargin  +4.41  set_y_neg  > set_x_zero 202611070000/snapshot-000
+       1 loss 0.6942 Delta    -0.02 refmargin  -1.14  set_x_zero > set_x_pos  202611070000/snapshot-001
+       2 loss 0.6956 Delta    -0.05 refmargin  -0.45  set_xy     > set_x_zero 202611070000/snapshot-002
+       3 loss 0.6807 Delta    +0.25 refmargin  +3.50  observe_all > set_y_pos  202611070000/snapshot-003
+       4 loss 0.6716 Delta    +0.44 refmargin  +0.63  set_xy     > set_x_pos  202611070001/snapshot-000
+       5 loss 0.6954 Delta    -0.04 refmargin  -1.75  set_xy     > set_y_neg  202611070001/snapshot-001
+       6 loss 0.7712 Delta    -1.50 refmargin  +0.67  set_x_pos  > set_xy     202611070001/snapshot-002
+       7 loss 0.6680 Delta    +0.51 refmargin  +3.20  observe_all > set_xy     202611070001/snapshot-003
+       8 loss 0.7228 Delta    -0.58 refmargin  +1.21  set_x_pos  > set_y_pos  202611070002/snapshot-000
+       9 loss 0.6571 Delta    +0.73 refmargin  +3.28  set_x_neg  > set_x_zero 202611070002/snapshot-001
+      10 loss 0.7415 Delta    -0.95 refmargin  +3.23  set_x_neg  > set_xy     202611070002/snapshot-002
+      11 loss 0.7011 Delta    -0.16 refmargin  +1.38  set_x_pos  > set_y_pos  202611070003/snapshot-000
+      12 loss 0.5663 Delta    +2.72 refmargin  +2.59  set_y_neg  > set_x_zero 202611070003/snapshot-001
+      13 loss 0.6646 Delta    +0.58 refmargin  -0.82  set_y_zero > set_x_zero 202611070003/snapshot-002
+      14 loss 0.8747 Delta    -3.35 refmargin  -1.15  set_y_zero > set_xy     202611070003/snapshot-003
+      15 loss 0.6906 Delta    +0.05 refmargin  -0.06  set_y_zero > set_x_zero 202611070004/snapshot-000
+      16 loss 0.7046 Delta    -0.23 refmargin  -2.33  set_xy     > set_x_neg  202611070004/snapshot-001
+      17 loss 0.4220 Delta    +6.44 refmargin  +1.66  observe_all > set_x_pos  202611070004/snapshot-003
+      18 loss 0.9452 Delta    -4.53 refmargin  -4.49  set_y_zero > set_y_neg  202611070005/snapshot-000
+      19 loss 0.5939 Delta    +2.10 refmargin  +1.35  set_xy     > set_y_zero 202611070005/snapshot-001
+      20 loss 0.8208 Delta    -2.41 refmargin  -1.58  set_y_zero > set_xy     202611070005/snapshot-002
+      21 loss 0.7900 Delta    -1.85 refmargin  -1.17  set_y_zero > set_xy     202611070005/snapshot-003
+      22 loss 0.6025 Delta    +1.90 refmargin  +2.06  set_y_neg  > set_x_pos  202611070006/snapshot-000
+      23 loss 0.7554 Delta    -1.21 refmargin  +1.78  set_x_pos  > set_xy     202611070006/snapshot-001
+      24 loss 0.7111 Delta    -0.36 refmargin  +1.68  set_x_zero > set_y_zero 202611070006/snapshot-002
+      25 loss 0.7003 Delta    -0.14 refmargin  +2.43  set_x_pos  > set_xy     202611070006/snapshot-003
+      26 loss 0.8208 Delta    -2.41 refmargin  -1.95  set_x_pos  > set_y_neg  202611070007/snapshot-000
+      27 loss 0.6859 Delta    +0.15 refmargin  +1.10  set_x_pos  > set_y_pos  202611070007/snapshot-001
+      28 loss 0.7143 Delta    -0.42 refmargin  -0.25  set_x_zero > set_xy     202611070007/snapshot-002
+      29 loss 0.7062 Delta    -0.26 refmargin  -2.91  set_y_zero > set_x_pos  202611070007/snapshot-003
+      30 loss 0.7522 Delta    -1.15 refmargin  -3.53  set_y_zero > set_xy     202611070008/snapshot-000
+      31 loss 0.7786 Delta    -1.64 refmargin  +0.12  set_xy     > set_y_pos  202611070008/snapshot-001
+      32 loss 0.5643 Delta    +2.77 refmargin  +2.30  set_y_neg  > set_xy     202611070008/snapshot-002
+      33 loss 0.6433 Delta    +1.02 refmargin  +2.53  set_y_neg  > set_x_zero 202611070008/snapshot-003
+      34 loss 0.6181 Delta    +1.56 refmargin  +3.75  set_x_neg  > set_x_pos  202611070009/snapshot-000
+      35 loss 0.6287 Delta    +1.33 refmargin  +1.15  set_x_pos  > set_x_zero 202611070009/snapshot-001
+      36 loss 1.6082 Delta   -13.85 refmargin  -2.48  set_x_pos  > observe_all 202611070009/snapshot-002
+      37 loss 0.7498 Delta    -1.10 refmargin  +1.40  set_xy     > set_y_pos  202611070010/snapshot-000
+      38 loss 0.2573 Delta   +12.26 refmargin  +0.65  observe_all > set_x_pos  202611070010/snapshot-001
+      39 loss 0.9276 Delta    -4.24 refmargin  -0.22  set_xy     > set_y_pos  202611070010/snapshot-002
+      40 loss 1.6077 Delta   -13.84 refmargin  -1.92  set_x_zero > observe_all 202611070010/snapshot-003
+      41 loss 1.3511 Delta   -10.51 refmargin  -2.13  set_x_pos  > observe_all 202611070011/snapshot-000
+      42 loss 0.6780 Delta    +0.31 refmargin  +3.34  set_y_neg  > set_y_zero 202611070011/snapshot-001
+      43 loss 0.5345 Delta    +3.47 refmargin  +2.11  set_y_neg  > set_x_zero 202611070011/snapshot-002
+      44 loss 1.2335 Delta    -8.89 refmargin  -1.07  set_y_neg  > observe_all 202611070011/snapshot-003
+      45 loss 0.5827 Delta    +2.35 refmargin  +2.11  set_y_neg  > set_x_pos  202611070012/snapshot-000
+      46 loss 1.2581 Delta    -9.24 refmargin  -1.65  set_x_pos  > observe_all 202611070012/snapshot-001
+      47 loss 0.7230 Delta    -0.59 refmargin  +1.77  set_y_pos  > set_y_zero 202611070012/snapshot-002
+      48 loss 0.5925 Delta    +2.13 refmargin  +2.76  set_y_neg  > set_y_zero 202611070012/snapshot-003
+      49 loss 0.8772 Delta    -3.39 refmargin  -1.05  set_x_zero > set_y_pos  202611070013/snapshot-000
+      50 loss 0.5261 Delta    +3.68 refmargin  +0.81  set_y_neg  > set_y_pos  202611070013/snapshot-001
+      51 loss 0.7409 Delta    -0.93 refmargin  +1.01  set_xy     > set_y_zero 202611070013/snapshot-002
+      52 loss 0.6931 Delta    +0.00 refmargin  -0.59  set_y_pos  > set_x_pos  202611070013/snapshot-003
+      53 loss 0.6582 Delta    +0.71 refmargin  +1.43  set_x_pos  > set_y_pos  202611070014/snapshot-000
+      54 loss 0.9512 Delta    -4.63 refmargin  -2.33  set_x_pos  > set_x_neg  202611070014/snapshot-001
+      55 loss 0.7277 Delta    -0.68 refmargin  +2.15  set_x_neg  > set_y_neg  202611070014/snapshot-002
+      56 loss 0.7398 Delta    -0.91 refmargin  +2.43  set_x_zero > set_y_zero 202611070014/snapshot-003
+      57 loss 1.0120 Delta    -5.60 refmargin  -2.70  set_y_pos  > set_y_neg  202611070015/snapshot-000
+      58 loss 0.8627 Delta    -3.15 refmargin  -0.37  set_x_zero > set_x_pos  202611070015/snapshot-001
+      59 loss 0.5072 Delta    +4.15 refmargin  +2.28  set_x_neg  > set_x_pos  202611070015/snapshot-002
+      60 loss 0.6320 Delta    +1.26 refmargin  -0.35  set_xy     > set_y_pos  202611070015/snapshot-003
+      61 loss 0.5952 Delta    +2.06 refmargin  +1.07  set_x_pos  > set_y_pos  202611070016/snapshot-000
+      62 loss 0.6456 Delta    +0.97 refmargin  +1.46  set_x_neg  > set_y_neg  202611070016/snapshot-001
+      63 loss 1.0647 Delta    -6.42 refmargin  -1.76  set_y_pos  > set_x_neg  202611070016/snapshot-003
+      64 loss 0.6638 Delta    +0.60 refmargin  -0.80  set_x_zero > set_y_pos  202611070017/snapshot-000
+      65 loss 0.6270 Delta    +1.37 refmargin  -0.64  observe_all > set_x_neg  202611070017/snapshot-001
+      66 loss 0.9489 Delta    -4.59 refmargin  -1.72  set_y_zero > set_x_pos  202611070017/snapshot-002
+      67 loss 0.6997 Delta    -0.13 refmargin  +0.38  set_x_pos  > set_xy     202611070017/snapshot-003
+      68 loss 0.9379 Delta    -4.41 refmargin  -2.36  set_x_zero > set_xy     202611070018/snapshot-000
+      69 loss 1.1830 Delta    -8.17 refmargin  -5.08  set_y_zero > set_x_neg  202611070018/snapshot-001
+      70 loss 0.8676 Delta    -3.23 refmargin  -1.96  set_y_zero > set_x_pos  202611070018/snapshot-002
+      71 loss 1.0897 Delta    -6.80 refmargin  -4.45  set_y_zero > observe_all 202611070018/snapshot-003
+      72 loss 0.4964 Delta    +4.42 refmargin  +1.37  set_x_pos  > set_y_pos  202611070019/snapshot-000
+      73 loss 0.8654 Delta    -3.19 refmargin  -1.76  set_y_pos  > set_y_neg  202611070019/snapshot-001
+      74 loss 0.7643 Delta    -1.38 refmargin  -1.55  set_x_pos  > set_x_neg  202611070019/snapshot-002
+      75 loss 0.7665 Delta    -1.42 refmargin  -2.08  set_xy     > set_y_neg  202611070019/snapshot-003
+      76 loss 0.4920 Delta    +4.53 refmargin  +1.40  set_xy     > set_y_pos  202611070020/snapshot-000
+      77 loss 0.7763 Delta    -1.60 refmargin  -1.30  set_x_pos  > observe_all 202611070020/snapshot-001
+      78 loss 0.6748 Delta    +0.37 refmargin  +1.22  set_x_pos  > set_x_zero 202611070020/snapshot-002
+      79 loss 0.5304 Delta    +3.57 refmargin  +1.92  set_x_neg  > set_y_pos  202611070020/snapshot-003
+      80 loss 0.8533 Delta    -2.98 refmargin  +4.21  set_y_neg  > set_x_zero 202611070021/snapshot-000
+      81 loss 1.0835 Delta    -6.70 refmargin  -2.38  set_y_pos  > set_x_neg  202611070021/snapshot-001
+      82 loss 1.1077 Delta    -7.07 refmargin  -3.02  set_y_pos  > observe_all 202611070021/snapshot-002
+      83 loss 0.5766 Delta    +2.49 refmargin  +2.71  set_y_neg  > set_y_zero 202611070021/snapshot-003
+      84 loss 0.6659 Delta    +0.55 refmargin  +6.21  set_x_neg  > set_x_zero 202611070022/snapshot-000
+      85 loss 0.7323 Delta    -0.77 refmargin  -0.98  set_x_zero > set_xy     202611070022/snapshot-002
+      86 loss 0.4900 Delta    +4.58 refmargin  +1.80  set_y_neg  > set_y_pos  202611070022/snapshot-003
+      87 loss 0.6058 Delta    +1.83 refmargin  +4.61  set_y_neg  > set_y_zero 202611070023/snapshot-000
+      88 loss 0.6028 Delta    +1.90 refmargin  +1.49  set_x_neg  > set_y_neg  202611070023/snapshot-001
+      89 loss 0.7175 Delta    -0.48 refmargin  +0.88  set_xy     > set_x_zero 202611070023/snapshot-002
+      90 loss 0.6232 Delta    +1.45 refmargin  +1.09  set_x_neg  > set_y_neg  202611070023/snapshot-003
+      91 loss 0.8586 Delta    -3.07 refmargin  -1.02  set_x_pos  > set_x_neg  202611070024/snapshot-001
+      92 loss 0.7411 Delta    -0.94 refmargin  -0.92  set_y_neg  > observe_all 202611070024/snapshot-002
+      93 loss 0.5712 Delta    +2.61 refmargin  +0.77  set_x_pos  > set_y_pos  202611070024/snapshot-003
+      94 loss 0.5111 Delta    +4.05 refmargin  +5.83  set_x_neg  > set_x_zero 202611070025/snapshot-000
+      95 loss 1.1488 Delta    -7.68 refmargin  -3.35  set_y_zero > observe_all 202611070025/snapshot-001
+      96 loss 0.7157 Delta    -0.45 refmargin  +1.67  set_y_neg  > set_xy     202611070025/snapshot-002
+      97 loss 1.1578 Delta    -7.81 refmargin  -4.08  set_y_zero > set_x_neg  202611070025/snapshot-003
+      98 loss 0.3950 Delta    +7.25 refmargin  +1.57  set_xy     > set_y_pos  202611070026/snapshot-000
+      99 loss 0.6498 Delta    +0.89 refmargin  +1.71  observe_all > set_x_pos  202611070026/snapshot-001
+     100 loss 0.6506 Delta    +0.87 refmargin  -1.80  set_y_pos  > set_y_neg  202611070026/snapshot-002
+     101 loss 0.8196 Delta    -2.39 refmargin  -2.05  set_y_zero > set_x_zero 202611070026/snapshot-003
+     102 loss 0.7810 Delta    -1.69 refmargin  +1.00  set_y_neg  > set_xy     202611070027/snapshot-000
+     103 loss 0.5436 Delta    +3.25 refmargin  +0.16  set_xy     > set_x_zero 202611070027/snapshot-001
+     104 loss 0.6204 Delta    +1.51 refmargin  -1.12  set_xy     > set_y_neg  202611070028/snapshot-000
+     105 loss 0.4996 Delta    +4.34 refmargin  +1.30  set_xy     > set_x_zero 202611070028/snapshot-001
+     106 loss 0.6229 Delta    +1.46 refmargin  +0.62  set_x_zero > set_y_zero 202611070028/snapshot-002
+     107 loss 0.3778 Delta    +7.79 refmargin  +3.20  set_y_neg  > set_y_zero 202611070028/snapshot-003
+     108 loss 0.2960 Delta   +10.66 refmargin  +4.64  set_x_neg  > set_y_pos  202611070029/snapshot-000
+     109 loss 0.6191 Delta    +1.54 refmargin  +0.64  set_x_neg  > set_y_neg  202611070029/snapshot-001
+     110 loss 0.3501 Delta    +8.69 refmargin  +1.58  set_x_neg  > set_x_zero 202611070029/snapshot-002
+     111 loss 0.7474 Delta    -1.06 refmargin  -1.18  set_xy     > set_y_neg  202611070029/snapshot-003
+     112 loss 1.0359 Delta    -5.97 refmargin  -2.26  set_x_pos  > observe_all 202611070030/snapshot-000
+     113 loss 1.2769 Delta    -9.50 refmargin  -3.81  set_x_zero > observe_all 202611070030/snapshot-001
+     114 loss 0.4097 Delta    +6.80 refmargin  +1.92  set_xy     > set_x_zero 202611070030/snapshot-002
+     115 loss 1.2773 Delta    -9.51 refmargin  -4.34  set_x_zero > observe_all 202611070030/snapshot-003
+     116 loss 0.8988 Delta    -3.76 refmargin  -1.56  set_y_zero > set_y_pos  202611070031/snapshot-000
+     117 loss 0.3150 Delta    +9.94 refmargin  +2.45  set_x_pos  > set_y_zero 202611070031/snapshot-002
+     118 loss 0.1854 Delta   +15.91 refmargin  +0.64  set_xy     > set_y_zero 202611070031/snapshot-003

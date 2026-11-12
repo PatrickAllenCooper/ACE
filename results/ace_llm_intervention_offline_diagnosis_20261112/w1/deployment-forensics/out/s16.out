@@ -1,0 +1,144 @@
+states with recomputed scores: 4203
+saved 32-draw vs recomputed 256-draw scores on target_risk states: mean diff 0.000007, sd 0.000414 ; 256-draw argmax equals deployed (32-draw) choice in 369/560 (65.9%)
+
+Decision-level endpoint on each arm's OWN trajectory (all its decisions; STOP counted as forgoing the best available gain).
+regret = best score - chosen score (risk reduction per cost unit, 256 draws). rel = regret / best score. near-opt = within 2 combined MC s.e. of the best.
+arm                   n |  mean_reg   med_reg | mean_rel |  TR-opt% near-opt% | m_rank | sum regret over episode (mean per world)
+uniform_random      487 |   0.00526   0.00113 |   0.504 |    13.3%    18.9% |   4.51 | 0.1068
+menu_coverage       480 |   0.00285   0.00071 |   0.441 |    17.9%    23.8% |   4.42 | 0.0570
+local_information   570 |   0.00034   0.00005 |   0.154 |    34.6%    48.6% |   2.63 | 0.0080
+target_risk         560 |   0.00003   0.00000 |   0.016 |    65.9%    90.4% |   1.55 | 0.0008
+learned_ranker      576 |   0.00263   0.00128 |   0.575 |     9.7%    12.2% |   5.37 | 0.0631
+frozen_llm          576 |   0.01309   0.00575 |   0.655 |     3.1%     7.3% |   4.52 | 0.3141
+sft_llm             546 |   0.00799   0.00256 |   0.665 |     8.6%    11.0% |   5.92 | 0.1818
+dpo_llm             576 |   0.00838   0.00312 |   0.700 |     6.8%     9.7% |   6.22 | 0.2011
+
+Per-world mean relative regret (rel), paired across the 24 worlds: arm vs target_risk and vs uniform_random (Wilcoxon signed-rank, descriptive)
+uniform_random     mean 0.506 sd 0.152 | vs target_risk: diff +0.489, worse in 24/24, W p=1.2e-07
+menu_coverage      mean 0.451 sd 0.122 | vs target_risk: diff +0.435, worse in 24/24, W p=1.2e-07 | vs uniform_random: diff -0.055, worse in 8/24, W p=0.029
+local_information  mean 0.156 sd 0.112 | vs target_risk: diff +0.139, worse in 23/24, W p=3.6e-07 | vs uniform_random: diff -0.350, worse in 0/24, W p=1.2e-07
+target_risk        mean 0.017 sd 0.013 | vs uniform_random: diff -0.489, worse in 0/24, W p=1.2e-07
+learned_ranker     mean 0.575 sd 0.192 | vs target_risk: diff +0.558, worse in 24/24, W p=1.2e-07 | vs uniform_random: diff +0.069, worse in 16/24, W p=0.16
+frozen_llm         mean 0.655 sd 0.270 | vs target_risk: diff +0.639, worse in 24/24, W p=1.2e-07 | vs uniform_random: diff +0.149, worse in 20/24, W p=0.012
+sft_llm            mean 0.664 sd 0.187 | vs target_risk: diff +0.647, worse in 24/24, W p=1.2e-07 | vs uniform_random: diff +0.158, worse in 20/24, W p=0.0022
+dpo_llm            mean 0.700 sd 0.196 | vs target_risk: diff +0.684, worse in 24/24, W p=1.2e-07 | vs uniform_random: diff +0.194, worse in 20/24, W p=0.00057
+
+Mean relative regret by decision-index block (0-3, 4-7, 8-15, 16-23):
+  uniform_random     0.475  0.501  0.522  0.501
+  menu_coverage      0.416  0.470  0.454  0.412
+  local_information  0.074  0.178  0.162  0.176
+  target_risk        0.009  0.021  0.018  0.016
+  learned_ranker     0.220  0.456  0.623  0.763
+  frozen_llm         0.604  0.634  0.662  0.684
+  sft_llm            0.340  0.594  0.724  0.829
+  dpo_llm            0.340  0.586  0.776  0.862
+
+Fraction of decisions where the chosen action is the 256-draw TR optimum, by decision-index block (0, 1-3, 4-7, 8-15, 16-23):
+  uniform_random     0.25  0.19  0.15  0.10  0.12
+  menu_coverage      0.46  0.17  0.21  0.16  0.14
+  local_information  0.71  0.54  0.36  0.31  0.25
+  target_risk        1.00  0.79  0.64  0.62  0.61
+  learned_ranker     0.58  0.42  0.11  0.01  0.00
+  frozen_llm         0.00  0.01  0.03  0.04  0.04
+  sft_llm            0.46  0.35  0.05  0.02  0.01
+  dpo_llm            0.46  0.32  0.05  0.00  0.00
+
+dpo_llm states: 256-draw TR optimum distribution: {'set_x_pos': 177, 'observe_all': 151, 'set_y_pos': 139, 'set_x_neg': 39, 'set_xy': 31, 'set_y_neg': 21, 'set_y_zero': 18}
+   rank of set_x_neg under TR at these states: [(1, 39), (2, 19), (3, 21), (4, 33), (5, 37), (6, 46), (7, 201), (8, 180)]
+   by decision index: share of worlds where set_x_neg is TR-optimal / within 2 s.e. ; mean relative regret of set_x_neg ; modal TR optimum
+     d= 0 n=24  opt 0.46  near 0.58  rel-regret 0.256  modal-opt [('set_x_neg', 11), ('set_x_pos', 6)]
+     d= 1 n=24  opt 0.33  near 0.50  rel-regret 0.322  modal-opt [('set_x_neg', 8), ('set_xy', 7)]
+     d= 2 n=24  opt 0.38  near 0.46  rel-regret 0.359  modal-opt [('set_x_neg', 9), ('set_x_pos', 6)]
+     d= 3 n=24  opt 0.25  near 0.33  rel-regret 0.423  modal-opt [('set_x_neg', 6), ('set_x_pos', 5)]
+     d= 4 n=24  opt 0.12  near 0.17  rel-regret 0.497  modal-opt [('set_y_pos', 9), ('observe_all', 6)]
+     d= 5 n=24  opt 0.08  near 0.08  rel-regret 0.563  modal-opt [('set_x_pos', 7), ('set_y_pos', 5)]
+     d= 6 n=24  opt 0.00  near 0.04  rel-regret 0.615  modal-opt [('observe_all', 7), ('set_x_pos', 7)]
+     d= 7 n=24  opt 0.00  near 0.04  rel-regret 0.668  modal-opt [('set_x_pos', 7), ('set_y_pos', 6)]
+     d= 8 n=24  opt 0.00  near 0.04  rel-regret 0.702  modal-opt [('set_y_pos', 7), ('observe_all', 7)]
+     d= 9 n=24  opt 0.00  near 0.00  rel-regret 0.741  modal-opt [('set_x_pos', 8), ('observe_all', 7)]
+     d=10 n=24  opt 0.00  near 0.00  rel-regret 0.758  modal-opt [('set_y_pos', 8), ('set_x_pos', 7)]
+     d=11 n=24  opt 0.00  near 0.04  rel-regret 0.769  modal-opt [('set_x_pos', 8), ('observe_all', 7)]
+     d=12 n=24  opt 0.00  near 0.04  rel-regret 0.786  modal-opt [('observe_all', 7), ('set_x_pos', 7)]
+     d=13 n=24  opt 0.00  near 0.00  rel-regret 0.807  modal-opt [('set_x_pos', 9), ('observe_all', 8)]
+     d=14 n=24  opt 0.00  near 0.00  rel-regret 0.819  modal-opt [('set_x_pos', 8), ('observe_all', 7)]
+     d=15 n=24  opt 0.00  near 0.00  rel-regret 0.826  modal-opt [('observe_all', 9), ('set_x_pos', 8)]
+     d=16 n=24  opt 0.00  near 0.00  rel-regret 0.831  modal-opt [('observe_all', 8), ('set_x_pos', 8)]
+     d=17 n=24  opt 0.00  near 0.00  rel-regret 0.846  modal-opt [('observe_all', 8), ('set_y_pos', 7)]
+     d=18 n=24  opt 0.00  near 0.00  rel-regret 0.853  modal-opt [('observe_all', 8), ('set_x_pos', 8)]
+     d=19 n=24  opt 0.00  near 0.00  rel-regret 0.862  modal-opt [('set_x_pos', 8), ('set_y_pos', 7)]
+     d=20 n=24  opt 0.00  near 0.00  rel-regret 0.871  modal-opt [('observe_all', 9), ('set_y_pos', 7)]
+     d=21 n=24  opt 0.00  near 0.00  rel-regret 0.874  modal-opt [('set_x_pos', 9), ('observe_all', 7)]
+     d=22 n=24  opt 0.00  near 0.00  rel-regret 0.883  modal-opt [('set_y_pos', 9), ('set_x_pos', 8)]
+     d=23 n=24  opt 0.00  near 0.00  rel-regret 0.872  modal-opt [('set_x_pos', 11), ('observe_all', 8)]
+
+frozen_llm states: 256-draw TR optimum distribution: {'set_x_neg': 238, 'set_x_pos': 163, 'set_xy': 123, 'set_y_pos': 20, 'observe_all': 18, 'set_y_neg': 11, 'set_y_zero': 3}
+   rank of observe_all under TR at these states: [(1, 18), (2, 45), (3, 97), (4, 150), (5, 91), (6, 92), (7, 62), (8, 21)]
+   by decision index: share of worlds where observe_all is TR-optimal / within 2 s.e. ; mean relative regret of observe_all ; modal TR optimum
+     d= 0 n=24  opt 0.00  near 0.04  rel-regret 0.611  modal-opt [('set_x_neg', 11), ('set_x_pos', 6)]
+     d= 1 n=24  opt 0.00  near 0.04  rel-regret 0.602  modal-opt [('set_x_neg', 13), ('set_x_pos', 7)]
+     d= 2 n=24  opt 0.04  near 0.08  rel-regret 0.598  modal-opt [('set_x_neg', 12), ('set_x_pos', 5)]
+     d= 3 n=24  opt 0.00  near 0.08  rel-regret 0.606  modal-opt [('set_x_neg', 12), ('set_x_pos', 6)]
+     d= 4 n=24  opt 0.04  near 0.08  rel-regret 0.621  modal-opt [('set_x_neg', 9), ('set_xy', 6)]
+     d= 5 n=24  opt 0.04  near 0.04  rel-regret 0.636  modal-opt [('set_x_neg', 12), ('set_x_pos', 5)]
+     d= 6 n=24  opt 0.04  near 0.08  rel-regret 0.642  modal-opt [('set_x_neg', 11), ('set_x_pos', 6)]
+     d= 7 n=24  opt 0.00  near 0.00  rel-regret 0.652  modal-opt [('set_x_neg', 11), ('set_x_pos', 7)]
+     d= 8 n=24  opt 0.04  near 0.08  rel-regret 0.641  modal-opt [('set_x_neg', 10), ('set_x_pos', 7)]
+     d= 9 n=24  opt 0.04  near 0.08  rel-regret 0.657  modal-opt [('set_x_neg', 11), ('set_x_pos', 7)]
+     d=10 n=24  opt 0.04  near 0.08  rel-regret 0.660  modal-opt [('set_x_neg', 10), ('set_x_pos', 7)]
+     d=11 n=24  opt 0.00  near 0.12  rel-regret 0.659  modal-opt [('set_x_neg', 11), ('set_x_pos', 7)]
+     d=12 n=24  opt 0.04  near 0.12  rel-regret 0.669  modal-opt [('set_x_neg', 8), ('set_x_pos', 8)]
+     d=13 n=24  opt 0.08  near 0.08  rel-regret 0.669  modal-opt [('set_x_neg', 8), ('set_x_pos', 7)]
+     d=14 n=24  opt 0.04  near 0.08  rel-regret 0.677  modal-opt [('set_x_neg', 8), ('set_x_pos', 6)]
+     d=15 n=24  opt 0.00  near 0.08  rel-regret 0.679  modal-opt [('set_x_neg', 9), ('set_xy', 6)]
+     d=16 n=24  opt 0.04  near 0.08  rel-regret 0.689  modal-opt [('set_x_neg', 8), ('set_x_pos', 7)]
+     d=17 n=24  opt 0.00  near 0.08  rel-regret 0.684  modal-opt [('set_x_neg', 10), ('set_x_pos', 7)]
+     d=18 n=24  opt 0.04  near 0.08  rel-regret 0.681  modal-opt [('set_x_neg', 8), ('set_xy', 7)]
+     d=19 n=24  opt 0.04  near 0.04  rel-regret 0.687  modal-opt [('set_x_neg', 10), ('set_x_pos', 8)]
+     d=20 n=24  opt 0.04  near 0.08  rel-regret 0.683  modal-opt [('set_x_neg', 8), ('set_x_pos', 8)]
+     d=21 n=24  opt 0.04  near 0.04  rel-regret 0.688  modal-opt [('set_x_neg', 9), ('set_x_pos', 8)]
+     d=22 n=24  opt 0.04  near 0.04  rel-regret 0.689  modal-opt [('set_x_neg', 9), ('set_x_pos', 8)]
+     d=23 n=24  opt 0.04  near 0.08  rel-regret 0.668  modal-opt [('set_x_neg', 10), ('set_x_pos', 8)]
+
+sft_llm states: 256-draw TR optimum distribution: {'set_x_pos': 145, 'observe_all': 141, 'set_y_pos': 100, 'set_xy': 80, 'set_x_neg': 41, 'set_y_neg': 26, 'set_y_zero': 13}
+   rank of set_x_neg under TR at these states: [(1, 41), (2, 19), (3, 25), (4, 24), (5, 29), (6, 68), (7, 209), (8, 131)]
+   by decision index: share of worlds where set_x_neg is TR-optimal / within 2 s.e. ; mean relative regret of set_x_neg ; modal TR optimum
+     d= 0 n=24  opt 0.46  near 0.58  rel-regret 0.256  modal-opt [('set_x_neg', 11), ('set_x_pos', 6)]
+     d= 1 n=24  opt 0.46  near 0.54  rel-regret 0.312  modal-opt [('set_x_neg', 11), ('set_x_pos', 6)]
+     d= 2 n=24  opt 0.42  near 0.42  rel-regret 0.354  modal-opt [('set_x_neg', 10), ('set_x_pos', 6)]
+     d= 3 n=24  opt 0.17  near 0.25  rel-regret 0.436  modal-opt [('set_xy', 7), ('set_x_pos', 5)]
+     d= 4 n=24  opt 0.17  near 0.21  rel-regret 0.502  modal-opt [('set_xy', 7), ('observe_all', 5)]
+     d= 5 n=24  opt 0.04  near 0.12  rel-regret 0.567  modal-opt [('observe_all', 7), ('set_xy', 6)]
+     d= 6 n=24  opt 0.00  near 0.00  rel-regret 0.633  modal-opt [('observe_all', 7), ('set_y_pos', 6)]
+     d= 7 n=24  opt 0.00  near 0.00  rel-regret 0.674  modal-opt [('set_x_pos', 7), ('observe_all', 6)]
+     d= 8 n=24  opt 0.00  near 0.00  rel-regret 0.710  modal-opt [('observe_all', 8), ('set_x_pos', 6)]
+     d= 9 n=24  opt 0.00  near 0.00  rel-regret 0.739  modal-opt [('observe_all', 7), ('set_y_pos', 6)]
+     d=10 n=24  opt 0.00  near 0.04  rel-regret 0.755  modal-opt [('observe_all', 9), ('set_x_pos', 6)]
+     d=11 n=24  opt 0.00  near 0.00  rel-regret 0.779  modal-opt [('observe_all', 8), ('set_x_pos', 7)]
+     d=12 n=24  opt 0.00  near 0.00  rel-regret 0.787  modal-opt [('set_x_pos', 9), ('observe_all', 6)]
+     d=13 n=24  opt 0.00  near 0.00  rel-regret 0.786  modal-opt [('set_x_pos', 8), ('observe_all', 7)]
+     d=14 n=24  opt 0.00  near 0.00  rel-regret 0.790  modal-opt [('set_x_pos', 7), ('set_y_pos', 6)]
+     d=15 n=24  opt 0.00  near 0.00  rel-regret 0.802  modal-opt [('set_x_pos', 7), ('set_y_pos', 6)]
+     d=16 n=24  opt 0.00  near 0.00  rel-regret 0.812  modal-opt [('observe_all', 7), ('set_x_pos', 6)]
+     d=17 n=24  opt 0.00  near 0.00  rel-regret 0.820  modal-opt [('observe_all', 7), ('set_x_pos', 7)]
+     d=18 n=24  opt 0.00  near 0.00  rel-regret 0.833  modal-opt [('observe_all', 8), ('set_x_pos', 7)]
+     d=19 n=24  opt 0.00  near 0.00  rel-regret 0.839  modal-opt [('observe_all', 9), ('set_y_pos', 6)]
+     d=20 n=24  opt 0.00  near 0.00  rel-regret 0.848  modal-opt [('observe_all', 9), ('set_x_pos', 6)]
+     d=21 n=24  opt 0.00  near 0.00  rel-regret 0.855  modal-opt [('set_y_pos', 7), ('observe_all', 7)]
+     d=22 n=16  opt 0.00  near 0.00  rel-regret 0.894  modal-opt [('observe_all', 6), ('set_x_pos', 5)]
+     d=23 n= 2  opt 0.00  near 0.00  rel-regret 0.840  modal-opt [('set_x_pos', 1), ('observe_all', 1)]
+
+learned_ranker states: 256-draw TR optimum distribution: {'observe_all': 211, 'set_y_pos': 128, 'set_xy': 77, 'set_x_neg': 72, 'set_y_neg': 44, 'set_x_pos': 28, 'set_y_zero': 16}
+
+Shared first decision with 256-draw scores:
+   TR optimum counts (256 draws): {'set_x_neg': 11, 'set_x_pos': 6, 'set_xy': 5, 'set_y_pos': 1, 'set_y_neg': 1}  | set_x_neg rank: [(1, 11), (2, 3), (3, 2), (4, 2), (5, 1), (7, 3), (8, 2)]
+   gap best-second: median 0.00471 mean 0.01194 ; in MC s.e.: [40.9, 11.4, 0.6, 89.5, 42.4, 1.3, 15.5, 30.2, 0.2, 21.1, 2.3, 17.8, 91.0, 51.9, 0.4, 23.3, 21.1, 5.2, 20.1, 29.2, 0.8, 4.6, 11.9, 3.3] ; <2 s.e. in 5/24
+   gap best-set_x_neg: median 0.00008 mean 0.00896 ; set_x_neg within 2 s.e. of best in 14/24
+   arm                agree  near-opt  mean_regret  mean_rel
+   uniform_random      6/24   7/24    0.01671     0.461
+   menu_coverage      11/24  14/24    0.00896     0.256
+   local_information  17/24  20/24    0.00077     0.042
+   target_risk        24/24  24/24    0.00000     0.000
+   learned_ranker     14/24  17/24    0.00248     0.158
+   frozen_llm          0/24   1/24    0.02859     0.611
+   sft_llm            11/24  14/24    0.00896     0.256
+   dpo_llm            11/24  14/24    0.00896     0.256

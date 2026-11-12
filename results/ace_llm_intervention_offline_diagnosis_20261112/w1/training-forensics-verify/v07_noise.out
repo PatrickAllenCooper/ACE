@@ -1,0 +1,32 @@
+tie_multiplier Counter({2.0: 128}) min gap Counter({0.0: 128}) replicates Counter({4: 128})
+pairs recomputed 3584 disagreements with saved flags/means/SE: 0
+strict 687 of 3584 = 0.1917
+P(|t_3|>2) = 0.1393 ; expected strict under exact-normal null = 499.3
+expected strict under within-pair sign-flip null (keeps observed |differences|): 476.0
+excess over normal null: 187.7 = 5.24% of comparisons ; over sign-flip null: 211.0 = 5.89%
+implied share of strict labels that are chance-level under normal null: 0.727 ; under sign-flip null: 0.693
+iid-normal 8x4 simulation: mean strict per record 3.902 (x128 = 499.5), sd per record 2.82 -> sd of total about 31.9
+  iid t3 null: expected strict total 445.2
+  iid lognormal-ish null: expected strict total 361.0
+  iid chi2_1 (squared-error-like) null: expected strict total 355.4
+Benjamini-Hochberg q=0.05 keeps 1 of 3584
+Benjamini-Hochberg q=0.10 keeps 1 of 3584
+Benjamini-Hochberg q=0.20 keeps 4 of 3584
+smallest p-values: [9.00805008e-07 6.09762014e-05 1.48036108e-04 1.90552526e-04
+ 2.95687797e-04]  Bonferroni threshold 0.05/3584 = 1.40e-05
+p-value histogram (10 bins): [536 395 332 325 322 375 323 333 339 304]
+reliability (oneway ANOVA, mean of 4): median 0.145 mean 0.252 zero in 62/128 ; quartiles [0.    0.466]
+     among the 119 DPO records: median 0.179 zero in 54/119
+reliability (twoway ANOVA, mean of 4): median 0.064 mean 0.247 zero in 59/128 ; quartiles [0.    0.478]
+     among the 119 DPO records: median 0.142 zero in 51/119
+two-way F (actions; 7,21 df): median 1.068 ; share with F<1: 0.461 ; share significant at 0.05: 0.172 (expected 0.05 under null)
+base NMSE identical across the 4 replicates in 128/128 records
+states with base NMSE <= 0.04: 78/128 nonterminal ; among the 119 DPO records: 73/119
+  snap 0: base NMSE<=0.04 in 11/32 ; median base NMSE 0.0502
+  snap 1: base NMSE<=0.04 in 18/32 ; median base NMSE 0.0345
+  snap 2: base NMSE<=0.04 in 23/32 ; median base NMSE 0.0112
+  snap 3: base NMSE<=0.04 in 26/32 ; median base NMSE 0.0097
+  base NMSE<=0.04 is True: records 78 strict share 0.1548
+  base NMSE<=0.04 is False: records 50 strict share 0.2493
+median over records of max |mean gain per cost|: 0.00647 ; median base NMSE 0.02956
+share of 4-replicate mean gains that are negative: 461/1024 = 0.450

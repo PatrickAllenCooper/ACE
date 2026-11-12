@@ -1,0 +1,77 @@
+max within-world spread of init NMSE across the 8 policies: 0.0
+max within-world spread of init predictions: 0.0
+               cost_stratum graph_stratum        regime  init_nmse  at_target_0.04 short    match noise
+world_id                                                                                               
+202611070100        uniform         chain   matched_low   0.029769            True   w00  matched   low
+202611070101  heterogeneous         chain   matched_low   0.006019            True   w01  matched   low
+202611070102        uniform          fork   matched_low   0.037672            True   w02  matched   low
+202611070103  heterogeneous          fork   matched_low   0.068068           False   w03  matched   low
+202611070104        uniform      collider   matched_low   0.045001           False   w04  matched   low
+202611070105  heterogeneous      collider   matched_low   0.043019           False   w05  matched   low
+202611070106        uniform         chain  matched_high   0.000284            True   w06  matched  high
+202611070107  heterogeneous         chain  matched_high   0.036730            True   w07  matched  high
+202611070108        uniform          fork  matched_high   0.005941            True   w08  matched  high
+202611070109  heterogeneous          fork  matched_high   0.037908            True   w09  matched  high
+202611070110        uniform      collider  matched_high   0.124969           False   w10  matched  high
+202611070111  heterogeneous      collider  matched_high   0.110720           False   w11  matched  high
+202611070112        uniform         chain   shifted_low   0.521906           False   w12  shifted   low
+202611070113  heterogeneous         chain   shifted_low   0.316008           False   w13  shifted   low
+202611070114        uniform          fork   shifted_low   0.041121           False   w14  shifted   low
+202611070115  heterogeneous          fork   shifted_low   0.012932            True   w15  shifted   low
+202611070116        uniform      collider   shifted_low   0.091618           False   w16  shifted   low
+202611070117  heterogeneous      collider   shifted_low   0.111479           False   w17  shifted   low
+202611070118        uniform         chain  shifted_high   0.015370            True   w18  shifted  high
+202611070119  heterogeneous         chain  shifted_high   0.544896           False   w19  shifted  high
+202611070120        uniform          fork  shifted_high   0.020901            True   w20  shifted  high
+202611070121  heterogeneous          fork  shifted_high   0.077821           False   w21  shifted  high
+202611070122        uniform      collider  shifted_high   0.413901           False   w22  shifted  high
+202611070123  heterogeneous      collider  shifted_high   0.233240           False   w23  shifted  high
+
+N at target after init (<=0.04): 10
+identity: ['w00', 'w01', 'w02', 'w06', 'w07', 'w08', 'w09', 'w15', 'w18', 'w20']
+by graph: {'chain': {'sum': 5, 'count': 8}, 'collider': {'sum': 0, 'count': 8}, 'fork': {'sum': 5, 'count': 8}}
+by match: {'matched': {'sum': 7, 'count': 12}, 'shifted': {'sum': 3, 'count': 12}}
+by noise: {'high': {'sum': 6, 'count': 12}, 'low': {'sum': 4, 'count': 12}}
+by regime: {'matched_high': {'sum': 4, 'count': 6}, 'matched_low': {'sum': 3, 'count': 6}, 'shifted_high': {'sum': 2, 'count': 6}, 'shifted_low': {'sum': 1, 'count': 6}}
+by cost menu: {'heterogeneous': {'sum': 4, 'count': 12}, 'uniform': {'sum': 6, 'count': 12}}
+worlds where all 8 policies have capped cost 8: 10 matches init flag: True
+
+init NMSE min/median/max: 0.000284071024404 0.0440099934584946 0.5448964520738551
+sorted init NMSE:
+short graph_stratum       regime  cost_stratum  init_nmse
+  w06         chain matched_high       uniform   0.000284
+  w08          fork matched_high       uniform   0.005941
+  w01         chain  matched_low heterogeneous   0.006019
+  w15          fork  shifted_low heterogeneous   0.012932
+  w18         chain shifted_high       uniform   0.015370
+  w20          fork shifted_high       uniform   0.020901
+  w00         chain  matched_low       uniform   0.029769
+  w07         chain matched_high heterogeneous   0.036730
+  w02          fork  matched_low       uniform   0.037672
+  w09          fork matched_high heterogeneous   0.037908
+  w14          fork  shifted_low       uniform   0.041121
+  w05      collider  matched_low heterogeneous   0.043019
+  w04      collider  matched_low       uniform   0.045001
+  w03          fork  matched_low heterogeneous   0.068068
+  w21          fork shifted_high heterogeneous   0.077821
+  w16      collider  shifted_low       uniform   0.091618
+  w11      collider matched_high heterogeneous   0.110720
+  w17      collider  shifted_low heterogeneous   0.111479
+  w10      collider matched_high       uniform   0.124969
+  w23      collider shifted_high heterogeneous   0.233240
+  w13         chain  shifted_low heterogeneous   0.316008
+  w22      collider shifted_high       uniform   0.413901
+  w12         chain  shifted_low       uniform   0.521906
+  w19         chain shifted_high heterogeneous   0.544896
+
+not at target but within +12.5% of 0.04 (<=0.045): ['w05', 'w14'] [0.04302, 0.04112]
+  within +0.050: 1 above-threshold systems; within -0.050: 0 at-target systems
+  within +0.100: 2 above-threshold systems; within -0.100: 3 at-target systems
+  within +0.125: 2 above-threshold systems; within -0.125: 3 at-target systems
+  within +0.150: 3 above-threshold systems; within -0.150: 3 at-target systems
+  within +0.200: 3 above-threshold systems; within -0.200: 3 at-target systems
+  within +0.250: 3 above-threshold systems; within -0.250: 3 at-target systems
+
+threshold 0.01: at target after init = 3
+threshold 0.02: at target after init = 5
+threshold 0.04: at target after init = 10

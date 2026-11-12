@@ -1,0 +1,108 @@
+decisions 576
+candidate-count distribution: Counter({9: 564, 5: 12})
+meta keys: ['action_ids', 'decision_seed', 'encoding', 'envelope_sha256', 'environment_responses', 'feature_width', 'method', 'scores', 'task_sha256']
+decisions with all 9 candidates: 564
+
+per-candidate raw score: mean, sd across decisions (between-state), min, max ; mean softmax prob
+  observe_all mean  -6.8929 sd  0.9407 min  -8.3117 max  -3.9586 | mean p 0.1196
+  set_x_neg   mean  -6.8193 sd  0.9488 min  -8.2490 max  -3.8756 | mean p 0.1287
+  set_x_pos   mean  -6.8150 sd  0.9434 min  -8.2375 max  -3.8845 | mean p 0.1293
+  set_x_zero  mean  -6.8171 sd  0.9461 min  -8.2432 max  -3.8801 | mean p 0.1290
+  set_xy      mean  -6.9367 sd  0.9404 min  -8.3631 max  -3.9856 | mean p 0.1144
+  set_y_neg   mean  -6.9560 sd  0.9359 min  -8.3770 max  -4.0207 | mean p 0.1123
+  set_y_pos   mean  -6.9996 sd  0.9328 min  -8.4151 max  -4.0581 | mean p 0.1075
+  set_y_zero  mean  -6.9778 sd  0.9344 min  -8.3961 max  -4.0393 | mean p 0.1098
+  STOP        mean  -7.7810 sd  0.8742 min  -9.0800 max  -4.8401 | mean p 0.0495
+
+margin best-second: min 0.00002 p10 0.00059 median 0.00307 mean 0.00292 p90 0.00513 max 0.00593
+score range (best-worst non-stop): median 0.1830 ; best - STOP: median 0.9141
+
+centred (per-decision mean removed, 8 actions): mean and between-state sd
+  observe_all mean  +0.0089 sd  0.0051
+  set_x_neg   mean  +0.0825 sd  0.0127
+  set_x_pos   mean  +0.0868 sd  0.0101
+  set_x_zero  mean  +0.0847 sd  0.0112
+  set_xy      mean  -0.0349 sd  0.0058
+  set_y_neg   mean  -0.0542 sd  0.0085
+  set_y_pos   mean  -0.0978 sd  0.0130
+  set_y_zero  mean  -0.0760 sd  0.0106
+SD of action means (between-action gaps): 0.0766 ; RMS between-state SD of centred scores: 0.0100 ; ratio state/action = 0.131
+share of centred-score variance explained by the action main effect (state-independent): 0.9809 ; state-dependent (interaction) share: 0.0191
+
+distinct complete rank orders of the 9 candidates: 2 over 564 decisions
+   423 set_x_pos > set_x_zero > set_x_neg > observe_all > set_xy > set_y_neg > set_y_zero > set_y_pos > STOP
+   141 set_x_neg > set_x_zero > set_x_pos > observe_all > set_xy > set_y_neg > set_y_zero > set_y_pos > STOP
+top-1: {'set_x_neg': 141, 'set_x_pos': 423}  second: {'set_x_zero': 564}
+rank position of STOP: Counter({np.int64(9): 564})
+
+set_x_neg - set_x_pos score: mean -0.0042 sd 0.0054 min -0.0119 max 0.0089 ; >0 in 141/564
+
+correlation of (x_neg - x_pos) score contrast with state features (Pearson r, Spearman rho):
+  step       r=-0.790 rho=-0.771
+  remaining  r=+0.790 rho=+0.771
+  n_xneg     r=-0.068 rho=-0.010
+  n_xpos     r=-0.823 rho=-0.890
+  mean_x     r=+0.368 rho=+0.388
+  trcov_X    r=+0.066 rho=+0.100
+  trcov_Y    r=+0.452 rho=+0.405
+  trcov_Z    r=+0.459 rho=+0.414
+  noise      r=+0.066 rho=+0.100
+  by graph {'chain': (-0.0045, 51, 188), 'collider': (-0.004, 46, 188), 'fork': (-0.0041, 44, 188)} (mean contrast, n x_neg chosen, n)
+  by cost {'heterogeneous': (-0.004, 74, 276), 'uniform': (-0.0045, 67, 288)} (mean contrast, n x_neg chosen, n)
+  by regime {'matched_high': (-0.0048, 35, 141), 'matched_low': (-0.0053, 30, 141), 'shifted_high': (-0.0029, 47, 141), 'shifted_low': (-0.0039, 29, 141)} (mean contrast, n x_neg chosen, n)
+
+choice by decision index (all 576): index: (x_neg, x_pos)
+   {0: (21, 3), 1: (19, 5), 2: (19, 5), 3: (16, 8), 4: (15, 9), 5: (16, 8), 6: (15, 9), 7: (5, 19), 8: (5, 19), 9: (4, 20), 10: (3, 21), 11: (3, 21), 12: (0, 24), 13: (0, 24), 14: (0, 24), 15: (0, 24), 16: (0, 24), 17: (0, 24), 18: (0, 24), 19: (0, 24), 20: (0, 24), 21: (0, 24), 22: (0, 24), 23: (0, 24)}
+
+per-world ranker action sequences (N = set_x_neg, P = set_x_pos):
+   0 chain    unifo matched_low  postmean_X@0=+1.042  NNNNNNNPPPPPPPPPPPPPPPPP
+   1 chain    heter matched_low  postmean_X@0=+1.364  NNNNNNNPPPPPPPPPPPPPPPPP
+   2 fork     unifo matched_low  postmean_X@0=+0.711  NNNNNNNPPPPPPPPPPPPPPPPP
+   3 fork     heter matched_low  postmean_X@0=-1.137  NNPPPPPPPPPPPPPPPPPPPPPP
+   4 collider unifo matched_low  postmean_X@0=-2.112  PPPPPPPPPPPPPPPPPPPPPPPP
+   5 collider heter matched_low  postmean_X@0=+0.696  NNNNNNNPPPPPPPPPPPPPPPPP
+   6 chain    unifo matched_high postmean_X@0=+1.206  NNNNNNNPPPPPPPPPPPPPPPPP
+   7 chain    heter matched_high postmean_X@0=-0.648  NPNPPPPPPPPPPPPPPPPPPPPP
+   8 fork     unifo matched_high postmean_X@0=+0.736  NNNNNNNPPPPPPPPPPPPPPPPP
+   9 fork     heter matched_high postmean_X@0=+1.255  NNNNNNNPPPPPPPPPPPPPPPPP
+  10 collider unifo matched_high postmean_X@0=-0.932  NNNNPNPPPPPPPPPPPPPPPPPP
+  11 collider heter matched_high postmean_X@0=+0.617  NNNNNNNPPPPPPPPPPPPPPPPP
+  12 chain    unifo shifted_low  postmean_X@0=-0.618  PPPPPPPPPPPPPPPPPPPPPPPP
+  13 chain    heter shifted_low  postmean_X@0=+1.599  NNNNNNNNNNNNPPPPPPPPPPPP
+  14 fork     unifo shifted_low  postmean_X@0=+2.509  NNNNNNNNNNNNPPPPPPPPPPPP
+  15 fork     heter shifted_low  postmean_X@0=-1.015  PPPPPPPPPPPPPPPPPPPPPPPP
+  16 collider unifo shifted_low  postmean_X@0=+0.466  NNNPPPPPPPPPPPPPPPPPPPPP
+  17 collider heter shifted_low  postmean_X@0=+0.015  NPNPPPPPPPPPPPPPPPPPPPPP
+  18 chain    unifo shifted_high postmean_X@0=+0.609  NNNNNNNPPPPPPPPPPPPPPPPP
+  19 chain    heter shifted_high postmean_X@0=+1.336  NNNNNNNNNPPPPPPPPPPPPPPP
+  20 fork     unifo shifted_high postmean_X@0=-0.572  NNPPPPPPPPPPPPPPPPPPPPPP
+  21 fork     heter shifted_high postmean_X@0=+0.209  NNNNNNNPPPPPPPPPPPPPPPPP
+  22 collider unifo shifted_high postmean_X@0=+0.952  NNNNNNNNNNPPPPPPPPPPPPPP
+  23 collider heter shifted_high postmean_X@0=+1.559  NNNNNNNNNNNNPPPPPPPPPPPP
+
+first decision: posterior mean of X intercept vs ranker choice and TR optimum
+  w 0 meanX +1.042 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0063  TR(xneg-xpos) +0.04748
+  w 1 meanX +1.364 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0063  TR(xneg-xpos) +0.01135
+  w 2 meanX +0.711 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0066  TR(xneg-xpos) +0.04534
+  w 3 meanX -1.137 ranker set_x_neg  TR-opt set_x_pos   ranker(xneg-xpos) +0.0019  TR(xneg-xpos) -0.01382
+  w 4 meanX -2.112 ranker set_x_pos  TR-opt set_x_pos   ranker(xneg-xpos) -0.0019  TR(xneg-xpos) -0.01597
+  w 5 meanX +0.696 ranker set_x_neg  TR-opt set_xy      ranker(xneg-xpos) +0.0059  TR(xneg-xpos) +0.01301
+  w 6 meanX +1.206 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0063  TR(xneg-xpos) +0.00895
+  w 7 meanX -0.648 ranker set_x_neg  TR-opt set_x_pos   ranker(xneg-xpos) +0.0005  TR(xneg-xpos) -0.00817
+  w 8 meanX +0.736 ranker set_x_neg  TR-opt set_xy      ranker(xneg-xpos) +0.0062  TR(xneg-xpos) +0.00895
+  w 9 meanX +1.255 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0057  TR(xneg-xpos) +0.01426
+  w10 meanX -0.932 ranker set_x_neg  TR-opt set_x_pos   ranker(xneg-xpos) +0.0039  TR(xneg-xpos) -0.00685
+  w11 meanX +0.617 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0057  TR(xneg-xpos) +0.03131
+  w12 meanX -0.618 ranker set_x_pos  TR-opt set_x_pos   ranker(xneg-xpos) -0.0033  TR(xneg-xpos) -0.13269
+  w13 meanX +1.599 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0080  TR(xneg-xpos) +0.11115
+  w14 meanX +2.509 ranker set_x_neg  TR-opt set_xy      ranker(xneg-xpos) +0.0089  TR(xneg-xpos) +0.03182
+  w15 meanX -1.015 ranker set_x_pos  TR-opt set_x_pos   ranker(xneg-xpos) -0.0010  TR(xneg-xpos) -0.01116
+  w16 meanX +0.466 ranker set_x_neg  TR-opt set_y_pos   ranker(xneg-xpos) +0.0036  TR(xneg-xpos) +0.00576
+  w17 meanX +0.015 ranker set_x_neg  TR-opt set_xy      ranker(xneg-xpos) +0.0007  TR(xneg-xpos) +0.00192
+  w18 meanX +0.609 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0057  TR(xneg-xpos) +0.00369
+  w19 meanX +1.336 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0072  TR(xneg-xpos) +0.13426
+  w20 meanX -0.572 ranker set_x_neg  TR-opt set_y_neg   ranker(xneg-xpos) +0.0023  TR(xneg-xpos) -0.00454
+  w21 meanX +0.209 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0068  TR(xneg-xpos) +0.00412
+  w22 meanX +0.952 ranker set_x_neg  TR-opt set_xy      ranker(xneg-xpos) +0.0073  TR(xneg-xpos) +0.01216
+  w23 meanX +1.559 ranker set_x_neg  TR-opt set_x_neg   ranker(xneg-xpos) +0.0078  TR(xneg-xpos) +0.01483
+first-decision correlation between ranker contrast and TR contrast (x_neg - x_pos): r=0.697 rho=0.846

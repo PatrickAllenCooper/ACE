@@ -1,0 +1,160 @@
+# JUDGE: integrity
+## SCORES
+
+### evaluation-statistics: 8
+  STRONGEST: Rao-Blackwellized evaluation (ERB) with stated validity conditions, plus an explicit counterexample showing that the learner's posterior risk is biased and can be gamed when side information exists. This answers the
+    circularity objection to model-based endpoints. | Harness validation before any new policy is scored: a CRN marginal check, the size of an A/A test, planted-effect power, ERB-versus-realized calibration, attribution agreement
+    and stop-rule reliability. | A registered confirmation with blinded arm labels and all K = 5 trained seeds confirmed. It has a TOST null branch, no post hoc extension of n, no dropped systems, a failure ledger, an independent
+    re-analysis and a 10% re-execution. | A fresh validation shard for each development iteration, with a hard cap of 3 iterations and the same tuning budget for every learned arm. | The T5 open-loop bound: the shuffled-feedback
+    control can identify measurement use only where target risk beats plan-once. This stops an uninformative control from being read as evidence of measurement use. | Retiring the 24 development systems from all future decisions,
+    plus a compute-matched target-risk control.
+  FLAWS: E1 chooses the registered endpoint on the 24 development outcomes and vetoes any endpoint under which an old LLM arm improves its rank (evaluation-statistics.md:137). The veto is conservative, but the choice still depends
+    on LLM outcomes and says nothing about new arms. The binding choice belongs on fresh calibration systems, using numerical arms and criteria that ignore which arm wins. | H1 against target risk comes first in the gatekeeping
+    order. In information classes target risk lacks the text, so H1 compares arms with unequal information. The fallback label 'beats myopic TR only' hides that the LLM was not shown to read the information better than a fixed
+    rule. | The public preprint and README are deferred to 'before submission' (line 435), although the voided 70-71% claim is public now. | The '8 to 96 times fewer systems' figure was computed with the learner's posterior, which
+    is biased in the 12 shifted systems. It must not be quoted until it is recomputed with ERB.
+
+### paper-strategy: 7.5
+  STRONGEST: Correct the public record first: a README banner now, then a coauthor decision to replace or withdraw arXiv 2602.02451 after checking arXiv's policy, plus the v9 deck and the stale pre-audit PDF. No pre-audit number
+    is cited, and nothing is submitted or presented until the correction is made. | The class-admission rule is hashed before any LLM touches the new classes, and admission requires headroom that a rule parser cannot capture on
+    held-out paraphrase families. | A full positive requires both H1 (beating the uninformed planner) and H2 (beating the parser). N-emb and N-bow separate pretraining from text features. Adjudicator variants must deviate from
+    argmax-of-prompt in ways that help. | Kill criteria K1-K6: every kill that depends on an LLM result only narrows the claim. The canonical class stays in the paper. The delivery study is published separately, whatever the LLM
+    outcome. | A 99% fidelity gate before any local forensic claim, and scoring over whole commands rather than greedy token decoding.
+  FLAWS: The candidate primary P1 replays each realized action sequence with 256 fresh noise draws (paper-strategy.md:146). That does not give an unbiased estimate of an adaptive policy's risk. It needs a registered calibration
+    against realized error, or an ERB-type primary. | Admission condition (b) rewards a weak parser (line 158). The team controls the parser's effort and authorship, and how far held-out family C departs from the training
+    templates. Family D may end up written by a model. | Misstated evidence: 'decision-level endpoints need 3 to 17 systems'. In the brief that figure is for the learner's public posterior risk, a model-internal quantity that is
+    biased in shifted systems. | No seed policy for the frozen L*. The 240 probe states from 24 worlds are treated as independent for the +/-6.3% bound. Ask 12 (whether a benefit from information access counts for condition 2) is
+    not required before any LLM sees the admitted class.
+
+### policy-repair: 6.5
+  STRONGEST: A counterfactual sensitivity battery: posterior swaps and covariance scaling rescored by the planner, plus edits the planner ignores. It tests directly whether a policy reads the SCM state rather than surface
+    features. | Parity with a numerical student trained on identical data, and a rule that a pass obtained only with per-action planner statistics in the prompt is narration and does not count. | Interventional attribution of the
+    collapse on the original 128 training states: a factorial over labels, interface and exposure, with a numerical twin and a control whose labels are shuffled across states. | An explicit refusal to claim an advantage in the
+    three-node known-graph class. The class changes only through a headroom rule that uses no LLM output. | A mandatory behavioural gate suite (G1-G8) before any rollout, replacing the legality-only gate that passed the collapsed
+    adapters. Also an audit of what the old four-teacher supervision could have taught even with infinite data.
+  FLAWS: Selection on the test set. N* is the smallest N that passes planner-quality criteria computed on the 256 test worlds (policy-repair.md:88). The DAgger procedure is 'the smallest that passes on test worlds' (line 287). E7
+    adopts the first escalation that passes criteria including test-world planner quality. A reported pass is therefore optimistic. | Silent on the public preprint and README. | E10 has no independent review, no seed policy (3
+    seeds are trained and none is designated) and no supervised-only control. Its primary endpoint and failure treatment are deferred to E8. | The retrospective 'gate validity' check (D5) on the November adapters is circular,
+    because the thresholds were set with those values in view. The CSC power calculation treats 300 states from 56 worlds as independent. The claim that the base Qwen3-0.6B is hash-matched is unverified; only the adapters are. |
+    The E8 selection branch 'if the hypothesized LLM contribution is semantic' is unresolved, which leaves a fork in class selection. The thesis overreaches when it calls the collapse 'an engineering failure, not a limit of small
+    language models'.
+
+### advantage-theory: 6
+  STRONGEST: Instrument calibration with synthetic policies whose information capture is known. This includes a leakage policy that reads the private truth and must be flagged when it exceeds the computed ceiling (E5). | A suite
+    of controls given the same information: oracle-informed, law-aware and reliability-aware planners; a rule parser written before any LLM scoring; a GO-CBED-style amortized policy with a budget sweep and an explicit 'under-
+    trained comparator' label; and a semantic-feature numerical student. | A headroom atlas whose admission criteria use no LLM output: zero-dose anchors and a benefit that must rise with dose. | Dose-response, zero-dose placebo,
+    misleading-text and completed-class placebo strata. Any gain above the computed ceiling triggers a leakage audit instead of a claim. | The policy model must never write or paraphrase its own evaluation texts. T7 shows that the
+    shuffled-feedback control has no power where adaptivity is worthless.
+  FLAWS: Confirmatory H1 compares the LLM only with the strongest control that lacks the text (advantage-theory.md:536). The parser C7 and the semantic-feature student C9 are arms but not hypotheses. A positive result therefore
+    shows that the text is valuable, which E4 already establishes numerically, not that the LLM contributes beyond a parser. | The E10 roster lacks the frozen base LLM and the supervised-only LLM that the standing rules require.
+    It also lacks the text-removed, no-pretraining and structure ablations that submission condition 3 needs. | 'Any recipe is acceptable if it passes the gates' (line 420), applied on development systems that are never refreshed.
+    This is an unbounded development search. | Up to two classes may be selected, and the E8 curvature and E9 budget classes also have LLM stages, while E10 runs in 'the selected class'. This leaves room to choose the confirmatory
+    class after seeing development results. | Silent on the public preprint and README. | The thesis asserts a '~2% cap', and that T4 'proves' it, before E1 and E2 compute the Bayes and rollout references. | The primary endpoint
+    redraws noise given the realized design (line 224), with no validation. | 'H1 failing: narrows to development-only evidence' invites reporting a development benefit that failed to confirm.
+
+### experimentalist-task: 5.5
+  STRONGEST: A shared, fixed decision rule, so that arms differ only in the interventions they choose, scored on chamber time against a truth-conditional loss. | A numerical-only audit before any LLM arm runs. A family that fails
+    is reported and dropped, never replaced, and no family is added or dropped after LLM results. | A full positive requires all three Holm contrasts: beating the generic planner, beating a numerical student given the same
+    features and text embeddings, and beating the same policy with anonymized text. There are also misleading-text and shuffled-feedback arms. | Hardware discipline: the task grid stays unseen until the hardware run, and replay
+    uses only recorded samples. Chamber IDs and blocks are not counted as systems, nothing is rerun to improve a result, and the frozen manifest is reviewed before any spend. | The Remote Lab terms were read (no automated sign-up,
+    jointly owned data, marketing use of the customer's name) and surfaced as asks.
+  FLAWS: The proposal calls the simulator 'independently authored', yet the team adds a fan-coupling term, AR(1) drift, hatch levels, costs and its own SCM transcription (experimentalist-task.md:141). As worded, the claim is
+    inaccurate. | The training device library (power laws up to exponent 3, quadratic loss, DC motors) is written by people who have already read the test simulator's source. The leakage risk is acknowledged (line 192) but not
+    controlled, which undermines the transfer claim. | Core stages depend on the Remote Lab, an external paid service, while the handoff excludes paid APIs. E2 and E9 are listed as must before any ruling on this. | The hardware
+    primary analysis uses completed episodes only, reruns aborted ones, and scores aborts only in a sensitivity analysis (line 133). It is biased if aborts correlate with arm. | No seed policy for the confirmed policy. | The
+    prompt's per-candidate predictions and probabilities of meeting the specification are close to decision statistics, so the comparison needs a family of rules that read only the prompt. | The physics-informed planner N6 is
+    outside the Holm family. | The paper is not explicitly required to keep the completed-class negative.
+
+## MUST_INCLUDE
+- Correct the public record before any new ACE result, talk or submission. Put a README banner on lines 14, 114 and 116 now; this is reversible and internal, but it needs the lead's go-ahead. The lead and the coauthor decide
+  whether to replace or withdraw arXiv 2602.02451, after confirming it is this project's paper (identity currently rests on an identical title). Check the v9 slide deck. Every new manuscript gets a section relating it to the
+  earlier public claims. Justification: any new paper will be read next to a 70-71% claim the project's own audit voided. Only paper-strategy times this correctly; policy-repair and advantage-theory are silent.
+- Admit new classes by a rule that ignores LLM results, frozen and externally timestamped before any LLM is trained, prompted or scored in the class. Use numerical-only headroom against the strongest available references, show
+  feasible n, include a zero-dose anchor, and declare a single primary class for the headline claim. Report every audited class, including failures and the completed three-node null, and allow at most two redesign rounds on LLM-
+  independent criteria. Justification: this is what separates a theory-driven change of benchmark from a favorable replacement.
+- Write a declared-handicap table for each class before its headroom audit. It names what the uninformed planner lacks and the numerical control that removes each handicap: an oracle-informed planner; a hand-written parser plus
+  planner, built to a stated effort standard by someone not developing the LLM; a learned non-LLM text model (bag-of-words); a numerical student on frozen-LLM embeddings; a GO-CBED-style amortized policy with a training-budget
+  curve; a rollout planner; and a compute-matched planner. Every learned arm gets the same data and the same tuning budget, on validation data only. Justification: this is the standing rule that numerical controls receive the same
+  information.
+- Make the confirmatory hypotheses co-primary. The LLM must beat both the strongest planner without the side information and the strongest numerical control that has the same information, and a full positive needs both. The
+  confirmation must also contain: target risk; the numerical-student successor to the ranker; the frozen base LLM; the supervised-only LLM; text-removed, misleading-text, shuffled-feedback and state-permuted ablations; a control
+  without language pretraining or using embeddings only; dose and placebo strata; and a leakage audit whenever a gain exceeds the computed ceiling. Justification: a win only over a planner that lacks the text shows that the text
+  is valuable, which the audit already proves numerically. It does not show that the LLM contributes.
+- Validate the instrument on fresh calibration systems with numerical arms only, before any LLM is scored. This means a check of CRN marginals, an A/A test, planted-effect power, synthetic policies with known information capture,
+  a leakage canary policy that reads the private truth, and a calibration of expected against realized error. The primary endpoint must be unbiased for an adaptive policy: either ERB (the conditional expectation given the data
+  actually observed, under the generating law) or realized truth error with replicates. Design quality with redrawn noise stays secondary unless this validation passes.
+- Development discipline: training, validation, test and confirmation namespaces are disjoint and hashed. Use a fresh validation shard for each iteration, at most three iterations, and make every selection (recipe, lr, seed,
+  escalation, DAgger round, model size) on validation data only. Score held-out test worlds once per frozen configuration. Record every attempt in a ledger and report the count in the paper.
+- Behavioural acceptance gates, fixed in advance, must pass before any rollout or outcome scoring: legality; no single action dominating; agreement beyond a coarse-feature baseline; held-out cross-entropy below a state-blind
+  counter; sensitivity to posterior edits with invariance to menu order and identifiers; and stability across seeds. Justification: the November collapse passed a legality-only gate. Because the thresholds are calibrated knowing
+  the November failures, the paper may say the gates would have caught it but may not call that a validation.
+- Fidelity-gated, forward-only forensics of the saved adapters must reproduce at least 99% of the saved decisions. Also check the base model's hash, because only the adapters are verified. Attribute the collapse interventionally
+  with training-side factorial knockouts, using a numerical student on the same labels. Prompts from the development systems serve forensics only. Forensic outputs may change the method only through decision rules written before
+  the forensics run, and any causal claim about the collapse needs interventional support.
+- Pre-register with an external timestamp before any confirmation system is generated. The registration fixes: hashes of methods and adapters; namespaces; endpoints; failure treatment (failures scored at the cap, no system
+  replaced, aborted hardware episodes counted in the primary analysis); hypotheses; n; a TOST equivalence margin for a null; the seed policy (all trained seeds confirmed, with recipe-level and instance-level claims separated); and
+  the hash of the analysis code. Arm labels stay blinded, and a human analyst re-analyses independently before results are released.
+- Controls against narration: no per-action planner statistics in the primary LLM input; a family of argmax-of-prompt rules; and a numerical student trained on exactly the prompt's features. Any adjudicator or re-ranker must
+  deviate from argmax-of-prompt on a declared share of decisions, and those deviations must help on average. Hybrid and compiler roles are reported as narrowed claims that do not meet submission condition 1, unless the lead rules
+  otherwise before any LLM result in the class.
+- Account for responses and compute: synthetic training-world responses, relabeling draws and training and inference compute are reported separately from deployment-time experimental cost. The 'lower experimental cost' claim
+  refers only to deployment responses, and the numerical planners' zero training cost is shown alongside.
+
+## MUST_DROP_OR_CHANGE
+- Advantage-theory E10: H1 against the strongest no-text control is the only superiority hypothesis (advantage-theory.md:536). Add a co-primary hypothesis against C7 (parser plus oracle-informed planner) and C9 (semantic-feature
+  student), and require both. Add the frozen base LLM, the supervised-only LLM and the text-removed, no-pretraining and structure ablations to the confirmation roster. Justification: the standing rules on equal information and
+  required controls, and submission condition 3.
+- Advantage-theory E7 accepts 'any recipe that passes the gates' (line 420). Replace this with capped iterations on a fresh development shard for each iteration, recorded in a ledger.
+- Advantage-theory: 'H1 failing: the claim narrows to development-only evidence' must become 'failed confirmation; no benefit claim'. The thesis's '~2% cap' and the claim that T4 proves it must be labelled hypotheses until E1 and
+  E2 compute the Bayes and rollout references; the numerics note calls the cap an inference from greedy searches. Fix one primary class at the atlas gate, before E7, and make the E8 and E9 classes secondary with full reporting.
+- Policy-repair E4-E7: N*, DAgger adoption and the E7 escalation are all decided on the 256 test worlds (policy-repair.md:88, 287). Make every such selection on validation worlds, and score the test worlds once for the frozen
+  configuration or draw a fresh test shard for each adoption. Report every configuration tried.
+- Policy-repair: relabel the D5 'gate validity' check as a consistency check. Cluster the CSC inference by world. Correct the claim that the base model is hash-matched. Resolve E8's 'if semantic' branch before E8 runs. Freeze
+  E10's endpoint and failure treatment at the E8 gate. Add a human independent reviewer, a seed policy and a supervised-only control to E10. Narrow the thesis to 'in this class, with this recipe'.
+- Evaluation-statistics E1 chooses the binding endpoint on the 24 development outcomes and vetoes endpoints by the old LLM arms' rank changes (line 137). Move the binding choice to fresh calibration systems with numerical arms and
+  criteria that ignore which arm wins, and keep E1 as a reported disclosure that the endpoint is not favorable to the LLM. In information classes, make H2 against the equal-information control co-primary, and rename the fallback
+  'beats myopic TR only' to 'use of information not shown to exceed a fixed-rule reading'. Move the README and preprint correction from 'before submission' to now.
+- Paper-strategy: P1, which replays each design with 256 fresh noise draws, becomes secondary unless a registered calibration against realized error passes; otherwise use an ERB-type primary. The rule parser needs an effort
+  standard, an author not on the LLM team, and a learned bag-of-words companion. Family C must not be shaped by the parser's author, and family D must be human-written where possible. Correct 'decision-level endpoints need 3 to 17
+  systems', which is really the figure for the learner's public posterior risk.
+- Experimentalist-task: reword 'independently authored simulator' as 'team-extended version of an independently authored simulator', and declare every addition (fan coupling, drift, hatch levels, costs) with its documentary basis
+  before E1. Control leakage from W into the training library, either with an author who has not read W's mechanism code or with a frozen overlap audit. Report N6 (the physics-informed planner) at headline level. Make the hardware
+  primary analysis intention-to-treat rather than completed-case. Add prompt-only rules and a seed policy. Demote the Remote Lab stages E2 and E9 from must until the lead rules whether the paid Remote Lab is compatible with 'no
+  paid APIs'.
+- All proposals: success of a hybrid or compiler arm (policy-repair H-prior, advantage-theory L3, paper-strategy L-hyb) must not be presented as meeting condition 1. Policy-repair's 'non-LLM text prior (ridge on sentence
+  embeddings)' is not free of LLMs if the embeddings come from a pretrained transformer, so add a bag-of-words prior.
+- All proposals: any stage run only after a positive result (a second simulator family, hardware) must be registered with the confirmation and reported whatever its outcome. Choosing the hardware design from the simulation effect
+  size is acceptable only if declared in advance and disclosed.
+
+## MISSING_FROM_ALL
+- A mechanical boundary between private truth and policy code once numerical policies run in-process and runs move to the Mac, outside the custody harness: a separate process or API boundary, a hash of the public state at each
+  decision, a leakage canary, and a provenance manifest (commit, environment hash, seeds) for every local run. Without it, in-process evaluation lets the policy and the private truth share memory.
+- A named human independent reviewer who approves the evaluator, the registration and the freeze before any confirmation data are generated. Agents write the policy, the evaluator and the analysis, so a review by another agent is
+  not the independent review that submission condition 5 requires.
+- A claim hierarchy and attempt ledger for the whole program, covering every class, LLM role, model size, recipe and seed, and every interface choice driven by forensics, with the denominator reported in the paper. Holm correction
+  within each experiment does not control a program that takes many shots at a positive result.
+- A rule that venue deadlines (ICML on January 22) may cut scope but never change a registered n, endpoint, gate or failure treatment. A confirmation that cannot reach its registered n is reported as incomplete rather than run
+  underpowered.
+- Confirmation that arXiv 2602.02451 is this project's preprint, since the author list was never checked and identity rests on the title. Any new paper also needs a disclosure section covering the voided 70-71% claim, the hand-
+  coded fills in Mission-1 and the eleven months of action collapse.
+- A lead ruling, before any sign-up including the free-credit calibration, on whether the Remote Lab (a paid external service with a real-time API) is allowed at all under 'no paid APIs', and on its terms: jointly owned data that
+  the company may publish, and marketing use of the customer's name.
+- World-clustered inference for every state-level analysis, because states are nested in worlds and independent systems are the units. Also an equivalence margin for every test that can return a null; only evaluation-statistics
+  (TOST) and experimentalist-task (a parity interval) have one.
+- Retiring the 24 development systems and the 32 November training worlds from every evaluation role (only evaluation-statistics asks for this), and re-declaring for the new class the confirmation range [202611071000,
+  202611072000), which was reserved under the old three-node protocol.
+
+## RECOMMENDED SPINE
+In week 0 the lead decides on the public record (a README banner now, and a preprint plan agreed with the coauthor after confirming the preprint is this project's), on an externally timestamped registration mechanism with a named
+  human reviewer, and on the pending approvals; nothing new about ACE is presented until the README is corrected. Stage 1 runs three tracks in parallel, with no LLM training. The first validates the instrument and endpoints on
+  fresh calibration systems with numerical arms: CRN, an A/A test, planted effects, synthetic capture policies, a leakage canary, and ERB against realized error. The second builds a headroom atlas over candidate classes with a
+  declared-handicap table, ending in a hashed admission decision that names one primary class. The third runs fidelity-gated, forward-only forensics of the saved adapters together with a numerical learnability ladder on fresh
+  training-namespace worlds. Stage 2 tests, in the completed three-node class on fresh namespaces and training-side data only, whether a repaired recipe can imitate the planner, with knockout attribution, numerical students on
+  identical data and the mandatory behavioural gates; this settles submission condition 1 either way, feeds the diagnostic paper, and never claims an advantage in that class. Stage 3 develops the LLM in the admitted primary class
+  with privileged-teacher training, a fresh validation shard per iteration (at most three), the same tuning budget for every learned arm, and the LLM's role and seed policy fixed by rules declared before any LLM result in that
+  class. Stage 4 is a single registered confirmation on fresh systems: co-primary hypotheses against the uninformed planner and against the strongest numerical control given the same information, the controls the standing rules
+  require, the ablation family, dose and placebo strata, a leakage audit whenever a gain exceeds the ceiling, all trained seeds, intention-to-treat failure scoring, a TOST margin, blinded analysis and a human re-analysis. Stage 5
+  runs a transfer family registered with the confirmation (the wind-tunnel simulator, described as team-extended) and reports it whatever the outcome; hardware runs only after a lead ruling on paid services, with frozen policies,
+  and is reported descriptively. Kill rules only narrow the claim: if no class is admitted, the paper becomes theory, atlas and diagnostics; if imitation fails, it becomes the diagnostic paper; a failed confirmation is reported as
+  such, with no replacement class. Throughout, an attempt ledger counts every LLM run, recipe, seed and class, and simulated training responses and compute are reported separately from deployment cost. The delivery study and the
+  methodology results proceed separately and do not depend on the LLM outcome. Venue deadlines may cut scope but never change a registered n, endpoint, gate or failure treatment.

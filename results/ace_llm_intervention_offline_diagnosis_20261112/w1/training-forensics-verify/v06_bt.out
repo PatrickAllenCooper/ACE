@@ -1,0 +1,39 @@
+strict pairs 687 worlds 32
+per-unordered-pair majority ceiling: 400/687 = 0.5822
+wins matrix (row beats col):
+[[ 0  7 10  4 10  6 10  6]
+ [ 8  0 12 14 18 10 13 13]
+ [ 9 11  0  8  8 15 14 14]
+ [16 15 13  0 16 20 23 20]
+ [ 9 10 18 11  0  9 14 15]
+ [11 15 15 14  9  0  9 17]
+ [ 8 11 15 11 10  7  0 13]
+ [10  5 19 16 16 12 15  0]]
+BT in-sample (prior 0.00): 390.0/687 = 0.5677 ; ranking: set_x_pos > set_x_neg > set_y_zero > set_y_neg > set_xy > set_y_pos > set_x_zero > observe_all
+     strengths {'observe_all': -0.259, 'set_x_neg': 0.179, 'set_x_zero': -0.231, 'set_x_pos': 0.416, 'set_y_neg': -0.002, 'set_y_zero': 0.149, 'set_y_pos': -0.222, 'set_xy': -0.03}
+BT in-sample (prior 0.01): 390.0/687 = 0.5677 ; ranking: set_x_pos > set_x_neg > set_y_zero > set_y_neg > set_xy > set_y_pos > set_x_zero > observe_all
+     strengths {'observe_all': -0.259, 'set_x_neg': 0.179, 'set_x_zero': -0.231, 'set_x_pos': 0.416, 'set_y_neg': -0.002, 'set_y_zero': 0.148, 'set_y_pos': -0.222, 'set_xy': -0.03}
+BT in-sample (prior 0.50): 390.0/687 = 0.5677 ; ranking: set_x_pos > set_x_neg > set_y_zero > set_y_neg > set_xy > set_y_pos > set_x_zero > observe_all
+     strengths {'observe_all': -0.245, 'set_x_neg': 0.17, 'set_x_zero': -0.222, 'set_x_pos': 0.401, 'set_y_neg': -0.002, 'set_y_zero': 0.141, 'set_y_pos': -0.213, 'set_xy': -0.03}
+BT in-sample (prior 1.00): 390.0/687 = 0.5677 ; ranking: set_x_pos > set_x_neg > set_y_zero > set_y_neg > set_xy > set_y_pos > set_x_zero > observe_all
+     strengths {'observe_all': -0.232, 'set_x_neg': 0.163, 'set_x_zero': -0.214, 'set_x_pos': 0.387, 'set_y_neg': -0.003, 'set_y_zero': 0.134, 'set_y_pos': -0.206, 'set_xy': -0.029}
+exact best constant total order in-sample: 400/687 = 0.5822 ; order set_x_pos > set_y_zero > set_x_neg > set_xy > observe_all > set_y_neg > set_y_pos > set_x_zero
+Borda net-wins ranking in-sample: 392.5/687 = 0.5713 {'observe_all': np.int64(-18), 'set_x_neg': np.int64(14), 'set_x_zero': np.int64(-23), 'set_x_pos': np.int64(45), 'set_y_neg': np.int64(-1), 'set_y_zero': np.int64(11), 'set_y_pos': np.int64(-23), 'set_xy': np.int64(-5)}
+BT leave-one-world-out (prior 0.00): 336.0/687 = 0.4891
+BT leave-one-world-out (prior 0.01): 336.0/687 = 0.4891
+BT leave-one-world-out (prior 0.50): 337.0/687 = 0.4905
+BT leave-one-world-out (prior 1.00): 337.0/687 = 0.4905
+Borda leave-one-world-out: 335.0/687 = 0.4876
+per-pair-majority leave-one-world-out: 317.5/687 = 0.4622
+BT LOWO world-cluster bootstrap 95% interval: 0.447 - 0.535 (worlds with strict pairs: 32)
+BT conditional on graph         in-sample 407.0/687 = 0.5924 ; LOWO 287.0/687 = 0.4178
+BT conditional on cost menu     in-sample 425.0/687 = 0.6186 ; LOWO 356.0/687 = 0.5182
+BT conditional on graph x cost  in-sample 479.0/687 = 0.6972 ; LOWO 359.0/687 = 0.5226
+BT conditional on snapshot      in-sample 438.0/687 = 0.6376 ; LOWO 355.0/687 = 0.5167
+NULL coin-flip direction, BT in-sample accuracy: mean 0.5406 sd 0.0152 ; P(null >= observed 390/687=0.5677) = 0.0467
+NULL random relabelling of the 8 actions within each record (keeps within-record dependence): mean 0.5653 sd 0.0189 ; P(null >= observed 0.5677) = 0.4467
+net wins under uni menu (n=320): {'observe_all': np.int64(-25), 'set_x_neg': np.int64(-1), 'set_x_zero': np.int64(-5), 'set_x_pos': np.int64(-1), 'set_y_neg': np.int64(26), 'set_y_zero': np.int64(10), 'set_y_pos': np.int64(-21), 'set_xy': np.int64(17)}
+net wins under het menu (n=367): {'observe_all': np.int64(7), 'set_x_neg': np.int64(15), 'set_x_zero': np.int64(-18), 'set_x_pos': np.int64(46), 'set_y_neg': np.int64(-27), 'set_y_zero': np.int64(1), 'set_y_pos': np.int64(-2), 'set_xy': np.int64(-22)}
+net wins in chain (n=239): {'observe_all': np.int64(-8), 'set_x_neg': np.int64(-5), 'set_x_zero': np.int64(3), 'set_x_pos': np.int64(40), 'set_y_neg': np.int64(-4), 'set_y_zero': np.int64(3), 'set_y_pos': np.int64(-9), 'set_xy': np.int64(-20)}
+net wins in fork (n=210): {'observe_all': np.int64(-11), 'set_x_neg': np.int64(14), 'set_x_zero': np.int64(-7), 'set_x_pos': np.int64(7), 'set_y_neg': np.int64(-12), 'set_y_zero': np.int64(8), 'set_y_pos': np.int64(-11), 'set_xy': np.int64(12)}
+net wins in collider (n=238): {'observe_all': np.int64(1), 'set_x_neg': np.int64(5), 'set_x_zero': np.int64(-19), 'set_x_pos': np.int64(-2), 'set_y_neg': np.int64(15), 'set_y_zero': np.int64(0), 'set_y_pos': np.int64(-3), 'set_xy': np.int64(3)}

@@ -1,0 +1,81 @@
+rows 640 arms ['ablation', 'delivery', 'online', 'simpler'] inits [np.int64(0), np.int64(1), np.int64(2)] histories ['balanced_varied_value', 'matched_random'] graph sizes [np.int64(5), np.int64(30)]
+init                  0   1   2
+graph_size arm                 
+5          ablation  40   0   0
+           delivery  40  40  40
+           online    40   0   0
+           simpler   40  40  40
+30         ablation  40   0   0
+           delivery  40  40  40
+           online    40   0   0
+           simpler   40  40  40
+floor active count: 0 | floor_active col True: 0
+
+== Registered primary contrasts (init 0), delivery/control ==
+(5, 'online'): ratio=2.45956 CI=[1.78782,3.38368] p_raw=1.09849e-05 holm=3.29547e-05 systems delivery better=2/20 LOO range=[2.320,2.617] gate=not met
+(5, 'simpler'): ratio=0.356194 CI=[0.282389,0.449288] p_raw=1.65693e-08 holm=6.62773e-08 systems delivery better=20/20 LOO range=[0.341,0.371] gate=met
+(30, 'online'): ratio=0.274321 CI=[0.158409,0.47505] p_raw=9.29437e-05 holm=0.000185887 systems delivery better=17/20 LOO range=[0.242,0.302] gate=met
+(30, 'simpler'): ratio=0.391027 CI=[0.254548,0.600681] p_raw=0.000205416 holm=0.000205416 systems delivery better=17/20 LOO range=[0.362,0.448] gate=met
+
+== History-specific (init 0) geometric ratios and delivery wins out of 20 ==
+  5-node balanced_varied_value  vs online  : ratio=1.6141 wins=4/20
+  5-node matched_random         vs online  : ratio=3.7479 wins=3/20
+  5-node balanced_varied_value  vs simpler : ratio=0.7928 wins=13/20
+  5-node matched_random         vs simpler : ratio=0.1600 wins=19/20
+  30-node balanced_varied_value  vs online  : ratio=0.6950 wins=12/20
+  30-node matched_random         vs online  : ratio=0.1083 wins=19/20
+  30-node balanced_varied_value  vs simpler : ratio=0.9123 wins=10/20
+  30-node matched_random         vs simpler : ratio=0.1676 wins=18/20
+
+== Rolling vs flat directly (init 0), online/simpler ==
+  5-node: ratio=0.1448 rolling better in 20/20 CI=[0.108,0.194]
+     balanced_varied_value : ratio=0.4912 rolling wins=18/20
+     matched_random        : ratio=0.0427 rolling wins=20/20
+  30-node: ratio=1.4254 rolling better in 7/20 CI=[0.899,2.259]
+     balanced_varied_value : ratio=1.3126 rolling wins=9/20
+     matched_random        : ratio=1.5480 rolling wins=6/20
+
+== Absolute scale at init 0: median sqrt(NMSE) over 40 cells per arm/family (percent of train SD) ==
+  5-node delivery  : n=40 median RMSE/SD=2.178%  median NMSE=0.0004749 geo NMSE=0.0004278 max NMSE=0.002152
+  5-node online    : n=40 median RMSE/SD=1.643%  median NMSE=0.0002698 geo NMSE=0.0001739 max NMSE=0.005813
+  5-node simpler   : n=40 median RMSE/SD=3.378%  median NMSE=0.001141 geo NMSE=0.001201 max NMSE=0.005521
+  30-node delivery  : n=40 median RMSE/SD=0.531%  median NMSE=2.823e-05 geo NMSE=2.73e-05 max NMSE=0.0002471
+  30-node online    : n=40 median RMSE/SD=0.851%  median NMSE=7.272e-05 geo NMSE=9.953e-05 max NMSE=0.001436
+  30-node simpler   : n=40 median RMSE/SD=0.869%  median NMSE=7.558e-05 geo NMSE=6.982e-05 max NMSE=0.0003752
+
+== Per-init delivery/control ratios and seed-averaged ==
+  5-node vs online  : init0=2.460 init1=2.271 init2=1.455 seed-avg=2.011
+  5-node vs simpler : init0=0.356 init1=0.163 init2=0.188 seed-avg=0.222
+  30-node vs online  : init0=0.274 init1=0.281 init2=0.220 seed-avg=0.257
+  30-node vs simpler : init0=0.391 init1=0.360 init2=0.264 seed-avg=0.333
+
+== Within-history worst/best delivery NMSE across 3 inits ==
+  5-node: median=2.018 p90=11.38 max=225.1 (n=40)
+  30-node: median=5.231 p90=21.65 max=151.5 (n=40)
+
+== Cell 5:08 matched_random ==
+     arm  init      mse     nmse
+delivery     0 0.001237 0.000106
+  online     0 0.000267 0.000023
+ simpler     0 0.014696 0.001258
+ablation     0 0.654552 0.056025
+delivery     1 0.278514 0.023839
+ simpler     1 0.562581 0.048153
+delivery     2 0.001761 0.000151
+ simpler     2 0.009640 0.000825
+
+== Arms present and which arm is best per system/history at init 0 ==
+  5-node best-arm counts over 40 system/history cells: {'online': 33, 'delivery': 7}
+     balanced_varied_value: {'online': 16, 'delivery': 4}
+     matched_random: {'online': 17, 'delivery': 3}
+  30-node best-arm counts over 40 system/history cells: {'delivery': 26, 'online': 8, 'simpler': 6}
+     balanced_varied_value: {'delivery': 9, 'online': 7, 'simpler': 4}
+     matched_random: {'delivery': 17, 'simpler': 2, 'online': 1}
+
+== Collection-history effect on each arm's own error (init 0): geometric NMSE by history ==
+  5-node delivery : balanced=0.0008935 random=0.0002048 balanced/random=4.363
+  5-node online   : balanced=0.0005536 random=5.464e-05 balanced/random=10.131
+  5-node simpler  : balanced=0.001127 random=0.00128 balanced/random=0.881
+  30-node delivery : balanced=3.861e-05 random=1.931e-05 balanced/random=2.000
+  30-node online   : balanced=5.555e-05 random=0.0001783 balanced/random=0.311
+  30-node simpler  : balanced=4.232e-05 random=0.0001152 balanced/random=0.367

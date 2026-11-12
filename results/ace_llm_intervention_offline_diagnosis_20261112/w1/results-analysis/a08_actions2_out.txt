@@ -1,0 +1,72 @@
+             raw_modal_graphcost  raw_loo_graphcost  signfree_modal_graphcost  signfree_loo_graphcost  signfree_loo_graph  signfree_loo_all  raw_loo_all
+policy                                                                                                                                                  
+random                     0.402              0.098                     0.467                   0.230               0.162             0.216        0.138
+coverage                   1.000              1.000                     1.000                   1.000               1.000             1.000        1.000
+local_info                 0.672              0.514                     0.723                   0.575               0.600             0.649        0.626
+target_risk                0.563              0.375                     0.629                   0.409               0.393             0.452        0.430
+ranker                     0.891              0.859                     1.000                   1.000               1.000             1.000        0.884
+frozen                     0.997              0.997                     0.997                   0.997               0.997             0.997        0.997
+sft                        0.936              0.902                     0.971                   0.956               0.956             0.964        0.920
+dpo                        1.000              1.000                     1.000                   1.000               1.000             1.000        1.000
+
+=== within-run consistency of the X sign (share of the run-majority sign among x-/x+ choices)
+  target_risk       majority-sign share 0.898 over 205 X-extreme actions ; runs using a single sign: 19 of 24
+  local_information majority-sign share 0.958 over 216 X-extreme actions ; runs using a single sign: 21 of 24
+  learned_ranker    majority-sign share 0.755 over 576 X-extreme actions ; runs using a single sign: 3 of 24
+  uniform_random    majority-sign share 0.691 over 123 X-extreme actions ; runs using a single sign: 1 of 24
+  menu_coverage     majority-sign share 0.500 over 168 X-extreme actions ; runs using a single sign: 0 of 24
+
+=== X-sign rule: majority X sign of the run vs sign of the posterior mean of X after initialization
+(xbar recovered from the saved initial predictions as (q_obs - q_do(X=0)) / (q_do(X=1) - q_do(X=0)); an inference from saved predictions)
+       graph           cost        regime  xbar_hat  slope_hat  target_risk_x-  target_risk_x+ target_risk_first  local_info_x-  local_info_x+ local_info_first  ranker_x-  ranker_x+ ranker_first
+w                                                                                                                                                                                                 
+0      chain        uniform   matched_low     1.042     -0.520              11               0                 -             12              0                -          7         17            -
+1      chain  heterogeneous   matched_low     1.364      0.166              11               0                 -             11              0                -          7         17            -
+2       fork        uniform   matched_low     0.711     -0.180               7               0                 -             11              1                -          7         17            -
+3       fork  heterogeneous   matched_low    -1.137     -0.398               0              10                 +              0             12                +          2         22            -
+4   collider        uniform   matched_low    -2.112      0.547               0              10                 +              0             10                +          0         24            +
+5   collider  heterogeneous   matched_low     0.696      0.236               7               5                 -              7              0                -          7         17            -
+6      chain        uniform  matched_high     1.206     -0.059               4               0                 -             10              0                -          7         17            -
+7      chain  heterogeneous  matched_high    -0.648     -0.556               1              13                 +              0              6                +          2         22            -
+8       fork        uniform  matched_high     0.736     -0.040               5               0                 -              7              0                -          7         17            -
+9       fork  heterogeneous  matched_high     1.255     -1.081              10               0                 -             10              0                -          7         17            -
+10  collider        uniform  matched_high    -0.932      0.603               0               7                 +              0              5                +          5         19            -
+11  collider  heterogeneous  matched_high     0.617      0.594               8               0                 -              7              0                -          7         17            -
+12     chain        uniform   shifted_low    -0.618      5.521               0               7                 +              3             11                +          0         24            +
+13     chain  heterogeneous   shifted_low     1.599      2.296              13               0                 -             12              0                -         12         12            -
+14      fork        uniform   shifted_low     2.509      2.262               2               0                 -             12              0                -         12         12            -
+15      fork  heterogeneous   shifted_low    -1.015      1.470               0               6                 +              0             12                +          0         24            +
+16  collider        uniform   shifted_low     0.466      0.409               8               3                 -              7              0                -          3         21            -
+17  collider  heterogeneous   shifted_low     0.015     -1.061               7               9                 +              7              5                -          2         22            -
+18     chain        uniform  shifted_high     0.609      0.485               6               5                 -              7              0                -          7         17            -
+19     chain  heterogeneous  shifted_high     1.336      2.119              12               0                 -             11              0                -          9         15            -
+20      fork        uniform  shifted_high    -0.572      1.614               0               1                 +              0              5                +          2         22            -
+21      fork  heterogeneous  shifted_high     0.209      0.753               6               0                 -              2              0                -          7         17            -
+22  collider        uniform  shifted_high     0.952      1.637               7               0                 -              6              0                -         10         14            -
+23  collider  heterogeneous  shifted_high     1.559      1.766               4               0                 -              7              0                -         12         12            -
+  target_risk  first X-extreme action is on the side farther from xbar_hat in 23 of 24 runs ; x- chosen first in 16 ; xbar_hat>0 in 17 of 24 systems
+               run-majority sign on the far side in 23 of 24
+  local_info   first X-extreme action is on the side farther from xbar_hat in 24 of 24 runs ; x- chosen first in 17 ; xbar_hat>0 in 17 of 24 systems
+               run-majority sign on the far side in 24 of 24
+  ranker       first X-extreme action is on the side farther from xbar_hat in 20 of 24 runs ; x- chosen first in 21 ; xbar_hat>0 in 17 of 24 systems
+               run-majority sign on the far side in 10 of 24
+
+=== class shares (sign-free) by policy
+      random  coverage  local_info  target_risk  ranker  frozen  sft  dpo
+Xext     123       168         216          205     576       0  504  576
+Yext     122       120          31           91       0       0   11    0
+obs       66         0         318          215       0     574    8    0
+x0        52        72           0            2       0       2    0    0
+xy        60        60           5           31       0       0    0    0
+y0        64        60           0           16       0       0    0    0
+      random  coverage  local_info  target_risk  ranker  frozen   sft    dpo
+Xext    25.3      35.0        37.9         36.6   100.0     0.0  96.4  100.0
+Yext    25.1      25.0         5.4         16.2     0.0     0.0   2.1    0.0
+obs     13.6       0.0        55.8         38.4     0.0    99.7   1.5    0.0
+x0      10.7      15.0         0.0          0.4     0.0     0.3   0.0    0.0
+xy      12.3      12.5         0.9          5.5     0.0     0.0   0.0    0.0
+y0      13.1      12.5         0.0          2.9     0.0     0.0   0.0    0.0
+  target_risk       uniform       Y-involving share 0.424 ; obs share 0.285 ; Xext share 0.288 (n=288)
+  target_risk       heterogeneous Y-involving share 0.059 ; obs share 0.489 ; Xext share 0.449 (n=272)
+  local_information uniform       Y-involving share 0.104 ; obs share 0.524 ; Xext share 0.372 (n=288)
+  local_information heterogeneous Y-involving share 0.021 ; obs share 0.592 ; Xext share 0.387 (n=282)

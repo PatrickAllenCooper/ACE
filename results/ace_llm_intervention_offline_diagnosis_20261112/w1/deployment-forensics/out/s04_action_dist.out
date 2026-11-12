@@ -1,0 +1,131 @@
+arm                    n | observe_all  set_x_neg set_x_zero  set_x_pos  set_y_neg set_y_zero  set_y_pos     set_xy       STOP
+uniform_random       487 |         66         59         52         64         67         64         55         60          0
+menu_coverage        480 |          0         84         72         84         60         60         60         60          0
+local_information    570 |        318        149          0         67          7          0         24          5          0
+target_risk          560 |        215        129          2         76         29         16         62         31          0
+learned_ranker       576 |          0        141          0        435          0          0          0          0          0
+frozen_llm           576 |        574          0          2          0          0          0          0          0          0
+sft_llm              546 |          8        481          0         23         11          0          0          0         23
+dpo_llm              576 |          0        576          0          0          0          0          0          0          0
+
+acquired (non-STOP) totals: {'uniform_random': 487, 'menu_coverage': 480, 'local_information': 570, 'target_risk': 560, 'learned_ranker': 576, 'frozen_llm': 576, 'sft_llm': 523, 'dpo_llm': 576}
+
+--- by graph
+uniform_random     chain          n= 166 | observe_all=24 set_x_neg=15 set_x_zero=20 set_x_pos=25 set_y_neg=22 set_y_zero=20 set_y_pos=17 set_xy=23
+uniform_random     collider       n= 160 | observe_all=19 set_x_neg=22 set_x_zero=14 set_x_pos=18 set_y_neg=27 set_y_zero=26 set_y_pos=17 set_xy=17
+uniform_random     fork           n= 161 | observe_all=23 set_x_neg=22 set_x_zero=18 set_x_pos=21 set_y_neg=18 set_y_zero=18 set_y_pos=21 set_xy=20
+menu_coverage      chain          n= 160 | set_x_neg=28 set_x_zero=24 set_x_pos=28 set_y_neg=20 set_y_zero=20 set_y_pos=20 set_xy=20
+menu_coverage      collider       n= 160 | set_x_neg=28 set_x_zero=24 set_x_pos=28 set_y_neg=20 set_y_zero=20 set_y_pos=20 set_xy=20
+menu_coverage      fork           n= 160 | set_x_neg=28 set_x_zero=24 set_x_pos=28 set_y_neg=20 set_y_zero=20 set_y_pos=20 set_xy=20
+local_information  chain          n= 192 | observe_all=107 set_x_neg=66 set_x_pos=17 set_y_pos=2
+local_information  collider       n= 186 | observe_all=91 set_x_neg=41 set_x_pos=20 set_y_neg=7 set_y_pos=22 set_xy=5
+local_information  fork           n= 192 | observe_all=120 set_x_neg=42 set_x_pos=30
+target_risk        chain          n= 189 | observe_all=81 set_x_neg=58 set_x_zero=1 set_x_pos=25 set_y_pos=20 set_xy=4
+target_risk        collider       n= 179 | observe_all=54 set_x_neg=41 set_x_zero=1 set_x_pos=34 set_y_neg=10 set_y_zero=1 set_y_pos=25 set_xy=13
+target_risk        fork           n= 192 | observe_all=80 set_x_neg=30 set_x_pos=17 set_y_neg=19 set_y_zero=15 set_y_pos=17 set_xy=14
+learned_ranker     chain          n= 192 | set_x_neg=51 set_x_pos=141
+learned_ranker     collider       n= 192 | set_x_neg=46 set_x_pos=146
+learned_ranker     fork           n= 192 | set_x_neg=44 set_x_pos=148
+frozen_llm         chain          n= 192 | observe_all=192
+frozen_llm         collider       n= 192 | observe_all=192
+frozen_llm         fork           n= 192 | observe_all=190 set_x_zero=2
+sft_llm            chain          n= 181 | set_x_neg=163 set_x_pos=7 set_y_neg=3 STOP=8
+sft_llm            collider       n= 182 | observe_all=8 set_x_neg=151 set_x_pos=8 set_y_neg=8 STOP=7
+sft_llm            fork           n= 183 | set_x_neg=167 set_x_pos=8 STOP=8
+dpo_llm            chain          n= 192 | set_x_neg=192
+dpo_llm            collider       n= 192 | set_x_neg=192
+dpo_llm            fork           n= 192 | set_x_neg=192
+
+--- by cost
+uniform_random     heterogeneous  n= 199 | observe_all=35 set_x_neg=24 set_x_zero=24 set_x_pos=27 set_y_neg=24 set_y_zero=20 set_y_pos=23 set_xy=22
+uniform_random     uniform        n= 288 | observe_all=31 set_x_neg=35 set_x_zero=28 set_x_pos=37 set_y_neg=43 set_y_zero=44 set_y_pos=32 set_xy=38
+menu_coverage      heterogeneous  n= 192 | set_x_neg=36 set_x_zero=24 set_x_pos=36 set_y_neg=24 set_y_zero=24 set_y_pos=24 set_xy=24
+menu_coverage      uniform        n= 288 | set_x_neg=48 set_x_zero=48 set_x_pos=48 set_y_neg=36 set_y_zero=36 set_y_pos=36 set_xy=36
+local_information  heterogeneous  n= 282 | observe_all=167 set_x_neg=74 set_x_pos=35 set_y_pos=5 set_xy=1
+local_information  uniform        n= 288 | observe_all=151 set_x_neg=75 set_x_pos=32 set_y_neg=7 set_y_pos=19 set_xy=4
+target_risk        heterogeneous  n= 272 | observe_all=133 set_x_neg=79 set_x_zero=1 set_x_pos=43 set_y_pos=7 set_xy=9
+target_risk        uniform        n= 288 | observe_all=82 set_x_neg=50 set_x_zero=1 set_x_pos=33 set_y_neg=29 set_y_zero=16 set_y_pos=55 set_xy=22
+learned_ranker     heterogeneous  n= 288 | set_x_neg=74 set_x_pos=214
+learned_ranker     uniform        n= 288 | set_x_neg=67 set_x_pos=221
+frozen_llm         heterogeneous  n= 288 | observe_all=286 set_x_zero=2
+frozen_llm         uniform        n= 288 | observe_all=288
+sft_llm            heterogeneous  n= 273 | observe_all=1 set_x_neg=243 set_x_pos=12 set_y_neg=6 STOP=11
+sft_llm            uniform        n= 273 | observe_all=7 set_x_neg=238 set_x_pos=11 set_y_neg=5 STOP=12
+dpo_llm            heterogeneous  n= 288 | set_x_neg=288
+dpo_llm            uniform        n= 288 | set_x_neg=288
+
+--- by regime
+uniform_random     matched_high   n= 120 | observe_all=17 set_x_neg=12 set_x_zero=11 set_x_pos=15 set_y_neg=19 set_y_zero=18 set_y_pos=14 set_xy=14
+uniform_random     matched_low    n= 124 | observe_all=14 set_x_neg=21 set_x_zero=16 set_x_pos=12 set_y_neg=19 set_y_zero=17 set_y_pos=14 set_xy=11
+uniform_random     shifted_high   n= 120 | observe_all=17 set_x_neg=15 set_x_zero=11 set_x_pos=15 set_y_neg=13 set_y_zero=18 set_y_pos=12 set_xy=19
+uniform_random     shifted_low    n= 123 | observe_all=18 set_x_neg=11 set_x_zero=14 set_x_pos=22 set_y_neg=16 set_y_zero=11 set_y_pos=15 set_xy=16
+menu_coverage      matched_high   n= 120 | set_x_neg=21 set_x_zero=18 set_x_pos=21 set_y_neg=15 set_y_zero=15 set_y_pos=15 set_xy=15
+menu_coverage      matched_low    n= 120 | set_x_neg=21 set_x_zero=18 set_x_pos=21 set_y_neg=15 set_y_zero=15 set_y_pos=15 set_xy=15
+menu_coverage      shifted_high   n= 120 | set_x_neg=21 set_x_zero=18 set_x_pos=21 set_y_neg=15 set_y_zero=15 set_y_pos=15 set_xy=15
+menu_coverage      shifted_low    n= 120 | set_x_neg=21 set_x_zero=18 set_x_pos=21 set_y_neg=15 set_y_zero=15 set_y_pos=15 set_xy=15
+local_information  matched_high   n= 144 | observe_all=93 set_x_neg=34 set_x_pos=11 set_y_neg=6
+local_information  matched_low    n= 141 | observe_all=64 set_x_neg=41 set_x_pos=23 set_y_neg=1 set_y_pos=11 set_xy=1
+local_information  shifted_high   n= 144 | observe_all=101 set_x_neg=33 set_x_pos=5 set_y_pos=3 set_xy=2
+local_information  shifted_low    n= 141 | observe_all=60 set_x_neg=41 set_x_pos=28 set_y_pos=10 set_xy=2
+target_risk        matched_high   n= 143 | observe_all=56 set_x_neg=28 set_x_zero=1 set_x_pos=20 set_y_neg=6 set_y_zero=7 set_y_pos=17 set_xy=8
+target_risk        matched_low    n= 136 | observe_all=34 set_x_neg=36 set_x_zero=1 set_x_pos=25 set_y_neg=9 set_y_zero=1 set_y_pos=21 set_xy=9
+target_risk        shifted_high   n= 141 | observe_all=66 set_x_neg=35 set_x_pos=6 set_y_neg=9 set_y_zero=8 set_y_pos=14 set_xy=3
+target_risk        shifted_low    n= 140 | observe_all=59 set_x_neg=30 set_x_pos=25 set_y_neg=5 set_y_pos=10 set_xy=11
+learned_ranker     matched_high   n= 144 | set_x_neg=35 set_x_pos=109
+learned_ranker     matched_low    n= 144 | set_x_neg=30 set_x_pos=114
+learned_ranker     shifted_high   n= 144 | set_x_neg=47 set_x_pos=97
+learned_ranker     shifted_low    n= 144 | set_x_neg=29 set_x_pos=115
+frozen_llm         matched_high   n= 144 | observe_all=144
+frozen_llm         matched_low    n= 144 | observe_all=144
+frozen_llm         shifted_high   n= 144 | observe_all=144
+frozen_llm         shifted_low    n= 144 | observe_all=142 set_x_zero=2
+sft_llm            matched_high   n= 137 | set_x_neg=122 set_x_pos=6 set_y_neg=3 STOP=6
+sft_llm            matched_low    n= 133 | observe_all=4 set_x_neg=113 set_x_pos=6 set_y_neg=4 STOP=6
+sft_llm            shifted_high   n= 137 | observe_all=4 set_x_neg=119 set_x_pos=6 set_y_neg=2 STOP=6
+sft_llm            shifted_low    n= 139 | set_x_neg=127 set_x_pos=5 set_y_neg=2 STOP=5
+dpo_llm            matched_high   n= 144 | set_x_neg=144
+dpo_llm            matched_low    n= 144 | set_x_neg=144
+dpo_llm            shifted_high   n= 144 | set_x_neg=144
+dpo_llm            shifted_low    n= 144 | set_x_neg=144
+
+cost-report action sequence cross-check: cells 192 mismatches 0
+policy_id,action_id,accepted_acquisitions
+uniform_random,observe_all,66
+uniform_random,set_x_neg,59
+uniform_random,set_x_pos,64
+uniform_random,set_x_zero,52
+uniform_random,set_xy,60
+uniform_random,set_y_neg,67
+uniform_random,set_y_pos,55
+uniform_random,set_y_zero,64
+menu_coverage,set_x_neg,84
+menu_coverage,set_x_pos,84
+menu_coverage,set_x_zero,72
+menu_coverage,set_xy,60
+menu_coverage,set_y_neg,60
+menu_coverage,set_y_pos,60
+menu_coverage,set_y_zero,60
+local_information,observe_all,318
+local_information,set_x_neg,149
+local_information,set_x_pos,67
+local_information,set_xy,5
+local_information,set_y_neg,7
+local_information,set_y_pos,24
+target_risk,observe_all,215
+target_risk,set_x_neg,129
+target_risk,set_x_pos,76
+target_risk,set_x_zero,2
+target_risk,set_xy,31
+target_risk,set_y_neg,29
+target_risk,set_y_pos,62
+target_risk,set_y_zero,16
+learned_ranker,set_x_neg,141
+learned_ranker,set_x_pos,435
+frozen_llm,observe_all,574
+frozen_llm,set_x_zero,2
+sft_llm,observe_all,8
+sft_llm,set_x_neg,481
+sft_llm,set_x_pos,23
+sft_llm,set_y_neg,11
+dpo_llm,set_x_neg,576
+

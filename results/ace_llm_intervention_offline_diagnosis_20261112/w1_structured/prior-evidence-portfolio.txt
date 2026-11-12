@@ -1,0 +1,83 @@
+# prior-evidence-portfolio
+## SUMMARY
+Since the September 2026 metric audit voided every original ACE-vs-baseline claim, the project has run five successive agendas. Every positive result is numerical or learner-side: delivery refit, SCM surrogate versus
+  flat surrogate (dev), posterior-risk pair selection on two of three synthetic graph families, target-risk planning (best of eight in November), PEV-style model scoring on two of five ACE-Runner scenarios (dev), and
+  cost-aware partial evaluation (dev, hypothetical costs). Every tested LLM role tied or lost to a data-only control: per-step proposing (original ACE, preregistered Mission-1, November DPO), mechanism-family proposals
+  (BoxingGym Lotka, six invalid outputs on 9 October), and partial-identification reasoning. Semantic priors have one small supporting signal that vanished inside a strong learner. Action compilation from independent
+  descriptions was never run with any model and is blocked on a human adjudicator. Translating varied objectives is untested. No external testbed yielded a usable adaptive task: CausalMan's probe menu was rejected,
+  Causal Chambers is logged data that a two-coefficient law explains, NeuronBench rankings depend on the forecaster, and the compressor exists only as slides. ACE-Runner's five simulators are the only ready executable
+  engineering environments. The set-transformer, memory, representation, hypothesis-search and perturbation-data packages were never started.
+
+## KEY FACTS
+[1] (verified) Corrected original ACE: 5-node ACE 0.165 vs round-robin 0.161 (p=0.85); ACE with DPO loses to Random at 15/30/50 nodes; DPO hurts monotonically at N>=15.
+    EVIDENCE: /Users/pat/code/ACE/docs/development/guidance/handoff_2026-09-25.md L75-L96
+[2] (verified) Preregistered Mission-1 (Qwen2.5-1.5B proposer, 11 paired seeds): ACE vs Random/LHS ratios 1.04-1.07, all inconclusive; LLM vs random proposer 1.0412 (0.8870-1.2221), 2/11 seeds.
+    EVIDENCE: /Users/pat/code/ACE-Runner/studies/2026-10-peter-baseline/package/stats_appendix.md
+[3] (verified) Posterior-risk pair selection vs fixed factorial hub: binary tree ratio 0.6783 (pass, 26/40), random-recursive 0.384 (pass, 31/40), fanout 0.8645 (fail). Numerical only, sequentially chosen synthetic
+  families.
+    EVIDENCE: /Users/pat/code/ACE/docs/development/guidance/research_execution_2026-09-25.md L276, L289, L339; results/local_connected_*_pair_*/README.md
+[4] (verified) PEV never separated from naive variance; fresh shift-family primary contrast vs coverage failed (p=0.05108); endpoint coverage won on 3 dev systems then reversed on 20 fresh.
+    EVIDENCE: research_execution_2026-09-25.md L94, L112, L124, L134
+[5] (verified) Semantic-prior tests: wrong proposal 0.02564 vs gate 0.02128 vs broad 0.01750; Qwen Lotka proposal identical to data-only selector (MAE 0.348); Signal gate accepted a false cue 3/3; abstention rule lost
+  the correct-cue benefit.
+    EVIDENCE: research_execution_2026-09-25.md L150, L236, L397; results/research_boxing_lotka_open_proposal_dev_v1/README.md
+[6] (verified) ACE-Runner dev: named vs anonymized elicitation 1.00 inside the gated learner, 0.86-0.87 inside a weak linear family; SCM chain vs flat MLP 0.27/0.16/0.07; adaptive partial evaluation vs best fixed split
+  0.64 and 0.45 at budget 200.
+    EVIDENCE: /Users/pat/code/ACE-Runner/studies/2026-10-fm-scm-dev/README.md
+[7] (verified) PEV-style model scoring vs Random+SCM at 1,000 calls: counter_uas 0.68 (10/10), tlam_satellite 0.62, tlam_mission1 0.91, missile_defense 1.00. The LLM arm never ran.
+    EVIDENCE: /Users/pat/code/ACE-Runner/studies/2026-10-deck-recreation/README.md
+[8] (verified) TabPFN: 2.6432x worse than a correct grammar; 0.0159 and 0.0144 vs an inadequate grammar; vs RBF control 0.666/0.562/1.697/0.472; adding PFN to the selector harmed missing-M systems.
+    EVIDENCE: guidance/ace_foundation_{component,mismatch,retention}_results_2026-10-09.md; descriptive_summary.json spot-check
+[9] (verified) Six language proposals failed because unconstrained greedy Qwen3-0.6B (64 tokens, anonymised, 8 pairs per mechanism) returned Markdown-fenced JSON with illegal values ("Y", numeric strings, a truncated
+  data echo).
+    EVIDENCE: results/ace_foundation_component_20261009/ace-foundation-component-pilot-20261009-01/9100*/raw_response.txt and language.json
+[10] (verified) Action-language lane produced infrastructure only: rule parser 8/8 in sample, 0/8 on reworded texts, zero adjudicated tasks, zero model calls.
+    EVIDENCE: results/local_action_language_*/README.md; guidance/action_language_source_intake_2026-10-01.md
+[11] (verified) Modular repair repeatedly damaged unchanged mechanisms (8.8%-21.8% in every stratum); the conservative gate abstains and needs 638+ independent blocks.
+    EVIDENCE: research_execution_2026-09-25.md L341, L407, L423
+[12] (verified) Compressor is not integrated; OpenModelica is absent locally. ACE-Runner environments expose generate(n_samples, interventions) with do-semantics on internal nodes.
+    EVIDENCE: guidance/ace_llm_intervention_agenda_2026-11-02.md L143; `which omc`; ACE-Runner/environments/base.py, counter_uas.py
+[13] (inferred) F1, M1, R1, H1 and X1 were never started.
+    EVIDENCE: broad_experiment_registry_2026-10-01.json statuses; no matching scripts in scripts/research
+
+## NUMBERS
+Delivery confirmation: 0.183 [0.102, 0.327], 11/12. Stage B delivery/online: 5-node 2.46 (fails), 30-node 0.274.
+Physical (Causal Chambers, 11 conditions): delivery beats rolling 7, physics 3, Fourier 0. white_64 NMSE: Fourier 0.0798, physics 0.0953.
+Pair selection (risk vs factorial hub MSE): 0.026942/0.039722; 0.0227035/0.0591759; 0.013271/0.015352.
+PEV shift30: PEV 0.015430, naive 0.015871, coverage 0.039791, random 0.043898.
+TabPFN/Grammar32: null 1.052, coefficient change 3.592, missing M 0.015875, missing Y 0.014407.
+November screen (capped cost): target risk 11.625, local information 11.958, coverage 12.458, ranker 13.583, frozen LLM 13.625, random 14.250, supervised 14.625, DPO 15.167.
+Model-scale sweep (my computation from results/curc_model_scale_sweep/aggregate.csv, pre-audit metric): zero-shot N=30 final MSE/node 0.148 (0.5B), 0.172 (1.5B), 0.242 (3B); 7B/14B/32B missing.
+
+## SURPRISES / CONTRADICTIONS
+- The ACE-Runner charter (8-9 October) lists DPO and per-step LLM proposing as do-not-retry and places the FM on the prior side. The 2 November agenda reopened exactly that at Patrick's direction; the newer document
+  governs, and the 10 November result matches the older warning.
+- The Qwen3-0.6B model that failed the 9 October output contract became the November policy model after grammar constraints were added.
+- A Qwen2.5-7B-Instruct snapshot is cached locally, yet no guidance document reports using it.
+- The experiment registry is stale: A1a, C1a and B2a were executed on 2 October per the ledger.
+- The first Causal Chambers physics control used a wrong formula; its scores are misspecified controls.
+- The 25 September portfolio allowed 1,000 closed-model calls; every later document forbids paid APIs.
+- The charter calls tlam_satellite unlearnable, while the later deck recreation reports a signal on it.
+
+## IMPLICATIONS FOR AGENDA
+- Do not propose: scaling the DPO recipe, same-generator PEV or pair-selection seed grids, threshold tuning on the 12 exposed fanout systems, Lotka or Signal expansions, direct-prompt partial identification on the
+  20-task suite, Mission-1 root-design acquisition, the CausalMan probe menu, or an unconstrained JSON language channel.
+- Any LLM-prior experiment needs a data-only selector over the same grammar, an anonymized placebo, misleading metadata, a rule-based bounded-output prior (not yet implemented) and a flexible non-pretrained control.
+- Keep target-risk planning, coverage, endpoint coverage and the fixed factorial hub as controls; use exact enumeration wherever the action schema is formal.
+- Choose tasks where the exact planner's assumptions fail: misspecified mechanism families, budgets too small for reliable selection, informal action descriptions. A known-graph linear-Gaussian menu leaves an LLM nothing
+  to add.
+- Acquisition headroom was only seen with intermediate or pair interventions on bottleneck graphs and with cost-aware partial evaluation. An LLM must beat the numerical allocator there.
+- Judgment: cheapest concrete task is an ACE-Runner scenario (counter_uas, or tlam_mission1 with partial-evaluation costs) behind the November charged executor; Causal Chambers serves as a logged-data sanity row; the
+  compressor requires a build.
+- Action compilation needs an independent adjudicator before any model run.
+- Test model scale once: all LLM evidence comes from models of 3B parameters or fewer.
+
+## OPEN QUESTIONS
+- Can XSIM sub-models run separately, at what cost, with which settable variables and decision threshold?
+- Is there a documented CausalMan actuator pair with an interacting continuous outcome?
+- Can live Causal Chambers access be arranged?
+- Does the named-versus-anonymized null persist with a larger model or independently written descriptions?
+- Who can adjudicate action-language gold independently?
+- Should the unexecuted 312-cell validation-budget protocol (seeds 94000-94005) be dropped?
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/prior-evidence-portfolio.md

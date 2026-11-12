@@ -1,0 +1,19 @@
+reference node probabilities (from mean SFT log-likelihoods): observe/set [0.368 0.632]  _x/_y/_xy [0.752 0.212 0.036]  _neg/_pos/_zero [0.884 0.096 0.02 ]
+
+Best unit-norm bias-only model: step a=0.90 logit units per pair, momentum=0.5; corr(predicted, implied pre-update margin) = 0.797; R^2 vs the 'no transfer' prediction (margin 0 at every step) = 0.635
+sign agreement between predicted and implied margins: 93 / 119 (excluding the first step, which is exactly 0)
+  momentum 0.0: (a, corr, R^2) [(0.25, 0.759, 0.298), (0.5, 0.768, 0.5), (1.0, 0.776, 0.571), (1.5, 0.782, 0.136), (2.0, 0.788, -0.911), (3.0, 0.795, -4.956)]
+  momentum 0.9: (a, corr, R^2) [(0.25, 0.775, 0.26), (0.5, 0.785, 0.453), (1.0, 0.793, 0.629), (1.5, 0.796, 0.51), (2.0, 0.798, 0.075), (3.0, 0.799, -1.933)]
+
+final per-command log-likelihood shift: bias-only model vs observed mean (final - SFT):
+   observe_all  model   -4.89   observed   -1.12
+   set_x_neg    model   +0.84   observed   +0.57
+   set_x_pos    model   -5.03   observed   -3.84
+   set_x_zero   model   -6.25   observed   -9.57
+   set_y_neg    model   -6.14   observed   -4.57
+   set_y_pos    model  -12.01   observed  -12.33
+   set_y_zero   model  -13.23   observed  -13.34
+   set_xy       model   -0.05   observed   -0.03
+corr(model shift, observed shift) over the 8 commands: 0.932
+
+Toy control (inference only): with the SAME pairs but coin-flip directions, same step size, the bias-only model ends with argmax: {'observe_all': 954, 'set_x_neg': 252, 'set_y_neg': 225, 'set_x_pos': 177, 'set_xy': 125, 'set_y_pos': 114, 'set_x_zero': 87, 'set_y_zero': 66}

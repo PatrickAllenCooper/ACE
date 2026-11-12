@@ -1,0 +1,24 @@
+(a) same-first-action policy pairs: 293; with identical post-action predictions: 0; identical NMSE: 0
+    init predictions identical across arms within world: True
+(b) length of common set_x_neg prefix dpo/sft by system: {'w00': 12, 'w01': 12, 'w02': 12, 'w03': 13, 'w04': 11, 'w05': 12, 'w06': 13, 'w07': 12, 'w08': 12, 'w09': 13, 'w10': 11, 'w11': 10, 'w12': 22, 'w13': 12, 'w14': 17, 'w15': 13, 'w16': 11, 'w17': 12, 'w18': 12, 'w19': 13, 'w20': 18, 'w21': 18, 'w22': 11, 'w23': 11}
+    min prefix: 10  max: 22  n systems with prefix>=10: 24
+    cap 18: dpo vs sft capped costs differ on 7 of 14 informative systems; diffs (informative): [0, -2, 7, -5, 0, 0, -1, 0, 8, 1, 0, -6, 0, 0]
+    cap 18: mean |diff|/2 over 24 systems (best-of-two gain over the mean of two): 0.6250; SD of diff over 24: 2.796; over 14 informative: 3.718
+    cap 18: best-of-two gain over ONE fixed run (mean(dpo) - mean(min)): 0.6667 ; (sft - min): 0.5833
+    cap 18: TR mean 10.6667; envelope mean 9.3750; envelope gain over TR per system 1.2917
+    cap 18: per-policy mean capped cost: {'uniform_random': np.float64(11.958), 'menu_coverage': np.float64(11.0), 'local_information': np.float64(10.833), 'target_risk': np.float64(10.667), 'learned_ranker': np.float64(11.208), 'frozen_llm': np.float64(11.625), 'sft_llm': np.float64(11.917), 'dpo_llm': np.float64(12.0)}
+    SD across 24 systems of log10 NMSE(dpo) - log10 NMSE(sft) at total cost 9..18: [0.58, 0.351, 0.424, 0.491, 0.554, 0.453, 0.37, 0.375, 0.386, 0.478]
+    mean of that difference at cost 9..18: [0.07, -0.01, 0.025, 0.026, -0.067, -0.037, -0.001, 0.035, 0.059, -0.03]
+    implied single-run replicate SD of log10 NMSE (diff SD / sqrt2): [0.41, 0.248, 0.3, 0.347, 0.392, 0.32, 0.261, 0.265, 0.273, 0.338]
+    twin-based replicate SD of capped cost at cap 18 (sd(diff)/sqrt2): 1.977; between-system SD of twin mean: 4.319
+(g) error rose after 1909 of 4348 acquisitions (43.91%); crossing runs 172; later above target at least once: 61; on at-target systems: 20 of 80
+    crossing runs whose FINAL state is above target: 15
+    crossing-then-left by policy: {'uniform_random': 9, 'menu_coverage': 6, 'local_information': 11, 'target_risk': 8, 'learned_ranker': 7, 'frozen_llm': 10, 'sft_llm': 6, 'dpo_llm': 4}
+    share of acquisitions after which error rose, by policy: {'uniform_random': np.float64(0.435), 'menu_coverage': np.float64(0.408), 'local_information': np.float64(0.46), 'target_risk': np.float64(0.432), 'learned_ranker': np.float64(0.427), 'frozen_llm': np.float64(0.465), 'sft_llm': np.float64(0.449), 'dpo_llm': np.float64(0.431)}
+(h) sft policy stops: 23 systems; non-stop system: ['w17']
+    actions at stop: min 21 max 23 | total cost at stop: min 29 max 31 | unspent total: 47
+    distribution of stop total cost: {29: 5, 30: 14, 31: 4}  actions: {21: 8, 22: 13, 23: 2}
+    stops above target: [('w10', 0.0493), ('w11', 0.0472), ('w12', 0.0917), ('w19', 0.1991), ('w21', 0.0583)]
+    corr(stop total cost, log10 final error) over the 23 stops: pearson 0.143  spearman 0.1156  | corr(n actions, log10 err): 0.2063  | over all 24: 0.131
+    sft action mix over positions (last actions before stop): {'set_x_neg': 21, 'observe_all': 2}
+    per-system sft:  [('w00', 29, 21, 'uni'), ('w01', 30, 21, 'het'), ('w02', 30, 22, 'uni'), ('w03', 29, 21, 'het'), ('w04', 29, 21, 'uni'), ('w05', 30, 21, 'het'), ('w06', 29, 21, 'uni'), ('w07', 31, 22, 'het'), ('w08', 30, 22, 'uni'), ('w09', 30, 22, 'het'), ('w10', 31, 23, 'uni'), ('w11', 30, 21, 'het'), ('w12', 30, 22, 'uni'), ('w13', 31, 23, 'het'), ('w14', 30, 22, 'uni'), ('w15', 30, 22, 'het'), ('w16', 30, 22, 'uni'), ('w17', 32, 23, 'het'), ('w18', 29, 21, 'uni'), ('w19', 30, 22, 'het'), ('w20', 30, 22, 'uni'), ('w21', 30, 22, 'het'), ('w22', 30, 22, 'uni'), ('w23', 31, 22, 'het')]

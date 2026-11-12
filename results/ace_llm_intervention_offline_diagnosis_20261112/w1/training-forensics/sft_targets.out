@@ -1,0 +1,179 @@
+TOTAL supervised examples: 160
+
+== overall target distribution
+              n  frac_of_160
+target                      
+observe_all  24       0.1500
+set_x_neg    32       0.2000
+set_x_zero    7       0.0438
+set_x_pos    29       0.1812
+set_y_neg    10       0.0625
+set_y_zero    4       0.0250
+set_y_pos    10       0.0625
+set_xy       12       0.0750
+STOP         32       0.2000
+
+nonterminal examples: 128  stop examples: 32
+              n  frac_of_128
+target                      
+observe_all  24       0.1875
+set_x_neg    32       0.2500
+set_x_zero    7       0.0547
+set_x_pos    29       0.2266
+set_y_neg    10       0.0781
+set_y_zero    4       0.0312
+set_y_pos    10       0.0781
+set_xy       12       0.0938
+
+== sanity: are all stop targets exactly the snapshot-4 terminal records?
+target    False  True 
+snapshot              
+0            32      0
+1            32      0
+2            32      0
+3            32      0
+4             0     32
+stop records: terminal flag values {True: 32} remaining_units {0: 32}
+nonterminal records: remaining_units dist {5: 2, 6: 30, 11: 3, 12: 29, 17: 7, 18: 25, 24: 32}
+
+== target by teacher_method (all 160)
+target             observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  STOP  total
+teacher_method                                                                                                         
+local_information           11          9           0          8          2           0          2       0     8     40
+menu_coverage                0         12           2         12          1           1          3       1     8     40
+target_risk                  8          8           0          9          0           0          0       7     8     40
+uniform_random               5          3           5          0          7           3          5       4     8     40
+
+== target by graph (all 160)
+target    observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  STOP  total
+graph                                                                                                         
+chain               6         11           3         14          5           1          4       4    12     60
+collider            9          4           2          8          5           2          5       5    10     50
+fork                9         17           2          7          0           1          1       3    10     50
+
+== target by cost_menu (all 160)
+target         observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  STOP  total
+cost_menu                                                                                                          
+heterogeneous           13         19           3         15          5           3          3       3    16     80
+uniform                 11         13           4         14          5           1          7       9    16     80
+
+== target by snapshot (all 160)
+target    observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  STOP  total
+snapshot                                                                                                      
+0                   3         16           3          2          3           2          0       3     0     32
+1                   5          7           1         13          1           1          3       1     0     32
+2                   9          4           2          8          3           0          4       2     0     32
+3                   7          5           1          6          3           1          3       6     0     32
+4                   0          0           0          0          0           0          0       0    32     32
+
+== target by regime (all 160)
+target        observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  STOP  total
+regime                                                                                                            
+matched_high            8          8           3          8          2           1          0       2     8     40
+matched_low             4          6           2          9          2           1          4       4     8     40
+shifted_high            8         10           0          6          4           2          0       2     8     40
+shifted_low             4          8           2          6          2           0          6       4     8     40
+
+== target by behavior_method (all 160)
+target             observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  STOP  total
+behavior_method                                                                                                        
+local_information            8          7           2          6          3           1          2       3     8     40
+menu_coverage                7         11           1          1          1           2          6       3     8     40
+target_risk                  6          6           1         10          1           1          2       5     8     40
+uniform_random               3          8           3         12          5           0          0       1     8     40
+
+== target by teacher_method, nonterminal only (128)
+target             observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  total
+teacher_method                                                                                                   
+local_information           11          9           0          8          2           0          2       0     32
+menu_coverage                0         12           2         12          1           1          3       1     32
+target_risk                  8          8           0          9          0           0          0       7     32
+uniform_random               5          3           5          0          7           3          5       4     32
+
+== target by teacher x graph, nonterminal only
+target                      observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  total
+teacher_method    graph                                                                                                   
+local_information chain               4          3           0          4          0           0          1       0     12
+                  collider            4          2           0          1          2           0          1       0     10
+                  fork                3          4           0          3          0           0          0       0     10
+menu_coverage     chain               0          4           0          6          1           0          1       0     12
+                  collider            0          1           1          4          0           1          2       1     10
+                  fork                0          7           1          2          0           0          0       0     10
+target_risk       chain               1          4           0          4          0           0          0       3     12
+                  collider            4          0           0          3          0           0          0       3     10
+                  fork                3          4           0          2          0           0          0       1     10
+uniform_random    chain               1          0           3          0          4           1          2       1     12
+                  collider            1          1           1          0          3           1          2       1     10
+                  fork                3          2           1          0          0           1          1       2     10
+
+== target by teacher x cost menu, nonterminal only
+target                           observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  total
+teacher_method    cost_menu                                                                                                    
+local_information heterogeneous            6          5           0          5          0           0          0       0     16
+                  uniform                  5          4           0          3          2           0          2       0     16
+menu_coverage     heterogeneous            0          7           2          5          0           0          2       0     16
+                  uniform                  0          5           0          7          1           1          1       1     16
+target_risk       heterogeneous            4          5           0          5          0           0          0       2     16
+                  uniform                  4          3           0          4          0           0          0       5     16
+uniform_random    heterogeneous            3          2           1          0          5           3          1       1     16
+                  uniform                  2          1           4          0          2           0          4       3     16
+
+== target by graph x cost menu (all 160)
+target                  observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  STOP  total
+graph    cost_menu                                                                                                          
+chain    heterogeneous            2          6           1          8          3           1          2       1     6     30
+         uniform                  4          5           2          6          2           0          2       3     6     30
+collider heterogeneous            6          4           1          4          2           1          1       1     5     25
+         uniform                  3          0           1          4          3           1          4       4     5     25
+fork     heterogeneous            5          9           1          3          0           1          0       1     5     25
+         uniform                  4          8           1          4          0           0          1       2     5     25
+
+== majority-class accuracy (in-sample; a lookup that outputs the modal target of each cell)
+all 160          cells=(none)                                 correct= 32/160 = 0.2000  modal=STOP
+all 160          cells=graph                                  correct= 41/160 = 0.2562
+all 160          cells=cost_menu                              correct= 35/160 = 0.2188
+all 160          cells=graph+cost_menu                        correct= 42/160 = 0.2625
+all 160          cells=snapshot                               correct= 77/160 = 0.4813
+all 160          cells=teacher_method                         correct= 40/160 = 0.2500
+all 160          cells=graph+cost_menu+snapshot               correct= 87/160 = 0.5437
+all 160          cells=graph+cost_menu+teacher_method         correct= 58/160 = 0.3625
+all 160          cells=regime                                 correct= 35/160 = 0.2188
+all 160          cells=graph+cost_menu+regime                 correct= 53/160 = 0.3312
+nonterminal 128  cells=(none)                                 correct= 32/128 = 0.2500  modal=set_x_neg
+nonterminal 128  cells=graph                                  correct= 40/128 = 0.3125
+nonterminal 128  cells=cost_menu                              correct= 33/128 = 0.2578
+nonterminal 128  cells=graph+cost_menu                        correct= 41/128 = 0.3203
+nonterminal 128  cells=snapshot                               correct= 45/128 = 0.3516
+nonterminal 128  cells=teacher_method                         correct= 39/128 = 0.3047
+nonterminal 128  cells=graph+cost_menu+snapshot               correct= 55/128 = 0.4297
+nonterminal 128  cells=graph+cost_menu+teacher_method         correct= 58/128 = 0.4531
+nonterminal 128  cells=regime                                 correct= 35/128 = 0.2734
+nonterminal 128  cells=graph+cost_menu+regime                 correct= 53/128 = 0.4141
+
+== graph x cost cells: modal target and its count (all 160, then nonterminal)
+all
+      graph      cost_menu   n        modal  modal_n  modal_frac  set_x_neg_n                                                                                                                                          dist
+0     chain  heterogeneous  30    set_x_pos        8      0.2667            6  {'set_x_pos': 8, 'set_x_neg': 6, 'STOP': 6, 'set_y_neg': 3, 'set_y_pos': 2, 'observe_all': 2, 'set_x_zero': 1, 'set_y_zero': 1, 'set_xy': 1}
+1     chain        uniform  30    set_x_pos        6      0.2000            5                   {'set_x_pos': 6, 'STOP': 6, 'set_x_neg': 5, 'observe_all': 4, 'set_xy': 3, 'set_x_zero': 2, 'set_y_pos': 2, 'set_y_neg': 2}
+2  collider  heterogeneous  25  observe_all        6      0.2400            4  {'observe_all': 6, 'STOP': 5, 'set_x_pos': 4, 'set_x_neg': 4, 'set_y_neg': 2, 'set_y_zero': 1, 'set_xy': 1, 'set_x_zero': 1, 'set_y_pos': 1}
+3  collider        uniform  25         STOP        5      0.2000            0                  {'STOP': 5, 'set_xy': 4, 'set_y_pos': 4, 'set_x_pos': 4, 'set_y_neg': 3, 'observe_all': 3, 'set_x_zero': 1, 'set_y_zero': 1}
+4      fork  heterogeneous  25    set_x_neg        9      0.3600            9                                  {'set_x_neg': 9, 'observe_all': 5, 'STOP': 5, 'set_x_pos': 3, 'set_xy': 1, 'set_x_zero': 1, 'set_y_zero': 1}
+5      fork        uniform  25    set_x_neg        8      0.3200            8                                   {'set_x_neg': 8, 'STOP': 5, 'set_x_pos': 4, 'observe_all': 4, 'set_xy': 2, 'set_y_pos': 1, 'set_x_zero': 1}
+nonterminal
+      graph      cost_menu   n        modal  modal_n  modal_frac  set_x_neg_n                                                                                                                               dist
+0     chain  heterogeneous  24    set_x_pos        8      0.3333            6  {'set_x_pos': 8, 'set_x_neg': 6, 'set_y_neg': 3, 'set_y_pos': 2, 'observe_all': 2, 'set_x_zero': 1, 'set_y_zero': 1, 'set_xy': 1}
+1     chain        uniform  24    set_x_pos        6      0.2500            5                   {'set_x_pos': 6, 'set_x_neg': 5, 'observe_all': 4, 'set_xy': 3, 'set_x_zero': 2, 'set_y_pos': 2, 'set_y_neg': 2}
+2  collider  heterogeneous  20  observe_all        6      0.3000            4  {'observe_all': 6, 'set_x_pos': 4, 'set_x_neg': 4, 'set_y_neg': 2, 'set_y_zero': 1, 'set_xy': 1, 'set_x_zero': 1, 'set_y_pos': 1}
+3  collider        uniform  20       set_xy        4      0.2000            0                  {'set_xy': 4, 'set_y_pos': 4, 'set_x_pos': 4, 'set_y_neg': 3, 'observe_all': 3, 'set_x_zero': 1, 'set_y_zero': 1}
+4      fork  heterogeneous  20    set_x_neg        9      0.4500            9                                  {'set_x_neg': 9, 'observe_all': 5, 'set_x_pos': 3, 'set_xy': 1, 'set_x_zero': 1, 'set_y_zero': 1}
+5      fork        uniform  20    set_x_neg        8      0.4000            8                                   {'set_x_neg': 8, 'set_x_pos': 4, 'observe_all': 4, 'set_xy': 2, 'set_y_pos': 1, 'set_x_zero': 1}
+
+== leave-one-world-out majority accuracy (honest generalization of a constant/cell-modal rule)
+all 160          cells=(none)                   LOWO correct=21/160 = 0.1313
+all 160          cells=graph+cost_menu          LOWO correct=36/160 = 0.2250
+all 160          cells=snapshot                 LOWO correct=77/160 = 0.4813
+all 160          cells=teacher_method           LOWO correct=19/160 = 0.1187
+nonterminal 128  cells=(none)                   LOWO correct=32/128 = 0.2500
+nonterminal 128  cells=graph+cost_menu          LOWO correct=29/128 = 0.2266
+nonterminal 128  cells=snapshot                 LOWO correct=45/128 = 0.3516
+nonterminal 128  cells=teacher_method           LOWO correct=18/128 = 0.1406

@@ -1,0 +1,49 @@
+top keys: ['checkpoint_steps', 'encoding', 'exposure', 'exposure_sha256', 'feature_pins', 'feature_width', 'outer_provenance_receipt_sha256', 'parameter_count', 'raw_records_utf8', 'recipe', 'record_pins', 'record_roster', 'retry_allowed', 'scientific_provenance_qualified', 'scope', 'supervision_receipt_pins', 'version']
+counts: {"dpo_action_rows": 238, "dpo_steps": 119, "records": 160, "records_without_strict_pairs": 41, "retained_pairs": 3584, "selected_pairs": 119, "sft_action_rows": 160, "sft_steps": 160, "strict_pairs": 687, "tied_pairs": 2897, "unselected_pairs": 568}
+records 160 worlds 32
+record keys: ['action_ids', 'dpo_exposure_count', 'envelope_sha256', 'numeric_supervised_index', 'pairs', 'record_id', 'record_sha256', 'sft_exposure_count', 'strict_pair_exposures', 'supervised_command', 'supervision_receipt_sha256', 'task_sha256', 'world_id']
+pair keys: ['chosen_command', 'exposure_count', 'numeric_chosen_index', 'numeric_rejected_index', 'pair_index', 'preference_index', 'preference_sha256', 'rejected_command', 'selection_sha256', 'status', 'unordered_commands']
+
+SFT supervised_command distribution over 160 records: {'STOP': 32, 'set_x_neg': 32, 'set_x_pos': 29, 'observe_all': 24, 'set_xy': 12, 'set_y_pos': 10, 'set_y_neg': 10, 'set_x_zero': 7, 'set_y_zero': 4}
+SFT exposure counts: Counter({1: 160})
+  snapshot 0 n_candidates {9: 32} labels {'set_x_neg': 16, 'set_x_zero': 3, 'set_y_neg': 3, 'set_xy': 3, 'observe_all': 3, 'set_x_pos': 2, 'set_y_zero': 2}
+  snapshot 1 n_candidates {9: 32} labels {'set_x_pos': 13, 'set_x_neg': 7, 'observe_all': 5, 'set_y_pos': 3, 'set_xy': 1, 'set_x_zero': 1, 'set_y_zero': 1, 'set_y_neg': 1}
+  snapshot 2 n_candidates {9: 32} labels {'observe_all': 9, 'set_x_pos': 8, 'set_x_neg': 4, 'set_y_pos': 4, 'set_y_neg': 3, 'set_x_zero': 2, 'set_xy': 2}
+  snapshot 3 n_candidates {9: 32} labels {'observe_all': 7, 'set_x_pos': 6, 'set_xy': 6, 'set_x_neg': 5, 'set_y_pos': 3, 'set_y_neg': 3, 'set_x_zero': 1, 'set_y_zero': 1}
+  snapshot 4 n_candidates {1: 32} labels {'STOP': 32}
+action_ids example: ['observe_all', 'set_x_neg', 'set_x_pos', 'set_x_zero', 'set_xy', 'set_y_neg', 'set_y_pos', 'set_y_zero', None] | snapshot-004 example: [None] {"stop":true} pairs 0
+
+pairs total 3584
+pair example strict: {"chosen_command": "{\"action_id\":\"set_y_neg\"}", "exposure_count": 0, "numeric_chosen_index": 5, "numeric_rejected_index": 1, "pair_index": 0, "preference_index": 9, "preference_sha256": "50cfacd0fc9ac23510dc01df5afd2d1d60379693c9d00ac5506925127f3063bf", "rejected_command": "{\"action_id\":\"set_x_neg\"}", "selection_sha256": "d58367975522945c35f93840820e0cbed4230366ffa34e8cd8a4aee77e32e73e", "status": "unselected", "unordered_commands": ["{\"action_id\":\"set_x_neg\"}", "{\"action_id\":\"set_y_neg\"}"]}
+strict pairs 687 exposed (exposure_count>0): 119 total exposures 119
+ALL strict pairs: chosen {'set_x_pos': 123, 'set_xy': 93, 'set_y_zero': 90, 'set_x_neg': 88, 'set_y_neg': 86, 'set_x_zero': 79, 'set_y_pos': 75, 'observe_all': 53}
+ALL strict pairs: rejected {'set_x_zero': 102, 'set_y_pos': 98, 'set_xy': 98, 'set_y_neg': 87, 'set_y_zero': 79, 'set_x_pos': 78, 'set_x_neg': 74, 'observe_all': 71}
+EXPOSED DPO pairs (119): chosen {'set_x_pos': 23, 'set_xy': 20, 'set_y_neg': 19, 'set_y_zero': 16, 'set_x_neg': 14, 'set_x_zero': 13, 'set_y_pos': 8, 'observe_all': 6}
+EXPOSED DPO pairs (119): rejected {'set_y_pos': 21, 'set_x_zero': 19, 'set_xy': 16, 'set_x_pos': 14, 'set_y_neg': 14, 'set_y_zero': 13, 'observe_all': 13, 'set_x_neg': 9}
+
+net (chosen - rejected) among exposed DPO pairs, and among all strict pairs:
+  observe_all exposed: +6 / -13 = -7    all strict: +53 / -71 = -18
+  set_x_neg   exposed: +14 / -9 = +5    all strict: +88 / -74 = +14
+  set_x_zero  exposed: +13 / -19 = -6    all strict: +79 / -102 = -23
+  set_x_pos   exposed: +23 / -14 = +9    all strict: +123 / -78 = +45
+  set_y_neg   exposed: +19 / -14 = +5    all strict: +86 / -87 = -1
+  set_y_zero  exposed: +16 / -13 = +3    all strict: +90 / -79 = +11
+  set_y_pos   exposed: +8 / -21 = -13    all strict: +75 / -98 = -23
+  set_xy      exposed: +20 / -16 = +4    all strict: +93 / -98 = -5
+
+per-action strict-pair win rate (wins / strict pairs involving the action), all 687 strict pairs:
+  observe_all 53/124 = 0.427
+  set_x_neg   88/162 = 0.543
+  set_x_zero  79/181 = 0.436
+  set_x_pos   123/201 = 0.612
+  set_y_neg   86/173 = 0.497
+  set_y_zero  90/169 = 0.533
+  set_y_pos   75/173 = 0.434
+  set_xy      93/191 = 0.487
+
+world ids: [202611070000, 202611070001, 202611070002] ... 202611070031
+schedule stages: Counter({'sft': 160, 'dpo': 119})
+SFT schedule label distribution (160 updates): {'STOP': 32, 'set_x_neg': 32, 'set_x_pos': 29, 'observe_all': 24, 'set_xy': 12, 'set_y_pos': 10, 'set_y_neg': 10, 'set_x_zero': 7, 'set_y_zero': 4}
+DPO schedule chosen (119 updates): {'set_x_pos': 23, 'set_xy': 20, 'set_y_neg': 19, 'set_y_zero': 16, 'set_x_neg': 14, 'set_x_zero': 13, 'set_y_pos': 8, 'observe_all': 6}
+DPO schedule rejected (119 updates): {'set_y_pos': 21, 'set_x_zero': 19, 'set_xy': 16, 'set_x_pos': 14, 'set_y_neg': 14, 'set_y_zero': 13, 'observe_all': 13, 'set_x_neg': 9}
+DPO (chosen > rejected) pair types: [(('set_x_pos', 'set_y_pos'), 7), (('set_xy', 'set_y_pos'), 6), (('set_y_neg', 'set_x_zero'), 5), (('set_xy', 'set_x_zero'), 5), (('set_x_pos', 'observe_all'), 5), (('set_y_neg', 'set_y_zero'), 5), (('set_x_neg', 'set_y_neg'), 5), (('set_xy', 'set_y_neg'), 4), (('set_x_pos', 'set_xy'), 4), (('set_x_neg', 'set_x_zero'), 4), (('set_y_zero', 'set_xy'), 4), (('set_y_zero', 'set_x_zero'), 3), (('observe_all', 'set_x_pos'), 3), (('set_xy', 'set_y_zero'), 3), (('set_x_zero', 'set_y_zero'), 3), (('set_x_zero', 'set_xy'), 3), (('set_y_zero', 'set_x_pos'), 3), (('set_y_neg', 'set_xy'), 3), (('set_x_zero', 'observe_all'), 3), (('set_x_pos', 'set_x_neg'), 3), (('set_y_pos', 'set_y_neg'), 3), (('set_x_zero', 'set_x_pos'), 2), (('set_y_neg', 'set_x_pos'), 2), (('set_x_neg', 'set_x_pos'), 2), (('set_x_pos', 'set_x_zero'), 2), (('set_y_neg', 'observe_all'), 2), (('set_x_zero', 'set_y_pos'), 2), (('set_y_neg', 'set_y_pos'), 2), (('set_y_pos', 'set_x_neg'), 2), (('set_y_zero', 'set_x_neg'), 2), (('set_y_zero', 'observe_all'), 2), (('set_x_neg', 'set_y_pos'), 2), (('observe_all', 'set_y_pos'), 1), (('set_xy', 'set_x_pos'), 1), (('observe_all', 'set_xy'), 1), (('set_x_neg', 'set_xy'), 1), (('set_xy', 'set_x_neg'), 1), (('set_y_zero', 'set_y_neg'), 1), (('set_x_pos', 'set_y_neg'), 1), (('set_y_pos', 'set_y_zero'), 1)]

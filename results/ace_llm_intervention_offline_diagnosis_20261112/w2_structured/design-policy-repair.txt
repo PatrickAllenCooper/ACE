@@ -1,0 +1,425 @@
+# DESIGN: policy-repair
+## THESIS
+If results are positive, the paper claims that the constant-action collapse of SCM-conditioned LLM intervention policies was an engineering failure, not a limit of small language models: the supervision, the training exposure, the
+  state interface and the action interface were all broken. Forward-only forensics and an interventional factorial show directly that the deployed adapters never read the posterior, and a gate suite fixed in advance catches the
+  collapse from files the training job wrote. With one high-precision planner teacher, listwise soft targets, permuted single-token actions, a compact state that is sufficient for the planner, adequate data and on-policy
+  relabeling, Qwen3-0.6B recovers planner-quality decisions on held-out systems (closed-loop relative regret at most 0.15, design quality within 5% of target-risk planning). It matches a numerical student trained on identical data
+  and passes counterfactual tests of posterior sensitivity. Having earned that, the policy, or a hybrid in which the LLM supplies the planner's prior, is tested on fresh systems in a world class chosen by headroom criteria that
+  use no LLM output; an advantage there at lower experimental cost would meet the submission condition. If results are null or negative, the paper becomes a controlled diagnostic. It shows with direct evidence why the collapse
+  happened, and that numerical students learn the planner's state-to-action mapping that the LLM cannot learn, or can learn only when handed planner statistics, which is narration. The LLM's claimed role then narrows to supplying
+  priors to a numerical planner, or the paper reports a bounded negative result with validated gates. In no branch does a negative result trigger a replacement benchmark; any class change follows only the headroom rule fixed in
+  advance.
+
+### E1 [must] Reference targets and supervision-quality audit
+  QUESTION: What should a learned policy imitate, how precise must that target be, and how much could the old four-teacher supervision have taught even if fitted perfectly?
+  DESIGN: CPU only; zero environment responses.
+  (1) Build an in-process target-risk planner with common random numbers (CRN) across candidate actions. It must reproduce all 560 saved target-risk receipts (identical argmax at 32 draws with the saved seeds).
+  (2) Precision ladder: D in {1,024; 4,096; 16,384} draws x 2 seeds, on all 697 saved training-world decision states plus the 300 E2 base states. Also compute a 16,384-draw reference on all 4,203 unique development states, for E2
+    forensics only.
+  (3) Rounding test of the exact compact (L1) rendering at 3 and 2 significant digits, on training-world states only.
+  (4) Targets: soft target p*(a|s) proportional to exp(-r(a|s)/tau), with r = relative regret. tau is the largest value in {0.005, 0.01, 0.02, 0.05, 0.1} for which mean E_p*[r] <= 0.02 over training-world states (target risk's own
+    deployed regret 0.013-0.016 plus margin). Also hard-argmax and regret-regression targets.
+  (5) Old-supervision audit:
+  - regret of each of the 128 old labels, by teacher;
+  - flip rate of the 687 strict pairs against the reference;
+  - bits per label;
+  - infinite-data ceiling: regret of argmax of p_old(a|s) = 1/4 uniform + 1/4 coverage(s) + 1/4 local-information(s) + 1/4 target-risk-32(s), at the 697 states.
+  Optional, separate ask: truth-conditional expected gains from the 32 private training-world descriptors.
+  Sample size: the whole saved training-world state set (697) plus the 300 forensic states. No sampling.
+  Endpoints:
+  - precision gate: seed-to-seed argmax agreement >= 98% outside a declared near-tie band (relative gap < 1%), and regret of one seed's argmax under the other's scores <= 0.005 in >= 95% of states;
+  - rounding criterion: top-1 agreement >= 98% outside near-ties and mean regret <= 0.005;
+  - tau;
+  - regret of the old-supervision ceiling.
+  DECISION_RULE: Training proceeds only if the precision gate passes at D <= 16,384 and the rounding criterion passes at 3 digits. If rounding fails, the compact interface keeps 4 digits; that choice is made here without any LLM.
+  Old-supervision ceiling regret >= 0.30: the paper may state that the old label process could not have taught planner-quality decisions even with infinite data. Ceiling <= 0.15: the label process was adequate in the limit, and
+    the binding defects were volume, exposure and interface.
+  Positive: a precise teacher that costs no environment responses, which justifies dropping measured-preference DPO in this class.
+  Null (irreducible multi-way ties): report the tie fraction and use near-tie-tolerant agreement everywhere.
+  Negative (CRN planner disagrees with the saved receipts): stop and fix before any training.
+  PREREQUISITES: Local CPU only. Needs a reviewed in-repository CRN planner; the scratch re-implementations are not in project custody. The truth-conditional option needs lead approval to use private training-world descriptors.
+  COST: About 20 CPU-minutes in total. Basis: 0.119 s per state at 16,384 draws (a vectorised re-implementation scored 4,203 states in 499 s on this Mac, verifier log v09.log). About 300 lines of code; 1-2 days calendar. Zero GPU,
+    zero CURC.
+  MAIN_RISK: The teacher is a myopic working-model planner that is suboptimal under the shifted prior, so planner quality is measured against an imperfect teacher. Acceptable in this class because Finding A bounds any policy's
+    edge over it at a few percent.
+
+### E2 [must] Forward-only forensics of the deployed policies: score tables, decoding audit, counterfactual sensitivity, probes and retrospective gates
+  QUESTION: Did the constant action come from a base-model prior, supervised training, DPO drift or the decoder? Does any checkpoint respond to the SCM posterior, and does its hidden state encode it?
+  DESIGN: No training.
+  Checkpoints: base Qwen3-0.6B, SFT adapter (583b1659), final adapter (6f540dfe), all hash-matched on the Mac.
+  Prompts: all 160 training and 1,698 deployment prompts, as the exact saved token ids.
+  Per checkpoint and prompt, record:
+  - log-probabilities of every legal command (prefix-shared);
+  - branch distributions at the four trie decisions;
+  - a greedy re-decode;
+  - hidden states at the decision position (layers 14 and 28).
+  Fidelity gate: the local re-decode must reproduce >= 99% of the 1,698 saved completions and the 322 saved training generations. Mismatches are allowed only where the branch margin is < 0.05 nats.
+  Analyses:
+  (a) command / state / interaction decomposition of each 1,858 x 9 table;
+  (b) decoding audit: how often trie-greedy differs from whole-command argmax and from length-normalized argmax, and the resulting change in relative regret under E1's reference;
+  (c) base-model prior on the first menu entry and the first listed intervention;
+  (d) label tracking on the 128 training states (permutation test).
+  Counterfactual battery: 300 base states (all 128 nonterminal training states plus 172 deployment states, stratified by arm x decision block 0-3 / 4-11 / 12-23), with 12 edits each:
+  - C1: posterior block swapped in from a donor matched on graph, cost menu, budget +/-1 and history length (2 donors);
+  - C2: covariance of the target-relevant head scaled x0.25 and x4;
+  - C3: history rows permuted, and history values swapped (planner-invariant);
+  - C4: two random menu orders;
+  - C5: neutral identifiers;
+  - C6: budget +/-3 with affordability unchanged;
+  - C7: floats rounded to 3 significant digits.
+  Every edited envelope is rescored by the reference planner.
+  Probes: ridge regression from hidden states to the 8-vector of planner relative regrets, grouped 8-fold CV over 56 worlds. Reported as the R-squared increment over a coarse-feature probe (graph, cost, budget, decision index,
+    per-action counts). A base-only probe on compact renderings of the 697 training-world states tests whether a compact rendering makes the posterior decodable.
+  Retrospective gates: G2, G3, G4 and G6 (and G5) applied to the saved SFT, DPO and frozen outputs and to the five numerical arms, with thresholds fixed before computing.
+  Sample-size basis: 300 states give power 0.82 to detect a counterfactual sensitivity coefficient (CSC) of 0.2 at two-sided alpha 0.01 (287 needed for 0.80). The 95% interval around zero is +/-0.11, and an observed CSC of 0.30
+    has a lower bound of 0.19.
+  Endpoints:
+  - CSC: Spearman correlation across states between the planner's change in the score difference of the most-affected action pair and the checkpoint's change in that pair's log-odds (C1, C2);
+  - spurious sensitivity: mean total-variation change of the legal-set distribution under C3-C7;
+  - decomposition shares, decoding disagreement, probe increments and gate outcomes.
+  DECISION_RULE: Predeclared:
+  - D1, decoding contributed: whole-command argmax changes >= 10% of SFT deployment decisions.
+  - D2, base prior contributed: the base model puts >= 0.5 of its set-subtree mass on set_x_neg on training prompts.
+  - D3, posterior-blind: the CSC 95% upper bound is < 0.1 for SFT and final, while spurious sensitivity to budget, history or menu order is >= 0.10.
+  - D4, representation present: probe increment >= 0.10 with lower bound > 0. Absent: upper bound < 0.05.
+  - D5, gate validity: G2-G4 fail SFT and DPO and pass target risk and local information.
+  Positive (D3 and D5): the paper states with direct evidence that the deployed adapters did not read the posterior and that the collapse was detectable from training-time files.
+  Null (CSC interval spans 0.1-0.3): posterior use is undetermined; rely on E3's interventional attribution.
+  Negative (CSC >= 0.3 for SFT): the adapters read the posterior, but a command prior and the decoder dominated. Reframe the diagnosis as prior domination.
+  D4 absent points to a representation bottleneck and supports the compact interface. D4 present points to a knowing-doing gap, supports readout fixes and enables the hidden-state action head in E7.
+  PREREQUISITES: Lead approval of local forward-only inference under a written protocol (local torch and transformers differ from the frozen runtime), or a CURC GPU ceiling of about 2 slice-hours. E1's planner. New code: a
+    reviewed scoring harness with prefix-shared scoring and hidden-state capture, plus an edit generator (about 500 lines).
+  COST: About 16,400 forwards (5,574 for the tables plus 10,800 for the battery) on 2-4k-token prompts, plus about 700 short probe forwards.
+  - Mac: 1.4-6.8 h at an assumed 0.3-1.5 s per forward. This is unmeasured; a 20-prompt pilot fixes it.
+  - CURC: 0.55-1.8 GPU-slice-hours at the ledger's 0.12-0.4 s per forward. The upper end exceeds the 0.76 h remainder.
+  Planner rescoring of 3,600 edited states takes about 7 CPU-minutes. 3-5 days including the protocol.
+  MAIN_RISK: Local numerics may not reproduce near-tie decisions; the fidelity gate guards against this. Posterior swaps produce internally inconsistent envelopes that are out of distribution for every checkpoint; the C3 edits
+    partly control for this.
+
+### E3 [must] Collapse attribution factorial on the original 128 training states
+  QUESTION: Holding the training states fixed, which single repair (labels, state and action interface, or exposure) removes the constant action, for the LLM and for the numerical student?
+  DESIGN: States: the exact 128 nonterminal snapshot states the deployed models were trained on. No new responses.
+  2 x 2 x 2 factorial:
+  - Labels: S0, the original mixed four-teacher hard labels, or S2, the planner soft targets from E1.
+  - Interface: original (string ids, fixed menu order, full-precision JSON with raw history, trie-greedy decoding, whole-command loss) or repaired (per-example random assignment of the single-token codes A-H, verified as single
+    tokens with ids 32-39; random menu order; compact text sufficient for the planner; argmax over legal codes).
+  - Exposure: single pass at batch 1 (seed 1 in the original roster order, seed 2 in random order) or converged (10 shuffled epochs, batch 16, cosine lr 1e-4).
+  LLM runs: capacity is held at the deployed LoRA rank 8 on q/v, so it is not confounded. 16 runs.
+  Numerical student: the original 8,891-wide ranker MLP versus a repaired permutation-equivariant per-action posterior network, with the same label and exposure factors and 3 seeds. 24 CPU runs.
+  Anchor checks:
+  - the S0 / original / single-pass / roster cell should reproduce >= 75% of one action on the 128 states (saved: 108/128);
+  - the numerical anchor should reproduce the saved ranker pattern (>= 90% of score variance from action identity).
+  Controls: state-shuffled labels within graph x cost cells in the all-repaired cell; the constant plurality baseline; the coarse baseline N0.
+  Evaluation sets (about 1,340 states per run):
+  - the 128 training states, in-sample;
+  - the other 569 saved decision states of the same 32 worlds;
+  - 32 new validation worlds x 24 states from the E4 corpus.
+  Endpoints: maximum action share (collapse means >= 0.75), near-tie-tolerant agreement (chosen action within 5% relative regret of the best), mean relative regret, and interaction share of the score table.
+  DECISION_RULE: A factor is a sufficient repair if fixing it alone drops the max share below 0.6 and raises near-tie-tolerant agreement by >= 0.15 over the constant baseline, in both seeds. It is necessary if reverting it in the
+    all-repaired cell restores collapse.
+  An order effect is confirmed if the single-pass roster order collapses and the single-pass random order does not.
+  The state-shuffled control must stay at or below N0. If it matches the real labels, learning is coarse-feature only.
+  Positive: interventional attribution of the observed collapse on identical states. The paper can say which defect was sufficient.
+  Null (collapse or N0-level regret in every cell): 128 states cannot teach state dependence under any repair. The paper states the collapse was overdetermined by data volume, and the scale-up in E4/E5 becomes the test.
+  Negative (the anchor does not collapse): the collapse is fragile to runtime or order, which narrows every diagnostic claim. Reconcile with the saved logs before interpreting further.
+  PREREQUISITES: E1 targets and the E2 fidelity result.
+  A new reviewed training engine (about 800-1,200 lines, reused through E9): soft targets over codes or whole commands, minibatches, scheduler, all-linear LoRA option, gate computation.
+  A GPU ceiling, or approval for local LoRA training.
+  A lead ruling that the single-pass cells are not a rerun of the old pipeline (they use a new engine, no DPO and no environment responses).
+  COST: LLM: original-interface cells use 2-4k-token prompts at about 0.3-0.6 s per step; repaired cells use about 600 tokens at 0.05-0.2 s per step. These rates are an assumption scaled from the saved 0.62 s batch-1 SFT update.
+    Training about 1 h, evaluation about 11k forwards at 0.5-1.5 h, total about 1.5-3 GPU-slice-hours.
+  Numerical: CPU minutes.
+  4-6 days calendar, mostly building the engine.
+  MAIN_RISK: With only 128 states every cell may fail out of world, so the attribution would hold only in-sample. The original-interface LLM cells are expensive per step.
+
+### E4 [must] Numerical learnability ladder (data volume x representation x target)
+  QUESTION: Can any numerical learner recover planner-quality decisions from the public SCM state of held-out systems, and with how much data, which representation and which target?
+  DESIGN: Corpus: new training-scope world IDs, the same generator law and 8+24 protocol, balanced over 4 regimes x 3 graphs x 2 cost menus. Nested training sets of N in {32, 128, 512, 2,048} worlds, plus 256 validation and 256
+    test worlds.
+  Three trajectories per world:
+  - target risk with epsilon = 0.25 random actions;
+  - one of local information, uniform random or menu coverage;
+  - a stress trajectory that repeats one random action for k in {4, 8, 12, 16, 24} steps and then follows target risk. Training histories never had runs longer than 10; DPO deployment had runs up to 23.
+  All decision states are kept (about 65 per world, covering every remaining-budget level) and labelled with E1's reference.
+  Learners:
+  - N0: coarse gradient-boosted trees on graph, cost menu, noise level, remaining budget, decision index, per-action history counts and last action. This is everything the SFT adapter was found to read.
+  - N1: the ranker MLP on the 8,891-wide features.
+  - N2: a permutation-equivariant per-action network on posterior-only features (the planner's sufficient statistics).
+  - N3: N2 plus derived summaries that are not action-specific (per-query predictive SD, per-head eligible rows, current risk).
+  - N4: per-action planner statistics, as an upper-bound control only.
+  Targets: hard argmax CE, listwise soft targets, relative-regret regression. 3 seeds; Adam, minibatch 256, early stopping on validation loss.
+  Reference policies rolled out on the test worlds: target risk (32 draws), local information, coverage, random.
+  Sample-size basis:
+  - 256 test worlds give +/-0.02 on mean regret if the world-level SD is <= 0.16 (216 needed at SD 0.15);
+  - on the log J ratio they give +/-0.021 for a coverage-like policy (SD 0.171, implied by the 24-system t of 8.6) and +/-0.004 for a local-information-like policy;
+  - training sizes span 64x around the old 32-world volume, enough to locate N*.
+  Endpoints:
+  - state-level mean relative regret on epsilon-greedy target-risk states (primary) and on stress states;
+  - near-tie-tolerant agreement;
+  - action-identity share of score variance;
+  - numerical CSC under E2's edits;
+  - closed-loop own-trajectory regret and design-quality ratio J/J_TR (model-expected final NMSE from the common post-initialization state, 4,000 draws), for the best configuration per learner x N.
+  DECISION_RULE: Planner-quality acceptance:
+  - PQ-weak: closed-loop regret <= 0.15 (local information 0.154, coverage 0.441); 95% upper bound of the geometric-mean J/J_TR <= 1.05 (local information x1.02, leave-one-out public static schedule x1.208, coverage x1.35); and
+    regret <= N0 - 0.10 with the CI excluding 0.
+  - PQ-strong: regret <= 0.08 and J/J_TR <= 1.02.
+  N* is the smallest N at which N1 or N2 passes PQ-weak.
+  Positive: planner-quality decisions are learnable from the public state. The paper says the earlier collapse was a supervision and exposure failure, not an impossibility. The LLM gets N_LLM = min(max(N*, 128), 512) worlds and
+    the representation level that passed.
+  Null (only N3 passes): the LLM interface must carry the same derived summaries, and the LLM claim narrows to reading an SCM summary.
+  Negative (nothing passes at 2,048 worlds, or nothing beats N0 by 0.10): abandon the direct-policy route in this class (A1) and move the LLM to the hybrid role.
+  If N0 itself passes PQ-weak, the class does not discriminate posterior use, and only counterfactual tests can show posterior reading.
+  PREREQUISITES: E1 teacher.
+  Lead approval to generate a training-scope synthetic corpus with new world IDs (no development or confirmation IDs).
+  New code, about 1,000 lines: a learnability protocol module; an in-process rollout harness (the existing per-decision subprocess design costs about 48 s per episode), checked to reproduce saved training trajectories exactly; the
+    equivariant student; evaluation.
+  COST: Labelling about 166k states x 0.119 s = 5.5 CPU-hours at 16,384 draws (about 1.4 h at 4,096), parallel across Mac cores. 168 small model fits: 3-10 CPU-hours. Closed-loop evaluation: 1-2 CPU-hours. Zero GPU, zero CURC. 5-7
+    days calendar.
+  MAIN_RISK: Finding A says reading the state is worth only 10-20% of final expected NMSE over a good graph-and-menu schedule, so N0 may approach the planner and the ladder may discriminate only weakly. The corpus generator is a
+    second implementation of the protocol and must match saved trajectories.
+
+### E5 [must] LLM listwise distillation with the repaired interface, gates and leave-one-fix-out ablations
+  QUESTION: Given the data volume and representation at which a numerical student succeeded, can Qwen3-0.6B learn a state-dependent, planner-quality intervention policy from the SCM state in text, and which repairs are necessary?
+  DESIGN: Data: the E4 corpus at N_LLM worlds x 24 states per world, sampled across all trajectory types (12.3k states at the 512-world cap). E4's validation and test worlds.
+  A-full recipe:
+  - State text: compact and sufficient for the planner. Posterior means, SDs and correlations rounded per E1; costs; budget; task; history summarized as per-action counts and the last three actions.
+  - Actions: per-example random menu order and random assignment of the single-token codes A-H.
+  - No stop action. Planners never stop in this class, so budget exhaustion ends the episode.
+  - Loss: soft-target cross-entropy over the eight legal code tokens, renormalized.
+  - Decoding: argmax with a keyed random tie-break.
+  - Capacity: LoRA rank 16, alpha 32 on all seven linear projections (10.1M parameters versus 1.15M before), matching Kriz et al.'s main configuration.
+  - Optimization: AdamW with lr from {5e-5, 2e-4} chosen on validation regret using 128 worlds; cosine schedule; 3% warmup; effective batch 32; 2 epochs; shuffled minibatches stratified by graph x cost x budget bin; clip 1.0, with
+    lr halved if > 50% of steps are clipped; early stopping on validation regret.
+  Stage 1:
+  - A-full x 3 seeds;
+  - label-permuted control (targets from another state in the same graph x cost x budget cell) x 1 seed;
+  - the frozen base model, zero-shot, with the new interface;
+  - N2, N1 and N0 retrained on the identical states.
+  Stage 2, only if Stage 1 passes the gates: leave-one-fix-out ablations, 1 seed each (a second seed if the effect is < 2x the Stage-1 seed SD):
+  - -codes: original string ids, fixed order, trie-greedy, listwise loss over whole-command log-probs;
+  - -compact: original full-precision JSON with raw history, compared at matched steps;
+  - -soft: hard labels;
+  - -capacity: rank 8 on q/v;
+  - -volume: 32 worlds. Paired with N2 at 32 worlds, this also measures a pretraining sample-efficiency effect.
+  Gates on validation worlds, before any test scoring:
+  - G1: legality 100%.
+  - G2: max action share <= max(0.6, reference-optimal share + 0.15), and chosen-action entropy >= 0.5 x the reference's.
+  - G3: near-tie-tolerant agreement >= N0 + 0.15.
+  - G4: held-out soft-target CE <= the state-blind frequency model - 0.20 nats.
+  - G5: CSC >= 0.3 (lower bound > 0.1) on posterior swaps, and total variation <= 0.10 on invariant edits.
+  - G6: state x action interaction share >= 0.5 x the reference's.
+  - G7: across 3 seeds, SD of validation regret <= 0.03 and action-histogram total variation <= 0.15.
+  - G8: closed loop on 64 validation worlds, regret <= 0.20 and longest repeated-action run <= the planner's 99th percentile + 3.
+  Monitoring every 500 steps aborts the run if any action exceeds 60% on three consecutive checks.
+  Sample size: about 12k states (Qiu et al. used 6,240 examples, Paprika 17,181 trajectories); 3 seeds, the minimum to estimate seed spread; 256 test worlds as in E4.
+  Endpoints: closed-loop test-world regret, J/J_TR, parity with N2, gate profile, ablation deltas.
+  DECISION_RULE: Pass = G1-G8 + PQ-weak + parity (|regret_LLM - regret_N2| <= 0.05 at equal data).
+  Positive: the paper's mechanism claim, that a small LLM reads an explicit SCM posterior and chooses planner-quality interventions on held-out systems, with leave-one-fix-out attribution. This meets submission requirement 1 for
+    this class. It is not an advantage, because the planner is the ceiling here.
+  Null (G1-G4 pass but G5 fails, or regret is 0.15-0.30): the LLM learned a coarse schedule; go to E7.
+  Negative (G2-G4 fail while N2 passes): the language interface is the bottleneck; go to E7, and if E7 fails, abandon the direct route (A2).
+  A pass obtained only with per-action planner statistics in the prompt is narration and does not count.
+  If the LLM beats N2 at 32 worlds by >= 0.05 regret, report a pretraining sample-efficiency effect, not an advantage.
+  PREREQUISITES: E3 engine, E4 corpus and N*, E1 targets.
+  A lead-approved GPU ceiling (about 4-17 slice-hours) or approval for local LoRA training on the Mac.
+  Runs longer than about 45 min need a longer-wall QoS or the Mac, because gpu-testing caps jobs at 1 h and resumed optimization across jobs is unqualified.
+  COST: One A-full run = 512 x 24 x 2 = 24.6k example-steps at an assumed 0.05-0.2 s per step, so 0.34-1.4 h per run. Basis: the saved SFT update took 0.62 s at batch 1 on 2-4k-token prompts with strict determinism and
+    checkpointing; compact prompts are about 600 tokens and minibatched. A pilot fixes the rate.
+  - Stage 1: about 1.6-6 h.
+  - Stage 2: about 2-8 h (-compact uses about 5x longer prompts at half the steps).
+  - Evaluation: about 110k single-forward decisions, 0.6-3 h.
+  Total about 4-17 GPU-slice-hours; assumed 2-4x longer on the Mac. 6-9 days calendar.
+  MAIN_RISK: A 0.6B model may not read rounded numeric posteriors from text well enough, and LoRA results may vary across seeds at this data scale. Critics may say the compact interface makes the task easier; the -compact ablation
+    and E1's sufficiency argument, which does not depend on the LLM, answer that.
+
+### E6 [should] Closed-loop on-policy correction (DAgger with planner relabeling)
+  QUESTION: Does the trained policy remain planner-quality on its own state distribution, and does on-policy relabeling remove compounding error?
+  DESIGN: Triggered if E5 passes at state level but closed-loop regret > 0.15 or G8 fails; otherwise run one confirmatory round.
+  Three DAgger rounds. Each round:
+  - rolls the current policy out in 256 fresh training-scope worlds, with planner-action mixing beta = 0.5, 0.25, 0;
+  - relabels every visited state with the reference planner (labels cost no environment responses; synthetic rollout responses are counted in the training ledger);
+  - aggregates the data and fine-tunes for one epoch.
+  Alternative loss arm on the same on-policy states: the exact expected-score objective -sum_a pi(a|s) s(a|s) + entropy 0.01. With a single-token action and known planner scores the policy-gradient expectation is exact, so GRPO-
+    style sampling would add variance and no information.
+  Controls: the E5 checkpoint without on-policy data; N2 with identical DAgger rounds.
+  Sample size: about 6k new states per round (about 50% of the base corpus); tested on E4's 256 test worlds.
+  Endpoints: closed-loop test regret, J/J_TR, stress-state regret, longest repeated-action run.
+  DECISION_RULE: Adopt the smallest on-policy procedure that passes PQ-weak and G8 on the test worlds.
+  Positive: on-policy relabeling is reported as necessary, or as unnecessary if round 0 already passes.
+  Negative (both arms fail while the state-level gates pass): closed-loop failure (A3). The claim narrows to state-level imitation, and the LLM arm becomes the hybrid.
+  PREREQUISITES: E5 state-level pass; the E4 rollout harness with LLM-in-the-loop forward passes.
+  COST: Rollouts: 3 x 256 x 24 = 18.4k forwards (0.1-0.4 h). Relabeling: 18.4k states x 0.119 s = 0.6 CPU-hours. Fine-tuning: 1-5 h. Total 1.5-6 GPU-slice-hours; 3-4 days.
+  MAIN_RISK: Aggregation may over-weight unusual on-policy states and degrade performance on the primary distribution; three rounds may be too few.
+
+### E7 [should] Capacity and interface escalation, and the direct-versus-hybrid decision
+  QUESTION: If the repaired 0.6B direct policy fails where the numerical student succeeds, does a predeclared escalation fix it, or should the language model move to a hybrid role?
+  DESIGN: Triggered by an E5 null or negative outcome, or by an E6 failure.
+  Order fixed in advance, cheapest first; 1 seed each, with 2 extra seeds for the first passing arm:
+  (a) derived summaries in the text (exactly N3's features, which N3 also gets);
+  (b) LoRA rank 32 on all linear layers, with 2x data;
+  (c) a linear action head on the decision-position hidden state over menu-entry embeddings, only if E2 found the posterior linearly decodable (a knowing-doing gap);
+  (d) Qwen2.5-1.5B-Instruct (already in the local cache; needs approval).
+  The hybrid H-prior is fixed now. The LLM maps text (variable descriptions, units, notes, graph) to a numerical prior over mechanism coefficients, or to a graph distribution, trained by Gaussian NLL against the generating
+    parameters of training worlds; the numerical planner then acts. Its controls are the uninformed planner, the oracle-prior planner (upper bound) and a non-LLM text prior (ridge on sentence embeddings).
+  Sample size and endpoints as in E5.
+  DECISION_RULE: The first escalation that passes E5's full criteria becomes the frozen configuration, and the paper reports the minimum capacity or representation needed. Arm (c) must be described as an LLM encoder plus a linear
+    action head.
+  Abandon the direct-policy route if any of these holds:
+  - A1: no numerical student passed in E4;
+  - A2: no arm in (a)-(d) passes while N2 passes, or the LLM passes only with per-action planner statistics;
+  - A3: the state-level gates pass but closed loop fails after E6.
+  Also make the hybrid primary if A4 holds in E8 (headroom concentrated in prior information: H2 >= 1.15 with H1 < 1.05 and H3 < 1.03).
+  A negative outcome licenses a documented direct-policy failure, with numerical students as positive controls. The LLM arm in E9-E10 is then H-prior.
+  PREREQUISITES: E5 and E6 outcomes; approval for the Qwen2.5-1.5B-Instruct weights; the same engine.
+  COST: (a)-(c): 0.4-2 GPU-slice-hours each. (d): 1-5 h (about 2.5x the parameters). Total 3-12 GPU-slice-hours; 3-6 days.
+  MAIN_RISK: Escalation could turn into an open-ended search with many forking paths. The fixed order, one seed per arm and a single confirmation rule control this.
+
+### E8 [should] LLM-independent headroom audit to select the advantage class
+  QUESTION: In which candidate world class could any policy beat target-risk planning by a resolvable margin, and is the planner's decision mapping learnable there, judged without running any language model?
+  DESIGN: Runs in parallel from week 1, CPU only.
+  Candidate classes that need only small or medium code changes:
+  (i) partial measurement with large cost ratios on 4-6 nodes;
+  (ii) informed priors from prose, with 0-2 initial observations and varied text;
+  (iii) wrong-known or unknown noise;
+  (iv) graph uncertainty, only if (i)-(iii) fail (a large change).
+  Per class: 64 synthetic training-scope systems, run with numerical policies only: target risk, plan-once static design, best public static schedule, a rollout (non-myopic) planner, an oracle-prior planner with the generating
+    prior encoded numerically, an uninformed planner, and the N2 student ladder.
+  Criteria:
+  - H1, adaptivity: J(plan-once)/J(sequential) >= 1.10.
+  - H2, information headroom: J(uninformed)/J(oracle prior) >= 1.15.
+  - H3, non-myopic headroom: J(target risk)/J(rollout) >= 1.05.
+  - H4, resolvability: <= 150 systems for 80% power on a 10% difference on the class's primary endpoint, with common random numbers.
+  - H5, learnability: N2 reaches PQ-weak with <= 2,048 worlds.
+  Sample-size basis: with 64 systems, a 10% J difference has z of 4.5 at SD 0.171 and 22 at SD 0.035; a 5% difference has z of 2.3 and 11.
+  DECISION_RULE: Selection rule, fixed now: among classes passing H4 and H5, choose the largest H2 if the hypothesized LLM contribution is semantic; otherwise choose the largest max(H1, H3). Ties go to the lower code cost. No LLM
+    output is used, which satisfies the standing rule on benchmark changes.
+  If no class passes, the paper reports that no tested class offers resolvable headroom, and E9-E10 are not run (a negative or diagnostic paper).
+  If the selected class satisfies A4, the hybrid is the primary LLM arm.
+  PREREQUISITES: Lead approval of the selection rule now, and of the protocol code for each class. A pip install of causalchamber only if class (ii) uses its simulators.
+  COST: CPU only: about 1-4 CPU-hours per class for the rollout planner, plus E4-scale student fits. Code: 2-5 days per small or medium class. 1-3 weeks calendar for (i)-(iii).
+  MAIN_RISK: The class with the most headroom may be the costliest to code before venue deadlines. The thresholds are judgement calls, fixed in advance.
+
+### E9 [should] Privileged-teacher training, gates and ablation arms in the selected class
+  QUESTION: Does the frozen recipe transfer to the selected class, and do the arms needed to separate language pretraining, ACE-specific training, causal structure and extra computation pass the same gates?
+  DESIGN: Teacher: the planner with privileged training-world information (oracle prior or true graph) where it exists; otherwise the rollout planner. The student sees only public text and data: privileged-teacher distillation,
+    then DAgger.
+  Arms:
+  - the LLM direct policy (frozen E5-E7 recipe; only the lr is re-selected, from two values, on validation worlds);
+  - the hybrid H-prior;
+  - an N2 student with identical states, targets and on-policy rounds;
+  - the frozen base LLM;
+  - a text-ablated LLM (neutral variable names, no descriptions);
+  - a structure-ablated LLM (graph withheld or permuted);
+  - a non-LLM text prior feeding the planner;
+  - a compute-matched planner (more draws or lookahead).
+  Gates G1-G8 on 256 validation worlds. Then freeze hashes, namespaces, endpoints and failure treatment.
+  DECISION_RULE: Only arms that pass G1-G8 enter E10. The LLM arm also needs PQ-weak relative to the privileged teacher on validation worlds.
+  If neither the direct nor the hybrid LLM arm passes, there is no advantage test, and the paper reports transfer failure.
+  If the text-ablated LLM equals the full LLM on validation, the semantic-contribution hypothesis is already falsified, and E10 is framed as a test of amortized planning only.
+  PREREQUISITES: E8 selection; the frozen E5-E7 recipe; a GPU ceiling; protocol code for the selected class.
+  COST: About 3-10 GPU-slice-hours for the LLM arms plus 3-10 for the ablation arms. Numerical arms on CPU. 2-3 weeks.
+  MAIN_RISK: The privileged teacher may be out of reach from public information. The oracle prior may leak into the text if the text generator is not separated from the parameter draw.
+
+### E10 [should] Preregistered fresh-system advantage test
+  QUESTION: On fresh systems, does the language-model arm (direct or hybrid) reach a reliable answer at lower experimental cost than strong numerical policies given the same information?
+  DESIGN: Preregistered before any system is generated.
+  Arms, all frozen from E9: the LLM arm, the hybrid, target risk with the same information, the rollout planner, the N2 student, the frozen LLM, the coarse baseline N0, and the ablation arms.
+  Fresh system IDs. Common random numbers across arms, which requires lifting the per-arm measurement-namespace rule at paired_episode.py:114-117; otherwise, replicate episodes per system.
+  A shared public stop rule.
+  Primary endpoint and n come from E8's H4 power analysis (<= 150 systems). Decision-level regret and realized error are secondaries.
+  Censoring and failure treatment are fixed in the preregistration.
+  DECISION_RULE: The LLM arm must be superior to target risk with the same information on the primary endpoint at one-sided alpha 0.05, with Holm correction across the predeclared contrasts. The hybrid is tested for non-
+    inferiority against its own planner, with the margin fixed in the preregistration.
+  Positive: submission condition 2 is met for this class.
+  Null: a bounded negative, reported with its interval.
+  Negative: narrow the claim. No replacement benchmark.
+  PREREQUISITES: E9 freeze; custody redesign for >= 100 systems (sharded archives); a compute ceiling.
+  COST: Per the ledger, 100-150 systems need about 22-35 CPU core-hours and 1.9-2.9 GPU slice-hours under the old per-decision process model. The LLM arms add about 21.6k decisions. 6-10 days calendar.
+  MAIN_RISK: The endpoint may be underpowered or censored, and failure modes may appear only on fresh systems.
+
+## SEQUENCE
+Full agenda with calculations and rationale: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w2/policy-repair.md
+
+Stage A (weeks 1-2):
+- E1 starts immediately; it needs no approvals.
+- E2 starts once local inference is approved.
+- E4 corpus code and E8 class scoping start in parallel (CPU only, no LLM).
+- Gate A: E1 passes its precision and rounding gates; E2 reproduces >= 99% of saved decisions; findings D1-D5 are written up.
+
+Stage B (weeks 2-3):
+- E3 (needs the new engine) runs in parallel with E4.
+- Gate B: E4 gives the PQ result, N* and the representation level, or triggers A1, which stops all direct-policy LLM training in this class. E3 gives the attribution, or shows the collapse was data-limited.
+
+Stage C (weeks 3-5):
+- E5 Stage 1, then the gates, then Stage 2.
+- E6 and E7 only if triggered.
+- Gate C: decide between the direct policy and the hybrid (A2-A4).
+
+Stage D (weeks 4-8):
+- E8 completes; its selection rule is fixed in advance.
+- Then E9, preregistration and E10.
+- E8 runs alongside E4-E7, and the E3 numerical runs alongside E4.
+
+Venue fit: ICML 2027 (abstract January 14, paper January 22) realistically holds E1-E6, a diagnostic plus learnability paper. E8-E10 more plausibly target UAI 2027, NeurIPS 2027 or TMLR.
+
+GPU staging:
+- E2: 0-1.8 h.
+- E3: 1.5-3 h.
+- E5-E7: 8.5-35 h, with hard stops at the gates. E5 Stage 1 is the only commitment before Gate C.
+- E9-E10: decided after E8.
+
+## THEORY_ITEMS
+- Belief-state sufficiency. In the known-graph linear-Gaussian known-noise class, both the target-risk score and the Bayes-optimal sequential policy depend on the history only through the conjugate posterior (plus costs, budget
+  and task). This justifies a compact interface without reference to LLM performance, and it makes history edits a clean test of spurious dependence.
+- Trie-greedy versus whole-command argmax. Greedy decoding picks the branch with the largest subtree mass M(b) = sum over its commands of p(c), not the most likely command. Characterize the region where observe_all is the argmax
+  command yet loses because p(observe) < M(set), and show that single-token codes make greedy decoding equal to argmax.
+- State-blind collapse lemma. A model whose output ignores state minimizes listwise cross-entropy at the average target p-bar, so argmax decoding yields a constant action. With token-factorized logits and suffix tokens shared
+  between X and Y, that argmax follows per-node pluralities, which explains set_x_neg from the pooled _neg counts (32+10 versus 29+10). This formalizes the 8-logit model of the DPO pass.
+- Label-information bound. The 4-replicate, 2-SE tie rule has alpha = P(|t3| > 2) = 0.139, and a 31% flip rate leaves 1 - H2(0.31) = 0.107 bits per strict label. Contrast this with planner labels, whose flip probability is
+  Phi(-gap/sigma_D) outside a declared tie band, and derive the number of draws D needed for at most 1% flips.
+- Exact on-policy gradient for single-step known rewards. For a single-token action with known per-action scores, the gradient of E_pi[s] equals sum_a s(a) grad pi(a), so GRPO-style sampling adds variance and no information.
+  Combined with DAgger's no-regret guarantee, this shows that in this class only the on-policy state distribution matters.
+- Regret-to-design-quality bridge. Under local additivity of one-step risk reductions, which holds approximately here because plan-once is approximately sequential, bound J_pi/J_TR - 1 by the gain-weighted mean relative regret.
+  Calibrate the bound on local information (regret 0.154 corresponds to x1.02), so the decision-level gates gain an outcome-level meaning.
+- Gibbs soft-target regret bound. For p* proportional to exp(-r/tau) over K actions, E_p*[r] <= (K-1) tau / e, which is 0.013 at tau = 0.005 for K = 8. The training target is therefore itself planner-quality, matching target
+  risk's own Monte Carlo-noise regret of 0.013-0.016.
+
+## ASKS_FOR_LEAD
+- Approve local forward-only inference on the Mac (base Qwen3-0.6B plus the two saved adapters) under a written protocol. Local torch and transformers differ from the frozen runtime, so a gate requiring >= 99% reproduction of the
+  saved decisions applies. Alternative: grant about 2 GPU-slice-hours on CURC for E2.
+- Approve generating a training-scope synthetic learnability corpus with new world IDs only, and planner relabeling on local CPU (E1, E4, E6). Synthetic responses would be reported as training cost; no development or confirmation
+  IDs are touched.
+- Set a staged GPU ceiling (E3 about 3 h; E5-E7 up to about 35 h, with hard stops at the predeclared gates), or approve local LoRA training on the Mac. Also approve a QoS with more than a 1 h wall, or a full A100: gpu-testing caps
+  jobs at 1 h and resumed optimization across jobs is unqualified.
+- Approve the new reviewed training-engine version (listwise soft targets, minibatching, scheduler, all-linear LoRA). Make the behavioural gate suite G1-G8 mandatory acceptance for every trained policy, replacing the legality-only
+  gate.
+- Approve redirecting feedback in the known-graph class away from measured 4-replicate preferences and DPO, to planner relabeling plus on-policy (DAgger) relabeling. This is a method redirect justified by the label-noise evidence.
+- Conditionally approve Qwen2.5-1.5B-Instruct (already in the local cache) as E7 escalation step (d), and rule now whether Qwen2.5-7B-Instruct is ever in scope.
+- Approve the E8 class-selection rule now, before any LLM result exists in a new class, and the protocol code for up to three candidate classes. Approve the causalchamber pip install only if class (ii) uses its simulators.
+- Optional: approve the truth-conditional label analysis using the 32 private training-world descriptors (E1).
+- Rule whether E3's single-pass cells count as rerunning the old pipeline. They use a new engine, no DPO and no environment responses.
+- Set the venue and date, and say whether a diagnostic-plus-learnability paper is acceptable if E8-E10 cannot finish or come out negative.
+
+## WHAT_NOT_TO_DO
+- Do not collect more 4-replicate measured preferences or scale DPO in the known-graph class. About 70% of strict labels are at noise level, carrying about 0.107 bits each, and collection consumed 90% of collection units.
+- Do not select recipes, temperatures, gate thresholds or interfaces on the 24 development systems. Their prompts serve E2 forensics only.
+- Do not put per-action planner statistics in the LLM prompt as a candidate arm. That is narration. Keep them as an upper-bound control, reported alongside an argmax-of-prompt baseline.
+- Do not keep greedy token-by-token trie decoding over multi-token commands, a fixed menu order, fixed identifiers or alphabetical tie-breaks.
+- Do not deploy or roll out any checkpoint that has not passed G1-G8, and never train with a single unshuffled pass at batch size 1.
+- Do not add hand-coded caps, diversity fills, collapse breakers or fallbacks. Every executed action must be model-chosen.
+- Do not present the old exposure-matched ranker as the learned numerical control. Use the converged N1 and N2 students trained on identical data.
+- Do not claim an advantage in the three-node known-graph class. Regret measured against the planner cannot show one, and Finding A bounds the room at a few percent.
+- Do not use first-crossing cost on 24 systems as an endpoint for learnability.
+- Do not escalate model size before the repaired 0.6B recipe has been gated, and never outside the predeclared E7 order.
+- Do not change world class because the LLM failed. A class is selected only by the E8 rule, which uses no LLM output.
+- Do not rerun the 24-system screen or the old collection, training or campaign pipelines.
+- Do not keep stop as a policy action in this class. Stop labels existed only at forced terminal states and produced the early-stop artifact; use a shared public stop rule if stopping matters.
+
+## BIGGEST_UNCERTAINTIES
+- Whether a 0.6B model can read rounded numeric posteriors from text well enough to act on them. E2's probes and E5 settle this; the literature on number handling is pessimistic.
+- Whether the three-node class has enough posterior-driven state dependence beyond coarse features for the learnability ladder to discriminate. Finding A says reading the state is worth only 10-20% of final expected NMSE, so the
+  coarse baseline N0 may come close to the planner.
+- The speed and numerical fidelity of local MPS execution, and the true per-step LoRA training cost with compact prompts. Both are unmeasured, so every GPU figure here is a range pending a pilot.
+- Whether any class with resolvable headroom can be coded before the venue deadlines, and whether the LLM's contribution there would enter through the action (direct policy) or through the model (hybrid prior).
+- Whether the privileged or myopic teacher in the selected class is a good enough distillation target. If not, learning from realized outcomes would be required, and that signal is noisy.
+- Seed variance of LoRA training at about 10k states, and whether the training-cost accounting can be reconciled with any savings at deployment.

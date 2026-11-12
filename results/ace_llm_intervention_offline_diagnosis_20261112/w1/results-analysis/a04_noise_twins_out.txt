@@ -1,0 +1,56 @@
+pairs of arms with the same first action in the same world: identical post-action predictions 0, different 293
+examples (world, action, arm, arm, max abs prediction difference): [(0, 'set_x_neg', 'menu_coverage', 'local_information', 0.17287144213834021), (0, 'set_x_neg', 'menu_coverage', 'target_risk', 0.44286638675926776), (0, 'set_x_neg', 'menu_coverage', 'learned_ranker', 0.5443663856868343)]
+       graph        regime           cost  sft_steps  common_prefix                             sft_non_xneg
+w                                                                                                           
+0      chain   matched_low        uniform         21             12                              13:x+,14:y-
+1      chain   matched_low  heterogeneous         21             12                              13:x+,18:y-
+2       fork   matched_low        uniform         22             12                                    13:x+
+3       fork   matched_low  heterogeneous         21             13                                    14:x+
+4   collider   matched_low        uniform         21             11         12:y-,17:x+,19:obs,20:obs,21:obs
+5   collider   matched_low  heterogeneous         21             12                       13:y-,14:x+,19:obs
+6      chain  matched_high        uniform         21             13                                    14:x+
+7      chain  matched_high  heterogeneous         22             12                              13:x+,18:y-
+8       fork  matched_high        uniform         22             12                                    13:x+
+9       fork  matched_high  heterogeneous         22             13                                    14:x+
+10  collider  matched_high        uniform         23             11                              12:y-,17:x+
+11  collider  matched_high  heterogeneous         21             10                              11:y-,12:x+
+12     chain   shifted_low        uniform         22             22                                         
+13     chain   shifted_low  heterogeneous         23             12                                    13:x+
+14      fork   shifted_low        uniform         22             17                                    18:x+
+15      fork   shifted_low  heterogeneous         22             13                                    14:x+
+16  collider   shifted_low        uniform         22             11                              12:y-,13:x+
+17  collider   shifted_low  heterogeneous         23             12                              13:y-,15:x+
+18     chain  shifted_high        uniform         21             12                                    13:x+
+19     chain  shifted_high  heterogeneous         22             13                                    14:x+
+20      fork  shifted_high        uniform         22             18                                    19:x+
+21      fork  shifted_high  heterogeneous         22             18                                    19:x+
+22  collider  shifted_high        uniform         22             11  12:x+,13:y-,19:obs,20:obs,21:obs,22:obs
+23  collider  shifted_high  heterogeneous         22             11                              12:x+,13:y-
+total matched (system, step) twin points: 313 ; systems with prefix >= 12: 18 ; full 23+: 0
+
+Twin differences in log10 NMSE (DPO minus SFT, identical action prefix, independent measurement noise):
+  after  1 identical actions: n=24  mean +0.070  SD 0.580  => single-run replicate SD of log10 NMSE ~ 0.405 ; median |diff| 0.260 (ratio x1.82)
+  after  2 identical actions: n=24  mean -0.010  SD 0.351  => single-run replicate SD of log10 NMSE ~ 0.243 ; median |diff| 0.187 (ratio x1.54)
+  after  4 identical actions: n=24  mean +0.026  SD 0.491  => single-run replicate SD of log10 NMSE ~ 0.341 ; median |diff| 0.273 (ratio x1.87)
+  after  8 identical actions: n=24  mean +0.035  SD 0.375  => single-run replicate SD of log10 NMSE ~ 0.261 ; median |diff| 0.323 (ratio x2.10)
+  after 12 identical actions: n=18  mean -0.090  SD 0.495  => single-run replicate SD of log10 NMSE ~ 0.346 ; median |diff| 0.293 (ratio x1.96)
+  after 16 identical actions: n= 4  mean +0.143  SD 0.204  => single-run replicate SD of log10 NMSE ~ 0.161 ; median |diff| 0.175 (ratio x1.50)
+per-world mean twin difference over all common steps: mean +0.005 SD 0.293 n=24
+root-mean-square twin difference / sqrt(2) pooled over all 313 points: 0.308 log10 units
+
+    prefix_actions  prefix_end_cost  dpo_cross_in_prefix  sft_cross_in_prefix  dpo_capped  sft_capped  init_err
+w                                                                                                              
+3               13               21                  NaN                  NaN          32          26  0.068068
+4               11               19                 11.0                 13.0          11          13  0.045001
+5               12               20                 18.0                 11.0          18          11  0.043019
+10              11               19                 13.0                  NaN          13          23  0.124969
+11              10               18                  NaN                  NaN          32          21  0.110720
+12              22               30                  NaN                  NaN          32          32  0.521906
+13              12               20                  9.0                 10.0           9          10  0.316008
+14              17               25                  9.0                  9.0           9           9  0.041121
+16              11               19                  NaN                 10.0          22          10  0.091618
+17              12               20                 10.0                  9.0          10           9  0.111479
+19              13               21                  NaN                  NaN          32          32  0.544896
+21              18               26                 12.0                  NaN          12          32  0.077821
+22              11               19                  NaN                 19.0          20          19  0.413901
+23              11               19                  NaN                  NaN          32          24  0.233240

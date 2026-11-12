@@ -1,0 +1,427 @@
+########## FACTS ##########
+OVERALL: Most of the document checks out. Nearly every count, ratio, date, citation and price traces to the verified notes or the repository. The code line references are exact or within a couple of lines, and all cited paths exist. Three errors need fixing before the document goes to the PI. First, the Qwen2.5-7B weights are not on the Mac: only tokenizer and config files are cached, so E2's \"no download\" and Decision 9 are wrong. Second, the claim that every graph has duplicate target queries is false for the collider, and only the fork gives X = −1 double weight. Third, the confirmation figure of 10 to 30 GPU-hours does not follow from its own inputs (about 6 to 19 at 24 decisions per episode). Several statements are stronger or more precise than the verifiers support. The claim that every number was independently recomputed does not hold, because only three topics have verification notes. Pairing the 3.04 ceiling with the 3.7 detectable difference contradicts the verifier's finding that a dominating policy would probably have been detected. The 6.2 SD and the 93 to 172 replicate figure hide contrast-dependence and an unmeasured assumption. The DPO r = 0.91 refers to a different quantity than the shifts it is quoted with, which correlate 0.80. The token-bias model \"tracks\" the DPO pass, explaining about 64% of the margin variance, rather than reproducing it. The late-state \"likeliest command was observation\" is an inference from near-tied averages. The 23.5-hour figure spans a night, and the Mac's training capability is unmeasured. The Remote Lab section omits the Python 3.11 pre-release client install and the academic-eligibility condition. The session evidence sits in a temporary directory. The remaining items are minor precision fixes.
+
+[F1] (error) QUOTE: Frozen capacity probes on cached Qwen3-0.6B, Qwen2.5-1.5B and Qwen2.5-7B over compact renderings.
+  PROBLEM: The Qwen2.5-7B weights are not on the Mac. The only 7B entry in the cache is the Instruct repo, and it holds tokenizer and config files only. So the E2 claim of "No download and no CURC", the In-brief claim that the first model execution needs "no download", Decision 9's phrase "beyond the cached ... Qwen2.5-7B" and the Operations claim about 7B inference all rest on a false premise. The same error is in brief.md section 4 and prior-evidence-portfolio.md:188.
+  EVIDENCE: `du -sh ~/.cache/huggingface/hub/models--Qwen--Qwen2.5-7B-Instruct` gives 11M. Its only files are snapshots/a09a3545.../{config.json, tokenizer.json, tokenizer_config.json, generation_config.json, merges.txt, vocab.json}, with no *.safetensors. No models--Qwen--Qwen2.5-7B (base) directory exists. Qwen2.5-1.5B-Instruct is also 11M and tokenizer-only. Weights are present only for Qwen3-0.6B (snapshots/c1899de2.../model.safetensors) and base Qwen2.5-1.5B (snapshots/8faed761.../model.safetensors, 2.9G).
+  FIX: E2: "Frozen capacity probes on the cached Qwen3-0.6B and Qwen2.5-1.5B. A Qwen2.5-7B-Instruct probe needs its weights downloaded first, which counts as new model weights and needs Patrick's approval." E2 cost line: "No download for 0.6B and 1.5B. A download is needed for the 7B probe." Decision 9: "Any model weights beyond the locally cached Qwen3-0.6B and base Qwen2.5-1.5B, including Qwen2.5-7B-Instruct and Qwen2.5-1.5B-Instruct, for which only tokenizer and config files are cached."
+
+[F2] (error) QUOTE: In each graph some of the eight target queries are duplicates, so X = −1 carries extra weight.
+  PROBLEM: This is false for the collider, where all eight queries are distinct. It is also wrong about the chain: the chain's duplicate gives double weight to do(Y = 1), not to X = −1. Only the fork gives X = −1 double weight.
+  EVIDENCE: numerics-protocol.md:66-74, from exact column equality over curves.csv: "Chain: q6 ≡ q7 ... Effective weight 2/8 on do(Y=1). Fork: q0 ≡ q4 ≡ q5 ≡ q6 ... and q1 ≡ q7 ... Collider: all eight distinct." results-analysis-verify.md:43 confirms the chain and fork equalities. In the code, the queries are the eight menu actions (llm_intervention_screen_protocol.py:76).
+  FIX: In chain and fork graphs some of the eight target queries coincide: in the chain do(Y = 1) appears twice, and in the fork the observational mean appears four times and do(X = −1) twice. In the collider all eight are distinct. The fork duplicate gives X = −1 double weight.
+
+[F3] (error) QUOTE: As a planning figure, about 156 systems × 2 replicates × 30 LLM arm-seed combinations at 0.1 to 0.3 s per decision is roughly 10 to 30 GPU-hours
+  PROBLEM: The stated inputs do not give 10 to 30 GPU-hours. With the 24-acquisition episodes used everywhere else in the agenda and the designs, they give about 6 to 19. Reaching 10 to 30 would need about 38 decisions per episode, which the document never states. The operations judge also budgets the confirmation far lower.
+  EVIDENCE: 156 × 2 × 30 = 9,360 episodes. × 24 decisions = 224,640 decisions. At 0.1 to 0.3 s that is 22,464 to 67,392 s, or 6.2 to 18.7 GPU-hours. advantage-theory.md:554 uses the same 156 × 2 × arms × 24 basis. judge-operations.md:125 gives 2 to 6 GPU-hours for the registered confirmation, and judge-operations.md:189 gives about 5.
+  FIX: As a planning figure, about 156 systems × 2 replicates × 30 LLM arm-seed combinations × 24 decisions at 0.1 to 0.3 s per decision is roughly 6 to 19 GPU-hours, scaling linearly with the admitted class's episode length, plus a few CPU-hours for in-process planners.
+
+[F4] (misleading) QUOTE: Every number in this section was computed from saved files by one analyst and independently recomputed by a second.
+  PROBLEM: Independent verification notes exist for only three topics: results analysis, training forensics and deployment forensics. The section also uses figures from the numerics, mechanism and prior-evidence notes, which no second analyst recomputed. Some of those figures were read from project documents rather than computed from saved files. The duplicate-query error above sits in this unverified part.
+  EVIDENCE: The w1/ directory contains only results-analysis-verify.md, training-forensics-verify.md and deployment-forensics-verify.md. The following have no verification note: the replay figures −0.7% ± 1.7%, 9% to 21%, 37%/75%/113% and 9.9 (numerics-protocol.md:86, 180-199); 3 to 17 systems (numerics-protocol.md:258); 34% to 48% digits and the 346-token suffix (mechanism.md:212, 220); and the Mission-1, 15/30/50-node and delivery figures, which prior-evidence-core.md:25, 33-35 tags [V-doc].
+  FIX: Figures on the screen's outcomes and on the training and deployment records were computed from saved files by one analyst and independently recomputed by a second, with no refutations. The model-based replay, the prompt-composition figures and the history of earlier studies rest on one analyst. The history figures were read from project documents.
+
+[F5] (misleading) QUOTE: The largest possible improvement over target risk was 3.04 cost units per system. The minimum detectable paired difference at 24 systems was 3.7.
+  PROBLEM: Placing these two numbers side by side implies that even a perfect policy would have gone undetected. The verifier found the opposite: a policy that reached the floor would probably have been detected. The 3.7 is a normal-theory figure for noisy two-sided differences, and the verifier asked for this framing to be narrowed.
+  EVIDENCE: results-analysis-verify.md:20, 88 and 92: oracle-at-floor formula power 0.68, bootstrap power 0.84 (t-test) to 0.93 (sign-flip), exact sign-flip p = 0.0039 on the realized contrast. Line 212: "The screen could have detected a policy that dominated target risk on most informative systems." numerics-protocol.md:262 puts any real improvement at a few tenths of a unit.
+  FIX: The largest possible improvement over target risk was 3.04 cost units per system. A policy that reached that floor on every system would probably still have been detected (bootstrap power 0.84 to 0.93). What 24 systems could not detect is a noisy policy with a modestly better mean (minimum detectable difference 3.7), and the replay puts any real improvement at a few tenths of a unit.
+
+[F6] (misleading) QUOTE: The paired standard deviation was about 6.2 cost units. Detecting a one-unit difference needs about 305 systems at 80% power, or 93 to 172 with eight replicate episodes per system.
+  PROBLEM: 6.2 is the median of the seven contrasts against target risk, not a single paired SD, and the required n depends heavily on which SD is used. The 93 to 172 assumes replicate noise is 50% to 80% of the paired variance, a share that was not measured for target risk.
+  EVIDENCE: results-analysis-verify.md:83: median of the seven contrasts is 6.2113; the median over all 28 pairs is 6.977, with a range of 3.074 to 9.035. Line 94: a one-unit difference needs 77 to 643 systems depending on the SD. Lines 86 and 96: r = 0.5 to 0.8 is assumed, and "Replicate share is not measured for target risk ... may be low."
+  FIX: The median paired SD against target risk was about 6.2 cost units (3.1 to 9.0 across all pairs). At that SD, detecting a one-unit difference needs about 305 systems at 80% power (77 to 643 across the observed SDs). With eight replicate episodes per system it needs about 93 to 172, if replicate noise is 50% to 80% of the paired variance, which was not measured.
+
+[F7] (misleading) QUOTE: The shifts followed the supervised model's command prior (r = 0.91) rather than the labels.
+  PROBLEM: The shifts quoted in the next sentence (+0.57 and −3.84 nats, final against reference) correlate 0.80 with the supervised command prior. The 0.91 is a different quantity, the fitted online drift, and it is the high end of two analysts' values (0.89 and 0.91). The comparison with the labels is also left unquantified.
+  EVIDENCE: training-forensics.md:460 and training-forensics-verify.md:94: the correlation of SFT mean log-likelihood with the DPO change is 0.80, and with the label net it is 0.44. deployment-forensics-verify.md:128: the fitted per-command drift correlates 0.91 with the SFT mean (originally claimed 0.89). training.md:149 is the source of +0.57 and −3.84.
+  FIX: The per-command shifts followed the supervised model's command prior (r = 0.80 for the final change, 0.89 to 0.91 for the fitted online drift) far more than the labels (r = 0.44).
+
+[F8] (misleading) QUOTE: A token-level bias model with no state input reproduces the DPO trajectory (r = 0.80 for margins and 0.93 for final shifts).
+  PROBLEM: The verifier confirmed the correlations only with a qualification. The model tracks the DPO pass rather than reproducing it: it explains about 64% of the margin variance, uses two fitted constants, and works only with token-factorized biases.
+  EVIDENCE: training-forensics-verify.md:45 (row J) and 55: r = 0.797, R-squared 0.635, sign agreement 93/119, shift r = 0.932, robust ranges 0.75 to 0.82 and 0.90 to 0.95. A per-command bias model gives only r = 0.16 to 0.36. "It explains about 64% of the variance of the online margins, not all of it."
+  FIX: A state-blind model with token-factorized biases (three trie nodes, two fitted constants) tracks the DPO pass: r = 0.80 for the online margins (about 64% of their variance) and 0.93 for the final per-command shifts. One bias per command does not fit (r = 0.16 to 0.36).
+
+[F9] (misleading) QUOTE: At late training states the supervised model's likeliest whole command was observation, yet greedy decoding produced X = −1.
+  PROBLEM: This is stated as fact, but it is an inference from averages. The average probabilities are nearly tied, and the two commands were almost never scored in the same state.
+  EVIDENCE: training-forensics-verify.md:85: at snapshots 1-3 the geometric-mean probabilities are observe_all 0.367 and set_x_neg 0.345, "a near tie". Greedy output is set_x_neg in 76 of 96 states and in all 11 saved states with P(observe_all) between 0.30 and 0.44. "This is an inference from averages, because set_x_neg and observe_all are almost never both scored in the same SFT state."
+  FIX: At late training states the supervised model's average probabilities put observation (0.367) level with X = −1 (0.345), yet greedy decoding produced X = −1 in 76 of 96 of those states. This remains an inference until per-state score tables are regenerated.
+
+[F10] (misleading) QUOTE: one storage decision cost 23.5 hours
+  PROBLEM: 23.5 hours is the gap between two commits. The ledger itself says the gap spans a night and is not all attributable to the decision.
+  EVIDENCE: ledger-ops.md:47: "Blocked on storage decision (gap between commits) | Nov 8 17:47 → Nov 9 17:16 (23.5 h) ... The gap also spans a night, so not all of it is attributable".
+  FIX: one storage decision left a 23.5-hour gap between commits, part of it overnight
+
+[F11] (misleading) QUOTE: The Mac (M5 Max, 36 GB) can run Qwen3-0.6B scoring and LoRA training, and Qwen2.5-7B inference fits in memory.
+  PROBLEM: Local MPS speed, fidelity and training cost are unmeasured; the agenda itself says the E2 pilot decides this. The 7B weights are also absent (see the first issue).
+  EVIDENCE: policy-repair.md:461: "The speed and fidelity of local MPS execution, and the true per-step training cost. These are unmeasured". judge-operations.md:48 and 109: "unmeasured MPS speed" and "7B LoRA training ... Unmeasured". The cache check is in the first issue.
+  FIX: The Mac (M5 Max, 36 GB) should be able to run Qwen3-0.6B scoring and LoRA training, and Qwen2.5-7B inference should fit in memory once its weights are downloaded. Speed and fidelity are unmeasured until the E2 pilot.
+
+[F12] (misleading) QUOTE: The supervised adapter reads coarse state: budget counter, graph type and history length.
+  PROBLEM: The verifier established state dependence only for the budget counter and graph type. History length moves with the budget counter and was not separated from it. This matters because E4's N0 is defined as "everything the supervised adapter was found to read".
+  EVIDENCE: deployment-forensics-verify.md:132-137: "true only for the budget counter and graph type". The adapter's choices are budget-keyed: stops at remaining budget 3 or less, and X = +1 after 10 to 18 repeats, anchored near training snapshot levels 12 and 6.
+  FIX: The supervised adapter responds to coarse state: the budget counter and graph type. History length moves with the budget counter and was not separated from it.
+
+[F13] (omission) QUOTE: The Remote Lab gives exclusive real-time sessions on the physical Wind Tunnel Mk2 at an academic rate of 0.014 EUR per second, with 1,000 free credits.
+  PROBLEM: The price and terms are right, but E10 and Decision 10 leave out several prerequisites. The Remote Lab client is the pre-release causalchamber 1.0.0rc1, which needs Python 3.11 or newer while the local Python is 3.9, so it is a second install needing approval. The 0.014 EUR rate assumes academic eligibility. The terms also forbid automated account registration, allow rate limits on automated access and make fees non-refundable.
+  EVIDENCE: literature-benchmarks.md:27: academic 0.014 EUR and commercial 0.038 EUR per credit. literature-benchmarks.md:31 (Terms v1.1) and :40: 1.0.0rc1 "adds lab.login() and new_session(), and requires Python 3.11 or newer". experimentalist-task.md:376-378 lists both installs and "Confirm academic eligibility (commercial pricing is about 2.7 times)". brief.md section 4: local Python 3.9.
+  FIX: Add to Decision 10: "approval for a separate Python 3.11+ environment with the pre-release causalchamber 1.0.0rc1 client, which the Remote Lab API requires; confirmation of academic eligibility (commercial rate 0.038 EUR per credit, about 2.7 times); and acceptance of the terms on automated access, rate limits and non-refundable fees."
+
+[F14] (omission) QUOTE: They are not yet preserved in the repository. E1 and E2 should start from them rather than recompute them.
+  PROBLEM: The cited location is under /private/tmp, a temporary directory that macOS clears at restart. The 16,384-draw reference table and the verifier scripts that E1 and E2 are told to start from could disappear before Week 0 ends.
+  EVIDENCE: Document line 440 gives the path /private/tmp/claude-501/.../scratchpad/. The per-decision export is deployment-forensics-verify/decisions_verifier.csv (deployment-forensics-verify.md:37).
+  FIX: They live in a temporary directory and are not yet preserved. Copy them into the repository (or another durable store) in Week 0, before E1 and E2 depend on them.
+
+[F15] (minor) QUOTE: yet their capped costs differ in 11 of 24 systems
+  PROBLEM: Only 8 of the 11 differences come from noise inside the shared identical-action prefix. The other 3 were decided after the two arms' actions diverged.
+  EVIDENCE: deployment-forensics-verify.md:141: "Their capped cost-to-target still differs in 11/24 worlds, and in 8 of those 11 the difference was decided by a crossing inside the identical-action prefix."
+  FIX: yet their capped costs differ in 11 of 24 systems, 8 of them decided by a crossing inside the identical-action prefix
+
+[F16] (minor) QUOTE: The first branch pools seven `set_*` commands against observation.
+  PROBLEM: The first branch of the command trie is action (8 commands) against stop, which is legal at every nonterminal state. The observe-versus-set split is the second branch.
+  EVIDENCE: deployment-forensics-verify.md:118: "first branch `action` (8 commands) vs `stop`. Second branch `observe` (1) vs `set` (7)." training-forensics-verify.md:122 has the same token ids.
+  FIX: After an action-versus-stop branch, the next branch pools seven `set_*` commands against observation.
+
+[F17] (minor) QUOTE: Prompts ran 1,990 to 4,160 tokens.
+  PROBLEM: That range covers the 1,698 deployment prompts only. The same bullet goes on to discuss all prompts, and the 160 training prompts run longer.
+  EVIDENCE: deployment-forensics-verify.md:117: prompt tokens 1,990 to 4,160 (deployment). training-forensics-verify.md:50: training prompts 1,998 to 4,199, with a common suffix of 356 tokens.
+  FIX: Deployment prompts ran 1,990 to 4,160 tokens (training prompts 1,998 to 4,199).
+
+[F18] (minor) QUOTE: First verify the local base snapshot against the pinned revision, because so far only the adapters are hash-verified.
+  PROBLEM: The tokenizer files are also byte-verified. What remains unverified is the base weights against the deployment model-set pin, which is a SHA-256 value, not the HF revision name.
+  EVIDENCE: mechanism.md:13: "VERIFIED: the Qwen3-0.6B tokenizer files in the local HF cache ... match the deployment freeze pins byte for byte". deployment-forensics-verify.md:48: the snapshot's "pin against model_sha256 052d8c0b... is not verified".
+  FIX: First verify the local base weights (snapshot c1899de2…) against the deployment pin model_sha256 052d8c0b…, because so far only the adapters and tokenizer files are hash-verified.
+
+[F19] (minor) QUOTE: 10 to 20 local CPU-hours (labelling about 166,000 states at 0.12 s each)
+  PROBLEM: The parenthetical accounts for only about 5.5 CPU-hours, so it does not explain the 10 to 20 range.
+  EVIDENCE: 166,000 × 0.119 s = 19,754 s, about 5.5 h. judge-operations.md:45 and policy-repair.md:236 both give about 5.5 CPU-hours at 16,384 draws.
+  FIX: 10 to 20 local CPU-hours, of which labelling about 166,000 states at 0.12 s each is about 5.5 and the rest is training and evaluating the learners
+
+[F20] (minor) QUOTE: The learner's public posterior risk resolves the large contrasts with 3 to 17 systems
+  PROBLEM: The range merges two figures: the large contrasts need 3 to 7 systems, and 17 is for static against state-conditional design. Both are model-internal predictions, not observed results.
+  EVIDENCE: numerics-protocol.md:258: "17 systems for static versus state-conditional, 3 to 7 for the large contrasts". These are n* values for z = 2.8 from the predicted table at lines 243-254.
+  FIX: The learner's public posterior risk would resolve the large contrasts with 3 to 7 systems, and static against state-conditional design with about 17 (model-internal predictions)
+
+[F21] (minor) QUOTE: An all-observe policy has regret 0.654 yet the fourth-best final NMSE.
+  PROBLEM: The all-observe policy is the frozen LLM (574 of 576 observations), which the same paragraph lists at 0.655. 0.654 is its 16,384-draw value, while the list uses one 256-draw seed, whose values move by up to 0.002.
+  EVIDENCE: deployment-forensics-verify.md:91: frozen 0.655 (256 draws), 0.655 to 0.657 across seeds, 0.654 at 16,384 draws. Line 148 identifies the all-observe policy as the frozen LLM. Line 53: frozen obs 574, x0 2.
+  FIX: The frozen LLM, which observed at 574 of 576 decisions, has regret 0.655 yet the fourth-best final NMSE (geometric mean).
+
+[F22] (minor) QUOTE: Only 119 pairs were used, one per state, once.
+  PROBLEM: There were 128 nonterminal states. The code selects at most one strict pair per record, and 9 records had none.
+  EVIDENCE: llm_intervention_training_exposure.py:99-104: `selected = min(strict, ...) if strict else None`. 128 − 119 = 9 records without a strict pair.
+  FIX: Only 119 pairs were used, at most one per state (9 of the 128 states had no strict pair), each once.
+
+[F23] (minor) QUOTE: On the 14 systems not already at target, local information leads target risk on curve area.
+  PROBLEM: The lead is descriptive and statistically unresolved.
+  EVIDENCE: results-analysis-verify.md:117: mean log-area −1.755 against −1.624, lower on 9 of 14, sign-flip p = 0.32. "Neither difference is resolved."
+  FIX: On the 14 systems not already at target, local information leads target risk on curve area (lower on 9 of 14, p = 0.32, not resolved).
+
+[F24] (minor) QUOTE: X = −1 was the planner's best first action in 11 of 24 systems and the best state-blind first action overall.
+  PROBLEM: The count of 11 is stable, but which systems it covers changes with precision. Counting exact ties with set_xy in the fork-uniform systems, X = −1 is optimal in 13 of 24.
+  EVIDENCE: deployment-forensics-verify.md:59-62: the count of 11 holds at 32 and 262,144 draws but membership changes. "x- is the unique or exactly tied optimum in 13/24 first states."
+  FIX: X = −1 was the planner's best first action in 11 of 24 systems (13 counting exact ties with the joint clamp in fork systems) and the best state-blind first action overall.
+
+[F25] (minor) QUOTE: Stage 1. Instrument, anatomy and theory (no new training)
+  PROBLEM: Stage 1 includes the E2 pilot, which "runs about 50 LoRA steps on compact prompts". That contradicts "no new training", the In-brief item "with forward passes only", and the claim that the first new model execution is forward scoring.
+  EVIDENCE: Document line 144 (the pilot's 50 LoRA steps) against lines 15, 23 and 115.
+  FIX: Stage 1. Instrument, anatomy and theory (no new training beyond about 50 measured LoRA steps in the E2 pilot)
+
+[F26] (minor) QUOTE: `llm_intervention_scm.py:41-96` (learner)
+  PROBLEM: The range stops before the update is committed and leaves out the composed prediction. The menu citation `screen_protocol.py:62-70` also starts at blank lines and omits the closing line 71.
+  EVIDENCE: In the repository, llm_intervention_scm.py has the class at line 28, noise and prior checks at 41-46, `update` at 61-100 (commit at 98-100) and `predict_mean` at 121-130. In llm_intervention_screen_protocol.py, `_menu` runs from 64 to 71 and lines 62-63 are blank.
+  FIX: `llm_intervention_scm.py:41-130` (learner: known noise and prior 41-46, conjugate update 61-100, composed prediction 121-130), and `llm_intervention_screen_protocol.py:64-71` for the menu order
+
+VERIFIED OK:
+ - README.md lines 14, 114 and 116 carry the 70-71% improvement claim (checked in the repository).
+ - Code line references: llm_intervention_language_policy.py:132-184 is generate_task_decision (greedy, prefix-constrained, GenerationConfig at 163-170); screen_protocol.py:124-135 is the teacher rotation (teacher_base at 127, teacher_method at 132); training_exposure.py:86-109 is the per-record pair selection (min-hash at 100).
+ - Every cited results path, guidance doc and paper.pdf exists. The GPU service folders hold 576 + 546 + 576 = 1,698 generation files, and 1,858 = 160 + 1,698.
+ - The Qwen3-0.6B snapshot c1899de2… holds model.safetensors and matches the base revision recorded in training.md:89. The tokenizer is byte-verified (mechanism.md:13). Base Qwen2.5-1.5B weights are present.
+ - Replay figures: −0.7% ± 1.7%; plan-once 11.926 against 11.932; static ratios 1.087, 1.208, 1.367, 1.755 and 2.127, matching 9%, 21%, 37%, 75% and 113% (numerics-protocol.md:180-199).
+ - 10 of 24 systems at target, with 9.87 expected; ceiling 3.0417; minimum detectable difference 3.709; 305 systems at SD 6.2113; sustained-attainment values 15.13 and 17.00 = 17.00.
+ - Regret values 0.016 to 0.700. The Spearman of 0.93 recomputes to 0.9286 from the two arm orderings. 74.8% = 419/560 decisions with a top-two gap under 2 SE.
+ - Training: 160 = 32 × 5 with 32 stop-only states; 108 and 123 X = −1 outputs; 36 and 32 label matches; constant matches 32; 2.37 against 1.93 nats; 3,584 = 128 × 28; α = 0.1393; 687 strict against 476-499 expected; 68.7% against 50.2%; 9,216 of 10,240 units; LoRA rank 8 at lr 1e-4.
+ - DPO: mean loss 0.7395; 66/119 at first exposure and under the reference; −4.69 and −6.68 nats; +0.57 and −3.84; X = +1 chosen 23 and rejected 14, X = −1 chosen 14 and rejected 9.
+ - Ranker: X = +1 435 and X = −1 141 times; 98.1% of score variance from action identity; SFT losses 2.03-2.15 against ln 9 and DPO 0.69339 against ln 2 (at chance).
+ - Prompt history grows to 67.2% and the posterior summary shrinks to 9.9%; one task payload and one menu order everywhere.
+ - Mission-1 shares: fills 56.4-69.1% and echoes 8.9-12.8%. ACE with DPO lost to random at 15, 30 and 50 nodes. Delivery result 0.182719 [0.101970, 0.327410], 11/12, and 2.46 (abstract figure).
+ - arXiv 2602.02451, v2 dated 18 June 2026, has the README's title and the 70-71% claim.
+ - Venue dates: ICML 2027 abstract Jan 14 and paper Jan 22; UAI 2027 not announced (estimated February); NeurIPS 2027 estimated early to mid May; CLeaR 2027 closes Nov 16, 2026.
+ - Causal Chambers: 1 credit = 1 s at 0.014 EUR academic; 1,000 free credits; exclusive sessions; jointly owned data; marketing use of the customer's name; causalchamber 0.2.8 is MIT and numpy-only; 4 × 30 × 16 at 10 s is 5.33 h, about 269 EUR; move costs 10 units and a replicate 2; 300 to 700 EUR matches evaluation-statistics' 270 to 700.
+ - Operations: 2,742 slice-seconds left; 450,000 SUs; a full A100 bills 108.6 against 54.3 for the slice (2×); ucb736_asc2 in use while the skill still defaults to asc1; gpu-testing has a 1-hour wall, so runs over about 45 minutes do not fit; about 48 s per numerical episode; reserved range [202611071000, 202611072000).
+ - E3 and design figures: 32 × (1/0.9 − 1) = 3.56 ≈ 3.6 units; 0.107 bits at a 31% flip rate; toy ratio 0.255-0.360; 240 to 300 edit states; E1 cost 5 to 30 CPU-hours and 1.5 to 3 weeks; a planning range of 96 to 156 systems.
+ - Literature IDs and venues match the notes: Kriz 2610.20832, GO-CBED 2507.07359 (TMLR 2026), CAASL (NeurIPS 2024), Paprika and EVOLvE (ICML 2025), Schmied (ICLR 2026), Gupta (Findings of EMNLP 2025), Kristiadi (ICML 2024), BoxingGym 2501.01540, LeGIT 2503.01139, Razin (ICLR 2025), TWOSOME (ICLR 2024).
+########## CRITIQUE ##########
+OVERALL: Path legend: DOC = /Users/pat/code/ACE/docs/development/guidance/ace_llm_experimental_agenda_2026-11-12.md (Lnnn = line). W1 = /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1. W2 = /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w2.
+
+The agenda's architecture is sound and its evidence section holds up numerically. It is not ready to hash as a registration, because its decision tree has contradictions and gaps.
+
+(1) Internal consistency: seven errors.
+- The E9 test-type rule conflicts with the gates table.
+- Holm is applied over an undefined third primary.
+- The E6 old-recipe anchor cell contradicts the document's own 'What not to do'.
+- The eight-replicate evaluator fallback is never carried into E8 or the compute plan.
+- The causalchamber install is tied to E9, although E5 needs it for C-mis.
+- G5 and G7 have no thresholds despite 'thresholds fixed now'.
+- 'If N0 passes' is impossible by definition.
+Also, the 'In order' list contradicts the stage order, and the admission gap threshold never binds alongside the parser residual.
+
+(2) Compliance:
+- No problems: favorable replacement benchmarks, tuning on development outcomes, paid APIs, em dashes and semicolon chains.
+- Gaps: the anchor cell reruns an old pipeline. Numerical controls are not given the same data and teacher as the LLM. The cached 1.5B and 7B weights are not listed as an ask. E2 may run before the registration hash. The standing controls are not listed for E8, E6 or E9. The adjudicator's status sits uneasily with the no-narration rule. A few terms break the 'intervention' rule.
+
+(3) Completeness: most judge MUST_INCLUDE items are present. Omissions that matter:
+- preserving the scratchpad evidence
+- E8's arm roster
+- E9 registration and margin
+- tranche sizes
+- the full list of harness changes
+- E6's engine cost
+- a no-talk-or-submission rule until the public record is corrected
+- text families in the sample sizing
+- C-mis serving as both primary class and transfer family
+- an amortized student in the admission arms
+- a reasoning scope statement
+- a program-wide attempt ledger
+- world clustering beyond E2
+- H2-only and TOST branches
+Omissions that matter less: a provenance manifest per local run, and the content of the disclosure section.
+
+(4) Clarity: a reader would likely misread these points.
+- The 'one analyst and a second' who verified the numbers were AI agents.
+- The no-adaptivity finding rests on greedy comparisons and is over-summarized.
+- The first model execution includes LoRA training, not only forward scoring.
+- It is unclear whether an ICML diagnostic submission runs in parallel with the program.
+- The submission conditions and 'Finding A' are never stated in this document.
+- The 700 EUR upper budget is unsupported.
+
+[C1] (error) QUOTE: One old-recipe anchor cell on the new engine validates it.
+  PROBLEM: E6 includes a cell that reruns the November recipe (one unshuffled pass at batch size 1). The agenda's own 'What not to do' list forbids this, and the standing rule against rerunning old pipelines covers it. No decision item asks Patrick to rule it a control cell.
+  EVIDENCE: DOC L251 contradicts DOC L412 ('Do not ... train with one unshuffled pass at batch size 1'). DOC L50 confirms the old recipe was one unshuffled pass at batch size 1. Standing rule 'Do not rerun completed studies or the old pipelines' (W2/brief.md:11). The integrity judge asks for exactly this ruling (W2/judge-integrity.md:446). The reviewer judge says such cells come close to breaking the rule (W2/judge-reviewer.md:56).
+  FIX: E6 Arms: 'If Patrick so rules (Decision 11), one old-recipe anchor cell (one unshuffled pass at batch size 1 on the original interface) runs on the new engine as a control cell of the new design, not as a rerun of the November pipeline.' What not to do: '... train with one unshuffled pass at batch size 1 outside the single E6 anchor cell ...'. New Decision 11: 'Whether the E6 old-recipe anchor cell is a control cell of the new design rather than a rerun of the old pipeline. Without that ruling the cell is dropped.'
+
+[C2] (error) QUOTE: The frozen E8 method is tested for superiority if the family was admitted in E5 and for non-inferiority (no harm) otherwise.
+  PROBLEM: Two different rules set E9's hypothesis. E9 keys it to E5 admission. The gates table keys it to the E8 outcome: 'Only H1 passes' leads to 'E9 non-inferiority' and 'H1 and H2 pass' leads to an unspecified 'E9 transfer'. The rules disagree when the wind tunnel was admitted but only H1 passed, and when both hypotheses passed but the wind tunnel was not admitted. The 'Neither passes' row does not say whether E9 runs, while E9 says its result is reported whatever the outcome and Phase 5 schedules it unconditionally. A hashed decision tree cannot hold both rules.
+  EVIDENCE: DOC L323 against DOC L363-366 (gates table) and DOC L381 (calendar).
+  FIX: 'E9 runs only if E8 confirms at least H1. Its hypothesis is fixed at registration. It is superiority if the wind-tunnel family was admitted in E5 and both H1 and H2 passed, and non-inferiority within a registered margin otherwise. After a failed confirmation E9 does not run.' Gates rows: 'H1 and H2 pass | E9 (superiority if admitted, otherwise non-inferiority)', 'Only H1 passes | E9 non-inferiority', 'Neither passes | No E9. Report the failure'.
+
+[C3] (error) QUOTE: Use Holm over at most three primaries, and a TOST equivalence test for the null branch.
+  PROBLEM: E8 defines exactly two co-primaries, H1 and H2. No third primary is defined anywhere. Yet the multiplicity correction depends on the number of primaries, and so does E5's admission sizing rule ('90% power under Holm').
+  EVIDENCE: DOC L296-301 defines only H1 and H2. DOC L226 sizes E5 admission under Holm. The source design sized with Holm over two primaries (W2/paper-strategy.md:402).
+  FIX: 'Use Holm over H1 and H2. A third primary, H3 (the compiler or adjudicator role beats the strongest equal-information control), is added only if Patrick's Week 0 ruling makes that role count toward condition 1. E5's sample-size rule uses the same number of primaries. Use a TOST equivalence test with a registered margin for the null branch.'
+
+[C4] (error) QUOTE: If the Rao-Blackwellized evaluator fails in a class, that class falls back to realized truth with at least eight replicates.
+  PROBLEM: Three gaps. First, E1 validates the evaluator only on the November generator, and the agenda never says where it is checked in the candidate classes. Second, the fallback never reaches E8 or the compute plan, which both assume two replicates. ERB is unavailable under misspecification, so if C-mis is admitted (and in E9) the registered 'two replicates' and the 10 to 30 GPU-hour figure are about four times too low. Third, that figure implies about 38 decisions per episode, and this is never stated.
+  EVIDENCE: DOC L123 (calibration uses only the November generator), L136, L303 ('two replicates') and L393. W2/evaluation-statistics.md:356 ('ERB is not available under misspecification'). Computation: 156 × 2 × 30 = 9,360 episodes. 10 GPU-hours at 0.1 s per decision is 360,000 decisions, about 38 per episode. Eight replicates would multiply the cost by 4.
+  FIX: E5: 'Before admission, repeat the evaluator check (realized over Rao-Blackwellized ratio in [0.92, 1.08]) on each candidate class's calibration systems. C-mis and E9 use realized truth.' E8: 'Common random numbers with two replicates if the Rao-Blackwellized evaluator passed in the admitted class, otherwise at least eight.' Operations: '... roughly 10 to 30 GPU-hours at about 40 decisions per episode, or 40 to 120 GPU-hours if the admitted class needs realized truth with eight replicates.'
+
+[C5] (error) QUOTE: | E5 | 2 | Which candidate class, if any, has headroom only side information can close? | Local CPU, 20 to 100 core-hours | New namespaces, text authors |
+  PROBLEM: E5 audits C-mis, the team-extended wind-tunnel simulator, between Nov 19 and Dec 11. That audit needs the causalchamber simulator, installed or vendored, in Phase 1. The approval is listed only under E9 (Stage 5), and Decision 9 gives no timing. The blind-author rule for the training library also appears only in E9, although E5 would already use the simulator code.
+  EVIDENCE: DOC L108, L112, L214, L321, L325, L377 and L406. The operations judge scoped the install to 'Phase 5 only', but under a design where the wind tunnel served only as transfer (W2/judge-operations.md:193).
+  FIX: E5 row: 'New namespaces, text authors, `causalchamber` 0.2.8 install or vendoring (for C-mis)'. Decision 9: 'Installing `causalchamber` 0.2.8 in an isolated environment (or vendoring its pinned simulator file) before E5 if C-mis is audited.' Add to E5: 'From the first use of the simulator in E5, whoever writes the training library must not read its mechanism code, or a frozen overlap audit applies.'
+
+[C6] (error) QUOTE: G5: sensitivity to posterior edits, with invariance to menu order and identifiers.
+  PROBLEM: The gates are introduced as 'thresholds fixed now', but G5 and G7 ('stability across seeds') have no numbers. E1's stop-rule check ('meets its reliability target') names no target either. The E6 decision maps only 'G1 to G4 pass but G5 fails' to the escalation. A failure of G2 (renewed collapse), G6, G7 or G8 is unmapped, yet the Gate B row implies escalation after any failure. Separately, L3 says nothing in the proposal is frozen, so 'fixed now' contradicts it.
+  EVIDENCE: DOC L253, L259, L261, L130, L266-270, L362 and L3. The source design gives numbers for both gates (W2/policy-repair.md:81 for G5, :83 for G7).
+  FIX: 'Mandatory gates, thresholds fixed at registration: ... G5: posterior-swap counterfactual sensitivity coefficient at least 0.3 with a world-clustered 95% lower bound above 0.1, and total-variation change at most 0.10 under planner-invariant edits (menu order, identifiers, history permutation). ... G7: across three seeds, standard deviation of validation regret at most 0.03 and action-histogram total variation at most 0.15.' Decision: 'A G1 failure is an engineering defect fixed before scoring. Any failure of G2 to G8 triggers the one escalation fixed by E2.' E1: state the stop-rule reliability target as a number (for example, at least 90% of public stops truly at target).
+
+[C7] (error) QUOTE: **If N0 passes:** the class cannot discriminate posterior use, and only E2's counterfactual tests can.
+  PROBLEM: Planner quality requires 'regret at least 0.10 below N0'. N0 cannot be 0.10 below itself, so N0 can never pass by definition, and this branch can never fire.
+  EVIDENCE: DOC L195 and L200. The source design has the same flaw (W2/policy-repair.md:88 and :231). The source also required a CI excluding zero for the N0 margin, which the agenda dropped.
+  FIX: '**If N0 alone meets the regret and design-quality thresholds:** the class cannot discriminate posterior use, and only E2's counterfactual tests can.' In the definition: '... and regret at least 0.10 below N0, with a world-clustered 95% interval excluding zero.'
+
+[C8] (misleading) QUOTE: adapting interventions to measured responses is worth almost nothing, so a good fixed schedule is close to optimal.
+  PROBLEM: Two problems. First, the design that matched target risk was planned once from the post-initialization state, so it is state-conditional, not fixed. A fixed schedule that ignores the state was 9% to 21% worse (DOC L35). Second, both comparisons use greedy designs, and the Bayes-optimal sequential policy was never computed, so 'at most a few percent' is an inference. The evidence section repeats the result without this caveat. Both judges asked that it be stated as a bound still to be verified.
+  EVIDENCE: DOC L7 and L33-35. W1/numerics-protocol.md:200 (reading the state is worth about 10 to 20%) and :204 (greedy searches, Bayes-optimal policy not computed, labelled 'Inference'). W2/judge-integrity.md:14-17. W2/judge-reviewer.md:83.
+  FIX: 'In three-variable linear-Gaussian systems with a known graph and known noise, a design planned once after initialization did as well as adaptive target-risk planning, and a schedule that ignores the state was 9% to 21% worse. Both comparisons use greedy designs and the Bayes-optimal sequential policy has not been computed, so this is a bound that E1's rollout planner and E5's fresh negative control will test.' Add the same caveat after L34.
+
+[C9] (misleading) QUOTE: Every number in this section was computed from saved files by one analyst and independently recomputed by a second.
+  PROBLEM: Both 'analysts' were AI agents in this session. A principal investigator or coauthor will read 'analyst' as human verification. The agenda itself says a named human reviewer is needed because agents write the analysis, and condition 5 requires independent review.
+  EVIDENCE: DOC L27 and L97. W2/brief.md:3. The w1 notes are first-person agent notes, for example 'is not verified by me' (W1/deployment-forensics-verify.md:48). W2/judge-integrity.md:393.
+  FIX: 'Every number in this section was computed from saved files by one AI agent and independently recomputed by a second AI agent. No human has checked them yet, and this is not the independent review that submission condition 5 requires.'
+
+[C10] (misleading) QUOTE: The failure lies in data and exposure, not specifically in the language model.
+  PROBLEM: The ranker collapsed on identical data, which shows the failure is not specific to the language model. It does not show that data and exposure caused the failure. That causal attribution is exactly what E4's positive branch is built to test, and the integrity judge requires interventional support for any causal claim about the collapse.
+  EVIDENCE: DOC L58 against DOC L197. W2/judge-integrity.md:354.
+  FIX: 'The failure is therefore not specific to the language model. Whether supervision and exposure caused it is tested prospectively in E4 and E6.'
+
+[C11] (misleading) QUOTE: Whether a diagnostic and theory paper is an acceptable output if no class is admitted or no LLM benefit confirms, and the target venue.
+  PROBLEM: The calendar puts an ICML go or no-go for the diagnostic paper at Gate B whatever Gate A decides. That implies a possible ICML submission while the advantage program continues, with writing in parallel with E6. Decision 3 and L368 instead present the diagnostic paper only as a fallback. The principal investigator cannot tell which is proposed, or what a parallel submission does to the later full paper. The decision list also mixes this-week decisions with Phase 5 decisions without saying when each is needed.
+  EVIDENCE: DOC L378, L384, L368 and L398-407. W2/judge-operations.md:185 (ask whether the diagnostic paper 'may go to ICML 2027 on its own').
+  FIX: Decision 3: 'Whether the diagnostic and theory paper may go to ICML 2027 on its own (go or no-go at Gate B, about January 8) even if a class is admitted and the advantage program continues, and whether it is an acceptable final output if no class is admitted or no LLM benefit confirms.' Add a 'Needed by' column: items 1 to 8 in Week 0, item 9 before E5 if C-mis is audited, item 10 only after a positive E9.
+
+[C12] (misleading) QUOTE: L3, adjudicator: chooses among the planner's top candidates. It is secondary and must beat a family of argmax-of-prompt rules.
+  PROBLEM: Week 0 item 2 offers 'an adjudicator among planner candidates' as a role that might satisfy condition 1. E7 makes L3 secondary in every case, and the decision tree has no branch where only L3 succeeds. Choosing from the planner's own shortlist is the role closest to narrating the optimizer, which the standing rule forbids. The reviewer judge says arms that see planner statistics are never primary.
+  EVIDENCE: DOC L96, L282 and L353. W2/brief.md:7. W2/judge-reviewer.md:277.
+  FIX: Either drop the adjudicator from Week 0 item 2, or add to L3: 'L3 stays secondary even if Patrick rules that the adjudicator counts, because it sees the planner's ranking. An L3-only success is reported as a narrowed claim and does not meet condition 1.'
+
+[C13] (misleading) QUOTE: Establish learnability with numerical students and then with one repaired LLM recipe.
+  PROBLEM: The list is introduced 'In order', and it puts the LLM recipe (item 4) before class admission (item 5). The stage table, the calendar and the tranches all put E5 admission (Stage 2, Gate A) before E6 (Stage 3, Tranche 1 'at Gate A'). The decision tree also never says whether E6 runs when no class is admitted. The Gate A row says only 'Advantage program stops'.
+  EVIDENCE: DOC L11-19, L102-113, L361, L377-378 and L393.
+  FIX: Reorder the list: '4. Establish learnability with numerical students. 5. Admit a new benchmark class only by a numerical headroom rule that never looks at a language model. 6. Test one repaired LLM recipe in the completed class. 7. Develop and confirm ... 8. Transfer ...'. Add to the Gate A row: 'E6 still runs, because it decides whether the diagnostic paper reports a repaired LLM recipe, and Tranche 1 is released either way.' Alternatively, if Patrick prefers to stop GPU spend: 'E6 does not run and Tranche 1 is not released.'
+
+[C14] (misleading) QUOTE: Week 0 decisions, README banner, registration, bench started, theory started, pilot and E2 if approved
+  PROBLEM: E2's escalation rule must be 'written in advance' (L156). Phase 0 nonetheless lets E2 run in the same week as the registration, and the hash appears only as the end-of-phase gate. If E2 scores before the hash, nobody can show that the rule came first. The freeze-before-scoring rule needs the order stated.
+  EVIDENCE: DOC L156 and L376. W2/judge-integrity.md:353 ('Forensic outputs reach the method only through rules written in advance').
+  FIX: 'Week 0 decisions, README banner, registration, bench started, theory started, pilot if approved, then E2 once the registration (including the E2 escalation rule) is hashed | Registration hashed before E2 scoring begins'
+
+[C15] (misleading) QUOTE: Numerical SCM planning is the only acquisition signal that has replicated: target risk in November, the PEV family and posterior-risk pair selection on two of three synthetic graph families in September.
+  PROBLEM: PEV's primary contrast against coverage failed its gate (p = 0.051). Only an unadjusted secondary contrast against random passed, and one system drives it. 'Two of three families' describes the pair selector, not PEV. The acronym PEV is never defined. The next bullet calls the delivery study solid without saying that it rests on 12 histories of one deterministic emulator.
+  EVIDENCE: W1/prior-evidence-core.md:30 (A6), :32 (A8) and :35 (A11). DOC L74-75.
+  FIX: 'Numerical SCM planning is the only acquisition signal with repeated support: target risk in November, posterior-risk pair selection on two of three synthetic graph families in September, and the PEV planner (acronym spelled out) against random, although its primary contrast against coverage missed its gate (p = 0.051).' Then: 'The delivery study is a solid learner-side result on 12 histories of one deterministic emulator (confirmation ratio 0.182719, ...).'
+
+[C16] (misleading) QUOTE: The ceiling gap over the strongest no-text control is at least ln 1.10, with a lower 95% bound of at least ln 1.05, and corresponds to at least one cost unit under the conversion in E3.
+  PROBLEM: The next condition requires a 10% error reduction that the parser and the bag-of-words model leave uncaptured, which means ln(R/O) ≥ ln(1/0.9) = 0.105. That exceeds ln 1.10 = 0.095. The parser-fed planner should do no worse than the no-text planner, so the stated gap threshold never binds, and a class with exactly the stated minimum gap must fail. The source design was coherent: a total gap of at least 0.1625 (15%) and a residual of at least 0.105.
+  EVIDENCE: Computation from DOC L221-222: ln 1.10 = 0.0953 < ln(1/0.9) = 0.1054. W2/paper-strategy.md:157-158.
+  FIX: 'The ceiling gap over the strongest no-text control is at least 0.16 in natural-log units (the oracle at least 15% better), with a lower 95% bound of at least ln 1.05, and corresponds to at least one cost unit under the conversion in E3.' Alternatively, keep ln 1.10 and restate the residual as a declared share of the gap that the parser and the bag-of-words model leave uncaptured.
+
+[C17] (misleading) QUOTE: Stages 1 and 2 run on the Mac with no GPU and no CURC allocation. The first new model execution is forward scoring of the saved adapters, which needs Patrick's go-ahead but no download.
+  PROBLEM: The first model execution is actually E2's pilot, and the pilot also 'runs about 50 LoRA steps on compact prompts'. That is training, so the go-ahead covers more than scoring. E2 runs on the Mac's GPU, so 'no GPU' only means no CURC GPU. Separately, the calendar numbers Phases 0 to 5 differently from Stages 1 to 5: Phase 2 is E6 on a GPU, while Stage 2 is numerical only. Readers will confuse the two.
+  EVIDENCE: DOC L23 against L144, L392 and L374-381.
+  FIX: 'Stages 1 and 2 need no CURC allocation and no CURC GPU. The first new model execution is a half-day local pilot (forward scoring of the saved adapters plus about 50 LoRA training steps), which needs Patrick's go-ahead but no download.' Label each calendar row with its stage, for example 'Phase 2 (Stage 3)'.
+
+[C18] (misleading) QUOTE: a budget of roughly 300 to 700 EUR, all only after a positive simulator result.
+  PROBLEM: The only costed hardware design is about 270 EUR. The source designs proposed a cap of about 300 EUR, or 400 EUR including 30% contingency. Nothing in the agenda supports 700 EUR.
+  EVIDENCE: DOC L331. W2/paper-strategy.md:605. W2/experimentalist-task.md:13 and :297 (279 to 309 EUR, 400 EUR cap). W2/judge-operations.md:196 (300 to 400 EUR).
+  FIX: 'a spend cap of about 350 to 400 EUR (the 270 EUR design plus about 30% contingency), all only after a positive simulator result.'
+
+[C19] (omission) QUOTE: They are not yet preserved in the repository. E1 and E2 should start from them rather than recompute them.
+  PROBLEM: Every number in the evidence section rests on scripts, verification logs and the 16,384-draw reference table. These live in a session-specific scratchpad under /private/tmp, which is temporary storage outside version control that the coauthor cannot reach. No Week 0 action or decision preserves them, yet E1's acceptance and E2's starting point depend on them.
+  EVIDENCE: DOC L440 and L27. The session environment describes this scratchpad as session-specific. W2/judge-operations.md:169 (existing exports should be promoted, not recomputed).
+  FIX: New Week 0 item 0: 'Preserve the evidence. With Patrick's go-ahead, and before any other work, copy the session analyses (scripts, notes, verification logs and the 16,384-draw reference table) from the temporary scratchpad into a committed results directory with a hash manifest.' Replace the scratchpad path at L440 with that directory.
+
+[C20] (omission) QUOTE: | Frozen LLM, supervised LLM, ranker successor | Required by standing rules | All |
+  PROBLEM: The table says these standing controls run in all stages, but only E7 lists them. E8, the confirmation, never lists its arms, and all three judges flagged a design whose confirmation dropped these controls. E6 omits the frozen LLM, and E9 lists no arms. 'Ranker successor' is never defined, and in a new class 'supervised LLM' cannot mean the November adapter.
+  EVIDENCE: DOC L251, L286, L292-311, L313-325 and L344. W2/brief.md:11. W2/judge-integrity.md:328. W2/judge-reviewer.md:225. W2/judge-operations.md:141.
+  FIX: Add to E8: '**Arms.** The promoted LLM variant (all seeds), target risk with common random numbers, the rollout planner, the law-aware no-text planner, the amortized no-text student, the parser, bag-of-words and embedding controls feeding the planner, the compiler, the oracle ceiling, the frozen base LLM, the supervised LLM and the ranker successor. Ablations: text removed, misleading text, shuffled feedback (where adaptivity value is verified) and state permutation.' Define once: 'The ranker successor is N1, the ranker MLP trained to convergence on the same data as the LLM. The supervised LLM is the supervised-only checkpoint of the same recipe.' Add the frozen LLM to E6 and the four standing controls to E9.
+
+[C21] (omission) QUOTE: Training uses the oracle-informed planner as a privileged teacher, with planner relabeling.
+  PROBLEM: The privileged teacher is described only for the LLM, and E7 equalizes only the tuning budget. The equal-information rule requires every learned control to receive the same states, labels and relabeling rounds: the amortized student, the embedding student and the ranker successor. Otherwise H2 compares arms that were trained differently.
+  EVIDENCE: DOC L284 and L290. W2/judge-integrity.md:326 ('All learned arms get the same data, and the same tuning budget on validation data only'). /Users/pat/code/ACE/docs/development/guidance/ace_llm_intervention_agenda_2026-11-02.md:123 ('Any extra structured facts must be available to numerical policies in a usable encoding').
+  FIX: 'Every learned arm, LLM or numerical, is trained from the same oracle-informed teacher on the same states with the same relabeling rounds.' And: 'Every learned arm gets the same data and the same tuning budget, spent on validation shards only.'
+
+[C22] (omission) QUOTE: The result is reported whatever the outcome.
+  PROBLEM: E9 is the condition 4 test, but nothing registers its design. E8's registration list leaves out the E9 family, namespace, arms, n, endpoint, failure treatment and non-inferiority margin. A margin chosen after the E8 results would make any no-harm claim post hoc.
+  EVIDENCE: DOC L294 and L323. W2/judge-integrity.md:388 (stages that run after a positive result are registered with the confirmation). W2/judge-reviewer.md:244 ('predeclared non-inferiority').
+  FIX: Add to the E8 registration: '... and the E9 design: family parameters, namespace, arms, n, endpoint, failure treatment and the non-inferiority margin.' In E9: 'The result is registered with E8 and reported whatever the outcome.'
+
+[C23] (omission) QUOTE: Tranche 1, at Gate A, is the E6 imitation runs. Tranche 2, at Gate B, is E7 development.
+  PROBLEM: Decision 6 asks Patrick to pre-approve compute tranches, but only the confirmation tranche has a size. E7 has no cost line at all ('GPU and CPU'), and E6 gives run counts but no ceiling or queue. The principal investigator cannot approve a tranche that has no size.
+  EVIDENCE: DOC L110, L272, L393, L403, and the E7 section (L276-290), which has no cost line. W2/judge-operations.md:133 and :189 (tranche 1 about 5 to 15 GPU-hours, tranche 2 about 10 to 15, tranche 3 about 5).
+  FIX: 'Tranche 1, at Gate A, is the E6 imitation runs, capped at about 15 GPU-hours on a full A100 or H200 under `gpu-long`, or run locally. Tranche 2, at Gate B, is E7 development, capped at about 15 GPU-hours.' Add an E7 cost line (engineering weeks and GPU-hours), and put these ceilings into Decision 6.
+
+[C24] (omission) QUOTE: The operating model: the in-process bench, harness changes (shared random-number namespaces, more than eight arms, in-process numerical policies) and the two custody tiers.
+  PROBLEM: The list of harness changes is incomplete. The plan also needs: more than 64 worlds (E4 uses 2,560), non-equal query weights (E1's per-system query laws and C-obj), an informed-prior learner (the law-aware and oracle planners), a world graph that can differ from the public graph (C-struct), nonlinear simulator worlds (C-mis), and confirmation scope in the bench.
+  EVIDENCE: DOC L402, L123, L183 and L213-217. W2/brief.md:21 (the code cannot express nonlinear truth or informed priors) and :59 (64-world limit). W2/judge-operations.md:17, :19 and :191.
+  FIX: '... harness changes (shared random-number namespaces, more than eight arms and 64 worlds, in-process numerical policies, non-equal query weights, an informed-prior learner, a world graph that can differ from the public graph, nonlinear simulator worlds and confirmation scope) and the two custody tiers.'
+
+[C25] (omission) QUOTE: Any new model weights beyond the cached Qwen3-0.6B, Qwen2.5-1.5B and Qwen2.5-7B.
+  PROBLEM: The standing rule requires explicit approval for new model weights. This program has executed only Qwen3-0.6B, but E2 and the E6 escalation use the 1.5B and 7B models. Both judges list their use as an ask, and the operations judge limits 7B to frozen probes unless the pilot shows that 7B training is feasible. The cache holds Qwen2.5-7B-Instruct, not a base 7B model. The Python 3.11 environment that the Remote Lab client needs is also not listed.
+  EVIDENCE: DOC L153, L159 and L406. W2/brief.md:11 and :65. W1/ledger-ops.md:228 ('New weights need separate approval'). W2/judge-reviewer.md:365. W2/judge-operations.md:22, :156 and :192.
+  FIX: 'Use of the cached Qwen2.5-1.5B(-Instruct) for frozen probes and the capacity escalation, and of the cached Qwen2.5-7B-Instruct for frozen probes only, with training at 7B only if the pilot shows it is feasible. Any other model weights. For E10 only, a separate Python 3.11 environment for the Remote Lab client.'
+
+[C26] (omission) QUOTE: **Cost.** Each run is minutes to about an hour on one GPU at compact prompt lengths, for roughly 10 to 15 runs.
+  PROBLEM: E6 needs a new version of the training engine: listwise soft targets, minibatches, all-linear rank-16 LoRA, single-token codes with argmax decoding, and a DAgger loop. The current engine runs batch size 1 with no listwise loss, and its worker hard-codes one SFT pass. That engineering is neither costed nor scheduled before Dec 11. Together with E4's 1,000 lines it also strains the 3,000-line cap, unless the cap excludes learners.
+  EVIDENCE: W1/training.md:92-95 and :199-200. W2/judge-operations.md:20, :122 (2 to 3 weeks including the engine) and :49 (engine of 800 to 1,200 lines). DOC L202 and L390.
+  FIX: '**Cost.** A new training-engine version (listwise loss, minibatches, all-linear LoRA, single-token codes, DAgger loop) of about 800 to 1,200 lines, built in Phase 1 so that E6 can start at Gate A. The operations estimate for the whole gate is 2 to 3 weeks including the engine. After that, each run takes minutes to about an hour ...'. Operations: 'Cap new non-test harness code (workers, services, validators and guards, not learners or the training engine) at about 3,000 lines before Gate B.'
+
+[C27] (omission) QUOTE: Every new manuscript gets a short section relating it to the earlier public claims.
+  PROBLEM: The integrity and operations judges both require that no new ACE talk or submission goes out until the README and the preprint are corrected. The agenda sets no deadline for the preprint decision, yet it plans an ICML submission for January. The v9 deck also has uncommitted changes in the working tree.
+  EVIDENCE: W2/judge-integrity.md:171 and :312. W2/judge-operations.md:143. DOC L378 and L384. git status shows ' M presentations/ACE_theory_and_evidence/ACE_mechanisms_and_evidence_v9.pptx'.
+  FIX: Add: 'No new ACE talk, deck circulation or submission goes out until the README banner is live and the preprint decision is made. The preprint decision is due before Gate B, ahead of any ICML submission.'
+
+[C28] (omission) QUOTE: **Sample size.** Fixed by the E1 and E5 variance components, with a planning range of 96 to 156 systems.
+  PROBLEM: E8 models text families as random effects but sizes n in systems only. With few phrasing families, the effective sample size for the language claim is the number of families. The agenda never sets that number. It also never sets the authoring effort, or the deadline for the human-written text that any text class needs before Gate A. Without these, Decision 8 cannot be staffed.
+  EVIDENCE: DOC L235, L303, L305 and L425. W2/judge-reviewer.md:178 and :282. W2/judge-operations.md:166.
+  FIX: '**Sample size.** Fixed by the E1 and E5 variance components, including between-family text variance, with a planning range of 96 to 156 systems crossed with at least K human-written held-out phrasing families. E5 sets K so that the family random effect still leaves 80% power.' Add to E5's cost line: 'K families, about H author-hours, written before the E5 parser audit and therefore before Gate A.'
+
+[C29] (omission) QUOTE: It doubles as the transfer family.
+  PROBLEM: If C-mis is named the primary class, E7 and E8 run in the wind-tunnel family, because 'LLM work proceeds in that class only'. E9 would then test the same simulator family, which is not transfer beyond the training generator (condition 4). Counterfactual-law controls, now limited to 'Transfer', would also be needed in E7 and E8. If C-mis is admitted but not named primary, E9's superiority test becomes a second confirmatory class and must be declared secondary.
+  EVIDENCE: DOC L214, L233, L323 and L350. W2/brief.md:9. W2/judge-integrity.md:57-60.
+  FIX: Add to E5: 'If C-mis is the primary class, counterfactual-law systems join the E7 and E8 controls, and transfer uses a different family named at registration. If C-mis is admitted but not primary, its E9 superiority test is registered as secondary to E8.'
+
+[C30] (omission) QUOTE: **Arms (numerical only).** Random, coverage, a leave-one-out static schedule, plan-once, target risk at 32 and 256+ draws, a rollout planner, a law-aware empirical-Bayes planner without text, an oracle-informed planner (the ceiling), a rule parser feeding the planner, and a bag-of-words text model.
+  PROBLEM: The reviewer judge's admission rule measures the gap over the strongest no-text controls, and these include an amortized no-text student. Like a trained LLM, that student learns the generator's law and can be non-myopic. Here it appears only in E7, so the admitted headroom may be overstated.
+  EVIDENCE: DOC L217 and L286. W2/judge-reviewer.md:177 and :193.
+  FIX: Add to the E5 arms: 'an amortized no-text student (N2 trained on the class's training namespace)'. Otherwise, state why the law-aware planner bounds it (for example, because that planner is non-myopic).
+
+[C31] (omission) QUOTE: **Actions:** permuted single-token action codes with randomized menu order, decoded by argmax over legal codes.
+  PROBLEM: No arm uses reasoning tokens, and no scope statement says so. The reviewer judge flags this as a gap for the transfer claim. Kriz et al. find that direct amortization without reasoning transfers poorly, and Schmied et al. tie fine-tuning gains to chain of thought.
+  EVIDENCE: DOC L64, L247 and L313-325. W2/judge-reviewer.md:181 and :285.
+  FIX: Add to E9: 'All LLM arms act without reasoning tokens, so the transfer claim is scoped to non-reasoning policies.' Optionally: 'One predeclared reasoning variant of the frozen method is registered with E8 as a secondary transfer arm.'
+
+[C32] (omission) QUOTE: an attempt ledger records every run
+  PROBLEM: The ledger covers only E7. The program takes many shots that no single Holm family controls: up to two E5 redesign rounds, three or four classes, three roles, three model sizes, the E6 knockouts and escalation, and interface choices driven by the forensics.
+  EVIDENCE: DOC L229, L280-282, L159, L290 and L368. W2/judge-integrity.md:394. W2/judge-reviewer.md:287.
+  FIX: Add to Week 0 item 3: 'The registration opens one program-wide attempt ledger covering every class audited, redesign round, role, model size, recipe, seed and interface choice. The paper reports its full count.'
+
+[C33] (omission) QUOTE: H2: the LLM beats the strongest numerical control given the same information (parser or embedding student feeding the planner).
+  PROBLEM: The bag-of-words model appears in E5, E7 and the controls table but is missing from H2. Nothing says that 'strongest' is fixed on validation data at registration. The decision list has no branch for H2 passing while H1 fails, and none for a TOST equivalence result.
+  EVIDENCE: DOC L217, L286, L299, L301, L307-311 and L340.
+  FIX: 'H2: the LLM beats the strongest numerical control given the same information (the parser, the bag-of-words model or the embedding student feeding the planner, whichever is strongest on the E7 validation shards, named at registration).' Add two decisions: 'H2 passes and H1 fails: no benefit over the uninformed planner, reported as a failed confirmation.' and 'Both fail and TOST shows equivalence: no benefit, with equivalence shown within the registered margin.'
+
+[C34] (omission) QUOTE: **Inference:** clustered by world, because states nest in worlds.
+  PROBLEM: Only E2 requires world clustering. E4's 95% bound on the design-quality ratio and E6's gate statistics (G3 to G6) are also state-level analyses. The judges ask for world clustering in every state-level analysis and for a margin on every test that can return a null.
+  EVIDENCE: DOC L154, L195 and L257-260. W2/judge-integrity.md:398. W2/judge-reviewer.md:288.
+  FIX: Add under the controls section: 'Every state-level interval or test (E2 edits and probes, E4 ratios, E6 gates) is clustered by world. Every test that can return a null (E8 TOST, E9 non-inferiority) has a registered margin.'
+
+[C35] (omission) QUOTE: The prediction is no headroom, which replicates or refutes Finding A on fresh systems.
+  PROBLEM: 'Finding A' is defined only in the brief, not in this document. The research question and the five submission conditions are invoked ('condition 1', 'Patrick's stated submission condition') but never stated. Without them, the coauthor cannot judge Decision 2 or E6's 'condition 1 is partly met'. Decision 2 also names only condition 1, although a benefit scoped to text bears on condition 2. 'Dose', 'PEV', 'public envelope' and 'qualified resume' are never defined.
+  EVIDENCE: DOC L3, L96, L212, L225, L268, L368, L399 and L424. W2/brief.md:7-9 and :17.
+  FIX: '... which replicates or refutes, on fresh systems, the finding above that adapting after initialization was worth −0.7% ± 1.7%.' After the first paragraph add: 'Research question: can a language model trained to use an explicit SCM choose interventions that give an experimentalist a reliable answer at lower experimental cost than strong numerical policies, with the LLM contributing to the decision rather than narrating a numerical optimizer? Submission requires all five of the following. (1) A reproducible LLM action policy with explicit training and deployment mechanism. (2) An independently evaluated benefit over a strong numerical acquisition policy on fresh systems. (3) Ablations separating language pretraining, ACE-specific training, causal structure and extra computation. (4) A concrete experimentalist task with an observable useful outcome, plus transfer beyond the synthetic training generator. (5) Preserved failures, response accounting and independent review.' Define dose as the amount of decision-relevant side information in the text. Change Decision 2 to 'conditions 1 and 2'.
+
+[C36] (minor) QUOTE: Gate A: endpoint frozen, N* set, class admitted or not
+  PROBLEM: E5's admission gap, residual and predicted n must be computed on the frozen primary endpoint, but the calendar freezes the endpoint at Gate A, at the same time as admission. The thresholds are written as log error ratios, which presuppose the fixed-budget endpoint, while E1 may select band cost-to-target instead.
+  EVIDENCE: DOC L134, L221-226 and L377.
+  FIX: 'Gate A: N* set, class admitted or not (endpoint frozen at the end of E1, before the E5 audit starts)'. Add to E5: 'The gap, the residual and the predicted n are computed on the primary endpoint frozen by E1.'
+
+[C37] (minor) QUOTE: Gate A (about Dec 11): E5 admission
+  PROBLEM: By the agenda's own durations, E1 (1.5 to 3 engineer-weeks) followed by E5 (1.5 to 2 weeks after E1) ends between about Dec 3 and Dec 17 when counted from Nov 12. That range does not yet include human text authoring, the C-struct schema change or Thanksgiving week. Dec 11 assumes the lower half of both ranges, and Gate B and the ICML decision move with it.
+  EVIDENCE: DOC L138, L235, L361 and L377-378. Computation: Nov 12 plus 3 to 5 weeks gives Dec 3 to Dec 17.
+  FIX: 'Gate A (about Dec 11 if E1 takes about two weeks, and up to about Dec 17 at the upper estimates): E5 admission.' Note in the calendar that a later Gate A compresses the ICML option.
+
+[C38] (minor) QUOTE: First verify the local base snapshot against the pinned revision, because so far only the adapters are hash-verified.
+  PROBLEM: One analysis did hash-match the base weights: the sha of model.safetensors (f47f7117…) equals the freeze pin. The second analyst did not re-verify it. The base weights are therefore single-checked, not unverified.
+  EVIDENCE: W1/mechanism.md:162 against W1/deployment-forensics-verify.md:48.
+  FIX: 'First re-verify the local base snapshot against the pinned revision. One analysis matched the base weights' file hash to the freeze pin, but only the adapters have been checked twice.'
+
+[C39] (minor) QUOTE: They already emitted the constant action on their own training states.
+  PROBLEM: The adapters emitted X = −1 on 108 and 123 of 128 states, which is dominant but not constant. The headline 'never learned' also conflicts with L66, which says the supervised adapter reads coarse state.
+  EVIDENCE: DOC L7, L52 and L66.
+  FIX: 'They already emitted X = −1 on 108 and 123 of their 128 nonterminal training states.' Headline: '... and its learned arms learned almost nothing useful.'
+
+[C40] (minor) QUOTE: and one storage decision cost 23.5 hours.
+  PROBLEM: The 23.5-hour gap spans a night. The ledger notes that not all of it can be attributed to the decision.
+  EVIDENCE: W1/ledger-ops.md:47.
+  FIX: 'and one storage decision left a 23.5-hour gap, part of it overnight.'
+
+[C41] (minor) QUOTE: 10 to 20 local CPU-hours (labelling about 166,000 states at 0.12 s each)
+  PROBLEM: Labelling takes 166,000 × 0.12 s = 19,920 s, about 5.5 CPU-hours. The parenthetical attributes the whole range to labelling, but the rest is learner fits and evaluation.
+  EVIDENCE: Computation as stated. W2/policy-repair.md:236-239.
+  FIX: '10 to 20 local CPU-hours (labelling about 166,000 states at 0.12 s each takes about 5.5 hours, 168 learner fits take 3 to 10 hours and closed-loop evaluation 1 to 2 hours)'
+
+[C42] (minor) QUOTE: their first 10 to 22 acquisitions in every system
+  PROBLEM: The handoff rule says to 'use intervention consistently'. The document uses 'acquisitions' here, 'selected probes' for Mission-1 interventions at L70 (while E2 uses 'probes' to mean hidden-state probes) and 'A move' in E9 at L319.
+  EVIDENCE: /Users/pat/code/ACE/docs/development/guidance/handoff_ace_llm_research_2026-11-12.md:124. DOC L44, L70, L153 and L319. A grep found no em or en dashes, and the only semicolon is inside a citation list (L368), which complies with the rules.
+  FIX: 'their first 10 to 22 actions in every system'. L70: 'the LLM arm's selected interventions'. L319: 'A change of fan load (an intervention) costs about 10 units ...'.
+
+VERIFIED OK:
+ - README.md lines 14, 114 and 116 carry the 70-71% claim, confirmed by grep.
+ - All cited evidence locations exist (cells.csv, curves.csv and actions.csv, plus the fit, collection, GPU services and CPU directories). Each cited code range lies within its file and shows the right content: the decoder at language_policy.py:132-184, the 8-action menu at screen_protocol.py:62-70, teacher rotation at :124-135, pair selection at training_exposure.py:86-109 and the learner at scm.py:41-96.
+ - The linked documents exist: the Nov 2 agenda, the Nov 12 handoff, metric_audit_2026-09-10.md and paper/aistats_ace_2027/paper.pdf.
+ - Prose style: there are no em or en dashes, and the single semicolon sits inside a citation list (L368), not a chain.
+ - Prompt and command counts: 1,858 = 160 training + 1,698 deployment prompts. The nine commands are the eight menu entries plus stop.
+ - Spearman 0.93 between the headline and regret orderings: sum of squared rank differences = 6, so rho = 1 − 36/504 = 0.929.
+ - Power figures check out. A 1-unit difference at SD 6.2 needs n ≈ 302, or about 305 with the t correction. The MDD at n = 24 with t(23) is about 2.93 × 6.2/√24 ≈ 3.7.
+ - Label noise: 3,584 = 128 × 28 comparisons. At α 0.139, chance strict labels number about 498, and 476 to 499 of 687 is 69 to 73%.
+ - Label-information lemma: 1 − H(0.31) ≈ 0.107 bits. The 31% flip rate is consistent with 68.7% agreement.
+ - Cost conversion: 32 × (1/0.9 − 1) ≈ 3.56 units.
+ - Sustained-attainment values 15.13 and 17.00 (W1/results-analysis-verify.md:119).
+ - Delivery numbers 0.182719 [0.101970, 0.327410], 11 of 12 and 2.46 (W1/prior-evidence-core.md:35-36). ACE with DPO lost to random at 15, 30 and 50 nodes (:25).
+ - The account is ucb736_asc2 with 450,000 SUs, and the curc-access skill still defaults to asc1 (W1/ledger-ops.md:68 and :269).
+ - 2,742 GPU-slice-seconds is about 0.76 h. A full A100 bills about twice the slice (108.6 against 54.3).
+ - The Remote Lab design of 4 × 30 × 16 interventions takes about 5.3 h, which is about 270 EUR at 0.014 EUR/s.
+ - E4's 166,000 states equal 2,560 worlds × about 65 states each (W2/policy-repair.md:414). The 10 to 20 CPU-hour total matches 5.5 h labelling + 3 to 10 h fits + 1 to 2 h evaluation.
+ - No favorable replacement benchmark: admission is numerical-only and hashed before any LLM contact, redesign is capped at two LLM-independent rounds, every audited class is reported, the completed-class null is kept, and every LLM-dependent kill rule only narrows the claim.
+ - No tuning on the 24 development outcomes. The endpoint is chosen on a fresh calibration namespace by a numerical-only z ≥ 3 rule, and old-arm rankings are only disclosed. E2 outputs reach E6 only through a pre-written escalation rule, with probes fitted on training worlds. E4 selects on validation worlds and scores test worlds once. The gates are not described as validated. The 24 systems and the 32 training worlds are retired, and the reserved range is re-declared.
+ - No paid APIs: the Remote Lab is gated behind Patrick's ruling, the sign-up, the terms and a positive simulator result.
+ - Most MUST_INCLUDE items are present. Public record: README banner, preprint identity check, v9 deck and stale PDF. Measurement: bench acceptance on 560 receipts, 4,371 NMSEs and public states, plus A/A, planted-effect, ERB-versus-realized and known-capture checks with a leakage policy. Forensics: the 99% fidelity gate, world-clustered E2 inference and capacity probes at 0.6B, 1.5B and 7B. Learnability: the N0 to N4 ladder, G1 to G8, the label-permuted control and the E2-fixed escalation. Controls: the compiler as a mandatory alternative, argmax-of-prompt rules, zero-dose strata and counterfactual-law variants. Transfer: the non-inferiority fallback and a conditional Remote Lab. Operations: two custody tiers, the 3,000-line cap and fixture rule, the leakage guard, the measured pilot with the 45-minute slice rule, response accounting, winner's-curse re-estimation, a named human reviewer, an external timestamp and the deadline rule.

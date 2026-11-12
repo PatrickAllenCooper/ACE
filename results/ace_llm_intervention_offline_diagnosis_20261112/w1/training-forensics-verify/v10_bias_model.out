@@ -1,0 +1,66 @@
+n pairs 119
+SFT reference score    eta^2 by command 0.817 ; by command x (snapshot==0) 0.928 ; by command x snapshot 0.935 ; by snapshot only 0.108
+final score            eta^2 by command 0.828 ; by command x (snapshot==0) 0.915 ; by command x snapshot 0.921 ; by snapshot only 0.096
+change (final-ref)     eta^2 by command 0.791 ; by command x (snapshot==0) 0.866 ; by command x snapshot 0.876 ; by snapshot only 0.085
+SFT reference mean score by command: {'observe_all': -1.09, 'set_x_neg': -0.95, 'set_x_zero': -4.9, 'set_x_pos': -3.22, 'set_y_neg': -2.26, 'set_y_zero': -5.56, 'set_y_pos': -4.33, 'set_xy': -3.88}
+final mean score by command (same entries): {'observe_all': -2.21, 'set_x_neg': -0.38, 'set_x_zero': -14.47, 'set_x_pos': -7.06, 'set_y_neg': -6.83, 'set_y_zero': -18.91, 'set_y_pos': -16.66, 'set_xy': -3.91}
+SFT reference sd within command: {'observe_all': 0.34, 'set_x_neg': 0.39, 'set_x_zero': 1.07, 'set_x_pos': 0.79, 'set_y_neg': 0.27, 'set_y_zero': 0.78, 'set_y_pos': 0.96, 'set_xy': 0.5}
+final sd within command: {'observe_all': 0.43, 'set_x_neg': 0.37, 'set_x_zero': 2.92, 'set_x_pos': 3.38, 'set_y_neg': 1.74, 'set_y_zero': 4.31, 'set_y_pos': 4.62, 'set_xy': 0.96}
+change by command, snapshot 0 vs later:
+   observe_all  snap0 n= 2 mean   -1.25 | later n=17 mean   -1.10
+   set_x_neg    snap0 n= 4 mean   +0.16 | later n=19 mean   +0.66
+   set_x_zero   snap0 n= 8 mean  -10.72 | later n=24 mean   -9.18
+   set_x_pos    snap0 n=12 mean   -6.20 | later n=25 mean   -2.71
+   set_y_neg    snap0 n=10 mean   -6.67 | later n=23 mean   -3.66
+   set_y_zero   snap0 n= 5 mean  -18.93 | later n=24 mean  -12.18
+   set_y_pos    snap0 n=13 mean  -15.32 | later n=16 mean   -9.90
+   set_xy       snap0 n= 8 mean   -0.09 | later n=28 mean   -0.01
+
+actual online relative margin m_t: mean -0.394 sd 4.696
+corr(m_t, -(ref_c-ref_r)) = -0.626 ; corr(m_t, time) = 0.129
+actual online (pi_c - pi_r): corr with (ref_c-ref_r) = 0.820
+final (fin_c-fin_r) vs (ref_c-ref_r): corr 0.788 ; slope 3.449
+
+state-blind model variants (r_margin = corr with the 119 saved online margins; r_shift = corr with the 8 actual per-command mean changes)
+  shift sgd  lr=0.3    r_margin 0.251 r_shift 0.442 rmse 4.69
+  shift sgd  lr=1      r_margin 0.252 r_shift 0.445 rmse 4.65
+  shift sgd  lr=3      r_margin 0.255 r_shift 0.452 rmse 4.58
+  shift sgd  lr=10     r_margin 0.264 r_shift 0.470 rmse 4.75
+  shift sgd  lr=30     r_margin 0.263 r_shift 0.479 rmse 6.25
+  shift sgd  lr=100    r_margin 0.192 r_shift 0.479 rmse 12.33
+  shift sign lr=0.03   r_margin 0.250 r_shift 0.441 rmse 4.67
+  shift sign lr=0.1    r_margin 0.250 r_shift 0.441 rmse 4.60
+  shift sign lr=0.3    r_margin 0.250 r_shift 0.441 rmse 4.66
+  shift sign lr=1      r_margin 0.250 r_shift 0.441 rmse 7.16
+  shift adam lr=0.03   r_margin 0.364 r_shift 0.426 rmse 4.58
+  shift adam lr=0.1    r_margin 0.362 r_shift 0.418 rmse 4.42
+  shift adam lr=0.3    r_margin 0.356 r_shift 0.397 rmse 4.72
+  shift adam lr=1      r_margin 0.332 r_shift 0.353 rmse 7.64
+  abs   sgd  lr=0.3    r_margin 0.164 r_shift 0.433 rmse 4.64
+  abs   sgd  lr=1      r_margin 0.205 r_shift 0.436 rmse 4.61
+  abs   sgd  lr=3      r_margin 0.253 r_shift 0.443 rmse 4.56
+  abs   sgd  lr=10     r_margin 0.271 r_shift 0.462 rmse 4.81
+  abs   sgd  lr=30     r_margin 0.266 r_shift 0.471 rmse 6.44
+  abs   sgd  lr=100    r_margin 0.193 r_shift 0.480 rmse 12.66
+  abs   sign lr=0.03   r_margin 0.186 r_shift 0.441 rmse 4.62
+  abs   sign lr=0.1    r_margin 0.243 r_shift 0.441 rmse 4.57
+  abs   sign lr=0.3    r_margin 0.268 r_shift 0.441 rmse 4.66
+  abs   sign lr=1      r_margin 0.260 r_shift 0.441 rmse 7.26
+  abs   adam lr=0.03   r_margin 0.265 r_shift 0.418 rmse 4.54
+  abs   adam lr=0.1    r_margin 0.347 r_shift 0.410 rmse 4.42
+  abs   adam lr=0.3    r_margin 0.359 r_shift 0.388 rmse 4.80
+  abs   adam lr=1      r_margin 0.335 r_shift 0.346 rmse 7.84
+
+benchmarks for the online margin:
+  zero model (no movement from SFT): rmse 4.71
+  frozen state-blind policy at SFT command means, margin=(bbar_c-bbar_r)-(ref_c-ref_r): r 0.140 rmse 4.66
+  frozen state-blind policy at FINAL command means: r 0.639 rmse 6.27
+  steps   0- 20: mean |m| 1.26 ; mean m 0.12 ; corr(m,-(refdiff)) -0.459
+  steps  20- 40: mean |m| 2.60 ; mean m -0.50 ; corr(m,-(refdiff)) -0.440
+  steps  40- 80: mean |m| 3.49 ; mean m -1.69 ; corr(m,-(refdiff)) -0.737
+  steps  80-119: mean |m| 4.41 ; mean m 0.73 ; corr(m,-(refdiff)) -0.659
+  steps   0- 20: slope of online (pi_c-pi_r) on (ref_c-ref_r) = 1.435 (1 = SFT structure intact, 0 = erased)
+  steps  20- 40: slope of online (pi_c-pi_r) on (ref_c-ref_r) = 1.981 (1 = SFT structure intact, 0 = erased)
+  steps  40- 80: slope of online (pi_c-pi_r) on (ref_c-ref_r) = 2.606 (1 = SFT structure intact, 0 = erased)
+  steps  80-119: slope of online (pi_c-pi_r) on (ref_c-ref_r) = 2.419 (1 = SFT structure intact, 0 = erased)
+  final table on the 119 pairs: slope 3.449

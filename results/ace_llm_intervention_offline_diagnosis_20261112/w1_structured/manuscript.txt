@@ -1,0 +1,104 @@
+# manuscript
+## SUMMARY
+The open manuscript (/Users/pat/code/ACE/paper/aistats_ace_2027/paper.tex, byte-identical to tag archive/delivery-scm-2026-11-02) is a TMLR-format, anonymous paper titled "From Experimental Histories to Causal
+  Surrogates: Data Reuse, Optimization, and Error Propagation". Lines 1-3015 are a generated bundle of 16 embedded companion files (TMLR style, bst, bib, macro files, tables, theory). The narrative runs from line 3022 to
+  4559. It assesses post-collection refitting ("delivery") of known-graph SCM surrogates on fixed histories. Its confirmatory core is mixed: delivery beats a flat refit in both families and beats rolling at 30 nodes, but
+  is 2.46 times worse than rolling at 5 nodes, undiagnosed. It contains no LLM, DPO, acquisition policy or experimental-cost result. Acquisition appears only in four disclaimers. It has been on submission hold since
+  November 2 as a supporting component study. Reusable for the broader paper: notation, three elementary propositions, the final-refit control arm, the registered-analysis template and negative controls. Every headline
+  element is missing. Internal reviews flag narrow generality, tiny absolute errors, unequal compute, seed sensitivity and the unexplained reversal. No venue or deadline is committed for the broader paper.
+
+## KEY FACTS
+[1] (verified) Confirmatory claims (registered, 20 systems x 2 families, init 0, Holm over four tests): delivery/rolling NMSE ratio 2.45956 [1.78782, 3.38368] at 5 nodes (gate not met, adverse) and 0.274321 [0.158409,
+  0.47505] at 30 nodes. Delivery/flat 0.356194 [0.282389, 0.449288] and 0.391027 [0.254548, 0.600681].
+    EVIDENCE: paper.tex 3511-3514; delivery_prospective_claims.tex; recomputed exactly from paper/aistats_ace_2027/delivery_prospective_all_cells.csv with scratch script manuscript/recompute_prospective.py
+[2] (verified) The other registered result is narrow: 12 histories of one deterministic emulator, exact-level error ratio 0.183 [0.102, 0.327], sign-flip p 0.00146484, 11/12 improve, scored on an exposed grid using the
+  median of three outcome-scored seeds.
+    EVIDENCE: paper.tex 3236-3270; results/delivery_final_history_20261006/independent_statistics.json; claim_index.json line 43
+[3] (verified) All remaining results are exploratory or descriptive: attribution ratios (0.522 vs online, 0.551 vs flat, 0.980 for unused paid rows), history splits (30-node balanced delivery/flat 0.912 with 10/20 wins
+  vs 0.168 random), median RMSE 0.5-3.4% of target SD, and the physical study (delivery beats rolling 7/11, physics 3/11, Fourier 0/11).
+    EVIDENCE: paper.tex 3301-3338, 3522-3542, 3553-3576; claim_index.json scope fields; history and scale numbers recomputed from the all-cells CSV
+[4] (verified) The manuscript never mentions LLM, language model, DPO, Qwen, pretraining or fine-tuning. Acquisition appears only in disclaimers, including 'None of these studies measures interventions saved by changing
+  an acquisition policy.' claim_index.json lists 'DPO optimality' and 'acquisition superiority' as removed claims.
+    EVIDENCE: term counts over paper.tex 3016-4559; lines 3269, 3418, 3677-3678, 4004; claim_index.json 49-55; delivery_paper_archive_2026-11-02.md line 17
+[5] (verified) Self-declared limits: two restricted noise-disabled families, one shared initialization, root-only interventions, exposed-grid emulator studies, a non-deployable scored median, unequal supervision,
+  parameters and compute, an undiagnosed reversal, one physical apparatus, author-reported process evidence.
+    EVIDENCE: paper.tex 3647-3686, 3408-3410, 3455-3459, 3633-3638
+[6] (verified) Recorded criticisms: the audit names 'audience interest beyond established scratch refitting, limited generator/baseline breadth' and small absolute errors as principal risks. Panel items R01-R17 cover
+  pooled estimand, scale, budgets, seeds, reversal and physical uncertainty. Two of six model reviewers began at Leaning Reject ('appears not to be converged and depends strongly on the random seed'). Final: five Leaning
+  Accept, one Accept. Requested diagnostics O01-O06 were never run.
+    EVIDENCE: ace_submission_audit_2026-11-01.md:34; delivery_panel_revision_2026-11-02.md:19-39; results/delivery_panel_revision_20261102/panel_synthesis.md; /Users/pat/ACE_Study_Results/2026-10-peter-baseline/ACE-TMLR-
+      model-panel-review-20261102-01/round1/claude-opus-5-5.md:41
+[7] (likely) Carry-over is structural. Prop 8.1 covers any history-dependent chooser, Props 8.2-8.3 explain propagation and support collapse, and the LLM screen's SCM learner uses the same eligibility rule and compose-
+  with-predicted-parents prediction with features [1, parents]. A constant clamp therefore gives a rank-one design for the child mechanism.
+    EVIDENCE: delivery_theory.tex 8-45, 64-124; scripts/research/llm_intervention_scm.py 82-96, 121-130; agenda lines 17, 25, 129-133. Applicability to the LLM policy is my inference
+[8] (verified) Missing against the agenda's five submission conditions: an LLM method section, a benefit over a strong numerical policy on fresh systems, ablations (no SCM-free arm, graph ablation, metadata or shuffled-
+  feedback arms), an experimentalist task with transfer, policy theory, policy related work (11 references, none on LLM or Bayesian design) and any data figure (one schematic only).
+    EVIDENCE: ace_llm_intervention_agenda_2026-11-02.md 161-167; handoff line 23; counts from paper.tex and delivery_references.bib
+[9] (verified) No venue or deadline is committed for the broader paper. TMLR was recommended for the delivery paper, AISTATS 2027 (October 6) is closed, NeurIPS 2026 was rejected, and submission is on hold pending LLM
+  evidence and human approval. Standing style rules: no semicolons or em dashes, anonymous TMLR style, first-page AI-assistance footnote.
+    EVIDENCE: paper/README.md 4, 46-48; ace_submission_audit_2026-11-01.md 5, 46; delivery_paper_archive_2026-11-02.md 3; handoff 17, 124
+[10] (verified) Post hoc: the 24-system screen's policy ordering depends on the endpoint. Under sustained attainment the means are menu coverage 15.13, target risk 15.67, numerical ranker 15.71, supervised LLM 16.21,
+  frozen and DPO LLM 17.00, local information 17.75, random 18.42, and every paired interval against target risk spans zero.
+    EVIDENCE: scratch manuscript/endpoint_robustness.py on results/ace_llm_intervention_scientific_finalization_20261108/reporting01/data01/curves.csv. It reproduces the reported first-crossing cost in 192/192 cells.
+      Unregistered
+[11] (verified) The learned numerical ranker also collapsed to two actions: set_x_pos 435 and set_x_neg 141.
+    EVIDENCE: reporting01/data01/actions.csv
+[12] (verified) Post hoc: in the saved prospective data, collection design alone moves raw held-out MSE. Balanced/random is 4.79 for delivery and 11.13 for rolling at 5 nodes (balanced better in 0/20 systems), and 2.33,
+  0.36, 0.43 for delivery, rolling, flat at 30 nodes.
+    EVIDENCE: scratch manuscript/history_effect.py on delivery_prospective_all_cells.csv. Held-out actions are shared across histories (paper.tex 3415). Unregistered
+
+## NUMBERS
+PROSPECTIVE (delivery/control NMSE ratio, marginal 95% CI, Holm p, gate)
+5-node vs rolling: 2.45956 [1.78782, 3.38368], 3.29547e-05, not met
+5-node vs flat: 0.356194 [0.282389, 0.449288], 6.62773e-08, met
+30-node vs rolling: 0.274321 [0.158409, 0.47505], 0.000185887, met
+30-node vs flat: 0.391027 [0.254548, 0.600681], 0.000205416, met
+History split, delivery/flat: 5-node 0.793 (13/20) balanced, 0.160 (19/20) random. 30-node 0.912 (10/20), 0.168 (18/20).
+History split, delivery/rolling: 5-node 1.614 (4/20), 3.748 (3/20). 30-node 0.695 (12/20), 0.108 (19/20).
+Seeds: worst/best delivery NMSE median 2.02 and 5.23. Cell 5:08 init 1: delivery NMSE 0.02384, 1043.55x rolling.
+Budgets: rolling 48,000 updates per head vs delivery 30,000. 30-node 750,000 vs 30,000 head-updates, about 109.5k vs 4,609 parameters, fit CPU 556.7 s vs 22.8 s.
+CONFIRMATION: 0.183 [0.102, 0.327], p 0.00146484, 11/12. Worst history 0.196339 -> 0.395658.
+ATTRIBUTION (exploratory): 0.522 vs online, 0.551 vs flat, 0.423 vs matched-CPU flat, 0.096 vs final buffer, 0.034 vs 100 updates, 0.980 unused rows.
+PHYSICAL: delivery better than rolling 7/11, physics 3/11, Fourier 0/11.
+MANUSCRIPT: 4,559 lines, 23 tables, 1 schematic, 0 data figures, 5 propositions, 11 references, 35 + 22 generated macros, last reviewed export 26 pages.
+POST HOC, 24-system screen, first-crossing cost minus target risk [95% t]: random +2.63 [0.33, 4.92], coverage +0.83 [-0.47, 2.13], local information +0.33 [-2.29, 2.96], ranker +1.96 [-0.84, 4.76], frozen LLM +2.00
+  [-0.86, 4.86], supervised LLM +3.00 [0.44, 5.56], DPO +3.54 [0.83, 6.26]. Ties in 11-16 of 24 systems per pairing. Initial error median 0.044 against the 0.04 target.
+
+## SURPRISES / CONTRADICTIONS
+- paper/aistats_ace_2027/paper.pdf is a stale 30-page September build of the invalidated draft 'ACE: Language-Model Priors and Lookahead Selection for Active Causal Mechanism Estimation', not the current manuscript. The
+  reviewed delivery PDF (26 pages) lives under /Users/pat/ACE_Study_Results and predates the archived source.
+- paper/README.md is stale: it says 'Stages A/B/C remain pending' and gives AISTATS build notes. The November documents supersede it.
+- October 24 declared preparation complete. November 1 called that 'too broad' (361.67 MB archive against a 100 MB limit). November 2 archived the paper.
+- The handoff reports action collapse for the three LLM arms only. actions.csv shows the non-language ranker used just two actions, so the collapse is not specific to language.
+- 'Target risk was best' holds for mean first-crossing cost and mean final NMSE. Menu coverage has the lowest geometric-mean final error (0.00721 vs 0.00849) and the best sustained-attainment cost. 'DPO was worst' also
+  weakens: it ties the frozen LLM under sustained attainment.
+- A coverage-style collection design lost to uniform random for both structured learners in all 20 five-node systems. The manuscript declines to interpret this.
+- The agenda's proposed screen (16 + 64 budget, seven policies, four regimes of six worlds) differs from the executed one (8 + 24, eight policies, 24 single-system cells). The handoff says the executed protocol
+  supersedes.
+- The project's own pre-audit LLM draft already listed as its first contribution that DPO added nothing.
+
+## IMPLICATIONS FOR AGENDA
+- Do not propose repeating delivery studies A/B/C or editing the archived manuscript. Use it as a supporting section, a source of theory lemmas, and a predeclared final-refit arm crossed with intervention policies.
+- Cheap strengthening of the supporting component uses saved artifacts: diagnose the five-node reversal from the 640 checkpoints (teacher-forced versus free-running error, off-support sensitivity), then add ancestral-
+  root and compute-matched flat controls, seeds for every arm and a noisy variant.
+- Redesign the policy endpoint before any LLM retraining. Ten of 24 systems start at target, first crossing rewards volatile curves, and rankings change under sustained attainment. Pre-register a sustained or area-under-
+  curve endpoint with thresholds calibrated on training systems.
+- Size the confirmation by power analysis. Paired SD is about 6 cost units, so a 1-unit gain over target risk needs roughly 280 systems. The agenda's 30-50 per family is likely underpowered without variance reduction.
+- Run a headroom audit first. Target risk leads menu coverage by only 0.83 cost units. Propose regimes where a numerical planner is handicapped: misspecified mechanisms, large or compositional action menus, objectives
+  and costs stated in prose, fallible semantic priors.
+- Add the absent ablations: SCM-free and graph-removed arms, anonymized and misleading metadata, shuffled feedback, model size, compute-matched ranker. Diagnose state sensitivity for the numerical ranker as well as the
+  LLM arms.
+- Theory to add: a support-collapse result for constant-action policies built on Prop 8.3, the agenda's kappa + 2 epsilon + delta decomposition, and an exact linear-Gaussian design reference.
+- Writing debt: rebuild related work, add data figures, re-verify every citation taken from older drafts, and never cite pre-audit LLM numbers or the stale paper.pdf.
+- No deadline exists, so sequence work by evidence gates. TMLR's claims-and-evidence standard suits a scoped or diagnostic paper if an LLM benefit stays absent.
+
+## OPEN QUESTIONS
+- Which venue and date does the lead researcher want for the broader paper? Nothing is recorded.
+- Should the delivery study be folded into the broader paper or submitted separately to TMLR and cited?
+- Are checkpoint-only diagnostics on the 640 saved prospective fits permitted under the instruction not to repeat completed studies?
+- Is the five-node reversal a convergence or seed artifact, or a propagation effect?
+- What is the oracle headroom of the screen's task family? I found no such computation.
+- Is a rigorous negative or diagnostic paper acceptable to the authors if no LLM benefit emerges?
+- Can code be released anonymously given the attribution-bearing archive?
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/manuscript.md

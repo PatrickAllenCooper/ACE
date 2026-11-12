@@ -1,0 +1,111 @@
+n systems 24
+systems where every policy has capped cost 8 (target met at init): 10
+systems where at least one policy capped at 32: 9
+
+mean capped cost, all 24:
+policy_id
+uniform_random       14.250
+menu_coverage        12.458
+local_information    11.958
+target_risk          11.625
+learned_ranker       13.583
+frozen_llm           13.625
+sft_llm              14.625
+dpo_llm              15.167
+
+mean capped cost, the 14 systems not met at init:
+policy_id
+uniform_random       18.714
+menu_coverage        15.643
+local_information    14.786
+target_risk          14.214
+learned_ranker       17.571
+frozen_llm           17.643
+sft_llm              19.357
+dpo_llm              20.286
+
+per-policy distribution of capped cost (value: count)
+  uniform_random     {8: 10, 9: 1, 10: 3, 13: 1, 14: 1, 16: 1, 17: 1, 18: 1, 21: 1, 28: 1, 32: 3}
+  menu_coverage      {8: 10, 9: 3, 10: 2, 11: 2, 12: 1, 13: 1, 19: 1, 21: 2, 32: 2}
+  local_information  {8: 10, 9: 5, 10: 1, 11: 1, 12: 1, 15: 1, 16: 1, 17: 1, 23: 1, 26: 1, 32: 1}
+  target_risk        {8: 10, 9: 5, 10: 2, 11: 1, 14: 1, 15: 1, 17: 1, 22: 1, 23: 1, 32: 1}
+  learned_ranker     {8: 10, 9: 4, 11: 2, 12: 1, 13: 1, 16: 1, 21: 1, 30: 1, 32: 3}
+  frozen_llm         {8: 10, 9: 1, 10: 1, 11: 3, 13: 1, 14: 2, 16: 1, 24: 1, 25: 2, 32: 2}
+  sft_llm            {8: 10, 9: 2, 10: 2, 11: 1, 13: 1, 19: 1, 21: 1, 23: 1, 24: 1, 26: 1, 32: 3}
+  dpo_llm            {8: 10, 9: 2, 10: 1, 11: 1, 12: 1, 13: 1, 18: 1, 20: 1, 22: 1, 32: 5}
+
+Paired differences vs target_risk on capped cost (policy - target_risk): mean, sd, t-CI, wins/ties/losses
+  uniform_random     mean=+2.625 sd=5.428 95%CI=[+0.333,+4.917] lower/tie/higher=2/12/10  n_for_80%power_at_observed_effect~34
+  menu_coverage      mean=+0.833 sd=3.074 95%CI=[-0.465,+2.131] lower/tie/higher=3/13/8  n_for_80%power_at_observed_effect~107
+  local_information  mean=+0.333 sd=6.211 95%CI=[-2.289,+2.956] lower/tie/higher=5/13/6  n_for_80%power_at_observed_effect~2726
+  learned_ranker     mean=+1.958 sd=6.630 95%CI=[-0.841,+4.758] lower/tie/higher=4/14/6  n_for_80%power_at_observed_effect~90
+  frozen_llm         mean=+2.000 sd=6.763 95%CI=[-0.856,+4.856] lower/tie/higher=4/11/9  n_for_80%power_at_observed_effect~90
+  sft_llm            mean=+3.000 sd=6.058 95%CI=[+0.442,+5.558] lower/tie/higher=2/12/10  n_for_80%power_at_observed_effect~33
+  dpo_llm            mean=+3.542 sd=6.433 95%CI=[+0.825,+6.258] lower/tie/higher=2/13/9  n_for_80%power_at_observed_effect~26
+
+Paired log final-error ratio vs target_risk (policy/target_risk): geo ratio, CI, wins
+  uniform_random     geo ratio=1.287 [0.690,2.402] policy lower error in 7/24
+  menu_coverage      geo ratio=0.849 [0.414,1.738] policy lower error in 8/24
+  local_information  geo ratio=1.113 [0.587,2.113] policy lower error in 10/24
+  learned_ranker     geo ratio=1.502 [0.749,3.011] policy lower error in 10/24
+  frozen_llm         geo ratio=1.242 [0.668,2.306] policy lower error in 11/24
+  sft_llm            geo ratio=1.357 [0.774,2.380] policy lower error in 10/24
+  dpo_llm            geo ratio=1.277 [0.567,2.879] policy lower error in 8/24
+
+geometric mean final error per policy:
+policy_id
+uniform_random       0.01093
+menu_coverage        0.00721
+local_information    0.00945
+target_risk          0.00849
+learned_ranker       0.01276
+frozen_llm           0.01054
+sft_llm              0.01152
+dpo_llm              0.01084
+
+median final error per policy:
+policy_id
+uniform_random       0.01329
+menu_coverage        0.00836
+local_information    0.00822
+target_risk          0.00996
+learned_ranker       0.01299
+frozen_llm           0.01259
+sft_llm              0.00829
+dpo_llm              0.01065
+
+Strata: mean capped cost by graph and cost stratum
+graph_stratum      chain  collider   fork
+policy_id                                
+uniform_random     17.00     14.75  11.00
+menu_coverage      14.12     13.25  10.00
+local_information  11.12     16.38   8.38
+target_risk        13.00     12.75   9.12
+learned_ranker     11.75     20.12   8.88
+frozen_llm         13.88     16.50  10.50
+sft_llm            14.25     16.25  13.38
+dpo_llm            14.12     19.75  11.62
+cost_stratum       heterogeneous  uniform
+policy_id                                
+uniform_random             16.92    11.58
+menu_coverage              13.83    11.08
+local_information          11.33    12.58
+target_risk                12.83    10.42
+learned_ranker             15.58    11.58
+frozen_llm                 13.75    13.50
+sft_llm                    16.42    12.83
+dpo_llm                    17.42    12.92
+regime             matched_high  matched_low  shifted_high  shifted_low
+policy_id                                                              
+uniform_random             8.67        10.83         18.50        19.00
+menu_coverage             10.67         9.50         16.67        13.00
+local_information          9.67         9.83         15.33        13.00
+target_risk                9.17         8.67         15.83        12.83
+learned_ranker            12.67         8.83         20.17        12.67
+frozen_llm                12.50        11.83         16.33        13.83
+sft_llm                   12.67        12.33         20.50        13.00
+dpo_llm                   12.83        14.17         18.67        15.00
+
+best policy per system on capped cost (ties share):
+{'uniform_random': 12, 'menu_coverage': 13, 'local_information': 17, 'target_risk': 16, 'learned_ranker': 15, 'frozen_llm': 11, 'sft_llm': 13, 'dpo_llm': 12}
+unique-best counts: {'uniform_random': 1, 'menu_coverage': 0, 'local_information': 2, 'target_risk': 2, 'learned_ranker': 2, 'frozen_llm': 0, 'sft_llm': 1, 'dpo_llm': 0}

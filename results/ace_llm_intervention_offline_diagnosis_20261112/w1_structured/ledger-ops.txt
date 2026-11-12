@@ -1,0 +1,105 @@
+# ledger-ops
+## SUMMARY
+The cycle ran from the Nov 2 19:33 UTC pivot to the Nov 10 08:51 UTC report: 181 calendar hours, about 39 active hours in six sessions. It made 50 submissions: 49 Slurm jobs (28 completed, 21 failed) plus one rejected by
+  Slurm. Allocation was 40,265 CPU-s and 4,458 GPU-slice-s against a self-imposed 57,600 / 7,200 ceiling. 13,735 CPU-s and 2,742 GPU-slice-s remain, which cannot fund a retrain plus a fresh 24-system screen.
+
+Operations dominated. All 49 jobs together ran 4.6 hours and the scientific kernel was about 2.4 hours. By my classification, half of the failed submissions were the custody harness rejecting a valid environment, and
+  fixed size and time bounds broke repeatedly as the evidence tree grew to 107,284 files. All four job failures after the scientific freeze were operational.
+
+The first diagnostic in the handoff is nearly free: per-step training records, 1,184 legal-command scores, the adapters and all 1,698 deployment prompts with completions are already on the Mac. No deadline or target
+  venue is recorded for the broader paper.
+
+## KEY FACTS
+[1] (verified) 49 Slurm jobs (28 COMPLETED, 21 FAILED; 12 of 21 GPU jobs failed) plus 1 submission rejected before a job ID. Total 40,265 allocated CPU-s (11.18 core-h) and 4,458 GPU-slice-s (1.238 slice-h). My
+  independent sum over the 49 rows reproduces both. Failed jobs took 17.8% of CPU and 26.4% of GPU.
+    EVIDENCE: /Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/acceptance01/baseline.json (related_accounting); scratch accounting.py; Ledger L616-618
+[2] (verified) Envelope is 16 CPU-core-hours including GPU-host CPUs and 2 GPU-hours (57,600 / 7,200 s) for 'this first execution cycle'. Admission stands at 43,865 CPU-s with the single 3,600 s allowance. Remaining:
+  13,735 CPU-s, 2,742 GPU-slice-s. Admission is tested against job caps, not expected actuals. The account itself holds up to 450,000 SUs through Nov 6, 2027.
+    EVIDENCE: ace_llm_intervention_execution_2026-11-02.md L525, L897; acceptance01/review.md L33; ace_llm_intervention_account_renewal_2026-11-07.md L3-5
+[3] (verified) The seven successful scientific jobs cost 27,598 CPU-s and 2,612 GPU-slice-s: realization 86, collection 1,600, tokenization 816, training 3,616 / 904, CPU campaign 11,456, GPU campaign 6,832 / 1,708,
+  finalizer 3,192. The 38 qualification jobs before any scientific draw cost 11,040 CPU-s and 1,601 GPU-slice-s.
+    EVIDENCE: baseline.json rows 1-49; Ledger L407, L415
+[4] (verified) Blanket approval originates Oct 24: 'Proceed, stop asking for approval for every small thing. I grant you blanket approval.' Recorded scope is routine diagnosed and reviewed recovery inside the existing
+  ceiling and frozen science. Excluded: new fitted studies, paid APIs, installs or environment changes, favorable rescues, submission, credentials. 'A new campaign beyond this envelope requires a measured projection and
+  a resource decision.'
+    EVIDENCE: delivery_continuation_authorization_2026-10-24.md L3-9; Ledger L521-525, L948, L965; contract L89; handoff L105
+[5] (verified) QoS gpu-testing has MaxWall 01:00:00 and allows one a100_3g.20gb slice per user. The 20 GB slice is rejected under gpu-normal. Both scientific GPU stages ran on gpu-testing.
+    EVIDENCE: results/ace_llm_intervention_scientific_training_gpu_20261108/launch01/readiness_transport.json (recorded 2026-11-08 17:00:51 UTC); Ledger L618-620; contract L47
+[6] (verified) LLM deployment: 1,698 decisions in a 1,708 s job. Generation median 0.43 s (frozen), 0.54 s (SFT), 0.71 s (DPO); session wall 0.78 / 0.74 / 1.19 s per decision. Prompts 1,990-4,160 tokens, median about
+  3,000. Peak GPU 3.26 GB reserved.
+    EVIDENCE: Computed from 1,698 generation-NNNN.json under results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/remote/launch/gpu/services/*/worker/ and .../gpu/controller/phase/terminal.json
+[7] (verified) Training: SFT update mean 0.62 s, DPO update mean 1.07 s. The 904 s job held 291.5 s of training and 542 s of checkpoint reload, scoring and generation checks. Peak 3.28 GB reserved, which depends on
+  decoder recomputation (16.57 GB without it at 4,341 tokens). Training prompts 1,998-4,199 tokens.
+    EVIDENCE: 279 step-*.complete.json and summary.json under results/ace_llm_intervention_scientific_training_gpu_20261108/terminal01/remote/launch/training/session/worker/artifacts/fit/; Ledger L865; tokenization
+      acceptance02/exposure-report.json
+[8] (likely) Numerical policies: 5,728 s on 2 CPUs for 120 episodes and 2,673 decisions, one process per decision. 95.5 allocated CPU-s and 22.5 process CPU-s per episode. Approximate wall per episode: random 33 s,
+  coverage 28 s, local information 39 s, target risk 41 s, ranker 82 s. The job used 95.5% of its 6,000 s limit.
+    EVIDENCE: results/ace_llm_intervention_scientific_campaign_cpu_20261108/acceptance01/costs.json and cpu-cell-counts.json; watch01 observations (5-minute snapshots, per-policy values are estimates)
+[9] (likely) Failure causes for 22 failed submissions: 11 harness guards rejecting a valid environment, 3 startup deadlines too short for staging or evidence verification, 2 runtime environment, 4 numerical recipe or
+  backend, 1 model interface, 1 QoS choice. All four post-freeze job failures were operational. At least 14 further non-Slurm operational failures occurred in the scientific phase.
+    EVIDENCE: Ledger L28, L48, L73, L93, L120, L162, L170, L208, L220, L242, L303-311, L357-359, L383-387 and the Nov 2-8 entries; grouping is mine
+[10] (inferred) Scientific phase: 44.5 calendar h, about 18.6 active h, 3.2 h Slurm elapsed, about 2.4 h scientific kernel, 6.4 h recorded launcher/collector/transfer wall, and a 23.5 h gap blocked on a storage decision.
+  Stage spans: realization 1.0 h, collection 1.5 h, tokenization 1.85 h, training 0.8 h, CPU campaign 4.0 h, GPU campaign 7.7 h, finalization 3.0 h.
+    EVIDENCE: Read-only git log commit times; Ledger timestamps; scratch commit_times.txt
+[11] (verified) Recorded priorities: the LLM mechanism and demonstrated utility are a condition of submission; a negative result must narrow the claim, not trigger a replacement benchmark. One coauthor (Patrick's
+  advisor, final author); both retain final approval. No paid APIs or installs. Small pinned open-weight model; new weights need separate approval. No deadline or venue is recorded for the broader paper; TMLR was the Nov
+  1 recommendation for the archived delivery paper.
+    EVIDENCE: agenda L13, L85, L169, L175; handoff L17, L109; delivery_submission_form_draft_2026-11-01.md L40-61; ace_submission_audit_2026-11-01.md L5, L46
+[12] (verified) Artifacts for an offline diagnosis are local: plan.json, 279 per-step loss and gradient records, reference and reload score files covering 1,184 legal-command scores on all 160 training states, 322 saved
+  generations, initial/sft/final adapters, and every deployment request with full prompt token IDs and completion.
+    EVIDENCE: results/ace_llm_intervention_scientific_training_gpu_20261108/terminal01/remote/launch/training/session/worker/artifacts/fit/;
+      results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/remote/launch/gpu/services/
+
+## NUMBERS
+Phase | jobs (failed) | CPU-s | GPU-slice-s
+A qualification Nov 2-3 | 12 (5) +1 rejected | 3,634 | 632
+B service/runtime Nov 4-8 | 15 (8) | 4,398 | 459
+C artificial integration Nov 8 | 11 (4) | 3,008 | 510
+D scientific chain Nov 8-10 | 11 (4) | 29,225 | 2,857
+Total | 49 (21) | 40,265 | 4,458
+Ceiling 57,600 / 7,200. Admission 43,865 CPU. Remaining 13,735 CPU-s, 2,742 GPU-slice-s.
+
+Unit costs (n=1 each): LLM decision 0.43-0.71 s generation, 0.74-1.19 s wall; LLM episode 17-29 s. SFT update 0.62 s, DPO update 1.07 s. Numerical episode 47.7 s wall, 95.5 allocated CPU-s. Collection 25 s wall per
+  training system. Finalizer reporting 12.3 s per system inside a 1,596 s job. Custody collection 451-2,765 s per stage, about 25 ms per file. Runtime staging 33-84 s per job, sometimes over 120 s.
+
+Scaling per evaluation system: 477 CPU-s for 5 numerical arms; about 66 GPU-s and 285 host CPU-s for 3 LLM arms.
+Projection, campaign stages only: N=24: 6.0-6.3 core-h, 0.47 slice-h. N=48: 11-12, 0.92. N=100: 22-24, 1.9. N=150: 33-35, 2.8. Training chain adds 1.7 core-h and 0.25 slice-h.
+
+Evidence growth (cumulative files): 30,839 → 31,608 → 36,623 → 72,374 → 99,039 → 107,284 (3.31 GB). Local footprint: 16.5 GB in repo results, 29.9 GB in 543 external capsules.
+
+## SURPRISES / CONTRADICTIONS
+- The curc-access skill file still tells agents to use account ucb736_asc1. The newest documents adopt ucb736_asc2 and asc1 showed MaxJobs=0 on Nov 7.
+- Local disk state has changed since the ledger: it recorded 12.66 GB available on Nov 10, while a read-only df on Nov 12 shows about 197 GiB available and /Volumes/Aux mounted.
+- The contract's 1,200 s finalizer cap was raised to 4,200 s under routine recovery before launch. The job took 1,596 s, so the frozen value would have failed. Routine recovery therefore included a 3.5x wall-time
+  increase.
+- Margins on successes were thin: CPU campaign 5,728 s of 6,000 s; batch memory within about 3 MiB of the 7,680 MiB request in three stages; finalizer launch readiness 1,174.8 s of a 1,200 s bound.
+- Outside my task but verified in reporting01/data01/actions.csv: the learned numerical ranker also collapsed to two actions (set_x_pos 435, set_x_neg 141 of 576). The handoff's behavioural summary names only the LLM
+  arms.
+- Also outside my task: DPO per-step loss stayed near ln 2 (0.705 mean in the first quarter of steps, 0.679 in the last), while SFT loss fell from 0.482 to 0.214. 2,897 of 3,584 collected preference pairs were ties and
+  only 119 were used.
+
+## IMPLICATIONS FOR AGENDA
+- Put the saved-artifact diagnosis first. It needs no CURC, no locks and no envelope, and takes about half a day to a day. It still needs a written protocol, new exclusive output locations and no tuning on the 24
+  development outcomes.
+- Any retrain plus fresh screen exceeds the remaining envelope on CPU by about a factor of two. The proposal should ask Patrick for an explicit new ceiling: roughly 8-15 core-h and 0.8-1.3 slice-h for 24-48 systems, and
+  3-5 calendar days.
+- A 100-150 system confirmation needs roughly 22-35 core-h and 1.9-2.9 slice-h plus 6-10% for failures, and 6-10 calendar days. It also needs a custody and sharding redesign first, because the 1,770 s archive bound, the
+  finalizer's three full-tree verification passes and the 1 h GPU wall will not hold.
+- Cost new experiments by the number of Slurm stages and the amount of new harness code, not by compute. Each stage took 0.8-7.7 h of wall-clock and four of seven scientific stage types failed on first submission. Prefer
+  designs that reuse accepted packets unchanged.
+- Keep any revised training recipe under about 2,500 GPU-s per job, or budget a separate qualification of resumed optimization or a full A100 under gpu-normal. Ten times the current exposure would not fit one gpu-testing
+  job with the current checkpoint checks.
+- Numerical arms are the largest CPU cost (11,456 of 21,480 campaign CPU-s) because each decision spawns a process. Pruning redundant numerical arms saves proportionally. Moving them in-process would save much more but
+  is new harness code needing requalification.
+- Do not plan a compute-amortization claim. In-process target-risk latency was never measured, and the observed ordering (LLM episode 17-29 s, numerical episode 28-82 s) is an implementation artefact.
+- Front-load the items only Patrick can supply: the envelope decision, a venue or date, Duo authentication once per session, and whether continued scientific use of gpu-testing is acceptable.
+
+## OPEN QUESTIONS
+- Does Patrick have a target venue or date for the broader paper? None is recorded in the handoff, agenda, ledger or results report.
+- Does a successor experiment that fits the remaining 13,735 CPU-s / 2,742 GPU-slice-s need explicit approval? The documents are ambiguous; the handoff frames a proposal as the next deliverable.
+- Is continued scientific use of gpu-testing acceptable to CURC? The Nov 2 ledger entry said production studies would use a production QoS, and the QoS receipt describes the slice as for workflow qualification.
+- May the custody design change (sharded archives, no repeated full-history verification inside jobs, in-process numerical policies)? Each would be operational, but new harness code has repeatedly produced new guard
+  failures.
+- Why was the DPO service about 46% slower per decision than the frozen service with similar prompt lengths? Not recorded. Prompt length and latency were essentially uncorrelated (0.07-0.09).
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/ledger-ops.md

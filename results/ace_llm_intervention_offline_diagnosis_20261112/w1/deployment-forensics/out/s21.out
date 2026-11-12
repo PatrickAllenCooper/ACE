@@ -1,0 +1,51 @@
+SFT stop table: world | graph | cost | regime | stop decision index | requests | spent | remaining | legal cmds | prompt tokens | posterior risk at stop | private final NMSE | final target met
+|  0 | chain    | uniform       | matched_low  | 21 | 29 | 29 | 3 | 9 | 3763 | 0.0096 | 0.0076 | True |
+|  1 | chain    | heterogeneous | matched_low  | 21 | 29 | 30 | 2 | 9 | 3757 | 0.0084 | 0.0013 | True |
+|  2 | fork     | uniform       | matched_low  | 22 | 30 | 30 | 2 | 9 | 3842 | 0.0065 | 0.0033 | True |
+|  3 | fork     | heterogeneous | matched_low  | 21 | 29 | 29 | 3 | 9 | 3783 | 0.0086 | 0.0374 | True |
+|  4 | collider | uniform       | matched_low  | 21 | 29 | 29 | 3 | 9 | 3824 | 0.0156 | 0.0045 | True |
+|  5 | collider | heterogeneous | matched_low  | 21 | 29 | 30 | 2 | 9 | 3818 | 0.0159 | 0.0045 | True |
+|  6 | chain    | uniform       | matched_high | 21 | 29 | 29 | 3 | 9 | 3763 | 0.0115 | 0.0075 | True |
+|  7 | chain    | heterogeneous | matched_high | 22 | 30 | 31 | 1 | 5 | 3824 | 0.0226 | 0.0069 | True |
+|  8 | fork     | uniform       | matched_high | 22 | 30 | 30 | 2 | 9 | 3837 | 0.0174 | 0.0090 | True |
+|  9 | fork     | heterogeneous | matched_high | 22 | 30 | 30 | 2 | 9 | 3835 | 0.0255 | 0.0016 | True |
+| 10 | collider | uniform       | matched_high | 23 | 31 | 31 | 1 | 9 | 3954 | 0.0428 | 0.0493 | False |
+| 11 | collider | heterogeneous | matched_high | 21 | 29 | 30 | 2 | 9 | 3799 | 0.0501 | 0.0472 | False |
+| 12 | chain    | uniform       | shifted_low  | 22 | 30 | 30 | 2 | 9 | 3805 | 0.2446 | 0.0917 | False |
+| 13 | chain    | heterogeneous | shifted_low  | 23 | 31 | 31 | 1 | 5 | 3921 | 0.0219 | 0.0039 | True |
+| 14 | fork     | uniform       | shifted_low  | 22 | 30 | 30 | 2 | 9 | 3822 | 0.0273 | 0.0064 | True |
+| 15 | fork     | heterogeneous | shifted_low  | 22 | 30 | 30 | 2 | 9 | 3818 | 0.0168 | 0.0126 | True |
+| 16 | collider | uniform       | shifted_low  | 22 | 30 | 30 | 2 | 9 | 3871 | 0.0196 | 0.0033 | True |
+| 18 | chain    | uniform       | shifted_high | 21 | 29 | 29 | 3 | 9 | 3762 | 0.0149 | 0.0038 | True |
+| 19 | chain    | heterogeneous | shifted_high | 22 | 30 | 30 | 2 | 9 | 3825 | 0.1243 | 0.1991 | False |
+| 20 | fork     | uniform       | shifted_high | 22 | 30 | 30 | 2 | 9 | 3831 | 0.0661 | 0.0123 | True |
+| 21 | fork     | heterogeneous | shifted_high | 22 | 30 | 30 | 2 | 9 | 3829 | 0.0328 | 0.0583 | False |
+| 22 | collider | uniform       | shifted_high | 22 | 30 | 30 | 2 | 9 | 3920 | 0.0294 | 0.0304 | True |
+| 23 | collider | heterogeneous | shifted_high | 22 | 30 | 31 | 1 | 5 | 3873 | 0.0693 | 0.0349 | True |
+
+First-decision table (shared state). s32 = saved deployed scores (planning_metadata.risk_reduction_per_cost); s256 = recomputed.
+| w | graph | cost | regime | NMSE0 | TR-opt (s32) | TR-opt (s256) | gap best-2nd s256 | in s.e. | gap best - x_neg s256 | rank x_neg s256 | unif | menu | local | TR | ranker | frozen | sft | dpo |
+|  0 | chain    | unifo | matched_low  | 0.0298 | x-  | x-  | 0.01777 |  40.9 | 0.00000 | 1 | x0 | x- | x- | x- | x- | obs | x- | x- |
+|  1 | chain    | heter | matched_low  | 0.0060 | x-  | x-  | 0.00535 |  11.4 | 0.00000 | 1 | y0 | x- | x- | x- | x- | obs | x- | x- |
+|  2 | fork     | unifo | matched_low  | 0.0377 | x-  | x-  | 0.00007 |   0.6 | 0.00000 | 1 | x- | x- | x- | x- | x- | obs | x- | x- |
+|  3 | fork     | heter | matched_low  | 0.0681 | x+  | x+  | 0.00598 |  89.5 | 0.01409 | 7 | xy | x- | x+ | x+ | x- | obs | x- | x- |
+|  4 | collider | unifo | matched_low  | 0.0450 | x+  | x+  | 0.00603 |  42.4 | 0.01563 | 4 | y- | x- | x+ | x+ | x+ | obs | x- | x- |
+|  5 | collider | heter | matched_low  | 0.0430 | xy  | xy  | 0.00041 |   1.3 | 0.00041 | 2 | x- | x- | x- | xy | x- | obs | x- | x- |
+|  6 | chain    | unifo | matched_high | 0.0003 | x-  | x-  | 0.00172 |  15.5 | 0.00000 | 1 | obs | x- | x- | x- | x- | obs | x- | x- |
+|  7 | chain    | heter | matched_high | 0.0367 | x+  | x+  | 0.00449 |  30.2 | 0.00779 | 7 | x+ | x- | x+ | x+ | x- | obs | x- | x- |
+|  8 | fork     | unifo | matched_high | 0.0059 | xy  | xy  | 0.00001 |   0.2 | 0.00001 | 2 | xy | x- | x- | xy | x- | obs | x- | x- |
+|  9 | fork     | heter | matched_high | 0.0379 | x-  | x-  | 0.00801 |  21.1 | 0.00000 | 1 | y- | x- | x- | x- | x- | obs | x- | x- |
+| 10 | collider | unifo | matched_high | 0.1250 | x+  | x+  | 0.00177 |   2.3 | 0.00541 | 5 | y0 | x- | y- | x+ | x- | obs | x- | x- |
+| 11 | collider | heter | matched_high | 0.1107 | x-  | x-  | 0.01241 |  17.8 | 0.00000 | 1 | y- | x- | x- | x- | x- | obs | x- | x- |
+| 12 | chain    | unifo | shifted_low  | 0.5219 | x+  | x+  | 0.08374 |  91.0 | 0.12951 | 8 | xy | x- | x+ | x+ | x+ | obs | x- | x- |
+| 13 | chain    | heter | shifted_low  | 0.3160 | x-  | x-  | 0.03988 |  51.9 | 0.00000 | 1 | x+ | x- | x- | x- | x- | obs | x- | x- |
+| 14 | fork     | unifo | shifted_low  | 0.0411 | xy  | xy  | 0.00015 |   0.4 | 0.00015 | 2 | xy | x- | x- | xy | x- | obs | x- | x- |
+| 15 | fork     | heter | shifted_low  | 0.0129 | x+  | x+  | 0.00493 |  23.3 | 0.01058 | 7 | x0 | x- | x+ | x+ | x+ | obs | x- | x- |
+| 16 | collider | unifo | shifted_low  | 0.0916 | y+  | y+  | 0.00993 |  21.1 | 0.01144 | 3 | xy | x- | y+ | y+ | x- | obs | x- | x- |
+| 17 | collider | heter | shifted_low  | 0.1115 | xy  | xy  | 0.00103 |   5.2 | 0.00498 | 4 | x+ | x- | x- | xy | x- | obs | x- | x- |
+| 18 | chain    | unifo | shifted_high | 0.0154 | x-  | x-  | 0.00250 |  20.1 | 0.00000 | 1 | y0 | x- | x- | x- | x- | obs | x- | x- |
+| 19 | chain    | heter | shifted_high | 0.5449 | x-  | x-  | 0.06829 |  29.2 | 0.00000 | 1 | x- | x- | x- | x- | x- | obs | x- | x- |
+| 20 | fork     | unifo | shifted_high | 0.0209 | y-  | y-  | 0.00036 |   0.8 | 0.00569 | 8 | x- | x- | x+ | y- | x- | obs | x- | x- |
+| 21 | fork     | heter | shifted_high | 0.0778 | x-  | x-  | 0.00148 |   4.6 | 0.00000 | 1 | y0 | x- | x- | x- | x- | obs | x- | x- |
+| 22 | collider | unifo | shifted_high | 0.4139 | xy  | xy  | 0.00776 |  11.9 | 0.00945 | 3 | xy | x- | x- | xy | x- | obs | x- | x- |
+| 23 | collider | heter | shifted_high | 0.2332 | x-  | x-  | 0.00257 |   3.3 | 0.00000 | 1 | y- | x- | x- | x- | x- | obs | x- | x- |

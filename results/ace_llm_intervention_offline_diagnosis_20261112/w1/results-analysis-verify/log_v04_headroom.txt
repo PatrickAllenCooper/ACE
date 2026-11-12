@@ -1,0 +1,49 @@
+policy_id  uniform_random  menu_coverage  local_information  target_risk  learned_ranker  frozen_llm  sft_llm  dpo_llm  envelope  floor  TR-env  TR-floor                                                                                  best_arms
+w00                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w01                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w02                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w03                    18             10                  9            9              11          24       26       32         9      9       0         0                                                              local_information,target_risk
+w04                    10             10                  9            9               9          10       13       11         9      9       0         0                                               local_information,target_risk,learned_ranker
+w05                    13             13                 17           10               9          13       11       18         9      9       1         1                                                                             learned_ranker
+w06                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w07                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w08                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w09                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w10                    10             11                 11            9              12          32       23       13         9      9       0         0                                                                                target_risk
+w11                    10             21                 15           14              32          11       21       32        10      9       4         5                                                                             uniform_random
+w12                    32             32                 16           23              13          25       32       32        13      9      10        14                                                                             learned_ranker
+w13                    32              9                 10            9               9          14       10        9         9      9       0         0                                           menu_coverage,target_risk,learned_ranker,dpo_llm
+w14                     9              9                  9            9               9          11        9        9         9      9       0         0  uniform_random,menu_coverage,local_information,target_risk,learned_ranker,sft_llm,dpo_llm
+w15                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w16                    16             11                 26           17              16          11       10       22        10      9       7         8                                                                                    sft_llm
+w17                    17              9                  9           11              21          14        9       10         9      9       2         2                                                    menu_coverage,local_information,sft_llm
+w18                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w19                    32             32                 23           32              32          32       32       32        23      9       9        23                                                                          local_information
+w20                     8              8                  8            8               8           8        8        8         8      8       0         0                                                                                      (all)
+w21                    21             21                  9           15              11           9       32       12         9      9       6         6                                                               local_information,frozen_llm
+w22                    14             12                 32           10              32          25       19       20        10      9       0         1                                                                                target_risk
+w23                    28             19                 12           22              30          16       24       32        12      9      10        13                                                                          local_information
+
+TR total: 279  mean: 11.625
+envelope total: 230  mean: 9.583333333333334  TR - envelope: 49  per system: 2.0416666666666665
+floor total: 206  TR - floor (ceiling): 73  per system: 3.0416666666666665
+largest envelope savings: {'w12': 10, 'w23': 10, 'w19': 9, 'w16': 7, 'w21': 6, 'w11': 4, 'w17': 2, 'w05': 1}
+top-5 systems' savings sum: 42 of 49
+systems where some arm strictly beats TR: 8 ['w05', 'w11', 'w12', 'w16', 'w17', 'w19', 'w21', 'w23']
+systems where TR is (jointly) best: 16 ; of those not at target after init: 6
+TR acquisition cost on the 14 informative systems (sorted): [1, 1, 1, 1, 1, 2, 2, 3, 6, 7, 9, 14, 15, 24]
+TR acquisition cost on the 14 informative systems (by system): {'w03': 1, 'w04': 1, 'w05': 2, 'w10': 1, 'w11': 6, 'w12': 15, 'w13': 1, 'w14': 1, 'w16': 9, 'w17': 3, 'w19': 24, 'w21': 7, 'w22': 2, 'w23': 14}
+TR never attains (capped at 32): ['w19']
+per-policy totals: {'uniform_random': 342, 'menu_coverage': 299, 'local_information': 287, 'target_risk': 279, 'learned_ranker': 326, 'frozen_llm': 327, 'sft_llm': 351, 'dpo_llm': 364}
+per-policy total on 14 informative systems (acq cost): {'uniform_random': 150, 'menu_coverage': 107, 'local_information': 95, 'target_risk': 87, 'learned_ranker': 134, 'frozen_llm': 135, 'sft_llm': 159, 'dpo_llm': 172}
+per-policy number of systems where policy == envelope among 14 informative: {'uniform_random': 2, 'menu_coverage': 3, 'local_information': 7, 'target_risk': 6, 'learned_ranker': 5, 'frozen_llm': 1, 'sft_llm': 3, 'dpo_llm': 2}
+per-policy number of systems strictly beating TR: {'uniform_random': 2, 'menu_coverage': 3, 'local_information': 5, 'target_risk': 0, 'learned_ranker': 4, 'frozen_llm': 4, 'sft_llm': 2, 'dpo_llm': 2}
+envelope savings vs TR, with arms achieving the minimum:
+   w12 10 TR 23 env 13 ['learned_ranker']
+   w23 10 TR 22 env 12 ['local_information']
+   w19 9 TR 32 env 23 ['local_information']
+   w16 7 TR 17 env 10 ['sft_llm']
+   w21 6 TR 15 env 9 ['local_information', 'frozen_llm']
+   w11 4 TR 14 env 10 ['uniform_random']
+   w17 2 TR 11 env 9 ['menu_coverage', 'local_information', 'sft_llm']
+   w05 1 TR 10 env 9 ['learned_ranker']

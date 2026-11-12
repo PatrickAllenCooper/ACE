@@ -1,0 +1,9 @@
+pairs among random, ranker, frozen, sft, dpo x 7 endpoints: 70 tests ; smallest sign-flip p values:
+           pair endpoint    mean     sd  signflip_p
+   frozen - sft  log_e12  0.2093 0.4799      0.0429
+   frozen - sft  log_e24  0.1644 0.4303      0.0737
+      sft - dpo  log_e24 -0.1506 0.4559      0.1192
+ranker - frozen  log_e12 -0.1464 0.5134      0.1766
+   frozen - dpo  log_e12  0.1832 0.6438      0.1792
+   random - sft  log_e24  0.1896 0.6945      0.1955
+number with p < 0.05: 1  p < 0.10: 2

@@ -1,0 +1,102 @@
+# literature-benchmarks
+## SUMMARY
+Read-only web research on 2026-11-12; nothing was installed, run or signed up for.
+
+The main finding is that the local Causal Chambers assessment is outdated. There is now a self-service Remote Lab with a real-time Python API to physical wind and light tunnels, billed per second, and the pip package
+  ships MIT-licensed mechanistic simulators. It is the only candidate I found that combines a validated causal graph, real do-operations, a monetary cost and prose variable descriptions.
+
+Ranked shortlist for the concrete experimentalist task (effort figures are my estimates; no tool was prototyped):
+1. Causal Chambers wind tunnel: simulator-backed development (about 1 week), then frozen policies on real hardware (1 to 2 weeks plus human sign-up and budget). Claim scope is one apparatus.
+2. Compressor rig: pyCycle (pure Python, 1 to 2 weeks) or ThermoPower via OpenModelica and FMPy (2 to 3 weeks). Simulation only, synthetic costs.
+3. BoxingGym location finding, temporal discounting and death process (3 to 5 days each; adapters partly exist). No costs, not do-operations.
+4. bnlearn networks with supplied graphs (Gaussian nets 3 to 5 days; discrete nets 1 to 2 weeks). No natural cost, memorization risk.
+5. A PhysGym-style prior ladder applied as a control inside options 1 to 4.
+
+Gene-perturbation pools, SERGIO and Tennessee Eastman are poor fits or unverified. CLeaR 2027 closes in four days; ICML 2027 is the next announced deadline.
+
+## KEY FACTS
+[1] (verified) Causal Chambers Remote Lab gives exclusive real-time sessions (set, measure, wait, batches) on physical Wind Tunnel Mk2 and Light Tunnel Mk2 via a sign-up form. One credit is one second of runtime;
+  academic rate 0.014 EUR per credit; 1000 free credits; minimum session 60 s.
+    EVIDENCE: https://docs.causalchamber.ai/remote-lab/quickstart ; /running-a-real-time-experiment ; /how-credits-work ; http://www.causalchamber.ai/
+[2] (verified) The pip package causalchamber (MIT; 0.2.8; pre-release 1.0.0rc1 of 2026-10-29 needs Python 3.11+) includes numpy-only wind-tunnel simulators: ModelA1/A2 (fan speed), ModelB1 (current),
+  SimA1C2/SimA1C3/SimA2C3 (noisy downwind pressure from load_in, load_out, hatch). It is not installed locally.
+    EVIDENCE: https://pypi.org/project/causalchamber/ ; raw causalchamber/simulators/wt/main.py and simulators/README.md ; CHANGES.txt ; local import check with /usr/bin/python3
+[3] (verified) The chamber physics is documented with stated misspecification: affinity-law speed, cubic current, squared-speed pressure, linear hatch term, fans modelled independently although coupled. Graph edges were
+  validated by randomized experiments with KS tests (one wind-tunnel edge p = 0.082).
+    EVIDENCE: arXiv 2404.11341v2, Appendix IV and V
+[4] (verified) Remote Lab terms v1.1: bot-registered accounts are not authorised; automated use allowed without unreasonable load; rate limits possible; at least 98% availability; generated data jointly owned and
+  publishable; company may use the customer's name for marketing.
+    EVIDENCE: https://box.causalchamber.ai/gtc.pdf, all 10 pages read
+[5] (verified) ThermoPower 4.0.0 (Modelica License 2) has IdealGas.Compressor with beta-line map tables. TestCompressorConstSpeed, TestCompressorInertia and both BraytonCycle simulators ran in the OpenModelica master
+  nightly of 2026-11-12 (97 of 100 models simulate). OpenModelica has no official macOS binaries after 1.16; omc and fmpy are absent locally, docker is present.
+    EVIDENCE: https://build.openmodelica.org/Documentation/ThermoPower.IdealGas.Compressor.html ; https://libraries.openmodelica.org/branches/master/ThermoPower/ThermoPower.html ;
+      https://openmodelica.org/download/download-mac/ ; local check
+[6] (likely) pyCycle is Apache-2.0 (pip om-pycycle, 4.2.0) and ships compressor map files (axi5, HPC_map, LPC_map, Fan_map, ncp01). TESPy is MIT but its map formulation has no rotational-speed parameter. Neither was run,
+  so suitability for a single compressor rig is unknown.
+    EVIDENCE: https://github.com/OpenMDAO/pyCycle (LICENSE.txt, pycycle/maps) ; https://tespy.readthedocs.io/en/main/api/tespy.components.turbomachinery.html
+[7] (verified) BoxingGym: MIT, 10 environments, prior versus no-prior variants, 5 runs with standard errors, no tests, no cost model. Priors do not reliably help. Three environments match the Deep Adaptive Design tasks
+  (location finding T=30, temporal discounting T=20, death process T=4).
+    EVIDENCE: https://github.com/kanishkg/boxing-gym ; arXiv 2501.01540v2 ; ar5iv 2103.02438
+[8] (verified) Whether LLMs use experimental feedback is contested. Gupta et al. 2025: permuted feedback left performance unchanged and classical methods usually won. arXiv 2603.26177: feedback gives +53.4% discoveries
+  (p = 0.003), only for the stronger model. PhysGym: success falls from 65.98% to 30.93% as priors are removed.
+    EVIDENCE: arXiv 2509.21403v1 ; arXiv 2603.26177 ; arXiv 2507.15550v2
+[9] (verified) Comparable papers use 3 to 10 environments or tens of tasks, 5 to 10 seeds, fixed-budget endpoints, SD or SE, and no formal tests (DAD, LLAMBO, BoxingGym, BioDiscoveryAgent, LeGIT, PhysGym). Cost-to-target
+  with censoring is rare.
+    EVIDENCE: ar5iv 2103.02438 ; arXiv 2402.03921v2 ; 2501.01540v2 ; 2405.17631v3 ; 2503.01139v2 ; 2507.15550v2
+[10] (verified) No pip-installable, license-clear Tennessee Eastman simulator with on-demand interventions was verified. CausalBench and GeneDisco are logged pools without a supplied graph. SERGIO requires numeric gene
+  IDs. causalAssembly and CausalMan are AGPL-3.0.
+    EVIDENCE: GitHub pages for AIRI-Institute/iprl_benchmark, causalbench/causalbench, genedisco/genedisco, PayamDiba/SERGIO, boschresearch/causalAssembly, boschresearch/CausalMan
+
+## NUMBERS
+VENUES (official pages unless marked)
+- CLeaR 2027: paper Nov 16, 2026 11:59pm AoE; decisions Feb 22, 2027; conference May 3-5, 2027; 12 PMLR pages.
+- ICML 2027: abstract Jan 14, 2027 AoE; paper Jan 22, 2027 AoE; first-stage rejections Feb 23; decisions May 3; Rio de Janeiro, Jul 31-Aug 6, 2027.
+- AISTATS 2027: closed (paper Oct 6, 2026); decisions Jan 20, 2027; Montreal May 3-6, 2027.
+- ICLR 2027: closed (paper Sep 25, 2026); workshop papers suggested Feb 1, 2027; conference Apr 26-30, 2027.
+- UAI 2027: not announced. Estimate February 2027 (2026 deadline Feb 25; 2025 deadline Feb 10).
+- NeurIPS 2027: not announced. Estimate early-to-mid May 2027 (2026: abstract May 4, paper May 6).
+- TMLR: rolling.
+
+CAUSAL CHAMBERS
+- 1 credit = 1 s. Academic 0.014 EUR, commercial 0.038 EUR per credit. 1000 free credits = about 16.7 min.
+- Wind Tunnel Mk2: up to 41 variables; docs examples wait 8 s after a load change; about 10 measurements per second maximum.
+- My arithmetic at 10 s per intervention: 24-intervention episode = 240 credits = about 3.4 EUR academic. 8 policies x 24 episodes = 12.8 h = about 645 EUR. 4 policies x 30 episodes x 16 interventions = 5.3 h = about 269
+  EUR.
+- Model constants: omega_max 314.16 rad/s; C_min 0.166 A; C_max 0.26 A; S_max 74.82 Pa; r0 0.7; beta 0.15.
+
+OTHER
+- bnlearn Gaussian nets: ECOLI70 46 nodes / 70 arcs; MAGIC-NIAB 44 / 66.
+- LeGIT graphs: Asia 8/8, Child 20/25, Insurance 27/52, Alarm 37/46; 5 seeds.
+- FMPy 0.3.32 (Sep 9, 2026), Python 3.10+.
+
+## SURPRISES / CONTRADICTIONS
+- A public arXiv preprint (2602.02451; v1 2 Feb 2026, v2 18 Jun 2026) has the same title as /Users/pat/code/ACE/README.md:1-3 and claims a 70-71% improvement (p < 0.001, Cohen's d about 2). The local metric audit says
+  every such comparison is invalid as printed (/Users/pat/code/ACE/docs/development/guidance/metric_audit_2026-09-10.md:1-7), README.md:14 and :114 still advertise it, and the November screen found the DPO policy worst.
+  Same-project identity is inferred from the title; authors were not extracted.
+- The agenda says live chamber access requires a separate arrangement (ace_llm_intervention_agenda_2026-11-02.md:147). Self-service sign-up with free credits and a real-time API now exists.
+- The agenda's ThermoPower link (line 149) returns HTTP 404 because the Gas package was renamed IdealGas in version 4.0.0.
+- BoxingGym is listed by NeurIPS 2025 as a workshop poster, not a Datasets and Benchmarks paper. Third-party listings give CLeaR 2027 as March 3-5; the official page says May 3-5, which overlaps AISTATS 2027 (May 3-6).
+- Could not verify: the chambers-based multi-fidelity causal Bayesian optimization paper (OpenReview blocked), tep-studio, CIPCaD-Bench contents, and licenses for Olympus, BOPTEST, pgmpy and FMPy.
+
+## IMPLICATIONS FOR AGENDA
+- Propose the wind tunnel as the concrete experimentalist task in two stages: a simulator-backed development family now, with no external service, then a real-chamber run of frozen policies. Stage two needs human sign-
+  up, terms acceptance and a budget, and its claim is limited to one apparatus.
+- Do not make ThermoPower the first engineering step. Prototype pyCycle first, or budget for an OpenModelica container plus FMU qualification. Replace the agenda's dead ThermoPower link.
+- Build three controls into every LLM comparison, because informed reviewers will expect them: permuted feedback, a prior ladder (full text, no context, anonymized names), and a numerical policy given the same semantic
+  features.
+- Add a larger frozen-model arm before concluding anything about the LLM route. The literature suggests feedback use depends on model capability, which matters for a 0.6B policy (my inference).
+- Get independent-system statistics from many simulated systems (chamber-simulator parameter draws, compressor maps, bnlearn Gaussian networks). Treat the real chamber as a case study, not a population.
+- Keep capped cost-to-target, and add fixed-budget curves, interquartile means with stratified bootstrap intervals and performance profiles so results are comparable with the literature.
+- Do not spend effort on gene-perturbation pools, SERGIO or Tennessee Eastman as primary environments.
+- Plan around ICML 2027 only for a narrow paper. UAI 2027 (estimated February) or NeurIPS 2027 (estimated May) fit the full agenda; TMLR is rolling with a journal-to-conference route; ICLR 2027 workshops (suggested 1 Feb
+  2027) suit early feedback.
+
+## OPEN QUESTIONS
+- Will a human approve Remote Lab sign-up and spending, and are the terms acceptable (marketing use of the customer name, joint data ownership)? The handoff currently excludes paid APIs and installs.
+- Do the published Mk1 simulators match Mk2 hardware closely enough for simulator-to-hardware transfer? Fidelity is not documented.
+- What are the shared-pool wait times and latency, and can cluster nodes reach the API or must the loop run from the Mac?
+- Can pyCycle model a single compressor with a throttle robustly across the legal action range? It was not prototyped.
+- What are the official UAI 2027 and NeurIPS 2027 dates? Neither official page exists yet.
+- Is arXiv 2602.02451 this project's preprint, and will it be corrected before a new submission?
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/literature-benchmarks.md

@@ -1,0 +1,28 @@
+target-risk states 32 local-information states 32
+target_risk: decision == argmax risk_reduction_per_cost in 32/32
+local_information: decision == argmax scores in 32/32 ; == argmax scores/cost in 32/32
+target_risk (risk_reduction_per_cost): strict labels agreeing with planner ordering 123/179 = 0.6872 (score ties 0) ; records 32 with strict 30
+local_information (scores as saved): strict labels agreeing with planner ordering 118/176 = 0.6705 (score ties 0) ; records 32 with strict 30
+local_information (scores / cost): strict labels agreeing with planner ordering 114/176 = 0.6477 (score ties 0) ; records 32 with strict 30
+  target_risk agreement record-cluster bootstrap 95%: [0.578 0.783]
+  local_information agreement record-cluster bootstrap 95%: [0.528 0.783]
+target_risk: per-state Spearman(pred, measured mean gain/cost): mean 0.0885 median 0.0357 sd 0.437 ; share >0 0.531 ; one-sample t=1.15 p=0.261
+local_information(saved scores): per-state Spearman(pred, measured mean gain/cost): mean 0.1362 median 0.1667 sd 0.321 ; share >0 0.688 ; one-sample t=2.40 p=0.022
+local_information(scores/cost): per-state Spearman(pred, measured mean gain/cost): mean 0.1198 median 0.1667 sd 0.317 ; share >0 0.688 ; one-sample t=2.13 p=0.041
+target_risk: planner top == measured top in 7/32 (chance 4.0) ; mean measured rank of teacher choice 4.38 (chance 4.5); measured gain of teacher choice >0 in 15/32
+local_information: planner top == measured top in 8/32 (chance 4.0) ; mean measured rank of teacher choice 3.66 (chance 4.5); measured gain of teacher choice >0 in 20/32
+teacher uniform_random     mean measured rank of label 3.84 ; label is measured-top in 3/32 ; in strict pairs label preferred 16 rejected 13
+teacher menu_coverage      mean measured rank of label 4.03 ; label is measured-top in 7/32 ; in strict pairs label preferred 30 rejected 26
+teacher local_information  mean measured rank of label 3.66 ; label is measured-top in 8/32 ; in strict pairs label preferred 45 rejected 11
+teacher target_risk        mean measured rank of label 4.38 ; label is measured-top in 7/32 ; in strict pairs label preferred 35 rejected 19
+DPO-selected pair rejects the SFT label in 11/119 records ; prefers the SFT label in 16/119 ; unrelated 92
+target-risk labels {'set_x_pos': 9, 'set_x_neg': 8, 'set_xy': 7, 'observe_all': 8}
+target-risk states per world Counter({1: 32})
+best constant rule LOWO on target-risk labels: first-tiebreak 0/32 ; fractional 3.00/32 ; in-sample 9/32
+best constant rule leave-one-state-out on target-risk labels: 3.00/32
+target-risk runner-up within 2 MC SE of the chosen action: 16/32 (2*max SE) ; 17/32 (2*sqrt(se1^2+se2^2)) ; unscaled-by-cost variants below
+   variant max_raw            16/32
+   variant chosen_raw         13/32
+   variant pooled_raw         17/32
+   variant chosen_percost     12/32
+   variant runnerup_percost   15/32

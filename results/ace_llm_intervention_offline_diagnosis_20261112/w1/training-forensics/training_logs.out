@@ -1,0 +1,236 @@
+steps: 279  stages: {'sft': 160, 'dpo': 119}
+all optimizer steps returned: True  rows per step: {'dpo': array([2]), 'sft': array([1])}
+clip limit: 1.0; gradient norm before clip quantiles by stage:
+       count      mean       std       min       25%       50%       75%        max
+stage                                                                              
+dpo    119.0  3.351247  2.724194  1.301896  1.987917  2.565005  3.616027  17.824408
+sft    160.0  5.940876  8.176313  0.011112  2.459202  3.680399  5.992345  78.560722
+steps where the gradient was clipped (norm_before > 1): {'dpo': '119/119', 'sft': '149/160'}
+input tokens per step by stage: {'min': {'dpo': 4025.0, 'sft': 2007.0}, '50%': {'dpo': 5154.0, 'sft': 3014.0}, 'max': {'dpo': 7342.0, 'sft': 4205.0}}
+
+== SFT loss trajectory (single pass, roster order; each example seen exactly once BEFORE its own update)
+is the SFT order exactly the roster order? True
+loss definition check: action_tokens values [np.int64(6), np.int64(8), np.int64(9)]
+  steps   0- 19: mean loss 0.5972  median 0.5201  min 0.1359  max 1.5897
+  steps  20- 39: mean loss 0.3665  median 0.3444  min 0.2074  max 0.6848
+  steps  40- 59: mean loss 0.3018  median 0.2600  min 0.0798  max 0.7419
+  steps  60- 79: mean loss 0.2440  median 0.2337  min 0.0861  max 0.4055
+  steps  80- 99: mean loss 0.2385  median 0.1965  min 0.0373  max 0.6436
+  steps 100-119: mean loss 0.2574  median 0.2067  min 0.0014  max 0.5894
+  steps 120-139: mean loss 0.2115  median 0.1469  min 0.0002  max 0.7554
+  steps 140-159: mean loss 0.2171  median 0.2369  min 0.0002  max 0.7316
+  first 10 losses: [1.27, 1.59, 0.931, 0.601, 1.48, 0.371, 0.325, 0.141, 0.325, 0.737]
+  last 10 losses : [0.034, 0.261, 0.183, 0.259, 0.012, 0.042, 0.262, 0.233, 0.127, 0.001]
+
+SFT loss by target command (online loss = -log-likelihood measure of the target before the update):
+             count    mean  median     min     max
+target                                            
+observe_all     24  0.2932  0.2418  0.1198  0.6351
+set_x_neg       32  0.1629  0.1491  0.0319  0.3710
+set_x_zero       7  0.4487  0.3799  0.1411  1.2698
+set_x_pos       29  0.3006  0.2090  0.0792  1.5897
+set_y_neg       10  0.3502  0.3357  0.2591  0.4817
+set_y_zero       4  0.6649  0.7082  0.4878  0.7554
+set_y_pos       10  0.3594  0.3254  0.2348  0.5542
+set_xy          12  0.5231  0.5004  0.2672  0.7450
+STOP            32  0.2668  0.2318  0.0002  1.4798
+
+SFT loss by target, second half of the pass only (steps 80-159):
+             count    mean  median     min     max
+target                                            
+observe_all     12  0.3054  0.2763  0.1267  0.4974
+set_x_neg       18  0.1384  0.1314  0.0319  0.3382
+set_x_zero       2  0.3966  0.3966  0.3956  0.3975
+set_x_pos       12  0.1573  0.1469  0.0792  0.3523
+set_y_neg        6  0.3569  0.3357  0.2591  0.4817
+set_y_zero       2  0.7435  0.7435  0.7316  0.7554
+set_y_pos        6  0.3468  0.3107  0.2623  0.5542
+set_xy           6  0.5091  0.5004  0.3904  0.6436
+STOP            16  0.0556  0.0114  0.0002  0.4183
+
+SFT loss by snapshot index:
+          count    mean  median
+snapshot                       
+0            32  0.2909  0.2357
+1            32  0.3066  0.2578
+2            32  0.2881  0.2371
+3            32  0.3688  0.3208
+4            32  0.2668  0.2318
+SFT loss by snapshot, second half:
+          count    mean  median
+snapshot                       
+0            16  0.2388  0.1766
+1            16  0.2423  0.2247
+2            16  0.2609  0.2513
+3            16  0.3580  0.2987
+4            16  0.0556  0.0114
+
+== DPO loss trajectory (119 single-pair updates; beta=0.1; loss at reference == ln2 = 0.693147)
+  dpo steps   0- 19: mean loss 0.69271  min 0.42202  max 0.94518
+  dpo steps  20- 39: mean loss 0.74177  min 0.25728  max 1.60823
+  dpo steps  40- 59: mean loss 0.84286  min 0.50720  max 1.60770
+  dpo steps  60- 79: mean loss 0.76607  min 0.49203  max 1.18303
+  dpo steps  80- 99: mean loss 0.74038  min 0.39504  max 1.15782
+  dpo steps 100-118: mean loss 0.64880  min 0.18542  max 1.27732
+  first 10: [0.69315, 0.69418, 0.69561, 0.68069, 0.67158, 0.69535, 0.77117, 0.66796, 0.72275, 0.65713]
+  last 10 : [0.61908, 0.35008, 0.74742, 1.03586, 1.27693, 0.40974, 1.27732, 0.89879, 0.31495, 0.18542]
+  DPO losses below ln2: 55 /119; above: 64  overall mean: 0.73952  min: 0.18542  max: 1.60823
+  implied DPO margin delta=(dlogp_chosen - dlogp_rejected) vs reference BEFORE each update: quantiles {0.0: -13.848, 0.25: -2.408, 0.5: -0.132, 0.75: 1.696, 1.0: 15.91}
+  share of DPO steps with positive implied margin before update: 0.4622
+
+plan.json keys: ['checkpoint_steps', 'declared_adapter_parameters', 'dpo_rows', 'dpo_steps', 'execution_kind', 'expected_adapter_shapes', 'exposures', 'max_trainable_parameters', 'numeric_recipe', 'one_pass_dpo', 'one_pass_sft', 'outer_provenance_receipt_sha256', 'provenance_qualified', 'record_pins', 'records', 'retry_allowed', 'schedule', 'scope', 'sft_rows', 'sft_steps', 'stored_tokens', 'version']
+DPO step order follows roster order of records with a strict pair: True
+
+== SFT-checkpoint (reference) vs final DPO-checkpoint log-likelihoods on the 119 trained pairs
+SFT checkpoint already ranks the DPO-preferred command above the rejected one in 66 /119 pairs  (i.e. SFT policy agrees with measured preference; 59.5 = chance)
+Final DPO checkpoint ranks preferred above rejected in 76 /119 pairs
+margin (logp chosen - logp rejected): SFT mean 0.269 median 0.641 | final mean 2.249 median 3.597
+margin change (final - SFT) quantiles: {0.0: -19.214, 0.1: -10.43, 0.25: -3.837, 0.5: 3.339, 0.75: 8.846, 0.9: 12.284, 1.0: 17.16}  pairs whose margin increased: 74 /119
+
+Per-command log-likelihood at SFT checkpoint vs final checkpoint, over the (record, command) points in the 119 trained pairs (238 points):
+              n  sft_mean  sft_median  final_mean  final_median  change_mean
+cmd                                                                         
+observe_all  19    -1.092      -1.017      -2.209        -2.166       -1.117
+set_x_neg    23    -0.952      -0.876      -0.379        -0.279        0.573
+set_x_zero   32    -4.899      -4.798     -14.467       -15.061       -9.568
+set_x_pos    37    -3.220      -3.252      -7.064        -7.188       -3.844
+set_y_neg    33    -2.256      -2.260      -6.827        -6.475       -4.572
+set_y_zero   29    -5.561      -5.297     -18.905       -18.819      -13.344
+set_y_pos    29    -4.328      -4.166     -16.658       -17.200      -12.330
+set_xy       36    -3.877      -3.832      -3.906        -3.875       -0.029
+
+same split by role:
+                        n  sft_mean  final_mean  change_mean
+cmd         role                                            
+observe_all preferred   6    -0.997      -2.024       -1.027
+            rejected   13    -1.136      -2.294       -1.158
+set_x_neg   preferred  14    -0.937      -0.349        0.588
+            rejected    9    -0.975      -0.424        0.550
+set_x_pos   preferred  23    -3.216      -6.900       -3.685
+            rejected   14    -3.227      -7.333       -4.107
+set_x_zero  preferred  13    -4.735     -13.804       -9.070
+            rejected   19    -5.012     -14.921       -9.909
+set_xy      preferred  20    -3.655      -3.438        0.217
+            rejected   16    -4.154      -4.490       -0.336
+set_y_neg   preferred  19    -2.200      -6.602       -4.402
+            rejected   14    -2.332      -7.133       -4.801
+set_y_pos   preferred   8    -3.863     -13.586       -9.723
+            rejected   21    -4.505     -17.828      -13.323
+set_y_zero  preferred  16    -5.829     -18.388      -12.559
+            rejected   13    -5.231     -19.541      -14.310
+
+SFT checkpoint on the 23 trained pairs involving set_x_neg: set_x_neg scored higher than the other command in 23/23; mean logp(set_x_neg) -0.952 vs other -3.593
+
+== FINAL (DPO) checkpoint: full command score table on the 160 training states
+command order in saved score vectors: ['observe_all', 'set_x_neg', 'set_x_pos', 'set_x_zero', 'set_xy', 'set_y_neg', 'set_y_pos', 'set_y_zero', 'STOP']
+argmax-scored command on the 128 nonterminal training states: {'set_x_neg': 123, 'set_x_pos': 5}
+runner-up on those states: {'observe_all': 110, 'set_x_pos': 9, 'set_x_neg': 5, 'set_xy': 4}
+margin (winner - runner-up, nats) quantiles: {0.0: 0.436, 0.05: 1.021, 0.25: 1.529, 0.5: 1.933, 0.75: 2.41, 0.95: 2.696, 1.0: 2.86}
+P(winner)=exp(logp) quantiles: {0.0: 0.4833, 0.05: 0.5787, 0.25: 0.7027, 0.5: 0.7581, 0.75: 0.8156, 0.95: 0.8476, 1.0: 0.8784}
+total probability mass on the 9 legal commands, quantiles: {0.0: 0.6934, 0.25: 0.91, 0.5: 0.9538, 0.75: 0.961, 1.0: 0.9705}
+
+mean / sd / min / max of final log-likelihood per command across the 128 nonterminal training states:
+                  mean    std     min    max
+lp_observe_all  -2.289  0.421  -3.275 -1.402
+lp_set_x_neg    -0.340  0.287  -2.085 -0.130
+lp_set_x_zero  -14.570  2.388 -17.566 -3.914
+lp_set_x_pos    -7.240  3.227 -10.876 -0.369
+lp_set_y_neg    -6.545  1.928  -9.540 -2.842
+lp_set_y_zero  -20.496  4.502 -26.304 -5.680
+lp_set_y_pos   -14.006  5.569 -21.017 -2.281
+lp_set_xy       -3.890  0.973  -7.511 -1.507
+lp_STOP        -12.661  2.204 -16.509 -6.689
+
+final-checkpoint argmax == supervised (teacher) target on nonterminal states: 32 /128
+terminal states (only {stop} legal): logp(stop) quantiles {0.0: -10.163, 0.25: -6.053, 0.5: -2.26, 0.75: -1.688, 1.0: -1.039}
+
+final checkpoint: mean logp by snapshot index (nonterminal):
+          lp_observe_all  lp_set_x_neg  lp_set_x_zero  lp_set_x_pos  lp_set_y_neg  lp_set_y_zero  lp_set_y_pos  lp_set_xy  lp_STOP
+snapshot                                                                                                                          
+0                 -2.858        -0.264        -16.963       -10.406        -9.055        -25.870       -20.546     -3.745  -15.145
+1                 -2.301        -0.326        -13.919        -6.292        -6.040        -19.175       -12.363     -3.732  -13.148
+2                 -2.121        -0.386        -13.716        -6.089        -5.667        -18.597       -11.628     -3.954  -12.440
+3                 -1.877        -0.385        -13.682        -6.174        -5.420        -18.340       -11.485     -4.130   -9.910
+
+final checkpoint: mean logp by graph x cost menu (nonterminal):
+                        lp_observe_all  lp_set_x_neg  lp_set_x_zero  lp_set_x_pos  lp_set_y_neg  lp_set_y_zero  lp_set_y_pos  lp_set_xy  lp_STOP
+graph    cost_menu                                                                                                                              
+chain    heterogeneous          -2.393        -0.242        -13.981        -7.275        -7.096        -20.494       -14.878     -4.312  -12.392
+         uniform                -2.225        -0.297        -14.225        -7.382        -6.268        -19.428       -13.648     -3.716  -12.534
+collider heterogeneous          -2.316        -0.317        -14.814        -7.275        -6.310        -20.626       -13.502     -3.443  -13.210
+         uniform                -2.207        -0.515        -14.931        -7.757        -6.157        -21.235       -14.889     -3.214  -12.709
+fork     heterogeneous          -2.347        -0.410        -15.157        -6.359        -7.012        -21.081       -13.373     -4.339  -12.669
+         uniform                -2.238        -0.289        -14.498        -7.361        -6.374        -20.324       -13.641     -4.268  -12.529
+
+state sensitivity of the final policy: between-state SD of logp(set_x_neg) = 0.2868 ; between-state SD of the winner margin = 0.5509
+states where the measured-best action (4-replicate mean) == final argmax: 26 /128
+
+== Saved greedy generations on the training states
+
+[sft] generation files: 161; keys: ['completion', 'cross_request_cache_supplied', 'cuda_interval_ms', 'elapsed_seconds', 'environment_responses', 'legal_commands', 'monotonic_seconds', 'new_training_updates', 'ordinal', 'peak_gpu_allocated_bytes', 'peak_gpu_reserved_bytes', 'record_id', 'record_pin', 'sequence_ids', 'stage', 'stop', 'tensor_versions_unchanged', 'utc', 'wall_seconds']
+  ordinal 160 revisits record: policy_train/202611070000/snapshot-000  completion: set_x_neg  same as ordinal 0: True
+  first 160 cover the roster in order: True
+  completions on the 128 nonterminal training states: {'set_x_neg': 108, 'observe_all': 19, 'set_x_pos': 1}
+  completions on the 32 terminal states: {'STOP': 32}
+  completion == supervised target: nonterminal 36 /128 ; all 68 /160
+  nonterminal completions by snapshot:
+completion  observe_all  set_x_neg  set_x_pos
+snapshot                                     
+0                     0         32          0
+1                     0         32          0
+2                     7         25          0
+3                    12         19          1
+  nonterminal completions by graph x cost:
+completion              observe_all  set_x_neg  set_x_pos
+graph    cost_menu                                       
+chain    heterogeneous            0         24          0
+         uniform                  4         20          0
+collider heterogeneous            1         18          1
+         uniform                  8         12          0
+fork     heterogeneous            3         17          0
+         uniform                  3         17          0
+  nonterminal completion vs supervised target:
+completion   observe_all  set_x_neg  set_x_pos
+target                                        
+observe_all            5         19          0
+set_x_neg              2         30          0
+set_x_pos              3         25          1
+set_x_zero             0          7          0
+set_xy                 2         10          0
+set_y_neg              2          8          0
+set_y_pos              4          6          0
+set_y_zero             1          3          0
+
+[final] generation files: 161; keys: ['completion', 'cross_request_cache_supplied', 'cuda_interval_ms', 'elapsed_seconds', 'environment_responses', 'legal_commands', 'monotonic_seconds', 'new_training_updates', 'ordinal', 'peak_gpu_allocated_bytes', 'peak_gpu_reserved_bytes', 'record_id', 'record_pin', 'sequence_ids', 'stage', 'stop', 'tensor_versions_unchanged', 'utc', 'wall_seconds']
+  ordinal 160 revisits record: policy_train/202611070000/snapshot-000  completion: set_x_neg  same as ordinal 0: True
+  first 160 cover the roster in order: True
+  completions on the 128 nonterminal training states: {'set_x_neg': 123, 'set_x_pos': 5}
+  completions on the 32 terminal states: {'STOP': 32}
+  completion == supervised target: nonterminal 32 /128 ; all 64 /160
+  nonterminal completions by snapshot:
+completion  set_x_neg  set_x_pos
+snapshot                        
+0                  32          0
+1                  31          1
+2                  30          2
+3                  30          2
+  nonterminal completions by graph x cost:
+completion              set_x_neg  set_x_pos
+graph    cost_menu                          
+chain    heterogeneous         24          0
+         uniform               24          0
+collider heterogeneous         20          0
+         uniform               17          3
+fork     heterogeneous         18          2
+         uniform               20          0
+  nonterminal completion vs supervised target:
+completion   set_x_neg  set_x_pos
+target                           
+observe_all         24          0
+set_x_neg           31          1
+set_x_pos           28          1
+set_x_zero           6          1
+set_xy              11          1
+set_y_neg            9          1
+set_y_pos           10          0
+set_y_zero           4          0

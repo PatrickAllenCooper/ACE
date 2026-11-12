@@ -1,0 +1,7 @@
+final greedy generation equals argmax of the final full-command table in 128/128 states
+final: P(observe_all) > sum of P(set_*) in 0/128 states ; median P(set_*)=0.823 P(observe)=0.108 ; total mass on 8 actions median 0.954
+SFT reference entries for observe_all: n=19 ; with P>0.5: 2 ; SFT greedy output in those states: Counter({'observe_all': 2})
+SFT greedy output in states where the saved P(observe_all) is between 0.3 and 0.5: Counter({'set_x_neg': 11})  ; below 0.3: Counter({'set_x_neg': 6})
+SFT reference entries for set_x_neg: n=23 ; P(set_x_neg) by SFT greedy output: {'set_x_neg': 0.402, 'observe_all': 0.251}
+   states where SFT greedy output is observe_all and set_x_neg is scored: P(set_x_neg) values [0.273, 0.231]
+   states where SFT greedy output is set_x_neg and observe_all is scored: P(observe_all) values [0.149, 0.161, 0.251, 0.252, 0.258, 0.298, 0.334, 0.36, 0.36, 0.362, 0.38, 0.39, 0.41, 0.413, 0.417, 0.438, 0.439]

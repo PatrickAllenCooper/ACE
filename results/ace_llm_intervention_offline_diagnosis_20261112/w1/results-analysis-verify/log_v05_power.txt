@@ -1,0 +1,41 @@
+/Users/pat/Library/Python/3.9/lib/python/site-packages/scipy/stats/_continuous_distns.py:7762: RuntimeWarning: divide by zero encountered in _nct_sf
+  return np.clip(_boost._nct_sf(x, df, nc), 0, 1)
+/Users/pat/Library/Python/3.9/lib/python/site-packages/scipy/stats/_continuous_distns.py:7754: RuntimeWarning: divide by zero encountered in _nct_cdf
+  return np.clip(_boost._nct_cdf(x, df, nc), 0, 1)
+/Users/pat/Library/Python/3.9/lib/python/site-packages/scipy/stats/_continuous_distns.py:7762: RuntimeWarning: divide by zero encountered in _nct_sf
+  return np.clip(_boost._nct_sf(x, df, nc), 0, 1)
+/Users/pat/Library/Python/3.9/lib/python/site-packages/scipy/stats/_continuous_distns.py:7754: RuntimeWarning: divide by zero encountered in _nct_cdf
+  return np.clip(_boost._nct_cdf(x, df, nc), 0, 1)
+=== policy minus target_risk, capped total cost (n=24) ===
+                     mean      sd  neg  zero  pos  signflip_p     t_p   d_std
+policy                                                                       
+uniform_random     2.6250  5.4279    2    12   10      0.0112  0.0266  0.4836
+menu_coverage      0.8333  3.0740    3    13    8      0.2256  0.1972  0.2711
+local_information  0.3333  6.2113    5    13    6      0.8398  0.7950  0.0537
+learned_ranker     1.9583  6.6298    4    14    6      0.1934  0.1614  0.2954
+frozen_llm         2.0000  6.7631    4    11    9      0.1841  0.1609  0.2957
+sft_llm            3.0000  6.0577    2    12   10      0.0220  0.0235  0.4952
+dpo_llm            3.5417  6.4335    2    13    9      0.0068  0.0129  0.5505
+median of the 7 policy-minus-TR SDs: 6.21125672830608
+Holm-adjusted (7 tests vs TR): {'dpo_llm': 0.0479, 'uniform_random': 0.0674, 'sft_llm': 0.1099, 'frozen_llm': 0.7363, 'learned_ranker': 0.7363, 'menu_coverage': 0.7363, 'local_information': 0.8398}
+median SD over all 28 pairs: 6.976536704736236  min: 3.073967365200685  max: 9.034555241172479
+
+=== power planning at SD = 6.2113 ===
+MDD at n=24 (80% power, two-sided .05): 3.709   (90%): 4.293
+MDD normal approx: 3.552
+n for delta=1: 80% -> 305, 90% -> 408
+n for delta=2: 80% -> 78, 90% -> 104
+n for delta=3.0416667: 80% -> 35, 90% -> 46
+noninferiority margin 1, true diff 0, one-sided .025: 80% -> 305  90% -> 408
+
+TR minus floor: mean 3.0416666666666665 sd 5.908572745093181  n=24
+power of oracle-at-floor vs TR using its own paired SD: 0.6757
+power of a 3.0417 difference using SD 6.211 : 0.6324
+exact sign-flip p of TR minus floor: 0.00390625  t-test p: 0.0190480638456826
+TR minus envelope: mean 2.0416666666666665 sd 3.5322017602852642  power: 0.7739
+
+=== replicated design: 8 replicates per arm per system, replicate share r of paired-difference variance ===
+r=0.5: effective SD 4.658; n for 1 unit 80% -> 173, 90% -> 230; for 2 units 80% -> 45
+r=0.6: effective SD 4.281; n for 1 unit 80% -> 146, 90% -> 195; for 2 units 80% -> 38
+r=0.7: effective SD 3.866; n for 1 unit 80% -> 120, 90% -> 160; for 2 units 80% -> 32
+r=0.8: effective SD 3.402; n for 1 unit 80% -> 93, 90% -> 124; for 2 units 80% -> 25

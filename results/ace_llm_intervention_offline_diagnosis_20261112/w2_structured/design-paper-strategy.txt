@@ -1,0 +1,497 @@
+# DESIGN: paper-strategy
+## THESIS
+The paper asks where a trained language model can improve on explicit SCM experiment planning. It answers with three tools: benchmarks whose headroom is certified numerically before any LLM sees them, decision-level endpoints, and
+  controls that hold information fixed. No policy can beat a Bayes-optimal planner that has the same model, information and objective, and sequential adaptation is worth -0.7% +/- 1.7% in the completed known-graph linear-Gaussian
+  class, so at this scale the only credible route to an LLM benefit is information the planner cannot read. If results are positive, the central claim is that where an experimentalist's goal or mechanism knowledge exists only in
+  language, an SCM-conditioned Qwen policy trained by privileged-teacher distillation recovers a measured share of an oracle planner's advantage: it lowers expected cost to a reliable answer on fresh systems relative to the
+  strongest numerical planner without the text and to a rule parser, it uses measurements, it loses the gain when the text is removed, and it transfers to an independently authored wind-tunnel simulator. If only the hybrid
+  succeeds, the claim narrows to the LLM as a knowledge compiler whose output a numerical planner acts on. If results are null or negative, the paper is a rigorous diagnosis: the canonical class leaves no room for any learned
+  policy; first-crossing cost endpoints need 67 to 340 systems where decision-level endpoints need 3 to 17; and the collapse of small trained policies, language and numerical alike, has named causes tested by knockouts, whether or
+  not a repaired recipe restores state-dependent planning. In every branch, all earlier adverse results are reported, the public preprint and README are corrected first, and the delivery study is published separately as a result
+  that does not depend on the LLM outcome.
+
+### E1 [must] Headroom certification and endpoint freeze (numerical only; decides which benchmarks are admitted without any LLM)
+  QUESTION: Which SCM classes the code can express carry decision value that only the public text holds, large enough to detect at a feasible n? Which numerical planner is the strongest control, and which endpoint resolves
+    policies? All three are fixed before any language model touches the new classes.
+  DESIGN: Classes: new protocol modules over the reusable generic layer (at most 8 nodes, 32 actions, 64 equal-weight queries).
+  - K0: the completed 3-variable generator, redrawn from a fresh declared development namespace (not the 24 systems).
+  - K1, prose objective: 4 to 6 node known-graph linear-Gaussian SCMs. Actions are single and pair clamps at 3 levels plus observe and partial-measurement actions, with costs 1 to 5, and 2 initial observations. The candidate
+    queries are all clamps asking for designated outcome nodes. The true objective is 4 to 8 operating conditions described only in prose. The uninformed planner uses the uniform default query law.
+  - K2, prose mechanism knowledge: edge signs and rough magnitudes are given in prose and coefficients are drawn from them. The uninformed planner uses the prior N(0, I) and the oracle the informed prior. Admission is judged with
+    a common uninformed evaluation learner, so that only the choice of actions counts.
+
+  Arms (numerical only):
+  - uniform random and menu coverage;
+  - a leave-one-out public static schedule;
+  - plan-once from the post-initialization state;
+  - target risk at 32 draws (as deployed);
+  - U256: target risk at 256 draws with common random numbers across candidate actions;
+  - a rollout reference: the top 4 candidates x 16 base-policy rollouts, on 20 systems x 1 replicate;
+  - O: the oracle planner given the true objective or prior;
+  - R: a hand-written rule parser feeding U256, written from paraphrase families A and B and scored on held-out family C (a different generator) and family D (human-written, if available).
+
+  Systems: 60 per class with 4 replicate episodes per system and arm, using common random numbers keyed by (system, replicate, action, occurrence). The threshold is calibrated on training-namespace systems so that at most 10% of
+    systems start at target.
+
+  Endpoint candidates:
+  - P1: fixed-budget truth-conditional expected log NMSE. Each realized action sequence is replayed with 256 fresh noise draws under the true SCM through a common evaluation learner.
+  - P2: expected cost to target, read from the replicate-averaged truth-conditional curve.
+  - P3: paid cost under a common public posterior-risk stop rule, plus reliability (share of stops at which the true error is within target).
+  - P4: realized first-crossing cost, kept for continuity only.
+
+  Sample size basis: on the 24 saved systems the paired SD of log final posterior risk is 0.19 to 0.28 natural-log units for designs that differ (SD = |mean| x sqrt(24) / |t|, from saved t values of 6.6 to 9.2). With n = 60 the SE
+    is 0.025 to 0.036, a 15% effect has z between 4.5 and 6.6, and the SD needed for later power calculations is known to about +/-9%.
+  DECISION_RULE: Endpoint freeze (does not depend on any LLM): P2 is primary if U256 beats random with z >= 3 at n = 60 and P2's z for O versus U256 is at least 70% of P1's. Otherwise P1 is primary and P2 secondary. P4 is never
+    primary.
+
+  Strongest numerical control: U is the rollout planner if it beats U256 by more than 5% on the primary endpoint, otherwise U256.
+
+  A class is admitted only if all four hold:
+  - (a) ln(U/O) >= 0.1625, with the 95% CI lower bound >= 0.05.
+  - (b) ln(R/O) >= 0.105 on the held-out families, with the CI excluding 0. In words: at least a 10% error reduction is left that the parser does not capture.
+  - (c) U beats random with z >= 3.
+  - (d) At most 10% of systems are at target after initialization.
+  The decision is hashed before any LLM sees K1 or K2.
+
+  Positive (at least one class admitted): licenses LLM work in that class only, and the statement "text carries this much decision value, of which a parser recovers this share".
+
+  Null (no class admitted, kill K1): every LLM-benefit branch closes and the paper becomes the diagnostic framing. It licenses the claim that in the SCM classes the code can express, the text channel carries too little decision
+    value or a parser can extract it.
+
+  Negative (O not better than U, or U not better than random): a bug in the evaluator or the class. Audit before anything else. Nothing about LLMs is licensed.
+
+  K0 in every case: replicates or refutes "adaptation is worth about nothing and plan-once equals target risk" on fresh systems.
+  PREREQUISITES: - The lead's go-ahead for local numerical-only simulation on new declared namespaces, and a written protocol.
+  - Code:
+    - protocol, binding, assembler and realization modules for K1 and K2 (about 100 to 300 lines each);
+    - informed-prior support in the learner, with new sealer and cost-curve versions;
+    - a change to common-random-number keying in the paired-episode module, which currently forbids shared measurement namespaces;
+    - a truth-conditional evaluator;
+    - a rollout planner;
+    - the roster limit raised above 8 arms;
+    - prose families A to C and the rule parser.
+  - Optionally, a human author for family D.
+  - No GPU, no CURC, no installs.
+  COST: - Engineering: about 1.5 to 2 weeks [judgment].
+  - Compute: about 155,000 planner decisions (3 classes x 60 systems x about 9 arms x 4 replicates x about 24 decisions) at no more than 1 process CPU-second each. That figure was measured including interpreter start.
+  - With the extra cost of the 256-draw and rollout planners, about 60 to 100 CPU-hours, or about 5 to 9 hours of wall time on the Mac (assuming at least 12 cores).
+  - Zero GPU. Nothing from the CURC envelope.
+  MAIN_RISK: The synthetic prose may be solvable by a parser, so condition (b) fails, or K2's value may lie in prediction rather than in the choice of actions. Either closes every LLM branch. That would be the honest answer, but
+    it leaves only the diagnostic paper.
+
+### E2 [must] Offline forensic scoring of the saved adapters (forward passes only)
+  QUESTION: What produced the constant actions: token-greedy pooling over the command trie, a prior on menu position or identifiers, or the weights themselves? And does any deployed adapter encode posterior information that its
+    decoder did not express?
+  DESIGN: Inputs, all already on the Mac: the cached Qwen3-0.6B base, the SFT and final adapters whose hashes match the deployed pins (583b1659..., 6f540dfe...), and all 1,858 exact prompt token sequences (1,698 from deployment,
+    160 from training).
+
+  Step 0, fidelity: local constrained greedy decoding must reproduce the recorded command on at least 99% of the 1,698 deployment prompts and of the 322 saved training generations.
+
+  Census: for every prompt, under the base, SFT and final weights, compute full-sequence log-probabilities of all 9 legal commands. From these derive the token-greedy choice, the whole-command argmax and the argmax after per-token
+    normalization, and save the score tables.
+
+  Probes on 240 separately declared artificial states (10 decision indices x 24 saved worlds). Adapters stay frozen and no outcomes are used. Each state is altered as follows:
+  - menu order reversed, and menu order randomly permuted;
+  - identifiers renamed to neutral codes of equal length;
+  - a content-free state;
+  - posterior perturbations: one head's variance x4 and x0.25, and a sign flip of the X-mean estimate.
+
+  Linear probes (ridge regression, world-grouped 6-fold CV) map the final-layer state at the decision position to the saved 16,384-draw target-risk scores for each action and to the X-mean sign. Controls are the same probe on the
+    base model and a probe on prompt-surface features.
+
+  Endpoints:
+  - the share of deployed SFT and DPO choices that change under whole-command argmax;
+  - the share of permuted states whose modal choice follows list position;
+  - the total-variation change of the 9-way command distribution under each perturbation;
+  - probe R-squared under grouped cross-validation.
+
+  Sample basis: a census of all saved prompts. 240 probe states bound any rate to within +/-6.3% at 95%.
+  DECISION_RULE: Thresholds, fixed in advance:
+  - Token pooling is "material" if at least 20% of SFT deployment choices change under whole-command argmax.
+  - A position prior is "dominant" if the modal choice follows list position in at least 70% of permuted states.
+  - The adapter "reads the posterior" if the total-variation change is at least 0.1 in the planner's direction in at least 25% of perturbed states, or if probe R-squared for the X-mean sign is at least 0.3 beyond the surface
+    probe.
+
+  Positive (fidelity at least 99% and at least one mechanism above its threshold): licenses an anatomy section with effect sizes, and turns E3's knockouts into confirmatory tests of the named mechanisms. If the adapter reads the
+    posterior without acting on it, that is a knowing-doing gap, and readout or decoding is fixed before supervision.
+
+  Null (fidelity holds and nothing crosses a threshold): the collapse lives in the weights, so supervision (E3) is the lever.
+
+  Negative (fidelity below 99%, kill K6): the local runtime is unfaithful. Report the agreement rate only, and run later LLM stages on a pinned runtime with its own fidelity check.
+
+  Nothing here tunes against the 24 development outcomes.
+  PREREQUISITES: - The lead's approval for local forward-only inference, which counts as a new model execution, and a written protocol.
+  - No installs: torch 2.8 and transformers 4.57 are present, and the adapters are torch-only .pt files.
+  - No CURC.
+  COST: - About 10,600 prompt forwards (1,858 prompts x 3 weight sets, plus 240 states x 7 variants x 3), each with 9 short continuations.
+  - About 1 to 4 hours of local GPU, assuming 0.3 to 1.5 s per forward on a roughly 3,000-token prompt on MPS. For comparison, the CURC slice measured 0.43 to 0.71 s per greedy decision.
+  - 2 to 4 calendar days. Nothing from the envelope.
+  MAIN_RISK: The local torch and transformers versions differ from the frozen runtime. If the fidelity check fails, the census speaks only for the local runtime.
+
+### E3 [must] Imitation ladder with knockouts and matched numerical students (gates use training-side data only)
+  QUESTION: Can a Qwen3-0.6B policy trained with a repaired recipe read SCM state well enough to imitate target-risk planning on held-out systems? Which repairs are necessary? And does a numerical student trained on identical data
+    do the same?
+  DESIGN: Class: the completed 3-variable generator, drawn from a fresh declared training namespace. No development system or outcome is used. The planner's choices there depend strongly on state, so imitation is not trivial: the
+    best state-blind first action has a relative regret of 0.257, the fixed coverage cycle 0.441 over whole episodes, and the constant set_x_neg policy 0.699.
+
+  Data:
+  - 400 training worlds giving about 9,600 states, from a mix of behavior policies (random, coverage, local information, target risk);
+  - repetition-stress histories with 10 to 23 repeated actions;
+  - the 697 saved training envelopes;
+  - labels: 4,096-draw target-risk scores for all 8 actions, which cost no environment responses.
+
+  Held out: 80 further training-namespace worlds, evaluated on each student's own closed-loop rollouts.
+
+  Arms:
+  - A1, full repair:
+    - graded listwise KL to a softmax of planner scores, at a temperature fixed in the protocol;
+    - a rounded, decision-relevant SCM summary of about 400 to 700 tokens, with no scores per action;
+    - neutral identifiers, with identifiers and menu order permuted per example;
+    - whole-command normalized scoring;
+    - 2 shuffled epochs, rank-16 LoRA on the attention and MLP projections.
+  - A2: A1 without the posterior summary (history only).
+  - A3: hard argmax labels.
+  - A4: labels from the November rule (4 replicates, 2-SE tie rule) on the same states.
+  - A5: fixed menu order and the original identifiers.
+  - A6: the raw November JSON envelope with 17-digit floats, on half the data.
+  - A7: A1's weights decoded token by token greedily (no training).
+  - N1: an MLP on the same numeric summary, trained on A1's targets.
+  - N2: N1 trained on A4's labels.
+  - References: a state-blind frequency counter; target risk, local information, coverage and random; the November ranker, SFT and DPO adapters.
+
+  Seeds: 3 for A1, A2, N1 and N2; 2 for A3 to A5; 1 for A6.
+
+  Primary endpoint: mean relative regret on the held-out rollouts under the 16,384-draw target-risk score. Secondary: cross-entropy relative to the counter, action entropy, total-variation change under state shuffling, and the
+    model-expected final NMSE J relative to target risk.
+
+  Sample basis: the November regret contrasts imply a per-world SD of about 0.28, so 80 worlds give an SE of about 0.031 and a regret difference of 0.10 has z of about 3.2. Using 2 or 3 seeds answers the single-seed limitation
+    flagged by Kriz et al.
+  DECISION_RULE: Gate: an arm "learns state-dependent SCM planning" only if, in every seed, all four hold:
+  - regret <= 0.154 (the level local information reached);
+  - cross-entropy at least 0.2 nats per example better than the counter;
+  - total-variation change under state shuffling >= 0.2, with world-cluster permutation p < 0.01;
+  - J within 10% of target risk.
+
+  Outcomes:
+  - A1 passes and N1 passes: the recipe is repaired and branch P may use it. This licenses "language pretraining is not needed for imitation, so any LLM benefit must come from text".
+  - A1 passes and N1 fails: an unexpected advantage from the language representation. Replicate before claiming it.
+  - A1 fails and N1 passes: the 0.6B LLM is the bottleneck under offline distillation, so run E4. If E4 also fails, kill K2 closes the direct LLM policy.
+  - Both fail: the supervision or the state design is insufficient, and the paper is the diagnostic one.
+
+  Knockouts:
+  - A component is necessary if removing it raises regret by at least 0.10 in every seed.
+  - A4 and N2 "reproduce the collapse" if one action exceeds 80% of choices or the action entropy falls below 0.8 bits. If both collapse, the paper may say the collapse comes from the supervision, not from language.
+  - A1 versus A2 is the ablation of the SCM state.
+
+  No outcome on the 24 development systems is touched.
+  PREREQUISITES: - The lead's approval for local LoRA training under a pinned local runtime manifest, or a new CURC ceiling of about 7 to 11 GPU-slice-hours and about 10 core-hours. Only 0.76 slice-hours remain, and the gpu-
+    testing QoS caps each job at 1 hour.
+  - Code, about 1.5 to 2 weeks:
+    - a listwise loss (the training job already scores all legal commands);
+    - a summary serializer;
+    - permuted identifiers in the grammar and task modules;
+    - multi-projection rank-16 LoRA in the torch-only engine;
+    - the numerical student;
+    - the data generator.
+  - A declared training namespace outside the consumed ranges.
+  - E2 informs this experiment but does not block it.
+  COST: - Training: 13 LoRA runs. A summary-prompt run is about 4,000 states x 2 epochs x 600 tokens x 1.5 (listwise overhead), or about 7.2 M tokens. At the measured throughput of about 5,000 tokens per second on the slice, that
+    is about 0.4 to 0.55 slice-hours per run. The raw-envelope arm takes about 1.0 to 1.3 hours. Total: about 6 to 9 slice-hours, or 1 to 3 nights on the Mac (throughput there is unmeasured).
+  - Relabeling: 5 to 10 CPU-hours.
+  - Held-out rollouts: about 27,000 decisions, or 1 to 2 GPU-hours.
+  - Calendar: about 3 weeks.
+  MAIN_RISK: The summary text or the temperature may quietly encode the planner's answer. This is mitigated by never including scores per action. Alternatively, a 0.6B model may fail whatever the recipe.
+
+### E4 [could] Escalation: model capacity versus on-policy training (runs only if E3 shows A1 failing and N1 passing)
+  QUESTION: Is the 0.6B LLM's failure to imitate the planner caused by model capacity or by offline supervision?
+  DESIGN: The same data, held-out worlds and gates as E3.
+  - Arm (a), capacity: Qwen2.5-7B-Instruct, already in the local cache, with the A1 recipe, 2 seeds.
+  - Arm (b), on-policy training: Qwen3-0.6B with on-policy GRPO, using the settings Kriz et al. report for the same base model: 16 states x 16 rollouts per update, 250 updates, temperature 2, an entropy bonus of 0.02, and permuted
+    identifiers. The reward is the sampled action's 256-draw one-step target-risk gain per unit cost. 2 seeds.
+
+  The held-out regret endpoint and the secondary metrics are the same as in E3.
+  DECISION_RULE: An arm passes on E3's gates.
+  - 7B passes: capacity was the bottleneck. Branch P continues with 7B, and its inference cost goes into the compute ablation.
+  - GRPO passes: offline distillation was the bottleneck. Branch P continues with GRPO.
+  - Both fail (kill K2): the direct LLM policy closes. The hybrid knowledge-compiler framing remains only if E1 admitted a class. Otherwise the paper is the diagnostic one.
+
+  Every outcome is reported as part of the anatomy.
+  PREREQUISITES: - Runs only if E3 ends with A1 failing and N1 passing.
+  - The lead's approval to use the cached 7B weights. No download is needed.
+  - GRPO implemented in the torch-only engine, about 1 to 2 weeks.
+  - Compute approval, either local or a CURC ceiling.
+  COST: - GRPO: about 64,000 single-decision generations at 0.1 to 0.5 s, or about 2 to 9 GPU-hours, plus backward passes.
+  - 7B LoRA: 2 runs, each about 5 to 10 times as long as a 0.6B run, or 1 to 3 nights locally. The bf16 7B weights (about 15 GB) fit in 36 GB [judgment].
+  - Calendar: 2 to 3 weeks.
+  MAIN_RISK: The Mac's memory or time limits for 7B training, or a reward design that leaks the planner's choice.
+
+### E5 [should] Development pilot in the admitted class (LLM variants trained by privileged-teacher distillation, against controls with the same information)
+  QUESTION: In the class E1 admitted, does an SCM-conditioned LLM that reads the prose choose interventions with lower truth-conditional error than the strongest numerical planner without the text? And does it beat a rule parser
+    and a numerical student given the same information?
+  DESIGN: Training: 400 worlds from a fresh training namespace in the admitted class. The teacher is O, which knows the true objective or prior. The students see only the public prose (families A and B) plus the SCM summary.
+
+  Systems: 48 fresh development-namespace systems, with 4 replicates and common random numbers. Prose comes from held-out family C, and from D if available.
+
+  Arms:
+  - U, O and R.
+  - L-dir: the direct LLM policy, using the E3 or E4 recipe plus the prose.
+  - L-hyb: the LLM maps the prose to the objective or prior as structured output, and U plans with it.
+  - L-adj: the prompt adds U's scores for each action, and the LLM chooses.
+  - N-emb: an MLP on the SCM summary plus a frozen LLM embedding of the prose, distilled from O.
+  - N-bow: the same with bag-of-words text features and no pretrained model.
+  - F: the frozen Qwen3-0.6B, zero-shot, with the same prompt.
+  - Random and coverage.
+
+  Ablations for each LLM variant, on a prespecified 24 of the 48 systems with 2 replicates:
+  - text removed;
+  - misleading text;
+  - shuffled feedback (responses permuted in the policy's input only);
+  - no SCM state;
+  - for L-adj, an argmax-of-prompt control.
+
+  Endpoint: the E1 primary. Secondary: oracle-gap closure, (U - L)/(U - O).
+
+  Sample basis: 48 systems estimate the paired SD for E6 to within about +/-10%, and gap closure with an SE of about 0.12 (for a gap of 0.3 log units and a paired SD of 0.25). That is enough to apply a 30% qualification threshold.
+  DECISION_RULE: A variant qualifies only if it does all of the following:
+  - closes at least 30% of the U-O gap;
+  - loses at least 50% of its gain when the text is removed;
+  - beats R by at least 10% of the gap on the held-out families;
+  - degrades by at least 10% under shuffled feedback (L-dir and L-adj);
+  - for L-adj, deviates from argmax-of-prompt on at least 10% of decisions, with deviations beneficial on average.
+
+  Select the qualifying variant with the highest gap closure, and freeze its weights, prompt, scoring and stop rule.
+
+  Positive: proceed to E6. If only L-hyb qualifies, the framing is the narrowed knowledge-compiler paper. If only N-emb qualifies, the contribution is "LLM embeddings as features", reported as such.
+
+  Null (kill K3): stop. Report the development results in the diagnostic paper. No further class or benchmark is tried.
+
+  Negative (the LLM variants are worse than U): report the harm from the language input. The paper is the diagnostic one.
+  PREREQUISITES: - E1 admitted a class.
+  - E3 or E4 produced a passing recipe.
+  - The prose generator, parser and oracle teacher from E1.
+  - The lead's approval for training, either local or a compute ceiling.
+  - Roster limits raised.
+  COST: - 6 LoRA runs (3 variants x 2 seeds), about 3 to 4 slice-hours.
+  - About 23,000 LLM decisions at 0.1 to 0.6 s, or 1 to 4 GPU-hours. L-hyb calls the LLM only once per system.
+  - Numerical arms: about 10 to 20 CPU-hours.
+  - Engineering about 2 weeks. Calendar about 3 weeks.
+  MAIN_RISK: Choosing among several LLM variants may overfit the 48 development systems. This is mitigated by selecting a single variant under a predeclared rule and confirming on fresh systems.
+
+### E6 [should] Preregistered confirmation on fresh systems from the reserved namespace
+  QUESTION: On systems never scored before, does the frozen LLM variant reduce truth-conditional cost or error compared with the strongest numerical planner without the text, and compared with the rule parser?
+  DESIGN: Registration before any system is drawn fixes:
+  - method hashes, prompts, scoring and the stop rule;
+  - systems from the reserved confirmation range [202611071000, 202611072000);
+  - the endpoints and the Holm family;
+  - failure treatment: failed cells are kept at the cap and no system is replaced;
+  - the analysis-code hash;
+  - an independent review.
+
+  Arms: U, O, R, L* (frozen), N-emb, N-bow, F (frozen LLM), a supervised LLM control (L-dir, if L* is not L-dir), random and coverage. These keep the controls the standing rules require: target risk, a numerical student, the
+    frozen LLM and the supervised LLM.
+
+  Ablations on a prespecified random half of the systems: L* with the text removed, with misleading text, with shuffled feedback, and without SCM state.
+
+  Sample size: n is the larger of the H1 and H2 requirements, with H2 powered at half of the ln(R/O) that E1 measured. With a paired SD of 0.19 to 0.28, a 10% minimum effect, 90% power and Holm over two primaries, n = 40 to 88.
+    Plan 80 (90% power if SD <= 0.27, 80% if SD <= 0.31). The cap is 120 if E5's SD is larger. 4 replicates, with common random numbers.
+
+  Endpoints: the E1 primary. Secondary: the E1 secondaries, gap closure, reliability at stop, and compute per decision.
+  DECISION_RULE: - H1: the L*/U ratio <= 0.90, with Holm-adjusted p < 0.05.
+  - H2: the L*/R ratio < 1, with Holm-adjusted p < 0.05.
+
+  Positive (H1 and H2): the full positive paper if L* is the direct or adjudicator policy, the knowledge-compiler paper if it is the hybrid. The ablations attribute the effect:
+  - text removed: the gain uses the language channel;
+  - shuffled feedback: the policy uses measurements;
+  - N-emb and N-bow: language pretraining;
+  - F versus L*: ACE-specific training;
+  - no SCM: causal structure;
+  - the compute table: extra computation.
+
+  H1 only: access to the text helps, but a parser delivers it, so the LLM's role is not established. Reported in the diagnostic paper or a narrowed one.
+
+  Null on H1 (kill K4): a confirmed null after a positive development pilot. Reported in the diagnostic paper.
+
+  Negative (L* worse than U, with the CI excluding 1): report the harm.
+
+  No class or benchmark changes after this point.
+  PREREQUISITES: - E5 frozen.
+  - The lead's decision on the runtime: either a pinned local runtime with light custody, or CURC with redesigned custody (sharded archives, numerical policies run in-process, no repeated verification of the whole evidence tree).
+  - Roster limits raised.
+  - A compute ceiling.
+  COST: - About 38,000 LLM decisions, or about 1 to 7 GPU-hours.
+  - About 54,000 numerical decisions, or about 15 to 40 CPU-hours (more if U is the rollout planner).
+  - In the old harness, the ledger projects 22 to 35 core-hours, 1.9 to 2.9 slice-hours and 6 to 10 days for 100 to 150 systems. Locally, about 3 to 5 days [judgment].
+  MAIN_RISK: Effects may shrink from the development pilot to fresh systems, or the paired SD may be larger than planned.
+
+### E7 [should] External transfer on the Causal Chambers wind-tunnel simulator
+  QUESTION: Does the frozen method's benefit carry over to a physical simulator written by independent authors, with documented misspecification and variable descriptions written by others?
+  DESIGN: Simulator: an adapter over the causalchamber 0.2.8 wind-tunnel simulators. wt.SimA1C3 gives downwind pressure from load_in, load_out, hatch and ambient pressure. wt.ModelB1 gives current.
+  - Actions: actuators are discretized into at most 32 menu actions, each costing its settling time.
+  - Graph and text: the graph comes from the documentation. The prose comes from the official variable descriptions, plus experimentalist objectives in held-out wording.
+  - Learner: the linear SCM learner, which is misspecified by construction (affinity laws, a cubic current, and pressure that scales with speed squared).
+  - Instances: 40 simulator instances with physical parameters drawn from documented ranges, 4 replicates each.
+  - Arms: U, O, R, L* (frozen, not retrained) and N-emb.
+
+  Endpoint: the E1 primary, computed from the simulator's truth (noise-free outputs or many replicates).
+
+  Sample basis: at an SD of 0.25, 40 instances give about 98% power for a 15% effect and about 76% for a 10% effect (two-sided, 0.05).
+
+  Scope of the claim: one family of simulated apparatus.
+  DECISION_RULE: - Holds: the L*/U ratio <= 0.90 with the 95% CI below 1, and a sign that matches E6. This licenses "transfers to an independently authored, misspecified physical simulator".
+  - Partial: a point estimate <= 0.95 with a CI that includes 1. Reported as suggestive.
+  - Fails, otherwise (kill K5): the claim is restricted to synthetic classes, and no replacement simulator is searched.
+  PREREQUISITES: - The lead's approval to install causalchamber 0.2.8 (MIT), or to vendor its numpy-only wind-tunnel file. Version 1.0.0rc1 needs Python 3.11, and the local Python is 3.9.
+  - The frozen method. The adapter can be built while E6 runs.
+  COST: About 1 week of integration. About 13,000 decisions: at most 5 CPU-hours and about 1 to 2 GPU-hours. 1.5 to 2 weeks of calendar.
+  MAIN_RISK: Instances that differ only in parameters are correlated rather than independent systems. Under misspecification, stopping on posterior risk is miscalibrated; the reliability secondary detects this.
+
+### E8 [could] Remote Lab hardware demonstration on the real Wind Tunnel Mk2 (optional)
+  QUESTION: Does the frozen policy's ordering relative to the strongest numerical planner survive on the real apparatus?
+  DESIGN: - 4 policies (U, O, L* and random) x 30 episodes x 16 interventions.
+  - Randomized, blocked order, to handle drift and ambient pressure.
+  - The private evaluator is a separately measured validation grid with replicates, and its measurements are charged.
+  - Frozen policies only.
+
+  Endpoint: error on the validation grid at a fixed budget, per episode.
+
+  Sample basis: set by the budget (the brief's arithmetic). Descriptive only.
+  DECISION_RULE: Descriptive only, because there is one apparatus. Report the ratio with an episode-bootstrap CI as an illustration.
+  - Agreement with E6 and E7 licenses a "physical illustration" paragraph.
+  - A reversal is reported as a limitation.
+  - The result is never used to rescue a synthetic null.
+  PREREQUISITES: - E7 holds.
+  - A human signs up and accepts the terms.
+  - The lead's spend approval (a cap of about 300 EUR).
+  - Network access from the runtime.
+  COST: About 19,200 s (about 5.3 hours) of chamber time, about 270 EUR at the academic rate. The 1,000 free credits cover only a smoke test of about 17 minutes. 2 to 4 weeks of calendar, including sign-up.
+  MAIN_RISK: Drift, latency in the shared pool, and a single apparatus.
+
+### E9 [could] Closing the delivery study from saved checkpoints (runs in parallel; independent of the LLM outcome)
+  QUESTION: Is the undiagnosed five-node reversal of delivery against rolling (2.46x) an error-propagation effect or an optimization artifact?
+  DESIGN: Analyses on the 640 saved Stage B fits, with no new fits:
+  - teacher-forced versus free-running error for each head;
+  - a residual and shift decomposition;
+  - the sensitivity of the X3 head in the direction normal to the X2 = aX1 + b support, which is the situation Prop 8.3 describes;
+  - each of the above per initialization.
+
+  Endpoint: the share of the five-node log excess of delivery over rolling that comes from free-running propagation through the learned chain.
+
+  Sample basis: a census of all 640 fits (20 systems per stratum, 2 histories, 3 initializations).
+  DECISION_RULE: - At least 70% of the excess comes from propagation: the reversal is explained, consistent with Prop 8.3, and the paper says so.
+  - Delivery's teacher-forced error is already worse: the cause is optimization or convergence, and the claims are narrowed.
+  - Neither: the reversal remains undiagnosed but bounded.
+
+  Every outcome makes the delivery manuscript ready to submit to TMLR, on its own or as a supporting section, whatever happens with the LLM work.
+  PREREQUISITES: - The lead's permission for checkpoint-only diagnostics, and a decision to publish the delivery study separately.
+  - The checkpoints must be located. A bounded read-only search of ACE/results/delivery_prospective_* and /Users/pat/ACE_Study_Results found only 8 pilot .pt files. The 640 fits are probably in the CURC /projects archive, so
+    retrieval may need a Duo-authenticated CURC session.
+  COST: Local CPU: 1 to 3 days of analysis, plus the retrieval.
+  MAIN_RISK: The checkpoints cannot be retrieved without CURC, or the diagnosis is inconclusive.
+
+## SEQUENCE
+Nov 12 to 16:
+- The lead decides on venue and portfolio, local execution, correcting the public record, the admission rule, and what counts as a benefit.
+- Correct the README.
+- Write the protocols for E1 and E2, and declare every new namespace.
+
+Nov 17 to Dec 5:
+- E2 (2 to 4 days), in parallel with E1 engineering and runs, E3 engineering, and E9 retrieval and analysis.
+- Gate A (about Dec 5): E1's class admission, strongest numerical control and primary endpoint are frozen and hashed before any LLM touches K1 or K2. The E2 report is done.
+
+Dec 8 to 23:
+- E3 runs and gates, in parallel with E5 engineering for the admitted class (prose families, parser, oracle teacher, hybrid interface).
+- Gate B (about Dec 23): branch decision. Proceed to E5, run E4 (if A1 failed and N1 passed), or write the diagnostic paper.
+
+Jan 4 to 22 (reduced by the holidays):
+- E5, or E4, with the diagnostic draft written in parallel.
+- An ICML 2027 go/no-go around Jan 8, only if the lead chose the portfolio route.
+
+Late January to February:
+- Gate C (about Jan 25): E6 registration and independent review.
+- February: E6, in parallel with E7 engineering.
+
+March to May:
+- March: E7. E8 is optional, March to April, after E7 holds.
+- April to May: writing, independent review and the coauthor's approval. Target NeurIPS 2027 (estimated May) or TMLR. The delivery paper can go to TMLR as soon as E9 is done.
+
+What runs in parallel:
+- E1, E2, E3 engineering and E9.
+- E7 engineering alongside E6.
+- Diagnostic writing alongside E5.
+
+Kill criteria:
+- K1, no class admitted. This one does not depend on how any LLM performed.
+- K2, no LLM arm passes imitation.
+- K3, no variant qualifies.
+- K4, H1 fails.
+- K5, transfer fails.
+- K6, local fidelity fails.
+
+K2 to K5 depend on LLM results, but they can only narrow the claim. None of them adds a benchmark.
+
+## THEORY_ITEMS
+- T1, a ceiling on the value of adaptivity in conjugate known-graph linear-Gaussian design with clamp interventions. Each head's posterior covariance depends only on that head's design rows, so the value of sequential adaptation
+  is bounded by how much the mean-dependent composed terms (mu_phi^T V mu_phi + m^T C_phi m) vary under the posterior predictive. When every query probes clamped parents, plan-once is Bayes-optimal (Chaloner and Verdinelli 1995).
+  Why it helps: it turns the measured -0.7% +/- 1.7% into a general guideline for which classes can reward any learned policy, which every framing needs.
+- T2, an equal-information impossibility and a decomposition of excess loss. Under a correct model with the same information and objective, the Bayes sequential rule minimizes expected loss. Any policy's advantage therefore splits
+  into four sources: information the planner lacks, the planner's approximation error (myopia, Monte Carlo error, the ratio heuristic), misspecification, and compute. This links to the agenda's kappa + 2 epsilon + delta. Why it
+  helps: it makes E1's admission rule principled rather than a convenient choice of benchmark, and it states in advance what an LLM win can mean.
+- T3, efficiency of endpoints. Consider first-passage cost on an error process with a coefficient of variation near 1 and no common random numbers. The variance of a paired difference has a floor set by within-system noise, and
+  truth-conditional expected error with common random numbers removes that floor. Deriving n under each endpoint reproduces the contrast of 67 to 340 versus 3 to 17 systems. Why it helps: it is a reusable methodological result and
+  justifies the primary endpoint.
+- T4, label noise from replicate tie rules. With r replicates and a k-SE rule, the probability of a false strict label is P(|t_{r-1}| > k), which is 0.139 at r = 4 and k = 2. Combined with the measured distribution of gains, this
+  predicts that 69 to 73% of strict labels are at chance. Through the robust-DPO factor 1/(1 - 2 epsilon), it predicts that preference learning fails. Why it helps: it explains the failure in the anatomy section and gives a design
+  rule for how many replicates each label needs.
+- T5, the bias of greedy decoding over a command trie. Greedy prefix-constrained decoding picks the branch with the largest pooled probability at the first point where commands diverge. It departs from the whole-command argmax
+  whenever max_c P(c) is below the pooled mass of a sibling group, which favors large command families such as the seven set_* commands against observe. Why it helps: it explains how SFT inflated set_x_neg, and it is a general
+  warning for policies that use constrained decoding.
+- T6, the value of information that exists only in text. Under the true objective, J(U) - J(O) >= 0 bounds what any policy that reads the text can gain, gap closure is at most 1 in expectation, and the rule parser gives a lower
+  bound on the share that needs no language understanding. Why it helps: it makes positive results readable as statements about information rather than as 'the LLM beats the planner'.
+
+## ASKS_FOR_LEAD
+- Choose the target venue and date. Choose between one paper at NeurIPS 2027 and a portfolio: the diagnostic paper at ICML 2027 (January 22), a positive paper later, and the delivery study at TMLR. Say whether a rigorous
+  diagnostic or negative paper is acceptable if no LLM benefit emerges.
+- Approve local forward-only inference with Qwen3-0.6B and the saved adapters for E2, under a written protocol with a 99% fidelity check. No installs and no CURC are needed.
+- Approve local numerical-only simulation on new declared development and training namespaces, for E1 and for the E3 and E5 training data, or confirm that it needs no approval.
+- Decide where training and confirmation run. The options are local LoRA training on the Mac with a pinned runtime manifest, or a new CURC ceiling. E3 and E5 together need about 15 to 30 core-hours and about 11 to 19 GPU-slice-
+  hours. E6 needs about 15 to 40 core-hours and 1 to 7 GPU-hours. About 3.8 core-hours and 0.76 slice-hours remain. Also decide whether E6 must use the CURC custody harness; if so, the harness needs a redesign with sharded
+  archives, numerical policies run in-process, and no repeated verification of the whole evidence tree.
+- Approve use of the Qwen2.5-7B-Instruct weights already cached on the Mac, in the conditional escalation E4. No download is needed.
+- Approve installing causalchamber 0.2.8 (MIT), or vendoring its numpy-only wind-tunnel simulator file, for E7.
+- Only after E7 holds: a human Remote Lab sign-up and acceptance of the terms, plus a spend cap of about 300 EUR for E8.
+- Public record:
+- correct the README now, since lines 14 and 114 still advertise the invalidated 70-71% improvement;
+- replace or withdraw arXiv 2602.02451 with a correction notice before any new submission or talk (this needs the coauthor's approval, and arXiv's version-display policy should be checked first);
+- check the externally shared slide deck;
+- move the stale pre-audit PDF that sits next to the delivery source to a clearly named archive location.
+- Name a human author, such as the coauthor or a colleague, for the held-out prose paraphrase family D. Otherwise accept held-out paraphrases generated by a model from a different family, with that caveat stated.
+- Permit checkpoint-only diagnostics on the 640 saved delivery fits (E9), including a CURC retrieval session if needed. Decide whether the delivery study goes to TMLR independently.
+- Accept E1's admission rule, which does not depend on any LLM result, as binding before any LLM sees a new class. The canonical class stays in the paper whatever happens.
+- Decide whether a benefit from information access counts toward submission condition 2. That is a benefit where the LLM reads goals or mechanism knowledge available only in prose, judged against an oracle given that information
+  numerically. A win under equal information is ruled out in matched regimes.
+
+## WHAT_NOT_TO_DO
+- Do not train DPO or any preference objective on labels built from replicate measurements with the 4-replicate, 2-SE tie rule, and do not scale the November recipe.
+- Do not screen the canonical 3-variable known-graph linear-Gaussian class again for an LLM benefit. It has a ceiling at the level of a theorem. Use it only for the imitation gates (E3) and the headroom replication on fresh
+  systems (E1).
+- Do not choose, add or swap a benchmark after any LLM has run on it. Admission happens only under E1's rule, which does not depend on any LLM result, and the canonical class stays in the paper.
+- Do not use realized first-crossing cost as a primary endpoint. Do not use regret under the planner's own score as the primary for a claim that the LLM beats the planner.
+- Do not give the LLM the planner's scores for each action without reporting the argmax-of-prompt control, and do not count agreement with that argmax as the LLM's contribution.
+- Do not tune, select or train on the 24 development systems or their states. E2 uses their saved prompts only for forensics on frozen adapters, with no outcomes.
+- Do not run the 100 to 150 system confirmation of the current policies. Do not rerun the old pipelines. Do not run development iterations through the full CURC custody harness.
+- Do not install OpenModelica or ThermoPower, sign up for the Remote Lab, or spend money before a positive result at the simulator stage. Do not revive BoxingGym, NeuronBench, CausalMan, Mission-1 root designs, the PEV ladder or
+  the action-language parser lane.
+- Do not cite any pre-audit number. Do not submit or present new ACE work while the preprint and README still carry the invalidated 70-71% claim uncorrected.
+- Do not treat the delivery study as evidence about acquisition. Do not let LLM results from the local runtime stand in for the frozen runtime without the fidelity check.
+
+## BIGGEST_UNCERTAINTIES
+- Whether any class the code can express carries decision value in text that a rule parser cannot extract (E1 condition (b)). Synthetic prose may simply be solvable by a parser, which would close every LLM branch.
+- Whether a 0.6B model can read numeric SCM state at all, even with repaired supervision. EVOLvE and Schmied et al. find small models trailing their teachers, and Kriz et al. succeeded only on a categorical task.
+- Local MPS throughput and fidelity to the frozen CURC runtime have not been measured, and the local torch and transformers versions differ.
+- Whether the lead accepts a claim based on information access, rather than a win under equal information, as meeting submission conditions 1 and 2.
+- Whether independently written paraphrases can be obtained without paid APIs. Without them, a reviewer can argue the text channel is artificial.
+- Calendar risk. The holidays, approvals that wait on a human, and the November overhead (about 39 active hours for a 2.4-hour scientific kernel) make ICML 2027 infeasible for a positive paper and tight for the diagnostic one.
+- Whether truth-conditional endpoints and stopping on posterior risk stay valid under the wind-tunnel simulator's misspecification.
+- The subjective branch probabilities, which drive the decision to front-load the spine: about 0.6 to 0.75 that E1 admits a class, about 0.4 to 0.6 that E3 passes imitation, and about 0.1 to 0.2 overall for a confirmed positive
+  result.
+- Whether the 640 delivery checkpoints can be retrieved without a CURC session, and how arXiv displays a replacement or a withdrawal.

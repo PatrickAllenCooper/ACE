@@ -1,0 +1,49 @@
+DEVELOPMENT, shared first decision (24 worlds): sign of posterior mean of X vs 256-draw TR optimum and each policy's choice
+    ('meanX<0', 'TR prefers x_pos') 7
+    ('meanX<0', 'TR-opt=set_x_pos') 6
+    ('meanX<0', 'TR-opt=set_y_neg') 1
+    ('meanX>0', 'TR prefers x_neg') 17
+    ('meanX>0', 'TR-opt=set_x_neg') 11
+    ('meanX>0', 'TR-opt=set_xy') 5
+    ('meanX>0', 'TR-opt=set_y_pos') 1
+   uniform_random     {('meanX<0', 'set_x_neg'): 1, ('meanX<0', 'set_x_pos'): 1, ('meanX<0', 'set_x_zero'): 1, ('meanX<0', 'set_xy'): 2, ('meanX<0', 'set_y_neg'): 1, ('meanX<0', 'set_y_zero'): 1, ('meanX>0', 'observe_all'): 1, ('meanX>0', 'set_x_neg'): 3, ('meanX>0', 'set_x_pos'): 2, ('meanX>0', 'set_x_zero'): 1, ('meanX>0', 'set_xy'): 4, ('meanX>0', 'set_y_neg'): 3, ('meanX>0', 'set_y_zero'): 3}
+   menu_coverage      {('meanX<0', 'set_x_neg'): 7, ('meanX>0', 'set_x_neg'): 17}
+   local_information  {('meanX<0', 'set_x_pos'): 6, ('meanX<0', 'set_y_neg'): 1, ('meanX>0', 'set_x_neg'): 16, ('meanX>0', 'set_y_pos'): 1}
+   target_risk        {('meanX<0', 'set_x_pos'): 6, ('meanX<0', 'set_y_neg'): 1, ('meanX>0', 'set_x_neg'): 11, ('meanX>0', 'set_xy'): 5, ('meanX>0', 'set_y_pos'): 1}
+   learned_ranker     {('meanX<0', 'set_x_neg'): 4, ('meanX<0', 'set_x_pos'): 3, ('meanX>0', 'set_x_neg'): 17}
+   frozen_llm         {('meanX<0', 'observe_all'): 7, ('meanX>0', 'observe_all'): 17}
+   sft_llm            {('meanX<0', 'set_x_neg'): 7, ('meanX>0', 'set_x_neg'): 17}
+   dpo_llm            {('meanX<0', 'set_x_neg'): 7, ('meanX>0', 'set_x_neg'): 17}
+   one-feature rule "X mean > 0 -> set_x_neg else set_x_pos": TR-optimal in 17/24 ; mean regret 0.00117 ; mean relative regret 0.055  (always set_x_neg: 11/24, 0.00896, 0.256)
+
+TRAINING snapshot 0 (32 worlds, same kind of state: 8 observations): sign of posterior mean of X vs TR optimum vs supervised label
+    ('meanX<0', 'TR prefers x_neg') 2
+    ('meanX<0', 'TR prefers x_pos') 12
+    ('meanX>0', 'TR prefers x_neg') 18
+    ('meanX<0', 'TR-opt=set_x_neg') 1
+    ('meanX<0', 'TR-opt=set_x_pos') 10
+    ('meanX<0', 'TR-opt=set_xy') 2
+    ('meanX<0', 'TR-opt=set_y_neg') 1
+    ('meanX>0', 'TR-opt=observe_all') 1
+    ('meanX>0', 'TR-opt=set_x_neg') 10
+    ('meanX>0', 'TR-opt=set_xy') 3
+    ('meanX>0', 'TR-opt=set_y_neg') 1
+    ('meanX>0', 'TR-opt=set_y_pos') 3
+    ('meanX<0', 'label=observe_all') 1
+    ('meanX<0', 'label=set_x_neg') 6
+    ('meanX<0', 'label=set_x_pos') 2
+    ('meanX<0', 'label=set_x_zero') 1
+    ('meanX<0', 'label=set_xy') 1
+    ('meanX<0', 'label=set_y_neg') 2
+    ('meanX<0', 'label=set_y_zero') 1
+    ('meanX>0', 'label=observe_all') 2
+    ('meanX>0', 'label=set_x_neg') 10
+    ('meanX>0', 'label=set_x_zero') 2
+    ('meanX>0', 'label=set_xy') 2
+    ('meanX>0', 'label=set_y_neg') 1
+    ('meanX>0', 'label=set_y_zero') 1
+
+ALL STATES (development, every arm, every decision with both X actions feasible): does sign(meanX) predict the TR preference between set_x_neg and set_x_pos?
+   agreement 3313/4371 (75.8%) ; by decision-index block of 4: {0: '0.96', 4: '0.81', 8: '0.68', 12: '0.70', 16: '0.68', 20: '0.70'}
+   (after the first steps the preference is driven by which X value has already been sampled, not by the sign of the mean)
+   rule "choose the X extreme sampled less often so far; if tied use the sign rule": agreement with TR preference 2617/4371 (59.9%)

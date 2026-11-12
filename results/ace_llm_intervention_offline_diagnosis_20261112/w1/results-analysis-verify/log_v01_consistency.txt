@@ -1,0 +1,26 @@
+runs checked: 192 inconsistent: 0
+total curve points: 4540
+                   mean_capped_total_cost  mean_capped_acquisition_cost  ever_attained  final_attained  mean_final_error  actual_total_cost  stopped
+policy_id                                                                                                                                           
+uniform_random                  14.250000                      6.250000             21              20          0.041128                768        0
+menu_coverage                   12.458333                      4.458333             22              21          0.019743                768        0
+local_information               11.958333                      3.958333             23              18          0.017996                768        0
+target_risk                     11.625000                      3.625000             23              21          0.017216                768        0
+learned_ranker                  13.583333                      5.583333             21              20          0.035719                768        0
+frozen_llm                      13.625000                      5.625000             22              20          0.020078                768        0
+sft_llm                         14.625000                      6.625000             21              19          0.027079                721       23
+dpo_llm                         15.166667                      7.166667             19              18          0.036415                768        0
+policies.csv max abs diff mean_capped_total_cost 0.0
+policies.csv max abs diff mean_capped_acquisition_cost 0.0
+policies.csv max abs diff ever_attained 0.0
+policies.csv max abs diff final_attained 0.0
+policies.csv max abs diff mean_final_error 4.5102810375396984e-17
+policies.csv max abs diff actual_total_cost 0.0
+policies.csv max abs diff stopped 0.0
+pairs rows: 28 mismatching: 0
+convention example: uniform_random menu_coverage wins 2 ties 16 losses 6 | left<right: 2 left>right: 6
+actions.csv rows 38 rows mismatching: 0
+acquired actions per policy: {'uniform_random': 487, 'menu_coverage': 480, 'local_information': 570, 'target_risk': 560, 'learned_ranker': 576, 'frozen_llm': 576, 'sft_llm': 523, 'dpo_llm': 576}
+total acquisitions: 4348
+accepted responses total (incl. init 8 per run): 5884
+logical cost total: 6097

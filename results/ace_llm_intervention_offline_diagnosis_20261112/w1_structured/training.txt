@@ -1,0 +1,98 @@
+# training
+## SUMMARY
+Path aliases used below: SR=/Users/pat/code/ACE/scripts/research; DG=/Users/pat/code/ACE/docs/development/guidance;
+  FIT=/Users/pat/code/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108/terminal01/remote/launch/training/session/worker/artifacts/fit;
+  COL=/Users/pat/code/ACE/results/ace_llm_intervention_scientific_collection_20261108/terminal02/remote/launch/collection/session/worker/task/collection;
+  RNK=/Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/remote/launch/cpu/worker/artifacts/cpu-phase/ranker.
+
+I reconstructed the recipe from code, the scientific contract and the executed plan, then checked it against saved training evidence (JSON only, no weights loaded, nothing run). The recipe is 160 single-example SFT
+  updates on mixed-teacher labels, then 119 single-pair DPO updates, one pass each. The saved artifacts show the constant action on the training states themselves: the SFT adapter emits set_x_neg at 108 of 128
+  nonterminal training states and the final adapter at 123 of 128. SFT never beat a state-blind label-frequency baseline. DPO did not fit its own pairs and lowered the likelihood of both chosen and rejected commands. The
+  exposure-matched numerical ranker stayed near uniform and also deployed only two actions. The evidence points at data and exposure, not specifically at the language model.
+
+## KEY FACTS
+[1] (verified) Data: 32 training worlds, one trajectory each driven by one of four numerical behavior policies (8 worlds each), 5 snapshots at acquisition-cost milestones 0/6/12/18/24, giving 160 SFT records (128
+  nonterminal, 32 terminal stop). No LLM-visited states. 697 behavior-decision states were saved but only the snapshots were used.
+    EVIDENCE: SR/llm_intervention_screen_protocol.py:32,124-145; SR/llm_intervention_training_dataset.py:239-311,366-388; FIT/training/plan.json; COL/terminal.json
+[2] (verified) SFT labels come from four teachers rotated by snapshot index, 32 nonterminal labels each, with no teacher identity in the prompt. uniform_random labels are noise by construction. menu_coverage is set_x_neg
+  at snapshot 0 in 8 of 8 worlds (alphabetical tie-break). 17 of 32 target_risk labels are within 2 Monte Carlo SE of the runner-up.
+    EVIDENCE: SR/llm_intervention_screen_protocol.py:127,132; SR/llm_intervention_numerical_policy.py:59-66,86; SR/llm_intervention_target_risk.py:130; COL/world-NNN/snapshot-NNN/teacher.json (script a3_collection.py)
+[3] (verified) SFT: 160 updates, batch 1, one epoch in fixed roster order, AdamW lr 1e-4 constant (no warmup or decay), betas 0.9/0.999, weight decay 0, clip norm 1.0 (149 of 160 steps clipped). LoRA rank 8, alpha 16, no
+  dropout, q_proj and v_proj of 28 layers, 1,146,880 parameters. Limit 8,192 tokens, no truncation (prompts 1,998-4,199). Loss is mean NLL over command tokens plus EOS only. bf16 base, fp32 adapters and projection, eval
+  mode, seed 109.
+    EVIDENCE: SR/llm_intervention_training_engine.py:39-50,387-389,445; SR/llm_intervention_learning.py:25-50,106-153; SR/llm_intervention_canonical_scoring.py:99-102; FIT/training/plan.json numeric_recipe;
+      DG/ace_llm_intervention_scientific_contract_2026-11-08.md:25-29
+[4] (verified) Preference data: at each of 128 nonterminal states all 8 actions were branched once per replicate with 4 replicates from the same forked learner. Label is mean replicated NMSE reduction per cost unit. Tie
+  if |mean difference| <= 2 x paired SE (ddof 1, n=4), gap 0. Pairs are within-state only. 3,584 comparisons gave 687 strict and 2,897 ties.
+    EVIDENCE: SR/llm_intervention_replicated_feedback.py:112-118,163-171; SR/llm_intervention_replicated_branches.py:215-267; SR/llm_intervention_screen_protocol.py:33,133,138-140;
+      /Users/pat/code/ACE/results/ace_llm_intervention_scientific_tokenization_20261108/acceptance02/exposure-report.json
+[5] (verified) Only 119 pairs were used because the exposure rule takes at most one strict pair per record, the one with the smallest SHA-256 of [domain, record_id, sorted command pair]. Nine nonterminal records had no
+  strict pair. 568 strict pairs were never exposed. Each exposed pair was seen once.
+    EVIDENCE: SR/llm_intervention_training_exposure.py:86-109; DG/ace_llm_intervention_training_exposure_2026-11-07.md:33-51; FIT/training/plan.json exposures
+[6] (verified) DPO: loss -logsigmoid(beta*[(logp_chosen - ref_chosen) - (logp_rejected - ref_rejected)]), beta 0.1, full-prompt-conditioned command sequence log-likelihoods, reference is the fixed post-SFT adapter, one
+  pair per step, same AdamW object with moments carried over, lr 1e-4, 119 updates all clipped, fixed final checkpoint at step index 278 with no selection.
+    EVIDENCE: SR/llm_intervention_learning.py:94-103; SR/llm_intervention_training_engine.py:397-430,473-489; SR/llm_intervention_scientific_training_gpu_worker.py:96; FIT/training/step-*.complete.json
+[7] (verified) Numerical ranker: 8,891-wide signed-log state-plus-candidate features, MLP 128-128-1 tanh, 1,154,817 parameters, softmax cross-entropy SFT and categorical DPO (beta 0.1), Adam lr 1e-3. Matched exposure
+  means the identical ordered 160 records and 119 pairs, nothing else. Its nonterminal SFT loss stayed at 2.03-2.15 nats (ln 9 = 2.197) and DPO loss at 0.6934 (ln 2 = 0.6931).
+    EVIDENCE: SR/llm_intervention_ranker.py:26-63; SR/llm_intervention_ranker_training.py:32-41,202-256; SR/llm_intervention_task.py:192-263; RNK/plan.json; RNK/training_complete.json
+[8] (verified) Collapse is visible on the training states. SFT adapter greedy output: set_x_neg 108, observe_all 19, set_x_pos 1 of 128 (agreement with its labels 36/128, modal-label baseline 32/128). Final adapter:
+  set_x_neg 123, set_x_pos 5. Acceptance checked legality and reload only.
+    EVIDENCE: FIT/sft-generation-NN.json; FIT/final-generation-NN.json; FIT/final-before-reload.json (script a2_fit.py);
+      /Users/pat/code/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108/acceptance01/review.md
+[9] (verified) SFT prequential NLL per nonterminal example was 3.88, 2.25, 2.57, 2.17 nats by quarter, versus 2.12, 1.92, 1.98, 1.88 for a state-blind online label-frequency counter. The LLM learned format, terminal stop
+  and a coarse history-length effect, with no evidence of posterior-conditional learning.
+    EVIDENCE: FIT/training/step-00000..00159.complete.json (script a4_sft_nll.py)
+[10] (verified) DPO did not fit: mean loss 0.7395 versus ln 2 = 0.6931, 55 of 118 later steps below ln 2. Final adapter prefers the chosen action on 76 of 119 exposed pairs versus 66 for the reference. Chosen log-
+  likelihood fell 4.69 nats and rejected 6.68 on average. set_x_neg rose 0.57 while set_x_pos fell 3.84.
+    EVIDENCE: FIT/training/reference-scores.json; FIT/final-before-reload.json; FIT/training/step-00160..00278.loss.json (scripts a2_fit.py, a6_dpo_shift.py)
+[11] (likely) Preference labels look majority-noise: strict share 19.2 percent versus 13.9 percent expected from a t3 null, 45 percent of mean gains negative, strict pairs agree with the target-risk ordering 123/179, and
+  pair directions across states match coin flips (0.582 versus null 0.580).
+    EVIDENCE: COL/world-NNN/snapshot-NNN/feedback/terminal.json and teacher.json (scripts a3_collection.py, a8_consistency.py)
+[12] (verified) Gradient diagnostics established numerical facts only: finite nonzero adapter gradients at every step, exact repeatability under strict determinism, full versus selected projection equality after the
+  fixed-row FP32 fix, changed adapters and unchanged base. They did not test state-conditional signal, held-out loss or action diversity.
+    EVIDENCE: DG/ace_llm_intervention_gradient_diagnostics_2026-11-02.md; DG/ace_llm_intervention_execution_2026-11-02.md:785,809,832,863,881-883; SR/diagnose_llm_intervention_gradients.py:235-284
+
+## NUMBERS
+SFT labels (128 nonterminal): set_x_neg 32, set_x_pos 29, observe_all 24, set_xy 12, set_y_pos 10, set_y_neg 10, set_x_zero 7, set_y_zero 4. Plus stop 32. Snapshot 0: set_x_neg 16/32.
+By teacher (n=32 each): uniform_random spread over 7 actions (max 7); menu_coverage x_pos 12, x_neg 12; local_information observe 11, x_neg 9, x_pos 8; target_risk x_pos 9, x_neg 8, observe 8, xy 7.
+Exposed DPO pairs, chosen/rejected: observe_all 6/13, set_x_neg 14/9, set_x_pos 23/14, set_x_zero 13/19, set_xy 20/16, set_y_neg 19/14, set_y_pos 8/21, set_y_zero 16/13.
+Collection cost units/responses: trajectory 1,024/953, branch 5,120/4,096, scoring 4,096/4,096, total 10,240/9,145.
+Tokens: prompts 1,998-4,199; commands 9/8/6 incl. EOS; scored action tokens 1,308 SFT + 2,087 DPO; input tokens 1,119,066.
+Gradient norm before clip: SFT median 3.68 (max 78.6), DPO median 2.57 (min 1.30).
+Final adapter mean probability over legal commands at training states: set_x_neg 0.79, observe_all 0.12, set_x_pos 0.05, set_xy 0.03, others below 0.01.
+Deployment (actions.csv): ranker set_x_pos 435 + set_x_neg 141; frozen observe_all 574; SFT set_x_neg 481/523; DPO set_x_neg 576/576.
+Training job 35420219: wall 291.5 s, CUDA step time 227.4 s, peak 2.66 GB.
+
+## SURPRISES / CONTRADICTIONS
+- DPO pairs were not dominated by set_x_neg (chosen 14, rejected 9). set_x_pos was most chosen (23 versus 14) yet lost 3.8 nats. Only a token-level tally (set, _x, _neg net +7, +4, +6) favors the collapsed action. That
+  mechanism is my inference.
+- The exposure-matched numerical ranker also degenerated (near-uniform scores, two deployed actions), so the failure is not LLM-specific.
+- The constant action was already present in generation files written by the training job on 2026-11-08. The acceptance review recorded stop and action counts but no histogram.
+- DPO lowered both chosen and rejected likelihoods and erased stop (terminal-state log-probability -3.58), a likelihood-displacement pattern.
+- Evidence against total state blindness: the SFT adapter shifts toward observe_all at later snapshots and learned terminal stop, so it reads coarse budget or history-length features.
+- Plan flag one_pass_dpo is false only because 568 strict pairs were unexposed, not because pairs repeated. No document disagrees on executed recipe numbers. The agenda's 16+64 budget and seven policies are superseded.
+
+## IMPLICATIONS FOR AGENDA
+- Lead with the zero-GPU diagnosis. Saved artifacts already show the constant action at training time, no learning beyond a state-blind baseline, and a DPO stage that failed its own pairs. No new training run is needed
+  to establish this.
+- Require a behavioral gate in every future training freeze: action histogram, accuracy versus the modal-label baseline, held-out loss versus a state-blind baseline, and held-out pair accuracy versus 50 percent, all
+  before deployment.
+- Do not scale measured-preference DPO as is. It consumed 9,216 of 10,240 collection cost units for 119 noisy single-pair updates. Prefer listwise soft targets from target-risk scores, or first measure label noise with
+  exact expected gains or 16 replicates.
+- Repair the supervised target before judging the LLM: one competent teacher or explicit teacher identity, no uniform-random labels, no terminal stop examples, no alphabetical tie-breaks, several shuffled epochs, held-
+  out worlds.
+- Train the numerical ranker to convergence on CPU as the first learnability probe and as an honest learned control. The current ranker arm is nearly untrained and should not be called a strong control.
+- Use free data: 697 saved decision envelopes plus zero-response target-risk relabeling give about five times more states with full score vectors. They share the same 32 worlds, so cross-validate by world.
+- Add an action-renaming experiment (single-token labels, permuted order) to test whether the collapsed action follows the label marginal and tie-break order rather than X = -1 itself.
+- Engine supports up to 16,384 scheduled steps with repeats, and the whole 279-step run took under five minutes of one 20 GB slice. The exposure planner and scientific worker contract hard-code one pass and need a new
+  reviewed version.
+
+## OPEN QUESTIONS
+- Do the frozen and SFT adapters change command rankings when posterior uncertainty varies with budget and history length fixed? Full-menu scores were saved only for the final adapter, so this needs a scoring-only GPU
+  pass.
+- What fraction of the 687 strict preference labels is noise? Exact expected gains from the private world descriptors, or 16 replicates, would settle it.
+- Can any learner recover the target-risk action from the saved public state with 128 to about 825 examples? A converged numerical ranker with world-level cross-validation answers this on CPU.
+- Can Qwen3-0.6B read posterior covariances from full-precision JSON, or does it need a derived per-action uncertainty summary?
+- Did carried-over Adam momentum and the every-fifth-step stop examples shape the SFT bias? Optimizer files exist but were not loaded.
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training.md

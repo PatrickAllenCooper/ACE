@@ -1,0 +1,33 @@
+FINAL (DPO) checkpoint, 128 nonterminal training states:
+  raw log-likelihood: mean [score of teacher label in its own state - mean score of that command over same-snapshot states] = -0.157 nats ; permutation p (labels shuffled within snapshot) = 0.8572
+  renormalized over 8 actions: mean [score of teacher label in its own state - mean score of that command over same-snapshot states] = -0.157 nats ; permutation p (labels shuffled within snapshot) = 0.8514
+    teacher uniform_random     mean -0.110 (n=32) ; share positive 0.50
+    teacher menu_coverage      mean -0.628 (n=32) ; share positive 0.41
+    teacher local_information  mean -0.060 (n=32) ; share positive 0.56
+    teacher target_risk        mean +0.171 (n=32) ; share positive 0.66
+    label observe_all  mean +0.039 (n=24)
+    label set_x_neg    mean -0.000 (n=32)
+    label set_x_zero   mean -0.269 (n=7)
+    label set_x_pos    mean +0.191 (n=29)
+    label set_y_neg    mean -0.398 (n=10)
+    label set_y_zero   mean -1.516 (n=4)
+    label set_y_pos    mean -1.738 (n=10)
+    label set_xy       mean +0.232 (n=12)
+  vs measured-best action: mean +0.313 ; p = 0.0300
+  per-state Spearman(final scores, measured mean gains): mean 0.039 (t-test p 0.270)
+    corr(final lp(set_x_pos), count of set_x_pos among acquired history; snapshots 1-3) = 0.485
+    corr(final lp(set_x_neg), count of set_x_neg among acquired history; snapshots 1-3) = 0.117
+    corr(final lp(observe_all), count of observe_all among acquired history; snapshots 1-3) = 0.343
+    corr(final lp(set_xy), count of set_xy among acquired history; snapshots 1-3) = -0.371
+    corr(final lp(set_y_neg), count of set_y_neg among acquired history; snapshots 1-3) = 0.133
+  regression of snapshot-centred final scores on [is-teacher-label, centred history count of that command]: coef label -0.138 nats ; per extra history occurrence +0.191 nats
+
+SFT reference checkpoint (saved 238 entries): entries whose command is that record's own SFT label: n=27 mean deviation from command x (snapshot0/later) mean = +0.091 nats ; other entries n=209 mean -0.012 ; Welch p=0.178
+
+per-pair margin change: corr(actual, predicted from command-mean shifts) = 0.931 ; residual mean +0.881 sd 3.06 ; t-test p = 0.0022
+actual margin change: mean +1.980 ; positive in 74/119
+
+final table: corr over states of (x_pos-x_neg) with (y_pos-y_neg) = 0.936 ; (x_zero-x_neg) with (y_zero-y_neg) = 0.911
+final table (x_pos - x_neg): mean -6.90 sd 3.39 min -10.58 max 1.72 ; by snapshot [-10.14, -5.97, -5.7, -5.79]
+
+gradients.json keys: ['checkpoint_recompute_delta', 'tensors'] ; tensor entry keys: ['finite', 'name', 'present', 'shape'] ; tensors: 112

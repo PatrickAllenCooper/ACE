@@ -1,0 +1,53 @@
+sft generation files 161 distinct records 160 extra ordinals [(160, 'policy_train/202611070000/snapshot-000', '{"action_id":"set_x_neg"}')]
+  repeat matches first pass: True True
+  ordinal order == roster order: True
+  NONTERMINAL generations: {'set_x_neg': 108, 'observe_all': 19, 'set_x_pos': 1}
+  TERMINAL generations: {'stop': 32} legal_commands at terminal Counter({1: 32})
+  legal_commands at nonterminal Counter({9: 128})
+  equals teacher label (nonterminal): 36/128 ; all-160: 68/160
+    snap 0 {'set_x_neg': 32} match 16
+    snap 1 {'set_x_neg': 32} match 7
+    snap 2 {'set_x_neg': 25, 'observe_all': 7} match 4
+    snap 3 {'observe_all': 12, 'set_x_neg': 19, 'set_x_pos': 1} match 9
+    teacher uniform_random     match 3/32
+    teacher menu_coverage      match 12/32
+    teacher local_information  match 11/32
+    teacher target_risk        match 10/32
+final generation files 161 distinct records 160 extra ordinals [(160, 'policy_train/202611070000/snapshot-000', '{"action_id":"set_x_neg"}')]
+  repeat matches first pass: True True
+  ordinal order == roster order: True
+  NONTERMINAL generations: {'set_x_neg': 123, 'set_x_pos': 5}
+  TERMINAL generations: {'stop': 32} legal_commands at terminal Counter({1: 32})
+  legal_commands at nonterminal Counter({9: 128})
+  equals teacher label (nonterminal): 32/128 ; all-160: 64/160
+    snap 0 {'set_x_neg': 32} match 16
+    snap 1 {'set_x_neg': 31, 'set_x_pos': 1} match 8
+    snap 2 {'set_x_neg': 30, 'set_x_pos': 2} match 4
+    snap 3 {'set_x_neg': 30, 'set_x_pos': 2} match 4
+    non-set_x_neg: policy_train/202611070019/snapshot-002 set_x_pos label set_x_zero teacher menu_coverage history tail ['set_y_zero', 'set_y_neg', 'observe_all', 'set_x_neg']
+    non-set_x_neg: policy_train/202611070019/snapshot-003 set_x_pos label set_x_neg teacher local_information history tail ['set_xy', 'set_x_neg', 'set_y_zero', 'observe_all']
+    non-set_x_neg: policy_train/202611070020/snapshot-001 set_x_pos label set_x_pos teacher target_risk history tail ['set_x_neg', 'set_y_zero', 'set_y_neg', 'set_y_pos']
+    non-set_x_neg: policy_train/202611070020/snapshot-002 set_x_pos label set_y_neg teacher uniform_random history tail ['set_y_pos', 'set_x_pos', 'set_y_neg', 'set_y_neg']
+    non-set_x_neg: policy_train/202611070020/snapshot-003 set_x_pos label set_xy teacher menu_coverage history tail ['set_x_zero', 'set_y_pos', 'set_y_neg', 'set_x_pos']
+    teacher uniform_random     match 3/32
+    teacher menu_coverage      match 12/32
+    teacher local_information  match 8/32
+    teacher target_risk        match 9/32
+constant observe_all  matches 24/128
+constant set_x_neg    matches 32/128
+constant set_x_zero   matches 7/128
+constant set_x_pos    matches 29/128
+constant set_y_neg    matches 10/128
+constant set_y_zero   matches 4/128
+constant set_y_pos    matches 10/128
+constant set_xy       matches 12/128
+SFT and final generate the same command on 106/128 nonterminal
+crosstab sft->final Counter({('set_x_neg', 'set_x_neg'): 106, ('observe_all', 'set_x_neg'): 16, ('observe_all', 'set_x_pos'): 3, ('set_x_neg', 'set_x_pos'): 2, ('set_x_pos', 'set_x_neg'): 1})
+SFT observe_all cases by snapshot Counter({3: 12, 2: 7}) by teacher Counter({'menu_coverage': 6, 'local_information': 5, 'target_risk': 4, 'uniform_random': 4})
+SFT observe_all cases: label Counter({'observe_all': 5, 'set_y_pos': 4, 'set_x_pos': 3, 'set_xy': 2, 'set_y_neg': 2, 'set_x_neg': 2, 'set_y_zero': 1})
+SFT observe_all cases: last history action Counter({'set_y_neg': 7, 'set_xy': 5, 'observe_all': 3, 'set_x_neg': 2, 'set_y_pos': 1, 'set_x_pos': 1})
+SFT set_x_pos cases [('policy_train/202611070029/snapshot-003', 'set_x_pos')]
+SFT gen by graph Counter({('chain', 'set_x_neg'): 44, ('fork', 'set_x_neg'): 34, ('collider', 'set_x_neg'): 30, ('collider', 'observe_all'): 9, ('fork', 'observe_all'): 6, ('chain', 'observe_all'): 4, ('collider', 'set_x_pos'): 1})
+final gen by graph Counter({('chain', 'set_x_neg'): 48, ('fork', 'set_x_neg'): 38, ('collider', 'set_x_neg'): 37, ('collider', 'set_x_pos'): 3, ('fork', 'set_x_pos'): 2})
+SFT gen by cost menu Counter({('het', 'set_x_neg'): 59, ('uni', 'set_x_neg'): 49, ('uni', 'observe_all'): 15, ('het', 'observe_all'): 4, ('het', 'set_x_pos'): 1})
+sft generation sequence_ids length min/max 2007 4205

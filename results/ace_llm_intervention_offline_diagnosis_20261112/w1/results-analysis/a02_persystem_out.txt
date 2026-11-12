@@ -1,0 +1,89 @@
+   graph_stratum        regime   cost_stratum  init_err  at_target_init  random  coverage  local_info  target_risk  ranker  frozen  sft  dpo  best8  n_at_best                                                argbest
+w                                                                                                                                                                                                                    
+0          chain   matched_low        uniform   0.02977            True       8         8           8            8       8       8    8    8      8          8                                                    all
+1          chain   matched_low  heterogeneous   0.00602            True       8         8           8            8       8       8    8    8      8          8                                                    all
+2           fork   matched_low        uniform   0.03767            True       8         8           8            8       8       8    8    8      8          8                                                    all
+3           fork   matched_low  heterogeneous   0.06807           False      18        10           9            9      11      24   26   32      9          2                                 local_info,target_risk
+4       collider   matched_low        uniform   0.04500           False      10        10           9            9       9      10   13   11      9          3                          local_info,target_risk,ranker
+5       collider   matched_low  heterogeneous   0.04302           False      13        13          17           10       9      13   11   18      9          1                                                 ranker
+6          chain  matched_high        uniform   0.00028            True       8         8           8            8       8       8    8    8      8          8                                                    all
+7          chain  matched_high  heterogeneous   0.03673            True       8         8           8            8       8       8    8    8      8          8                                                    all
+8           fork  matched_high        uniform   0.00594            True       8         8           8            8       8       8    8    8      8          8                                                    all
+9           fork  matched_high  heterogeneous   0.03791            True       8         8           8            8       8       8    8    8      8          8                                                    all
+10      collider  matched_high        uniform   0.12497           False      10        11          11            9      12      32   23   13      9          1                                            target_risk
+11      collider  matched_high  heterogeneous   0.11072           False      10        21          15           14      32      11   21   32     10          1                                                 random
+12         chain   shifted_low        uniform   0.52191           False      32        32          16           23      13      25   32   32     13          1                                                 ranker
+13         chain   shifted_low  heterogeneous   0.31601           False      32         9          10            9       9      14   10    9      9          4                        coverage,target_risk,ranker,dpo
+14          fork   shifted_low        uniform   0.04112           False       9         9           9            9       9      11    9    9      9          7  random,coverage,local_info,target_risk,ranker,sft,dpo
+15          fork   shifted_low  heterogeneous   0.01293            True       8         8           8            8       8       8    8    8      8          8                                                    all
+16      collider   shifted_low        uniform   0.09162           False      16        11          26           17      16      11   10   22     10          1                                                    sft
+17      collider   shifted_low  heterogeneous   0.11148           False      17         9           9           11      21      14    9   10      9          3                                coverage,local_info,sft
+18         chain  shifted_high        uniform   0.01537            True       8         8           8            8       8       8    8    8      8          8                                                    all
+19         chain  shifted_high  heterogeneous   0.54490           False      32        32          23           32      32      32   32   32     23          1                                             local_info
+20          fork  shifted_high        uniform   0.02090            True       8         8           8            8       8       8    8    8      8          8                                                    all
+21          fork  shifted_high  heterogeneous   0.07782           False      21        21           9           15      11       9   32   12      9          2                                      local_info,frozen
+22      collider  shifted_high        uniform   0.41390           False      14        12          32           10      32      25   19   20     10          1                                            target_risk
+23      collider  shifted_high  heterogeneous   0.23324           False      28        19          12           22      30      16   24   32     12          1                                             local_info
+
+systems at target after initialization: 10 [0, 1, 2, 6, 7, 8, 9, 15, 18, 20]
+all 8 policies at cost 8 on these: True
+any policy at cost 8 on other systems: False
+at_target_init  False  True 
+graph_stratum               
+chain               3      5
+collider            8      0
+fork                3      5
+
+at_target_init  False  True 
+regime                      
+matched_high        2      4
+matched_low         3      3
+shifted_high        4      2
+shifted_low         5      1
+
+at_target_init  False  True 
+cost_stratum                
+heterogeneous       8      4
+uniform             6      6
+
+at_target_init  False  True 
+prior   noise               
+matched high        2      4
+        low         3      3
+shifted high        4      2
+        low         5      1
+
+regime            matched_high      matched_low     shifted_high      shifted_low
+graph_stratum                                                                    
+chain          0.0003 / 0.0367  0.0298 / 0.0060  0.0154 / 0.5449  0.5219 / 0.3160
+collider       0.1250 / 0.1107  0.0450 / 0.0430  0.4139 / 0.2332  0.0916 / 0.1115
+fork           0.0059 / 0.0379  0.0377 / 0.0681  0.0209 / 0.0778  0.0411 / 0.0129
+
+init error summary: min 0.00028 median 0.04401 mean 0.12280 max 0.54490
+init error by regime (mean, median, n<=0.04):
+                  mean    median       min       max  <lambda_0>
+regime                                                          
+matched_high  0.052759  0.037319  0.000284  0.124969           4
+matched_low   0.038258  0.040345  0.006019  0.068068           3
+shifted_high  0.217688  0.155531  0.015370  0.544896           2
+shifted_low   0.182511  0.101549  0.012932  0.521906           1
+                   mean    median       min       max  <lambda_0>
+graph_stratum                                                    
+chain          0.183873  0.033249  0.000284  0.544896           5
+collider       0.146743  0.111099  0.043019  0.413901           0
+fork           0.037796  0.037790  0.005941  0.077821           5
+                   mean    median       min       max  <lambda_0>
+cost_stratum                                                     
+heterogeneous  0.133237  0.072945  0.006019  0.544896           4
+uniform        0.112371  0.039397  0.000284  0.521906           6
+
+threshold 0.005: systems already at target after init = 1
+threshold 0.010: systems already at target after init = 3
+threshold 0.020: systems already at target after init = 5
+threshold 0.030: systems already at target after init = 7
+threshold 0.040: systems already at target after init = 10
+threshold 0.060: systems already at target after init = 13
+threshold 0.080: systems already at target after init = 15
+threshold 0.100: systems already at target after init = 16
+threshold 0.160: systems already at target after init = 19
+[np.float64(0.00028), np.float64(0.00594), np.float64(0.00602), np.float64(0.01293), np.float64(0.01537), np.float64(0.0209), np.float64(0.02977), np.float64(0.03673), np.float64(0.03767), np.float64(0.03791), np.float64(0.04112), np.float64(0.04302), np.float64(0.045), np.float64(0.06807), np.float64(0.07782), np.float64(0.09162), np.float64(0.11072), np.float64(0.11148), np.float64(0.12497), np.float64(0.23324), np.float64(0.31601), np.float64(0.4139), np.float64(0.52191), np.float64(0.5449)]

@@ -1,0 +1,98 @@
+threshold                          0.0025  0.0050  0.0075  0.0100  0.0150  0.0200  0.0300  0.0400  0.0600  0.0800
+at_target_at_init                   1.000   1.000   3.000   3.000   4.000   5.000   7.000  10.000  13.000  15.000
+no_policy_attains                   5.000   3.000   3.000   3.000   1.000   0.000   0.000   0.000   0.000   0.000
+target_risk_never                  14.000   9.000   6.000   4.000   2.000   1.000   1.000   1.000   1.000   0.000
+all8_tied                           6.000   4.000   6.000   6.000   5.000   5.000   7.000  10.000  13.000  15.000
+informative(init>th & TR attains)   9.000  14.000  15.000  17.000  18.000  18.000  16.000  13.000  10.000   9.000
+TR_mean                            26.875  23.542  18.625  16.167  14.125  13.542  12.167  11.625  10.917   9.500
+best8_mean                         18.708  16.083  14.625  13.833  12.000  11.583  10.458   9.583   9.000   8.750
+floor_mean                          8.958   8.958   8.875   8.875   8.833   8.792   8.708   8.583   8.458   8.375
+TR_minus_best8                      8.167   7.458   4.000   2.333   2.125   1.958   1.708   2.042   1.917   0.750
+TR_minus_floor                     17.917  14.583   9.750   7.292   5.292   4.750   3.458   3.042   2.458   1.125
+random-TR mean                     -0.500  -0.875   2.833   4.458   4.500   4.500   4.583   2.625   0.750   1.500
+random-TR sd                        9.855   9.018   6.605   6.400   6.916   6.653   6.795   5.428   5.351   5.167
+random-TR d/sd                     -0.051  -0.097   0.429   0.697   0.651   0.676   0.675   0.484   0.140   0.290
+dpo-TR mean                        -0.083   2.917   5.125   5.333   5.167   4.708   3.542   3.542   2.333   3.042
+dpo-TR sd                          10.249  12.187  12.113  10.561   7.916   6.824   5.964   6.433   5.019   6.348
+local-TR mean                      -0.458   1.250   4.458   4.083   2.708   1.958   1.208   0.333  -0.917   0.083
+local-TR sd                        10.069   9.529   8.506   7.442   7.226   7.012   6.366   6.211   4.422   2.430
+MDE_n24(sd local-TR)                6.013   5.691   5.079   4.444   4.315   4.188   3.801   3.709   2.641   1.451
+
+mean capped first-crossing cost by policy and threshold
+           random  coverage  local_info  target_risk  ranker  frozen     sft     dpo
+threshold                                                                           
+0.0025     26.375    27.500      26.417       26.875  25.667  28.417  28.042  26.792
+0.0050     22.667    24.750      24.792       23.542  23.333  24.958  26.583  26.458
+0.0075     21.458    21.167      23.083       18.625  22.792  22.792  24.000  23.750
+0.0100     20.625    20.042      20.250       16.167  20.417  22.167  20.708  21.500
+0.0150     18.625    17.042      16.833       14.125  18.667  20.125  18.125  19.292
+0.0200     18.042    15.708      15.500       13.542  17.917  19.292  16.917  18.250
+0.0300     16.750    13.708      13.375       12.167  16.083  15.542  16.208  15.708
+0.0400     14.250    12.458      11.958       11.625  13.583  13.625  14.625  15.167
+0.0600     11.667    10.958      10.000       10.917  12.250  11.125  12.042  13.250
+0.0800     11.000    10.292       9.583        9.500  11.500  10.417  10.500  12.542
+ranks
+           random  coverage  local_info  target_risk  ranker  frozen  sft  dpo
+threshold                                                                     
+0.0025          2         6           3            5       1       8    7    4
+0.0050          1         4           5            3       2       6    8    7
+0.0075          3         2           6            1       4       4    8    7
+0.0100          5         2           3            1       4       8    6    7
+0.0150          5         3           2            1       6       8    4    7
+0.0200          6         3           2            1       5       8    4    7
+0.0300          8         3           2            1       6       4    7    5
+0.0400          6         3           2            1       4       5    7    8
+0.0600          5         3           1            2       7       4    6    8
+0.0800          6         3           2            1       7       4    5    8
+
+mean capped SUSTAINED cost by policy and threshold
+           random  coverage  local_info  target_risk  ranker  frozen     sft     dpo
+threshold                                                                           
+0.005      29.500    29.417      30.208       29.042  30.375  31.583  29.458  29.792
+0.010      27.208    26.750      26.583       25.958  27.000  28.500  25.750  24.250
+0.020      23.708    21.000      21.125       19.542  20.625  24.208  19.042  21.250
+0.040      18.417    15.125      17.750       15.667  15.708  17.000  16.208  17.000
+0.080      13.792    11.875      11.292       11.208  11.875  12.667  11.958  13.000
+
+relative thresholds (target = f x the system's own post-initialization error)
+      no_policy_attains  target_risk_never  all8_tied  TR_mean  best8_mean  random-TR mean  random-TR sd  local-TR sd
+f                                                                                                                    
+0.50                  0                  2          0   14.083      10.292           1.708         8.327        7.584
+0.25                  0                  3          0   16.333      11.792           5.417         9.036        9.309
+0.10                  2                  6          2   21.375      15.750           5.042        10.403       11.247
+0.05                  4                 13          4   28.208      19.875           0.458         7.945        8.877
+      random  coverage  local_info  target_risk  ranker  frozen     sft     dpo
+f                                                                              
+0.50  15.792    13.542      14.042       14.083  16.000  17.375  14.542  18.583
+0.25  21.750    18.750      17.625       16.333  20.250  21.292  19.958  23.625
+0.10  26.417    22.750      22.750       21.375  24.875  26.625  27.792  27.375
+0.05  28.667    27.917      27.083       28.208  27.958  28.875  30.125  28.208
+
+frozen LLM = 8 initial observations plus up to 24 more observations (574 of 576 actions are observe_all):
+   after  8 total observations: systems at or below 0.04: 10 ; <= 0.02:  5 ; <= 0.01:  3 ; geometric-mean NMSE 0.0488
+   after 12 total observations: systems at or below 0.04: 12 ; <= 0.02:  8 ; <= 0.01:  4 ; geometric-mean NMSE 0.0374
+   after 16 total observations: systems at or below 0.04: 16 ; <= 0.02:  9 ; <= 0.01:  5 ; geometric-mean NMSE 0.0236
+   after 20 total observations: systems at or below 0.04: 17 ; <= 0.02: 10 ; <= 0.01:  6 ; geometric-mean NMSE 0.0196
+   after 24 total observations: systems at or below 0.04: 18 ; <= 0.02: 13 ; <= 0.01:  7 ; geometric-mean NMSE 0.0168
+   after 28 total observations: systems at or below 0.04: 21 ; <= 0.02: 16 ; <= 0.01:  8 ; geometric-mean NMSE 0.0133
+   after 32 total observations: systems at or below 0.04: 20 ; <= 0.02: 15 ; <= 0.01: 12 ; geometric-mean NMSE 0.0105
+   (so MORE observational initialization makes MORE systems uninformative; a smaller initialization is the direction that helps)
+
+reachability: per-system minimum error over all policies and costs; quantiles: [3.000e-05 1.200e-04 7.900e-04 1.500e-03 1.676e-02]
+target_risk final error quantiles: [0.00077 0.00301 0.00996 0.01896 0.12186]
+   threshold 0.005: target_risk final <= th in 7 systems ; sustained by target_risk from some cost on: 7 ; init <= th: 1
+   threshold 0.010: target_risk final <= th in 12 systems ; sustained by target_risk from some cost on: 12 ; init <= th: 3
+   threshold 0.020: target_risk final <= th in 18 systems ; sustained by target_risk from some cost on: 18 ; init <= th: 5
+   threshold 0.040: target_risk final <= th in 21 systems ; sustained by target_risk from some cost on: 21 ; init <= th: 10
+
+minimum detectable mean difference at n=24 (paired t, two-sided 0.05, 80% power):
+   random       SD 5.428 -> MDE 3.24 cost units
+   coverage     SD 3.074 -> MDE 1.84 cost units
+   local_info   SD 6.211 -> MDE 3.71 cost units
+   ranker       SD 6.630 -> MDE 3.96 cost units
+   frozen       SD 6.763 -> MDE 4.04 cost units
+   sft          SD 6.058 -> MDE 3.62 cost units
+   dpo          SD 6.433 -> MDE 3.84 cost units
+   curve area, SD of menu_coverage     0.351 -> MDE 0.210 log10 units = 38% lower geometric-mean error
+   curve area, SD of local_information 0.490 -> MDE 0.293 log10 units = 49% lower geometric-mean error
+   curve area, SD of dpo_llm           0.481 -> MDE 0.287 log10 units = 48% lower geometric-mean error

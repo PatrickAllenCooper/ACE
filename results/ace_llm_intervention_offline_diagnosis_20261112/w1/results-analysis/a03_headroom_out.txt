@@ -1,0 +1,62 @@
+--- all 24 systems n = 24
+  target_risk: sum 279  mean 11.625 (acquisition mean 3.625)
+  best-of-8 envelope: sum 230  mean 9.583
+  hindsight saving vs target_risk (target_risk - best8): sum 49  mean 2.042 ; systems where some policy beats target_risk: 8 ; ties with envelope: 16
+  best-of-other-7 envelope: mean 9.708 ; target_risk minus best7: mean 1.917 (wins 2 ties 14 losses 8 for target_risk)
+  trivial floor (8, or 9 if one unit-cost response is needed): mean 8.583 ; target_risk minus floor: sum 73 mean 3.042
+  best-of-5-numerical envelope mean 9.625 ; best-of-3-LLM envelope mean 11.958 ; best LLM arm strictly below best numerical on 1 systems, tie 14, above 9
+    random       mean cost 14.250 ; regret to envelope mean 4.667 ; at envelope on 12 ; strictly below target_risk on 2
+    coverage     mean cost 12.458 ; regret to envelope mean 2.875 ; at envelope on 13 ; strictly below target_risk on 3
+    local_info   mean cost 11.958 ; regret to envelope mean 2.375 ; at envelope on 17 ; strictly below target_risk on 5
+    target_risk  mean cost 11.625 ; regret to envelope mean 2.042 ; at envelope on 16 ; strictly below target_risk on 0
+    ranker       mean cost 13.583 ; regret to envelope mean 4.000 ; at envelope on 15 ; strictly below target_risk on 4
+    frozen       mean cost 13.625 ; regret to envelope mean 4.042 ; at envelope on 11 ; strictly below target_risk on 4
+    sft          mean cost 14.625 ; regret to envelope mean 5.042 ; at envelope on 13 ; strictly below target_risk on 2
+    dpo          mean cost 15.167 ; regret to envelope mean 5.583 ; at envelope on 12 ; strictly below target_risk on 2
+--- informative subset (init error > 0.04) n = 14
+  target_risk: sum 199  mean 14.214 (acquisition mean 6.214)
+  best-of-8 envelope: sum 150  mean 10.714
+  hindsight saving vs target_risk (target_risk - best8): sum 49  mean 3.500 ; systems where some policy beats target_risk: 8 ; ties with envelope: 6
+  best-of-other-7 envelope: mean 10.929 ; target_risk minus best7: mean 3.286 (wins 2 ties 4 losses 8 for target_risk)
+  trivial floor (8, or 9 if one unit-cost response is needed): mean 9.000 ; target_risk minus floor: sum 73 mean 5.214
+  best-of-5-numerical envelope mean 10.786 ; best-of-3-LLM envelope mean 14.786 ; best LLM arm strictly below best numerical on 1 systems, tie 4, above 9
+    random       mean cost 18.714 ; regret to envelope mean 8.000 ; at envelope on 2 ; strictly below target_risk on 2
+    coverage     mean cost 15.643 ; regret to envelope mean 4.929 ; at envelope on 3 ; strictly below target_risk on 3
+    local_info   mean cost 14.786 ; regret to envelope mean 4.071 ; at envelope on 7 ; strictly below target_risk on 5
+    target_risk  mean cost 14.214 ; regret to envelope mean 3.500 ; at envelope on 6 ; strictly below target_risk on 0
+    ranker       mean cost 17.571 ; regret to envelope mean 6.857 ; at envelope on 5 ; strictly below target_risk on 4
+    frozen       mean cost 17.643 ; regret to envelope mean 6.929 ; at envelope on 1 ; strictly below target_risk on 4
+    sft          mean cost 19.357 ; regret to envelope mean 8.643 ; at envelope on 3 ; strictly below target_risk on 2
+    dpo          mean cost 20.286 ; regret to envelope mean 9.571 ; at envelope on 2 ; strictly below target_risk on 2
+
+per-system target_risk minus best-of-8 (informative only):
+       graph        regime           cost  init_err  target_risk  best8  saving                                                 winner
+w                                                                                                                                     
+3       fork   matched_low  heterogeneous    0.0681            9      9       0                                 local_info,target_risk
+4   collider   matched_low        uniform    0.0450            9      9       0                          local_info,target_risk,ranker
+5   collider   matched_low  heterogeneous    0.0430           10      9       1                                                 ranker
+10  collider  matched_high        uniform    0.1250            9      9       0                                            target_risk
+11  collider  matched_high  heterogeneous    0.1107           14     10       4                                                 random
+12     chain   shifted_low        uniform    0.5219           23     13      10                                                 ranker
+13     chain   shifted_low  heterogeneous    0.3160            9      9       0                        coverage,target_risk,ranker,dpo
+14      fork   shifted_low        uniform    0.0411            9      9       0  random,coverage,local_info,target_risk,ranker,sft,dpo
+16  collider   shifted_low        uniform    0.0916           17     10       7                                                    sft
+17  collider   shifted_low  heterogeneous    0.1115           11      9       2                                coverage,local_info,sft
+19     chain  shifted_high  heterogeneous    0.5449           32     23       9                                             local_info
+21      fork  shifted_high  heterogeneous    0.0778           15      9       6                                      local_info,frozen
+22  collider  shifted_high        uniform    0.4139           10     10       0                                            target_risk
+23  collider  shifted_high  heterogeneous    0.2332           22     12      10                                             local_info
+
+Which policies supply the 14 informative-envelope minima (ties counted for each):
+random         2
+coverage       3
+local_info     7
+target_risk    6
+ranker         5
+frozen         1
+sft            3
+dpo            2
+unique (sole) winners: {'random': 1, 'coverage': 0, 'local_info': 2, 'target_risk': 2, 'ranker': 2, 'frozen': 0, 'sft': 1, 'dpo': 0}
+saving distribution: [10, 10, 9, 7, 6, 4, 2, 1, 0, 0, 0, 0, 0, 0]
+target_risk capped (never attained) systems: [19] ; systems where no policy attained: []
+best single policy mean over 24: 11.625 target_risk  envelope mean: 9.583333333333334

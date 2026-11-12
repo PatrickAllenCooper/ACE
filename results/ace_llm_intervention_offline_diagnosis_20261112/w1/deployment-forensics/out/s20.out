@@ -1,0 +1,25 @@
+training states scored: 128
+
+(a) supervised (SFT) label vs 256-draw TR optimum at the 128 non-terminal training states:
+   label == TR optimum: 55/128 (43.0%) ; within 2 MC s.e. of optimum: 67/128 ; mean relative regret of the label 0.225 ; TR rank of label: [(1, 55), (2, 14), (3, 12), (4, 17), (5, 7), (6, 9), (7, 8), (8, 6)]
+   TR optimum distribution at training states: {'set_x_pos': 34, 'observe_all': 31, 'set_x_neg': 30, 'set_xy': 16, 'set_y_pos': 12, 'set_y_neg': 5}
+   snapshot 0: label==TR-opt 15/32 ; near-opt 19 ; mean rel regret 0.255 ; TR-opt dist {'set_x_neg': 11, 'set_x_pos': 10, 'set_xy': 5, 'set_y_pos': 3}
+   snapshot 1: label==TR-opt 19/32 ; near-opt 21 ; mean rel regret 0.114 ; TR-opt dist {'set_x_neg': 8, 'observe_all': 8, 'set_x_pos': 8, 'set_xy': 4}
+   snapshot 2: label==TR-opt 12/32 ; near-opt 15 ; mean rel regret 0.223 ; TR-opt dist {'observe_all': 10, 'set_x_pos': 8, 'set_x_neg': 6, 'set_xy': 3}
+   snapshot 3: label==TR-opt 9/32 ; near-opt 12 ; mean rel regret 0.307 ; TR-opt dist {'observe_all': 12, 'set_x_pos': 8, 'set_x_neg': 5, 'set_xy': 4}
+   reference: uniform-random expected relative regret at these states: 0.438 ; always-set_x_neg: 0.302
+
+(b) measured preference pairs vs TR score at the same training state:
+   strict pairs: 687 ; preference-chosen action has the higher TR score in 471 (68.6%) ; binomial p vs 0.5 = 1.1e-22
+   among strict pairs whose TR difference exceeds 2 MC s.e. (n=639): agreement 69.8%
+   the 119 pairs actually exposed in DPO: preference-chosen has higher TR score in 70/119 (58.8%)
+   |TR score difference| : strict pairs median 0.00085 mean 0.00438 ; tied pairs (n=2897) median 0.00043 mean 0.00246
+   snapshot 0: strict pairs 242, TR agreement 76.4%
+   snapshot 1: strict pairs 161, TR agreement 75.8%
+   snapshot 2: strict pairs 144, TR agreement 51.4%
+   snapshot 3: strict pairs 140, TR agreement 64.3%
+
+(c) per training state with >=3 strict pairs (n=88): Spearman rho between net preference wins and TR score across the 8 actions: mean +0.246 median +0.269 ; >0 in 71.6%
+
+(d) training snapshots (index>=1, n=96) whose post-initialization history is one repeated action: 2 ; with >=4 distinct post-init actions: 55
+    share of set_x_neg in post-init training histories: mean 0.204 max 0.833  (deployment DPO: 1.000 at every decision after the first)

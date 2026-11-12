@@ -1,0 +1,189 @@
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:62: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  per_rec = P.groupby("record_id").apply(lambda g: int((~g.tie).sum()))
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:68: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g = P.groupby(col).apply(lambda x: pd.Series({"pairs": len(x), "strict": int((~x.tie).sum()),
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:68: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g = P.groupby(col).apply(lambda x: pd.Series({"pairs": len(x), "strict": int((~x.tie).sum()),
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:68: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g = P.groupby(col).apply(lambda x: pd.Series({"pairs": len(x), "strict": int((~x.tie).sum()),
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:68: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g = P.groupby(col).apply(lambda x: pd.Series({"pairs": len(x), "strict": int((~x.tie).sum()),
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:68: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g = P.groupby(col).apply(lambda x: pd.Series({"pairs": len(x), "strict": int((~x.tie).sum()),
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:68: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g = P.groupby(col).apply(lambda x: pd.Series({"pairs": len(x), "strict": int((~x.tie).sum()),
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:68: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  g = P.groupby(col).apply(lambda x: pd.Series({"pairs": len(x), "strict": int((~x.tie).sum()),
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics/prefs_analysis.py:73: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  print(P.groupby(["graph", "cost_menu"]).apply(lambda x: pd.Series({"pairs": len(x), "strict": int((~x.tie).sum()),
+TOTAL preference comparisons: 3584  records with comparisons: 128
+exposure.json counts: {'dpo_action_rows': 238, 'dpo_steps': 119, 'records': 160, 'records_without_strict_pairs': 41, 'retained_pairs': 3584, 'selected_pairs': 119, 'sft_action_rows': 160, 'sft_steps': 160, 'strict_pairs': 687, 'tied_pairs': 2897, 'unselected_pairs': 568}
+status counts: {'tied': 2897, 'unselected': 568, 'selected': 119}
+
+== ties vs strict
+tie: 2897 (0.8083)  strict: 687 (0.1917)
+tie rule in data: tie_multiplier values [2.0] minimum_gain_gap values [0.0] replicate_count values [4]
+tie flag == (|mean| <= threshold) for all rows: True
+threshold == 2*SE for all rows: True
+SE recomputed from replicate differences max abs err: 1.3877787807814457e-17
+replicates per comparison: {4: 3584}
+strict direction: chosen==left 348  chosen==right 339
+
+== strict pairs per record (128 nonterminal records)
+{0: 9, 1: 14, 2: 17, 3: 13, 4: 11, 5: 10, 6: 10, 7: 13, 8: 4, 9: 4, 10: 7, 11: 4, 12: 4, 13: 1, 14: 1, 15: 2, 16: 2, 18: 2}
+records with zero strict pairs: 9  mean strict/record: 5.367  median: 4.5  max: 18
+
+== strict fraction by stratum
+          pairs  strict  strict_frac
+snapshot                            
+0         896.0   242.0       0.2701
+1         896.0   161.0       0.1797
+2         896.0   144.0       0.1607
+3         896.0   140.0       0.1562
+
+           pairs  strict  strict_frac
+graph                                
+chain     1344.0   239.0       0.1778
+collider  1120.0   238.0       0.2125
+fork      1120.0   210.0       0.1875
+
+                pairs  strict  strict_frac
+cost_menu                                 
+heterogeneous  1792.0   367.0       0.2048
+uniform        1792.0   320.0       0.1786
+
+              pairs  strict  strict_frac
+regime                                  
+matched_high  896.0   190.0       0.2121
+matched_low   896.0   177.0       0.1975
+shifted_high  896.0   166.0       0.1853
+shifted_low   896.0   154.0       0.1719
+
+                 pairs  strict  strict_frac
+noise_variance                             
+0.25            1792.0   331.0       0.1847
+1.00            1792.0   356.0       0.1987
+
+                   pairs  strict  strict_frac
+teacher_method                               
+local_information  896.0   176.0       0.1964
+menu_coverage      896.0   189.0       0.2109
+target_risk        896.0   179.0       0.1998
+uniform_random     896.0   143.0       0.1596
+
+                   pairs  strict  strict_frac
+behavior_method                              
+local_information  896.0   203.0       0.2266
+menu_coverage      896.0   142.0       0.1585
+target_risk        896.0   150.0       0.1674
+uniform_random     896.0   192.0       0.2143
+
+== strict fraction by graph x cost_menu
+                        pairs  strict  strict_frac
+graph    cost_menu                                
+chain    heterogeneous  672.0   140.0       0.2083
+         uniform        672.0    99.0       0.1473
+collider heterogeneous  560.0   133.0       0.2375
+         uniform        560.0   105.0       0.1875
+fork     heterogeneous  560.0    94.0       0.1679
+         uniform        560.0   116.0       0.2071
+
+== all 687 strict pairs: ordered (preferred -> rejected) counts matrix (rows preferred, cols rejected)
+rejected     observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  WINS(total preferred)
+chosen                                                                                                                     
+observe_all            0          7          10          4         10           6         10       6                     53
+set_x_neg              8          0          12         14         18          10         13      13                     88
+set_x_zero             9         11           0          8          8          15         14      14                     79
+set_x_pos             16         15          13          0         16          20         23      20                    123
+set_y_neg              9         10          18         11          0           9         14      15                     86
+set_y_zero            11         15          15         14          9           0          9      17                     90
+set_y_pos              8         11          15         11         10           7          0      13                     75
+set_xy                10          5          19         16         16          12         15       0                     93
+
+== per-action totals over all 687 strict pairs
+             preferred_n  rejected_n  appearances  win_rate  share_of_preferred_side  share_of_rejected_side
+observe_all           53          71          124    0.4274                   0.0771                  0.1033
+set_x_neg             88          74          162    0.5432                   0.1281                  0.1077
+set_x_zero            79         102          181    0.4365                   0.1150                  0.1485
+set_x_pos            123          78          201    0.6119                   0.1790                  0.1135
+set_y_neg             86          87          173    0.4971                   0.1252                  0.1266
+set_y_zero            90          79          169    0.5325                   0.1310                  0.1150
+set_y_pos             75          98          173    0.4335                   0.1092                  0.1426
+set_xy                93          98          191    0.4869                   0.1354                  0.1426
+
+== the 119 strict pairs SELECTED for DPO updates
+n selected: 119  records: 119
+rejected     observe_all  set_x_neg  set_x_zero  set_x_pos  set_y_neg  set_y_zero  set_y_pos  set_xy  WINS
+chosen                                                                                                    
+observe_all            0          1           0          3          0           0          1       1     6
+set_x_neg              0          0           4          2          5           0          2       1    14
+set_x_zero             3          0           0          2          0           3          2       3    13
+set_x_pos              5          3           2          0          1           1          7       4    23
+set_y_neg              2          0           5          2          0           5          2       3    19
+set_y_zero             2          2           3          3          1           0          1       4    16
+set_y_pos              1          2           0          1          3           1          0       0     8
+set_xy                 0          1           5          1          4           3          6       0    20
+             preferred_n  rejected_n  appearances  win_rate  share_preferred_side  share_rejected_side  net(pref-rej)
+observe_all            6          13           19    0.3158                0.0504               0.1092             -7
+set_x_neg             14           9           23    0.6087                0.1176               0.0756              5
+set_x_zero            13          19           32    0.4062                0.1092               0.1597             -6
+set_x_pos             23          14           37    0.6216                0.1933               0.1176              9
+set_y_neg             19          14           33    0.5758                0.1597               0.1176              5
+set_y_zero            16          13           29    0.5517                0.1345               0.1092              3
+set_y_pos              8          21           29    0.2759                0.0672               0.1765            -13
+set_xy                20          16           36    0.5556                0.1681               0.1345              4
+uniform expectation per side for 8 actions: 1/8 = 0.125 -> 14.875 pairs
+
+selected pairs by stratum:
+snapshot {0: 31, 1: 30, 2: 29, 3: 29}
+graph {'chain': 44, 'collider': 38, 'fork': 37}
+cost_menu {'heterogeneous': 60, 'uniform': 59}
+regime {'matched_high': 31, 'matched_low': 30, 'shifted_high': 28, 'shifted_low': 30}
+teacher_method {'local_information': 30, 'menu_coverage': 32, 'target_risk': 30, 'uniform_random': 27}
+
+selected pairs: set_x_neg preferred by graph/cost:
+chosen                  False  True 
+graph    cost_menu                  
+chain    heterogeneous     20      2
+         uniform           21      1
+collider heterogeneous     15      5
+         uniform           16      2
+fork     heterogeneous     17      1
+         uniform           16      3
+selected pairs: set_x_neg rejected by graph/cost:
+rejected                False  True 
+graph    cost_menu                  
+chain    heterogeneous     20      2
+         uniform           20      2
+collider heterogeneous     19      1
+         uniform           17      1
+fork     heterogeneous     17      1
+         uniform           17      2
+
+== cost structure of strict pairs (does 'cheaper action wins' explain labels?)
+rejected_cost                1    2
+cost_menu     chosen_cost          
+heterogeneous 1             72  134
+              2             84   77
+uniform       1            320    0
+heterogeneous-menu strict pairs with unequal cost: 218  cheaper preferred: 134
+
+== margin distribution
+all pairs |mean gain difference| quantiles: {0.0: 8.101e-07, 0.05: 8.495e-05, 0.25: 0.0006699, 0.5: 0.002401, 0.75: 0.007771, 0.95: 0.04136, 1.0: 0.3821}
+strict   |mean gain difference| quantiles: {0.0: 0.0001103, 0.05: 0.0004335, 0.25: 0.003009, 0.5: 0.009798, 0.75: 0.02849, 0.95: 0.1499, 1.0: 0.3821}
+tied     |mean gain difference| quantiles: {0.0: 8.101e-07, 0.05: 6.976e-05, 0.25: 0.0005247, 0.5: 0.001808, 0.75: 0.005636, 0.95: 0.02406, 1.0: 0.2287}
+selected |mean gain difference| quantiles: {0.0: 0.0001276, 0.05: 0.0003533, 0.25: 0.001812, 0.5: 0.004971, 0.75: 0.01693, 0.95: 0.07906, 1.0: 0.1807}
+paired SE quantiles (all): {0.0: 2.995e-05, 0.05: 0.0002072, 0.25: 0.00115, 0.5: 0.003204, 0.75: 0.008107, 0.95: 0.03415, 1.0: 0.1168}
+z=|mean|/SE quantiles all: {0.0: 0.0, 0.05: 0.085, 0.25: 0.387, 0.5: 0.828, 0.75: 1.692, 0.95: 4.487, 1.0: 134.767}
+z quantiles strict: {0.0: 2.001, 0.05: 2.075, 0.25: 2.423, 0.5: 3.081, 0.75: 4.599, 0.95: 8.11, 1.0: 134.767}
+z quantiles selected: {0.0: 2.007, 0.05: 2.086, 0.25: 2.362, 0.5: 3.081, 0.75: 4.401, 0.95: 7.253, 1.0: 134.767}
+  pairs with z > 2: all 687/3584  selected 119/119
+  pairs with z > 2.5: all 484/3584  selected 76/119
+  pairs with z > 3: all 356/3584  selected 62/119
+  pairs with z > 3.182: all 329/3584  selected 56/119
+  pairs with z > 4: all 212/3584  selected 32/119
+  pairs with z > 5: all 137/3584  selected 19/119
+  pairs with z > 5.841: all 95/3584  selected 13/119
+  pairs with z > 7.453: all 47/3584  selected 6/119
+  pairs with z > 10: all 21/3584  selected 3/119
+  pairs with z > 12.92: all 12/3584  selected 2/119

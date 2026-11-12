@@ -1,0 +1,86 @@
+--- learned_ranker
+  w00 chain    uniform       matched_low  x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w01 chain    heterogeneous matched_low  x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w02 fork     uniform       matched_low  x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w03 fork     heterogeneous matched_low  x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w04 collider uniform       matched_low  x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w05 collider heterogeneous matched_low  x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w06 chain    uniform       matched_high x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w07 chain    heterogeneous matched_high x- x+ x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w08 fork     uniform       matched_high x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w09 fork     heterogeneous matched_high x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w10 collider uniform       matched_high x- x- x- x- x+ x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w11 collider heterogeneous matched_high x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w12 chain    uniform       shifted_low  x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w13 chain    heterogeneous shifted_low  x- x- x- x- x- x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w14 fork     uniform       shifted_low  x- x- x- x- x- x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w15 fork     heterogeneous shifted_low  x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w16 collider uniform       shifted_low  x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w17 collider heterogeneous shifted_low  x- x+ x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w18 chain    uniform       shifted_high x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w19 chain    heterogeneous shifted_high x- x- x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w20 fork     uniform       shifted_high x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w21 fork     heterogeneous shifted_high x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w22 collider uniform       shifted_high x- x- x- x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+  w23 collider heterogeneous shifted_high x- x- x- x- x- x- x- x- x- x- x- x- x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+ x+
+--- frozen_llm
+  w00 chain    uniform       matched_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w01 chain    heterogeneous matched_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w02 fork     uniform       matched_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w03 fork     heterogeneous matched_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w04 collider uniform       matched_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w05 collider heterogeneous matched_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w06 chain    uniform       matched_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w07 chain    heterogeneous matched_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w08 fork     uniform       matched_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w09 fork     heterogeneous matched_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w10 collider uniform       matched_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w11 collider heterogeneous matched_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w12 chain    uniform       shifted_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w13 chain    heterogeneous shifted_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w14 fork     uniform       shifted_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w15 fork     heterogeneous shifted_low  obs obs obs obs obs obs obs x0 obs obs x0 obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w16 collider uniform       shifted_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w17 collider heterogeneous shifted_low  obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w18 chain    uniform       shifted_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w19 chain    heterogeneous shifted_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w20 fork     uniform       shifted_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w21 fork     heterogeneous shifted_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w22 collider uniform       shifted_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+  w23 collider heterogeneous shifted_high obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs
+--- menu_coverage
+  w00 chain    uniform       matched_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w01 chain    heterogeneous matched_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w02 fork     uniform       matched_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w03 fork     heterogeneous matched_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w04 collider uniform       matched_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w05 collider heterogeneous matched_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w06 chain    uniform       matched_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w07 chain    heterogeneous matched_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w08 fork     uniform       matched_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w09 fork     heterogeneous matched_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w10 collider uniform       matched_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w11 collider heterogeneous matched_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w12 chain    uniform       shifted_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w13 chain    heterogeneous shifted_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w14 fork     uniform       shifted_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w15 fork     heterogeneous shifted_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w16 collider uniform       shifted_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w17 collider heterogeneous shifted_low  x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w18 chain    uniform       shifted_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w19 chain    heterogeneous shifted_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w20 fork     uniform       shifted_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w21 fork     heterogeneous shifted_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+  w22 collider uniform       shifted_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+ x0
+  w23 collider heterogeneous shifted_high x- x+ x0 xy y- y+ y0 x- x+ x0 xy y- y+ y0 x- x+
+
+SFT non-x- actions: (world, step index, acquisition cost already paid before the action, graph)
+  x+ 23 [(0, 13, 12, 'chain'), (1, 13, 12, 'chain'), (2, 13, 12, 'fork'), (3, 14, 13, 'fork'), (4, 17, 16, 'collider'), (5, 14, 14, 'collider'), (6, 14, 13, 'chain'), (7, 13, 12, 'chain'), (8, 13, 12, 'fork'), (9, 14, 13, 'fork'), (10, 17, 16, 'collider'), (11, 12, 12, 'collider'), (13, 13, 12, 'chain'), (14, 18, 17, 'fork'), (15, 14, 13, 'fork'), (16, 13, 12, 'collider'), (17, 15, 15, 'collider'), (18, 13, 12, 'chain'), (19, 14, 13, 'chain'), (20, 19, 18, 'fork'), (21, 19, 18, 'fork'), (22, 12, 11, 'collider'), (23, 12, 11, 'collider')]
+     paid-before distribution: {11: 2, 12: 9, 13: 5, 14: 1, 15: 1, 16: 2, 17: 1, 18: 2}  by graph: {'chain': 7, 'fork': 8, 'collider': 8}
+  y- 11 [(0, 14, 13, 'chain'), (1, 18, 17, 'chain'), (4, 12, 11, 'collider'), (5, 13, 12, 'collider'), (7, 18, 17, 'chain'), (10, 12, 11, 'collider'), (11, 11, 10, 'collider'), (16, 12, 11, 'collider'), (17, 13, 12, 'collider'), (22, 13, 12, 'collider'), (23, 13, 12, 'collider')]
+     paid-before distribution: {10: 1, 11: 3, 12: 4, 13: 1, 17: 2}  by graph: {'chain': 3, 'collider': 8}
+  obs 8 [(4, 19, 18, 'collider'), (4, 20, 19, 'collider'), (4, 21, 20, 'collider'), (5, 19, 19, 'collider'), (22, 19, 18, 'collider'), (22, 20, 19, 'collider'), (22, 21, 20, 'collider'), (22, 22, 21, 'collider')]
+     paid-before distribution: {18: 2, 19: 3, 20: 2, 21: 1}  by graph: {'collider': 8}
+
+ranker: step positions of x- (acquisition cost paid before action) pooled:
+   x- count by step index: {1: 21, 2: 19, 3: 19, 4: 16, 5: 15, 6: 16, 7: 15, 8: 5, 9: 5, 10: 4, 11: 3, 12: 3}

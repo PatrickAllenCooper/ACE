@@ -1,0 +1,30 @@
+actual 119 pairs, real order: winner from SFT init = set_x_neg ; from uniform init = set_x_neg
+  random orders step 0.1 mom 0.0: {'set_x_neg': 200}
+  random orders step 0.1 mom 0.5: {'set_x_neg': 200}
+  random orders step 0.1 mom 0.9: {'set_x_neg': 200}
+  random orders step 0.3 mom 0.0: {'set_x_neg': 200}
+  random orders step 0.3 mom 0.5: {'set_x_neg': 200}
+  random orders step 0.3 mom 0.9: {'set_x_neg': 196, 'set_xy': 4}
+  random orders step 0.9 mom 0.0: {'set_x_neg': 200}
+  random orders step 0.9 mom 0.5: {'set_x_neg': 200}
+  random orders step 0.9 mom 0.9: {'set_x_neg': 192, 'set_xy': 7, 'set_x_pos': 1}
+  random orders step 2.0 mom 0.0: {'set_x_neg': 200}
+  random orders step 2.0 mom 0.5: {'set_x_neg': 200}
+  random orders step 2.0 mom 0.9: {'set_xy': 15, 'set_x_neg': 184, 'set_x_pos': 1}
+random one-strict-pair-per-record selections (2000, roster order): {'set_x_neg': 0.406, 'set_x_pos': 0.211, 'set_xy': 0.15, 'observe_all': 0.139, 'set_y_neg': 0.058, 'set_y_pos': 0.021, 'set_x_zero': 0.011, 'set_y_zero': 0.003}
+all 687 strict pairs in random orders (500): {'set_x_neg': 159, 'set_x_pos': 341}
+all 687 strict pairs in roster order: set_x_neg
+coin-flip directions on the actual 119 pairs (2000): {'observe_all': 0.465, 'set_x_neg': 0.103, 'set_xy': 0.095, 'set_y_neg': 0.082, 'set_x_pos': 0.079, 'set_x_zero': 0.066, 'set_y_pos': 0.059, 'set_y_zero': 0.051}
+coin-flip directions, uniform init (2000): {'observe_all': 0.504, 'set_xy': 0.115, 'set_x_pos': 0.074, 'set_y_zero': 0.068, 'set_x_zero': 0.067, 'set_y_pos': 0.059, 'set_x_neg': 0.059, 'set_y_neg': 0.056}
+DPO-SELECTED pair agrees with target_risk ordering in 20/30 states
+DPO-SELECTED pair agrees with local_information ordering in 16/30 states
+cost menu uni: strict X-vs-Y pairs: X preferred 72, Y preferred 90 (X share 0.444)
+cost menu het: strict X-vs-Y pairs: X preferred 112, Y preferred 70 (X share 0.615)
+per-world X share: uni mean 0.482 (n=16 worlds) ; het mean 0.570 (n=16) ; Mann-Whitney p=0.3955
+cost menu uni: mean raw NMSE reduction per added sample by type: {'O': 0.00392, 'X': 0.00642, 'Y': 0.00628} ; grand mean 0.00604
+cost menu het: mean raw NMSE reduction per added sample by type: {'O': 0.00585, 'X': 0.00967, 'Y': 0.0088} ; grand mean 0.00876
+overall mean raw NMSE reduction from one extra sample: 0.00740 ; median 0.00017 ; share positive 0.550
+  snapshot 0: mean raw reduction 0.02297 ; share positive 0.605
+  snapshot 1: mean raw reduction 0.00345 ; share positive 0.559
+  snapshot 2: mean raw reduction 0.00183 ; share positive 0.535
+  snapshot 3: mean raw reduction 0.00134 ; share positive 0.500

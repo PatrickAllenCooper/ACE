@@ -1,0 +1,35 @@
+prepared records 160 stored_tokens 481651 max_tokens 8192
+prompt tokens min 1998 max 4199 mean 2948.3
+prompt_tokens metadata agrees: True
+max prompt+max_new_tokens 4231 <= max_tokens True
+nonterminal prompt tokens min 1998 max 3662
+  snap 0 min 1998 max 2061 mean 2024
+  snap 1 min 2350 max 2578 mean 2495
+  snap 2 min 2655 max 3132 mean 2947
+  snap 3 min 2991 max 3662 mean 3406
+  snap 4 min 3284 max 4199 mean 3869
+common suffix over all 160 prompts: 356 tokens ; common prefix: 204
+common suffix over 128 nonterminal prompts: 360  ; common prefix: 204
+  common suffix within cost menu uni 356 n 80
+  common suffix within cost menu het 356 n 80
+distinct (command, token ids): 9
+   {"action_id":"observe_all"} [4913, 1311, 842, 3252, 48033, 5705, 9207, 151645]
+   {"action_id":"set_x_neg"} [4913, 1311, 842, 3252, 746, 3212, 28209, 9207, 151645]
+   {"action_id":"set_x_pos"} [4913, 1311, 842, 3252, 746, 3212, 6479, 9207, 151645]
+   {"action_id":"set_x_zero"} [4913, 1311, 842, 3252, 746, 3212, 19359, 9207, 151645]
+   {"action_id":"set_xy"} [4913, 1311, 842, 3252, 746, 40920, 9207, 151645]
+   {"action_id":"set_y_neg"} [4913, 1311, 842, 3252, 746, 4178, 28209, 9207, 151645]
+   {"action_id":"set_y_pos"} [4913, 1311, 842, 3252, 746, 4178, 6479, 9207, 151645]
+   {"action_id":"set_y_zero"} [4913, 1311, 842, 3252, 746, 4178, 19359, 9207, 151645]
+   {"stop":true} [4913, 9495, 788, 1866, 92, 151645]
+legal command counts Counter({9: 128, 1: 32})
+terminal records commands Counter({('{"stop":true}',): 32})
+
+Greedy path to set_x_neg, label mass at each branching decision (nonterminal labels):
+  position 1: prefix-consistent labels 128 ; next-token counts {1311: 128} ; path token 1311 share 1.000
+  position 4: prefix-consistent labels 128 ; next-token counts {746: 104, 48033: 24} ; path token 746 share 0.812
+  position 5: prefix-consistent labels 104 ; next-token counts {3212: 68, 4178: 24, 40920: 12} ; path token 3212 share 0.654
+  position 6: prefix-consistent labels 68 ; next-token counts {19359: 7, 6479: 29, 28209: 32} ; path token 28209 share 0.471
+pooled suffix over set_x_*/set_y_* labels: {'zero': 11, 'pos': 39, 'neg': 42} total 92
+stop is a legal command at nonterminal states: True
+strict_pairs total in prepared: 687

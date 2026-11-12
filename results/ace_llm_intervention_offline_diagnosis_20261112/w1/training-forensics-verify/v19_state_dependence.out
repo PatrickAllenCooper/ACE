@@ -1,0 +1,11 @@
+target_risk states: strict labels agree with the state's own planner ordering 123/179 = 0.687 ; with the leave-one-world-out AVERAGE planner score ordering 92/179 = 0.514 ; with average planner rank ordering 90/179 = 0.503
+    with the leave-one-world-out average over same-cost-menu states: 103/179 = 0.575
+    mean pairwise Spearman of planner score vectors across the 32 states: 0.111
+    agreement when each state is paired with ANOTHER state's planner scores (2000 shuffles): mean 0.502, 95th pct 0.598 ; P(shuffled >= own) = 0.0005
+local_information states: strict labels agree with the state's own planner ordering 118/176 = 0.670 ; with the leave-one-world-out AVERAGE planner score ordering 90/176 = 0.511 ; with average planner rank ordering 90/176 = 0.511
+    with the leave-one-world-out average over same-cost-menu states: 94/176 = 0.534
+    mean pairwise Spearman of planner score vectors across the 32 states: 0.388
+    agreement when each state is paired with ANOTHER state's planner scores (2000 shuffles): mean 0.516, 95th pct 0.608 ; P(shuffled >= own) = 0.0055
+
+most lopsided unordered pairs (binomial p, a, b, a wins, b wins): [(np.float64(0.0118), 'observe_all', 'set_x_pos', 4, 16), (np.float64(0.0576), 'set_x_pos', 'set_y_pos', 23, 11), (np.float64(0.0755), 'set_x_zero', 'set_y_neg', 8, 18), (np.float64(0.0963), 'set_x_neg', 'set_xy', 13, 5)]
+min p x 28 (Bonferroni) = 0.331 ; pairs with p<0.05 uncorrected: 1 of 28

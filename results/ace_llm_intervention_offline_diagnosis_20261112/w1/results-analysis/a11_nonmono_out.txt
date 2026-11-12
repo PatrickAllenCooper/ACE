@@ -1,0 +1,61 @@
+             acquisitions  error_rose  rose_share  rose_gt10pct  rose_gt2x  median_ratio_when_rising  runs_crossed  crossed_then_left  crossed_but_final_above  exit_events  first_cross_lost_next_step  mean_share_of_later_states_at_target  P(leave | at target, one more response)
+policy                                                                                                                                                                                                                                                                                
+random                487         212       0.435           131         26                     1.160            21                  9                        1           10                           5                                 0.853                                    0.031
+coverage              480         196       0.408           125         21                     1.173            22                  6                        1            8                           1                                 0.928                                    0.021
+local_info            570         262       0.460           167         30                     1.179            23                 11                        5           20                           4                                 0.845                                    0.049
+target_risk           560         242       0.432           161         26                     1.218            23                  8                        2           10                           1                                 0.917                                    0.023
+ranker                576         246       0.427           128         20                     1.118            21                  7                        1           11                           2                                 0.950                                    0.026
+frozen                576         268       0.465           158         19                     1.148            22                 10                        2           13                           4                                 0.902                                    0.033
+sft                   523         235       0.449           126         21                     1.117            21                  6                        2            7                           2                                 0.927                                    0.020
+dpo                   576         248       0.431           118         21                     1.092            19                  4                        1            5                           1                                 0.960                                    0.013
+
+TOTAL: error rose after 1909 of 4348 accepted acquisitions (43.9%); crossed-then-left in 61 of 172 runs that ever crossed; final above target after crossing in 15
+
+informative systems only (14 x 8 = 112 runs):
+             ever  left_after_cross  final_ok  rise_share
+policy                                                   
+random         11                 5        10       0.416
+coverage       12                 5        11       0.397
+local_info     13                 6        10       0.445
+target_risk    13                 7        11       0.427
+ranker         11                 5        10       0.417
+frozen         12                 7        10       0.446
+sft            11                 4         9       0.450
+dpo             9                 2         8       0.420
+
+systems at target after initialization (10 x 8 = 80 runs): runs that later left the target at least once, and runs whose final state is above target
+             left_after_cross  final_above  rise_share
+policy                                                
+random                      4            0       0.460
+coverage                    1            0       0.423
+local_info                  5            2       0.479
+target_risk                 1            0       0.439
+ranker                      2            0       0.442
+frozen                      3            0       0.492
+sft                         2            0       0.449
+dpo                         2            0       0.446
+of the 80 runs on the 10 already-at-target systems: 20 left the target at some later point; 2 ended above target
+    left  final_above  init_err graph_stratum        regime   cost_stratum
+w                                                                         
+0      2            0  0.029769         chain   matched_low        uniform
+1      0            0  0.006019         chain   matched_low  heterogeneous
+2      1            0  0.037672          fork   matched_low        uniform
+6      3            0  0.000284         chain  matched_high        uniform
+7      2            1  0.036730         chain  matched_high  heterogeneous
+8      0            0  0.005941          fork  matched_high        uniform
+9      5            0  0.037908          fork  matched_high  heterogeneous
+15     0            0  0.012932          fork   shifted_low  heterogeneous
+18     1            0  0.015370         chain  shifted_high        uniform
+20     6            1  0.020901          fork  shifted_high        uniform
+
+first acquisition: error rose in 64 of 192 runs (33.3%); median ratio 0.812; 10th-90th pct 0.221-1.831
+                   rose  median_ratio
+policy_id                            
+uniform_random      8.0      0.817827
+menu_coverage       6.0      0.865611
+local_information   9.0      0.831130
+target_risk         7.0      0.581291
+learned_ranker      7.0      0.743314
+frozen_llm         11.0      0.911570
+sft_llm             6.0      0.725597
+dpo_llm            10.0      0.914289

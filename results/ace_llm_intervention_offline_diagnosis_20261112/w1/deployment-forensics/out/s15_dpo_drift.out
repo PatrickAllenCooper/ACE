@@ -1,0 +1,27 @@
+Prequential (first-exposure) evaluation of the DPO-stage policy on the 119 scheduled pairs:
+   policy log-odds favour the preference-chosen command: 66/119 ; SFT reference: 66/119
+   Delta > 0 (shift toward chosen on a not-yet-trained pair): 55/119 (46.2%), binomial p vs 0.5 = 0.463
+   second half (steps 60-118): Delta>0 31/59 ; policy favours chosen 33/59 ; SFT favours chosen 31/59
+
+Is the DPO shift a sharpening of the SFT ordering?  Delta vs SFT reference margin (chosen - rejected):
+   steps   0- 29: Pearson r=+0.493 Spearman rho=+0.505 slope=+0.44 (Delta per nat of SFT margin) ; sign(Delta)==sign(ref margin) in 20/30
+   steps  30- 59: Pearson r=+0.663 Spearman rho=+0.732 slope=+1.83 (Delta per nat of SFT margin) ; sign(Delta)==sign(ref margin) in 23/30
+   steps  60- 89: Pearson r=+0.707 Spearman rho=+0.806 slope=+1.01 (Delta per nat of SFT margin) ; sign(Delta)==sign(ref margin) in 24/30
+   steps  90-118: Pearson r=+0.781 Spearman rho=+0.811 slope=+1.97 (Delta per nat of SFT margin) ; sign(Delta)==sign(ref margin) in 25/29
+   steps   0-118: Pearson r=+0.626 Spearman rho=+0.689 slope=+1.28 (Delta per nat of SFT margin) ; sign(Delta)==sign(ref margin) in 92/119
+   mean |Delta| by phase: [1.21, 4.0, 2.99, 4.92]  mean |SFT ref margin|: 1.95
+   mean |policy margin| = |ref margin + Delta| by phase: [2.77, 5.52, 4.75, 6.7]
+
+   per-command DPO log-odds drift (zero-mean, nats) fitted on steps 30-118 (n=89, rank 7, R^2=0.653):
+      observe_all  +6.36  set_x_neg  +2.78  set_y_neg  +0.29  set_xy  -0.03  set_x_pos  -0.48  set_y_pos  -2.29  set_x_zero  -2.66  set_y_zero  -3.97
+
+   per-command DPO log-odds drift (zero-mean, nats) fitted on steps 60-118 (n=59, rank 7, R^2=0.748):
+      observe_all  +3.99  set_x_neg  +2.87  set_xy  +1.74  set_x_pos  +0.64  set_y_neg  +0.41  set_x_zero  -1.83  set_y_pos  -2.71  set_y_zero  -5.11
+
+   per-command DPO log-odds drift (zero-mean, nats) fitted on steps 90-118 (n=29, rank 7, R^2=0.844):
+      observe_all  +4.02  set_x_neg  +3.54  set_xy  +2.91  set_y_neg  +1.53  set_x_pos  +0.96  set_y_pos  -2.73  set_x_zero  -3.54  set_y_zero  -6.70
+
+   correlation of fitted drift (steps 60-118) with SFT mean command log-lik: r=+0.887 rho=+0.857
+   correlation of fitted drift with net exposed label count (chosen - rejected): r=+0.197 rho=+0.252
+   net label count in DPO steps 0-59: {'observe_all': -1, 'set_x_neg': 3, 'set_x_zero': -2, 'set_x_pos': 2, 'set_y_neg': 6, 'set_y_zero': 1, 'set_y_pos': -7, 'set_xy': -2}
+   correlation of drift with net label count in steps 0-59: r=+0.268 rho=+0.252

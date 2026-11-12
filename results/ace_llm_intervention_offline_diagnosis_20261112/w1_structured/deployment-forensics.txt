@@ -1,0 +1,193 @@
+# deployment-forensics
+## SUMMARY
+Per-command scores were NOT saved for any LLM arm at deployment, so score-level state sensitivity (brief item 2) cannot be measured from these records. Scores are saved for the ranker, target risk (TR) and local
+  information. I rebuilt the exact public state of every LLM decision by decoding the saved prompt token ids (1,698 decodes, all SHA256-verified), giving one table of all 4,371 decisions of the eight arms. At the shared
+  first decision set_x_neg is the TR optimum in 11/24 systems and the best constant action, so DPO starts right and then never adapts: on its own states set_x_neg is optimal in 39/576 decisions and never after decision
+  5. The supervised adapter IS state-dependent in its commands (budget level, graph, stopping); the DPO stage erased that. The numerical ranker is almost equally state-blind. Decision-level regret under a 256-draw TR
+  score orders the arms like the headline endpoint (Spearman 0.93) with far more resolution. Training records stored beside the deployment data show flawed supervision and a DPO stage that sharpened the SFT prior without
+  learning preferences.
+
+## KEY FACTS
+[1] (verified) LLM arms save only completion, prompt_ids, sequence_ids, prompt_tokens, legal_commands, elapsed_seconds, cuda_interval_ms. No key in any worker record matches score/logit/logprob/prob/margin. Decoding is
+  greedy with a token-prefix constraint.
+    EVIDENCE: /Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/remote/launch/gpu/services/{frozen_llm,sft_llm,dpo_llm}/worker/generation-NNNN.json (576/546/576 files); scratch
+      s01_llm_keys.py; scripts/research/llm_intervention_language_policy.py:132-184
+[2] (verified) Per-action scores ARE saved at every decision for target_risk (planning_metadata.risk_reduction_per_cost, risk_after, risk_before, monte_carlo_standard_errors; 32 draws), local_information
+  (planning_metadata.scores) and learned_ranker (scores[] aligned with action_ids[], incl. stop). Menu coverage saves counts, uniform random nothing.
+    EVIDENCE: .../campaign_cpu_20261108/terminal02/remote/launch/cpu/worker/artifacts/campaign/policy-0{0..4}/world-NN/episode/decision-NNNN.process.json, JSON inside the stderr field
+[3] (verified) LLM-arm episode directories (policy-05..07) are absent locally, but every LLM state is recoverable from prompt_ids with the pinned tokenizer: 1,698/1,698 match prompt_sha256 and envelope_sha256. All 8 arms
+  share a state only at decision 0; 4,203 of 4,371 states are unique because each arm has its own measurement stream.
+    EVIDENCE: s03_build_dataset.py, s18_agreement.py; gpu/controller/<arm>-evidence.json joins[]; out/decisions.pkl
+[4] (verified) Shared first decision: TR optimum is x- 11, x+ 6, xy 5, y+ 1, y- 1 (identical with saved 32-draw and recomputed 256-draw scores). Best-minus-second gap median 0.00488 (24.5% of best), below 2 MC s.e. in
+  8/24 (32 draws), 5/24 (256). x- is within 2 s.e. of best in 14/24. Agreement with optimum: TR 24, local info 17, ranker 14, DPO = SFT = menu coverage 11, random 6, frozen 0.
+    EVIDENCE: s05_first_decision.py, s16_regret_own_states.py, s21_tables.py
+[5] (verified) Own-trajectory mean relative regret under 256-draw TR scores: TR 0.016, local info 0.154, menu 0.441, random 0.504, ranker 0.575, frozen 0.655, SFT 0.665, DPO 0.700. DPO is worse than random in 20/24
+  worlds (Wilcoxon p=0.0006) but better in decisions 0-3 (0.340 vs 0.475). On DPO states x- ranks 7th or 8th of 8 in 381/576.
+    EVIDENCE: s06_recompute_tr.py (4,203 states), s16; replay with saved seeds reproduces saved scores to 2.8e-17 on 80 sampled decisions (s23)
+[6] (verified) SFT: 42 non-x- acquisitions (x+ 23, y- 11, obs 8), none before decision 10; 24/68 at remaining budget 11-13 vs 18/455 elsewhere (Fisher p=6e-13). y- in 8/8 collider, 3/8 chain, 0/8 fork worlds; observe
+  only in colliders. 23 stops, all at remaining <=3 (4/5, 14/19, 5/24, then 0/498); 5 stopped runs above target. No cost-menu sensitivity.
+    EVIDENCE: s09_sft_frozen.py, s12_behavioral_sensitivity.py
+[7] (verified) Frozen: both set_x_zero are in world 15 (fork, heterogeneous, shifted_low) at decisions 7 and 10. How close other commands were is unknowable.
+    EVIDENCE: s09_sft_frozen.py; frozen service ordinals 367 and 370
+[8] (verified) Ranker: x+ 435, x- 141, nothing else. Only 2 distinct rank orders in 564 decisions; margin median 0.0031; 98.1% of centred score variance is a state-independent action effect. Its x-/x+ contrast matches TR
+  at decision 0 (rho 0.85) but sign agreement falls to 30/276 for decisions >=12.
+    EVIDENCE: s08_ranker.py, s19_direction_of_sensitivity.py
+[9] (verified) Prompts are 1,990-4,160 tokens (median about 3,000), +83 tokens per response. Posterior summary falls from 19% to 10% of the prompt while raw history grows from 36% to 67%; one 2x2 covariance is 78 tokens.
+  Median GPU time per decision: frozen 425 ms, SFT 536, DPO 710. The token tree pools seven set_* commands against observe at one greedy branch.
+    EVIDENCE: s10_tokens_latency.py
+[10] (verified) The deployed 32-draw TR planner is noise-limited: on its 560 decisions the top gap is below 2 MC s.e. in 74.8%, and the 256-draw argmax equals its choice in 65.9%. Posterior risk matches private NMSE on
+  average (ratio 0.994), yet NMSE worsens after 43.9% of single acquisitions.
+    EVIDENCE: s13_tr_own_saved.py, s16, s17_validate_tr_score.py
+[11] (verified) Training exposure: 32/160 supervised updates are stop on terminal states where stop is the only legal command; snapshots exist at only five budget levels; labels equal the 256-draw TR optimum in 55/128
+  states; exposed DPO pairs chose x- in 14/119.
+    EVIDENCE: .../cpu/worker/artifacts/cpu-phase/numeric-training-plan.json (raw_records_utf8, exposure); s07, s11, s20
+[12] (inferred) DPO stage: first-exposure preference accuracy 66/119, identical to SFT; log-odds shifts reach 15.9 nats and follow a per-command drift (R2 up to 0.84) correlated r=+0.89 with SFT mean command log-
+  likelihood. Reading: state-independent sharpening of the SFT ordering.
+    EVIDENCE: .../training_gpu_20261108/terminal01/remote/launch/training/session/worker/artifacts/fit/training/reference-scores.json and step-NNNNN.loss.json; s14, s15
+
+## NUMBERS
+Decisions per arm (stops included): random 487, menu 480, local 570, TR 560, ranker 576, frozen 576, SFT 546, DPO 576. Total 4,371.
+
+Actions: TR obs 215, x- 129, x+ 76, y+ 62, xy 31, y- 29, y0 16, x0 2. Local obs 318, x- 149, x+ 67, y+ 24, y- 7, xy 5. Ranker x+ 435, x- 141. Frozen obs 574, x0 2. SFT x- 481, x+ 23, y- 11, obs 8, stop 23. DPO x- 576.
+
+First decision (24 shared states) | optimum hit | mean regret, saved scores | relative regret, 256 draws
+TR 24 | 0 | 0
+local info 17 | 0.00091 | 0.042
+ranker 14 | 0.00254 | 0.158
+DPO = SFT = menu 11 | 0.00920 | 0.256
+random 6 | 0.01720 | 0.461
+frozen 0 | 0.02796 | 0.611
+
+Own trajectory, 256 draws | relative regret | chose optimum | within 2 s.e.
+TR 0.016 | 65.9% | 90.4%
+local 0.154 | 34.6% | 48.6%
+menu 0.441 | 17.9% | 23.8%
+random 0.504 | 13.3% | 18.9%
+ranker 0.575 | 9.7% | 12.2%
+frozen 0.655 | 3.1% | 7.3%
+SFT 0.665 | 8.6% | 11.0%
+DPO 0.700 | 6.8% | 9.7%
+
+DPO relative regret by decision block 0-3, 4-7, 8-15, 16-23: 0.340, 0.586, 0.776, 0.862. x- optimal on DPO states at d=0..5: 11, 8, 9, 6, 3, 2, then 0.
+
+Command entropy in bits: random 2.995, menu 2.791, TR 2.389, local 1.669, ranker 0.803, SFT 0.749, frozen 0.033, DPO 0.
+
+Training exposure: labels stop 32, x- 32, x+ 29, obs 24, xy 12, y+ 10, y- 10, x0 7, y0 4. Pairs 3,584, tied 2,897, strict 687, exposed 119. Strict pairs agree with TR score 68.6%, exposed pairs 58.8%.
+
+## SURPRISES / CONTRADICTIONS
+- The brief's file counts are low: 35,582 files under launch/cpu and 11,564 under launch/gpu, not about 7,100 and 2,100. The LLM arms' episode directories are not in the local copies at all.
+- The supervised adapter is not state-blind. It keys on budget level, graph and remaining budget, and those patterns mirror training snapshot levels and label statistics rather than the planner.
+- The exposed DPO pairs did not favour x- (chosen 14, rejected 9 of 119; x+ had the largest net count). The ranker trained on the same exposure went to x+, the LLM to x-.
+- DPO and SFT beat uniform random over the first four decisions; the damage comes from never switching.
+- The reference planner's own choices are mostly Monte Carlo ties after the first three decisions, so its argmax is a poor label and a poor agreement target.
+- Arms that pick the same first action still see different states from decision 1, so only decision 0 is a matched comparison.
+
+## IMPLICATIONS FOR AGENDA
+- Run a score diagnostic before any retraining: score all 9 commands for frozen, SFT and DPO at the 1,698 saved deployment prompts (token ids are saved verbatim) and at controlled edits of the 24 shared first-decision
+  states (sign of X mean, cost menu, budget, graph). My rough estimate is about one 20 GB slice-hour. Persist per-command log-likelihoods and branch probabilities in every future deployment record.
+- Add decision-level regret under a high-draw target-risk score as a declared endpoint. It separates DPO from random in 20/24 worlds where cost-to-target tied 13/24. Declare its circularity for the TR arm and consider an
+  oracle one-step value as the non-circular version.
+- Repair supervision first: remove terminal-state stop examples, replace mixed-teacher hard labels with planner score vectors from a 256-draw or better planner, sample states on-policy and at every budget level, and use
+  far more than 128 labelled states. The ranker's failure shows the data, not only the language interface, is limiting.
+- Do not rerun the DPO recipe (beta 0.1, one pair per record). Require held-out pair accuracy and command entropy as monitored quantities, use all 687 strict pairs with margins, or drop the stage.
+- Decode by whole-command likelihood instead of greedy token-tree choice.
+- Test a compact, feature-forward state serialization. One readable number, the sign of the X posterior mean, gives 17/24 optimal first decisions (relative regret 0.055 vs 0.256 for constant x-).
+- Keep constant-action policies, the one-feature sign rule and a high-draw planner as controls. DPO is exactly 'always x-'.
+- Increase benchmark headroom and replicate measurement streams per system; single acquisitions are too noisy for a first-crossing endpoint.
+
+## OPEN QUESTIONS
+- Do frozen, SFT and DPO score vectors vary with the state below the argmax, and how large are the command gaps? Only a scoring pass can answer.
+- Why does the SFT adapter give x+ about 0.05 probability on training states when x+ is 29 of 160 labels, against 0.41 for x- with 32?
+- Why does the frozen model choose observe: first menu item, token prior, or the pooled-branch decoding?
+- Is the SFT stop-time correlation with posterior risk (Spearman +0.54, n=23) real uncertainty reading or a cost-structure confound?
+- Which teacher produced each supervised label, given only 43% match the planner?
+- Would an oracle one-step value computed from the saved true mechanisms rank the arms the same way as the model-based score?
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/deployment-forensics.md
+
+## VERIFICATION
+OVERALL: No claim was refuted. Every headline number reproduces from the raw records with my own code: the decision table, the absence of LLM scores, first-decision agreement, x- as TR optimum in 11/24, the regret table,
+  and the SFT, frozen, ranker, token and training counts. Four items are partial: the 256-draw 'identical' statement (seed luck from exact ties), the risk/NMSE ratio (1.008, not 0.994), the drift R2 (0.60-0.75, not
+  0.84), and the reading that SFT is 'state-dependent' (it is budget-keyed, with no sign of posterior use). The interpretations need tightening before they drive the agenda: the headline endpoint cannot separate SFT from
+  DPO, the regret proxy is not validated against outcomes, and the logged DPO drift does not explain why only x- is emitted. Full notes: /private/tmp/claude-501/-Users-pat--claude-spares-spare-
+  Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/deployment-forensics-verify.md. Per-decision table with reference scores: /private/tmp/claude-501/-Users-pat--claude-spares-spare-
+  Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/deployment-forensics-verify/decisions_verifier.csv.
+* [confirmed] No per-command score vectors were saved for any LLM arm at deployment; decoding is greedy with a token-prefix constraint. Scores are saved for target risk (TR), local information and the ranker.
+    MY VALUE: 0 score-like keys in 11,564 JSON files of the GPU tree. generation-NNNN.json has 22 keys (earlier agent listed 7), none a score. Per-action scores present at 560/560 TR, 570/570 local-information and
+      576/576 ranker decisions. Menu coverage saves counts, random nothing.
+    HOW: Own key walk (v01_keys.py, v28_score_presence.py) plus source: llm_intervention_language_policy.py:132-184 and llm_intervention_model_service.py:364-374. Checkout equals frozen commit a9346022 for these files
+      (empty git diff).
+* [confirmed] All LLM states are recoverable from prompt_ids; one table of 4,371 decisions; 4,203 unique states; arms share a state only at decision 0; action counts per arm.
+    MY VALUE: 1,698/1,698 prompt and envelope SHA256 match. Decisions 487/480/570/560/576/576/546/576. 4,203 unique; the only shared states are the 24 first states (8 arms each). Every action count matches exactly (DPO
+      x- 576; frozen obs 574, x0 2; SFT x- 481, x+ 23, y- 11, obs 8, stop 23). No policy-05..07 directories locally.
+    HOW: Own decode with the local tokenizer.json (no weights), v03/v05. Cross-check: my action sequences equal reporting01/data01/curves.csv in 192/192 cells; my NMSE recomputation matches it to 2.2e-16.
+* [confirmed] At the shared first decision set_x_neg is the TR optimum in 11/24 systems (x- 11, x+ 6, xy 5, y+ 1, y- 1) and is the best constant action.
+    MY VALUE: Saved 32-draw scores: 11/6/5/1/1. At 262,144 draws: x- 11, x+ 6, xy 5, y+ 1, obs 1 (worlds 2 and 14 swap membership). x- and xy are exactly equivalent in uniform-cost fork worlds, so x- is unique-or-tied
+      best in 13/24 and loses 32-93% of attainable gain in 10. Best constant action: x- relative regret 0.257, next x0 0.428.
+    HOW: v06_first_decision.py on saved planning_metadata; v19_d0_highprec.py with my own planner re-implementation (vtr.py).
+* [partially_confirmed] The first-decision optimum distribution is identical under recomputed 256-draw scores.
+    MY VALUE: Seed-dependent. Five independent 256-draw estimates give x- counts 12, 10, 13, 12, 12 because of exact ties.
+    HOW: v29_d0_256.py.
+* [confirmed] First-decision agreement with the TR optimum: TR 24, local info 17, ranker 14, DPO = SFT = menu 11, random 6, frozen 0; mean regrets 0.00091 / 0.00254 / 0.00920 / 0.01720 / 0.02796; gap median 0.00488
+  (24.5%), below 2 s.e. in 8/24, x- within 2 s.e. in 14/24.
+    MY VALUE: Identical on saved scores (relative regret 0.042 / 0.160 / 0.260 / 0.465 / 0.602). Against the 262k-draw optimum: TR 21, local 17, ranker 14, DPO=SFT=menu 11, random 4, frozen 1. Gap below 2 s.e. in 3-5/24
+      at 256 draws (claimed 5).
+    HOW: v06, v19, v29. DPO, SFT and menu coverage all pick x- in 24/24 first states; menu coverage does so through its alphabetical tie rule.
+* [confirmed] Own-trajectory mean relative regret (256-draw TR): TR 0.016, local 0.154, menu 0.441, random 0.504, ranker 0.575, frozen 0.655, SFT 0.665, DPO 0.700; chose-optimum and within-2-s.e. shares.
+    MY VALUE: Five 256-draw seeds: 0.015-0.017, 0.153-0.155, 0.440-0.442, 0.503-0.505, 0.574-0.575, 0.655-0.657, 0.664-0.665, 0.698-0.700. At 16,384 draws: 0.013, 0.152, 0.441, 0.502, 0.574, 0.654, 0.663, 0.699. Optimum
+      and 2-s.e. shares within about 1 point of the claims.
+    HOW: v09_reference_scores.py and v18_regret.py on all 4,203 unique states, own sampler validated against saved scores.
+* [confirmed] DPO is worse than random in 20/24 worlds (p=0.0006) but better in decisions 0-3 (0.340 vs 0.475); blocks 0.340/0.586/0.776/0.862; x- optimal on DPO states in 39/576 and never after decision 5; x- ranks 7th
+  or 8th in 381/576.
+    MY VALUE: 20/24, Wilcoxon p 0.0005-0.0007. 0.337 vs 0.475. Blocks 0.337/0.584/0.775/0.862. x- optimal 38/576 at 16,384 draws (11, 9, 7, 6, 3, 2, then none); 40-44 across 256-draw seeds. Rank 7 or 8 in 382/564 full-
+      menu states.
+    HOW: v20_regret_details.py.
+* [confirmed] SFT: 42 non-x- acquisitions, none before decision 10; 24/68 at remaining 11-13 vs 18/455 (p=6e-13); y- in 8/8 collider, 3/8 chain, 0/8 fork; observe only in colliders; 23 stops all at remaining <=3 (4/5,
+  14/19, 5/24, 0/498); 5 stopped runs above target; no cost sensitivity. Frozen: both set_x_zero in world 15 at decisions 7 and 10.
+    MY VALUE: All counts identical. Fisher p 6.4e-13. Cost-menu Fisher p 1.0 and 0.52. Frozen ordinals 367 and 370.
+    HOW: v10_sft_frozen.py; stopped-above-target from cells.csv (worlds 10, 11, 12, 19, 21).
+* [partially_confirmed] State-sensitivity conclusion: the supervised adapter IS state-dependent and the DPO stage erased that.
+    MY VALUE: Behaviourally true, but SFT's dependence is on the budget counter and graph type only. x+ is emitted exactly once per world in 23/24 worlds; its timing is unrelated to the posterior (reference prefers x+
+      over x- in 15/16 states where SFT chose x+ and 42/44 where it chose x-). 6/23 stops occur with public posterior risk above the 0.04 tolerance. Deviations beat x- in 36/42 cases but are optimal in 5/42.
+    HOW: v23_sft_triggers.py, v21_ranker_sft_extra.py.
+* [confirmed] Ranker: x+ 435, x- 141; 2 rank orders in 564 decisions; margin median 0.0031; 98.1% of centred variance is a state-independent action effect; contrast rho 0.85 at decision 0; sign agreement 30/276 for
+  decisions >=12.
+    MY VALUE: 435/141; 2 orders; 0.0031; 0.9809; rho 0.846; 27-31 of 276 by seed.
+    HOW: v11_ranker.py, v21, v22 on saved scores[].
+* [confirmed] Prompts 1,990-4,160 tokens (median ~3,000), +83 tokens per response; posterior share 19% to 10%, history 36% to 67%; 2x2 covariance 78 tokens; median GPU ms 425/536/710; token tree pools seven set_*
+  commands against observe.
+    MY VALUE: 1,990-4,160, median 2,998. +83 for SFT and DPO, +91 for frozen. 19.2% to 9.9%, 35.5% to 67.2%. Covariance median 81 (range 76-87). 424.6/536.0/709.6 ms. Branches: action(8) vs stop; observe(1) vs set(7).
+    HOW: v12_tokens_latency.py, v24.
+* [partially_confirmed] TR planner is noise-limited (top gap below 2 s.e. in 74.8%; 256-draw argmax equals its choice in 65.9%); posterior risk/NMSE ratio 0.994; NMSE worsens after 43.9% of acquisitions; replay with
+  saved seeds reproduces saved scores.
+    MY VALUE: 419/560 = 74.8%. 66.6% (66-70% by seed). 1,909/4,348 = 43.9%. Replay matches all 560 decisions (4,432 scores) to 1.1e-16. Ratio not reproduced: I get 1.008 over decision states (per-arm 0.74 to 1.26).
+    HOW: v07_replay_tr.py, v20, v13_curves_crosscheck.py.
+* [confirmed] Training exposure: 32/160 stop labels on terminal states; five budget levels; labels equal TR optimum in 55/128; pairs 3,584 / tied 2,897 / strict 687 / exposed 119; exposed pairs chose x- 14/119; strict
+  pairs agree with TR 68.6%, exposed 58.8%.
+    MY VALUE: Label counts exact. 56/128. 470/687 = 68.4%. 69/119 = 58.0%. x- chosen 14, rejected 9.
+    HOW: v15_training_exposure.py on cpu-phase/numeric-training-plan.json with my 16,384-draw reference.
+* [partially_confirmed] DPO stage: first-exposure preference accuracy 66/119, same as SFT; shifts reach 15.9 nats; per-command drift R2 up to 0.84, r=+0.89 with SFT command log-likelihood.
+    MY VALUE: 66/119 for both, no improvement by third; max shift 15.91 nats (beta 0.1); r = 0.91. My R2 is 0.60 to 0.75, not 0.84.
+    HOW: v16, v17, v26 from reference-scores.json and step-NNNNN.loss.json (exact inversion of the single-pair loss).
+* [confirmed] Decision-level regret orders the arms like the headline endpoint (Spearman 0.93).
+    MY VALUE: 0.929 against mean capped cost. Only 0.69 against mean final NMSE and 0.84 against ever-attained; random and frozen are mis-ordered.
+    HOW: v20_regret_details.py with policies.csv.
+
+### ADDITIONAL FINDINGS (verifier)
+- Endpoint noise floor: SFT and DPO issue identical actions for their first 10-22 acquisitions in every world but have separate measurement streams. Their capped cost differs in 11/24 worlds, and in 8 of those the
+  difference was decided inside the identical prefix (for example world 21: 32 vs 12; world 16: 10 vs 22). Those noise-only differences total 54 cost units against a reported mean difference of 0.54. Ten worlds already
+  meet the target at initialization, so 14 carry endpoint information.
+- Missing LLM scores are recoverable without new environment responses: local sft.adapter.pt and final.adapter.pt hash to the deployed adapter pins (583b1659..., 6f540dfe...), and all 1,698 exact prompt token sequences
+  are saved. A Qwen3-0.6B snapshot is in the local cache, pin not verified. I did not run it.
+- DPO-stage logs do not explain 'x- only': shifts favour observe in 19/19 exposed pairs containing it (mean +6.7 nats, although observe was the rejected command in 13) and x- in 20/23 (+3.3). The single direct observe-
+  vs-x- pair moved 1.37 nats toward observe. Deployed DPO emitted observe 0/576 times. Token-tree pooling, off-distribution states or later updates could explain this; the records cannot separate them.
+- Stop appears in 0 of 3,584 preference pairs, yet DPO removed every stop (SFT stopped in 23/24 worlds, DPO in 0/24). The DPO stage changed behaviour that no label addressed.
+- Position, identity and tie rule are confounded: menu order is identical in all 4,371 deployment states and 160 training records, and the task payload is byte-identical everywhere. Frozen emits the first menu entry; SFT
+  and DPO emit the first listed intervention, which also wins every alphabetical tie rule. Protocol source (llm_intervention_screen_protocol.py:126-132,188) assigns a quarter of labels each to random, menu-coverage,
+  local-information and target-risk teachers; read in source, not recomputed per record.
+- Off-distribution deployment states: the longest run of one repeated acquisition in any training history is 10 (129/160 have runs of 3 or less). DPO states from decision 11 onward (312/576) contain 11-23 consecutive x-
+  rows.
+- The ranker is not equally state-blind early: at decision 0 it deviates to x+ in three worlds and is right in all three; relative regret in decisions 0-3 is 0.219 against 0.337 (DPO) and 0.340 (SFT). It then switches to
+  x+ on a step-indexed schedule (never x- after decision 11) while the reference prefers x- in 260/288 of those states.
+- On regret DPO is indistinguishable from frozen (worse in 12/24 worlds, p 0.79) and worse than SFT in 19-22/24 (p <= 0.001). An all-observe policy has regret 0.654 yet the fourth-best final NMSE, so the one-step proxy
+  should be validated before it becomes a primary endpoint.

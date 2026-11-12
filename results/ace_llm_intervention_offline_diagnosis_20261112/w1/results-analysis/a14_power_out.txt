@@ -1,0 +1,70 @@
+z multipliers: two-sided 0.05 & 80% power: 2.8016 ; 90%: 3.2415 ; one-sided 0.025 identical
+
+observed paired SDs of (policy - target_risk)
+            cost_mean  cost_sd_all24  cost_sd_inf14  zeros_all24  aulc_mean  aulc_sd_all24  aulc_sd_inf14  aucraw_sd_all24  aucraw_sd_inf14
+policy                                                                                                                                     
+random         2.6250         5.4279         6.5604           12     0.1830         0.4898         0.4551           0.0677           0.0850
+coverage       0.8333         3.0740         3.9752           13     0.0497         0.3514         0.3432           0.0196           0.0257
+local_info     0.3333         6.2113         8.2529           13     0.0310         0.4903         0.4683           0.0422           0.0520
+ranker         1.9583         6.6298         8.5269           14     0.1315         0.4781         0.4494           0.0391           0.0509
+frozen         2.0000         6.7631         8.6976           11     0.1922         0.3847         0.4676           0.0347           0.0459
+sft            3.0000         6.0577         7.2839           12     0.1023         0.3562         0.3990           0.0224           0.0292
+dpo            3.5417         6.4335         7.5291           13     0.1324         0.4812         0.5137           0.0397           0.0499
+pooled (root-mean-square over the 7 comparisons): cost all-24 5.919 ; cost informative-14 7.417 ; aulc all-24 0.4373 ; aulc informative-14 0.4453
+median over the 7 comparisons: cost all-24 6.211 ; informative-14 7.529 ; aulc all-24 0.4781 ; informative-14 0.4551
+
+--- capped cost-to-target: systems needed (paired t, two-sided alpha 0.05; z-approximation in brackets) --- all-24 mix (10 of 24 systems tied at 8 by construction)
+                                                     SD   d=1, 80%   d=1, 90% d=2, 80%   d=2, 90% NI M=1 (true diff 0), 80% NI M=1, 90% NI M=1 (true diff +0.33), 80%
+SD source                                                                                                                                                            
+coverage - target_risk (smallest)              3.073967    77 (74)   102 (99)  21 (19)    27 (25)                        77         102                           169
+local_info - target_risk (closest competitor)  6.211257  305 (303)  408 (405)  78 (76)  104 (101)                       305         408                           684
+dpo - target_risk                              6.433467  327 (325)  437 (435)  84 (81)  111 (109)                       327         437                           733
+median of 7                                    6.211257  305 (303)  408 (405)  78 (76)  104 (101)                       305         408                           684
+frozen - target_risk (largest)                 6.763071  361 (359)  483 (481)  92 (90)  123 (120)                       361         483                           810
+
+--- capped cost-to-target: systems needed (paired t, two-sided alpha 0.05; z-approximation in brackets) --- informative-only systems (SD from the 14 systems above target after initialization)
+                                SD   d=1, 80%   d=1, 90%   d=2, 80%   d=2, 90% NI M=1 (true diff 0), 80% NI M=1, 90% NI M=1 (true diff +0.33), 80%
+SD source                                                                                                                                         
+coverage - target_risk    3.975198  126 (124)  168 (166)    33 (31)    44 (42)                       126         168                           281
+local_info - target_risk  8.252872  537 (535)  718 (716)  136 (134)  181 (179)                       537         718                          1205
+dpo - target_risk         7.529065  447 (445)  598 (596)  114 (111)  151 (149)                       447         598                          1003
+median of 7               7.529065  447 (445)  598 (596)  114 (111)  151 (149)                       447         598                          1003
+
+--- curve-area endpoint (mean log10 NMSE over costs 9..32): systems needed --- all 24
+    10% lower geometric-mean error = 0.0458 log10 units ; 20% = 0.0969
+                                       SD  10%, 80%  10%, 90%  20%, 80%  20%, 90%  30%, 80%  50%, 80%
+SD source                                                                                            
+coverage - target_risk (smallest)  0.3514       465       622       106       141        43        13
+local_info - target_risk           0.4903       904      1209       203       271        81        23
+dpo - target_risk                  0.4812       870      1164       196       261        78        23
+median of 7                        0.4781       859      1150       193       258        77        22
+
+--- curve-area endpoint (mean log10 NMSE over costs 9..32): systems needed --- informative 14
+    10% lower geometric-mean error = 0.0458 log10 units ; 20% = 0.0969
+                              SD  10%, 80%  10%, 90%  20%, 80%  20%, 90%  30%, 80%  50%, 80%
+SD source                                                                                   
+coverage - target_risk    0.3432       444       593       101       134        41        13
+local_info - target_risk  0.4683       824      1103       186       248        74        21
+dpo - target_risk         0.5137       992      1327       223       298        89        25
+median of 7               0.4551       779      1042       176       234        70        20
+
+--- natural-scale area (mean NMSE over costs 9..32); target_risk mean 0.03361 ; 10% = 0.00336, 20% = 0.00672
+   SD coverage   0.0196 : 10% 80%: 269 ; 20% 80%: 69 ; 20% 90%: 92
+   SD local_info 0.0422 : 10% 80%: 1240 ; 20% 80%: 312 ; 20% 90%: 417
+   SD dpo        0.0397 : 10% 80%: 1100 ; 20% 80%: 277 ; 20% 90%: 370
+
+--- effect of R replicate episodes per (system, policy) on required systems, capped cost, delta=1, 80% power, single-run SD 6.2
+   replicate-noise share rho = 0.5 : R=1 -> SD 6.20, n=304 ; R=2 -> SD 5.37, n=229 ; R=4 -> SD 4.90, n=191 ; R=8 -> SD 4.65, n=172 ; R=16 -> SD 4.52, n=163 ; R=32 -> SD 4.45, n=158
+   replicate-noise share rho = 0.8 : R=1 -> SD 6.20, n=304 ; R=2 -> SD 4.80, n=183 ; R=4 -> SD 3.92, n=123 ; R=8 -> SD 3.40, n=93 ; R=16 -> SD 3.10, n=78 ; R=32 -> SD 2.94, n=70
+--- same for the curve-area endpoint, 20% (0.0969), single-run SD 0.45
+   rho = 0.5 : R=1 -> SD 0.450, n=172 ; R=2 -> SD 0.390, n=129 ; R=4 -> SD 0.356, n=108 ; R=8 -> SD 0.338, n=98 ; R=16 -> SD 0.328, n=92 ; R=32 -> SD 0.323, n=90
+   rho = 0.8 : R=1 -> SD 0.450, n=172 ; R=2 -> SD 0.349, n=104 ; R=4 -> SD 0.285, n=70 ; R=8 -> SD 0.246, n=53 ; R=16 -> SD 0.225, n=45 ; R=32 -> SD 0.213, n=41
+
+--- bootstrap power (resampling the 24 observed paired differences with replacement; two-sided 0.05) to detect effects of the OBSERVED size
+   random - target_risk, capped cost (obs mean +2.625)     n=24: t 0.76, Wilcoxon 0.82 ; n=48: t 0.99, Wilcoxon 0.99 ; n=96: t 1.00, Wilcoxon 1.00 ; n=192: t 1.00, Wilcoxon 1.00
+   dpo - target_risk, capped cost (obs mean +3.542)        n=24: t 0.87, Wilcoxon 0.85 ; n=48: t 1.00, Wilcoxon 1.00 ; n=96: t 1.00, Wilcoxon 1.00 ; n=192: t 1.00, Wilcoxon 1.00
+   frozen - target_risk, capped cost (obs mean +2.000)     n=24: t 0.22, Wilcoxon 0.17 ; n=48: t 0.55, Wilcoxon 0.28 ; n=96: t 0.88, Wilcoxon 0.49 ; n=192: t 1.00, Wilcoxon 0.75
+   ranker - target_risk, capped cost (obs mean +1.958)     n=24: t 0.23, Wilcoxon 0.19 ; n=48: t 0.54, Wilcoxon 0.38 ; n=96: t 0.89, Wilcoxon 0.69 ; n=192: t 0.99, Wilcoxon 0.96
+   coverage - target_risk, capped cost (obs mean +0.833)   n=24: t 0.22, Wilcoxon 0.21 ; n=48: t 0.47, Wilcoxon 0.40 ; n=96: t 0.78, Wilcoxon 0.70 ; n=192: t 0.97, Wilcoxon 0.95
+   random - target_risk, curve area (obs mean +0.183)      n=24: t 0.44, Wilcoxon 0.38 ; n=48: t 0.73, Wilcoxon 0.58 ; n=96: t 0.96, Wilcoxon 0.88 ; n=192: t 1.00, Wilcoxon 0.98
+   dpo - target_risk, curve area (obs mean +0.132)         n=24: t 0.27, Wilcoxon 0.29 ; n=48: t 0.48, Wilcoxon 0.54 ; n=96: t 0.76, Wilcoxon 0.79 ; n=192: t 0.96, Wilcoxon 0.97

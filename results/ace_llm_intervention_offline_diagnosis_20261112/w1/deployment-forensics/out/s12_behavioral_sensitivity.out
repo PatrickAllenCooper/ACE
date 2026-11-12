@@ -1,0 +1,65 @@
+Action entropy H(A) in bits (max log2(9)=3.17) and mutual information I(A; feature) in bits.
+MI shown as raw / permutation-bias-corrected (p). 300 permutations.
+arm                    n   H(A) | graph                  cost menu              regime                 step tercile           remaining units       
+uniform_random       487  2.995 | 0.014 / -0.007 (p=0.787) 0.012 / 0.001 (p=0.322) 0.023 / -0.008 (p=0.811) 0.032 / 0.012 (p=0.083) 0.257 / -0.013 (p=0.691)
+menu_coverage        480  2.791 | 0.000 / -0.019 (p=1.000) 0.003 / -0.006 (p=0.920) 0.000 / -0.027 (p=1.000) 0.041 / 0.022 (p=0.010) 2.241 / 2.008 (p=0.003)
+local_information    570  1.669 | 0.102 / 0.089 (p=0.003) 0.027 / 0.020 (p=0.003) 0.096 / 0.075 (p=0.003) 0.076 / 0.062 (p=0.003) 0.267 / 0.123 (p=0.003)
+target_risk          560  2.389 | 0.110 / 0.091 (p=0.003) 0.167 / 0.158 (p=0.003) 0.076 / 0.047 (p=0.003) 0.058 / 0.039 (p=0.003) 0.279 / 0.067 (p=0.003)
+learned_ranker       576  0.803 | 0.001 / -0.002 (p=0.711) 0.001 / -0.001 (p=0.442) 0.009 / 0.006 (p=0.073) 0.362 / 0.359 (p=0.003) 0.429 / 0.399 (p=0.003)
+frozen_llm           576  0.033 | 0.006 / 0.002 (p=0.336) 0.003 / 0.002 (p=0.565) 0.007 / 0.003 (p=0.233) 0.002 / -0.001 (p=1.000) 0.013 / -0.000 (p=0.857)
+sft_llm              546  0.749 | 0.039 / 0.028 (p=0.003) 0.007 / 0.001 (p=0.306) 0.017 / 0.001 (p=0.399) 0.158 / 0.147 (p=0.003) 0.367 / 0.241 (p=0.003)
+dpo_llm              576 -0.000 | 0 / 0 (n/a)            0 / 0 (n/a)            0 / 0 (n/a)            0 / 0 (n/a)            0 / 0 (n/a)           
+
+Per-arm within-episode variability: mean number of distinct commands per world, mean number of action switches per world
+  uniform_random     distinct 7.50 (min 6 max 8)  switches 17.08 (min 11 max 23)
+  menu_coverage      distinct 7.00 (min 7 max 7)  switches 19.00 (min 15 max 23)
+  local_information  distinct 2.58 (min 2 max 4)  switches 12.88 (min 3 max 21)
+  target_risk        distinct 3.67 (min 2 max 6)  switches 14.83 (min 9 max 20)
+  learned_ranker     distinct 1.88 (min 1 max 2)  switches 1.12 (min 0 max 3)
+  frozen_llm         distinct 1.04 (min 1 max 2)  switches 0.17 (min 0 max 4)
+  sft_llm            distinct 3.50 (min 2 max 5)  switches 3.71 (min 1 max 6)
+  dpo_llm            distinct 1.00 (min 1 max 1)  switches 0.00 (min 0 max 0)
+
+Number of distinct complete action sequences across the 24 worlds:
+  uniform_random     24 distinct sequences (largest group 1 worlds)
+  menu_coverage      2 distinct sequences (largest group 12 worlds)
+  local_information  24 distinct sequences (largest group 1 worlds)
+  target_risk        24 distinct sequences (largest group 1 worlds)
+  learned_ranker     9 distinct sequences (largest group 10 worlds)
+  frozen_llm         2 distinct sequences (largest group 23 worlds)
+  sft_llm            19 distinct sequences (largest group 3 worlds)
+  dpo_llm            1 distinct sequences (largest group 24 worlds)
+
+SFT: command by remaining_units (training snapshots were taken at remaining 24, 18(17), 12(11), 6(5), 0):
+   remaining=24 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=23 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=22 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=21 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=20 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=19 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=18 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=17 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=16 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=15 n=24  x_neg=24  other_acq= 0  stop= 0   {}
+   remaining=14 n=24  x_neg=23  other_acq= 1  stop= 0   {'set_y_neg': 1}
+   remaining=13 n=23  x_neg=18  other_acq= 5  stop= 0   {'set_y_neg': 3, 'set_x_pos': 2}
+   remaining=12 n=24  x_neg=11  other_acq=13  stop= 0   {'set_x_pos': 9, 'set_y_neg': 4}
+   remaining=11 n=21  x_neg=15  other_acq= 6  stop= 0   {'set_y_neg': 1, 'set_x_pos': 5}
+   remaining=10 n=24  x_neg=23  other_acq= 1  stop= 0   {'set_x_pos': 1}
+   remaining= 9 n=24  x_neg=23  other_acq= 1  stop= 0   {'set_x_pos': 1}
+   remaining= 8 n=24  x_neg=22  other_acq= 2  stop= 0   {'set_x_pos': 2}
+   remaining= 7 n=24  x_neg=21  other_acq= 3  stop= 0   {'set_y_neg': 2, 'set_x_pos': 1}
+   remaining= 6 n=22  x_neg=18  other_acq= 4  stop= 0   {'observe_all': 2, 'set_x_pos': 2}
+   remaining= 5 n=24  x_neg=21  other_acq= 3  stop= 0   {'observe_all': 3}
+   remaining= 4 n=24  x_neg=22  other_acq= 2  stop= 0   {'observe_all': 2}
+   remaining= 3 n=24  x_neg=18  other_acq= 1  stop= 5   {'STOP': 5, 'observe_all': 1}
+   remaining= 2 n=19  x_neg= 5  other_acq= 0  stop=14   {'STOP': 14}
+   remaining= 1 n= 5  x_neg= 1  other_acq= 0  stop= 4   {'STOP': 4}
+   non-x_neg acquisitions at remaining in {11,12,13}: 24 of 68 (35.3%) ; elsewhere: 18 of 455 (4.0%) ; Fisher exact p=6.38e-13
+
+SFT: worlds (of 8 per graph) with >=1 set_y_neg / >=1 observe_all / >=1 set_x_pos:
+   chain    y_neg 3/8  observe 0/8  x_pos 7/8
+   fork     y_neg 0/8  observe 0/8  x_pos 8/8
+   collider y_neg 8/8  observe 3/8  x_pos 8/8
+   Fisher exact, set_y_neg present: collider 8/8 vs fork 0/8: p=0.00016 ; collider 8/8 vs chain 3/8: p=0.0256
+   cost of set_y_neg when chosen: {('uniform', 1): 5, ('heterogeneous', 2): 6}

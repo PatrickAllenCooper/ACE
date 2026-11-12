@@ -1,0 +1,90 @@
+=== variants of 'opens with X at the farther extreme' ===
+target_risk: strict first action == far pure X extreme: 17/24 | strict first action has X at far extreme (set_xy counted as X=-1): 22/24 | first X-setting action (incl. set_xy) at far extreme: 24/24 | first pure X-extreme action is far (init estimate): 23/24 | same, using the estimate in force at that step: 23/24
+    exceptions to 'first pure X-extreme action is far': [('w17', np.float64(0.0146), ['set_xy', 'set_x_pos', 'set_x_neg', 'set_x_pos'])]
+local_information: strict first action == far pure X extreme: 22/24 | strict first action has X at far extreme (set_xy counted as X=-1): 22/24 | first X-setting action (incl. set_xy) at far extreme: 24/24 | first pure X-extreme action is far (init estimate): 24/24 | same, using the estimate in force at that step: 24/24
+    exceptions to 'first pure X-extreme action is far': []
+
+=== leave-one-out positional agreement with a per-cell modal sequence ===
+           policy  sign_normalized                                           cell  agreement  n_positions  shuffle_mean  shuffle_p95  p_perm
+      target_risk            False               graph x cost menu (6 cells of 4)     0.3746          558        0.3167       0.3513  0.0040
+      target_risk            False                           graph (3 cells of 8)     0.3946          560        0.3210       0.3554  0.0010
+      target_risk            False                      cost menu (2 cells of 12)     0.4089          560        0.3255       0.3661  0.0005
+      target_risk            False                 graph x regime (12 cells of 2)     0.2279          544        0.2146       0.2426  0.2424
+      target_risk            False graph x cost x coefficient law (12 cells of 2)     0.3043          552        0.2728       0.3080  0.0845
+      target_risk            False           graph x cost x noise (12 cells of 2)     0.3249          554        0.2770       0.3105  0.0180
+      target_risk            False            all systems one cell (1 cell of 24)     0.4304          560        0.3572       0.3893  0.0005
+      target_risk             True               graph x cost menu (6 cells of 4)     0.4086          558        0.3365       0.3781  0.0030
+      target_risk             True                           graph (3 cells of 8)     0.4268          560        0.3474       0.3929  0.0030
+      target_risk             True                      cost menu (2 cells of 12)     0.4196          560        0.3422       0.3929  0.0060
+      target_risk             True                 graph x regime (12 cells of 2)     0.2868          544        0.2612       0.2941  0.1279
+      target_risk             True graph x cost x coefficient law (12 cells of 2)     0.3623          552        0.3156       0.3514  0.0300
+      target_risk             True           graph x cost x noise (12 cells of 2)     0.3718          554        0.3259       0.3646  0.0280
+      target_risk             True            all systems one cell (1 cell of 24)     0.4679          560        0.3583       0.4107  0.0005
+local_information            False               graph x cost menu (6 cells of 4)     0.5140          570        0.4702       0.5053  0.0205
+local_information            False                           graph (3 cells of 8)     0.5702          570        0.5096       0.5439  0.0015
+local_information            False                      cost menu (2 cells of 12)     0.6193          570        0.5267       0.5544  0.0005
+local_information            False                 graph x regime (12 cells of 2)     0.4574          564        0.3953       0.4291  0.0015
+local_information            False graph x cost x coefficient law (12 cells of 2)     0.4255          564        0.3850       0.4184  0.0340
+local_information            False           graph x cost x noise (12 cells of 2)     0.5193          570        0.4278       0.4632  0.0005
+local_information            False            all systems one cell (1 cell of 24)     0.6263          570        0.5462       0.5649  0.0005
+local_information             True               graph x cost menu (6 cells of 4)     0.5702          570        0.4773       0.5228  0.0015
+local_information             True                           graph (3 cells of 8)     0.5947          570        0.5004       0.5509  0.0015
+local_information             True                      cost menu (2 cells of 12)     0.6386          570        0.5133       0.5597  0.0005
+local_information             True                 graph x regime (12 cells of 2)     0.5745          564        0.4744       0.5177  0.0005
+local_information             True graph x cost x coefficient law (12 cells of 2)     0.4858          564        0.4332       0.4752  0.0255
+local_information             True           graph x cost x noise (12 cells of 2)     0.5965          570        0.4706       0.5123  0.0005
+local_information             True            all systems one cell (1 cell of 24)     0.6456          570        0.5298       0.5754  0.0005
+    menu_coverage            False               graph x cost menu (6 cells of 4)     1.0000          480        0.1589       0.2021  0.0050
+    menu_coverage            False                           graph (3 cells of 8)     1.0000          480        0.1589       0.2043  0.0050
+    menu_coverage            False                      cost menu (2 cells of 12)     1.0000          480        0.1535       0.2001  0.0050
+    menu_coverage            False                 graph x regime (12 cells of 2)     1.0000          384        0.1461       0.1927  0.0050
+    menu_coverage            False graph x cost x coefficient law (12 cells of 2)     1.0000          480        0.1465       0.1796  0.0050
+    menu_coverage            False           graph x cost x noise (12 cells of 2)     1.0000          480        0.1466       0.1833  0.0050
+    menu_coverage            False            all systems one cell (1 cell of 24)     1.0000          480        0.1538       0.2044  0.0050
+    menu_coverage             True               graph x cost menu (6 cells of 4)     0.8375          480        0.1411       0.1833  0.0050
+    menu_coverage             True                           graph (3 cells of 8)     0.8875          480        0.1460       0.1876  0.0050
+    menu_coverage             True                      cost menu (2 cells of 12)     0.8958          480        0.1469       0.1938  0.0050
+    menu_coverage             True                 graph x regime (12 cells of 2)     0.7812          384        0.1448       0.1875  0.0050
+    menu_coverage             True graph x cost x coefficient law (12 cells of 2)     0.8583          480        0.1480       0.1835  0.0050
+    menu_coverage             True           graph x cost x noise (12 cells of 2)     0.8417          480        0.1474       0.1835  0.0050
+    menu_coverage             True            all systems one cell (1 cell of 24)     0.8958          480        0.1513       0.2022  0.0050
+   uniform_random            False               graph x cost menu (6 cells of 4)     0.0975          482        0.1251       0.1578  0.9204
+   uniform_random            False                           graph (3 cells of 8)     0.1027          487        0.1218       0.1584  0.7811
+   uniform_random            False                      cost menu (2 cells of 12)     0.1502          486        0.1267       0.1709  0.2090
+   uniform_random            False                 graph x regime (12 cells of 2)     0.1457          398        0.1240       0.1608  0.1940
+   uniform_random            False graph x cost x coefficient law (12 cells of 2)     0.0924          476        0.1214       0.1513  0.9353
+   uniform_random            False           graph x cost x noise (12 cells of 2)     0.1458          480        0.1214       0.1544  0.1741
+   uniform_random            False            all systems one cell (1 cell of 24)     0.1376          487        0.1237       0.1725  0.3284
+   uniform_random             True               graph x cost menu (6 cells of 4)     0.1037          482        0.1224       0.1598  0.8060
+   uniform_random             True                           graph (3 cells of 8)     0.1088          487        0.1186       0.1581  0.6716
+   uniform_random             True                      cost menu (2 cells of 12)     0.1440          486        0.1267       0.1687  0.2139
+   uniform_random             True                 graph x regime (12 cells of 2)     0.1558          398        0.1204       0.1558  0.0846
+   uniform_random             True graph x cost x coefficient law (12 cells of 2)     0.0882          476        0.1234       0.1555  0.9801
+   uniform_random             True           graph x cost x noise (12 cells of 2)     0.1708          480        0.1239       0.1583  0.0299
+   uniform_random             True            all systems one cell (1 cell of 24)     0.1232          487        0.1268       0.1725  0.5522
+          sft_llm            False               graph x cost menu (6 cells of 4)     0.9017          519        0.9048       0.9152  0.7214
+          sft_llm            False                           graph (3 cells of 8)     0.9138          522        0.9189       0.9195  0.9701
+          sft_llm            False                      cost menu (2 cells of 12)     0.9195          522        0.9196       0.9215  0.9005
+          sft_llm            False                 graph x regime (12 cells of 2)     0.8837          516        0.8495       0.8643  0.0050
+          sft_llm            False graph x cost x coefficient law (12 cells of 2)     0.9031          516        0.8495       0.8645  0.0050
+          sft_llm            False           graph x cost x noise (12 cells of 2)     0.8794          514        0.8487       0.8599  0.0050
+          sft_llm            False            all systems one cell (1 cell of 24)     0.9197          523        0.9197       0.9197  1.0000
+          sft_llm             True               graph x cost menu (6 cells of 4)     0.5414          519        0.5084       0.5299  0.0050
+          sft_llm             True                           graph (3 cells of 8)     0.6437          522        0.6224       0.6437  0.0796
+          sft_llm             True                      cost menu (2 cells of 12)     0.6762          522        0.6509       0.6648  0.0050
+          sft_llm             True                 graph x regime (12 cells of 2)     0.4109          516        0.3931       0.4033  0.0348
+          sft_llm             True graph x cost x coefficient law (12 cells of 2)     0.5310          516        0.5069       0.5194  0.0050
+          sft_llm             True           graph x cost x noise (12 cells of 2)     0.5681          514        0.5403       0.5525  0.0050
+          sft_llm             True            all systems one cell (1 cell of 24)     0.6730          523        0.6610       0.6616  0.0050
+
+=== additional measures ===
+target_risk: distinct full sequences 24/24; mean pairwise positional agreement within graph x cost cells 0.294 (n=36), across cells 0.249 (n=240); distinct sign-normalized prefixes of length 1..4: {1: 4, 2: 9, 3: 12, 4: 17}
+    sign-normalized LOO agreement, steps 0..2: 0.486
+    sign-normalized LOO agreement, steps 3..7: 0.375
+    sign-normalized LOO agreement, steps 8..15: 0.370
+    sign-normalized LOO agreement, steps 16..23: 0.443
+local_information: distinct full sequences 24/24; mean pairwise positional agreement within graph x cost cells 0.455 (n=36), across cells 0.448 (n=240); distinct sign-normalized prefixes of length 1..4: {1: 3, 2: 5, 3: 10, 4: 12}
+    sign-normalized LOO agreement, steps 0..2: 0.708
+    sign-normalized LOO agreement, steps 3..7: 0.483
+    sign-normalized LOO agreement, steps 8..15: 0.552
+    sign-normalized LOO agreement, steps 16..23: 0.591

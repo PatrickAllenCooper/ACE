@@ -1,0 +1,14 @@
+policy minus TR, log-area | informative 14: mean, sd, -/+ , sign-flip p | at-target 10: mean, sd, -/+, sign-flip p
+uniform_random     | +0.166 0.455 3/11 p=0.1969 | +0.207 0.559 4/6 p=0.2773
+menu_coverage      | +0.025 0.343 4/10 p=0.8192 | +0.084 0.378 3/7 p=0.5000
+local_information  | -0.132 0.468 9/5 p=0.3188 | +0.259 0.446 3/7 p=0.0879
+learned_ranker     | +0.085 0.449 7/7 p=0.4912 | +0.197 0.533 3/7 p=0.2656
+frozen_llm         | +0.182 0.468 6/8 p=0.1689 | +0.206 0.249 3/7 p=0.0371
+sft_llm            | +0.142 0.399 4/10 p=0.2074 | +0.046 0.297 6/4 p=0.6270
+dpo_llm            | +0.150 0.514 4/10 p=0.2885 | +0.108 0.458 4/6 p=0.4766
+rank on informative 14: local_information(-1.755) < target_risk(-1.624) < menu_coverage(-1.598) < learned_ranker(-1.539) < sft_llm(-1.481) < dpo_llm(-1.474) < uniform_random(-1.457) < frozen_llm(-1.441)
+rank on at-target 10: target_risk(-2.268) < sft_llm(-2.222) < menu_coverage(-2.184) < dpo_llm(-2.160) < learned_ranker(-2.071) < frozen_llm(-2.062) < uniform_random(-2.061) < local_information(-2.009)
+mean log10 init NMSE: informative -0.878 at-target -1.918
+mean log-area improvement over init (negative = better):
+   informative: {'uniform_random': -0.58, 'menu_coverage': -0.721, 'local_information': -0.878, 'target_risk': -0.746, 'learned_ranker': -0.661, 'frozen_llm': -0.564, 'sft_llm': -0.604, 'dpo_llm': -0.596}
+   at-target:   {'uniform_random': -0.143, 'menu_coverage': -0.266, 'local_information': -0.091, 'target_risk': -0.35, 'learned_ranker': -0.153, 'frozen_llm': -0.143, 'sft_llm': -0.303, 'dpo_llm': -0.242}

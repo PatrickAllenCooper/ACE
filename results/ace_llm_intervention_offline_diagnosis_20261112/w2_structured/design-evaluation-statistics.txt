@@ -1,0 +1,244 @@
+# DESIGN: evaluation-statistics
+## THESIS
+Positive form: on fresh systems from a world class that was qualified beforehand by numerical-only headroom criteria, a language-model policy trained to read an explicit SCM state reaches a Bayes-reliable answer at lower expected
+  experimental cost than target-risk planning (TR). The effect is replicated across five training seeds, it disappears when the policy's measurements are shuffled or its state is permuted, and it exceeds a numerical student given
+  the same information. Every claim is measured with Rao-Blackwellized endpoints whose validity conditions are proved, with common random numbers and a registered TOST null branch. Null or negative form: with measurement repaired
+  (CRN, evaluator-side Rao-Blackwellization, a relative cost-to-target band, fresh namespaces) and the study powered for equivalence at a pre-declared margin of 0.3 per-system SD units (about 3 to 9% of expected error), a trained
+  small LLM policy is equivalent to or worse than TR. The headroom bounds (T4), the open-loop bound (T5) and the treatment-fidelity diagnostics explain why. In both cases the paper also contributes an evaluation methodology for
+  experimental-design policies that needs roughly 8 to 96 times fewer systems than realized-error endpoints. The saved data show this: the implied per-system SD of the log ratio-of-means is 0.16 to 0.38 on posterior error against
+  1.13 to 1.57 on realized error. The methodology also shows that the November 24-system screen could not have resolved a realistic benefit: the detectable difference was 3.7 units against a ceiling of 3.04.
+
+### E1 [must] Endpoint non-favorability and planning audit on saved development data
+  QUESTION: On the saved 24-system data, do the repaired endpoints resolve policies better than the declared first-crossing endpoint? Does the Rao-Blackwell identity hold? Would adopting the new endpoints favor the LLM arms?
+  DESIGN: Offline. No new environment responses, no model execution. Inputs: replayed states of the 5 CPU arms, the decoded public states of all 1,698 LLM decisions (deployment-forensics out/decisions.pkl) and the 192 cost
+    reports. For all 8 arms x 24 systems compute: (a) the declared endpoint; (b) learner posterior-risk paths; (c) the evaluator's Rao-Blackwellized error (ERB) under the true generating prior, N(0,1) in matched regimes and
+    N(1.5,1) on edges in shifted ones; (d) the relative band cost-to-target, kappa in [1/8,1/2] and [1/4,1/2] of the post-initialization ERB; (e) normalized Bayes risk at the budget; (f) realized-truth versions; (g) TR-256 regret,
+    already computed. Final post-acquisition LLM states come from archived receipts if retrieved, otherwise the last decoded state, flagged. Outputs: arm rankings per endpoint, paired SDs and standardized effects for all 28 pairs,
+    and the realized/ERB ratio of means by regime family. Sample size: fixed at 24 systems x 8 arms, post hoc, used for planning only. Planning basis already computed from the saved CPU table: paired SD of mean log posterior risk
+    0.10 to 0.28 (d 0.43 to 1.74) against realized log NMSE 1.48 to 1.70 (d -0.10 to 0.25).
+  DECISION_RULE: An endpoint can be the registered primary only if all three hold. (i) Its median |t| over the 7 contrasts against TR is at least twice the declared endpoint's. (ii) No dev LLM arm improves its position relative to
+    TR or uniform random compared with the declared endpoint (non-favorability). (iii) The ratio of mean realized NMSE to mean ERB has a 95% interval containing 1 within both the matched and shifted families; otherwise the ERB
+    code is fixed before E2. Positive: adopt the endpoint family, and the paper documents the change with this audit as proof that it is not a favorable replacement. Null (no resolution gain): keep the declared endpoint family,
+    but CRN, replicates and at least 300 systems become mandatory. Negative (a candidate endpoint favors the dev LLM arms): it cannot be primary, and this is reported.
+  PREREQUISITES: None (saved artifacts on the Mac). Optional: retrieve the final-state receipts of the LLM arms from the CURC archive.
+  COST: Under 1 CPU core-hour locally and 1 to 2 analyst days. ERB is closed form using the existing structural_moments recursion. No approval needed.
+  MAIN_RISK: The final post-acquisition LLM states are not fully recoverable locally. Planning SDs from 24 systems are uncertain by about +/-30%.
+
+### E2 [must] Evaluation-harness repair and validation on calibration systems (numerical arms only)
+  QUESTION: Before any new policy is scored, do common random numbers keyed by action occurrence, evaluator-side Rao-Blackwellization, the relative band endpoint, censoring at the budget, the public stop rule, paired-branch
+    attribution and blinded analysis give unbiased, correctly sized, lower-variance contrasts?
+  DESIGN: Calibration namespace (new keyed scope): 48 systems from the dev generator (4 regimes x 3 graphs x 2 menus x 2), with per-system query-law and menu-order randomization. CRN: noise U[system, replicate, node, action,
+    occurrence] is shared across arms. Arms: TR-32; TR+ (256 draws, CRN across candidate actions); local information; coverage; random; plan-once; an A/A twin (TR-32 with a second planning seed); a planted-effect arm (TR forced to
+    spend 25% of budget on observe_all). Replicates: R=8 for the cheap arms (ERB check); R=4 for TR-32, LI, the A/A twin and the planted arm; R=2 for TR+ and plan-once. Independent-noise copies of TR-32, LI and coverage measure
+    the CRN variance-reduction factor. Paired-branch attribution (T3) is run for LI vs TR and coverage vs TR on 24 systems with 16 branches. Checks with pre-declared tolerances: (a) CRN leaves marginals unchanged (|delta mean| < 2
+    SE, KS p > 0.01). (b) The A/A interval contains 0, and the test's size on 2,000 sign-randomized resamples lies in [0.035, 0.065]. (c) Planted-effect power is within +/-10 points of the formula. (d) The realized/ERB ratio of
+    means lies in [0.92, 1.08] with a 95% interval covering 1 in each regime family. (e) Paired-branch attribution agrees with the direct contrast within 2 SE. (f) In matched regimes, mean realized NMSE at the public stop is at
+    most kappa*rho0. (g) Variance components sigma_b, sigma_w and rho_CRN are estimated per endpoint. (h) kappa_lo is calibrated so that TR_primary attains it in at least 75% of systems. The same data choose TR_primary (TR-32 or
+    TR+) on numerical evidence only. Sample size basis: per-episode CV of about 1.1 over about 1,150 episodes per regime family gives an SE of about 0.032, enough to detect about 9% bias in ERB. 48 systems estimate sigma_b to
+    about +/-20%.
+  DECISION_RULE: Proceed to E3 only if checks (a) to (f) pass. If ERB fails in a class, that class's primary endpoint reverts to realized truth with at least 8 replicates and S is recomputed. If the CRN variance-reduction factor
+    is below 1.2, CRN is kept (no bias) but the study is sized without it. If attribution fails (e), it is used only descriptively. Positive: a validated-measurement methods section and appendix, and the variance components that
+    size E5 and E6. Null or negative: no new policy is scored until the failure is fixed and the check rerun.
+  PREREQUISITES: E1. Patrick's approval of the harness changes: shared CRN namespaces (lifting paired_episode.py:114-117), an evaluator-only conjugate posterior with prior means, in-process numerical policies, more than 8 policies
+    per roster. A written protocol.
+  COST: About 5 to 30 CPU core-hours on the local Mac. The range reflects unmeasured in-process TR latency; TR+ and plan-once dominate. Code and review: 1.5 to 3 weeks (new protocol and binding modules, noise keying in world.py,
+    the evaluator, the analysis package). No GPU.
+  MAIN_RISK: New harness code has historically produced new guard failures. In-process latency may exceed assumptions, which delays the timeline.
+
+### E3 [must] Headroom and identifiability audit of candidate world classes (numerical references only)
+  QUESTION: In which candidate classes can a public-information policy beat TR by a detectable margin? In which is use of feedback identifiable from outcomes? What effect size and number of systems follow?
+  DESIGN: Classes: C0, the dev generator, as a negative control. Plus at least 2 method-panel classes, each with TR's handicap stated before the audit (for example partial-measurement actions with cost ratios of at least 4; text
+    hints with a known conditional law and 2 initial observations; a stronger prior shift). Per class: 48 new calibration systems, R=2 (R=1 for the non-myopic and clairvoyant arms). Arms: TR-32; TR+; LI; coverage; random; plan-
+    once with local search; a static schedule tuned leave-one-system-out on training-generator systems by graph x menu; a non-myopic reference (two-step lookahead or rollout TR); an informed reference (TR planning with the
+    generating prior or with text mapped by a fixed rule, prediction by the shared learner); a clairvoyant design bound using the true parameters. ERB conditions every arm on the same system-level public information plus its own
+    data. Endpoint: the registered band cost (per-system SD units and natural units). Headrooms: H_attain = TR_primary - best attainable reference; H_ceiling = TR - clairvoyant; H_feedback = plan-once - TR; H_state = static
+    schedule - TR. Sample size basis: 48 systems give a headroom SE of about 0.144 SD units, so a 0.3 headroom is separated from 0 at the 80% one-sided bound.
+  DECISION_RULE: Registered before E3 runs, with no LLM involved. A class qualifies if all lower 80% bounds hold: H_ceiling >= 0.6, H_attain >= 0.3, H_feedback >= 0.15, H_state >= 0.3 SD units. Qualifiers are chosen in a pre-
+    declared order. C0 is expected to fail, which validates the audit. The class, delta (default the larger of 0.3 SD units and half of H_attain, with a minimal important difference of 5% of TR's mean band cost), sigma-hat and S
+    are frozen here. Positive: the class is frozen, and the paper reports the whole headroom table including classes that failed. Null (no class qualifies): no superiority confirmation is run. The method panel may propose new
+    classes by LLM-independent criteria for at most 2 rounds; then the program moves to the null/diagnostic paper with T4 as the explanation. Negative (small H_ceiling everywhere): a theorem-backed statement that tractable known-
+    graph classes leave no room for any policy.
+  PREREQUISITES: E2 passed. Class modules from the method panel (protocol modules; evaluator posterior with an informed prior; text generator with a known law). Lead approval of CPU time beyond the local Mac if needed.
+  COST: About 15 to 60 CPU core-hours across 3 to 4 classes, dominated by the non-myopic and clairvoyant arms. Local Mac or CURC CPU. 1 to 2 weeks including class modules. No GPU.
+  MAIN_RISK: T4 predicts that classes whose risk depends only on the design will fail, so every candidate may fail. A weak non-myopic reference understates H_attain; H_ceiling brackets it.
+
+### E4 [must] Treatment-fidelity standard, leakage audit and pre-scoring gates
+  QUESTION: What exactly does an LLM arm decide with? Does each candidate pass pre-declared fidelity, learnability and leakage gates before any outcome is scored?
+  DESIGN: (a) Retrospective: forward-only scoring of the base, SFT and DPO adapters on all 1,858 saved prompts (1,698 deployment + 160 training) over all legal commands. Compute full-vocabulary and grammar-renormalized log-
+    probabilities, whole-command argmax against greedy trie decoding, and length normalization. Score 300 stratified states x 4 menu permutations and identifier renamings. Check the runtime against the saved CURC scores (2 x 1,184
+    legal-command scores, 238 reference scores). Metrics: decision-rule disagreement rate; between-state share of centered command-score variance; mutual information between action and state features; invariance rate; agreement
+    with TR-256; out-of-sample label NLL against the state-blind counter (1.93 nats). (b) Prospective gates for any candidate on validation systems: G1, score vectors logged for 100% of decisions; G2, at least 90% of decisions
+    unchanged under menu permutation when the top-2 margin exceeds 0.5 nats; G3, state-permuted inference changes at least 20% of decisions and the MI permutation test gives p < 0.01; G4, leave-world-out label NLL at most the
+    counter minus 0.1 nats; G5, disjoint namespace hashes, no private fields in prompts, equal hyperparameter budgets for all learned arms on validation data only. Sample size: all 1,858 prompts; the invariance rate is estimated
+    to +/-2.9 points on 300 states.
+  DECISION_RULE: The decision rule for all future LLM arms is frozen on a priori grounds (TWOSOME, trie-mass pooling), not chosen from outcomes: grammar-renormalized, length-normalized whole-command argmax with randomized menu
+    order and logged score vectors. A candidate failing any of G1 to G5 is not promoted, and the failure is reported. If the local runtime deviates from the saved CURC scores by more than 1e-3 nats, run on CURC instead. Positive:
+    a treatment-fidelity section and a score-level account of the dev collapse (how many decisions flip under whole-command argmax). Null (the metrics fail to discriminate base, SFT and DPO): revise the metrics before E5.
+    Negative: runtime mismatch, handled by moving to CURC.
+  PREREQUISITES: Patrick's go-ahead for local forward-only inference under a written protocol, or for CURC GPU time. No training.
+  COST: About 1 to 2 hours on the local M5 Max (not measured), or 0.5 to 1.2 GPU-slice-hours on CURC (ledger basis: 0.12 to 0.4 s per command forward). 2 to 3 analyst days.
+  MAIN_RISK: Local torch and transformers versions differ from the frozen runtime. Mitigated by the saved-score equivalence check.
+
+### E5 [must] Validation screen with registered promotion and futility rules
+  QUESTION: Does any candidate recipe, developed only on training and validation namespaces, show enough benefit and contribution to justify a confirmation?
+  DESIGN: A fresh 48-system validation shard from the qualified class for each iteration, R=1 with CRN, at most 3 iterations. Candidates: at most 3 recipes from the method panel x K=3 training seeds. Arms: the candidates;
+    TR_primary; the best numerical reference from E3; the tuned static schedule; a numerical student trained on the same data with the same tuning budget (K=3); the frozen base LLM with the frozen decision rule; for the leading
+    candidate, inference-time feedback-shuffled and state-permuted controls. Zero-cost pre-screens prune candidates before full episodes: first-decision quality at the shared state, and TR-256 relative regret on validation states
+    (futility only, never a claim). Endpoint: the registered band cost. Sample size basis: 48 systems give an SE of 0.144 SD units. The rule promotes a candidate with true d=-0.3 with probability 0.85 and one with d=0 with
+    probability 0.15; the best of 3 under the global null is promoted with probability 0.38. That costs compute, not alpha, because the confirmation is separate. The SD of the LLM-vs-TR contrast estimated here (upper 80% limit)
+    sizes E6.
+  DECISION_RULE: Promote the best seed-averaged candidate only if all hold: (i) gates G1 to G5 pass for at least 2 of 3 seeds; (ii) d-hat vs TR <= -0.15 and the one-sided 80% upper bound is below 0; (iii) d-hat <= -0.15 against
+    both the shuffled-feedback and the state-permuted controls. If the candidate fails only against the numerical student, it may be promoted, but the claim that language contributes is registered as exploratory. Futility: no
+    promotion after 3 iterations stops LLM development. Positive: the recipe is frozen, K=5 seeds are trained on the training namespace, and E6 to E9 are registered. Null or negative: Patrick decides whether to run E6 in null mode
+    (best candidate, TOST and harm hypotheses) or to write the null paper. Every candidate and iteration goes into the failure ledger.
+  PREREQUISITES: E3 (class, delta). E4 gates. Method-panel recipes. A new compute ceiling. Training namespace distinct from validation, calibration and confirmation.
+  COST: About 3.1 GPU-slice-hours of inference per iteration (0.6 s per decision, 24 decisions per episode, no reasoning tokens; multiply by 10 to 50 if the recipe uses reasoning), plus training of 9 policies per iteration
+    (recipe-dependent; the current recipe took 291.5 s per run). 2 to 5 CPU core-hours.
+  MAIN_RISK: Forking paths across iterations, mitigated by fresh shards and the cap of 3. Large seed variance may block promotion even for a recipe that sometimes works.
+
+### E6 [must] Registered confirmation on fresh systems
+  QUESTION: Does the frozen recipe reach a Bayes-reliable answer at lower expected experimental cost than TR on fresh systems (H1)? How does it compare with the strongest numerical reference (H2)?
+  DESIGN: Confirmation namespace (fresh keyed scope, system IDs and seeds hashed in the registration). 96 systems stratified equally over the class strata. R=1 with CRN for all systems plus a second replicate on a random 24
+    (variance components). Arms: the LLM recipe x 5 seeds; TR_primary; TR-32 (continuity); the best numerical reference from E3; local information; coverage; random; the tuned static schedule; plan-once; the numerical student x 5
+    seeds (the standing ranker control under the new recipe); the frozen base LLM; the supervised-only stage x 2 seeds; if the recipe has a stop action, an LLM with stop authority as a secondary arm. Primary endpoint: band cost to
+    ERB <= kappa*rho0 averaged over log-uniform kappa in [kappa_lo, 1/2], capped at the budget. Per system it is averaged over seeds and replicates. Key secondary endpoints: normalized Bayes risk at the budget (ratio of arithmetic
+    means, valid under T1); reliability at the public stop (ERB and realized truth); cost to an absolute 0.04 target, with systems at rho0 <= 0.04 excluded by a pre-policy rule. Descriptive: the declared first-crossing endpoint,
+    realized-truth curves, TR-256 regret, fidelity metrics, and attribution at disagreement states. Analysis is blinded. Sample size basis: superiority at one-sided 0.025 with 80% power and d=0.3 needs 89; TOST at +/-0.3 needs 95;
+    so S=96. On dev planning SDs, d=0.3 is about 3 to 9% lower expected error, or at most 0.4 to 1.0 band-cost units. Registered sizing rule: S = max(48, min(150, formula)), using sigma-hat from E5 and delta from E3.
+  DECISION_RULE: H1: superiority, one-sided alpha 0.025, by a stratified studentized sign-flip test on per-system contrasts, with a BCa interval. If H1 is rejected, H2 (non-inferiority at delta, then superiority, against the best
+    numerical reference) and the E7 family are tested by Holm. Seeds: at least 4 of 5 seeds individually favorable, plus a Hartung-Knapp random-effects interval reported. Positive (H1 rejected and at least 4 of 5 seeds favorable):
+    claim a benefit over TR in class C with its interval; H2 decides between 'matches or beats the best numerical reference' and 'beats myopic TR only'. Null (H1 not rejected and TOST passes at +/-delta): 'no benefit larger than
+    delta'; this leads to the null paper. No replacement class is allowed. A method redirect needs a new registration and namespace and must report this confirmation. Negative (95% interval adverse): report harm and narrow the
+    claim. Inconclusive: report it as such, with no post hoc extension of S.
+  PREREQUISITES: E2 and E3 passed. Promotion in E5, or Patrick's null-mode decision. Registration frozen (class, namespaces, artifact hashes, decision rule, endpoints, hypotheses, S/R/K, failure treatment, analysis code hash). A
+    new compute ceiling. Custody sharding and raised roster limits (more than 8 policies, more than 64 worlds). Confirmation scope lifted in three modules.
+  COST: About 3.6 GPU-slice-hours of LLM inference, plus 20% for failures. 5 to 25 CPU core-hours for the numerical arms (in-process versus the current per-decision-process harness, at 47.7 s per episode). Training of 5 recipe
+    seeds plus 2 supervised-only seeds (recipe-dependent). 1 to 2 weeks with custody.
+  MAIN_RISK: No candidate is promoted. Heterogeneity across training seeds. Custody and harness failures at a scale never run before.
+
+### E7 [must] Contribution-isolation controls
+  QUESTION: Is any LLM effect attributable to using measurements, causal structure and language, rather than to a schedule, extra computation, an identifier or label prior, or narration of planner statistics?
+  DESIGN: On the E6 confirmation systems with the same CRN, using pre-registered seeds 1 and 2. c1, feedback-shuffled: post-initialization responses are replaced with coherent decoy responses from another system of the same
+    stratum and the posterior summaries are recomputed (96 systems). c2, state-permuted: the whole public state comes from another system at the same step (96). c3, menu-order and identifier permutation (48; equivalence). c4, a
+    graph-ablated policy trained and evaluated without the graph text (48; 2 seeds). c5, semantic class only: a metadata ladder of anonymized, correct, irrelevant and misleading metadata, plus misleading x shuffled feedback (48).
+    Its endpoint adds recovery cost: the first cost at which the misleading arm's ERB path comes within 10% of the anonymized arm's. c6, the semantic-feature numerical student from E6 (the same information, including frozen-LLM
+    text embeddings, trained on the same data). c7, compute-matched TR: draws or lookahead matching the LLM's per-decision wall-clock on the same hardware (96, CPU). c8, an argmax-of-input baseline if any planner statistic appears
+    in the prompt. c9, the open-loop bound: the best static design from the post-initialization state by local search (96, CPU). Sample size basis: at S=96 the Holm worst step (one-sided 0.005) detects d=0.35, and at 48 systems
+    d=0.49. By T5, if H1 holds then c1's effect is at least H_feedback + d_H1, about 0.45 or more under the E3 gate (approximate, because plan-once upper-bounds the open-loop optimum).
+  DECISION_RULE: Second-level family, tested only if H1 is rejected: Holm at one-sided 0.025 over c1, c2, c6, c7 and c9, plus c5 (correct vs anonymized) in a semantic class. c3 is tested by TOST at +/-delta/2. If H1 fails, all
+    controls are reported with intervals as diagnostics for the null paper. c1 or c2 equivalent to the LLM: the benefit does not come from using measurements; the claim narrows to a prior or schedule effect. c6 equivalent:
+    language adds nothing beyond its features. c7 equivalent or better: the benefit is extra computation. c9 not beaten: no outcome-based certificate of feedback use. c3 not equivalent: the policy depends on identifiers or menu
+    position (a fidelity failure, disclosed). c5 recovery cost above half the budget: a robustness limitation, stated in the abstract.
+  PREREQUISITES: E6 registration (the controls are registered with it). Training of the graph-ablated policy (2 seeds). For c5, a semantic class qualified in E3.
+  COST: About 2.3 GPU-slice-hours of inference, plus 1.9 for the semantic ladder, plus 2 short training runs for c4. 3 to 10 CPU core-hours for c7 and c9.
+  MAIN_RISK: Decoy prompts may be out of distribution and degrade the policy for reasons other than feedback use. Mitigated by coherent, same-stratum decoys with recomputed summaries.
+
+### E8 [should] Transfer beyond the training generator (synthetic families)
+  QUESTION: Does the frozen policy's effect, or its null, hold on system families outside the training generator?
+  DESIGN: Two confirmatory families and one exploratory family, registered with E6 before unblinding and chosen by LLM-independent criteria: F1, graphs of 4 to 6 nodes within the 8-node harness limit; F2, different query laws and
+    cost ratios; F3 (exploratory), nonlinear truth with the linear learner, if world.py is extended. 72 systems per confirmatory family, R=1 with CRN. Arms: the LLM (seeds 1 to 3), TR_primary, the best numerical reference, LI,
+    random, and the numerical student (seeds 1 to 3). Endpoint: band cost on ERB, or realized truth with R=8 where the law is not computable. Sample size basis: Holm over 2 families at one-sided 0.025 detects d=0.36 per family at
+    80% power.
+  DECISION_RULE: Transfer is claimed for a family if its LLM-minus-TR contrast is negative at the Holm-adjusted one-sided 0.025 level. Whether it retains at least 50% of the in-class effect is reported descriptively. Positive:
+    'transfers to family F'. Null: the claim's scope is limited to the training generator. Negative: harm outside the generator, stated in the abstract. No family may be added or dropped after unblinding.
+  PREREQUISITES: E6 registration. Raised harness limits for node counts, menu sizes and roster. F3 needs nonlinear mechanisms in world.py (medium) and realized-truth replicates.
+  COST: About 2.6 GPU-slice-hours (prompts about 1.5x longer for larger graphs), plus about 1 for F3. 3 to 10 CPU core-hours. About 1 week, in parallel with E6.
+  MAIN_RISK: Prompt length and latency grow with graph size. Family modules take medium effort.
+
+### E9 [should] Concrete experimentalist task: wind-tunnel simulator, then the real Remote Lab if approved
+  QUESTION: Does the frozen policy give a useful, observable outcome at lower cost on a physical-style task with real costs and model misspecification?
+  DESIGN: Stage A, offline: the causalchamber wind-tunnel simulators (affinity-law fan speed, cubic current, squared-speed pressure; numpy only) wrapped as a response adapter with time-based costs (a load change about 10 s
+    including 8 s of settling; repeat measurements cheaper). Task: predict downwind pressure at registered operating points with the knowingly misspecified linear SCM learner. 48 simulator instances with parameters randomized
+    within documented ranges plus barometer error, R=4. Arms: the LLM (seeds 1 to 3), TR_primary, LI, random, and the best reference. Endpoints: realized error against the noise-free simulator on the query grid at fixed cost; cost
+    at the public stop plus truth reliability at stop. ERB is not available under misspecification. Stage B, hardware: one Wind Tunnel Mk2; 4 policies (LLM seed 1, TR_primary, LI, random) x 30 randomized blocks x 16 interventions;
+    a validation grid measured with replicates at the start and end of each session for drift; block-paired mixed-model analysis. Sample size basis: Stage A detects d=0.40 (two-sided 0.05, 80%); Stage B detects 0.51 within-
+    apparatus SD units. One apparatus means no population inference.
+  DECISION_RULE: Stage B runs if Stage A passes engineering qualification (latency, legality, cost accounting, drift protocol), regardless of how the policies performed. Positive (non-inferior error at lower cost in Stage A, same
+    direction in Stage B): 'a useful outcome and transfer on one apparatus'. Null: no practical benefit shown, and the paper says so. Negative: harm on the physical task is reported prominently. Results are never pooled with the
+    synthetic confirmation.
+  PREREQUISITES: Patrick's approval to pip install causalchamber (Stage A). For Stage B, Remote Lab sign-up, terms acceptance and spend, all by a human. Frozen policies from the E6 registration.
+  COST: Stage A: 1 to 2 weeks of integration, about 1.5 GPU-slice-hours, under 5 CPU core-hours. Stage B: about 5.3 hours of chamber time, about 270 EUR at the academic rate (up to about 700 EUR with pilots), 1 to 2 weeks.
+  MAIN_RISK: The fidelity of the Mk1 simulators to Mk2 hardware is undocumented. Drift and ambient pressure. One apparatus.
+
+### E10 [should] Blinded independent re-analysis and computational reproduction
+  QUESTION: Can every registered number be reproduced by an independent analyst from the sealed outputs and the registration alone, and is the pipeline deterministic?
+  DESIGN: (a) Arm codes stay masked until the analysis code is frozen and its hash registered. (b) An analyst not involved in method development (ideally the coauthor) re-implements the primary endpoint, tests and intervals from
+    the registration text and compares the results with the frozen code. (c) A random 10% of confirmation cells (about 10 systems x all arms) is re-executed and checked for episode equality (bitwise, or ERB within 1e-9). (d) A
+    failure ledger lists every recipe, iteration, crash and exclusion. (e) A superseding statement addresses the public 70% DPO claim. Sample size basis: re-executing 10% of cells detects nondeterminism that affects at least 30%
+    of cells with probability above 0.97.
+  DECISION_RULE: Any discrepancy beyond tolerance blocks submission until it is resolved and documented. Positive: a reproducibility statement and an archive. Negative: fix, re-report, and disclose the discrepancy.
+  PREREQUISITES: E6 sealed outputs and registration. An independent analyst named by Patrick.
+  COST: About 0.4 GPU-slice-hours, under 2 CPU core-hours, 2 to 3 analyst days.
+  MAIN_RISK: A reviewer from inside the project is not fully independent, which must be disclosed.
+
+## SEQUENCE
+Stage 0, now, no new responses: E1 (offline) and E4(a) (retrospective scoring, after the local-inference go-ahead) in parallel. Draft the registration skeleton and the E3 class-qualification rule. Stage 1: E2, which needs E1's
+  endpoint decisions. In parallel, the method panel builds candidate class modules, and E9 Stage A integration starts if the install is approved. Gate G1: E2's tolerances pass (CRN marginals, A/A size, planted power, ERB
+  unbiasedness, attribution agreement, stop reliability). Stage 2: E3, which needs E2 and the class modules. Gate G2: at least one class qualifies, and then class, delta, sigma-hat and S are frozen. Otherwise at most 2 rounds of
+  class redesign by LLM-independent criteria, then the null/diagnostic path. Stage 3: method development on the training and validation namespaces, and up to 3 E5 iterations, each on a fresh validation shard behind the E4(b)
+  gates. Gate G3: on promotion, train K=5 seeds, freeze the recipe and decision rule, and register E6 to E9 with the analysis code hash. On futility, Patrick decides between a null-mode E6 and the null paper. Stage 4: E6 and E7
+  run once, together, on the confirmation namespace with blinded analysis. E8 and E9 Stage A run concurrently because they are registered with E6 and do not depend on its outcome. E10 runs during and after unblinding. Stage 5: E9
+  Stage B (hardware), if approved. Total calendar about 8 to 14 weeks. ICML on January 22, 2027 is not realistic for the full program. E1 to E3 plus the theory items could be written up on their own as an evaluation-methodology
+  paper.
+
+## THEORY_ITEMS
+- T1, Rao-Blackwellized evaluation. Setting: Pi is the generating law of (theta, side information I), F_t the policy's information, f-hat_t any F_t-measurable predictor. Claim: for every policy that acts on F only and every
+  F-stopping time tau, E[loss(theta, f-hat_tau)] = E[rho_tau] with rho_tau = E_Pi[loss | F_tau], and Var(rho_tau) <= Var(loss_tau). Corollary (a): when Pi equals the learner's prior and I is trivial, rho is the deployable
+  posterior risk, and the public stop rule rho <= c guarantees expected error <= c on attainment for any acquisition policy. Corollary (b): when I is informative, the learner's posterior risk is biased and can be gamed. Explicit
+  counterexample: a policy that skips measurement when the hints indicate a large |theta|. The evaluator's rho, conditioned on I, stays unbiased. Corollary (c): conditioning on both arms' information jointly gives a contrast with
+  variance no larger than the raw contrast's. Why it strengthens the paper: it answers the circularity objection to model-based endpoints, states exactly when posterior risk may and may not be used, and justifies a reduction of 8
+  to 96 times in the systems needed.
+- T2, threshold-averaging identity. For any error path with running minimum m(c), the mean first-crossing cost over a log-uniform band of thresholds, censored at the budget, equals c0 plus a clipped log-area under ln m(c). The
+  declared single-threshold endpoint is the degenerate band. Why it strengthens the paper: it proves the repaired primary endpoint generalizes the declared one rather than replacing it, removes the arbitrariness of the 0.04
+  threshold, and keeps the endpoint interpretable as cost.
+- T3, paired-branch performance difference. J(pi) - J(TR) = E_pi[sum_t A^TR(s_t, a_t)], with the advantage exactly zero wherever pi agrees with TR. The common-random-number branch estimator is unbiased, with a variance bound. Why
+  it strengthens the paper: it attributes outcomes to individual decisions, anchored to truth rather than to TR's score, and gives a formal test of whether the LLM contributes or narrates.
+- T4, adaptivity gap in conjugate, known-graph linear-Gaussian classes. If every design row entering the target is deterministic under every action and the target is linear in the parameters, the optimal adaptive Bayes risk equals
+  the optimal static design's (Chaloner-Verdinelli). With composed (bilinear) queries and random rows, the gap is bounded by the terms that depend on the means and rows (mu_phi' V mu_phi, m' C_phi m). Why it strengthens the paper:
+  it explains why the dev class left no room for any learned policy, and it turns world-class selection into a criterion that does not depend on LLM performance, which respects the no-favorable-replacement rule.
+- T5, open-loop lower bound. Any policy whose actions are conditionally independent of post-initialization measurements given the initial information has, for any endpoint that is an expectation, a risk at least the open-loop
+  optimum R*_OL(F0). Why it strengthens the paper: beating R*_OL is an outcome-based certificate of feedback use, the shuffled-feedback control is identifiable only where TR is below R*_OL, and it gives the power argument for that
+  control (an effect of at least H_feedback + d_H1).
+- T6, short lemma on decoding. Greedy decoding over a prefix trie of command strings equals the whole-command argmax only if, at every branch, the subtree with the most pooled mass contains the most probable leaf. Seven 'set_*'
+  commands sharing a prefix against one 'observe' violates this. Why it strengthens the paper: it formalizes why the treatment definition must be frozen as whole-command scoring with randomized menus, and it explains part of the
+  dev arms' convergence on set_x_neg.
+
+## ASKS_FOR_LEAD
+- Choose the target venue and date. The full program needs about 8 to 14 weeks.
+- Decide whether a rigorous null or diagnostic paper is acceptable. This determines whether E6 runs in null mode after an E5 futility stop.
+- Approve the harness changes: common random numbers shared across arms (lifting the namespace rule in paired_episode.py:114-117), an evaluator-only conjugate posterior with true or informed priors, in-process numerical policies,
+  lifting the confirmation scope in three modules, more than 8 policies and more than 64 worlds per roster, and sharded custody.
+- Approve local forward-only inference of the base, SFT and DPO adapters on the 1,858 saved prompts under a written protocol (E4), or about 0.5 to 1.2 CURC GPU-slice-hours instead.
+- Set a new compute ceiling for the program: about 15 to 21 GPU-slice-hours of LLM inference across E4 to E10, plus training (5 confirmed seeds, 2 supervised-only seeds, 2 graph-ablated seeds, and up to 9 candidate policies per E5
+  iteration, all recipe-dependent); about 40 to 160 CPU core-hours, mostly coverable by the local Mac; and a QoS choice between gpu-testing (1 h wall) and a full A100 under gpu-normal.
+- Approve K=5 independent training seeds for the confirmed recipe.
+- Approve pip install of causalchamber for E9 Stage A. Separately, decide on Remote Lab sign-up, terms acceptance and about 270 to 700 EUR of spend for E9 Stage B.
+- Retire the 24 development systems from all future decisions, and approve the namespace plan: training, per-iteration validation shards, per-class calibration, confirmation, transfer.
+- Choose the registration mechanism (OSF, or a committed hash in the repository) and name an independent analyst, for example the coauthor, for E10.
+- Decide how to reconcile the public preprint and README claim of a 70% DPO gain before any submission.
+
+## WHAT_NOT_TO_DO
+- Do not use first crossing of realized NMSE at a fixed absolute threshold as the primary endpoint. At n=24 its detectable difference is 3.7 units, above the 3.04 headroom, and a 1-unit difference needs about 300 systems.
+- Do not use the learner's posterior risk or the TR-score regret as a confirmatory endpoint in classes with side information or prior misspecification. They are biased or circular there (T1). Use them only as screens and
+  diagnostics, or where the validity conditions of T1 hold.
+- Do not scale up the number of systems before the measurement repairs. Realized-error endpoints need about 1,000 to 2,000 single-episode systems for a 10% contrast.
+- Do not run or tune any new policy on the 24 development systems, and do not reuse a validation shard across method iterations.
+- Do not choose or change the world class after seeing LLM results, add transfer families after unblinding, or extend S after the fact. A failed confirmation is reported, never replaced by a friendlier benchmark.
+- Do not drop systems after scoring. Only the registered pre-policy rule may exclude systems.
+- Do not let fallbacks, fills or caps mask policy failures. Score them as no further acquisitions and log them.
+- Do not compare a tuned LLM against untuned numerical controls. Every learned arm gets the same tuning budget on validation data only.
+- Do not present single-seed LLM results as evidence about the recipe.
+- Do not put planner statistics in the prompt without the argmax-of-input baseline. Without it, narration cannot be told apart from contribution.
+- Do not evaluate new LLM arms with greedy trie decoding, or with a fixed menu order and fixed identifiers.
+- Do not claim the LLM uses feedback in a class where plan-once ties TR. The claim is unidentifiable from outcomes there (T5).
+- Do not run a confirmation in a class that failed the E3 headroom gate. It would be underpowered by construction.
+
+## BIGGEST_UNCERTAINTIES
+- Whether any tractable class has headroom over TR that survives the informed and non-myopic numerical references. T4 predicts that classes whose risk depends only on the design do not.
+- The true per-system SD of LLM-versus-TR contrasts under CRN and ERB. Dev numerical contrasts suggest 0.10 to 0.39 log units, but the right S could lie anywhere from 48 to 150.
+- Training-seed variance of new recipes. If it is large, K=5 seeds give little power for recipe-level claims, and promotion in E5 may fail even for a recipe that sometimes works.
+- In-process computational cost of TR, TR+, the non-myopic reference and the clairvoyant bound. These are unmeasured, and they drive E2 and E3 CPU between about 5 and 60 core-hours.
+- LLM inference cost if the recipe uses reasoning tokens. It could be 10 to 50 times the 0.6 s per decision basis, multiplying every GPU estimate.
+- Whether ERB can be computed for semantic-hint and misspecified classes without heavy Monte Carlo. Under physical misspecification (E9) the fallback is realized truth with low power.
+- Whether the harness changes (CRN keying, evaluator posteriors, raised roster limits, sharded custody) introduce new guard failures, as harness changes have before.
+- The venue and date, which decide how much of the program fits before submission.

@@ -1,0 +1,247 @@
+legend: {'observe_all': 'O', 'set_x_neg': 'N', 'set_x_zero': 'Z', 'set_x_pos': 'P', 'set_y_neg': 'a', 'set_y_zero': 'b', 'set_y_pos': 'c', 'set_xy': 'J', 'STOP': '#'}
+
+===== sft_llm per-world action strings (decision order)
+   0 chain    unifo matched_low  n_dec=22 NNNNNNNNNNNNPaNNNNNNN#  | last-decision remaining= 3  final_nmse=0.0076 final_attained=True paid=29
+   1 chain    heter matched_low  n_dec=22 NNNNNNNNNNNNPNNNNaNNN#  | last-decision remaining= 2  final_nmse=0.0013 final_attained=True paid=30
+   2 fork     unifo matched_low  n_dec=23 NNNNNNNNNNNNPNNNNNNNNN#  | last-decision remaining= 2  final_nmse=0.0033 final_attained=True paid=30
+   3 fork     heter matched_low  n_dec=22 NNNNNNNNNNNNNPNNNNNNN#  | last-decision remaining= 3  final_nmse=0.0374 final_attained=True paid=29
+   4 collider unifo matched_low  n_dec=22 NNNNNNNNNNNaNNNNPNOOO#  | last-decision remaining= 3  final_nmse=0.0045 final_attained=True paid=29
+   5 collider heter matched_low  n_dec=22 NNNNNNNNNNNNaPNNNNONN#  | last-decision remaining= 2  final_nmse=0.0045 final_attained=True paid=30
+   6 chain    unifo matched_high n_dec=22 NNNNNNNNNNNNNPNNNNNNN#  | last-decision remaining= 3  final_nmse=0.0075 final_attained=True paid=29
+   7 chain    heter matched_high n_dec=23 NNNNNNNNNNNNPNNNNaNNNN#  | last-decision remaining= 1  final_nmse=0.0069 final_attained=True paid=31
+   8 fork     unifo matched_high n_dec=23 NNNNNNNNNNNNPNNNNNNNNN#  | last-decision remaining= 2  final_nmse=0.0090 final_attained=True paid=30
+   9 fork     heter matched_high n_dec=23 NNNNNNNNNNNNNPNNNNNNNN#  | last-decision remaining= 2  final_nmse=0.0016 final_attained=True paid=30
+  10 collider unifo matched_high n_dec=24 NNNNNNNNNNNaNNNNPNNNNNN#  | last-decision remaining= 1  final_nmse=0.0493 final_attained=False paid=31
+  11 collider heter matched_high n_dec=22 NNNNNNNNNNaPNNNNNNNNN#  | last-decision remaining= 2  final_nmse=0.0472 final_attained=False paid=30
+  12 chain    unifo shifted_low  n_dec=23 NNNNNNNNNNNNNNNNNNNNNN#  | last-decision remaining= 2  final_nmse=0.0917 final_attained=False paid=30
+  13 chain    heter shifted_low  n_dec=24 NNNNNNNNNNNNPNNNNNNNNNN#  | last-decision remaining= 1  final_nmse=0.0039 final_attained=True paid=31
+  14 fork     unifo shifted_low  n_dec=23 NNNNNNNNNNNNNNNNNPNNNN#  | last-decision remaining= 2  final_nmse=0.0064 final_attained=True paid=30
+  15 fork     heter shifted_low  n_dec=23 NNNNNNNNNNNNNPNNNNNNNN#  | last-decision remaining= 2  final_nmse=0.0126 final_attained=True paid=30
+  16 collider unifo shifted_low  n_dec=23 NNNNNNNNNNNaPNNNNNNNNN#  | last-decision remaining= 2  final_nmse=0.0033 final_attained=True paid=30
+  17 collider heter shifted_low  n_dec=23 NNNNNNNNNNNNaNPNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0132 final_attained=True paid=32
+  18 chain    unifo shifted_high n_dec=22 NNNNNNNNNNNNPNNNNNNNN#  | last-decision remaining= 3  final_nmse=0.0038 final_attained=True paid=29
+  19 chain    heter shifted_high n_dec=23 NNNNNNNNNNNNNPNNNNNNNN#  | last-decision remaining= 2  final_nmse=0.1991 final_attained=False paid=30
+  20 fork     unifo shifted_high n_dec=23 NNNNNNNNNNNNNNNNNNPNNN#  | last-decision remaining= 2  final_nmse=0.0123 final_attained=True paid=30
+  21 fork     heter shifted_high n_dec=23 NNNNNNNNNNNNNNNNNNPNNN#  | last-decision remaining= 2  final_nmse=0.0583 final_attained=False paid=30
+  22 collider unifo shifted_high n_dec=23 NNNNNNNNNNNPaNNNNNOOOO#  | last-decision remaining= 2  final_nmse=0.0304 final_attained=True paid=30
+  23 collider heter shifted_high n_dec=23 NNNNNNNNNNNPaNNNNNNNNN#  | last-decision remaining= 1  final_nmse=0.0349 final_attained=True paid=31
+
+===== frozen_llm per-world action strings (decision order)
+   0 chain    unifo matched_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0055 final_attained=True paid=32
+   1 chain    heter matched_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0065 final_attained=True paid=32
+   2 fork     unifo matched_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0034 final_attained=True paid=32
+   3 fork     heter matched_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0236 final_attained=True paid=32
+   4 collider unifo matched_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0507 final_attained=False paid=32
+   5 collider heter matched_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0430 final_attained=False paid=32
+   6 chain    unifo matched_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0007 final_attained=True paid=32
+   7 chain    heter matched_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0068 final_attained=True paid=32
+   8 fork     unifo matched_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0094 final_attained=True paid=32
+   9 fork     heter matched_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0038 final_attained=True paid=32
+  10 collider unifo matched_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0496 final_attained=False paid=32
+  11 collider heter matched_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0152 final_attained=True paid=32
+  12 chain    unifo shifted_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0342 final_attained=True paid=32
+  13 chain    heter shifted_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0099 final_attained=True paid=32
+  14 fork     unifo shifted_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0228 final_attained=True paid=32
+  15 fork     heter shifted_low  n_dec=24 OOOOOOOZOOZOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0009 final_attained=True paid=32
+  16 collider unifo shifted_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0005 final_attained=True paid=32
+  17 collider heter shifted_low  n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0286 final_attained=True paid=32
+  18 chain    unifo shifted_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0169 final_attained=True paid=32
+  19 chain    heter shifted_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0837 final_attained=False paid=32
+  20 fork     unifo shifted_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0085 final_attained=True paid=32
+  21 fork     heter shifted_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0077 final_attained=True paid=32
+  22 collider unifo shifted_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0341 final_attained=True paid=32
+  23 collider heter shifted_high n_dec=24 OOOOOOOOOOOOOOOOOOOOOOOO  | last-decision remaining= 1  final_nmse=0.0159 final_attained=True paid=32
+
+===== dpo_llm per-world action strings (decision order)
+   0 chain    unifo matched_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0057 final_attained=True paid=32
+   1 chain    heter matched_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0024 final_attained=True paid=32
+   2 fork     unifo matched_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0088 final_attained=True paid=32
+   3 fork     heter matched_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0505 final_attained=False paid=32
+   4 collider unifo matched_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0211 final_attained=True paid=32
+   5 collider heter matched_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0002 final_attained=True paid=32
+   6 chain    unifo matched_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0016 final_attained=True paid=32
+   7 chain    heter matched_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0283 final_attained=True paid=32
+   8 fork     unifo matched_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0006 final_attained=True paid=32
+   9 fork     heter matched_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0007 final_attained=True paid=32
+  10 collider unifo matched_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0219 final_attained=True paid=32
+  11 collider heter matched_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.1223 final_attained=False paid=32
+  12 chain    unifo shifted_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.1427 final_attained=False paid=32
+  13 chain    heter shifted_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0059 final_attained=True paid=32
+  14 fork     unifo shifted_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0074 final_attained=True paid=32
+  15 fork     heter shifted_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0084 final_attained=True paid=32
+  16 collider unifo shifted_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0177 final_attained=True paid=32
+  17 collider heter shifted_low  n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0053 final_attained=True paid=32
+  18 chain    unifo shifted_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0125 final_attained=True paid=32
+  19 chain    heter shifted_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.2893 final_attained=False paid=32
+  20 fork     unifo shifted_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0179 final_attained=True paid=32
+  21 fork     heter shifted_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0411 final_attained=False paid=32
+  22 collider unifo shifted_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0064 final_attained=True paid=32
+  23 collider heter shifted_high n_dec=24 NNNNNNNNNNNNNNNNNNNNNNNN  | last-decision remaining= 1  final_nmse=0.0551 final_attained=False paid=32
+
+===== SFT: stops
+n stops 23
+decision_index of stop: [(21, 8), (22, 13), (23, 2)]
+remaining_units at stop: [(1, 4), (2, 14), (3, 5)]
+requests (history length) at stop: [(29, 8), (30, 13), (31, 2)]
+spent_units at stop: [(29, 5), (30, 14), (31, 4)]
+legal_commands at stop: [(5, 3), (9, 20)]
+prompt_tokens at stop: min 3757 median 3824 max 3954
+stops by graph: {'chain': 8, 'fork': 8, 'collider': 7} by cost: {'uniform': 12, 'heterogeneous': 11} by regime: {'matched_low': 6, 'matched_high': 6, 'shifted_low': 5, 'shifted_high': 6}
+world(s) without a policy stop: [17] [('collider', 'heterogeneous', 'shifted_low')]
+final NMSE at stopped worlds above target (0.04): [(10, 0.0493), (11, 0.0472), (12, 0.0917), (19, 0.1991), (21, 0.0583)]
+
+SFT: P(stop | remaining_units) over ALL sft decisions:
+   remaining= 1: stop 4 / 5
+   remaining= 2: stop 14 / 19
+   remaining= 3: stop 5 / 24
+   remaining= 4: stop 0 / 24
+   remaining= 5: stop 0 / 24
+   remaining= 6: stop 0 / 22
+   remaining= 7: stop 0 / 24
+   remaining= 8: stop 0 / 24
+   remaining= 9: stop 0 / 24
+   remaining=10: stop 0 / 24
+   remaining=11: stop 0 / 21
+   remaining=12: stop 0 / 24
+   remaining=13: stop 0 / 23
+   remaining=14: stop 0 / 24
+   remaining=15: stop 0 / 24
+   remaining=16: stop 0 / 24
+   remaining=17: stop 0 / 24
+   remaining=18: stop 0 / 24
+   remaining=19: stop 0 / 24
+   remaining=20: stop 0 / 24
+   remaining=21: stop 0 / 24
+   remaining=22: stop 0 / 24
+   remaining=23: stop 0 / 24
+   remaining=24: stop 0 / 24
+SFT: P(stop | requests=history length):
+   requests= 8: stop 0 / 24
+   requests= 9: stop 0 / 24
+   requests=10: stop 0 / 24
+   requests=11: stop 0 / 24
+   requests=12: stop 0 / 24
+   requests=13: stop 0 / 24
+   requests=14: stop 0 / 24
+   requests=15: stop 0 / 24
+   requests=16: stop 0 / 24
+   requests=17: stop 0 / 24
+   requests=18: stop 0 / 24
+   requests=19: stop 0 / 24
+   requests=20: stop 0 / 24
+   requests=21: stop 0 / 24
+   requests=22: stop 0 / 24
+   requests=23: stop 0 / 24
+   requests=24: stop 0 / 24
+   requests=25: stop 0 / 24
+   requests=26: stop 0 / 24
+   requests=27: stop 0 / 24
+   requests=28: stop 0 / 24
+   requests=29: stop 8 / 24
+   requests=30: stop 13 / 16
+   requests=31: stop 2 / 2
+SFT: P(stop | prompt_tokens bucket of 250):
+   tokens 1750-1999: stop 0 / 2
+   tokens 2000-2249: stop 0 / 71
+   tokens 2250-2499: stop 0 / 71
+   tokens 2500-2749: stop 0 / 73
+   tokens 2750-2999: stop 0 / 75
+   tokens 3000-3249: stop 0 / 71
+   tokens 3250-3499: stop 0 / 75
+   tokens 3500-3749: stop 0 / 73
+   tokens 3750-3999: stop 23 / 35
+
+===== SFT: the 42 non-set_x_neg acquisitions
+n 42 {'set_x_pos': 23, 'set_y_neg': 11, 'observe_all': 8}
+by decision_index: [(10, 1), (11, 6), (12, 12), (13, 7), (14, 1), (16, 2), (17, 3), (18, 5), (19, 2), (20, 2), (21, 1)]
+by action x decision_index:
+   observe_all [(18, 3), (19, 2), (20, 2), (21, 1)]
+   set_x_pos   [(11, 3), (12, 8), (13, 6), (14, 1), (16, 2), (17, 1), (18, 2)]
+   set_y_neg   [(10, 1), (11, 3), (12, 4), (13, 1), (17, 2)]
+by remaining_units: [(3, 1), (4, 2), (5, 3), (6, 4), (7, 3), (8, 2), (9, 1), (10, 1), (11, 6), (12, 13), (13, 5), (14, 1)]
+by graph: {('chain', 'set_x_pos'): 7, ('chain', 'set_y_neg'): 3, ('fork', 'set_x_pos'): 8, ('collider', 'set_y_neg'): 8, ('collider', 'set_x_pos'): 8, ('collider', 'observe_all'): 8}
+by cost menu: {('uniform', 'set_x_pos'): 11, ('uniform', 'set_y_neg'): 5, ('heterogeneous', 'set_x_pos'): 12, ('heterogeneous', 'set_y_neg'): 6, ('uniform', 'observe_all'): 7, ('heterogeneous', 'observe_all'): 1}
+by regime: {('matched_low', 'set_x_pos'): 6, ('matched_low', 'set_y_neg'): 4, ('matched_low', 'observe_all'): 4, ('matched_high', 'set_x_pos'): 6, ('matched_high', 'set_y_neg'): 3, ('shifted_low', 'set_x_pos'): 5, ('shifted_low', 'set_y_neg'): 2, ('shifted_high', 'set_x_pos'): 6, ('shifted_high', 'set_y_neg'): 2, ('shifted_high', 'observe_all'): 4}
+worlds with >=1 non-x_neg acquisition: [(0, 2), (1, 2), (2, 1), (3, 1), (4, 5), (5, 3), (6, 1), (7, 2), (8, 1), (9, 1), (10, 2), (11, 2), (13, 1), (14, 1), (15, 1), (16, 2), (17, 2), (18, 1), (19, 1), (20, 1), (21, 1), (22, 6), (23, 2)]
+charged units of the non-x_neg acquisitions: {1: 36, 2: 6}
+
+detail (world, graph, cost, regime, decision, remaining, action, #prior x_neg, posterior mean X intercept, trace cov Z):
+   w 0 chain    unifo matched_low  d=12 rem=12 set_x_pos   prior_xneg=12 meanX=+1.042 trZ=0.0418 tok=3020
+   w 0 chain    unifo matched_low  d=13 rem=11 set_y_neg   prior_xneg=12 meanX=+1.042 trZ=0.0374 tok=3103
+   w 1 chain    heter matched_low  d=12 rem=12 set_x_pos   prior_xneg=12 meanX=+1.364 trZ=0.0498 tok=3022
+   w 1 chain    heter matched_low  d=17 rem= 7 set_y_neg   prior_xneg=16 meanX=+1.364 trZ=0.0402 tok=3426
+   w 2 fork     unifo matched_low  d=12 rem=12 set_x_pos   prior_xneg=12 meanX=+0.711 trZ=0.0304 tok=3020
+   w 3 fork     heter matched_low  d=13 rem=11 set_x_pos   prior_xneg=13 meanX=-1.137 trZ=0.2357 tok=3110
+   w 4 collider unifo matched_low  d=11 rem=13 set_y_neg   prior_xneg=11 meanX=-2.112 trZ=0.1622 tok=2979
+   w 4 collider unifo matched_low  d=16 rem= 8 set_x_pos   prior_xneg=15 meanX=-2.123 trZ=0.1439 tok=3385
+   w 4 collider unifo matched_low  d=18 rem= 6 observe_all prior_xneg=16 meanX=-2.123 trZ=0.1102 tok=3556
+   w 4 collider unifo matched_low  d=19 rem= 5 observe_all prior_xneg=16 meanX=-2.079 trZ=0.1098 tok=3645
+   w 4 collider unifo matched_low  d=20 rem= 4 observe_all prior_xneg=16 meanX=-2.003 trZ=0.1086 tok=3735
+   w 5 collider heter matched_low  d=12 rem=12 set_y_neg   prior_xneg=12 meanX=+0.696 trZ=0.1162 tok=3060
+   w 5 collider heter matched_low  d=13 rem=10 set_x_pos   prior_xneg=12 meanX=+0.747 trZ=0.1130 tok=3145
+   w 5 collider heter matched_low  d=18 rem= 5 observe_all prior_xneg=16 meanX=+0.747 trZ=0.0957 tok=3555
+   w 6 chain    unifo matched_high d=13 rem=11 set_x_pos   prior_xneg=13 meanX=+1.206 trZ=0.0594 tok=3098
+   w 7 chain    heter matched_high d=12 rem=12 set_x_pos   prior_xneg=12 meanX=-0.648 trZ=0.1241 tok=3004
+   w 7 chain    heter matched_high d=17 rem= 7 set_y_neg   prior_xneg=16 meanX=-0.648 trZ=0.0870 tok=3416
+   w 8 fork     unifo matched_high d=12 rem=12 set_x_pos   prior_xneg=12 meanX=+0.736 trZ=0.0911 tok=3003
+   w 9 fork     heter matched_high d=13 rem=11 set_x_pos   prior_xneg=13 meanX=+1.255 trZ=0.0725 tok=3087
+   w10 collider unifo matched_high d=11 rem=13 set_y_neg   prior_xneg=11 meanX=-0.932 trZ=0.4340 tok=2962
+   w10 collider unifo matched_high d=16 rem= 8 set_x_pos   prior_xneg=15 meanX=-0.876 trZ=0.3104 tok=3379
+   w11 collider heter matched_high d=10 rem=14 set_y_neg   prior_xneg=10 meanX=+0.617 trZ=0.2319 tok=2884
+   w11 collider heter matched_high d=11 rem=12 set_x_pos   prior_xneg=10 meanX=+0.621 trZ=0.2260 tok=2968
+   w13 chain    heter shifted_low  d=12 rem=12 set_x_pos   prior_xneg=12 meanX=+1.599 trZ=0.0164 tok=3012
+   w14 fork     unifo shifted_low  d=17 rem= 7 set_x_pos   prior_xneg=17 meanX=+2.509 trZ=0.0135 tok=3404
+   w15 fork     heter shifted_low  d=13 rem=11 set_x_pos   prior_xneg=13 meanX=-1.015 trZ=0.2145 tok=3076
+   w16 collider unifo shifted_low  d=11 rem=13 set_y_neg   prior_xneg=11 meanX=+0.466 trZ=0.1326 tok=2961
+   w16 collider unifo shifted_low  d=12 rem=12 set_x_pos   prior_xneg=11 meanX=+0.441 trZ=0.1312 tok=3052
+   w17 collider heter shifted_low  d=12 rem=12 set_y_neg   prior_xneg=12 meanX=+0.015 trZ=0.1806 tok=3052
+   w17 collider heter shifted_low  d=14 rem= 9 set_x_pos   prior_xneg=13 meanX=-0.049 trZ=0.1666 tok=3215
+   w18 chain    unifo shifted_high d=12 rem=12 set_x_pos   prior_xneg=12 meanX=+0.609 trZ=0.0731 tok=3018
+   w19 chain    heter shifted_high d=13 rem=11 set_x_pos   prior_xneg=13 meanX=+1.336 trZ=0.0787 tok=3090
+   w20 fork     unifo shifted_high d=18 rem= 6 set_x_pos   prior_xneg=18 meanX=-0.572 trZ=0.2463 tok=3497
+   w21 fork     heter shifted_high d=18 rem= 6 set_x_pos   prior_xneg=18 meanX=+0.209 trZ=0.1273 tok=3494
+   w22 collider unifo shifted_high d=11 rem=13 set_x_pos   prior_xneg=11 meanX=+0.952 trZ=0.1818 tok=2968
+   w22 collider unifo shifted_high d=12 rem=12 set_y_neg   prior_xneg=11 meanX=+0.952 trZ=0.1773 tok=3053
+   w22 collider unifo shifted_high d=18 rem= 6 observe_all prior_xneg=16 meanX=+0.928 trZ=0.1404 tok=3555
+   w22 collider unifo shifted_high d=19 rem= 5 observe_all prior_xneg=16 meanX=+0.857 trZ=0.1352 tok=3644
+   w22 collider unifo shifted_high d=20 rem= 4 observe_all prior_xneg=16 meanX=+0.788 trZ=0.1323 tok=3735
+   w22 collider unifo shifted_high d=21 rem= 3 observe_all prior_xneg=16 meanX=+0.775 trZ=0.1290 tok=3823
+   w23 collider heter shifted_high d=11 rem=13 set_x_pos   prior_xneg=11 meanX=+1.559 trZ=0.2363 tok=2968
+   w23 collider heter shifted_high d=12 rem=12 set_y_neg   prior_xneg=11 meanX=+1.559 trZ=0.2320 tok=3048
+
+SFT action by decision index (N=x_neg, P=x_pos, a=y_neg, O=observe, #=stop):
+   d= 0 {'N': 24}
+   d= 1 {'N': 24}
+   d= 2 {'N': 24}
+   d= 3 {'N': 24}
+   d= 4 {'N': 24}
+   d= 5 {'N': 24}
+   d= 6 {'N': 24}
+   d= 7 {'N': 24}
+   d= 8 {'N': 24}
+   d= 9 {'N': 24}
+   d=10 {'N': 23, 'a': 1}
+   d=11 {'N': 18, 'a': 3, 'P': 3}
+   d=12 {'P': 8, 'N': 12, 'a': 4}
+   d=13 {'a': 1, 'N': 17, 'P': 6}
+   d=14 {'N': 23, 'P': 1}
+   d=15 {'N': 24}
+   d=16 {'N': 22, 'P': 2}
+   d=17 {'N': 21, 'a': 2, 'P': 1}
+   d=18 {'N': 19, 'O': 3, 'P': 2}
+   d=19 {'N': 22, 'O': 2}
+   d=20 {'N': 22, 'O': 2}
+   d=21 {'#': 8, 'N': 15, 'O': 1}
+   d=22 {'#': 13, 'N': 3}
+   d=23 {'#': 2}
+
+===== FROZEN: non-observe actions
+   w15 fork     heterogeneous shifted_low  decision=7 remaining=17 requests=15 action=set_x_zero prompt_tokens=2637 legal=9 ordinal=367
+      history actions: OOOOOOOOOOOOOOO
+      scm: [{"eligible_rows": 15, "node": "X", "parameter_mean": [-1.042]}, {"eligible_rows": 15, "node": "Y", "parameter_mean": [-1.5125, 2.0644]}, {"eligible_rows": 15, "node": "Z", "parameter_mean": [-0.1249, 1.3656]}]
+      last 2 history rows: [{"action_id": "observe_all", "cost_units": 1, "kind": "observe", "request_id": 13, "targets": {}, "values": {"X": -1.2288444892473467, "Y": -4.27290492174368, "Z": -1.1487723578500935}}, {"action_id": "observe_all", "cost_units": 1, "kind": "observe", "request_id": 14, "targets": {}, "values": {"X": -1.216701662597939, "Y": -3.6617848496746412, "Z": -2.214450478135051}}]
+   w15 fork     heterogeneous shifted_low  decision=10 remaining=14 requests=18 action=set_x_zero prompt_tokens=2904 legal=9 ordinal=370
+      history actions: OOOOOOOOOOOOOOOZOO
+      scm: [{"eligible_rows": 17, "node": "X", "parameter_mean": [-1.0409]}, {"eligible_rows": 18, "node": "Y", "parameter_mean": [-1.4262, 2.1081]}, {"eligible_rows": 18, "node": "Z", "parameter_mean": [-0.3445, 1.2038]}]
+      last 2 history rows: [{"action_id": "observe_all", "cost_units": 1, "kind": "observe", "request_id": 16, "targets": {}, "values": {"X": -1.6217558227448112, "Y": -4.753782858915023, "Z": -2.4491104055266937}}, {"action_id": "observe_all", "cost_units": 1, "kind": "observe", "request_id": 17, "targets": {}, "values": {"X": -0.44341795343368584, "Y": -1.55714465866993, "Z": -0.9495017366265359}}]
+frozen legal_commands distribution: {9: 564, 5: 12}

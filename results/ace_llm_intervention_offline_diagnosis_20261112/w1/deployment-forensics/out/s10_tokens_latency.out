@@ -1,0 +1,84 @@
+Command tokenizations (pinned tokenizer, add_special_tokens=False); EOS 151645 appended at deployment:
+  {"action_id":"observe_all"}     7 tokens  [4913, 1311, 842, 3252, 48033, 5705, 9207]  ['{"', 'action', '_id', '":"', 'observe', '_all', '"}']
+  {"action_id":"set_x_neg"}       8 tokens  [4913, 1311, 842, 3252, 746, 3212, 28209, 9207]  ['{"', 'action', '_id', '":"', 'set', '_x', '_neg', '"}']
+  {"action_id":"set_x_pos"}       8 tokens  [4913, 1311, 842, 3252, 746, 3212, 6479, 9207]  ['{"', 'action', '_id', '":"', 'set', '_x', '_pos', '"}']
+  {"action_id":"set_x_zero"}      8 tokens  [4913, 1311, 842, 3252, 746, 3212, 19359, 9207]  ['{"', 'action', '_id', '":"', 'set', '_x', '_zero', '"}']
+  {"action_id":"set_xy"}          7 tokens  [4913, 1311, 842, 3252, 746, 40920, 9207]  ['{"', 'action', '_id', '":"', 'set', '_xy', '"}']
+  {"action_id":"set_y_neg"}       8 tokens  [4913, 1311, 842, 3252, 746, 4178, 28209, 9207]  ['{"', 'action', '_id', '":"', 'set', '_y', '_neg', '"}']
+  {"action_id":"set_y_pos"}       8 tokens  [4913, 1311, 842, 3252, 746, 4178, 6479, 9207]  ['{"', 'action', '_id', '":"', 'set', '_y', '_pos', '"}']
+  {"action_id":"set_y_zero"}      8 tokens  [4913, 1311, 842, 3252, 746, 4178, 19359, 9207]  ['{"', 'action', '_id', '":"', 'set', '_y', '_zero', '"}']
+  {"stop":true}                   5 tokens  [4913, 9495, 788, 1866, 92]  ['{"', 'stop', '":', 'true', '}']
+
+Branch points of the constrained greedy decode (prefix -> allowed next tokens):
+  after '{"'                                     -> ['action', 'stop']
+  after '{"action_id":"'                         -> ['set', 'observe']
+  after '{"action_id":"set'                      -> ['_x', '_y', '_xy']
+  after '{"action_id":"set_x'                    -> ['_pos', '_zero', '_neg']
+  after '{"action_id":"set_y'                    -> ['_pos', '_zero', '_neg']
+
+===== frozen_llm n 576
+  prompt_tokens: min 1990 p25 2526 median 3066 mean 3069.7 p75 3609 max 4160
+  prompt_chars : min 5151 median 7146 mean 7157.1 max 9185 ; chars/token 2.332
+  elapsed_seconds: min 0.348 median 0.426 mean 0.582 p95 1.464 max 4.881 ; total 335.2 s
+  cuda_interval_ms: min 346.8 median 424.6 mean 580.5 p95 1462.9 max 4878.3 ; total 334342.1 ms
+  new tokens generated (incl EOS): {8: 574, 9: 2}  legal_commands: {9: 564, 5: 12}  longest_command_tokens: {9: 576}
+  peak_gpu_allocated MiB: min 2032 max 2327
+  mean prompt tokens by decision index 0,5,10,15,20,23: [2024.0, 2483.0, 2934.0, 3388.0, 3841.0, 4114.0]
+  mean cuda ms by decision index 0,1,5,10,15,20,23: [559.0, 444.0, 522.0, 609.0, 593.0, 615.0, 651.0]
+  latency ~ tokens linear fit: 0.0625 ms/token + 388.6 ms ; corr 0.083
+  first request of session (ordinal 0) cuda ms: 735.8
+  distinct prompts (by prompt-id hash): 576 of 576 ; distinct envelopes: 576
+
+===== sft_llm n 546
+  prompt_tokens: min 1990 p25 2467 median 2933 mean 2929.8 p75 3402 max 3954
+  prompt_chars : min 5151 median 6997 mean 6988.1 max 8970 ; chars/token 2.385
+  elapsed_seconds: min 0.410 median 0.538 mean 0.596 p95 0.930 max 2.549 ; total 325.5 s
+  cuda_interval_ms: min 407.9 median 536.0 mean 594.3 p95 927.7 max 2546.4 ; total 324477.0 ms
+  new tokens generated (incl EOS): {9: 515, 6: 23, 8: 8}  legal_commands: {9: 542, 5: 4}  longest_command_tokens: {9: 546}
+  peak_gpu_allocated MiB: min 2041 max 2307
+  mean prompt tokens by decision index 0,5,10,15,20,23: [2024.0, 2443.0, 2858.0, 3271.0, 3686.0, 3938.0]
+  mean cuda ms by decision index 0,1,5,10,15,20,23: [632.0, 577.0, 570.0, 528.0, 683.0, 669.0, 565.0]
+  latency ~ tokens linear fit: 0.0254 ms/token + 520.0 ms ; corr 0.069
+  first request of session (ordinal 0) cuda ms: 786.5
+  distinct prompts (by prompt-id hash): 546 of 546 ; distinct envelopes: 546
+
+===== dpo_llm n 576
+  prompt_tokens: min 1990 p25 2493 median 2984 mean 2981.0 p75 3481 max 3985
+  prompt_chars : min 5151 median 7096 mean 7090.2 max 9039 ; chars/token 2.378
+  elapsed_seconds: min 0.476 median 0.712 mean 0.851 p95 1.648 max 4.049 ; total 490.4 s
+  cuda_interval_ms: min 474.7 median 709.6 mean 849.2 p95 1645.8 max 4046.2 ; total 489129.4 ms
+  new tokens generated (incl EOS): {9: 576}  legal_commands: {9: 564, 5: 12}  longest_command_tokens: {9: 576}
+  peak_gpu_allocated MiB: min 2041 max 2311
+  mean prompt tokens by decision index 0,5,10,15,20,23: [2024.0, 2443.0, 2858.0, 3271.0, 3685.0, 3932.0]
+  mean cuda ms by decision index 0,1,5,10,15,20,23: [811.0, 758.0, 828.0, 803.0, 708.0, 951.0, 859.0]
+  latency ~ tokens linear fit: 0.0674 ms/token + 648.2 ms ; corr 0.089
+  first request of session (ordinal 0) cuda ms: 817.6
+  distinct prompts (by prompt-id hash): 576 of 576 ; distinct envelopes: 576
+
+prompt token growth per additional accepted response (consecutive decisions in the same world):
+  frozen_llm  mean 90.9 sd 7.7 min 53 max 132
+  sft_llm     mean 83.1 sd 4.7 min 64 max 106
+  dpo_llm     mean 83.0 sd 4.5 min 64 max 103
+
+  token budget by section, DPO world 0 decision 0 (total prompt tokens 2012):
+     history                  ~  718 tokens (35.7%)
+     scm                      ~  377 tokens (18.7%)
+     menu                     ~  287 tokens (14.3%)
+     graph                    ~   71 tokens (3.5%)
+     task                     ~  321 tokens (16.0%)
+     domain_notes+objective   ~   60 tokens (3.0%)
+     counters                 ~   25 tokens (1.2%)
+
+  token budget by section, DPO world 0 decision 23 (total prompt tokens 3927):
+     history                  ~ 2622 tokens (66.8%)
+     scm                      ~  386 tokens (9.8%)
+     menu                     ~  287 tokens (7.3%)
+     graph                    ~   71 tokens (1.8%)
+     task                     ~  321 tokens (8.2%)
+     domain_notes+objective   ~   60 tokens (1.5%)
+     counters                 ~   27 tokens (0.7%)
+
+example scm JSON as the model sees it: [{"eligible_rows":8,"node":"X","noise_variance":0.25,"parameter_covariance":[[0.030303030303030304]],"parameter_mean":[1.0415656718463846],"terms":["intercept"]},{"eligible_rows":8,"node":"Y","noise_variance":0.25,"parameter_covariance":[[0.2653213106466827,-0.2256394260066532],[-0.2256394260066532,0.21663485280449185]],"parameter_mean":[-0.5478667338366421,0.42589362595851954],"terms":["intercept","X"]},{"eligible_rows":8,"node":"Z","noise_variance":0.25,"parameter_covariance":[[0.031112650920001025,0.007764614191435232],[0.007764614191435232,0.07446603048155506]],"parameter_mean":[-1.609175737627502,-1.220565774823312],"terms":["intercept","Y"]}]
+
+example remaining/requests JSON fragment: {"remaining_units":24,"requests":8,"returned_responses":8}
+one 2x2 covariance matrix = 78 tokens: ['[[', '0', '.', '2', '6', '5', '3', '2', '1', '3', '1', '0', '6', '4', '6', '6', '8', '2', '7', ',-', '0', '.', '2', '2', '5', '6', '3', '9', '4', '2', '6', '0', '0', '6', '6', '5', '3', '2', '],[-', '0', '.', '2', '2', '5', '6', '3', '9', '4', '2', '6', '0', '0', '6', '6', '5', '3', '2', ',', '0', '.']

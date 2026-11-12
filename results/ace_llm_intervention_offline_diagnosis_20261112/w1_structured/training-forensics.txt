@@ -1,0 +1,205 @@
+# training-forensics
+## SUMMARY
+The constant action is already in the saved training evidence, so it is not a training-to-development shift. On the 128 nonterminal training prompts the supervised checkpoint generates set_x_neg 108 times and the DPO
+  checkpoint 123 times. They match the teacher label in 36 and 32 cases, against 32 for a constant.
+
+Supervised labels are only mildly imbalanced (set_x_neg is 25% of nonterminal targets), but set_x_neg is the plurality at every token decision of the command, and greedy trie decoding follows that path. The 119 DPO pairs
+  are not dominated by set_x_neg, and preference labels are not state-independent. They are very noisy: roughly one strict label in three points against the target-risk planner.
+
+The DPO pass moved state-independent command biases rather than state-conditional preferences. A model with no state input reproduces the saved DPO losses.
+
+Path roots used below: COLL=/Users/pat/code/ACE/results/ace_llm_intervention_scientific_collection_20261108/terminal02/remote/launch/collection/session/worker/task/collection ;
+  TG=/Users/pat/code/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108 ; PREP=TG/terminal01/remote/cpu/preparation/session/worker/artifacts ;
+  FIT=TG/terminal01/remote/launch/training/session/worker/artifacts/fit ; SRC=/Users/pat/code/ACE/scripts/research ; OUT=/private/tmp/claude-501/-Users-pat--claude-spares-spare-
+  Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics
+
+## KEY FACTS
+[1] (verified) Exposure: 160 records (32 worlds x 5 snapshots), each used once for SFT in fixed roster order, batch size 1, no shuffling. 3,584 comparisons = 128 records x 28 pairs: 687 strict, 2,897 ties. One hash-
+  selected strict pair per record gives 119 DPO updates, 3.3% of collected comparisons. Preference feedback cost 9,216 of 10,240 collection units.
+    EVIDENCE: PREP/exposure.json (counts); COLL/terminal.json; SRC/llm_intervention_training_exposure.py:75-124; FIT/training/step-*.start.json
+[2] (verified) Supervised targets: observe_all 24, set_x_neg 32, set_x_zero 7, set_x_pos 29, set_y_neg 10, set_y_zero 4, set_y_pos 10, set_xy 12, stop 32. set_x_neg is 20.0% of 160 and 25.0% of 128 nonterminal. Stop is
+  20.0%, all at zero budget. Majority accuracy 20% overall, 25% nonterminal; within graph x cost cells 42/160 in-sample, 29/128 nonterminal leave-one-world-out.
+    EVIDENCE: COLL/world-*/snapshot-*/record.json (recounted by grep); OUT/sft_targets.out
+[3] (verified) Half of nonterminal labels come from teachers that ignore the SCM (32 uniform random, 32 menu coverage); teacher identity is not in the prompt. Menu coverage emits set_x_neg at all 8 of its initial states
+  via a lexical tie-break. set_x_neg is 16/32 of labels at snapshot 0, but at snapshots 1-3 labels favor set_x_pos (27) and observe_all (21) over set_x_neg (16). Token-level label pluralities: set 104/128, _x 68/104,
+  _neg 42/92.
+    EVIDENCE: COLL/world-*/snapshot-*/teacher.json; SRC/llm_intervention_numerical_policy.py:62-66; SRC/llm_intervention_screen_protocol.py:124-135; PREP/llm-prepared.json (command token ids)
+[4] (verified) Among the 119 DPO pairs set_x_neg is preferred in 14 and rejected in 9; set_x_pos 23/14, set_y_pos 8/21, observe_all 6/13. In all 687 strict pairs set_x_neg is 88/74 and set_x_pos 123/78. Token tallies in
+  the 119: _neg 33 vs 23, _x 50 vs 42, none significant.
+    EVIDENCE: OUT/prefs_analysis.out; PREP/exposure.json
+[5] (verified) A constant Bradley-Terry ranking predicts strict labels 390/687 in-sample (coin-flip-direction null 54.1%) and 336/687 = 48.9% leave-one-world-out. Per-pair majority ceiling is 400/687. No unordered pair
+  has a consistent winner after correction.
+    EVIDENCE: OUT/state_dependence_and_noise.out
+[6] (verified) Tie rule is strict iff |mean| > 2 SE over 4 replicates, a 3-df t-test at alpha 0.139. Under no difference 476-499 strict labels are expected; 687 observed; excess is 5-6% of comparisons. Reliability of a
+  4-replicate action mean: median 0.145, zero in 62/128 records. Benjamini-Hochberg at q 0.10 keeps 1 of 3,584. 73 of the 119 DPO pairs come from states already at NMSE <= 0.04.
+    EVIDENCE: COLL/world-*/snapshot-*/feedback/terminal.json; SRC/llm_intervention_replicated_feedback.py:112-171; OUT/state_dependence_and_noise.out
+[7] (verified) Strict labels agree with the target-risk planner's own score ordering in 123/179 (68.7%) and with local information in 118/176 (67.0%). Per-state Spearman between target-risk predicted and measured gains
+  has mean 0.089.
+    EVIDENCE: teacher.json metadata vs feedback pairs in the 64 informed-teacher states; computed inline, reported in notes section 5.4
+[8] (verified) SFT prequential loss plateaus after about 60 updates. On nonterminal examples in steps 80-159 the LLM scores 2.37 nats per example against 1.93 for a state-blind label-frequency counter. DPO mean online
+  loss is 0.7395, above ln 2; all 119 steps were gradient-clipped (pre-clip norm 1.30-17.8); 43/119 trained pairs remain ranked against their label.
+    EVIDENCE: FIT/training/step-*.{loss,complete,update-intent}.json; FIT/arithmetic.json; OUT/training_logs.out
+[9] (verified) DPO-stage log-likelihood change by command (nats): set_x_neg +0.57, set_xy -0.03, observe_all -1.12, set_x_pos -3.84, set_y_neg -4.57, set_x_zero -9.57, set_y_pos -12.33, set_y_zero -13.34. Command
+  identity explains 79% of the change; preferred commands fell 4.69 on average and rejected 6.68. In the final table set_x_neg wins 123/128 states (median margin 1.93 nats); command main effect 82.7%, state x command
+  interaction 10.0%.
+    EVIDENCE: FIT/training/reference-scores.json; FIT/final-before-reload.json; OUT/training_logs.out
+[10] (inferred) An 8-logit model with no state input, stepped once per pair in the real order, reproduces the 119 saved online DPO margins (r = 0.80) and the final per-command shifts (r = 0.93). That the real network
+  behaved this way is an interpretation of the fit.
+    EVIDENCE: OUT/bias_only_dpo_model.py and .out
+[11] (verified) Target-risk teacher labels are state-dependent: set_x_pos 9, set_x_neg 8, observe_all 8, set_xy 7; the best constant rule predicts 0/32 leave-one-world-out. In 17/32 states its runner-up is within 2 Monte
+  Carlo SE of the chosen action.
+    EVIDENCE: OUT/teachers.out
+[12] (verified) Not saved: base-model scores or generations on training prompts, the full SFT command table (only 238 pair scores), per-tensor gradient norms, parameter deltas. The acceptance review checked legality of
+  generations, not their content.
+    EVIDENCE: FIT directory listing; TG/acceptance01/review.md:19,45
+
+## NUMBERS
+Greedy generations on the 128 nonterminal training prompts:
+| Checkpoint | set_x_neg | observe_all | set_x_pos | equals teacher label |
+| SFT | 108 | 19 | 1 | 36 |
+| DPO | 123 | 0 | 5 | 32 |
+
+Verdicts:
+| Explanation | Verdict | Key numbers |
+| i. supervised label imbalance | partly supported, not sufficient | 32/128 = 25.0% vs 29 and 24; plurality at each token decision (81.3%, 65.4%, 45.7%); contradicted at snapshots 1-3 (labels 27 pos / 16 neg, SFT
+  probability about 0.06 pos / 0.35 neg) |
+| ii. pairs dominated by one preferred action | contradicted at command level | set_x_neg preferred 14/119, rejected 9; weak token tilt _neg 33 vs 23 |
+| iii. labels state-independent | contradicted | constant ranking 56.8% in-sample, 48.9% leave-one-world-out |
+| iv. label noise | supported | 687 strict vs 476-499 expected by chance; reliability 0.145; about 31% of strict labels disagree with target risk |
+| v. too few updates | SFT undetermined; DPO contradicted | SFT 2.37 vs 1.93 nats; DPO shifts up to -13.3 nats, all 119 steps clipped |
+
+Recipe: Qwen3-0.6B, rank-8 q/v LoRA (1,146,880 parameters), AdamW lr 1e-4, clip 1.0, DPO beta 0.1, 160 + 119 single-example updates, 291.5 s training.
+Strict share by snapshot: 27.0%, 18.0%, 16.1%, 15.6% (chance about 13%).
+Prompts: 1,998-4,199 tokens, none truncated; last 356 tokens identical in all 160.
+
+## SURPRISES / CONTRADICTIONS
+- The collapse was visible before deployment in saved training generations and passed acceptance, because the gate checked legality only.
+- The supervised model's online loss on new nonterminal states never beat a state-blind label-frequency counter.
+- DPO lowered the likelihood of most preferred commands as well as rejected ones. set_x_pos had the largest label net (+9) and lost 3.8 nats.
+- The executed tie rule declares about 13-14% of comparisons strict under no difference, despite the agenda's intent to avoid turning noisy differences into preferences (ace_llm_intervention_agenda_2026-11-02.md:91).
+- Labels are not pure noise: strict labels agree with the target-risk planner 68.7% of the time, mostly at the initial state. The supervision weakly rewards state dependence, not a constant.
+- The final policy is not input-blind: log-odds of _pos vs _neg vary with SD 3.4 nats across states, but the mean bias of -6.9 nats swamps it in 123/128 states.
+- The task brief's file counts are off: the local collection holds 30,596 files and the training directory 4,926, not about 12,400 and 235.
+
+## IMPLICATIONS FOR AGENDA
+- Do not present the completed DPO arm as a test of preference learning for intervention choice. It tests one label, exposure and optimizer recipe that never learned a state-conditional preference.
+- Report from saved files, at no compute cost: training-state action table, command-bias decomposition, label-noise accounting.
+- Add a pre-deployment behavioral gate: action distribution and teacher agreement on training and held-out training worlds, plus the state x command share of the score table.
+- Fix the preference label before any retraining. Compare expected (planner or exact) gains, many more replicates, and excluding states that already meet the target. A direct check is exact expected gains on the 128
+  saved states to measure the true flip rate; this needs authorization because it draws new simulated responses.
+- Supervise from one strong teacher with soft labels. The four-teacher mixture includes 25% random labels and a counting rule that emits set_x_neg at every initial state.
+- Change the action interface: one distinct token per action, randomized menu order, choice by normalized full-command score.
+- Run two cheap controls on the unchanged recipe: randomly flipped pair directions, and labels reassigned to shuffled states. About five minutes of training each on one 20 GB slice. Also test balanced minibatches,
+  stronger anchoring and all strict pairs.
+- Run the forward-only diagnostic: base, SFT and final command scores on the 160 training prompts and on designed artificial states. The base table is the missing evidence.
+- Analyze the numerical ranker's saved training outputs the same way. It used the same exposure, so it separates a supervision failure from a language-interface failure.
+- Carry the training bill in any efficiency claim: 9,216 cost units bought 119 used pairs.
+
+## OPEN QUESTIONS
+- What does the frozen base model score on the training prompts? Does it already prefer _neg over _pos?
+- What is the true flip rate of the 687 strict labels against exact expected gains? Two indirect estimates give about one third.
+- Would the real network collapse to a different command under another one-pair-per-record selection or under random label directions? The state-blind toy model predicts set_x_neg in 48.5% of alternative selections.
+- How large were adapter updates in parameter space per stage? Computable from the saved adapter files, which were not opened.
+- Do the supervised arm's early stops in deployment occur at remaining budgets 1-4, which no nonterminal training state covers (only 5, 6, 11, 12, 17, 18, 24)?
+- Does the numerical ranker trained on the same exposure show the same bias-dominated pattern?
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics.md
+
+## VERIFICATION
+OVERALL: Every quantitative claim I re-derived reproduces from the raw saved files, and none is wrong. Of 16 grouped claims, 13 are confirmed and 3 are partially confirmed. The partial ones are matters of wording, not
+  arithmetic.
+
+The three checks you required all hold exactly. set_x_neg is 32 of 128 nonterminal supervised targets (25.0%). Among the 119 DPO pairs it is preferred 14 times and rejected 9. A state-independent ranking scores 56.8% in-
+  sample and 48.9% leave-one-world-out.
+
+Qualifications to carry forward:
+- The 45.7% third-token share pools X and Y. On the greedy path it is 47.1%.
+- The "8-logit" model is a token-level model with a shared suffix. A per-command bias model does not fit.
+- "0/32" for a constant rule on target-risk labels is a tie-break artifact.
+- The "not saved" items are recoverable from local adapters and saved prompt tokens without training.
+
+I found no evidence that overturns any of the five verdicts. My extra tests strengthen iii (labels carry state-specific signal a constant ranking cannot capture) and iv (about 70% of strict labels are chance-level). They
+  weaken explanation i further and add two untested contributors to the supervised collapse: order of the single unshuffled pass, and token-greedy decoding.
+
+Not checked: whether the real network implements the token-bias mechanism, base-model behavior on training prompts, and any deployment-side number. No weights were loaded and nothing under the project trees was modified.
+
+Full notes: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics-verify.md
+Scripts and outputs: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics-verify/ (v01 to v21).
+* [confirmed] On the 128 nonterminal training prompts the SFT checkpoint generates set_x_neg 108, observe_all 19, set_x_pos 1 and matches the teacher label 36 times. The DPO checkpoint generates set_x_neg 123, set_x_pos
+  5 and matches 32 times. A constant matches 32.
+    MY VALUE: Identical. SFT set_x_neg by snapshot: 32, 32, 25, 19 of 32. All 32 terminal outputs are a forced stop.
+    HOW: Counted FIT/{sft,final}-generation-*.json against COLL record.json labels (v04).
+* [confirmed] Supervised targets: observe_all 24, set_x_neg 32, set_x_zero 7, set_x_pos 29, set_y_neg 10, set_y_zero 4, set_y_pos 10, set_xy 12, stop 32. set_x_neg is 20.0% of 160 and 25.0% of 128. Stop only at zero
+  budget.
+    MY VALUE: Identical. 32/160 and 32/128. Labels agree across record.json, language.json and teacher.json in 160/160.
+    HOW: Fresh loader over COLL/world-*/snapshot-* (v01, v02).
+* [confirmed] Majority accuracy 20% overall, 25% nonterminal. Graph x cost cells 42/160 in-sample, 29/128 leave-one-world-out.
+    MY VALUE: 32/160, 32/128, 42/160. Leave-one-world-out 29/128 (29.75 with fractional ties, 30 with the other tie-break).
+    HOW: v02.
+* [confirmed] Half of nonterminal labels come from SCM-ignoring teachers. Menu coverage emits set_x_neg at all 8 initial states. set_x_neg is 16/32 at snapshot 0. Snapshots 1-3 have set_x_pos 27, observe_all 21,
+  set_x_neg 16. Teacher identity is not in the prompt.
+    MY VALUE: 32 uniform_random and 32 menu_coverage. 8/8. 16/32. 27, 21, 16. No teacher string in the prompt.
+    HOW: v02, v12, and SRC/llm_intervention_numerical_policy.py:59-66.
+* [partially_confirmed] Token-level label pluralities: set 104/128, _x 68/104, _neg 42/92 (81.3%, 65.4%, 45.7%).
+    MY VALUE: 104/128 and 68/104 exact. 42/92 pools the X and Y prefixes. On the actual greedy path the last decision is 32/68 = 47.1% against _pos 29. Plurality holds by 3 labels.
+    HOW: Trie walk over saved command token ids in PREP/llm-prepared.json (v05).
+* [confirmed] Exposure: 3,584 comparisons, 687 strict, 2,897 ties, 119 DPO updates (3.3%), fixed roster order, batch 1. Feedback cost 9,216 of 10,240.
+    MY VALUE: Identical. 64 records x 64 units plus 64 x 80 = 9,216. 9,145 accepted responses.
+    HOW: v03, COLL/terminal.json, step-*.start.json order.
+* [confirmed] The 119 DPO pairs (preferred/rejected): set_x_neg 14/9, set_x_pos 23/14, set_y_pos 8/21, observe_all 6/13. All 687: set_x_neg 88/74, set_x_pos 123/78. Token tallies _neg 33 vs 23, _x 50 vs 42, none
+  significant.
+    MY VALUE: Identical. Sign tests p 0.18 and 0.39. set_x_neg appears in 23 of 119 pairs.
+    HOW: Selected pair identified three ways that agree 119/119: my own hash recomputation, exposure.json, step start files (v03).
+* [confirmed] Constant Bradley-Terry ranking predicts strict labels 390/687 in-sample and 336/687 = 48.9% leave-one-world-out. Coin-flip null 54.1%. Ceiling 400/687. No pair has a consistent winner after correction.
+    MY VALUE: 390/687 = 56.8%. 336/687 = 48.9% (bootstrap 44.7% to 53.5%). Null 54.06%. Ceiling 400. Most lopsided pair p 0.012, Bonferroni 0.33.
+    HOW: Own MM Bradley-Terry fit, exact search over 8! orders (v06, v19).
+* [confirmed] Tie rule is a 3-df t-test at alpha 0.139. 476-499 strict expected by chance, 687 observed. Reliability median 0.145, zero in 62/128. Benjamini-Hochberg keeps 1 of 3,584. 73 of 119 DPO pairs come from states
+  at NMSE <= 0.04.
+    MY VALUE: Alpha 0.1393. Sign-flip null 476.0, normal null 499.3. Excess 5.2% to 5.9%. 0.145 and 62/128 (one-way ANOVA). 1 kept. 73/119.
+    HOW: Recomputed all 3,584 pairs from per-replicate gains, 0 disagreements with saved flags (v07).
+* [confirmed] Strict labels agree with target-risk ordering in 123/179 (68.7%) and local information in 118/176 (67.0%). Per-state Spearman mean 0.089.
+    MY VALUE: 123/179, 118/176, 0.0885. Record-cluster 95% intervals 0.58 to 0.78 and 0.53 to 0.78.
+    HOW: teacher.json metadata against feedback pairs (v08).
+* [confirmed] SFT: LLM 2.37 nats per nonterminal example in steps 80-159 against 1.93 for a state-blind counter, plateau after about 60 updates. DPO: mean online loss 0.7395, all 119 steps clipped (1.30-17.8), 43/119
+  trained pairs still ranked against their label.
+    MY VALUE: 2.3700 and 1.9294. 0.7395. 119/119 clipped, 1.302 to 17.824. 43/119 (53/119 before DPO).
+    HOW: FIT/training/step-*.{complete,loss,update-intent}.json. Loss is a per-token mean, so multiplied by action_tokens (v09).
+* [confirmed] DPO-stage change by command: +0.57, -0.03, -1.12, -3.84, -4.57, -9.57, -12.33, -13.34 nats. Command identity explains 79%. Final table: set_x_neg wins 123/128, median margin 1.93, command main effect 82.7%,
+  interaction 10.0%.
+    MY VALUE: All eight means identical. Eta-squared 0.7906. Preferred -4.694, rejected -6.675. 123/128, 1.933, 82.7%, 10.0%.
+    HOW: reference-scores.json against final-before-reload.json (v09).
+* [confirmed] An 8-logit model with no state input reproduces the 119 online DPO margins (r 0.80) and the per-command shifts (r 0.93).
+    MY VALUE: r 0.797 and 0.932, sign agreement 93/119, but only for the token-trie model (2 + 3 + 3 token logits, shared suffix). One logit per command gives 0.16 to 0.36 and 0.35 to 0.48. It explains about 64% of
+      margin variance. Mechanism remains inferred.
+    HOW: Own re-implementation from the prose description, plus my own null controls (v10, v11, v15).
+* [partially_confirmed] Target-risk labels: set_x_pos 9, set_x_neg 8, observe_all 8, set_xy 7. Best constant rule 0/32 leave-one-world-out. Runner-up within 2 Monte Carlo SE in 17/32.
+    MY VALUE: Counts exact. 0/32 is a tie-break artifact: 3/32 with fractional credit, 9/32 in-sample. 17/32 with pooled SE, 12 to 17 across definitions.
+    HOW: v08.
+* [partially_confirmed] Not saved: base-model scores or generations, the full SFT command table, per-tensor gradient norms, parameter deltas.
+    MY VALUE: True as files. But initial, SFT and final adapters are in the local tree with matching SHA-256, and prompt token ids are saved. Deltas and both missing tables are recoverable by inference alone. One base
+      score exists (first-gpu-work.json, -11.43).
+    HOW: Directory listing, shasum, gradients.json keys, TG/acceptance01/review.md:19,45.
+* [confirmed] Recipe (rank 8, 1,146,880 parameters, lr 1e-4, clip 1.0, beta 0.1, 291.5 s). Strict share by snapshot 27.0%, 18.0%, 16.1%, 15.6%. Prompts 1,998-4,199 tokens, last 356 identical.
+    MY VALUE: Identical.
+    HOW: FIT/arithmetic.json, FIT/training/terminal.json, llm-prepared.json (v03, v05).
+
+### ADDITIONAL FINDINGS (verifier)
+- The in-sample 56.8% of a constant ranking is what noise alone gives. Relabelling the 8 actions at random within each record yields 56.5% on average (p 0.45). The coin-flip null (54.1%) ignores within-record dependence.
+  There is no detectable state-independent preference signal.
+- The label signal that exists is state-specific. Strict labels agree with the state's own target-risk ordering in 68.7% of pairs, but in 50.2% when paired with another state's planner scores (p 0.0005) and 51.4% with
+  the average planner ordering. Local information: 67.0% against 51.6% (p 0.0055). This is the positive evidence verdict iii lacked.
+- Neither checkpoint tracks labels on its own training states. Final table: teacher label scores -0.16 nats relative to that command's same-snapshot mean (p 0.86). SFT: +0.09 nats (n 27, p 0.18). Within-state, label log-
+  likelihood is -2.168 before the model's own SFT update and -2.177 at the end of the pass (n 14).
+- The supervised neglect of set_x_pos appeared late. Geometric-mean probability on set_x_pos labels was 0.341 in steps 80-119 and 0.173 in steps 120-159. In the same states it fell from 0.195 to 0.084 by the end of the
+  pass (n 6). The last 30 steps hold 8 set_x_neg labels and 2 set_x_pos. Recency weighting gives at most 1.6 to 1, so it is not sufficient. Pass order is an untested contributor that needs a reshuffled rerun.
+- Token-greedy decoding is not command argmax. At the SFT checkpoint, snapshots 1-3, saved geometric-mean probabilities are observe_all 0.367 and set_x_neg 0.345, yet greedy output is set_x_neg in 76 of 96 states. In 11
+  saved states with P(observe_all) between 0.33 and 0.44 the output is set_x_neg every time. This is an inference from averages.
+- One toy counterfactual in the earlier notes did not reproduce. With all 687 strict pairs in random order my re-implementation ends at set_x_pos about 65% of the time, not set_x_neg in 478/500. Which command a state-
+  blind learner collapses to is not robust.
+- DPO barely fit its own pairs: loss 0.6811 against 0.6931 at the reference, 45/119 moved against their label. It amplified the SFT ordering instead (slope 3.45 of final on SFT score differences, r 0.79).
+- Between 69% and 73% of the 687 strict labels are what the tie rule passes under no difference. Mean NMSE reduction from one extra response falls from 0.0230 at snapshot 0 to 0.0013 at snapshot 3, where only 50.0% of
+  mean gains are positive.
+- Where a teacher's label appears in a strict pair it is preferred 45 times and rejected 11 for local information, against 35/19 for target risk, 30/26 for menu coverage and 16/13 for uniform random.
+- The summary sentence that the behavior is not a training-to-development shift holds for the constant action only. SFT never generates stop on nonterminal training prompts (0/128), and stop labels exist only at zero
+  budget. The supervised arm's early stopping in deployment therefore sits in budget states training never covered (inference, deployment data not opened). Training histories also come only from the four numerical
+  behavior policies.

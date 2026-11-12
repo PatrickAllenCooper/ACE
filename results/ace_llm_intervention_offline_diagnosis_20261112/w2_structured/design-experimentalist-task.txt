@@ -1,0 +1,228 @@
+# DESIGN: experimentalist-task
+## THESIS
+Positive: a small open language model (Qwen3-0.6B with LoRA, 1.5B in a capacity arm) is trained on a generator of semantically described engineering rigs, with all turbomachinery and pressure-sensing classes held out. It chooses
+  interventions from an explicit SCM state. On 128 fresh systems of an independently authored wind-tunnel simulator, it reaches a reliable operating-point decision with at least 10% less apparatus time than the strongest numerical
+  planner using the same SCM. The gain disappears when variable semantics are anonymized and is not matched by a numerical policy given the same features and text embeddings. The same frozen policy, run on a real Causal Chambers
+  wind tunnel through the Remote Lab, delivers fan settings that meet measured pressure and flow specifications with chamber time (seconds and EUR) and fan-current savings consistent with the simulator. That satisfies the
+  experimentalist-task and transfer conditions for one physical apparatus plus a second independent simulator (pyCycle compressor). Null or negative: the paper reports the measured headroom (adaptivity, mechanism knowledge,
+  switching costs, residual model information) on a physically grounded task with legal actuators, billed costs and real semantics. It shows that constrained knowledge-gradient planning on an explicit SCM already delivers the
+  reliable answer, names which declared handicap the LLM failed to exploit (semantics, misspecification, non-myopic costs, use of measurements), and narrows the LLM claim to whatever gate it passed, for example in-distribution
+  learning only, rather than moving to another benchmark. The hardware run then becomes optional: either a demonstration of numerical planning with calibrated simulator-to-hardware transfer, or nothing, at the lead researcher's
+  choice.
+
+### E1 [must] Wind-tunnel operating-point task and numerical headroom audit
+  QUESTION: Does the wind-tunnel operating-point task (WT-OP) on the independently authored simulator family leave measurable room beyond the strongest numerical planner on the same SCM, through adaptivity, mechanism knowledge,
+    switching costs or residual model information? Can the endpoint resolve a 10% difference with at most 192 systems?
+  DESIGN: Task: choose (load_in, load_out) on a 5x5 grid {0.10,0.325,0.55,0.775,1.00} at a fixed hatch angle. Objective K1: least total fan current subject to dP = downwind minus ambient pressure >= D* and rpm_out >= r*. Objective
+    K2: most dP subject to a current cap. Thresholds sit at truth quantiles 0.3 to 0.7. Commands: 24 moves (10 units = 8 s settle + 2 s measurement) plus replicate (2 units). Budget 120 units after a shared measurement at
+    (0.55,0.55). SCM with 8 nodes: L_in -> rpm_in -> C_in, L_out -> rpm_out -> C_out, (rpm_in, rpm_out, H) -> dP, plus documented couplings; edges and signs are transcribed from the published graph and the simulator source. The
+    shared generic SCM is a cubic basis with shrinkage. The physics SCM uses affinity-law features. Family W: wt.SimA1C3 plus wt.ModelB1 with per-system parameters around the published values, plus a fan-coupling term absent from
+    Mk1 but documented on Mk2, AR(1) ambient drift, hatch in {0,15,30,45} degrees. Shared fixed decision rule: chance-constrained plug-in at 0.9. Loss in [0,1] (normalized current gap, 1 if a specification is violated under
+    truth). Arms, numerical only, on W-dev (32 systems), R=8 replicates with common random numbers: state-blind decision S0, space-filling static S1, best truth-free static design S2 (built on separate prior draws), random S3,
+    target risk with 256 draws P1, constrained knowledge gradient P2, cKG with two-step rollout and switching costs P3, cKG with physics SCM P4, hybrid planning with physics but deciding with the generic SCM P5, oracle-form
+    planner P6. 2,560 episodes. Endpoint: normalized area under the truth-conditional expected loss curve over cost 0 to 120, as paired log ratios. Headroom H1 = S2/best(P1..P3), H2' = P2/P5, H3 = P2/P3, H4 = best(P1..P5)/P6. Also
+    triviality checks and variance components sigma_s and sigma_r.
+  DECISION_RULE: Pass requires all of: (a) H2' >= 1.25, H4 >= 1.25 or H3 >= 1.15, with 95% CI lower bound > 1.05; (b) S0 mean loss >= 0.30 and no single setting optimal in more than 25% of systems; (c) the sample-size formula
+    gives n <= 192 for a 10% effect at 80% power with Holm over 3 contrasts. H1 >= 1.15 is required before any claim mentions adaptivity. On failure, apply fixed levers on fresh dev batches, at most two rounds: no initial
+    measurement, then budget 80, then hatch as a third decision variable. The C1 comparator for E6 is fixed here. Positive: W becomes the confirmatory family and the paper reports the measured ceiling on any policy's gain. Null or
+    negative after two rounds: reported as 'this real-apparatus operating-point task is solved by numerical SCM planning'. No LLM arm then runs on W, and hardware can only be a numerical demonstration. No LLM output exists at this
+    stage, so the decision cannot depend on LLM performance.
+  PREREQUISITES: Approval to install causalchamber 0.2.8 (MIT, numpy-only wind-tunnel file) in an isolated environment, or to vendor the pinned file. Read the simulator source and published ground-truth graph. New generic-layer
+    versions: basis-function Bayesian learner, state-dependent switching costs in the executor, shared measurement namespaces for common random numbers, truth-conditional evaluator, more than 8 arms and 64 worlds per roster, new
+    sealer and cost-curve versions.
+  COST: Code about 8 to 10 working days (the numerics note sizes these module changes as small to medium). Compute about 2,560 episodes x 20 decisions, at about 0.5 s per decision for one-step planners and 7 s for rollout: about
+    15 CPU-hours on the Mac, about 2 hours wall, not charged to the CURC envelope. Spend 0.
+  MAIN_RISK: Monotone, smooth fan physics lets cKG solve the task in a few moves, so all headroom ratios fall below threshold. Or the Mk1 simulators expose different inputs or sign structure than assumed.
+
+### E2 [must] Apparatus calibration and interface smoke on the real wind tunnel (free credits)
+  QUESTION: Do the wind-tunnel family's ranges cover the real Mk2 tunnel's steady-state responses, settle times, noise and drift? Does the Remote Lab interface support the protocol at the assumed costs?
+  DESIGN: A fixed, non-adaptive protocol with no policy and no endpoint: 4 fan load steps logged at 10 Hz for 15 s each (60 s); 2 anchor settings x 10 approaches x 10 s (200 s); 20 off-grid settings ({0.2,0.45,0.7,0.95}^2 at hatch
+    0 plus 4 at hatch 30 degrees) x 10 s (200 s); hatch checks at 3 angles x 2 settings (60 s); about 200 s of session and latency overhead. Total about 720 s, inside the 1,000 free credits. Off-grid settings keep the task grid
+    unseen until E9. The data later fit the digital twin (E8).
+  DECISION_RULE: Pass requires: at least 18 of 20 settings inside W's 95% prior predictive band for each modeled response; at least 90% of load steps settling within 2% of steady state in 8 s or less; noise SD inside the family
+    range. On failure, before W-train or W-conf is generated and before any LLM training on W: widen ranges to cover the estimates with a 50% margin, set the move cost to measured settle time + 2 s, and rerun the E1 audit on a
+    fresh dev batch. If E2 cannot run before W-conf must freeze, freeze W-conf with ranges widened by 50% from the documentation, and use E2 only for the twin. Positive licenses 'the simulator family covers the apparatus'.
+    Negative licenses a documented simulator-to-hardware gap, corrected before training and reported.
+  PREREQUISITES: Patrick's own Remote Lab sign-up (the terms forbid accounts registered by automated methods) and acceptance of Terms v1.1. A separate Python 3.11+ environment with the pre-release client causalchamber 1.0.0rc1
+    (local Python is 3.9). A check of what the package's dataset module sends (the changelog mentions a call-home).
+  COST: 0 EUR (at most 1,000 free credits). 1 to 2 days of code. Calendar time dominated by account approval.
+  MAIN_RISK: Sign-up delay, instability of the pre-release client, unknown shared-pool waits.
+
+### E3 [must] Procedural training generator with semantic device library and numerical audit
+  QUESTION: Does a generator of semantically described rigs, with the test apparatus classes held out, have headroom for a learned policy, and do its descriptions carry information a policy can exploit?
+  DESIGN: Library of about 16 device classes (electrical, thermal, non-polarization optics, hydraulic-static, mechanical including DC motors), each with canonical forms (affine, dead-zone, power law with exponent 0.5 to 3,
+    saturating, quadratic loss, bilinear), parameter ranges, units and 3 independently written descriptions, frozen before any model sees them. Held out entirely: fans, pumps, compressors, turbines, pressure sensing, polarization
+    optics. Rigs: 2 actuators, 2 to 4 mediators, at most 8 nodes, 5x5 grid plus replicate, cost pairs (10,2), (6,1), (20,2), objective kinds K1 and K2. Namespaces: G-train 4,096, G-dev 32, G-fresh 64, G-heldout 64 (3 more classes
+    held out). Audit on G-dev with the E1 numerical arms (R=8, 2,560 episodes). Semantic-informativeness check: an MLP student trained on 2,048 G-train systems with privileged-truth targets, with and without device-class one-hot
+    inputs.
+  DECISION_RULE: Pass requires the E1 headroom criteria on G-dev, and the class-informed student's area at least 10% lower than the uninformed student's (CI lower bound of the ratio > 1.03). If descriptions carry no exploitable
+    information, increase form diversity once and re-audit. Positive: the semantic channel is trainable and testable. Negative: only non-semantic LLM claims (adaptivity, costs) remain, declared before any LLM training.
+  PREREQUISITES: E1 code. Descriptions written and frozen before any model run.
+  COST: 5 to 7 days of code and writing. About 10 CPU-hours local. Spend 0.
+  MAIN_RISK: Test physics leaks into the library (DC motor laws resembling fan laws), or the library is so unlike real apparatus that nothing transfers.
+
+### E4 [must] LLM interface and learnability qualification (frozen models, artificial states)
+  QUESTION: With a compact state text, single-token permuted identifiers and one-pass restricted scoring, is the model free of position and identifier bias? Does decision-relevant content survive tokenization? Can a small fit beat
+    a state-blind counter, which the November supervised model never did?
+  DESIGN: Interface: about 1,500 tokens or fewer, containing apparatus description, graph, objective with thresholds, costs, budget, current setting, a visited-settings table and per-candidate SCM predictions with SD and
+    probability of meeting the specifications, rounded to 2 to 3 significant digits. No per-action planner scores. Letter identifiers permuted per episode. Softmax restricted to legal identifiers, one forward pass. Test data:
+    1,200 artificial states from G-dev (never W or C). Models: Qwen3-0.6B (pinned), Qwen2.5-1.5B-Instruct, Qwen2.5-7B-Instruct (cached; 7B frozen probes only). Q1: choice frequency by position and letter under permutation (chi-
+    square). Q2: linear probes on the final hidden state for the best candidate, remaining budget and current setting (800 fit, 400 test). Q3: LoRA rank 16 on all projections, at most 500 steps, batch 16, on 2,000 G-train states
+    with privileged-truth soft labels, tested on 400 held-out states against the best state-blind label-frequency baseline. Also records latency and token counts.
+  DECISION_RULE: A model passes if: Q1 shows no position or letter chosen more than 2x uniform (p > 0.01); Q2 top-1 recovery >= 60%; Q3 top-1 agreement with the truth-best action >= 2x the state-blind baseline, with lower cross-
+    entropy. The smallest passing model becomes primary. If no model passes Q3, the LLM ladder stops and the paper reports learnability failure under this interface (narrowed claim). The numerical ladder continues.
+  PREREQUISITES: Approval for local forward-only inference under a written protocol, and for the small Q3 fit (local, or within the remaining 2,742 GPU-slice-seconds). Approval to use the cached 1.5B and 7B weights. Results of the
+    separate offline diagnosis of the saved November artifacts, used only for interface design and never for tuning to the 24 outcomes.
+  COST: 3 to 5 days of code. About 3,600 forward passes plus probes, 1 to 3 hours on the Mac (7B dominates). Q3 about 0.3 GPU slice-hours, or a few hours locally.
+  MAIN_RISK: Q3 fails at 0.6B, forcing the 1.5B model and its larger compute ask.
+
+### E5 [must] Policy training and in-distribution gates
+  QUESTION: Does the trained LLM learn a state-dependent acquisition policy that beats its frozen base and approaches the strongest numerical planner on fresh procedural systems? Does it generalize to held-out device classes?
+  DESIGN: L2-x: listwise distillation of privileged-truth one-step values (expected truth-loss reduction per cost unit over 64 simulated outcomes, soft targets softmax(v/tau) with tau = 0.25 x per-state SD), about 30,000 states, 2
+    epochs, then 2 DAgger rounds on student-visited states. Targets come from the truth, not the planner. L3-x: L2-x followed by on-policy GRPO: 100 updates, 8 systems x 8 trajectories, return = minus truth area, group-normalized,
+    KL 0.02 to L2-x, entropy bonus 0.01, temperature 1.5, LoRA rank 16 on all projections, lr 1e-5 (scale follows Kriz et al. on Qwen3-0.6B). Matched numerical students: N8-x (MLP on prompt numbers plus device one-hot, successor
+    of the November ranker) and N9-x (N8-x plus a frozen Qwen embedding of the description), with the same states and targets. Should: in-family L3-w and N8-w on W-train (2,048 systems), and the 1.5B capacity arm. Gates on G-fresh
+    (64) and G-heldout (64), R=4, with arms L1, L2-x, L3-x, N3 target risk, N4 cKG, N8-x, N9-x. 3,584 episodes, about 31,000 LLM decisions.
+  DECISION_RULE: T1: the primary candidate beats frozen L1 on G-fresh with area ratio <= 0.85 and 95% CI upper bound < 1. T2 (state dependence): top-1 agreement with the truth-best action >= 35%, no action above 40% of choices,
+    action entropy >= 2 bits. T1 and T2 are both required for E6 and E7. Otherwise the LLM ladder stops and the paper reports that the recipe did not learn a state-dependent policy even in distribution. T3 (ratio to the best
+    generic planner) and the named-versus-anonymized result on G-heldout are reported as information. The E6 primary arm is fixed by rule: L3-x if it beats L2-x on G-fresh, else L2-x.
+  PREREQUISITES: E3 and E4 pass. Reviewed new engine versions: listwise targets, batching, DAgger loop, GRPO (the current engine admits only SFT before DPO). A new compute ceiling. Training on CURC under the usual custody
+    discipline.
+  COST: Code 1.5 to 2 weeks. GPU (a100_3g.20gb slice, 0.6B): SFT on 60,000 examples at 0.1 to 0.25 s = 1.7 to 4.2 slice-hours. GRPO with 128,000 sampled decisions at about 0.05 s generation + 0.1 s update = about 5.3 slice-hours.
+    In-family arm about 5 slice-hours. 30% failure margin (26.4% of GPU time failed last cycle), so about 20 slice-hours in total. 1.5B is about 2.5x that (about 30 slice-hours, optional). About 20 CPU-hours for truth labels.
+    Calendar 2 to 3 weeks. Throughputs are estimates until E4 measures step times.
+  MAIN_RISK: Action collapse recurs, or GRPO games the return. The new training code is the critical path.
+
+### E6 [must] Frozen transfer to fresh wind-tunnel simulator systems (primary confirmatory)
+  QUESTION: On fresh systems of an independently authored simulator, does the frozen trained LLM reach a reliable operating point with less chamber time than the strongest numerical planner on the same SCM? Is any gain due to
+    semantics, measurement use and language pretraining, rather than amortized training or extra computation?
+  DESIGN: W-conf: 128 systems (96 to 192 by the sample-size formula using E1 variance components), R=4 replicates with common random numbers. Numerical arms: N1 static space-filling, N2 random, N3 target risk, N4 cKG, N5 cKG two-
+    step rollout at compute matched to the LLM's per-decision FLOPs (about 1.2e12), N6 cKG with physics SCM (engineer-encoded reference), N7 straddle rule on the prompt's own probabilities (argmax-of-prompt control), N8-x, N9-x.
+    LLM arms: L1 frozen, L2-x supervised, L3-x primary, L4 anonymized text, L5 misleading text (fan roles swapped), L6 shuffled feedback (the prompt is built from measurements permuted across visited settings; the final decision
+    uses the true data), L7 graph withheld from the prompt. Should: L3-w, N8-w, 1.5B. 8,192 episodes (plus 1,536). Primary contrasts, Holm over 3: C1 L3-x vs the best generic planner fixed in E1; C2 L3-x vs N9-x; C3 L3-x vs L4.
+    Endpoint: paired log ratio of normalized area. Secondary: chamber-seconds to expected loss 0.05, same-state counterfactual one-step regret, public stop-rule cost and loss, specification-violation rate, recovery delay under L5,
+    latency and FLOPs. An LLM legality smoke on 2 W-dev systems runs with endpoint computation disabled before the freeze.
+  DECISION_RULE: Full positive: C1 ratio <= 0.90 and Holm-significant, with C2 and C3 Holm-significant in the LLM's favor. This licenses: 'a trained SCM-conditioned LLM uses variable semantics to reach reliable operating points
+    with >= 10% less apparatus time than the strongest planner on the same SCM, on fresh systems of an independently authored simulator, and a numerical policy with the same inputs and text embeddings does not match it'. N6 shows
+    whether it also matches hand-encoded physics. Non-semantic positive (C1 passes, C3 fails): the trained policy beats the planner, and this is an LLM-specific claim only if C2 passes, otherwise 'amortized policies beat this
+    planner'. Null (C1 not significant, ratio CI inside 0.90 to 1.10): parity, no benefit claim. Negative (ratio >= 1.10 or significantly above 1): the policy loses on transfer and the claim narrows to E5. If L6 comes within 5% of
+    L3-x, the policy is reported as not using measurements, and any gain is attributed to priors only. E6 outcomes choose the hardware design only through the E8 rule.
+  PREREQUISITES: E1 pass. E5 T1 and T2. W-conf generated after E2 or under its fallback. Frozen manifest with independent review.
+  COST: About 72,000 LLM forward passes (92,000 with the should arms) at about 0.4 s: 8 to 10 hours on the Mac, or about 1 slice-hour batched on CURC. About 33 CPU-hours for numerical arms locally (the rollout arm dominates). 2 to
+    3 days including review. Spend 0.
+  MAIN_RISK: Many arms invite selective reading, which the fixed hierarchy and Holm control. Recall of the published chamber documentation can mimic semantic reasoning, mitigated by fresh paraphrases and the misleading-text arm.
+
+### E7 [should] Second independent family: pyCycle compressor rig, zero-shot
+  QUESTION: Does the E6 result hold on a second independently authored engineering simulator with different physics, a safety constraint and different costs, never seen in training?
+  DESIGN: pyCycle single-spool rig: inlet, compressor with a shipped map (axi5, axi3_2, HPC_map, LPC_map, Fan_map, ncp01), duct, variable-area throttle. Nodes: speed command, throttle area, corrected flow, pressure ratio,
+    efficiency, shaft power, surge margin. Grid of 5 speeds (70 to 100%) x 5 throttles, plus replicate. Synthetic rig-time costs: speed change 30, throttle change 8, replicate 2. Surge event (true SM < 5% or non-converged solve):
+    flag plus a 30-unit trip penalty. Objective: least shaft power subject to PR >= PR* and SM >= 12%. Systems vary in map, design scaling and inlet temperature, with precomputed truth tables. Numerical-only audit on C-dev (24
+    systems, R=8, 6 arms, 1,152 episodes) under the E1 rule. Then C-conf (64 systems, R=4) with N3, N4, N6 (map-shaped physics SCM), N8-x, N9-x, L1, the primary LLM arm and L4: 2,048 episodes. Same C1 to C3 contrasts.
+  DECISION_RULE: If the audit finds no headroom, report it and run no LLM arm. Otherwise apply the E6 rules. Sign agreement with E6 on C1 and C3 licenses 'generalizes across two independently authored engineering simulators'.
+    Disagreement narrows the claim to the wind-tunnel family. A negative here bounds a positive E6 rather than erasing it.
+  PREREQUISITES: Install approval for om-pycycle 4.2.0 and OpenMDAO (Python 3.9 compatibility unverified). A check that a throttled single rig is expressible. E5 pass.
+  COST: 1 to 2 weeks of code (unprototyped). Truth tables of 88 systems x 25 = 2,200 cycle solves (assumed under an hour). About 15,000 LLM forward passes (about 2 hours local). Spend 0.
+  MAIN_RISK: pyCycle cannot represent the rig cleanly, or solver failures cluster near surge.
+
+### E8 [must] Hardware protocol freeze by digital-twin dress rehearsal
+  QUESTION: Given E2's calibration and E6's effect sizes, which hardware design gives an interpretable result within the spend cap? Does every frozen component meet the latency and session limits?
+  DESIGN: An ensemble of 32 twins: wind-tunnel family members fitted to the E2 data. Simulate the exact E9 protocol: pool collection, online blocks, latencies measured on the Mac host, AR(1) drift fitted from the E2 anchors,
+    session overheads. Candidate designs: D1 powered (pool + 3 arms: primary LLM, C1 comparator, N6, x 24 blocks); D2 descriptive (pool + 5 arms: primary LLM, L3-w or L1, C1 comparator, N6, N1, x 12 blocks); D3 parity (pool + 2
+    arms x 12 blocks). Outputs: predicted power on replay and online, predicted credits and EUR. Then write and review the freeze manifest: weights, prompts, permutation seeds, menu, costs, noise prior, decision rule, endpoints,
+    hatch angles, specification levels, block schedule, abort rules, analysis code.
+  DECISION_RULE: Declared now. If E6 C1 ratio <= 0.85 and D1 replay power >= 0.8 within 400 EUR, run D1. If E6 is positive with ratio in (0.85, 0.90], run D2. If E6 is null, run D3 only with Patrick's approval. If E6 is negative,
+    no LLM arm goes on hardware, and a numerical-only demonstration runs only with Patrick's approval. Any arm unable to decide within 2 s on the host is excluded, with the reason recorded. Independent review of the manifest must
+    happen before any E9 credit is spent.
+  PREREQUISITES: E2 data. E6 result. Hardware host environment.
+  COST: 2 to 3 days. About 5 CPU-hours. Spend 0.
+  MAIN_RISK: Twin misfit from only 20 calibration settings makes the predicted power optimistic.
+
+### E9 [must] Frozen-policy run on the real wind tunnel
+  QUESTION: Do the frozen policies execute legal interventions on real hardware at billed cost, deliver validated operating points, and preserve the ordering seen in simulation?
+  DESIGN: One Mk2 tunnel through the Remote Lab. Pool: 25 grid settings x 2 hatch angles x 12 approaches, each 8 s settle + 6 s measurement, randomized and interleaved with online blocks over at least 3 days (8,400 s). The pool
+    gives the truth estimate and replay of any policy using recorded samples only, never interpolated. Online: the E8 design over 6 task configurations (2 hatch angles x 3 specification levels at the twin's 30/50/70% feasible
+    quantiles), arm order from a frozen Latin schedule, reset to (0.55,0.55), budget 120, recommendation validated by 2 approaches, about 180 s per episode. Policies run on the Mac. Endpoints: realized loss against pool truth
+    (bootstrap over approaches); replay area (200 replays per arm per configuration); measured specification compliance and current at the recommendation versus the pool optimum and the default setting; billed credits and EUR;
+    latency.
+  DECISION_RULE: Calibration: each arm's replay area falls inside the twin's 90% predictive interval ('calibrated transfer'). Ordering: hardware C1 sign equals the E6 sign. Agreement: the online mean falls inside the replay 90%
+    band, which validates replay. Under D1, a Holm-significant C1 licenses 'on this apparatus the frozen LLM reached validated operating points with X% less chamber time (Y EUR) than the strongest planner, at Z% less fan current
+    than default'. Null: parity on hardware, so the simulation claim stands but is not physically confirmed. Negative (reversed sign, CI excluding 0): the claim narrows to simulation, and twin-versus-pool residuals name the
+    mechanism. All inference is conditional on one apparatus.
+  PREREQUISITES: E8 manifest and review. Patrick's spend approval. Credits purchased. Approved local policy service.
+  COST: D2: 19,900 s (5.5 h, 279 EUR). D1: 22,060 s (6.1 h, 309 EUR). With 30% contingency, 362 to 402 EUR, so a cap of 400 EUR (about 28,600 credits). The commercial rate would be about 760 to 840 EUR before contingency. Calendar
+    1 to 2 weeks.
+  MAIN_RISK: Shared-pool waits, dropped sessions, drift beyond the twin's model, a single apparatus.
+
+### E10 [could] Second physical unit or second apparatus type
+  QUESTION: Does the hardware result replicate on a second physical apparatus?
+  DESIGN: (a) Preferred: a second Mk2 unit that the operators confirm is physically distinct. Pool of 25 settings x 1 hatch x 12 approaches (4,200 s), plus 2 arms (primary LLM, C1 comparator) x 6 online blocks (2,160 s). (b)
+    Alternative: a Light Tunnel Mk2 operating-point task (target irradiance at least LED power, polarization optics held out from training), which first needs an E1-style audit on lt.Deterministic and its own frozen namespace.
+  DECISION_RULE: Runs only if E9 is positive or null. Sign replication licenses wording for two apparatus. Failure to replicate is reported and the claim stays single-apparatus.
+  PREREQUISITES: E9. Operator confirmation (a message Patrick sends). Spend approval up to 120 EUR.
+  COST: (a) 6,660 s, 93 EUR, 121 EUR with contingency. (b) About 1 week of code plus similar spend.
+  MAIN_RISK: Only one physical unit exists in the pool, or the light-tunnel task lacks headroom.
+
+## SEQUENCE
+Week 0: send the asks. The separate offline diagnosis of saved November artifacts runs in parallel and only informs the E4 interface. Weeks 1 to 2, in parallel: E1 and E3 (numerical only, local CPU), and E2 as soon as credentials
+  arrive. Gate G1: E1 and E3 pass, and E2 is done or its fallback is declared. Then generate and freeze the W-conf, G-fresh, G-heldout and C-conf namespaces. Week 3: E4. Gate G2: the smallest passing model is chosen, or the LLM
+  ladder stops. Weeks 3 to 5: E5 training on CURC, with E7 code and the C-dev audit in parallel. Gate G3: T1 and T2 pass, or the LLM ladder stops. Weeks 5 to 6: E6 and E7 confirmatory runs in parallel (local). Gate G4: the E6
+  decision rule picks the hardware design through E8. Weeks 6 to 7: E8 twin rehearsal, manifest freeze and independent review. Gate G5: spend approval confirmed. Weeks 7 to 9: E9 sessions over at least 3 days, then E10 if E9 is
+  positive or null. The numerical track (E1, E2, E7 audit, numerical hardware option) never waits on LLM gates. LLM arms never run on a family before its audit passes and its namespace is frozen. About 9 to 10 weeks from approvals
+  lands in late January 2027. ICML 2027 (paper January 22) can only take a simulation-first paper, UAI 2027 (estimated February) only if nothing slips, and NeurIPS 2027 (estimated May) or TMLR is the realistic target for the full
+  ladder. Kill points: G1 (no headroom, numerical-only paper path), G2 (not learnable), G3 (no state dependence), G4 (negative transfer, no LLM hardware run).
+
+## THEORY_ITEMS
+- Headroom decomposition: with a shared learner and decision rule, the loss gap between any acquisition policy and the generic planner splits into an information term (Bayes-optimal under public information including semantics,
+  versus the planner's prior) and a planning term (myopic versus optimal under the same information). H2', H4 and H3 estimate these terms. Proving the bound shows that when all ratios are near 1 no policy can win, which makes the
+  numerical-only gate a criterion independent of LLM performance.
+- Unbiasedness of pool-based replay for menu-restricted policies when actions map to recorded settings and approaches are exchangeable within a setting, with a drift-bias bound under interleaved blocks. This justifies the E9
+  replay endpoint and the rule against interpolating unobserved actions.
+- Variance components under common random numbers (sigma_s^2 + sigma_r^2/R) and the cost-optimal replicate count given the relative cost of a new system and a replicate. This justifies n = 128 and R = 4 with the declared
+  adjustment rule.
+- Calibration of the chance-constrained plug-in decision under a correct model, and the direction of its bias under the generic model's misspecification. This explains specification-violation rates and when the 0.9 level is
+  honest.
+- Value of non-myopia under switching costs: a two-setting example with move cost c_m and replicate cost c_r giving the myopic loss ratio as a function of c_m/c_r. This motivates the H3 channel and the matched-compute rollout
+  control.
+
+## ASKS_FOR_LEAD
+- Remote Lab: your own sign-up and acceptance of Terms v1.1. Key terms: no automated account registration; non-refundable fees; jointly owned data that either party may publish openly; the company may use your name for marketing;
+  Swiss law; possible rate limits. Use of the 1,000 free credits for E2. A top-up of up to 400 EUR at the academic rate for E9, released only after the E8 gate, plus up to 120 EUR for E10 (could). Confirm academic eligibility
+  (commercial pricing is about 2.7x), and whether hardware data may be released openly.
+- Installs: causalchamber 0.2.8 (MIT, numpy-only simulators) in an isolated environment, or vendoring the pinned file; a separate Python 3.11+ environment with the pre-release causalchamber 1.0.0rc1 for the Remote Lab client; om-
+  pycycle 4.2.0 with OpenMDAO for E7.
+- Go-ahead for local forward-only model execution on the Mac under a written protocol (E4, E6, E7 and the hardware policy service), and for the small E4 Q3 learnability fit.
+- Use of the already cached Qwen2.5-1.5B-Instruct (capacity arm) and Qwen2.5-7B-Instruct (frozen probes only, unless a larger-GPU training ceiling is granted).
+- A new compute ceiling of about 20 GPU slice-hours and 60 CPU core-hours for E4 to E6 at 0.6B, with an optional 30 slice-hours for the 1.5B arm, plus agreement to the roster and custody redesign (more than 8 arms, more than 64
+  worlds per campaign).
+- A message from you to the Causal Chambers operators asking whether the listed wind-tunnel IDs are physically distinct units, plus shared-session limits and latency.
+- Venue and date. ICML 2027 cannot carry the hardware stage. Choose UAI 2027, NeurIPS 2027 or TMLR for the full ladder.
+- Whether a rigorous paper stating that numerical SCM planning suffices on a real-apparatus task, with a hardware demonstration, is acceptable if the LLM gates fail. This decides whether E9 ever runs numerical-only.
+- Whether ACE-Runner scenarios may appear in a public paper, if they are used at all.
+- Reconcile the public preprint and README claim of a 70% gain before any new results or hardware data are released under the project's name.
+
+## WHAT_NOT_TO_DO
+- Do not run any LLM arm on a family before its numerical-only headroom audit passes and its confirmatory namespace is frozen. Do not add or drop a family after seeing LLM results.
+- Do not use the Remote Lab during development beyond the fixed E2 calibration, and never measure the 25-point task grid before E9.
+- Do not count chamber IDs, hatch configurations, specification levels or replay episodes as independent systems.
+- Do not interpolate unobserved settings in the hardware pool or count them as responses.
+- Do not put per-action planner scores in the primary LLM prompt. Whenever derived numbers are in the prompt, report the argmax-of-prompt rule.
+- Do not let the LLM make the final operating-point recommendation in the primary analysis. Keep the shared fixed decision rule so arms differ only in the interventions they choose.
+- Do not train the primary cross-family policy on wind-tunnel or turbomachinery classes, and label any in-family policy as in-family.
+- Do not count decision latency as experimental cost in the primary endpoint. Report billed latency separately.
+- Do not reuse the first-crossing NMSE endpoint, greedy trie decoding or menu-position identifiers.
+- Do not build ThermoPower via OpenModelica this cycle, and do not use BoxingGym or bnlearn Gaussian networks as the experimentalist task or as transfer evidence.
+- Do not present ACE-Runner scenarios as headline transfer: they are team-authored with known defects.
+- Do not spend beyond the free credits before the E8 gate, and do not rerun hardware episodes to improve a result.
+- Do not scale the November DPO recipe, rerun completed studies or old pipelines, or tune against the 24 development outcomes.
+
+## BIGGEST_UNCERTAINTIES
+- Whether the wind-tunnel operating-point task has any headroom over constrained knowledge-gradient planning. Fan physics is monotone and smooth, so E1 may fail, which is why it runs first and numerically.
+- Whether a 0.6B or 1.5B model learns a state-dependent policy under the new interface and training, given eleven months of collapse onto single actions.
+- Whether small Qwen models hold enough fan and compressor physics for zero-shot semantic transfer, and whether apparent semantic use is recall of the published Causal Chambers documentation.
+- Fidelity of the Mk1 simulators to Mk2 hardware: fan coupling, dead zone, drift, sensor noise, and settle times longer than 8 s.
+- Remote Lab practicalities: account approval time, the pre-release Python 3.11 client, shared-pool waits, session limits, latency, and whether academic pricing applies.
+- Engineering time and custody overhead against venue dates. Half of last cycle's failed submissions were harness rejections, and the new training code is the critical path.
+- A single physical apparatus caps the hardware claim unless a second unit is confirmed distinct.
+- GPU throughput figures for batched SFT and GRPO, and the planning variances (sigma_r = 0.5, hardware per-block SD 0.65), are assumptions until E4, E1 and E8 measure them.
+- Unverified integration details: the exact wind-tunnel edge list and signs, single-token letter identifiers in the pinned tokenizer, simulator parameter interfaces, and whether pyCycle expresses a throttled single-spool rig and
+  runs on Python 3.9.

@@ -1,0 +1,90 @@
+# prior-evidence-core
+## SUMMARY
+No experiment in either repository shows an LLM proposer or policy beating a non-LLM control. The original ACE headline claims were invalidated by a four-confound metric audit: after matching the learner the 5-node
+  result is a tie, and at 15 to 50 nodes ACE with DPO loses to Random. Mission-1 (pre-registered, 11 paired seeds, one emulator) gave an LLM versus random-proposer error ratio of 1.0412, inconclusive. My read-only
+  analysis of its saved bundles shows the "LLM arm" was mostly hand-coded coverage fills plus the prompt's own few-shot example, so that study says the old pipeline's LLM added nothing but says little about what an LLM
+  could add. The delivery (refit) results are solid learner effects, not acquisition evidence, and include an undiagnosed adverse 5-node prospective contrast. The CURC PEV ladder was never run. PEV was instead tested in
+  a later persistent-campaign harness: it beat coverage on two synthetic families, failed its shifted-family primary gate, and never separated from naive variance. PEV has no code lineage to the November target-risk
+  planner but is the same family of idea. LLM collapse onto one action is an eleven-month recurring pattern tied to prompt surface features, previously masked by heuristics. November is its first unscaffolded
+  measurement.
+
+## KEY FACTS
+[1] (verified) Audit outcome (135 re-run cells): end-of-campaign non-root MSE per node at N=15/30/50 is ACE+DPO 0.163/0.257/0.271, ACE without DPO 0.076/0.132/0.238, Random 0.059/0.090/0.118. DPO hurts (p<0.001,
+  p=0.009). Baselines used a weaker student, so the loss only strengthens.
+    EVIDENCE: /Users/pat/code/ACE/docs/development/guidance/metric_audit_2026-09-10.md:108-134,157-162 (read, not recomputed)
+[2] (verified) Surviving 5-node result is a tie after matching the student: ACE 0.165 +/- 0.032 vs round-robin 0.161 +/- 0.023 (Welch p=0.85), Random 0.223 (p=0.17). Only 3 seeds x 40 episodes, local, one fixed SCM. ACE
+  is ~3x better on the collider (0.155 vs 0.401) and ~4x worse on the quadratic node (0.329 vs 0.072). Controls never run: random proposer with ACE's learner, 5-node no-DPO, prompt without the parent hint.
+    EVIDENCE: metric_audit_2026-09-10.md:136-183; handoff_2026-09-25.md:87-88
+[3] (verified) Mission-1: LLM (arm B) vs random proposer (arm C) error ratio 1.0412, 98.75% CI 0.8870-1.2221, sign-flip p 0.440, 2/11 seeds, sd log 0.1749. ACE as shipped 97.99% exact at 4,803 calls vs Random 97.97%, LHS
+  98.03%. B ran on GPU, C on CPU; same-seed LLM runs diverged at step 2.
+    EVIDENCE: /Users/pat/code/ACE-Runner/studies/2026-10-peter-baseline/package/stats_appendix.md:7-26,98-108
+[4] (verified) Mission-1 selected actions by provenance, of 2,200 steps per arm (A/B/B'): hand-coded diverse fill 1,521/1,267/1,240; prompt few-shot example echoed by the lenient parser 196/280/282; genuine legal LLM
+  proposal 482/653/678. One command (leo_dynamic_satellite_count=200.0, the prompt's first example after clipping) is among the K=4 probes in 85.0/86.1/87.2% of steps vs 9.7% for the random arm.
+    EVIDENCE: Computed from /Users/pat/ACE_Study_Results/2026-10-peter-baseline/host-mirror/results with scratch scripts mission1_parse.py and mission1_example_check.py; ACE-Runner/ace/llm_policy.py:304-318,380-388;
+      ace/oracle.py:1503-1540
+[5] (verified) Paper-era 5-node ACE runs (Jan 25 2026, 5 seeds, 16,202 logged steps): X2 share 68.7-69.2% in every seed against a hard-coded 70% cap, X1 30.5-30.9%, X4 0.17%; X2 == 1.5 exactly (the prompt's example
+  value) 969 times. Parse rate 1.0 because a no-command generation falls back to parsing the prompt.
+    EVIDENCE: Computed from /Users/pat/code/ACE/results/ace/ace_multi_seed_20260125_115453 (scratch ace30_actions.py); /Users/pat/code/ACE/ace_experiments.py:709,720,796-802,3374-3410
+[6] (verified) The old pipeline's state dependence was supplied by code: the prompt names the failing node's parents, a critic queries true mechanisms outside the executor, and breakers, diversity constraints and a hard
+  cap override the LLM. Runner DPO scored the command string with no state prompt.
+    EVIDENCE: ace_experiments.py:627-753,893-938,3245-3410; ACE-Runner/ace/dpo.py:287; ace/config.py:278
+[7] (verified) Collapse was recorded at least ten times before November: X1 100% (Jan 3 and 11), single value DO X2=1.5 (Jan 12, one day after that example entered the prompt), X2 99.1% (Jan 19), one feature 200/200 in
+  Runner, bimodal DPO pathology in 5/5 30-node seeds, schema failures 8/8 and 6/6 in October.
+    EVIDENCE: guidance_doc.txt:666-669,1240-1250,1290-1300,1330-1385; current_status.txt:141-168; ACE-Runner/ace/oracle.py:1465-1467; notes section E2
+[8] (verified) Delivery: confirmation ratio 0.182719, CI [0.101970, 0.327410], p=0.00146484, 11/12 (init-0 deployable ratio 0.204083). Prospective delivery/online is 2.45956 at 5 nodes (adverse, gate not met) and
+  0.274321 at 30 nodes; delivery/flat 0.356194 and 0.391027.
+    EVIDENCE: /Users/pat/code/ACE/results/delivery_final_history_20261006/scores.json (recomputed); results/delivery_prospective_reporting_20261024/terminal02/raw/primary/delivery_prospective_primary_table.tex
+[9] (verified) The CURC PEV ladder was never submitted. PEV in the persistent harness: homogeneous -0.01360 (Holm p=0.00384, 20/20), heterogeneous -0.10919 (p=0.00961, 16/20) vs coverage; shifted-family primary failed
+  (p=0.05108) while PEV vs random passed as secondary (p=0.00750, 19/20); ties naive variance throughout; random-DAG pilot failed its gate.
+    EVIDENCE: handoff_2026-09-25.md:38; research_portfolio_2026-09-25.md:215-221; no results/pev_ladder and no commit touching it; results/research_persistent_confirmation_v1/README.md;
+      results/research_pev_shift30_mean_confirmation/README.md
+[10] (likely) PEV and the target-risk planner share no code or documented lineage, but both are zero-query one-step model-based variance reduction on the SCM. The closer ancestor is the Track B exact-posterior risk-pair
+  selector, which passed on binary-tree (ratio 0.678, 26/40) and random-recursive (0.384, 31/40) graphs and failed on fanout (0.865).
+    EVIDENCE: grep of ace_llm_intervention_* docs and scripts/research/llm_intervention_*.py finds no PEV; research_execution_2026-09-25.md:276,289,339
+
+## NUMBERS
+Audit, MSE per node (ACE+DPO / no-DPO / Random): N=15 0.163/0.076/0.059; N=30 0.257/0.132/0.090; N=50 0.271/0.238/0.118.
+5-node matched: ACE 0.165, round-robin 0.161 (p=0.85), Random 0.223, PEV 0.045 (3 seeds x 40 ep, local).
+Mission-1 ratios: H1 1.0442, 1.0434; H2 1.0507, 1.0650; LLM 1.0412 [0.8870-1.2221]; selection 0.9922/0.9999/1.0467; online vs refit 8.7155 [6.6047-11.5008].
+Mission-1 selected-step provenance (A/B/B'): fill 69.1/57.6/56.4%; example echo 8.9/12.7/12.8%; genuine LLM 21.9/29.7/30.8%.
+Delivery: 0.182719 [0.101970, 0.327410], p=0.00146484, 11/12; init-0 0.204083; worst history ratio 2.015177.
+Prospective: 5-node delivery/online 2.45956 [1.78782, 3.38368]; 30-node 0.274321; delivery/flat 0.356194, 0.391027; 30-node balanced delivery/flat 0.912 (10/20).
+Runner arm-A delivery: r=0.329 [0.179-0.602], p=0.0029, 10/11.
+PEV shift30 means: random 0.043898, coverage 0.039791, PEV 0.015430, naive 0.015871. Endpoint replication: coverage 0.019032, PEV 0.015347.
+Runner PEV-style vs Random+SCM at 1,000 calls (dev): counter_uas 0.68, tlam_satellite 0.62, tlam_mission1 0.91, missile_defense 1.00.
+Jan 2026 5-node: X2 69.0%, X1 30.8%, X4 0.17%; X2==1.5 in 969 of 11,185.
+
+## SURPRISES / CONTRADICTIONS
+- Mission-1's LLM arm was 56-69% hand-coded fills and 9-13% the prompt's own example. Only a P2 code-health note hints at this; the study documents do not quantify it.
+- The research pipeline has the same full-text parser fallback the agenda attributes to Runner (ace_experiments.py:796-802).
+- The January 'single-value trap' DO X2=1.5 appeared one day after that example entered the prompt, and was diagnosed as learning dynamics. The link is my inference.
+- X2 share sits just under the 70% hard cap in all five paper-era seeds, so the published 5-node strategy looks like a collapsed LLM plus the cap. Inference from counts and code.
+- November constants coincide with menu positions: frozen model picks the first entry, trained models pick the second (first intervention). Menu order verified in llm_intervention_screen_protocol.py:67; the causal link
+  is a hypothesis.
+- Runner status (Oct 23) says ADR-0006's revisit trigger has not fired; the ACE ledger (Oct 24) reports the 5-node Stage B contrast failing its gate. No follow-up ADR exists.
+- PEV confirmations are cited although the PEV ladder never ran. They come from a different harness (K=3, 20 epochs), so the ladder's pre-registered criteria, including PEV vs ACE at 5 nodes, were never tested.
+
+## IMPLICATIONS FOR AGENDA
+- Do not scale, retune or rerun DPO or the old pipeline. Diagnose state sensitivity first, and include prompt-surface permutations (menu order, action identifiers, examples, anonymized names) because prior constants
+  tracked the first node, the few-shot example and possibly menu position.
+- Every new LLM contrast needs a treatment-fidelity report before outcomes: per-candidate provenance (model output, fallback, fill), raw completion bound to parsed and executed action, and action entropy as a function of
+  state.
+- Establish headroom before testing any policy. Use task families where the best numerical planner clearly beats random and coverage and where initialization does not already meet the target. Mission-1 and the 10 of 24
+  pre-solved November systems show how ties arise without it.
+- Treat numerical SCM planning (target risk, PEV family, risk-pair selector) as both the bar and a defensible positive result. It is the only acquisition signal that has replicated, and CPU-only extensions across
+  topologies and misspecification are cheap.
+- Consider an LLM role on the prior side (mechanism-form elicitation) with rule-based and anonymized controls. It is the only place an LLM output helped (dev only), and the gain was form, not semantics.
+- Never cite the 5-node win, pre-audit tables, Runner published win rates, old slide numbers, or the IVR formula. Cite delivery only as a learner effect and keep its adverse 5-node contrast visible.
+- Keep the accepted statistical design: independent systems as units, frozen protocol, Holm, verdicts that include inferior and non-inferior, sample size from development variance (the Mission-1 LLM contrast had sd log
+  0.175).
+- Hold device, learner, evaluator and charged-call accounting identical across arms. Reserve fresh seed namespaces; many are consumed.
+- Avoid experiments that depend on ace_experiments.py on GPU (unsolved host-RAM leak) or on Runner cloud images (registry deleted).
+
+## OPEN QUESTIONS
+- Does the November prompt list the menu in protocol order (observe_all, set_x_neg, ...), and do teacher labels and preference winners favor set_x_neg? Not checked here.
+- With every hint and heuristic removed, has any LLM in this project shown state-dependent action choice? I found no such evidence.
+- Why does delivery lose to rolling fits by 2.46x at 5 nodes? Recorded as undiagnosed.
+- Was the single completed proposer-ladder cell (prop_random_s456) ever retrieved? No local results exist.
+- Which November world families, if any, have demonstrated headroom for adaptive choice over coverage?
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/prior-evidence-core.md

@@ -1,0 +1,32 @@
+(1) init NMSE just above threshold: [('w14', '0.0411214888609991', '2.8037% above'), ('w05', '0.043018771499791', '7.5469% above'), ('w04', '0.0450012154171982', '12.5030% above')]
+(2) replicated design, n for 1 unit at 80% power, 8 replicates:
+    SD 6.2: r=0.5: 172, r=0.6: 146, r=0.7: 119, r=0.8: 93
+    SD 6.21: r=0.5: 173, r=0.6: 146, r=0.7: 120, r=0.8: 93
+    SD 6.2113: r=0.5: 173, r=0.6: 146, r=0.7: 120, r=0.8: 93
+    normal approximation (no t correction), SD 6.2113: r=0.5: 171, r=0.8: 91
+(3) cap 18: var of twin difference (pure replicate, same policy) = 7.819 (SD 2.796)
+    cap 18: uniform_random     minus TR: mean +1.292 SD 3.029 var 9.172 | twin-replicate share of this variance = 0.85
+    cap 18: menu_coverage      minus TR: mean +0.333 SD 1.880 var 3.536 | twin-replicate share of this variance = 2.21
+    cap 18: local_information  minus TR: mean +0.167 SD 2.944 var 8.667 | twin-replicate share of this variance = 0.90
+    cap 18: learned_ranker     minus TR: mean +0.542 SD 2.782 var 7.737 | twin-replicate share of this variance = 1.01
+    cap 18: frozen_llm         minus TR: mean +0.958 SD 3.828 var 14.650 | twin-replicate share of this variance = 0.53
+    cap 18: sft_llm            minus TR: mean +1.250 SD 3.517 var 12.370 | twin-replicate share of this variance = 0.63
+    cap 18: dpo_llm            minus TR: mean +1.333 SD 3.046 var 9.275 | twin-replicate share of this variance = 0.84
+    cap 18: median variance over the other 27 pairs 10.145 -> twin-replicate share 0.77 (range 0.50 to 2.21)
+(4) bootstrap (systems resampled, n=24) power of an oracle at the floor vs TR: t-test 0.844; sign-flip 0.932; (noncentral-t formula gave 0.676)
+(5) policy minus TR restricted to the 14 systems not at target after init:
+    uniform_random     mean +4.500 SD 6.560 d 0.686
+    menu_coverage      mean +1.429 SD 3.975 d 0.359
+    local_information  mean +0.571 SD 8.253 d 0.069
+    learned_ranker     mean +3.357 SD 8.527 d 0.394
+    frozen_llm         mean +3.429 SD 8.698 d 0.394
+    sft_llm            mean +5.143 SD 7.284 d 0.706
+    dpo_llm            mean +6.071 SD 7.529 d 0.806
+    median SD on informative systems: 7.529; n informative systems for a 1.714-unit difference (=1 unit average over a 24-system mix with 10 uninformative): 154; for 1 unit: 447; for 2 units: 114
+(6) n for a 1-unit difference at 80% power under alternative planning SDs:
+    coverage - TR (most TR-like arm) 3.074: SD 3.074 -> n = 77 (80%), 102 (90%); MDD at n=24: 1.84 (approx)
+    min of 7: SD 3.074 -> n = 77 (80%), 102 (90%); MDD at n=24: 1.84 (approx)
+    median of 7 vs-TR: SD 6.211 -> n = 305 (80%), 408 (90%); MDD at n=24: 3.71 (approx)
+    max of 7 vs-TR 6.763: SD 6.763 -> n = 361 (80%), 483 (90%); MDD at n=24: 4.04 (approx)
+    median of all 28 pairs 6.977: SD 6.977 -> n = 384 (80%), 514 (90%); MDD at n=24: 4.17 (approx)
+    max of all 28 pairs 9.035: SD 9.035 -> n = 643 (80%), 860 (90%); MDD at n=24: 5.40 (approx)

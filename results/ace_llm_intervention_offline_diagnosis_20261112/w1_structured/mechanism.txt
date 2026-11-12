@@ -1,0 +1,85 @@
+# mechanism
+## SUMMARY
+The LLM arms never score commands. Each decision is one Qwen3 chat prompt (fixed instruction, canonical JSON of the whole public envelope, "Decision:"), thinking disabled, then greedy token-by-token generation
+  constrained to a trie of the legal commands. Only four tokens are free: action/stop, observe/set, _x/_y/_xy, _neg/_zero/_pos. I reproduced all 1,698 saved deployment prompts exactly from saved token IDs (every recorded
+  hash matches). Prompts are 1,990 to 4,160 tokens, never truncated. Numbers are 16 to 17 digit floats tokenized one digit per token. The information needed is present but not decision-ready: the frozen planner, given
+  the same prompt content, finds a clearly better action in about 90% of LLM states. No LLM score vectors were saved. Saved training artifacts already point to supervision and optimization, not only the interface: post-
+  SFT likelihoods are 82% command identity, SFT stayed at uniform-guess level out of sample, DPO amplified the SFT prior about 2.5-fold without improving pair agreement, and the matched numerical ranker collapsed too.
+
+## KEY FACTS
+[1] (verified) Action selection is constrained greedy generation, not likelihood scoring: do_sample=False, num_beams=1, prefix_allowed_tokens_fn over a finite grammar. No sum, mean or length normalization exists at
+  deployment. Ties fall to argmax.
+    EVIDENCE: /Users/pat/code/ACE/scripts/research/llm_intervention_language_policy.py:132-184; llm_intervention_grammar.py:40-83; llm_intervention_model_service.py:52-57. These files are sha256-identical to the executed
+      copies in /Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_gpu_20261108/terminal02/remote/launch/inputs/
+[2] (verified) Chat template is applied (user turn only, no system message), Qwen3 thinking is disabled by a pre-filled empty think block, no sampling. There is no scratchpad: the second generated token already commits
+  to act or stop.
+    EVIDENCE: llm_intervention_language_policy.py:96-97; decoded saved prompt_ids end with <|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n in all 1,698 deployment and 160 training prompts
+[3] (verified) Nine command strings: {"action_id":"observe_all|set_x_neg|set_x_zero|set_x_pos|set_y_neg|set_y_zero|set_y_pos|set_xy"} and {"stop":true}. Tokens including EOS: 9 for set_x_*/set_y_*, 8 for observe_all and
+  set_xy, 6 for stop. All share '{"'. Acquisitions share '{"','action','_id','":"'. set_* also share 'set'. '_neg','_zero','_pos' are the same tokens after '_x' and '_y'.
+    EVIDENCE: .../terminal02/remote/launch/inputs/prepared.json training_plan.records[*].commands, reproduced with the pinned local tokenizer (scratch commands.py)
+[4] (verified) All 1,698 deployment prompts (frozen 576, SFT 546, DPO 576) were reproduced exactly. The first DPO prompt is 5,187 characters and 2,012 tokens. Range 1,990 to 4,160 tokens against an 8,192 cap. No
+  truncation on either side. History grows 77 to 88 tokens per row.
+    EVIDENCE: .../terminal02/remote/launch/gpu/services/{frozen_llm,sft_llm,dpo_llm}/worker/generation-NNNN.json; scratch build_table.py, composition.py; language_policy.py:105-106
+[5] (verified) Constant boilerplate is 23% to 49% of prompt tokens (mean 34%). Digit tokens of measured values and posterior numbers are 34% to 48%. The posterior block is 361 to 436 tokens. The 346 tokens nearest the
+  answer are identical in every prompt. One task payload, objective and domain note in all 1,858 training and deployment prompts.
+    EVIDENCE: scratch composition.py over all saved prompts; task_sha256 8f22ac43… in every record
+[6] (verified) No per-decision score vector exists for any LLM arm. Saved are prompt_ids, sequence_ids, completion and hashes. Numerical arms do have saved score vectors. The only LLM likelihoods are post-SFT pair scores
+  from training.
+    EVIDENCE: llm_intervention_model_service.py:347-378; key union over worker files;
+      /Users/pat/code/ACE/results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/remote/launch/cpu/worker/artifacts/campaign/policy-0N/world-NN/episode/decision-NNNN.process.json;
+      /Users/pat/code/ACE/results/ace_llm_intervention_scientific_training_gpu_20261108/terminal01/remote/launch/training/session/worker/artifacts/fit/training/reference-scores.json
+[7] (verified) Stop: LLM arms may emit stop at any decision (always in the grammar). The four numerical policies stop only when nothing is affordable. The ranker scores stop as a candidate and never chose it. Only SFT
+  stopped by policy (23 of 24 episodes, 1 to 3 units left).
+    EVIDENCE: llm_intervention_episode.py:100-115; llm_intervention_numerical_policy.py:54-57; llm_intervention_target_risk.py:108-111; 192 cost-report.json termination_reason values
+[8] (verified) The frozen planner applied to the decoded LLM prompts agrees with the LLM action in 6.8% (DPO), 8.2% (SFT), 8.5% (frozen) of states. The LLM action captures 0.23 to 0.26 of the planner's estimated one-step
+  gain. set_x_neg is planner-best in 11 of 24 initial states.
+    EVIDENCE: scratch planner_on_llm_states.py using frozen llm_intervention_target_risk.py, my seed, 32 draws
+[9] (verified) Supervised labels: set_x_neg is 32 of 128 nonterminal labels (25%), but the per-branch majorities (set 104/24, _x 68/24/12, _neg 32/29/7) spell set_x_neg. 32 stop labels are all terminal states never seen
+  at deployment. Teachers rotate, a quarter are uniform random, teacher hidden. 160 single-pass updates.
+    EVIDENCE: prepared.json and proposal.json in .../terminal02/remote/launch/inputs/; scratch train_labels.py
+[10] (verified) Post-SFT sequence log-probabilities on 238 training (state, command) pairs are 81.7% explained by command identity and 93.5% by command and stage. Out-of-sample SFT NLL stayed near 2.2 to 2.6 nats against
+  2.08 for a uniform guess.
+    EVIDENCE: fit/training/reference-scores.json and step-NNNNN.complete.json; scratch train_scores.py
+[11] (verified) DPO: mean prequential loss 0.7395 exceeds ln 2. Pair agreement stayed 66 of 119. In 78% of pairs the margin moved further the way the SFT prior already leaned. Margins grew to about 2.4 to 2.6 times the
+  reference. Drift correlates 0.91 with the prior and 0.09 with label counts.
+    EVIDENCE: same fit/training files; scratch train_scores.py, train_scores2.py
+[12] (inferred) At late-stage training states the SFT policy's likeliest whole command is observe_all (0.38 to 0.44), but 'set' as the sum of seven commands (0.50 to 0.51) wins the greedy branch, giving set_x_neg.
+    EVIDENCE: stage means of reference-scores.json, different states per cell
+
+## NUMBERS
+Actions: frozen observe_all 574, set_x_zero 2. SFT set_x_neg 481, set_x_pos 23, set_y_neg 11, observe_all 8, stop 23. DPO set_x_neg 576. Ranker set_x_pos 435, set_x_neg 141. Target risk observe_all 215, set_x_neg 129,
+  set_x_pos 76, set_y_pos 62, set_xy 31, set_y_neg 29, set_y_zero 16, set_x_zero 2.
+First prompt tokens: history 718, scm 378, task 332, menu 288, graph 120, instructions 108, counters 41, chat 12.
+SFT labels (160): set_x_neg 32, stop 32, set_x_pos 29, observe_all 24, set_xy 12, set_y_pos 10, set_y_neg 10, set_x_zero 7, set_y_zero 4.
+Post-SFT mean log-prob: set_x_neg -0.95, observe_all -1.09, set_y_neg -2.26, set_x_pos -3.22, set_xy -3.88, set_y_pos -4.33, set_x_zero -4.90, set_y_zero -5.56.
+DPO pairs: 119 used of 687 strict, 2,897 ties. Net chosen minus rejected: set_x_pos +9, set_x_neg +5, set_y_neg +5, set_xy +4, set_y_zero +3, set_x_zero -6, observe_all -7, set_y_pos -13.
+Ranker: 98.1% of score variance is action identity, top-2 gap median 0.0031 nats.
+Recipe: lr 1e-4, batch 1, AdamW, clip 1.0, beta 0.1, LoRA rank 8 alpha 16 on q/v.
+
+## SURPRISES / CONTRADICTIONS
+- The handoff and results report speak of comparing command scores. Deployment never computes any, and none are saved for LLM arms.
+- The matched numerical ranker, with no tokenizer or greedy trie, also collapsed to a near-flat state-independent bias. This contradicts a serialization-only explanation.
+- Supervised targets are not nearly constant (set_x_neg 25%), and DPO labels favored set_x_pos (+9) over set_x_neg (+5). DPO followed the SFT prior, not the labels.
+- SFT does read some state: behavior tracks episode stage, it stops with 1 to 3 units left, and set_x_neg likelihood falls as set_x_neg accumulates in history (within-stage correlation -0.71, n = 23).
+- A first set_x_neg is reasonable (planner-best in 11 of 24 initial states). The failure is the repetition, which the planner ranks 7th or 8th in 393 of 576 DPO states.
+
+## IMPLICATIONS FOR AGENDA
+- The first diagnostic costs no experimental units and no CURC time: compute branch and whole-command log-probabilities for frozen, SFT and DPO on the 160 training prompts, the 1,698 deployment prompts and counterfactual
+  edits of them. Base weights, both deployed adapters, tokenizer and all prompt token IDs are on the Mac and hash-verified. It needs authorization for local inference only.
+- Do not propose a prompt-only or tokenization-only fix. The matched numerical ranker failed with the same supervision. Add a learnability gate: some learner must beat the 25% constant and 35% stage-prior baselines on
+  held-out training worlds before any deployment run.
+- Redesign supervision before scaling: remove or label the uniform-random teacher, use several shuffled epochs, validate label accuracy on held-out worlds, and remove terminal-only stop labels or the stop command.
+- Replace the DPO recipe rather than extend it: shuffled multi-epoch pairs, a saturating margin, intermediate checkpoints, and a prequential pair-agreement gate above the reference's 55%.
+- Change the decision rule and logging: score every legal command, save the full vector per decision, and report argmax and sampled variants so decoding effects are separable.
+- Treat representation changes as tested arms with a counterfactual-sensitivity acceptance test: 3 to 4 significant digits, derived per-action features, state placed nearest the answer, a bounded scratchpad.
+- Vary objectives, queries and costs in training and evaluation, and add per-decision planner regret on visited and shared states as a sensitive endpoint.
+
+## OPEN QUESTIONS
+- Do command log-probabilities move at all when only the posterior numbers change, with history and counters fixed?
+- How many of the 1,698 decisions change under whole-command argmax instead of branch-wise greedy?
+- Is the DPO prior amplification caused by beta 0.1 with Adam, the carried-over optimizer state, or the unshuffled world order? Only a replay with intermediate checkpoints can separate these.
+- Can any learner trained on the 128 nonterminal labels beat a stage-only prior on held-out training worlds?
+- Why does the frozen model choose observe_all: copying the only action id in the history, first menu item, or a pretrained default?
+- Is the shared '_neg' token preference pretrained or acquired in SFT?
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/mechanism.md

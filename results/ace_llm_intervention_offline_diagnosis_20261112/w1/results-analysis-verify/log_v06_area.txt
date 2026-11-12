@@ -1,0 +1,28 @@
+                   A: mean log10 NMSE, grid 8..32 (25 pts)  B: mean log10 NMSE, grid 9..32 (24 pts)  C: step integral over [8,32) = grid 8..31 (24 pts)  D: trapezoid over [8,32] / 24  E: log10 of mean raw NMSE, grid 8..32  F: log10 of mean raw NMSE, grid 9..32  claimed
+uniform_random                                     -1.6931                                  -1.7090                                             -1.6819                        -1.6955                                -1.5284                                -1.5637   -1.709
+menu_coverage                                      -1.8211                                  -1.8423                                             -1.8077                        -1.8250                                -1.6727                                -1.7173   -1.842
+local_information                                  -1.8390                                  -1.8610                                             -1.8313                        -1.8462                                -1.6687                                -1.7325   -1.861
+target_risk                                        -1.8688                                  -1.8920                                             -1.8604                        -1.8762                                -1.7084                                -1.7572   -1.892
+learned_ranker                                     -1.7426                                  -1.7605                                             -1.7362                        -1.7484                                -1.6079                                -1.6590   -1.761
+frozen_llm                                         -1.6843                                  -1.6998                                             -1.6721                        -1.6860                                -1.5454                                -1.5743   -1.700
+sft_llm                                            -1.7706                                  -1.7898                                             -1.7636                        -1.7767                                -1.6609                                -1.7013   -1.790
+dpo_llm                                            -1.7417                                  -1.7597                                             -1.7324                        -1.7460                                -1.6073                                -1.6503   -1.760
+
+A: mean log10 NMSE, grid 8..32 (25 pts) | max abs diff from claimed: 0.0232 | ranking: target_risk < local_information < menu_coverage < sft_llm < learned_ranker < dpo_llm < uniform_random < frozen_llm
+B: mean log10 NMSE, grid 9..32 (24 pts) | max abs diff from claimed: 0.0005 | ranking: target_risk < local_information < menu_coverage < sft_llm < learned_ranker < dpo_llm < uniform_random < frozen_llm
+C: step integral over [8,32) = grid 8..31 (24 pts) | max abs diff from claimed: 0.0343 | ranking: target_risk < local_information < menu_coverage < sft_llm < learned_ranker < dpo_llm < uniform_random < frozen_llm
+D: trapezoid over [8,32] / 24 | max abs diff from claimed: 0.017 | ranking: target_risk < local_information < menu_coverage < sft_llm < learned_ranker < dpo_llm < uniform_random < frozen_llm
+E: log10 of mean raw NMSE, grid 8..32 | max abs diff from claimed: 0.1923 | ranking: target_risk < menu_coverage < local_information < sft_llm < learned_ranker < dpo_llm < frozen_llm < uniform_random
+F: log10 of mean raw NMSE, grid 9..32 | max abs diff from claimed: 0.1453 | ranking: target_risk < local_information < menu_coverage < sft_llm < learned_ranker < dpo_llm < frozen_llm < uniform_random
+claimed ranking: target_risk < local_information < menu_coverage < sft_llm < learned_ranker < dpo_llm < uniform_random < frozen_llm
+                   mean raw NMSE area 8..32  mean raw NMSE area 9..32  median log-area(A)
+uniform_random                       0.0632                    0.0608             -1.8627
+menu_coverage                        0.0390                    0.0355             -1.8231
+local_information                    0.0335                    0.0298             -1.8305
+target_risk                          0.0372                    0.0336             -1.9138
+learned_ranker                       0.0483                    0.0452             -1.8314
+frozen_llm                           0.0448                    0.0415             -1.7141
+sft_llm                              0.0405                    0.0371             -1.8677
+dpo_llm                              0.0537                    0.0508             -1.8176
+raw-area ranking: local_information < target_risk < menu_coverage < sft_llm < frozen_llm < learned_ranker < dpo_llm < uniform_random
+median log-area(A) ranking: target_risk < sft_llm < uniform_random < learned_ranker < local_information < menu_coverage < dpo_llm < frozen_llm

@@ -1,0 +1,104 @@
+cells shape (192, 15)
+world_id                     int64
+policy_id                   object
+cost_stratum                object
+graph_stratum               object
+regime                      object
+capped_total_cost            int64
+capped_acquisition_cost      int64
+final_error                float64
+ever_attained                 bool
+final_attained                bool
+failed                        bool
+unresolved                    bool
+actual_total_cost            int64
+termination_reason          object
+first_crossing_total       float64
+dtype: object
+curves shape (4540, 15)
+world_id                    int64
+policy_id                  object
+total_cost_units            int64
+acquisition_cost_units      int64
+normalized_mse            float64
+action_id                  object
+accepted_receipts           int64
+prediction_0              float64
+prediction_1              float64
+prediction_2              float64
+prediction_3              float64
+prediction_4              float64
+prediction_5              float64
+prediction_6              float64
+prediction_7              float64
+dtype: object
+policies: ['uniform_random', 'menu_coverage', 'local_information', 'target_risk', 'learned_ranker', 'frozen_llm', 'sft_llm', 'dpo_llm']
+worlds: [202611070100, 202611070101, 202611070102, 202611070103, 202611070104, 202611070105, 202611070106, 202611070107, 202611070108, 202611070109, 202611070110, 202611070111, 202611070112, 202611070113, 202611070114, 202611070115, 202611070116, 202611070117, 202611070118, 202611070119, 202611070120, 202611070121, 202611070122, 202611070123]
+n worlds 24
+cost_stratum   graph_stratum  regime      
+heterogeneous  chain          matched_high    1
+                              matched_low     1
+                              shifted_high    1
+                              shifted_low     1
+               collider       matched_high    1
+                              matched_low     1
+                              shifted_high    1
+                              shifted_low     1
+               fork           matched_high    1
+                              matched_low     1
+                              shifted_high    1
+                              shifted_low     1
+uniform        chain          matched_high    1
+                              matched_low     1
+                              shifted_high    1
+                              shifted_low     1
+               collider       matched_high    1
+                              matched_low     1
+                              shifted_high    1
+                              shifted_low     1
+               fork           matched_high    1
+                              matched_low     1
+                              shifted_high    1
+                              shifted_low     1
+Name: world_id, dtype: int64
+termination reasons: {'budget_exhausted': 169, 'policy_stop': 23}
+failed/unresolved: 0 0
+curve points per policy:
+policy_id
+dpo_llm              600
+frozen_llm           600
+learned_ranker       600
+local_information    594
+menu_coverage        504
+sft_llm              547
+target_risk          584
+uniform_random       511
+dtype: int64
+curves action_id values: {'set_x_neg': 1619, 'observe_all': 1181, 'set_x_pos': 749, 'set_y_pos': 201, '<NA>': 192, 'set_y_neg': 174, 'set_xy': 156, 'set_y_zero': 140, 'set_x_zero': 128}
+total_cost range 8 32
+acq cost range 0 24
+    world_id  cost_stratum graph_stratum       regime
+202611070100       uniform         chain  matched_low
+202611070101 heterogeneous         chain  matched_low
+202611070102       uniform          fork  matched_low
+202611070103 heterogeneous          fork  matched_low
+202611070104       uniform      collider  matched_low
+202611070105 heterogeneous      collider  matched_low
+202611070106       uniform         chain matched_high
+202611070107 heterogeneous         chain matched_high
+202611070108       uniform          fork matched_high
+202611070109 heterogeneous          fork matched_high
+202611070110       uniform      collider matched_high
+202611070111 heterogeneous      collider matched_high
+202611070112       uniform         chain  shifted_low
+202611070113 heterogeneous         chain  shifted_low
+202611070114       uniform          fork  shifted_low
+202611070115 heterogeneous          fork  shifted_low
+202611070116       uniform      collider  shifted_low
+202611070117 heterogeneous      collider  shifted_low
+202611070118       uniform         chain shifted_high
+202611070119 heterogeneous         chain shifted_high
+202611070120       uniform          fork shifted_high
+202611070121 heterogeneous          fork shifted_high
+202611070122       uniform      collider shifted_high
+202611070123 heterogeneous      collider shifted_high

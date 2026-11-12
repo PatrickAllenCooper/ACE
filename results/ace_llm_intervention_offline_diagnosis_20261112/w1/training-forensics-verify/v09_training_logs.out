@@ -1,0 +1,71 @@
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics-verify/v09_training_logs.py:104: RuntimeWarning: divide by zero encountered in matmul
+  pred=X@bcoef
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics-verify/v09_training_logs.py:104: RuntimeWarning: overflow encountered in matmul
+  pred=X@bcoef
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/training-forensics-verify/v09_training_logs.py:104: RuntimeWarning: invalid value encountered in matmul
+  pred=X@bcoef
+steps 279 sft 160 dpo 119 rows Counter({('sft', 1): 160, ('dpo', 2): 119})
+all optimizer steps returned: True
+
+--- SFT
+action_tokens by label Counter({('stop', 6): 32, ('set_x_neg', 9): 32, ('set_x_pos', 9): 29, ('observe_all', 8): 24, ('set_xy', 8): 12, ('set_y_pos', 9): 10, ('set_y_neg', 9): 10, ('set_x_zero', 9): 7, ('set_y_zero', 9): 4})
+block means of nats per NONTERMINAL example (20-step blocks):
+  steps   0- 19: nonterminal n=16 mean 4.763 (per-token 0.542) | terminal n=4 mean 4.898
+  steps  20- 39: nonterminal n=16 mean 3.001 (per-token 0.344) | terminal n=4 mean 2.738
+  steps  40- 59: nonterminal n=16 mean 2.477 (per-token 0.291) | terminal n=4 mean 2.072
+  steps  60- 79: nonterminal n=16 mean 2.026 (per-token 0.232) | terminal n=4 mean 1.764
+  steps  80- 99: nonterminal n=16 mean 2.411 (per-token 0.278) | terminal n=4 mean 0.472
+  steps 100-119: nonterminal n=16 mean 2.731 (per-token 0.317) | terminal n=4 mean 0.117
+  steps 120-139: nonterminal n=16 mean 2.033 (per-token 0.234) | terminal n=4 mean 0.725
+  steps 140-159: nonterminal n=16 mean 2.306 (per-token 0.270) | terminal n=4 mean 0.021
+LLM prequential nats per nonterminal example, steps 80-159: 2.3700 (n=64) ; steps 60-159: 2.3013 ; steps 0-79: 3.0668
+reference points: ln 8 = 2.0794 ; ln 9 = 2.1972 ; entropy of the nonterminal label distribution = 1.8843
+  state-blind counter alpha=1.0 (8 actions, counts from nonterminal only): steps 80-159 1.9294 ; all 1.9731
+  state-blind counter alpha=1.0 (9 commands, all counts): steps 80-159 2.1415 ; all 2.1710
+  state-blind counter alpha=1.0 (9 commands support, nonterminal counts): steps 80-159 1.9394 ; all 1.9953
+  state-blind counter alpha=0.5 (8 actions, counts from nonterminal only): steps 80-159 1.9309 ; all 1.9891
+  state-blind counter alpha=0.5 (9 commands, all counts): steps 80-159 2.1467 ; all 2.1925
+  state-blind counter alpha=0.5 (9 commands support, nonterminal counts): steps 80-159 1.9361 ; all 2.0030
+  state-blind counter alpha=0.1 (8 actions, counts from nonterminal only): steps 80-159 1.9330 ; all 2.0487
+  state-blind counter alpha=0.1 (9 commands, all counts): steps 80-159 2.1520 ; all 2.2569
+  state-blind counter alpha=0.1 (9 commands support, nonterminal counts): steps 80-159 1.9341 ; all 2.0531
+  in-hindsight entropy of labels in steps 80-159 (nonterminal): 1.8669 (n=64)
+gradient norm before clip (SFT): min 0.011 median 3.680 max 78.561 ; steps with norm<=1 (not clipped): 11
+
+--- DPO
+mean online DPO loss 0.7395 ; ln2 0.6931 ; first 10 mean 0.6950 ; last 10 mean 0.7116 ; steps with loss>ln2: 64/119
+pre-clip gradient norm: min 1.302 max 17.824 median 2.565 ; clipped (norm>1): 119/119
+online relative margins (nats): first -0.0000 ; mean -0.394 ; min -13.848 max 15.910 ; negative in 64/119
+pairs with reference (SFT) scores ranked against the label (ref chosen < ref rejected): 53/119
+pairs with FINAL scores ranked against the label (final chosen < final rejected): 43/119
+pairs whose final RELATIVE margin (final-ref) is negative, i.e. DPO moved them the wrong way: 45/119
+DPO loss recomputed on the 119 trained pairs with the FINAL adapter: mean 0.6811 (ln2 0.6931)
+DPO-stage change in command log-likelihood (final - SFT reference), by command, over the 238 scored entries:
+  set_x_neg    n=23 mean   +0.57 sd 0.49 min -0.80 max +1.57
+  set_xy       n=36 mean   -0.03 sd 0.63 min -2.23 max +1.25
+  observe_all  n=19 mean   -1.12 sd 0.20 min -1.61 max -0.86
+  set_x_pos    n=37 mean   -3.84 sd 3.03 min -6.52 max +2.22
+  set_y_neg    n=33 mean   -4.57 sd 1.74 min -6.92 max -0.53
+  set_x_zero   n=32 mean   -9.57 sd 2.66 min -11.89 max +1.62
+  set_y_pos    n=29 mean  -12.33 sd 4.09 min -15.77 max +0.31
+  set_y_zero   n=29 mean  -13.34 sd 4.12 min -19.19 max -3.97
+  share of variance in the change explained by command identity (eta^2): 0.7906
+  mean change preferred -4.694 ; rejected -6.675 ; difference 1.980
+  command + preferred-role regression: R^2 0.7970 ; role coefficient (preferred vs rejected, same command) +0.938 nats
+
+--- final full table (128 nonterminal states x 8 action commands + stop)
+argmax command by full-sequence score: Counter({'set_x_neg': 123, 'set_x_pos': 5})
+stop ever outranks the best action: 0
+set_x_neg is argmax in 123/128 ; margin of set_x_neg over best other command: median 1.933 min -1.716
+margin top1-top2 where set_x_neg wins: median 1.962
+two-way decomposition of the final table: command main 0.8268 ; state main 0.0729 ; state x command 0.1003
+command means (nats): {'observe_all': -2.29, 'set_x_neg': -0.34, 'set_x_zero': -14.57, 'set_x_pos': -7.24, 'set_y_neg': -6.55, 'set_y_zero': -20.5, 'set_y_pos': -14.01, 'set_xy': -3.89}
+after renormalizing over the 8 action commands: command main 0.8290 ; state main 0.0705 ; interaction 0.1005
+final policy probability (renormalized over 8 actions) of set_x_neg: median 0.843 min 0.129 max 0.933 ; mean prob by command {'observe_all': 0.117, 'set_x_neg': 0.792, 'set_x_zero': 0.0, 'set_x_pos': 0.046, 'set_y_neg': 0.007, 'set_y_zero': 0.0, 'set_y_pos': 0.003, 'set_xy': 0.034}
+final-policy mean log-prob of the SFT label (renormalized over 8): -5.378 ; constant-policy (column means) log-prob of labels: -3.049
+mean rank of SFT label in final table: 3.46 ; label is top-1 in 32 ; top-2 in 55
+runner-up command distribution: Counter({'observe_all': 110, 'set_x_pos': 9, 'set_x_neg': 5, 'set_xy': 4})
+  snap 0: mean final log-score by command {'e_all': -2.9, 'x_neg': -0.3, '_zero': -25.9, 'x_pos': -10.4, 'y_neg': -9.1, 'y_pos': -20.5, 'et_xy': -3.7}
+  snap 1: mean final log-score by command {'e_all': -2.3, 'x_neg': -0.3, '_zero': -19.2, 'x_pos': -6.3, 'y_neg': -6.0, 'y_pos': -12.4, 'et_xy': -3.7}
+  snap 2: mean final log-score by command {'e_all': -2.1, 'x_neg': -0.4, '_zero': -18.6, 'x_pos': -6.1, 'y_neg': -5.7, 'y_pos': -11.6, 'et_xy': -4.0}
+  snap 3: mean final log-score by command {'e_all': -1.9, 'x_neg': -0.4, '_zero': -18.3, 'x_pos': -6.2, 'y_neg': -5.4, 'y_pos': -11.5, 'et_xy': -4.1}

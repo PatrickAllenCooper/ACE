@@ -1,0 +1,77 @@
+label mismatches across record/language/teacher files: 0
+ALL 160: {'observe_all': 24, 'set_x_neg': 32, 'set_x_zero': 7, 'set_x_pos': 29, 'set_y_neg': 10, 'set_y_zero': 4, 'set_y_pos': 10, 'set_xy': 12, 'stop': 32} sum 160
+NONTERMINAL 128: {'observe_all': 24, 'set_x_neg': 32, 'set_x_zero': 7, 'set_x_pos': 29, 'set_y_neg': 10, 'set_y_zero': 4, 'set_y_pos': 10, 'set_xy': 12, 'stop': 0} sum 128
+TERMINAL 32: Counter({'stop': 32}) remaining units Counter({0: 32})
+stop labels at remaining>0: 0 ; nonstop labels at terminal: 0
+share set_x_neg of 160: 0.2000 ; of 128 nonterminal: 0.2500
+share stop of 160: 0.2000
+second/third nonterminal: set_x_pos 29 (0.227), observe_all 24 (0.188)
+
+By teacher (nonterminal):
+  uniform_random 32 {'observe_all': 5, 'set_x_neg': 3, 'set_x_zero': 5, 'set_y_neg': 7, 'set_y_zero': 3, 'set_y_pos': 5, 'set_xy': 4}
+  menu_coverage 32 {'set_x_neg': 12, 'set_x_zero': 2, 'set_x_pos': 12, 'set_y_neg': 1, 'set_y_zero': 1, 'set_y_pos': 3, 'set_xy': 1}
+  local_information 32 {'observe_all': 11, 'set_x_neg': 9, 'set_x_pos': 8, 'set_y_neg': 2, 'set_y_pos': 2}
+  target_risk 32 {'observe_all': 8, 'set_x_neg': 8, 'set_x_pos': 9, 'set_xy': 7}
+By teacher (terminal): Counter({'uniform_random': 8, 'local_information': 8, 'menu_coverage': 8, 'target_risk': 8})
+
+Teacher by snapshot index:
+ snap 0 Counter({'uniform_random': 8, 'local_information': 8, 'menu_coverage': 8, 'target_risk': 8})
+ snap 1 Counter({'menu_coverage': 8, 'target_risk': 8, 'local_information': 8, 'uniform_random': 8})
+ snap 2 Counter({'local_information': 8, 'uniform_random': 8, 'target_risk': 8, 'menu_coverage': 8})
+ snap 3 Counter({'target_risk': 8, 'menu_coverage': 8, 'uniform_random': 8, 'local_information': 8})
+ snap 4 Counter({'uniform_random': 8, 'local_information': 8, 'menu_coverage': 8, 'target_risk': 8})
+teachers per world: Counter({('uniform_random', 'menu_coverage', 'local_information', 'target_risk', 'uniform_random'): 8, ('local_information', 'target_risk', 'uniform_random', 'menu_coverage', 'local_information'): 8, ('menu_coverage', 'local_information', 'target_risk', 'uniform_random', 'menu_coverage'): 8, ('target_risk', 'uniform_random', 'menu_coverage', 'local_information', 'target_risk'): 8})
+
+By snapshot (labels):
+ snap 0 {'observe_all': 3, 'set_x_neg': 16, 'set_x_zero': 3, 'set_x_pos': 2, 'set_y_neg': 3, 'set_y_zero': 2, 'set_xy': 3} remaining Counter({24: 32}) spent [(8, 32)]
+ snap 1 {'observe_all': 5, 'set_x_neg': 7, 'set_x_zero': 1, 'set_x_pos': 13, 'set_y_neg': 1, 'set_y_zero': 1, 'set_y_pos': 3, 'set_xy': 1} remaining Counter({18: 25, 17: 7}) spent [(14, 25), (15, 7)]
+ snap 2 {'observe_all': 9, 'set_x_neg': 4, 'set_x_zero': 2, 'set_x_pos': 8, 'set_y_neg': 3, 'set_y_pos': 4, 'set_xy': 2} remaining Counter({12: 29, 11: 3}) spent [(20, 29), (21, 3)]
+ snap 3 {'observe_all': 7, 'set_x_neg': 5, 'set_x_zero': 1, 'set_x_pos': 6, 'set_y_neg': 3, 'set_y_zero': 1, 'set_y_pos': 3, 'set_xy': 6} remaining Counter({6: 30, 5: 2}) spent [(26, 30), (27, 2)]
+ snap 4 {'stop': 32} remaining Counter({0: 32}) spent [(32, 32)]
+ snaps 1-3 combined: {'observe_all': 21, 'set_x_neg': 16, 'set_x_zero': 4, 'set_x_pos': 27, 'set_y_neg': 7, 'set_y_zero': 2, 'set_y_pos': 10, 'set_xy': 9} n 96
+
+menu_coverage at snapshot 0: n=8 labels=Counter({'set_x_neg': 8})
+  snap 0 uniform_random 8 {'set_x_zero': 3, 'set_y_zero': 2, 'observe_all': 1, 'set_y_neg': 1, 'set_xy': 1}
+  snap 0 menu_coverage 8 {'set_x_neg': 8}
+  snap 0 local_information 8 {'set_x_neg': 4, 'set_y_neg': 2, 'observe_all': 1, 'set_x_pos': 1}
+  snap 0 target_risk 8 {'set_x_pos': 1, 'set_xy': 2, 'set_x_neg': 4, 'observe_all': 1}
+  snap 1 uniform_random 8 {'observe_all': 3, 'set_y_pos': 2, 'set_x_zero': 1, 'set_x_neg': 1, 'set_y_neg': 1}
+  snap 1 menu_coverage 8 {'set_x_pos': 5, 'set_x_neg': 1, 'set_y_pos': 1, 'set_y_zero': 1}
+  snap 1 local_information 8 {'set_x_neg': 2, 'set_x_pos': 5, 'observe_all': 1}
+  snap 1 target_risk 8 {'set_x_neg': 3, 'set_xy': 1, 'set_x_pos': 3, 'observe_all': 1}
+  snap 2 uniform_random 8 {'set_x_zero': 1, 'set_y_pos': 2, 'observe_all': 1, 'set_y_neg': 3, 'set_xy': 1}
+  snap 2 menu_coverage 8 {'set_x_neg': 2, 'set_x_pos': 4, 'set_x_zero': 1, 'set_y_pos': 1}
+  snap 2 local_information 8 {'set_x_pos': 2, 'observe_all': 4, 'set_y_pos': 1, 'set_x_neg': 1}
+  snap 2 target_risk 8 {'set_xy': 1, 'set_x_pos': 2, 'observe_all': 4, 'set_x_neg': 1}
+  snap 3 uniform_random 8 {'set_y_pos': 1, 'set_y_neg': 2, 'set_xy': 2, 'set_x_neg': 2, 'set_y_zero': 1}
+  snap 3 menu_coverage 8 {'set_y_pos': 1, 'set_x_pos': 3, 'set_y_neg': 1, 'set_x_zero': 1, 'set_x_neg': 1, 'set_xy': 1}
+  snap 3 local_information 8 {'observe_all': 5, 'set_x_neg': 2, 'set_y_pos': 1}
+  snap 3 target_risk 8 {'set_x_pos': 3, 'set_xy': 3, 'observe_all': 2}
+
+graphs: Counter({'chain': 60, 'fork': 50, 'collider': 50})  cost menus: Counter({'uni': 80, 'het': 80})
+target: Counter({'Z': 160})
+ cell ('chain', 'het') n=30 worlds=6 {'observe_all': 2, 'set_x_neg': 6, 'set_x_zero': 1, 'set_x_pos': 8, 'set_y_neg': 3, 'set_y_zero': 1, 'set_y_pos': 2, 'set_xy': 1}
+ cell ('chain', 'uni') n=30 worlds=6 {'observe_all': 4, 'set_x_neg': 5, 'set_x_zero': 2, 'set_x_pos': 6, 'set_y_neg': 2, 'set_y_pos': 2, 'set_xy': 3}
+ cell ('collider', 'het') n=25 worlds=5 {'observe_all': 6, 'set_x_neg': 4, 'set_x_zero': 1, 'set_x_pos': 4, 'set_y_neg': 2, 'set_y_zero': 1, 'set_y_pos': 1, 'set_xy': 1}
+ cell ('collider', 'uni') n=25 worlds=5 {'observe_all': 3, 'set_x_zero': 1, 'set_x_pos': 4, 'set_y_neg': 3, 'set_y_zero': 1, 'set_y_pos': 4, 'set_xy': 4}
+ cell ('fork', 'het') n=25 worlds=5 {'observe_all': 5, 'set_x_neg': 9, 'set_x_zero': 1, 'set_x_pos': 3, 'set_y_zero': 1, 'set_xy': 1}
+ cell ('fork', 'uni') n=25 worlds=5 {'observe_all': 4, 'set_x_neg': 8, 'set_x_zero': 1, 'set_x_pos': 4, 'set_y_pos': 1, 'set_xy': 2}
+
+Majority baseline: overall 32/160 ; nonterminal 32/128
+within graph x cost cell in-sample majority (all 160): 42/160
+within graph x cost cell in-sample majority (nonterminal): 41/128
+LOWO nonterminal within graph x cost cell (tiebreak first): 29.00/128
+LOWO nonterminal global majority (tiebreak first): 32.00/128
+LOWO all-160 within graph x cost cell (tiebreak first): 30.00/160
+LOWO nonterminal within graph x cost cell (tiebreak last): 30.00/128
+LOWO nonterminal global majority (tiebreak last): 26.00/128
+LOWO all-160 within graph x cost cell (tiebreak last): 36.00/160
+LOWO nonterminal within graph x cost cell (tiebreak frac): 29.75/128
+LOWO nonterminal global majority (tiebreak frac): 29.00/128
+LOWO all-160 within graph x cost cell (tiebreak frac): 32.50/160
+ in-sample majority by snapshot: 45/128 ; LOWO frac 35.83
+ in-sample majority by teacher: 39/128 ; LOWO frac 21.00
+ in-sample majority by teacher x snapshot: 63/128 ; LOWO frac 50.50
+ in-sample majority by graph: 40/128 ; LOWO frac 33.00
+ in-sample majority by cost: 33/128 ; LOWO frac 26.00
+ in-sample majority by graph x cost x snapshot: 55/128 ; LOWO frac 23.50

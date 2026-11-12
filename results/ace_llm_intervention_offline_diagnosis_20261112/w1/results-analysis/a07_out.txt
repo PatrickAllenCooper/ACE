@@ -1,0 +1,270 @@
+=== full sequences, target_risk and local_information (one row per system)
+--- target_risk
+  chain    uniform       matched_low  w00 n=24 | x- x- x- y+ x- y+ x- y+ x- y+ x- obs x- obs obs x- obs y+ obs x- x- y+ obs y+
+  chain    uniform       matched_high w06 n=24 | x- x- x- y+ xy y+ y+ y+ xy y+ obs y+ obs y+ obs xy y+ obs y+ obs y+ x- obs y+
+  chain    uniform       shifted_low  w12 n=24 | x+ x+ x+ obs x+ obs obs obs x+ obs obs obs obs x+ obs obs obs obs obs obs obs x+ obs obs
+  chain    uniform       shifted_high w18 n=24 | x- x- obs x- x- obs obs x- obs x- obs obs obs obs x+ obs obs x+ x+ obs obs x+ x+ obs
+  chain    heterogeneous matched_low  w01 n=21 | x- x- x- x0 x- y+ obs x- y+ x- x- obs x- xy x- obs obs x- x- obs obs
+  chain    heterogeneous matched_high w07 n=24 | x+ x+ x+ x+ x+ x+ obs obs x+ obs x+ obs obs obs obs x+ x- obs x+ x+ obs obs x+ x+
+  chain    heterogeneous shifted_low  w13 n=24 | x- x- x- x- x- x- obs x- obs x- obs obs x- obs x- obs obs x- obs obs obs x- obs x-
+  chain    heterogeneous shifted_high w19 n=24 | x- x- x- x- obs x- obs obs obs x- obs x- obs x- obs x- obs obs x- obs obs obs x- x-
+  fork     uniform       matched_low  w02 n=24 | x- x- xy xy y- x- y0 x- obs obs obs x- obs x- y- obs xy y- y+ x- y+ y- xy obs
+  fork     uniform       matched_high w08 n=24 | xy x- x- xy y0 y- xy y+ y+ x- y+ y0 y0 x- y0 y0 obs y0 x- y+ xy y+ xy y0
+  fork     uniform       shifted_low  w14 n=24 | xy xy xy y+ obs y+ x- y+ y- obs y- xy y+ y- y+ x- y- obs obs obs xy obs y- y+
+  fork     uniform       shifted_high w20 n=24 | y- obs y+ y- y+ y+ y0 y- x+ y+ y0 y- y0 y- y0 y- y- y- y0 y0 y- y0 obs obs
+  fork     heterogeneous matched_low  w03 n=24 | x+ x+ x+ x+ obs obs x+ obs obs obs x+ obs x+ obs obs obs x+ obs obs x+ obs obs x+ obs
+  fork     heterogeneous matched_high w09 n=24 | x- x- x- obs obs x- obs obs x- obs obs obs obs x- obs obs x- obs obs x- x- obs obs x-
+  fork     heterogeneous shifted_low  w15 n=24 | x+ x+ obs obs obs x+ obs obs obs obs x+ obs obs obs obs obs obs x+ obs obs obs obs x+ obs
+  fork     heterogeneous shifted_high w21 n=24 | x- x- obs obs x- obs obs obs obs obs obs obs obs obs x- obs obs obs obs x- obs obs x- obs
+  collider uniform       matched_low  w04 n=24 | x+ y+ x+ xy x+ y+ x+ y+ y+ y- x+ y+ y- x+ y- y+ x+ y+ y- y+ y- x+ x+ x+
+  collider uniform       matched_high w10 n=24 | x+ y- x+ x+ y- x+ x0 obs obs obs y- obs obs obs y- x+ obs obs obs x+ y- x+ obs obs
+  collider uniform       shifted_low  w16 n=24 | y+ x- xy x- y+ x- x+ obs x- x- y+ x- obs xy x+ obs x+ obs x- x- xy obs obs obs
+  collider uniform       shifted_high w22 n=24 | xy x- y+ y+ x- obs obs x- y0 x- obs y+ y+ y+ obs y+ x- x- obs y+ y+ x- obs y+
+  collider heterogeneous matched_low  w05 n=19 | xy x- y+ x- x- y+ x- x+ x- x+ xy obs x+ x- x+ xy obs x+ x-
+  collider heterogeneous matched_high w11 n=23 | x- x- x- obs x- obs x- obs obs obs x- obs obs y+ obs obs obs obs x- obs x- obs obs
+  collider heterogeneous shifted_low  w17 n=20 | xy x+ x- x+ y+ x- x- x+ x+ x- xy x+ x+ x- x- x+ xy x+ x+ x-
+  collider heterogeneous shifted_high w23 n=21 | x- xy obs obs x- obs obs obs obs obs xy obs x- x- obs obs obs obs y+ obs obs
+--- local_information
+  chain    uniform       matched_low  w00 n=24 | x- x- x- x- y+ x- obs x- obs y+ obs x- obs x- obs obs x- obs x- obs x- obs obs x-
+  chain    uniform       matched_high w06 n=24 | x- x- x- x- obs obs obs obs x- x- obs obs obs x- obs obs obs obs obs x- obs x- obs x-
+  chain    uniform       shifted_low  w12 n=24 | x+ x+ x+ x+ obs x+ x+ obs obs x- x- x+ obs obs x+ x- x+ obs obs obs x+ obs obs x+
+  chain    uniform       shifted_high w18 n=24 | x- obs x- obs x- obs obs x- obs obs obs obs obs obs x- obs obs x- obs obs obs x- obs obs
+  chain    heterogeneous matched_low  w01 n=24 | x- x- x- x- x- obs obs obs obs x- obs obs x- obs obs x- obs x- obs obs x- obs obs x-
+  chain    heterogeneous matched_high w07 n=24 | x+ x+ x+ obs obs obs obs x+ x+ obs obs x+ obs obs obs obs obs obs obs obs obs obs obs obs
+  chain    heterogeneous shifted_low  w13 n=24 | x- x- x- x- x- obs obs x- obs x- obs x- obs obs x- obs x- obs obs x- obs obs obs x-
+  chain    heterogeneous shifted_high w19 n=24 | x- x- x- x- obs obs obs x- x- obs obs obs x- obs x- obs obs obs obs obs x- obs x- x-
+  fork     uniform       matched_low  w02 n=24 | x- x- x- x- x- obs x- obs obs x- obs obs x- obs x+ obs x- obs obs x- obs obs x- obs
+  fork     uniform       matched_high w08 n=24 | x- x- x- obs obs obs obs x- obs x- obs obs obs x- obs obs obs x- obs obs obs obs obs obs
+  fork     uniform       shifted_low  w14 n=24 | x- x- x- x- x- obs x- obs x- obs x- obs obs x- obs obs x- obs obs x- obs x- obs obs
+  fork     uniform       shifted_high w20 n=24 | x+ x+ obs x+ obs obs obs obs obs x+ obs obs obs obs obs obs obs obs obs x+ obs obs obs obs
+  fork     heterogeneous matched_low  w03 n=24 | x+ x+ x+ x+ x+ obs x+ obs obs x+ obs obs x+ obs x+ obs x+ obs x+ obs obs obs obs x+
+  fork     heterogeneous matched_high w09 n=24 | x- x- x- x- obs obs x- obs obs obs x- obs x- obs obs x- obs x- obs obs obs obs x- obs
+  fork     heterogeneous shifted_low  w15 n=24 | x+ x+ x+ x+ x+ obs x+ obs obs x+ obs obs x+ obs obs obs x+ obs x+ obs x+ obs x+ obs
+  fork     heterogeneous shifted_high w21 n=24 | x- obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs obs x- obs obs obs obs
+  collider uniform       matched_low  w04 n=24 | x+ y+ x+ y+ x+ y+ x+ y+ obs x+ y- y+ x+ obs x+ obs y+ x+ obs obs y+ x+ x+ obs
+  collider uniform       matched_high w10 n=24 | y- x+ y- x+ y- obs x+ obs obs x+ obs y- y- obs obs obs obs y- obs obs obs x+ obs obs
+  collider uniform       shifted_low  w16 n=24 | y+ xy x- y+ x- y+ x- y+ obs obs x- y+ x- obs obs xy obs obs y+ x- obs y+ x- obs
+  collider uniform       shifted_high w22 n=24 | x- y+ xy y+ obs x- obs x- obs obs obs x- obs obs x- obs obs obs obs obs y+ obs xy x-
+  collider heterogeneous matched_low  w05 n=21 | x- x- y+ x- obs x- obs obs x- obs xy obs obs obs x- obs obs x- obs obs y+
+  collider heterogeneous matched_high w11 n=24 | x- x- obs obs x- obs obs x- obs obs obs obs obs obs x- obs obs obs x- obs obs x- obs obs
+  collider heterogeneous shifted_low  w17 n=21 | x- y+ x+ x- x+ x- x+ y+ obs x- x+ obs obs obs y+ x- x- x+ obs x- obs
+  collider heterogeneous shifted_high w23 n=24 | x- x- x- obs obs obs x- obs obs obs obs obs x- obs obs obs x- obs obs obs obs x- obs obs
+
+=== target_risk action counts by graph
+               obs  x-  x0  x+  y-  y0  y+  xy    n
+graph_stratum                                      
+chain           81  58   1  25   0   0  20   4  189
+collider        54  41   1  34  10   1  25  13  179
+fork            80  30   0  17  19  15  17  14  192
+=== target_risk action counts by cost menu
+               obs  x-  x0  x+  y-  y0  y+  xy    n
+cost_stratum                                       
+heterogeneous  133  79   1  43   0   0   7   9  272
+uniform         82  50   1  33  29  16  55  22  288
+=== target_risk action counts by regime
+              obs  x-  x0  x+  y-  y0  y+  xy    n
+regime                                            
+matched_high   56  28   1  20   6   7  17   8  143
+matched_low    34  36   1  25   9   1  21   9  136
+shifted_high   66  35   0   6   9   8  14   3  141
+shifted_low    59  30   0  25   5   0  10  11  140
+=== target_risk action counts by graph x cost
+                             obs  x-  x0  x+  y-  y0  y+  xy   n
+graph_stratum cost_stratum                                      
+chain         heterogeneous   39  37   1  13   0   0   2   1  93
+              uniform         42  21   0  12   0   0  18   3  96
+collider      heterogeneous   30  26   0  14   0   0   5   8  83
+              uniform         24  15   1  20  10   1  20   5  96
+fork          heterogeneous   64  16   0  16   0   0   0   0  96
+              uniform         16  14   0   1  19  15  17  14  96
+=== target_risk action shares (row %) by graph x cost
+                              obs    x-   x0    x+    y-    y0    y+    xy
+graph_stratum cost_stratum                                                
+chain         heterogeneous  41.9  39.8  1.1  14.0   0.0   0.0   2.2   1.1
+              uniform        43.8  21.9  0.0  12.5   0.0   0.0  18.8   3.1
+collider      heterogeneous  36.1  31.3  0.0  16.9   0.0   0.0   6.0   9.6
+              uniform        25.0  15.6  1.0  20.8  10.4   1.0  20.8   5.2
+fork          heterogeneous  66.7  16.7  0.0  16.7   0.0   0.0   0.0   0.0
+              uniform        16.7  14.6  0.0   1.0  19.8  15.6  17.7  14.6
+=== target_risk action counts by step-index block
+       obs  x-  x0  x+  y-  y0  y+  xy    n
+block                                      
+1-2      1  25   0  11   2   0   2   7   48
+3-4     10  14   1   9   1   0   7   6   48
+5-8     34  25   1  11   4   3  16   2   96
+9-12    44  18   0  10   5   3  11   5   96
+13-16   43  18   0  11   7   5   8   4   96
+17-24   83  29   0  24  10   5  18   7  176
+=== target_risk first action by graph x cost (4 systems each)
+                             obs  x-  x0  x+  y-  y0  y+  xy
+graph_stratum cost_stratum                                  
+chain         heterogeneous    0   3   0   1   0   0   0   0
+              uniform          0   3   0   1   0   0   0   0
+collider      heterogeneous    0   2   0   0   0   0   0   2
+              uniform          0   0   0   2   0   0   1   1
+fork          heterogeneous    0   2   0   2   0   0   0   0
+              uniform          0   1   0   0   1   0   0   2
+
+=== local_information action counts by graph
+               obs  x-  x0  x+  y-  y0  y+  xy    n
+graph_stratum                                      
+chain          107  66   0  17   0   0   2   0  192
+collider        91  41   0  20   7   0  22   5  186
+fork           120  42   0  30   0   0   0   0  192
+=== local_information action counts by cost menu
+               obs  x-  x0  x+  y-  y0  y+  xy    n
+cost_stratum                                       
+heterogeneous  167  74   0  35   0   0   5   1  282
+uniform        151  75   0  32   7   0  19   4  288
+=== local_information action counts by regime
+              obs  x-  x0  x+  y-  y0  y+  xy    n
+regime                                            
+matched_high   93  34   0  11   6   0   0   0  144
+matched_low    64  41   0  23   1   0  11   1  141
+shifted_high  101  33   0   5   0   0   3   2  144
+shifted_low    60  41   0  28   0   0  10   2  141
+=== local_information action counts by graph x cost
+                             obs  x-  x0  x+  y-  y0  y+  xy   n
+graph_stratum cost_stratum                                      
+chain         heterogeneous   56  34   0   6   0   0   0   0  96
+              uniform         51  32   0  11   0   0   2   0  96
+collider      heterogeneous   51  28   0   5   0   0   5   1  90
+              uniform         40  13   0  15   7   0  17   4  96
+fork          heterogeneous   60  12   0  24   0   0   0   0  96
+              uniform         60  30   0   6   0   0   0   0  96
+=== local_information action shares (row %) by graph x cost
+                              obs    x-   x0    x+   y-   y0    y+   xy
+graph_stratum cost_stratum                                             
+chain         heterogeneous  58.3  35.4  0.0   6.2  0.0  0.0   0.0  0.0
+              uniform        53.1  33.3  0.0  11.5  0.0  0.0   2.1  0.0
+collider      heterogeneous  56.7  31.1  0.0   5.6  0.0  0.0   5.6  1.1
+              uniform        41.7  13.5  0.0  15.6  7.3  0.0  17.7  4.2
+fork          heterogeneous  62.5  12.5  0.0  25.0  0.0  0.0   0.0  0.0
+              uniform        62.5  31.2  0.0   6.2  0.0  0.0   0.0  0.0
+=== local_information action counts by step-index block
+       obs  x-  x0  x+  y-  y0  y+  xy    n
+block                                      
+1-2      2  28   0  12   1   0   4   1   48
+3-4      9  22   0  11   1   0   4   1   48
+5-8     54  23   0  12   1   0   6   0   96
+9-12    63  18   0   9   2   0   3   1   96
+13-16   66  20   0   7   1   0   1   1   96
+17-24  124  38   0  16   1   0   6   1  186
+=== local_information first action by graph x cost (4 systems each)
+                             obs  x-  x0  x+  y-  y0  y+  xy
+graph_stratum cost_stratum                                  
+chain         heterogeneous    0   3   0   1   0   0   0   0
+              uniform          0   3   0   1   0   0   0   0
+collider      heterogeneous    0   4   0   0   0   0   0   0
+              uniform          0   1   0   1   1   0   1   0
+fork          heterogeneous    0   2   0   2   0   0   0   0
+              uniform          0   3   0   1   0   0   0   0
+
+=== closeness to a fixed sequence: share of decisions equal to the cell-and-step modal action
+(in-sample modal share has a floor of 1/k for k systems in a cell; leave-one-out (LOO) has no such floor)
+             graph_modal  graph_loo  graph_x_cost_modal  graph_x_cost_loo  graph_x_cost_x_noise_modal  graph_x_cost_x_noise_loo  graph_x_cost_x_prior_modal  graph_x_cost_x_prior_loo  graphcost_constant_action_share  global_constant_action_share
+policy                                                                                                                                                                                                                                              
+random             0.335      0.103               0.402             0.098                       0.573                     0.146                       0.546                     0.092                            0.181                         0.138
+coverage           1.000      1.000               1.000             1.000                       1.000                     1.000                       1.000                     1.000                            0.175                         0.175
+local_info         0.639      0.570               0.672             0.514                       0.760                     0.519                       0.713                     0.426                            0.558                         0.558
+target_risk        0.473      0.395               0.563             0.375                       0.662                     0.325                       0.652                     0.304                            0.389                         0.384
+ranker             0.884      0.870               0.891             0.859                       0.915                     0.830                       0.898                     0.795                            0.755                         0.755
+frozen             0.997      0.997               0.997             0.997                       0.997                     0.993                       0.997                     0.993                            0.997                         0.997
+sft                0.927      0.914               0.936             0.902                       0.940                     0.879                       0.952                     0.903                            0.920                         0.920
+dpo                1.000      1.000               1.000             1.000                       1.000                     1.000                       1.000                     1.000                            1.000                         1.000
+
+target_risk per graph x cost cell: in-sample modal share / LOO agreement
+   ('chain', 'heterogeneous') modal  58/ 93 = 0.624 ; LOO  45/ 93 = 0.484
+   ('chain', 'uniform')   modal  56/ 96 = 0.583 ; LOO  41/ 96 = 0.427
+   ('collider', 'heterogeneous') modal  47/ 81 = 0.580 ; LOO  36/ 81 = 0.444
+   ('collider', 'uniform') modal  43/ 96 = 0.448 ; LOO  19/ 96 = 0.198
+   ('fork', 'heterogeneous') modal  70/ 96 = 0.729 ; LOO  60/ 96 = 0.625
+   ('fork', 'uniform')    modal  40/ 96 = 0.417 ; LOO   8/ 96 = 0.083
+  per-step modal share over the six graph x cost cells (steps 1..16):
+    1:0.58 2:0.58 3:0.54 4:0.50 5:0.50 6:0.46 7:0.67 8:0.58 9:0.42 10:0.62 11:0.50 12:0.67 13:0.58 14:0.54 15:0.58 16:0.54
+  modal action per step, by graph x cost (ties shown with /):
+   ('chain', 'heterogeneous') x-(3/4) x-(3/4) x-(3/4) x-(2/4) x-(2/4) x-(2/4) obs(4/4) obs/x-(2/4) obs(2/4) x-(3/4) obs(2/4) obs(3/4) obs/x-(2/4) obs(2/4)
+   ('chain', 'uniform')     x-(3/4) x-(3/4) x-(2/4) y+(2/4) x-(2/4) obs/y+(2/4) obs(2/4) y+(2/4) obs/x+/x-/xy(1/4) y+(2/4) obs(3/4) obs(3/4) obs(3/4) obs(2/4)
+   ('collider', 'heterogeneous') x-/xy(2/4) x-(2/4) x-(2/4) obs(2/4) x-(3/4) obs(2/4) x-(3/4) obs/x+(2/4) obs(2/4) obs(2/4) xy(3/4) obs(3/4) x+(2/4) x-(3/4)
+   ('collider', 'uniform')  x+(2/4) x-(2/4) x+(2/4) x+/x-/xy/y+(1/4) x+/x-/y+/y-(1/4) obs/x+/x-/y+(1/4) x+(2/4) obs(2/4) obs/x-/y+/y0(1/4) x-(2/4) obs/x+/y+/y-(1/4) y+(2/4) obs(2/4) obs/x+/xy/y+(1/4)
+   ('fork', 'heterogeneous') x+/x-(2/4) x+/x-(2/4) obs(2/4) obs(3/4) obs(3/4) obs(2/4) obs(3/4) obs(4/4) obs(3/4) obs(4/4) obs/x+(2/4) obs(4/4) obs(3/4) obs(3/4)
+   ('fork', 'uniform')      xy(2/4) x-(2/4) xy(2/4) xy(2/4) obs/y+/y-/y0(1/4) y+(2/4) y0(2/4) y+(2/4) obs/x+/y+/y-(1/4) obs(2/4) obs/y+/y-/y0(1/4) x-/xy/y-/y0(1/4) y0(2/4) x-/y-(2/4)
+
+local_information per graph x cost cell: in-sample modal share / LOO agreement
+   ('chain', 'heterogeneous') modal  70/ 96 = 0.729 ; LOO  58/ 96 = 0.604
+   ('chain', 'uniform')   modal  61/ 96 = 0.635 ; LOO  47/ 96 = 0.490
+   ('collider', 'heterogeneous') modal  61/ 90 = 0.678 ; LOO  52/ 90 = 0.578
+   ('collider', 'uniform') modal  53/ 96 = 0.552 ; LOO  32/ 96 = 0.333
+   ('fork', 'heterogeneous') modal  67/ 96 = 0.698 ; LOO  47/ 96 = 0.490
+   ('fork', 'uniform')    modal  71/ 96 = 0.740 ; LOO  57/ 96 = 0.594
+  per-step modal share over the six graph x cost cells (steps 1..16):
+    1:0.67 2:0.62 3:0.54 4:0.58 5:0.46 6:0.75 7:0.62 8:0.62 9:0.79 10:0.54 11:0.71 12:0.75 13:0.62 14:0.83 15:0.58 16:0.79
+  modal action per step, by graph x cost (ties shown with /):
+   ('chain', 'heterogeneous') x-(3/4) x-(3/4) x-(3/4) x-(3/4) obs/x-(2/4) obs(4/4) obs(4/4) x-(2/4) obs(2/4) obs/x-(2/4) obs(4/4) obs(2/4) obs/x-(2/4) obs(4/4)
+   ('chain', 'uniform')     x-(3/4) x-(2/4) x-(3/4) x-(2/4) obs(2/4) obs(2/4) obs(3/4) obs/x-(2/4) obs(3/4) x-(2/4) obs(3/4) obs(2/4) obs(4/4) obs/x-(2/4)
+   ('collider', 'heterogeneous') x-(4/4) x-(3/4) obs/x+/x-/y+(1/4) obs/x-(2/4) obs(2/4) obs/x-(2/4) obs(2/4) obs(2/4) obs(3/4) obs(3/4) obs(2/4) obs(4/4) obs(3/4) obs(4/4)
+   ('collider', 'uniform')  x+/x-/y+/y-(1/4) y+(2/4) x+/x-/xy/y-(1/4) y+(3/4) obs/x+/x-/y-(1/4) y+(2/4) x+(2/4) y+(2/4) obs(4/4) obs/x+(2/4) obs(2/4) y+(2/4) obs/x+/x-/y-(1/4) obs(4/4)
+   ('fork', 'heterogeneous') x+/x-(2/4) x+(2/4) x+(2/4) x+(2/4) obs/x+(2/4) obs(4/4) x+(2/4) obs(4/4) obs(4/4) obs/x+(2/4) obs(3/4) obs(4/4) x+(2/4) obs(4/4)
+   ('fork', 'uniform')      x-(3/4) x-(3/4) x-(3/4) x-(2/4) obs/x-(2/4) obs(4/4) obs/x-(2/4) obs(3/4) obs(3/4) x-(2/4) obs(3/4) obs(4/4) obs(3/4) obs/x-(2/4)
+
+=== action COUNT vectors within the first 12 acquisition cost units (order ignored), target_risk and local_information
+   target_risk ('chain', 'heterogeneous')
+      w01 matched_low  obs:1 x-:6 x0:1 y+:2
+      w07 matched_high obs:4 x+:8
+      w13 shifted_low  obs:4 x-:8
+      w19 shifted_high obs:5 x-:7
+   target_risk ('chain', 'uniform')
+      w00 matched_low  obs:1 x-:7 y+:4
+      w06 matched_high obs:1 x-:3 y+:6 xy:2
+      w12 shifted_low  obs:7 x+:5
+      w18 shifted_high obs:6 x-:6
+   target_risk ('collider', 'heterogeneous')
+      w05 matched_low  x-:5 x+:1 y+:2 xy:1
+      w11 matched_high obs:6 x-:6
+      w17 shifted_low  x-:4 x+:4 y+:1 xy:1
+      w23 shifted_high obs:7 x-:2 xy:1
+   target_risk ('collider', 'uniform')
+      w04 matched_low  x+:5 y-:1 y+:5 xy:1
+      w10 matched_high obs:4 x0:1 x+:4 y-:3
+      w16 shifted_low  obs:1 x-:6 x+:1 y+:3 xy:1
+      w22 shifted_high obs:3 x-:4 y0:1 y+:3 xy:1
+   target_risk ('fork', 'heterogeneous')
+      w03 matched_low  obs:6 x+:6
+      w09 matched_high obs:7 x-:5
+      w15 shifted_low  obs:8 x+:4
+      w21 shifted_high obs:9 x-:3
+   target_risk ('fork', 'uniform')
+      w02 matched_low  obs:3 x-:5 y-:1 y0:1 xy:2
+      w08 matched_high x-:3 y-:1 y0:2 y+:3 xy:3
+      w14 shifted_low  obs:2 x-:1 y-:2 y+:3 xy:4
+      w20 shifted_high obs:1 x+:1 y-:4 y0:2 y+:4
+   local_information ('chain', 'heterogeneous')
+      w01 matched_low  obs:6 x-:6
+      w07 matched_high obs:6 x+:6
+      w13 shifted_low  obs:4 x-:8
+      w19 shifted_high obs:6 x-:6
+   local_information ('chain', 'uniform')
+      w00 matched_low  obs:3 x-:7 y+:2
+      w06 matched_high obs:6 x-:6
+      w12 shifted_low  obs:3 x-:2 x+:7
+      w18 shifted_high obs:8 x-:4
+   local_information ('collider', 'heterogeneous')
+      w05 matched_low  obs:4 x-:5 y+:1
+      w11 matched_high obs:8 x-:4
+      w17 shifted_low  obs:1 x-:4 x+:3 y+:2
+      w23 shifted_high obs:8 x-:4
+   local_information ('collider', 'uniform')
+      w04 matched_low  obs:1 x+:5 y-:1 y+:5
+      w10 matched_high obs:4 x+:4 y-:4
+      w16 shifted_low  obs:2 x-:4 y+:5 xy:1
+      w22 shifted_high obs:5 x-:4 y+:2 xy:1
+   local_information ('fork', 'heterogeneous')
+      w03 matched_low  obs:5 x+:7
+      w09 matched_high obs:6 x-:6
+      w15 shifted_low  obs:5 x+:7
+      w21 shifted_high obs:11 x-:1
+   local_information ('fork', 'uniform')
+      w02 matched_low  obs:5 x-:7
+      w08 matched_high obs:7 x-:5
+      w14 shifted_low  obs:4 x-:8
+      w20 shifted_high obs:8 x+:4

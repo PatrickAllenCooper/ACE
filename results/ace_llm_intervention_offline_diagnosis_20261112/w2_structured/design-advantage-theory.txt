@@ -1,0 +1,247 @@
+# DESIGN: advantage-theory
+## THESIS
+A language model can beat a numerical experimental-design planner only by supplying something the planner lacks: information that exists only in language or pretraining, a better model class, candidates outside the planner's set,
+  or a better approximation where exact planning is intractable. With equal information, a correct model and a tractable Bayes planner it provably cannot win. The completed 24-system screen was in that regime: adaptivity is
+  exactly worthless in its design-only subclass and was measured at -0.7% +/- 1.7% overall, so any legitimate LLM advantage was capped at roughly 2% of final risk. If results are positive, the paper claims that a trained LLM
+  intervention policy that reads textual domain information (which causal links are absent, or how mechanisms bend) captured a calibrated share of the computed information value on fresh systems, beat the strongest numerical
+  controls that lacked the text (uninformed planner, law-aware planner, GO-CBED-style amortized policy), scaled its benefit with the controlled information dose, showed no benefit where theory predicts none, and never exceeded the
+  oracle-informed ceiling. If results are null or negative, the paper is a theory-and-measurement contribution: a sequential value-gap decomposition whose terms are computable numerical arms, theorems explaining why adaptive or
+  learned policies cannot win in conjugate known-graph classes, a headroom atlas showing where an LLM could win, a calibrated instrument (endpoint, power, ceiling audit) for LLM-for-design claims, and the documented finding that
+  the LLM did not turn text into better interventions at this scale. If the compiler arm succeeds where the policy fails, the claim narrows to the LLM as an information source for a numerical planner.
+
+### E1 [must] Value-gap decomposition of the completed 24-system screen
+  QUESTION: How large was each gap term (decision noise, myopia, adaptivity, omission, missing information) between target risk and the best achievable policy in the completed class, and so what was the largest advantage any
+    policy could legitimately have shown?
+  DESIGN: Inputs: saved post-initialization states of all 24 development systems (identical across arms), saved action sequences of all 8 arms, 560 target-risk receipts, private world descriptors (development, post hoc). Reference
+    arms, all model-internal with zero environment responses: R0 target risk as run (32 draws); R1 target risk with 4,096 draws and common random numbers across actions; R2 plan-once multiset optimum; R3 rollout planner (one-step
+    lookahead over a target-risk base, 64 rollouts to budget end); R4 clairvoyant design (true theta in the shared learner's risk); R5 law-informed planner on the 12 shifted systems (knows edge mean 1.5, minimizes the shared
+    learner's truth-law risk); R6 extended menu with the omitted bounds +/-2; R7 best leave-one-out state-blind schedule; R8 EPIG. Endpoints: (a) working-model design quality J from the common state, (b) truth-conditional expected
+    final NMSE with redrawn noise and the true theta, (c) LLM arms' decision-level relative regret against the 16,384-draw reference, split into a state-blind component and a residual. n = 24, fixed by the completed screen. Paired
+    log SD 0.035 for near-equal designs gives SE about 0.007, which resolves terms of 2% or more; MC SE of J is about 0.3% at 4,000 draws.
+  DECISION_RULE: Predeclared. (i) No-headroom verdict if the upper 95% bound of (R0 - min(R1..R4))/R0 is below 5% on matched systems. (ii) If R3 beats R1 by 5% or more with lower CI above 0, a non-myopic control becomes mandatory
+    everywhere and the greedy-optimality claim is narrowed. (iii) If Delta_info (R5 vs R1, endpoint b) is 5% or more, prior-shift class C1 is kept at n_init = 8 in E4; otherwise C1 is tested only at low n_init. (iv) If
+    Delta_omission (R6 vs R1) is 15% or more, successor menus include boundary actions, decided now on LLM-independent grounds. Positive (no headroom) licenses 'the November null was predicted; no policy could exceed about 2 to 5%
+    over target risk in this class'. Null or negative (headroom of 5% or more) licenses 'the null reflects endpoint and power, not absence of headroom', with no rerun of the old study.
+  PREREQUISITES: Saved local files only. Reuse the validated independent replay (numerics-protocol acelib.py, which matches the saved curves to 1e-14). No approvals, no CURC.
+  COST: Zero environment responses. About 1 to 2 local CPU-hours (rollouts dominate) and 3 to 5 analyst-days. Basis: the numerics-protocol agent already ran 4,000-draw designs over the 24 saved states locally.
+  MAIN_RISK: Rollout and greedy references are approximate, so the no-headroom verdict could overstate. Mitigated by also bounding with the clairvoyant design.
+
+### E2 [must] Theory validation: adaptivity and greedy optimality in both directions
+  QUESTION: Do the formal predictions hold numerically: exactly zero adaptivity in the design-only subclass, adaptivity bounded by the clairvoyant EVPI and growing as initial information shrinks, greedy near-optimal where the
+    submodularity ratio is near 1, and the side-information formula matching simulation?
+  DESIGN: Fresh synthetic development systems from a frozen namespace; linear-Gaussian with known noise; model-internal; no LLM. S0, design-only subclass: chain or fork with only actions that clamp the target head's parents and
+    linear queries (do(Y) for Z in the chain, do(X) in the fork); budget 24, unit costs; exact multiset optimum by enumeration (at most 2,925 multisets). S1, completed-class mechanics: 3-node chain, fork and collider with the
+    8-action menu at n_init in {0,1,2,4,8,16} and noise variance in {0.25,1}. S2: 5-node random DAG at n_init in {0,2,8}. Arms: target risk (4,096 draws, common random numbers), plan-once, rollout (adaptive non-myopic),
+    clairvoyant, random, best leave-one-out static schedule. Quantities: V_adapt = (J_OL - J_rollout)/J_OL; EVPI_design = (J_OL - J_clair)/J_OL; greedy vs best multiset; submodularity ratio gamma on small budgets; analytic vs
+    simulated design value of side information for linear targets. 48 systems per cell (S0 48; S1 12 x 48; S2 3 x 48). SE about 0.005 on the mean log ratio at SD 0.035 resolves 1.5% at z about 3. Endpoint: expected final posterior
+    NMSE (exact here because the truth law equals the prior).
+  DECISION_RULE: P1: in S0, |J_adaptive - J_best_multiset| <= 2 MC SE in at least 95% of systems, else stop (bug or theory error) and fix before anything else. P2: V_adapt at n_init = 0 exceeds V_adapt at n_init = 8 by at least 3
+    points (paired lower 95% CI above 0) and V_adapt <= EVPI_design + 2 SE in at least 90% of systems; then the initial-information explanation of the null stands. If V_adapt is about 0 at every n_init, the null is stronger and E4
+    must look to structure or misspecification. If V_adapt exceeds EVPI_design systematically, the theory section is narrowed to empirical statements. P3: greedy attains at least (1 - e^-gamma) of the best multiset everywhere;
+    report the empirical ratios. P4: analytic vs simulated side-information value within 10%. Positive licenses the theory section with numerical verification; null or negative narrows it.
+  PREREQUISITES: In-process vectorized planner (removes the one-process-per-decision artefact behind the 48 s numerical episodes). Raise the 256-draw cap and add common random numbers to target_risk. Small protocol module for
+    n_init and new graphs. Rollout planner. Written protocol with frozen namespaces. No CURC, no LLM.
+  COST: About 5 to 15 local CPU-hours [assumption: 10 to 50 ms per vectorized decision, rollouts 64 to 512 times that]. 1.5 to 2 engineer-weeks, shared with E3 and E4.
+  MAIN_RISK: Optimization error in the references can confound the inequality checks. Mitigated by exact enumeration in S0 and small-budget exact DP on a subset.
+
+### E3 [must] Equal-information numerical control suite and its qualification
+  QUESTION: Do numerical controls that receive exactly the LLM's information (state, generator law, text in oracle or parsed form) reach their theoretically computable values, so that every later LLM contrast is against strong,
+    correctly implemented controls?
+  DESIGN: Implement and qualify on development states. C1: uninformed planner, target risk at 1,024 to 4,096 draws with common random numbers (the 'planner' from here on). C2: EPIG (Bickford Smith et al. 2023). C3: non-myopic
+    rollout planner, plus exact multiset or DP planner where T1 applies. C4: oracle-informed planner; knows the side information numerically and minimizes the shared learner's truth-law risk; for sparsity classes it draws fantasy
+    truths from the true-subgraph learner while scoring the shared supergraph learner. C5: law-aware planner; knows the generator law (spike-and-slab over at most 8 subgraphs, closed-form marginal likelihoods) but has no text. C6:
+    reliability-aware text planner, a mixture prior with the true text reliability r (Bayes-optimal user of the text, and the privileged teacher for E7). C7: rule-based text parser plus C4, written from the training phrasing
+    families only, before any LLM scoring. C8: GO-CBED-style amortized goal-oriented transformer policy over the same numeric state, in no-text and parsed-text variants, trained on the training namespace with a 1x, 4x, 16x budget
+    sweep; also the public GO-CBED code if approved. C9: semantic-feature numerical policy (numeric features plus a frozen-LLM text embedding) trained on the LLM's data (Gupta et al. control). C10: best leave-one-out static
+    schedule, and random. Sample: 48 development systems x 8 states per qualifying cell.
+  DECISION_RULE: Qualification is predeclared. C1: median top-two gap at least 2 MC SE in at least 75% of decisions. C4: reaches the computed Delta_info ceiling within MC error. C5: at least as good as C1 on structure-uncertain
+    cells. C8: design quality within 5% of C1 (no text) on held-out development states at some budget up to 16x, with the learning curve reported; if never within 5%, it is labelled an under-trained comparator and the paper may
+    not claim 'beats amortized numerical policies'. C9: at least 90% held-in text-to-structure accuracy, otherwise labelled under-powered. A control enters later studies only if it qualifies; failures are preserved and reported.
+    Positive licenses the strong-control requirement (submission conditions 2 and 3). Negative means the control is fixed or the claim is narrowed.
+  PREREQUISITES: E2 machinery. Per-coefficient prior means and variances inside the planner's internal model only; the shared learner is unchanged. Lead approval to download GO-CBED code, or an in-house reimplementation. Approval
+    for local training or inference for C8 and C9 (C9 executes a frozen model).
+  COST: 2 to 3 engineer-weeks; 5 to 20 local CPU-hours. C8 training 1 to 4 GPU-hours or 10 to 30 local CPU/MPS hours [assumption; GO-CBED's own budget unverified]. C9 embeddings: one forward pass per text at 0.4 to 0.7 s, under 1
+    h.
+  MAIN_RISK: A reimplemented GO-CBED may be judged unfaithful by reviewers. Mitigated by using the public code if approved and reporting the training-budget curve.
+
+### E4 [must] Headroom atlas and LLM-independent class selection
+  QUESTION: In which expressible classes, and at which controlled doses, is there verified headroom between the strongest no-text numerical control and the ceiling reachable with information or a model the planner lacks, large
+    enough to detect at a feasible sample size?
+  DESIGN: Numerical arms only (E3 suite), development namespaces, design-only mode with one shared learner. C1 prior-mean shift: delta in {0,1.5,3} x n_init in {0,2,8} x noise variance in {0.25,1}. C2 known supergraph with sparse
+    truth and text naming absent edges: 4- or 5-node supergraphs with known topological order, absent-edge fraction in {0,1/3,2/3} x text reliability r in {1,0.8} x n_init in {0,2,8} x noise variance in {0.25,1}; menus include
+    clamp-at-zero joint actions. C4 indivisible costs: most-informative-action cost ratio kappa in {1,2,4,8} x n_init in {2,8}, with budget remainders. Query laws vary across systems in all classes. Arms: C1, C5, C8 (no text),
+    static, random, and the ceilings C4, C6 and C3. Endpoints: truth-conditional expected log final NMSE at fixed budget; cost-equivalent saving; predicted n for the LLM contrast. 48 systems per cell (about 60 cells, about 2,900
+    systems), R = 2 trajectories with common random numbers. At the worst observed SD (0.24) the SE at n = 48 is 0.035, which resolves a 10% gap at z about 2.7.
+  DECISION_RULE: Predeclared before any LLM is scored on any class, and independent of LLM performance. A class qualifies at a dose if (i) the ceiling gap G (strongest no-text control vs ceiling) is at least log 1.10 with lower
+    95% CI at least log 1.05; (ii) the predicted n to detect G/2 at alpha 0.05/3 two-sided with 90% power, using the cell's paired SD inflated 1.5x for LLM noise, is at most 96 systems; (iii) its zero-dose anchor has |G| < 2%;
+    (iv) G rises across doses. Select at most two classes: largest G at feasible n, then smaller code change, then relevance to the experimentalist task. If none qualifies, LLM superiority work stops and the paper becomes theory
+    plus atlas plus diagnostics; the negative result narrows the claim, and no other benchmark may be adopted without a new LLM-independent justification of this kind. Predictions: C1 small except at n_init <= 2, noise variance 1,
+    delta 3; C2 large (two-coefficient toy gives true-risk ratio 0.26 to 0.36); C4 nonzero only for kappa > 1 and closed by DP, so it can host only a mechanism test (E9).
+  PREREQUISITES: E2 and E3 machinery. Protocol modules for C1, C2 and C4. A sparse truth law for C2: exact zeros on supergraph edges needs either a world-descriptor schema change (coefficient SD is one scalar today) or a world
+    graph distinct from the public graph; whether the assembler enforces graph equality is unverified. Frozen namespaces and a written protocol.
+  COST: 20 to 60 local CPU-hours [assumption: about 40,000 in-process episodes at 1 to 5 s; law-aware and rollout arms dominate]. 1 to 2 engineer-weeks after E2 and E3. No CURC.
+  MAIN_RISK: Dilution: the first-order effect of absent-edge information seen in the toy may shrink in realistic supergraphs, and the selection thresholds are judgment calls that must be frozen before running.
+
+### E5 [must] Instrument calibration with synthetic policies of known capture
+  QUESTION: Before any LLM is scored, does the planned endpoint, analysis and sample size recover a known information-capture ratio without bias, with nominal error rates and a working ceiling audit?
+  DESIGN: In the selected class or classes, on development systems. Synthetic policies: pi_rho takes C4's action with probability rho and C1's otherwise (rho in {0,0.25,0.5,1}), with capture defined on the value scale and the rho-
+    to-capture mapping calibrated here; a text-trusting state-blind schedule; a leakage policy that reads the private truth and should exceed the ceiling; a feedback-blind copy of C1, to measure the power of the shuffled-feedback
+    control as a function of V_adapt. Run the complete planned E10 analysis: paired primary endpoint, R = 2 with common random numbers, dose-response regression of benefit on the E4-predicted gap, placebo non-superiority, Holm.
+    Sample: the planned confirmation size (156 systems) repeated over 20 independent namespace draws or 200 system-bootstrap resamples.
+  DECISION_RULE: Pass requires all of: |rho_hat - rho| <= 0.1 for all rho; 95% CI coverage between 0.92 and 0.98; power at least 80% at rho = 0.5; false-positive rate at most 5% at rho = 0 and in the placebo; leakage policy
+    flagged in at least 95% of draws; design-quality and realized-error endpoints agree in sign in at least 90% of draws at rho >= 0.5. On failure, change n, replicates or endpoint now, never after LLM scoring. Positive licenses
+    capture-ratio claims with calibrated intervals. Negative means the confirmation cannot test the claim and must be redesigned.
+  PREREQUISITES: E3 and E4 complete; analysis code frozen.
+  COST: 2 to 6 local CPU-hours and 3 to 5 analyst-days. No LLM, no CURC.
+  MAIN_RISK: Decision-level mixing is nonlinear in value; handled by calibrating the mapping inside this experiment.
+
+### E6 [should] Zero-shot information-use probe on frozen local models
+  QUESTION: Does any locally cached frozen model shift its choices toward what the side information warrants on states where that information changes the optimal action, and leave them unchanged otherwise?
+  DESIGN: Offline states from the selected class (development namespace): 64 systems x 6 states. Text conditions: absent, correct, shuffled (another system's hint), misleading; plus content-free state controls and menu-order and
+    identifier permutations. Models: Qwen3-0.6B, Qwen2.5-1.5B-Instruct, Qwen2.5-7B-Instruct (all in the local HF cache). Prompt: compact rounded posterior summary, text and menu; no planner scores. Scoring: whole-command log-
+    probabilities (length-normalized and raw), not greedy trie decoding; thinking off vs on for Qwen3. Labels: C1 vs C4 rankings at 4,096 draws with common random numbers. Switch states are those where the informed-best action
+    differs from the uninformed-best by at least 2 MC SE. Endpoints: Delta_switch = P(informed best | correct text) - P(informed best | text absent) on switch states; the same on non-switch states; regret under the truth-law risk;
+    bootstrap by system. About 384 states per condition, from 2 x ((1.96 + 0.84) x 0.5/0.1)^2 = 392 (binomial SD 0.5, clustering design effect 2).
+  DECISION_RULE: A model uses the information if Delta_switch >= 0.10 with CI excluding 0, misleading text moves choices away from the informed best by at least 0.05, shuffled text gives |Delta| <= 0.05, and non-switch accuracy
+    drops by no more than 0.05. Predicted: null for 0.6B, possibly positive for 7B. Positive at 0.6B means E7 can focus on decisions rather than reading. Positive only at 7B means capacity is the bottleneck and larger-model
+    training becomes an ask. Null for all models means training must teach reading and the paper makes no zero-shot claims.
+  PREREQUISITES: Lead approval for local forward-only inference, including the 7B weights. E4 class selection. Frozen prompt format and whole-command scoring code.
+  COST: No CURC. About 5,000 to 6,000 scorings at about 1 to 2 s (0.6B, 1.5B) and 3 to 6 s (7B) on the M5 Max, so 4 to 10 h wall [assumption; the GPU slice took 0.4 to 0.7 s per 0.6B decision on 2,000 to 4,000-token prompts]. 2 to
+    3 analyst-days.
+  MAIN_RISK: Prompt-surface sensitivity, which dominated every past LLM arm. Mitigated by permutations and whole-command scoring.
+
+### E7 [must] Trained LLM policy on the information channel: development dose-response
+  QUESTION: Does a trained LLM action policy capture a predicted share of the information value, with benefit tracking the computed dose, vanishing where theory says it must, bounded harm and recovery under misleading text, and a
+    win over the strongest numerical control that lacks the text?
+  DESIGN: Training on the selected class's training namespace. Targets: graded listwise softmax of the privileged teacher C6's scores, on states visited by a teacher-student mixture (DAgger-style relabelling), with per-example
+    identifier and menu permutation. Hint texts from human-written phrasing families, split into training and held-out families and frozen before training. The recipe comes from the training workstream; any recipe that passes the
+    gates is acceptable, and Kriz et al.'s on-policy GRPO is the literature baseline. LLM arms: L1 policy (text plus numeric state, no planner scores); L2 re-ranker over C1's top 3 with scores, plus an argmax-of-prompt baseline;
+    L3 LLM compiler (text to structure vector) plus C4; L4 L1 without text; L5 L1 with shuffled text; L6 same architecture without language pretraining (or C9 if infeasible). Numerical arms: C1, C5, C8 (both variants), C7, the
+    ceilings C4 and C6, static, random. Gates before episodes: G-state, where on no-text states L1's decision-level relative regret beats the best state-blind schedule and captures at least 25% of the plan-once-vs-static gap;
+    G-text, Delta_switch >= 0.20 on held-out phrasing families. Episodes: E4 zero, mid and high doses, a misleading-text cell and a no-information placebo cell; 48 development systems per cell; R = 2 with common random numbers.
+    Shuffled-feedback control (L1 with permuted measured values) in the cell with the largest V_adapt. Endpoints: primary truth-conditional expected log final NMSE; cost-equivalent saving; realized error; recovery delay
+    (acquisitions until the first probe of a claimed-absent edge, compared with C6). Analysis: regression of paired benefit (L1 vs C1, C5 and C8) on the predicted gap.
+  DECISION_RULE: Development rules, predeclared. Advance to E10 only if all hold: benefit slope on the predicted gap has lower 90% CI above 0; rho_hat >= 0.3 at high dose; zero-dose and placebo benefit <= +2% and at most the
+    ceiling; L1 (or the predeclared L2) beats the strongest no-text control by at least 5% at high dose; misleading-text harm is no worse than a fully trusting planner's and recovery delay is at most twice C6's. Kill if rho_hat <=
+    0.1 or L1 is more than 5% worse than C1 at zero dose. Outcomes: positive means freeze and confirm. L3 >= L1 confirms T4 and makes the confirmable claim 'the LLM contributes by reading information into the decision', with the
+    lead choosing the role before E10. Null licenses 'the LLM did not turn textual information into decisions at this scale' and the claim narrows. Negative (worse than C1 even with correct text) redirects the method to L2 or a
+    larger model; the benchmark is never changed.
+  PREREQUISITES: E3 to E5 passed (E6 informative, not required). New GPU ceiling. Training-workstream recipe. Text families and development protocol frozen before training.
+  COST: Training 2 to 6 GPU-slice-hours: 8,000 listwise updates at 0.62 s is about 1.4 h, and 250 on-policy updates with 128 single-decision rollouts add 1 to 4 h [assumption: batched generation]. Development evaluation: 48 x 5
+    cells x 2 reps x 3 LLM arms x 24 decisions is about 34,560 decisions at 0.4 to 0.7 s, so 3.8 to 6.7 h (L4 to L6 can be scored at decision level only to reduce this). Numerical arms 5 to 20 CPU-hours in-process. Total about 6
+    to 13 slice-hours, far above the remaining 2,742 slice-seconds. 3 to 4 weeks.
+  MAIN_RISK: L1 fails G-state (numeric-state reading), as every past LLM arm did, leaving only the narrower L2 and L3 roles.
+
+### E8 [should] Misspecification class: curvature dose-response and wind-tunnel simulator transfer
+  QUESTION: When the planner's linear model is misspecified in a way that language or pretrained physics can describe, does the LLM capture a predicted share of Delta_misspec, with no benefit at zero curvature, and does that
+    transfer to a physics simulator family?
+  DESIGN: Stage A (numerical): nonlinear truth (quadratic or saturating, curvature gamma in {0,0.25,0.5,1}) with a shared linear learner; operating-point queries off the menu (for example x* = 1.5) and a 9-level action grid on
+    [-2,2]. Arms: linear planner, oracle-informed planner (knows the form and the gamma law), robust model-averaging planner (linear, quadratic, cubic bases; no text), GO-CBED-style. Same gate as E4, 48 systems per cell.
+    Prediction: extreme designs optimal at gamma = 0, so inward moves are harmful there (negative control); local designs win at gamma > 0 (Box-Draper bias-variance trade-off). Stage B (LLM, only if Stage A qualifies): E7 recipe
+    trained on synthetic curvature families with physics-style text; dose-response on gamma including gamma = 0 with text saying 'linear'. Stage C (transfer): causalchamber wind-tunnel simulators (affinity-law fan speed, cubic
+    current, squared-speed pressure, linear hatch term) with the documented prose descriptions. Controls: linear planner, physics-basis planner using the published models (well-specified ceiling), robust planner. 48 simulated
+    systems from parameters randomized within documented ranges; claim scope stated as one simulator family.
+  DECISION_RULE: Stage A gate as in E4. Stage B as in E7: slope > 0, gamma = 0 benefit <= +2%, rho_hat >= 0.3. Stage C: report rho_hat relative to the physics ceiling with a system-bootstrap CI; positive if the lower CI is above 0
+    and the LLM beats the robust no-text planner. Positive partly meets submission condition 4 (transfer beyond the synthetic generator). Null means the misspecification decomposition is reported without an LLM claim. Negative at
+    gamma = 0 documents a calibrated-trust failure.
+  PREREQUISITES: Nonlinear mechanisms, a redefined estimand (expected response, since the noise-disabled structural mean is not the expected response under nonlinearity) and evaluator: a medium change. Basis learner for the
+    planner's internal model. pip install causalchamber (approval). E7 recipe for Stage B.
+  COST: 2 to 4 engineer-weeks. Stage A 10 to 30 local CPU-hours. Stage B about E7's GPU cost (6 to 13 slice-hours) unless training is shared across classes. Stage C CPU only (numpy simulators).
+  MAIN_RISK: A simple numerical locality rule may capture most of the misspecification headroom, leaving nothing language-specific to win.
+
+### E9 [could] Non-myopic budget class: bounded benefit against the myopic planner, none against DP
+  QUESTION: Can a trained LLM capture non-myopic value (budget remainders, indivisible costs) that the one-step ratio planner misses, with a benefit bounded by the exact DP control as the equal-information ceiling requires?
+  DESIGN: Indivisible-cost class C4 with kappa in {1,2,4,8}, design-only subclass where exact DP over action-count vectors is computable (T1 part 3). Arms: myopic target risk, DP or multiset optimum, rollout, LLM trained on DP
+    budget-to-go targets, LLM trained on one-step targets (ablation), GO-CBED-style. 48 development systems per kappa; decision-level and episode-level endpoints as in E7.
+  DECISION_RULE: Predicted: all arms equal at kappa = 1 (anchor); LLM_multi - myopic <= DP - myopic; one-step-trained LLM captures about 0. 'Learned budget-aware planning' may be claimed only if rho_hat >= 0.5 with CI above 0 and
+    rho_hat(one-step) < rho_hat(multi-step). Superiority over DP is impossible; an apparent advantage beyond MC error triggers the leakage audit.
+  PREREQUISITES: E4 shows C4 headroom against the myopic planner. DP planner. GPU allocation.
+  COST: 2 to 4 GPU-slice-hours, reusing E7 infrastructure; under 10 CPU-hours.
+  MAIN_RISK: Low payoff for the headline: by construction it cannot show superiority over the strongest control.
+
+### E10 [must] Fresh-system confirmation with dose and placebo strata
+  QUESTION: On fresh systems with frozen methods, namespaces, endpoints and failure treatment, does the LLM role carried from E7 beat the strongest no-text numerical control, with benefit tracking the predicted dose, none where
+    theory predicts none, and no gain beyond the computed ceiling?
+  DESIGN: Fresh confirmation namespace in the selected class. Strata: high dose 36, mid dose 36, zero dose 36 (in-class placebo), misleading text 24, completed-regime placebo 24 (fresh systems in the new pipeline, not a rerun);
+    156 systems, R = 2 replicates with common random numbers. Arms (up to 10, so the 8-policy roster limit must be raised): frozen LLM role from E7, C1 (4,096 draws with common random numbers), C5, C8 (best no-text variant fixed
+    on development data), C7, ceilings C4 and C6, static, random. Primary endpoint: truth-conditional expected log final NMSE at fixed budget, averaged over replicates. Secondary: cost-equivalent saving from the planner's expected
+    error-cost curve, realized-error agreement, public-stopping cost with reliability, recovery delay. Hypotheses (Holm, k = 3): H1, LLM beats the strongest no-text control on pooled high and mid strata; H2, positive dose-response
+    slope with zero-dose benefit upper 95% bound <= 5%; H3, placebo gain upper bound <= computed ceiling + 5% and a clean leakage audit. Sample basis: a 10% effect (half of a verified gap of at least 20%) at paired SD 0.15 to 0.20
+    with Holm k = 3 and 90% power needs 34 to 60 systems; 72 are planned in the pooled informative strata, and n is raised before the freeze if E5 says so.
+  DECISION_RULE: The superiority claim requires H1 and H2 after Holm, plus H3. If H1 passes but H3 fails, no claim is made until the leakage audit resolves. If H1 fails, the claim narrows to development-only evidence, no benchmark
+    is substituted, and the paper reports the theory, the atlas and the failed confirmation. In every case failures are preserved, responses are accounted for and an independent review is done.
+  PREREQUISITES: E7 pass. Custody redesign (brief section 5). Raised roster limits. Lift the arm-namespace rule to allow common random numbers. New compute ceiling. Frozen protocol hash and analysis code. An independent reviewer.
+  COST: LLM: 156 x 2 x (1 or 2 LLM arms) x 24 is about 7,500 to 15,000 decisions at 0.4 to 0.7 s, so 0.8 to 2.9 GPU-slice-hours plus service overhead. CPU: the brief's 22 to 35 core-hours for 100 to 150 systems is an upper bound
+    (it includes the subprocess artefact); in-process numerics cost far less. 2 to 3 weeks including custody.
+  MAIN_RISK: Shrinkage from development to fresh systems; development rankings reversed on fresh systems twice before in this project.
+
+## SEQUENCE
+Week 1: E1 (saved data, zero cost) in parallel with writing the formal results; no approvals needed. Weeks 1 to 4: E2 and E3 in parallel on a shared in-process vectorized planner; E4 starts once E2's P1 check (exact zero
+  adaptivity in the design-only subclass) passes, around weeks 3 to 5. Gate A, LLM-independent class selection by E4's predeclared criteria: if no class qualifies, LLM superiority work stops and the theory, atlas and diagnostics
+  paper is written; only that version can meet ICML on 22 January 2027. Weeks 5 to 6: E5 (instrument calibration) and E6 (zero-shot probe, after the local-inference approval) in parallel; E8 Stage A and the numerical part of E9
+  may also run here. Gate B: the instrument must be validated before any LLM episode is scored. Weeks 6 to 10: E7, needing a new GPU ceiling. Gate C: E7's development criteria. Weeks 10 to 13: freeze methods, namespaces, endpoints
+  and failure treatment, then run E10; E8 Stages B and C are optional in parallel if resources allow. The full agenda fits NeurIPS 2027 (estimated May) or TMLR; UAI (estimated February) is tight.
+
+## THEORY_ITEMS
+- T1, exact zero value of adaptivity. Conjugate linear-Gaussian heads with known noise; every updated head's parents are clamped by the action (fixed design rows); the target is linear in the parameters; the loss is the learner's
+  posterior risk or the truth law equals the prior. Then the posterior covariance depends only on the action counts, the best open-loop multiset attains the adaptive optimum, order is irrelevant, and the budgeted problem is an
+  integer program with a convex Bayesian A/c-optimal relaxation. Why it strengthens the paper: it explains the November null from first principles, shows the class could not reward any policy, and gives a bug-detecting
+  falsification check.
+- T2, bounded adaptivity with random rows and composed targets (to prove). J_OL - J* <= EVPI_design + noise-chasing remainder, where EVPI_design is the expected value of perfect information about the design-relevant parameters
+  (upstream means, downstream slopes). For discrete designs it is bounded by the largest wrong-design regret times the posterior probability of lying across a design-switching boundary. Why: it explains why reading the post-
+  initialization state once was worth 10 to 20% while sequential adaptation added -0.7% +/- 1.7%, and it predicts the n_init dose-response tested in E2. What changes it: smaller initialization, poorly identified switching
+  parameters, structure or noise uncertainty, prior misspecification with an informed planner.
+- T3, greedy near-optimality and what breaks it (known results, constants to verify): submodularity-ratio bound (1 - e^-gamma) (Das and Kempe), cost-ratio greedy failure under budgets and its best-single-item repair, and adaptive-
+  submodular greedy (Golovin and Krause). Why: it bounds the myopia term in the well-specified class, and the converse (low gamma, indivisible costs, stopping, structure uncertainty) maps where non-myopic headroom can exist.
+- T4, equal-information ceiling. Under a correct model and equal information, J(planner) - J(any LLM) <= Delta_decision + Delta_myopia of the planner, both computable numerically. Why: every LLM claim gets a ceiling; an observed
+  gain above it (capture ratio above 1) triggers a leakage audit; it proves the completed screen could not show a legitimate LLM win larger than about 2% of final risk.
+- T5, sequential value-gap decomposition: planner gap = Delta_decision + Delta_myopia + Delta_omission + Delta_misspec + Delta_info, each the difference of two computable numerical arms, with a predeclared order plus a Shapley
+  sensitivity analysis. It generalizes the agenda's one-step kappa + 2 epsilon + delta bound to sequential policies. Why: it makes 'where can an LLM win' operational and defines the required controls.
+- T6, design value of side information under a shared conjugate learner: R_true(X) = c'V Sigma_eff V c / tau0^4 + c'V X'X V c / sigma^2 with Sigma_eff = delta delta' + Sigma. Corollaries: mean-shift information is second order
+  (squared-bias share about sigma^2 |delta|^2/(tau0^4 n), for example 1.7% at n = 32, noise 0.25, delta 1.5); absent-edge information is first order even with a shared learner (informed-to-uninformed true-risk ratio 0.26 to 0.36
+  in the two-coefficient toy); prior-submission mode captures the full bias term; misleading text with full trust gives unbounded harm, so calibrated trust restores the value of exploration. Why: it predicts the dose-response
+  curves the LLM's benefit must follow before any training.
+- T7, corollary on the shuffled-feedback control: where the optimal policy is (nearly) open-loop, a feedback-blind policy is (nearly) optimal, so the loss from shuffling feedback is at most the value of adaptivity plus the
+  policy's own deviation. Why: it shows the standard Gupta et al. control has no power in the completed class and must be run where adaptivity value is verified.
+- T8, cost-equivalent conversion: with risk about k/(n0 + n), a final-risk ratio r at budget B equals a saving of (n0 + B)(1/r - 1) cost units; r = 0.9 at 8 + 24 is about 3.6 units, roughly the screen's entire first-crossing
+  headroom (3.04 units). Why: it lets the precise design-quality endpoint answer the 'lower experimental cost' question in cost units without first-passage noise.
+
+## ASKS_FOR_LEAD
+- Agree that numerical-only work (E1 to E5, E8 Stage A, the numerical part of E9) runs locally under written protocols with frozen namespaces, with no CURC and no LLM.
+- Approve local forward-only inference with the already cached Qwen3-0.6B, Qwen2.5-1.5B-Instruct and Qwen2.5-7B-Instruct for E6 and the C9 embeddings (new model execution; using 7B counts as larger weights).
+- Set a new compute ceiling: E7 about 6 to 13 GPU-slice-hours plus 5 to 20 core-hours; E10 about 1 to 3 slice-hours, up to 22 to 35 core-hours, and a custody redesign. Alternatively, approve training and inference on the local M5
+  Max.
+- Approve downloading and installing the public GO-CBED code, or rule that only an in-house reimplementation is used.
+- Approve pip install causalchamber (MIT) for E8 Stage C. Remote Lab sign-up and spend are not needed in this agenda.
+- Before E7, decide which LLM role counts toward the submission condition: action policy (L1), hybrid re-ranker over planner candidates (L2), or information compiler plus numerical planner (L3).
+- Approve the benchmark change: classes selected by E4's LLM-independent headroom criteria replace the completed class, with the rationale recorded before any LLM scoring.
+- Approve protocol changes: more than 8 policies per roster, common random numbers across arms, truth-conditional design quality as primary endpoint in place of first-crossing cost, and query laws that vary across systems.
+- Choose the target venue and date, accepting that 22 January 2027 can carry only the theory and diagnostic version.
+- Accept the theory, headroom atlas and diagnostics paper as the outcome if E4 finds no qualifying class or E7 or E10 fail.
+- Decide who writes the hint-text phrasing families (a human, or Claude frozen before training); it must never be the policy model.
+
+## WHAT_NOT_TO_DO
+- Do not run any LLM superiority test in the completed class or in any class without E4-verified headroom; equal-information theory caps the possible gain there at about 2%.
+- Do not rerun the 24-system study or the old pipelines; the completed-regime placebo in E10 consists of fresh systems in the new pipeline.
+- Do not use first-crossing capped cost or single-run realized NMSE as primary endpoints (paired SD about 6.2 units; about 300 systems per unit).
+- Do not choose classes, doses, thresholds or menus after seeing any LLM result, and do not tune on the 24 development outcomes.
+- Do not give the L1 policy planner scores (that is narration), and do not run L2 without the argmax-of-prompt baseline.
+- Do not compare an LLM that reads text against numerical controls that lack it unless the oracle-informed, rule-parser and LLM-compiler controls are also run.
+- Do not read an LLM gain beyond the computed ceiling as success; it triggers the leakage audit.
+- Do not run the shuffled-feedback control in classes with near-zero value of adaptivity and treat its null as evidence of learning from measurements; it has no power there.
+- Do not let arms use different learners in design-only mode; prior-submission mode runs only as its own predeclared study.
+- Do not treat the collapsed learned ranker as the amortized numerical baseline; train a GO-CBED-style policy with a budget sweep.
+- Do not carry over the fixed query law, the 0.04 threshold, the 8 + 24 budget or the +/-1-only menu without E1 or E4 justification.
+- Do not let the policy model write or paraphrase its own evaluation texts.
+
+## BIGGEST_UNCERTAINTIES
+- Whether any expressible class keeps enough design-only information value once realistic supergraphs dilute the factor of 3 to 4 seen in the two-coefficient toy (E4 decides).
+- Whether a 0.6B model can read both numeric posterior state and text; every past LLM arm collapsed, and Kriz et al.'s positive result used categorical state.
+- T4 predicts the compiler plus planner should match or beat the policy whenever the compiler's output format suffices, so the honest headline may be 'LLM as information channel', which may not satisfy the stated submission
+  condition.
+- The design-quality endpoint ignores noise-chasing adaptivity; the realized-error secondary may disagree in classes where adaptivity has value.
+- T2 (adaptivity bounded by EVPI about design-relevant parameters) may resist a clean proof and remain a conjecture with numerical support.
+- Fidelity and training budget of a GO-CBED-style comparator.
+- Text realism: templated hints are rule-parseable, which removes the LLM's legitimate edge; hand-written held-out phrasing families are laborious, and LLM-written ones risk shared biases.
+- Whether the C2 sparse truth law is a small change; whether the assembler enforces world-graph equality with the public graph is unverified.
+- Engineering time (about 6 to 10 weeks to E7) against venue dates.

@@ -1,0 +1,87 @@
+# literature-policy
+## SUMMARY
+All ten works cited in the agenda exist and are described accurately. The agenda misses the closest prior art. Trained LLM information-gathering policies now include Paprika (SFT then SFT+DPO, ICML 2025), ASIG, and Kriz
+  et al. (arXiv, Oct 2026), whose mechanism check trains the same base model, Qwen3-0.6B, to a state-dependent selection policy with on-policy GRPO. Numerical amortized intervention policies (CAASL, NeurIPS 2024. GO-
+  CBED, TMLR 09/2026) already cover goal-oriented causal design and claim transfer. The careful ablations (Gupta, Kristiadi, BoxingGym, EVOLvE, Krishnamurthy) agree: LLMs supply priors and proposals, rarely adaptation to
+  measurements, and LLM students distilled from numerical teachers trail them. The constant action has eight documented candidate causes, most separable offline on saved artifacts. The completed screen (known graph,
+  linear, known noise, eight actions, anonymous variables) is the regime where the literature predicts no LLM advantage. What stays open is narrow: a trained SCM-conditioned LLM policy that passes feedback-shuffling
+  controls and beats goal-oriented numerical planners on cost to target where the planner is handicapped for a reason declared in advance. Coverage is about 130 searches and fetches, not a systematic review.
+
+## KEY FACTS
+[1] (verified) All ten agenda citations verified on primary pages (DAD, Mazzaccara, ASIG, MCBO, LLAMBO, LMABO, Model Discovery Agent, Gupta et al., BoxingGym, Causal Chambers). ASIG transfer is weak as the agenda says:
+  MediQ 46.7 to 47.6 (7B), 54.1 to 54.2 (14B).
+    EVIDENCE: Notes section 2. Agenda lines 27-39 of /Users/pat/code/ACE/docs/development/guidance/ace_llm_intervention_agenda_2026-11-02.md. arXiv:2607.03426 full text.
+[2] (verified) Supervised-then-preference training of an LLM for information gathering is prior art: Paprika uses SFT then RPO (SFT + multi-turn DPO) with 17,181 trajectories and 5,260 pairs on 8B and 12B models, one
+  pair per task to avoid likelihood displacement.
+    EVIDENCE: arXiv:2502.17543 v4 full text (ICML 2025).
+[3] (verified) Kriz et al. train Qwen3-0.6B with GRPO/LoRA (250 updates, 16 states x 16 rollouts, temperature 2, entropy coefficient 0.02, permuted identifiers, no reasoning) to a non-myopic test-selection policy: solve
+  rate after five tests 75.0% vs 30.2%. Single training seed. No causal or numeric task.
+    EVIDENCE: arXiv:2610.20832 v1 HTML, Appendix B.3 (characters 0-140k read).
+[4] (verified) GO-CBED is a peer-reviewed non-myopic transformer policy choosing intervention target and value to maximize EIG on a causal query. Its motivating example is a six-node linear-Gaussian SCM with known graph.
+  Code is stated public. CAASL trains a similar policy with SAC and claims zero-shot transfer.
+    EVIDENCE: arXiv:2507.07359 v2 (TMLR 09/2026) and arXiv:2405.16718 full text.
+[5] (verified) Untrained LLM design agents ignore feedback: randomized feedback barely changed results (Llama, IFNG: 44 true vs 51 randomized). LinUCB on the same LLM embeddings scored 93 vs 33.2 for the agent
+  (Qwen-2-7B, IL2).
+    EVIDENCE: Gupta, Hartford, Liu, arXiv:2509.21403 full text (Findings of EMNLP 2025).
+[6] (verified) Cloning a numerical teacher from raw numeric context fails and computed per-action statistics rescue it: contextual bandit 28.6 (raw history) vs 89.3 (algorithm statistics) vs teacher 96.4. Small models
+  show frequency bias: 96% frequent-action fraction at 2B vs 14% at 27B.
+    EVIDENCE: EVOLvE arXiv:2410.06238 v2. Schmied et al. arXiv:2504.16078, both full text.
+[7] (verified) DPO misbehaves on short, similar completions (likelihood displacement, rejected-term dominance). Unnormalized joint token probability over multi-token action strings favors shorter strings and caused
+  sudden collapse in three of four tasks.
+    EVIDENCE: Razin et al. arXiv:2410.08847, Pal et al. arXiv:2402.13228, Cho et al. arXiv:2506.12725 (abstracts). TWOSOME arXiv:2401.14151 full text.
+[8] (verified) Implementation matches those risk conditions: prompt is prose plus compact canonical JSON of the whole envelope, commands are short JSON strings sharing a prefix, deployment is greedy prefix-constrained
+  decoding with thinking disabled, DPO runs one pair per step.
+    EVIDENCE: /Users/pat/code/ACE/scripts/research/llm_intervention_task.py:144-152, llm_intervention_contract.py:23-24, llm_intervention_grammar.py:73-82, llm_intervention_language_policy.py:96-97 and 163-170,
+      llm_intervention_learning.py:94-103, llm_intervention_training_engine.py:216 and 428-430.
+[9] (verified) Collapse is not LLM-specific. The learned numerical ranker chose set_x_pos 435 and set_x_neg 141 times and never observed. Target-risk used all eight actions (observe_all 215, set_x_neg 129, set_x_pos 76,
+  set_y_pos 62).
+    EVIDENCE: /Users/pat/code/ACE/results/ace_llm_intervention_scientific_finalization_20261108/reporting01/data01/actions.csv
+[10] (inferred) With linear mechanisms, Gaussian prior and known noise, posterior covariance depends on the design and not on responses, so the reward for state-dependent behavior in this screen may be small.
+    EVIDENCE: Chaloner and Verdinelli 1995, Sections 2.1-2.2 (preprint PDF pages 9-10 read). The headroom conclusion is my inference and needs computation.
+[11] (verified) A public preprint from this project claims a 70-71% improvement from DPO-learned intervention strategies. The repository README still carries that headline.
+    EVIDENCE: arXiv:2602.02451 abstract page (v2, 18 Jun 2026). /Users/pat/code/ACE/README.md lines 14, 114, 116.
+
+## NUMBERS
+Training scale. This project: 160 SFT + 119 DPO single-example steps, LoRA rank 8 on q/v, Qwen3-0.6B. Kriz et al.: 250 steps x batch 128 x 8 rollouts, rank 16 on seven projection types (main model). Qwen3-0.6B check: 250
+  updates, 16x16 rollouts. ASIG: rank 32, 7B/14B, 40 epochs x 100 entities, group 8. Paprika: 17,181 trajectories + 5,260 pairs, 8B/12B. Qiu et al.: 6,240 examples, full fine-tuning, 7-9B. CAASL: about 3 days on 3 A100s
+  per model.
+Accepted actions (actions.csv), order observe_all / set_x_neg / set_x_pos / set_x_zero / set_xy / set_y_neg / set_y_pos / set_y_zero. target_risk 215/129/76/2/31/29/62/16. local_information 318/149/67/0/5/7/24/0.
+  learned_ranker 0/141/435/0/0/0/0/0. frozen_llm 574/0/0/2/0/0/0/0. sft_llm 8/481/23/0/0/11/0/0. dpo_llm 0/576/0/0/0/0/0/0.
+Schmied et al.: 87% correct rationales yet greedy action 58% of the time. RL fine-tuning cut frequent-action fraction 70% to 35%.
+LeGIT SHD on Alarm: 17.40 vs GIT 19.60 vs random 38.80, no anonymization ablation.
+Re-check every external number against the PDF before manuscript use. They were extracted through a summarizing fetch tool.
+
+## SURPRISES / CONTRADICTIONS
+- The public preprint and the README claim a large DPO benefit that the audited 24-system screen does not reproduce. The guidance documents do not mention the preprint identifier.
+- The learned numerical ranker collapsed too, onto two X interventions. The handoff and report discuss collapse only for the LLM arms.
+- The same base model, Qwen3-0.6B with LoRA, learned a state-dependent policy in a concurrent paper using on-policy RL on a categorical state.
+- The best-evidenced remedy, giving the LLM planner statistics, reduces it to addition and argmax, which conflicts with the requirement that the LLM contribute to the decision.
+- BoxingGym reports that prior information does not improve performance and that adding an explicit statistical model does not reliably help. The agenda cites it only as a benchmark.
+- One on-topic 2026 preprint (arXiv:2606.31184) was withdrawn by its author. LeGIT's abstract mentions benchmark scales that the body does not show. Several items are flagged unverified in notes section 10.
+
+## IMPLICATIONS FOR AGENDA
+- Compute a headroom table on existing systems before any training: random, coverage, best cost-constrained static Bayesian design, myopic target-risk, a non-myopic reference. If static matches the planner, redesign the
+  testbed (unknown noise, nonlinearity, misspecification, semantics, larger menus) first.
+- Run offline discriminating diagnostics on saved artifacts: prior-only loss baseline, chosen/rejected action tabulation over exposed pairs, full-command normalized scoring versus greedy constrained decoding, identifier
+  and menu permutation, copy-previous-action predictor, linear probe for planner scores.
+- Diagnose the numerical ranker alongside the LLM. Any supervision fix (graded listwise targets, balancing, more distinct states, DAgger relabeling) should be shown to un-collapse the numerical student first.
+- Do not scale offline DPO. If a feedback stage is proposed, prefer on-policy RL with entropy pressure and permuted identifiers, mirroring the published Qwen3-0.6B result, with reasoning tokens and a predeclared capacity
+  ladder as separate arms.
+- Test input redesign as two separate arms: summarized SCM statistics, and per-action planner statistics. The second needs an argmax-of-prompt baseline, because it risks the narrator role the handoff excludes.
+- Add comparators: a GO-CBED-style goal-oriented amortized numerical policy, a prediction-oriented information criterion, a semantic-feature numerical baseline on LLM embeddings, and LLM hybrids (warm start then planner,
+  acquisition selection).
+- Add controls: feedback shuffling on policy input, state-blind and state-permuted adapters, anonymous and misleading metadata on freshly generated systems, training-seed replication, censored-cost analysis with
+  threshold sensitivity.
+- Move the LLM to a role the evidence supports (semantic priors with recovery, language-only objectives or constraints, mechanism proposals under misspecification, large action spaces) and declare the planner's handicap
+  in advance.
+- Update related work and drop the novelty hedge on SFT-then-preference. Reconcile or supersede the public preprint and README claim before any submission.
+
+## OPEN QUESTIONS
+- How do 3,584 retained comparisons map to 119 preference updates, and is one action chosen far more often than rejected in the exposed pairs?
+- Does the best static design already match target-risk planning on the 24 systems, given ten met the target after initialization?
+- What are the token lengths of the eight commands and the menu order shown in the prompt, and does greedy constrained decoding pick the highest-probability full command?
+- Were intermediate adapters saved, so learning curves of state sensitivity can be drawn without new training?
+- Is Qwen3 digit-level tokenization confirmed? I found one secondary source for Qwen2.5 only.
+- Will the public preprint be revised, superseded or left standing? That is a human decision.
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/literature-policy.md

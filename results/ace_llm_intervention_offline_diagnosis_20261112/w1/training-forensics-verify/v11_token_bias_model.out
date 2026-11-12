@@ -1,0 +1,27 @@
+init node probabilities: root [0.368 0.632] second [0.752 0.212 0.036] suffix [0.884 0.096 0.02 ]
+
+As described (step 0.9, momentum 0.5):
+  corr(predicted pre-update margins, 119 saved online margins) = 0.8097 ; sign agreement 93/119 ; R^2 vs zero prediction -0.249
+  final per-command shift model vs observed: {'observe_all': (-9.75, -1.12), 'set_x_neg': (0.85, 0.57), 'set_x_zero': (-13.73, -9.57), 'set_x_pos': (-11.26, -3.84), 'set_y_neg': (-13.22, -4.57), 'set_y_zero': (-27.8, -13.34), 'set_y_pos': (-25.32, -12.33), 'set_xy': (-0.18, -0.03)}
+  corr(final per-command shift) = 0.9406 ; winner: set_x_neg
+
+Sensitivity to the two fitted hyperparameters (r_margin / r_shift):
+        mom         0.0         0.3         0.5         0.7         0.9
+  step 0.1   0.75/ 0.90  0.76/ 0.90  0.77/ 0.91  0.79/ 0.92  0.79/ 0.94
+  step 0.3   0.76/ 0.92  0.78/ 0.92  0.79/ 0.93  0.81/ 0.94  0.80/ 0.95
+  step 0.6   0.77/ 0.93  0.79/ 0.93  0.80/ 0.94  0.82/ 0.95  0.80/ 0.95
+  step 0.9   0.78/ 0.93  0.79/ 0.94  0.81/ 0.94  0.82/ 0.95  0.79/ 0.95
+  step 1.2   0.78/ 0.94  0.80/ 0.94  0.81/ 0.94  0.82/ 0.95  0.79/ 0.95
+  step 2.0   0.79/ 0.94  0.81/ 0.94  0.82/ 0.95  0.82/ 0.95  0.79/ 0.95
+NULL coin-flip label directions on the actual pairs (margin compared in real orientation):
+   r_margin mean 0.147 [5%,95%]=[-0.368,0.631] ; r_shift mean 0.129 [5%,95%]=[-0.622,0.835] ; share r_shift>=0.93: 0.016 ; winners {'observe_all': 466, 'set_xy': 101, 'set_x_neg': 92, 'set_y_neg': 81}
+NULL actual pairs in random order (margins re-aligned to real steps):
+   r_margin mean 0.369 [5%,95%]=[0.084,0.578] ; r_shift mean 0.922 [5%,95%]=[0.872,0.948] ; share r_shift>=0.93: 0.483 ; winners {'set_x_neg': 1000}
+NULL entirely random command pairs:
+   r_margin mean -0.000 [5%,95%]=[-0.179,0.174] ; r_shift mean 0.128 [5%,95%]=[-0.609,0.839] ; share r_shift>=0.93: 0.011 ; winners {'observe_all': 513, 'set_xy': 97, 'set_x_neg': 83, 'set_y_neg': 76}
+
+corr(SFT mean log-likelihood by command, observed DPO change) = 0.801
+corr(label net preferred-rejected among the 119, observed change) = 0.441
+corr(saved online margins, state-specific (ref_c-ref_r)) = 0.626 ; corr with time-weighted t*(ref_c-ref_r) = 0.654
+R^2 for saved online margins: token-bias model only 0.656 ; time-weighted state-specific sharpening only 0.428 ; both 0.709
+corr(residual after state-blind model, state-specific deviation of ref difference from command means) = 0.180

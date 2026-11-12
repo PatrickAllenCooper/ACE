@@ -1,0 +1,103 @@
+# numerics-protocol
+## SUMMARY
+The screen used three-node linear-Gaussian SCMs (chain, fork, collider) with publicly known noise and a conjugate per-mechanism Bayesian linear learner. "Matched" means true edges are drawn from the learner's own N(0,1)
+  prior; "shifted" means edge mean 1.5 under that same prior; low/high is noise variance 0.25/1.0. The 0.04 threshold and 8+24 budget were prospective diagnostic choices with no attainment or power calculation.
+
+Per head, posterior covariance depends only on design rows. But child rows contain random parent responses unless the parent is clamped, and the target is a product of coefficients across heads, so its variance depends
+  on posterior means and the best design is state-dependent. Measured on the 24 saved post-initialization states (working-model expectations, validated by exact replay of saved runs): sequential adaptation after
+  initialization is worth about nothing (−0.7% ± 1.7%); a design planned once from the post-initialization state equals target risk; a good schedule depending only on graph and cost menu is 9 to 21% worse in expected
+  final NMSE.
+
+Target risk is a noisy 32-draw one-step ratio heuristic, not the Bayes rule for the declared endpoint, yet it sits at the state-conditional optimum of this class. The declared endpoint could not resolve any of this: 10
+  systems tie at the floor (9.9 expected from the learner's own posterior), paired SE is 1.1 to 1.4 cost units, and the expected z for state-adaptive versus good static was 0.75 (about 340 systems needed). The eight-arm
+  ordering is reproduced from the arms' action sequences alone.
+
+## KEY FACTS
+[1] (verified) Regimes are (edge mean, noise variance): matched_low (0, 0.25), matched_high (0, 1), shifted_low (1.5, 0.25), shifted_high (1.5, 1). Intercepts and edges have SD 1. Noise is public and equals truth. One
+  world per regime x graph x cost menu, single keyed Gaussian draws, no selection.
+    EVIDENCE: scripts/research/llm_intervention_screen_protocol.py:27-28,107-113,156-167; llm_intervention_world.py:153-158,171-177; realized descriptors in
+      results/ace_llm_intervention_scientific_realization_20261108/.../task/world-032..055.json
+[2] (verified) Queries are the eight menu interventions asking for the noise-free mean of Z (weights 1/8, scale 2, tolerance 0.04). They are not distinct: chain q6=q7; fork q0=q4=q5=q6 and q1=q7. X=-1 therefore carries
+  double weight.
+    EVIDENCE: screen_protocol.py:76-77; exact column equality over all rows of reporting01/data01/curves.csv
+[3] (verified) 0.04 was declared 'a synthetic diagnostic threshold'; 8+24 was chosen to bound history length at 32. No power or attainment calculation exists. Initial crossing was seen in an artificial fixture and the
+  threshold was deliberately kept.
+    EVIDENCE: docs/development/guidance/reviews/ace_llm_intervention_first_screen_design_2026-11-02.md:11,17; ace_llm_intervention_screen_execution_design_2026-11-08.md:25;
+      ace_llm_intervention_screen_protocol_2026-11-07.md:3-5
+[4] (verified) The ten initial crossings were predictable: the learner's posterior implies 9.87 +/- 2.20. Its expected NMSE after initialization is <=0.04 in only 2 of 24 systems (mean 0.107). Realized NMSE given a state
+  has CV about 1.1.
+    EVIDENCE: scratch init_cross_prob.py and state_replay.py on saved CPU-arm states (results/ace_llm_intervention_scientific_campaign_cpu_20261108/terminal02/.../campaign/policy-0N/world-NN)
+[5] (verified) Learner: independent conjugate linear regressions, known noise, prior N(0, I). The covariance update uses the design row only; a child's row holds the parent's random response unless the parent is clamped.
+    EVIDENCE: llm_intervention_scm.py:41-46,80-92
+[6] (verified) Target risk is a 32-draw Monte Carlo estimate of one-step expected posterior-NMSE reduction divided by cost, with independent RNG per action, no stopping, tie to smallest id. 74.8% of its 560 saved
+  decisions have best-versus-second gaps under 2 MC SE.
+    EVIDENCE: llm_intervention_target_risk.py:108-130; saved receipts in campaign/policy-03/world-NN/episode/decision-*.process.json
+[7] (verified) Target variance depends on posterior means through composition. Composed queries carry 70% (chain), 32% (fork), 78% (collider) of post-initialization risk. First target-risk actions split x- 11, x+ 6, xy
+  5, y 2.
+    EVIDENCE: target_risk.py:46-54; scratch out_replay_states.csv and tr_decisions.py
+[8] (likely) Sequential adaptivity after initialization is about zero: realized target risk versus plan-once x0.965 (SE 0.03); difference-in-differences -0.7% +/- 1.7%; identical model-expected endpoint (11.93).
+    EVIDENCE: scratch static_designs.py, static_summary.py, endpoint_power_model3.py (working-model expectations from saved public states, 4,000 draws)
+[9] (likely) Public-only static schedules cost 9% (in-sample bound) to 21% (leave-one-out) more expected final NMSE than state-conditional planning. Coverage costs 37%, 24 observations (frozen design) 75%, 24 x set_x_neg
+  (DPO design) 113%.
+    EVIDENCE: scratch public_static_search.py, static_summary.py
+[10] (likely) Expected z at n=24 on the declared endpoint: state-adaptive versus good static -0.74 (340 systems needed); target risk versus coverage -0.96 (204); versus the DPO design -1.67 (67). On public posterior risk
+  the same contrasts need 17, 4 and 3 systems.
+    EVIDENCE: scratch endpoint_power_model2.py, endpoint_power_model3.py; observed contrasts all within about one predicted SE
+[11] (verified) Generic layer is reusable within limits: 8 nodes, 32 actions, 64 queries, 80 responses, 8 policies, 64 worlds, artificial/development scope, equal query weights, this learner only. Protocol, binding,
+  assembler and realization modules are hardwired to this screen.
+    EVIDENCE: llm_intervention_task.py:21; paired_episode.py:69-94,114-117; screen_reporting.py:19,74; campaign.py:64; screen_protocol.py:230-246; screen_policy.py:47-70; scientific_campaign.py:25-32,83-86
+[12] (verified) Code cannot express nonlinear truth, unknown noise, graph uncertainty, informed priors or non-menu actions. It can express large cost ratios, menus to 32, graphs to 8 nodes, partial measurement and varied
+  text with a new protocol module only.
+    EVIDENCE: world.py:81-96,153-158; scm.py:41-46; contract.py:80-81,128-142; scientific_campaign.py:160-162
+
+## NUMBERS
+Mean capped total cost, observed | predicted from action sequences alone (working model, saved post-init states):
+target risk 11.625 | 11.93; local information 11.958 | 12.02; coverage 12.458 | 13.08; ranker 13.583 | 13.29; frozen 13.625 | 13.90; random 14.250 | 13.53; SFT 14.625 | not computed; DPO 15.167 | 14.41.
+
+Expected final NMSE of each arm's realized action multiset (ratio to target risk, paired t): TR 0.0173; LI 0.0177 (x1.02, 2.8); coverage 0.0251 (x1.35, 8.6); random 0.0255 (x1.42, 7.3); ranker 0.0281 (x1.59, 8.6); frozen
+  0.0282 (x1.72, 5.8); SFT 0.0354 (x1.88, 8.2); DPO 0.0384 (x2.10, 7.8). Correlation with capped cost across arms 0.92.
+
+Geo-mean ratio to plan-once: TR realized 0.965; TR multiset open-loop 1.015; in-sample public static 1.087; leave-one-out public static 1.208; coverage 1.367; 24 observe 1.755; 24 set_x_neg 2.127.
+
+Observed paired capped-cost contrasts (n=24, mean +/- SE): TR-coverage -0.833 +/- 0.627; TR-LI -0.333 +/- 1.268; TR-random -2.625 +/- 1.108; DPO-TR +3.542 +/- 1.313; DPO-random +0.917 +/- 1.616. Median SE over 28 pairs
+  1.42.
+Same on log final posterior risk (CPU arms): TR-coverage t=-8.1 (24/24); TR-random -6.6; TR-ranker -9.2; TR-LI -2.6.
+
+Initialization: realized NMSE <=0.04 in 10; expected 9.87 +/- 2.20; posterior risk <=0.04 in 2; mean posterior risk 0.107.
+Floor 8.583; best-of-eight envelope 9.583.
+Replay cross-checks: NMSE 1.2e-14, posteriors 2.9e-14, risk_before 8.9e-16 over 560 decisions.
+Target-risk decision time mean 1.45 s, max 7.7 s.
+
+## SURPRISES / CONTRADICTIONS
+- The learner's own expected NMSE met the target at initialization in only 2 of 24 systems, yet 10 crossed, and one of those 2 did not cross. Initial crossings are mostly lucky realizations and tiny-effect systems.
+- On realized endpoints other than first crossing, DPO is indistinguishable from target risk (sustained crossing +1.33 +/- 2.18; log final NMSE +0.25 +/- 0.39) and coverage has the best geometric-mean final NMSE. 'DPO
+  worst' is solid only on design quality (2.1x target risk, better in 0 of 24).
+- set_x_neg is the best state-blind first action (best in 11 of 24, median 99% of the best one-step gain) because X=-1 has double query weight. DPO's constant choice is not arbitrary; its failure is never observing and
+  never switching side.
+- The learned numerical ranker also collapsed: only x- and x+, with an identical sequence of seven x- then seventeen x+ in 10 systems.
+- Heterogeneous costs created no budget structure: target risk used cost-2 actions in 16 of 272 decisions.
+- Target risk is described as strong, but most late decisions are Monte Carlo ties and local information is within 2 to 6% of it. It looks strong because the class is easy.
+- Document drift: the agenda proposes 16+64 responses and seven policies, and the world guide cites 64 actions; the executed screen is 8+24, eight policies, and the effective menu limit is 32.
+
+## IMPLICATIONS FOR AGENDA
+- Do not rerun this world class hoping to show an LLM beating target risk. Target risk is at the state-conditional optimum, sequential gain is about zero, and maximum headroom on the endpoint is 3 cost units against a
+  paired SE near 1.3.
+- Replace the primary endpoint. Use public posterior-risk curves and noise-free design-quality scoring, add replicate episodes and common exogenous noise across arms. Realized first crossing needs hundreds of systems for
+  effects that posterior risk shows with under 20.
+- Before any LLM training in a new world class, run a GPU-free headroom audit: tuned public-static schedule, plan-once, myopic target risk, and a rollout or dynamic-programming bound. Proceed only where the gap is
+  detectable at the planned sample size.
+- Diagnose existing and candidate policies with zero new systems by scoring first decisions and action multisets on the saved states. A state-sensitive policy must switch between x- and x+ and must observe.
+- Add the controls the screen lacked: a tuned public-only static schedule, plan-once, target risk with a posterior-risk stop rule, and an informed-prior numerical control. This exceeds the current eight-arm limit.
+- Candidate successor classes in rising code cost: varied text priors with few initial observations and varied query laws (small to medium); wrong or unknown heteroscedastic noise (small to large); nonlinear truth
+  (medium); graph uncertainty (large, the natural home of adaptivity); typed continuous actions (large).
+- Repair the task law: remove duplicate queries, vary queries per system, use per-system scale (already supported), and set thresholds by preposterior calculation so initial crossing probability is near zero.
+- For confirmation, lift the development-only scope checks in three modules and the 64-world cap, and add an inferential reporting layer; current reporting is descriptive only.
+
+## OPEN QUESTIONS
+- What is the exact Bayes-optimal sequential ceiling in this class and in each candidate successor? Not computed here because it requires adaptive rollouts on fantasy systems.
+- Do the LLM arms' posterior-risk curves (receipts are only in the CURC archive) agree with the design-quality predictions made from their action sequences?
+- How much does knowing the shifted regime help design when initialization is shorter than eight observations? After eight, first-decision margins are already decisive.
+- Realized final posterior risk is 3 to 8% below working-model expectation even for static arms in the 12 matched systems. Shared-system sampling variability is my reading; recheck on fresh systems.
+- Is the collapse of both learned policies onto x- (the best state-blind first action) traceable to label frequencies in the 160 supervised records?
+
+NOTES: /private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/numerics-protocol.md

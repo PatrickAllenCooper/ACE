@@ -1,0 +1,28 @@
+Shared first decision (identical public state in all 8 arms): pairwise agreement counts out of 24 worlds
+          unif   menu  local     TR ranker frozen    sft    dpo
+unif        24      4      4      6      4      1      4      4
+menu         4     24     16     11     21      0     24     24
+local        4     16     24     17     19      0     16     16
+TR           6     11     17     24     14      0     11     11
+ranker       4     21     19     14     24      0     21     21
+frozen       1      0      0      0      0     24      0      0
+sft          4     24     16     11     21      0     24     24
+dpo          4     24     16     11     21      0     24     24
+
+states (envelope sha256) shared by more than one arm: 24 ; all at decision 0: True ; arms per shared state: Counter({8: 24})
+arms choosing the same first action still diverge at decision 1 (independent per-arm measurement streams): e.g. world 0, decision-1 envelope hashes of menu_coverage / sft / dpo (all chose set_x_neg at d=0): ['302dd33ffc', 'e86f2eea1f', 'ea0b4cd0a4']
+
+Matched (world, decision index) agreement over all indexes where both arms made a decision (states differ after d=0; descriptive only):
+          unif   menu  local     TR ranker frozen    sft    dpo
+unif    100.0%  13.2%  14.4%  12.5%  14.4%  13.3%  12.1%  12.1%
+menu     13.2% 100.0%   9.4%  12.5%  17.9%   0.0%  17.4%  17.5%
+local    14.4%   9.4% 100.0%  42.5%  22.5%  55.4%  24.9%  26.1%
+TR       12.5%  12.5%  42.5% 100.0%  22.7%  38.2%  20.9%  23.0%
+ranker   14.4%  17.9%  22.5%  22.7% 100.0%   0.0%  29.7%  24.5%
+frozen   13.3%   0.0%  55.4%  38.2%   0.0% 100.0%   1.5%   0.0%
+sft      12.1%  17.4%  24.9%  20.9%  29.7%   1.5% 100.0%  88.1%
+dpo      12.1%  17.5%  26.1%  23.0%  24.5%   0.0%  88.1% 100.0%
+
+ranker vs target_risk at the first decision, by ranker choice:
+   ranker chose set_x_neg in 21 worlds; target_risk chose there: {'set_x_neg': 11, 'set_x_pos': 3, 'set_xy': 5, 'set_y_pos': 1, 'set_y_neg': 1}
+   ranker chose set_x_pos in 3 worlds; target_risk chose there: {'set_x_pos': 3}

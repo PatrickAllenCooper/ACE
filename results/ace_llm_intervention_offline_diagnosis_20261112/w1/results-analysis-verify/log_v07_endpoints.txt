@@ -1,0 +1,99 @@
+mean log-area (grid 9..32): {'uniform_random': np.float64(-1.709), 'menu_coverage': np.float64(-1.8423), 'local_information': np.float64(-1.861), 'target_risk': np.float64(-1.892), 'learned_ranker': np.float64(-1.7605), 'frozen_llm': np.float64(-1.6998), 'sft_llm': np.float64(-1.7898), 'dpo_llm': np.float64(-1.7597)}
+--- log-area, grid 9..32: policy minus target_risk ---
+                     mean      sd  neg  zero  pos  signflip_p     t_p   d_std
+policy                                                                       
+uniform_random     0.1830  0.4898    7     0   17      0.0801  0.0801  0.3737
+menu_coverage      0.0497  0.3514    7     0   17      0.5023  0.4950  0.1415
+local_information  0.0310  0.4903   12     0   12      0.7610  0.7595  0.0632
+learned_ranker     0.1315  0.4781   10     0   14      0.1900  0.1909  0.2751
+frozen_llm         0.1922  0.3847    9     0   15      0.0227  0.0224  0.4996
+sft_llm            0.1023  0.3562   10     0   14      0.1737  0.1729  0.2871
+dpo_llm            0.1324  0.4812    8     0   16      0.1892  0.1908  0.2752
+median of 7 vs-TR SDs (log-area): 0.4781240489368983
+--- log-area, grid 8..32 (sensitivity): policy minus target_risk ---
+                     mean      sd  neg  zero  pos  signflip_p     t_p   d_std
+policy                                                                       
+uniform_random     0.1757  0.4702    7     0   17      0.0801  0.0801  0.3737
+menu_coverage      0.0477  0.3374    7     0   17      0.5023  0.4950  0.1415
+local_information  0.0298  0.4707   12     0   12      0.7610  0.7595  0.0632
+learned_ranker     0.1263  0.4590   10     0   14      0.1900  0.1909  0.2751
+frozen_llm         0.1845  0.3693    9     0   15      0.0227  0.0224  0.4996
+sft_llm            0.0982  0.3420   10     0   14      0.1737  0.1729  0.2871
+dpo_llm            0.1271  0.4619    8     0   16      0.1892  0.1908  0.2752
+--- capped cost @0.04: policy minus target_risk ---
+                     mean      sd  neg  zero  pos  signflip_p     t_p   d_std
+policy                                                                       
+uniform_random     2.6250  5.4279    2    12   10      0.0112  0.0266  0.4836
+menu_coverage      0.8333  3.0740    3    13    8      0.2256  0.1972  0.2711
+local_information  0.3333  6.2113    5    13    6      0.8398  0.7950  0.0537
+learned_ranker     1.9583  6.6298    4    14    6      0.1934  0.1614  0.2954
+frozen_llm         2.0000  6.7631    4    11    9      0.1841  0.1609  0.2957
+sft_llm            3.0000  6.0577    2    12   10      0.0220  0.0235  0.4952
+dpo_llm            3.5417  6.4335    2    13    9      0.0068  0.0129  0.5505
+mean capped cost @0.02: {'uniform_random': np.float64(18.042), 'menu_coverage': np.float64(15.708), 'local_information': np.float64(15.5), 'target_risk': np.float64(13.542), 'learned_ranker': np.float64(17.917), 'frozen_llm': np.float64(19.292), 'sft_llm': np.float64(16.917), 'dpo_llm': np.float64(18.25)}
+--- capped cost @0.02: policy minus target_risk ---
+                     mean      sd  neg  zero  pos  signflip_p     t_p   d_std
+policy                                                                       
+uniform_random     4.5000  6.6529    2     9   13      0.0010  0.0030  0.6764
+menu_coverage      2.1667  4.7973    1    13   10      0.0352  0.0371  0.4516
+local_information  1.9583  7.0123    7     7   10      0.2003  0.1845  0.2793
+learned_ranker     4.3750  7.2461    1    12   11      0.0015  0.0071  0.6038
+frozen_llm         5.7500  9.3820    3     6   15      0.0062  0.0064  0.6129
+sft_llm            3.3750  6.9833    3    10   11      0.0179  0.0267  0.4833
+dpo_llm            4.7083  6.8237    2     8   14      0.0004  0.0026  0.6900
+mean capped cost @0.01: {'uniform_random': np.float64(20.625), 'menu_coverage': np.float64(20.042), 'local_information': np.float64(20.25), 'target_risk': np.float64(16.167), 'learned_ranker': np.float64(20.417), 'frozen_llm': np.float64(22.167), 'sft_llm': np.float64(20.708), 'dpo_llm': np.float64(21.5)}
+--- capped cost @0.01: policy minus target_risk ---
+                     mean       sd  neg  zero  pos  signflip_p     t_p   d_std
+policy                                                                        
+uniform_random     4.4583   6.3996    2     9   13      0.0015  0.0024  0.6967
+menu_coverage      3.8750   5.3837    1     9   14      0.0007  0.0018  0.7198
+local_information  4.0833   7.4420    5     6   13      0.0134  0.0131  0.5487
+learned_ranker     4.2500   8.9406    4     7   13      0.0300  0.0290  0.4754
+frozen_llm         6.0000   9.7222    3     8   13      0.0063  0.0060  0.6171
+sft_llm            4.5417   7.2770    3     7   14      0.0031  0.0056  0.6241
+dpo_llm            5.3333  10.5611    3     7   14      0.0226  0.0212  0.5050
+--- threshold sweep ---
+th=0.01: at target after init=3; TR never attains=4; TR mean minus floor mean=7.2917; TR total=388; floor total=213
+        envelope total=332; TR - envelope per system=2.3333; ever-attain counts by policy={'uniform_random': 16, 'menu_coverage': 17, 'local_information': 18, 'target_risk': 20, 'learned_ranker': 14, 'frozen_llm': 14, 'sft_llm': 16, 'dpo_llm': 13}
+th=0.02: at target after init=5; TR never attains=1; TR mean minus floor mean=4.7500; TR total=325; floor total=211
+        envelope total=278; TR - envelope per system=1.9583; ever-attain counts by policy={'uniform_random': 19, 'menu_coverage': 19, 'local_information': 21, 'target_risk': 23, 'learned_ranker': 16, 'frozen_llm': 17, 'sft_llm': 17, 'dpo_llm': 17}
+th=0.04: at target after init=10; TR never attains=1; TR mean minus floor mean=3.0417; TR total=279; floor total=206
+        envelope total=230; TR - envelope per system=2.0417; ever-attain counts by policy={'uniform_random': 21, 'menu_coverage': 22, 'local_information': 23, 'target_risk': 23, 'learned_ranker': 21, 'frozen_llm': 22, 'sft_llm': 21, 'dpo_llm': 19}
+--- sustained attainment cost @0.04 ---
+{'uniform_random': 18.417, 'menu_coverage': 15.125, 'local_information': 17.75, 'target_risk': 15.667, 'learned_ranker': 15.708, 'frozen_llm': 17.0, 'sft_llm': 16.208, 'dpo_llm': 17.0}
+ranking: menu_coverage(15.12) < target_risk(15.67) < learned_ranker(15.71) < sft_llm(16.21) < frozen_llm(17.00) < dpo_llm(17.00) < local_information(17.75) < uniform_random(18.42)
+--- sustained cost @0.04: policy minus target_risk ---
+                     mean       sd  neg  zero  pos  signflip_p     t_p   d_std
+policy                                                                        
+uniform_random     2.7500   9.4604    4     8   12      0.1774  0.1679  0.2907
+menu_coverage     -0.5417   8.9733    4    10   10      0.7917  0.7701 -0.0604
+local_information  2.0833  10.7417    5     9   10      0.3629  0.3519  0.1939
+learned_ranker     0.0417   7.2740    6    10    8      1.0000  0.9779  0.0057
+frozen_llm         1.3333   9.7341    6     9    9      0.5260  0.5089  0.1370
+sft_llm            0.5417   9.4408    6     8   10      0.7994  0.7812  0.0574
+dpo_llm            1.3333  10.6757    6     8   10      0.5606  0.5466  0.1249
+--- geometric-mean final NMSE ---
+{'uniform_random': 0.01093, 'menu_coverage': 0.00721, 'local_information': 0.00945, 'target_risk': 0.00849, 'learned_ranker': 0.01276, 'frozen_llm': 0.01054, 'sft_llm': 0.01152, 'dpo_llm': 0.01084}
+arith mean final NMSE: {'uniform_random': 0.04113, 'menu_coverage': 0.01974, 'local_information': 0.018, 'target_risk': 0.01722, 'learned_ranker': 0.03572, 'frozen_llm': 0.02008, 'sft_llm': 0.02708, 'dpo_llm': 0.03642}
+median final NMSE: {'uniform_random': 0.01329, 'menu_coverage': 0.00836, 'local_information': 0.00822, 'target_risk': 0.00996, 'learned_ranker': 0.01299, 'frozen_llm': 0.01259, 'sft_llm': 0.00829, 'dpo_llm': 0.01065}
+--- fixed-cost endpoints: mean log10 NMSE at given total cost; standardized effect random vs TR ---
+cost 10: mean log10 NMSE by policy {'uniform_random': np.float64(-1.461), 'menu_coverage': np.float64(-1.527), 'local_information': np.float64(-1.647), 'target_risk': np.float64(-1.655), 'learned_ranker': np.float64(-1.503), 'frozen_llm': np.float64(-1.479), 'sft_llm': np.float64(-1.47), 'dpo_llm': np.float64(-1.48)} | random-TR d_std=0.385
+cost 12: mean log10 NMSE by policy {'uniform_random': np.float64(-1.54), 'menu_coverage': np.float64(-1.632), 'local_information': np.float64(-1.672), 'target_risk': np.float64(-1.716), 'learned_ranker': np.float64(-1.574), 'frozen_llm': np.float64(-1.427), 'sft_llm': np.float64(-1.637), 'dpo_llm': np.float64(-1.611)} | random-TR d_std=0.295
+cost 16: mean log10 NMSE by policy {'uniform_random': np.float64(-1.565), 'menu_coverage': np.float64(-1.782), 'local_information': np.float64(-1.747), 'target_risk': np.float64(-1.766), 'learned_ranker': np.float64(-1.738), 'frozen_llm': np.float64(-1.628), 'sft_llm': np.float64(-1.725), 'dpo_llm': np.float64(-1.69)} | random-TR d_std=0.339
+cost 20: mean log10 NMSE by policy {'uniform_random': np.float64(-1.648), 'menu_coverage': np.float64(-1.801), 'local_information': np.float64(-1.861), 'target_risk': np.float64(-1.848), 'learned_ranker': np.float64(-1.802), 'frozen_llm': np.float64(-1.708), 'sft_llm': np.float64(-1.802), 'dpo_llm': np.float64(-1.795)} | random-TR d_std=0.306
+cost 24: mean log10 NMSE by policy {'uniform_random': np.float64(-1.749), 'menu_coverage': np.float64(-1.93), 'local_information': np.float64(-2.013), 'target_risk': np.float64(-2.013), 'learned_ranker': np.float64(-1.871), 'frozen_llm': np.float64(-1.774), 'sft_llm': np.float64(-1.938), 'dpo_llm': np.float64(-1.788)} | random-TR d_std=0.348
+cost 28: mean log10 NMSE by policy {'uniform_random': np.float64(-2.011), 'menu_coverage': np.float64(-1.991), 'local_information': np.float64(-2.058), 'target_risk': np.float64(-2.098), 'learned_ranker': np.float64(-1.84), 'frozen_llm': np.float64(-1.876), 'sft_llm': np.float64(-1.921), 'dpo_llm': np.float64(-1.94)} | random-TR d_std=0.114
+cost 32: mean log10 NMSE by policy {'uniform_random': np.float64(-1.961), 'menu_coverage': np.float64(-2.142), 'local_information': np.float64(-2.024), 'target_risk': np.float64(-2.071), 'learned_ranker': np.float64(-1.894), 'frozen_llm': np.float64(-1.977), 'sft_llm': np.float64(-1.938), 'dpo_llm': np.float64(-1.965)} | random-TR d_std=0.171
+--- standardized effects random vs TR ---
+capped@0.04: 0.4836  log-area(9..32): 0.3737  capped@0.02: 0.6764  capped@0.01: 0.6967  sustained: 0.2907
+--- coverage vs TR ---
+capped@0.04: mean +0.8333, sd 3.0740, sign-flip p 0.2256
+log-area: mean +0.0497, sd 0.3514, sign-flip p 0.5023
+capped@0.02: mean +2.1667, sd 4.7973, sign-flip p 0.0352
+capped@0.01: mean +3.8750, sd 5.3837, sign-flip p 0.0007
+sustained: mean -0.5417, sd 8.9733, sign-flip p 0.7917
+--- log-area planning, SD = 0.4781 ---
+9% lower NMSE (delta 0.0458): 80% -> 859, 90% -> 1150
+19% lower NMSE (delta 0.0969): 80% -> 193, 90% -> 258
+30% lower NMSE (delta 0.1549): 80% -> 77, 90% -> 103
+50% lower NMSE (delta 0.3010): 80% -> 22, 90% -> 29

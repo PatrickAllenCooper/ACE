@@ -1,0 +1,124 @@
+{
+ "frozen_llm": {
+  "n": 576,
+  "prompt_tokens": {
+   "min": 1990,
+   "p50": 3066.0,
+   "mean": 3069.7,
+   "p90": 3939,
+   "max": 4160
+  },
+  "elapsed_s": {
+   "min": 0.348,
+   "p50": 0.426,
+   "mean": 0.582,
+   "p90": 0.897,
+   "max": 4.881,
+   "sum": 335.2
+  },
+  "cuda_s": {
+   "p50": 0.425,
+   "mean": 0.58,
+   "sum": 334.3
+  },
+  "new_tokens": {
+   "mean": 8.0,
+   "sum": 4610,
+   "dist": {
+    "8": 574,
+    "9": 2
+   }
+  },
+  "completions": {
+   "{\"action_id\":\"observe_all\"}": 574,
+   "{\"action_id\":\"set_x_zero\"}": 2
+  },
+  "legal_commands": {
+   "9": 564,
+   "5": 12
+  },
+  "corr_prompt_tokens_vs_cuda": 0.083
+ },
+ "sft_llm": {
+  "n": 546,
+  "prompt_tokens": {
+   "min": 1990,
+   "p50": 2933.0,
+   "mean": 2929.8,
+   "p90": 3679,
+   "max": 3954
+  },
+  "elapsed_s": {
+   "min": 0.41,
+   "p50": 0.538,
+   "mean": 0.596,
+   "p90": 0.773,
+   "max": 2.549,
+   "sum": 325.5
+  },
+  "cuda_s": {
+   "p50": 0.536,
+   "mean": 0.594,
+   "sum": 324.5
+  },
+  "new_tokens": {
+   "mean": 8.86,
+   "sum": 4837,
+   "dist": {
+    "9": 515,
+    "6": 23,
+    "8": 8
+   }
+  },
+  "completions": {
+   "{\"action_id\":\"set_x_neg\"}": 481,
+   "{\"action_id\":\"set_x_pos\"}": 23,
+   "{\"action_id\":\"set_y_neg\"}": 11,
+   "{\"stop\":true}": 23,
+   "{\"action_id\":\"observe_all\"}": 8
+  },
+  "legal_commands": {
+   "9": 542,
+   "5": 4
+  },
+  "corr_prompt_tokens_vs_cuda": 0.069
+ },
+ "dpo_llm": {
+  "n": 576,
+  "prompt_tokens": {
+   "min": 1990,
+   "p50": 2984.5,
+   "mean": 2981.0,
+   "p90": 3770,
+   "max": 3985
+  },
+  "elapsed_s": {
+   "min": 0.476,
+   "p50": 0.712,
+   "mean": 0.851,
+   "p90": 1.321,
+   "max": 4.049,
+   "sum": 490.4
+  },
+  "cuda_s": {
+   "p50": 0.71,
+   "mean": 0.849,
+   "sum": 489.1
+  },
+  "new_tokens": {
+   "mean": 9,
+   "sum": 5184,
+   "dist": {
+    "9": 576
+   }
+  },
+  "completions": {
+   "{\"action_id\":\"set_x_neg\"}": 576
+  },
+  "legal_commands": {
+   "9": 564,
+   "5": 12
+  },
+  "corr_prompt_tokens_vs_cuda": 0.089
+ }
+}

@@ -1,0 +1,36 @@
+first-crossing reproduces reported capped_total_cost in 192 of 192 cells
+final error reproduces in 192 of 192
+                     first  sustained     auc  geo_auc  mean_final  relapses  runs_with_relapse
+policy_id                                                                                      
+uniform_random     14.2500    18.4167  0.0632   0.0203      0.0411        10                  9
+menu_coverage      12.4583    15.1250  0.0390   0.0151      0.0197         8                  6
+local_information  11.9583    17.7500  0.0335   0.0145      0.0180        20                 11
+target_risk        11.6250    15.6667  0.0372   0.0135      0.0172        10                  8
+learned_ranker     13.5833    15.7083  0.0483   0.0181      0.0357        11                  7
+frozen_llm         13.6250    17.0000  0.0448   0.0207      0.0201        13                 10
+sft_llm            14.6250    16.2083  0.0405   0.0170      0.0271         7                  6
+dpo_llm            15.1667    17.0000  0.0537   0.0181      0.0364         5                  4
+
+rank by each endpoint (1=best):
+                   first  sustained  auc  geo_auc  mean_final
+policy_id                                                    
+uniform_random         6          8    8        7           8
+menu_coverage          3          1    3        3           3
+local_information      2          7    1        2           2
+target_risk            1          2    2        1           1
+learned_ranker         4          3    6        5           6
+frozen_llm             5          5    5        8           4
+sft_llm                7          4    4        4           5
+dpo_llm                8          5    7        6           7
+
+initial (cost 8) error: systems with init error <= target: 10 | init error identical across policies within world: True
+init error quantiles over 24 systems: {0.0: 0.0003, 0.25: 0.0276, 0.5: 0.044, 0.75: 0.1149, 1.0: 0.5449}
+
+paired sustained-cost difference vs target_risk: mean [95% t-CI], lower/tie/higher
+  uniform_random     +2.750 [-1.245,+6.745] 4/8/12
+  menu_coverage      -0.542 [-4.331,+3.247] 4/10/10
+  local_information  +2.083 [-2.452,+6.619] 5/9/10
+  learned_ranker     +0.042 [-3.030,+3.113] 6/10/8
+  frozen_llm         +1.333 [-2.777,+5.444] 6/9/9
+  sft_llm            +0.542 [-3.445,+4.528] 6/8/10
+  dpo_llm            +1.333 [-3.175,+5.841] 6/8/10

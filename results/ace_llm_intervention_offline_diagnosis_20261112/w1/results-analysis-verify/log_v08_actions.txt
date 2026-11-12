@@ -1,0 +1,120 @@
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/results-analysis-verify/v08_actions.py:55: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  print("   Y-involving share of COST by cost menu:", {k: round(float(v), 4) for k, v in a.assign(c=np.where(a.y_involving & (a.cost_stratum == 'heterogeneous'), 2, 1)).groupby("cost_stratum").apply(lambda g: (g.c * g.y_involving).sum() / g.c.sum()).items()})
+/private/tmp/claude-501/-Users-pat--claude-spares-spare-Yk5OYw/579351c9-7517-4194-a931-08cc9167484d/scratchpad/w1/results-analysis-verify/v08_actions.py:55: FutureWarning: DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprecated, and in a future version of pandas the grouping columns will be excluded from the operation. Either pass `include_groups=False` to exclude the groupings or explicitly select the grouping columns after groupby to silence this warning.
+  print("   Y-involving share of COST by cost menu:", {k: round(float(v), 4) for k, v in a.assign(c=np.where(a.y_involving & (a.cost_stratum == 'heterogeneous'), 2, 1)).groupby("cost_stratum").apply(lambda g: (g.c * g.y_involving).sum() / g.c.sum()).items()})
+short graph_stratum       regime  cost_stratum    mux0  slope_x0 far_extreme first_target_risk second_target_risk first_local_information second_local_information
+  w00         chain  matched_low       uniform  1.0416   -0.5198   set_x_neg         set_x_neg          set_x_neg               set_x_neg                set_x_neg
+  w01         chain  matched_low heterogeneous  1.3636    0.1661   set_x_neg         set_x_neg          set_x_neg               set_x_neg                set_x_neg
+  w02          fork  matched_low       uniform  0.7108   -0.1799   set_x_neg         set_x_neg          set_x_neg               set_x_neg                set_x_neg
+  w03          fork  matched_low heterogeneous -1.1366   -0.3976   set_x_pos         set_x_pos          set_x_pos               set_x_pos                set_x_pos
+  w04      collider  matched_low       uniform -2.1121    0.5467   set_x_pos         set_x_pos          set_y_pos               set_x_pos                set_y_pos
+  w05      collider  matched_low heterogeneous  0.6958    0.2359   set_x_neg            set_xy          set_x_neg               set_x_neg                set_x_neg
+  w06         chain matched_high       uniform  1.2059   -0.0593   set_x_neg         set_x_neg          set_x_neg               set_x_neg                set_x_neg
+  w07         chain matched_high heterogeneous -0.6479   -0.5561   set_x_pos         set_x_pos          set_x_pos               set_x_pos                set_x_pos
+  w08          fork matched_high       uniform  0.7357   -0.0398   set_x_neg            set_xy          set_x_neg               set_x_neg                set_x_neg
+  w09          fork matched_high heterogeneous  1.2551   -1.0813   set_x_neg         set_x_neg          set_x_neg               set_x_neg                set_x_neg
+  w10      collider matched_high       uniform -0.9321    0.6029   set_x_pos         set_x_pos          set_y_neg               set_y_neg                set_x_pos
+  w11      collider matched_high heterogeneous  0.6174    0.5945   set_x_neg         set_x_neg          set_x_neg               set_x_neg                set_x_neg
+  w12         chain  shifted_low       uniform -0.6183    5.5209   set_x_pos         set_x_pos          set_x_pos               set_x_pos                set_x_pos
+  w13         chain  shifted_low heterogeneous  1.5991    2.2956   set_x_neg         set_x_neg          set_x_neg               set_x_neg                set_x_neg
+  w14          fork  shifted_low       uniform  2.5091    2.2619   set_x_neg            set_xy             set_xy               set_x_neg                set_x_neg
+  w15          fork  shifted_low heterogeneous -1.0150    1.4697   set_x_pos         set_x_pos          set_x_pos               set_x_pos                set_x_pos
+  w16      collider  shifted_low       uniform  0.4658    0.4095   set_x_neg         set_y_pos          set_x_neg               set_y_pos                   set_xy
+  w17      collider  shifted_low heterogeneous  0.0146   -1.0607   set_x_neg            set_xy          set_x_pos               set_x_neg                set_y_pos
+  w18         chain shifted_high       uniform  0.6087    0.4853   set_x_neg         set_x_neg          set_x_neg               set_x_neg              observe_all
+  w19         chain shifted_high heterogeneous  1.3358    2.1192   set_x_neg         set_x_neg          set_x_neg               set_x_neg                set_x_neg
+  w20          fork shifted_high       uniform -0.5718    1.6140   set_x_pos         set_y_neg        observe_all               set_x_pos                set_x_pos
+  w21          fork shifted_high heterogeneous  0.2086    0.7526   set_x_neg         set_x_neg          set_x_neg               set_x_neg              observe_all
+  w22      collider shifted_high       uniform  0.9523    1.6365   set_x_neg            set_xy          set_x_neg               set_x_neg                set_y_pos
+  w23      collider shifted_high heterogeneous  1.5593    1.7661   set_x_neg         set_x_neg             set_xy               set_x_neg                set_x_neg
+systems with estimated natural X mean < 0 (X=-1 is the NEAR side): 7 ['w03', 'w04', 'w07', 'w10', 'w12', 'w15', 'w20']
+target_risk: first action is an X-extreme: 17/24; equals farther extreme: 17/24; exceptions: [['w05', 0.6958411570844247, 'set_x_neg', 'set_xy'], ['w08', 0.7357463870459832, 'set_x_neg', 'set_xy'], ['w14', 2.509128891968218, 'set_x_neg', 'set_xy'], ['w16', 0.46576130231120294, 'set_x_neg', 'set_y_pos'], ['w17', 0.014579642759958197, 'set_x_neg', 'set_xy'], ['w20', -0.5718265921752538, 'set_x_pos', 'set_y_neg'], ['w22', 0.9522640742385512, 'set_x_neg', 'set_xy']]
+   second action distribution: {'set_x_neg': 14, 'set_x_pos': 5, 'set_xy': 2, 'set_y_pos': 1, 'set_y_neg': 1, 'observe_all': 1}
+   X-extreme uses over all steps: far(init-estimate) 182, near 23
+local_information: first action is an X-extreme: 22/24; equals farther extreme: 22/24; exceptions: [['w10', -0.9321172070428749, 'set_x_pos', 'set_y_neg'], ['w16', 0.46576130231120294, 'set_x_neg', 'set_y_pos']]
+   second action distribution: {'set_x_neg': 12, 'set_x_pos': 6, 'set_y_pos': 3, 'observe_all': 2, 'set_xy': 1}
+   X-extreme uses over all steps: far(init-estimate) 207, near 9
+
+--- does the recovered X-mean estimate change during the run? ---
+uniform_random: X-mean estimate constant in 0/24 runs
+menu_coverage: X-mean estimate constant in 0/24 runs
+local_information: X-mean estimate constant in 0/24 runs
+target_risk: X-mean estimate constant in 0/24 runs
+learned_ranker: X-mean estimate constant in 24/24 runs
+frozen_llm: X-mean estimate constant in 0/24 runs
+sft_llm: X-mean estimate constant in 13/24 runs
+dpo_llm: X-mean estimate constant in 24/24 runs
+
+--- action mix, target_risk and local_information ---
+target_risk n actions 560 observe share 0.3839 Y-involving share overall 0.2464
+   Y-involving share by cost menu: {'heterogeneous': {'sum': 16, 'count': 272, 'mean': 0.0588}, 'uniform': {'sum': 122, 'count': 288, 'mean': 0.4236}}
+   Y-involving share by graph x menu: {('chain', 'heterogeneous'): 0.032, ('chain', 'uniform'): 0.219, ('collider', 'heterogeneous'): 0.157, ('collider', 'uniform'): 0.375, ('fork', 'heterogeneous'): 0.0, ('fork', 'uniform'): 0.677}
+   Y-involving share of COST by cost menu: {'heterogeneous': 0.1111, 'uniform': 0.4236}
+   mix by graph: action_id      observe_all  set_x_neg  set_x_pos  set_x_zero  set_xy  set_y_neg  set_y_pos  set_y_zero
+      graph_stratum                                                                                         
+      chain                0.429      0.307      0.132       0.005   0.021      0.000      0.106       0.000
+      collider             0.302      0.229      0.190       0.006   0.073      0.056      0.140       0.006
+      fork                 0.417      0.156      0.089       0.000   0.073      0.099      0.089       0.078
+   index of first observe by system: [11, 6, 8, 4, None, 11, 10, 6, 16, 3, 7, 3, 3, 6, 4, 2, 7, None, 2, 4, 1, 2, 5, 2]
+local_information n actions 570 observe share 0.5579 Y-involving share overall 0.0632
+   Y-involving share by cost menu: {'heterogeneous': {'sum': 6, 'count': 282, 'mean': 0.0213}, 'uniform': {'sum': 30, 'count': 288, 'mean': 0.1042}}
+   Y-involving share by graph x menu: {('chain', 'heterogeneous'): 0.0, ('chain', 'uniform'): 0.021, ('collider', 'heterogeneous'): 0.067, ('collider', 'uniform'): 0.292, ('fork', 'heterogeneous'): 0.0, ('fork', 'uniform'): 0.0}
+   Y-involving share of COST by cost menu: {'heterogeneous': 0.0417, 'uniform': 0.1042}
+   mix by graph: action_id      observe_all  set_x_neg  set_x_pos  set_xy  set_y_neg  set_y_pos
+      graph_stratum                                                                 
+      chain                0.557      0.344      0.089   0.000      0.000      0.010
+      collider             0.489      0.220      0.108   0.027      0.038      0.118
+      fork                 0.625      0.219      0.156   0.000      0.000      0.000
+   index of first observe by system: [6, 5, 5, 5, 8, 4, 4, 3, 3, 4, 5, 2, 4, 5, 5, 5, 8, 8, 1, 4, 2, 1, 4, 3]
+
+--- full sequences, target_risk ---
+w00 chai matched_low uni mux0=+1.04 x- x- x- y+ x- y+ x- y+ x- y+ x- o x- o o x- o y+ o x- x- y+ o y+
+w01 chai matched_low het mux0=+1.36 x- x- x- x0 x- y+ o x- y+ x- x- o x- xy x- o o x- x- o o
+w02 fork matched_low uni mux0=+0.71 x- x- xy xy y- x- y0 x- o o o x- o x- y- o xy y- y+ x- y+ y- xy o
+w03 fork matched_low het mux0=-1.14 x+ x+ x+ x+ o o x+ o o o x+ o x+ o o o x+ o o x+ o o x+ o
+w04 coll matched_low uni mux0=-2.11 x+ y+ x+ xy x+ y+ x+ y+ y+ y- x+ y+ y- x+ y- y+ x+ y+ y- y+ y- x+ x+ x+
+w05 coll matched_low het mux0=+0.70 xy x- y+ x- x- y+ x- x+ x- x+ xy o x+ x- x+ xy o x+ x-
+w06 chai matched_high uni mux0=+1.21 x- x- x- y+ xy y+ y+ y+ xy y+ o y+ o y+ o xy y+ o y+ o y+ x- o y+
+w07 chai matched_high het mux0=-0.65 x+ x+ x+ x+ x+ x+ o o x+ o x+ o o o o x+ x- o x+ x+ o o x+ x+
+w08 fork matched_high uni mux0=+0.74 xy x- x- xy y0 y- xy y+ y+ x- y+ y0 y0 x- y0 y0 o y0 x- y+ xy y+ xy y0
+w09 fork matched_high het mux0=+1.26 x- x- x- o o x- o o x- o o o o x- o o x- o o x- x- o o x-
+w10 coll matched_high uni mux0=-0.93 x+ y- x+ x+ y- x+ x0 o o o y- o o o y- x+ o o o x+ y- x+ o o
+w11 coll matched_high het mux0=+0.62 x- x- x- o x- o x- o o o x- o o y+ o o o o x- o x- o o
+w12 chai shifted_low uni mux0=-0.62 x+ x+ x+ o x+ o o o x+ o o o o x+ o o o o o o o x+ o o
+w13 chai shifted_low het mux0=+1.60 x- x- x- x- x- x- o x- o x- o o x- o x- o o x- o o o x- o x-
+w14 fork shifted_low uni mux0=+2.51 xy xy xy y+ o y+ x- y+ y- o y- xy y+ y- y+ x- y- o o o xy o y- y+
+w15 fork shifted_low het mux0=-1.02 x+ x+ o o o x+ o o o o x+ o o o o o o x+ o o o o x+ o
+w16 coll shifted_low uni mux0=+0.47 y+ x- xy x- y+ x- x+ o x- x- y+ x- o xy x+ o x+ o x- x- xy o o o
+w17 coll shifted_low het mux0=+0.01 xy x+ x- x+ y+ x- x- x+ x+ x- xy x+ x+ x- x- x+ xy x+ x+ x-
+w18 chai shifted_high uni mux0=+0.61 x- x- o x- x- o o x- o x- o o o o x+ o o x+ x+ o o x+ x+ o
+w19 chai shifted_high het mux0=+1.34 x- x- x- x- o x- o o o x- o x- o x- o x- o o x- o o o x- x-
+w20 fork shifted_high uni mux0=-0.57 y- o y+ y- y+ y+ y0 y- x+ y+ y0 y- y0 y- y0 y- y- y- y0 y0 y- y0 o o
+w21 fork shifted_high het mux0=+0.21 x- x- o o x- o o o o o o o o o x- o o o o x- o o x- o
+w22 coll shifted_high uni mux0=+0.95 xy x- y+ y+ x- o o x- y0 x- o y+ y+ y+ o y+ x- x- o y+ y+ x- o y+
+w23 coll shifted_high het mux0=+1.56 x- xy o o x- o o o o o xy o x- x- o o o o y+ o o
+
+--- full sequences, local_information ---
+w00 chai matched_low uni mux0=+1.04 x- x- x- x- y+ x- o x- o y+ o x- o x- o o x- o x- o x- o o x-
+w01 chai matched_low het mux0=+1.36 x- x- x- x- x- o o o o x- o o x- o o x- o x- o o x- o o x-
+w02 fork matched_low uni mux0=+0.71 x- x- x- x- x- o x- o o x- o o x- o x+ o x- o o x- o o x- o
+w03 fork matched_low het mux0=-1.14 x+ x+ x+ x+ x+ o x+ o o x+ o o x+ o x+ o x+ o x+ o o o o x+
+w04 coll matched_low uni mux0=-2.11 x+ y+ x+ y+ x+ y+ x+ y+ o x+ y- y+ x+ o x+ o y+ x+ o o y+ x+ x+ o
+w05 coll matched_low het mux0=+0.70 x- x- y+ x- o x- o o x- o xy o o o x- o o x- o o y+
+w06 chai matched_high uni mux0=+1.21 x- x- x- x- o o o o x- x- o o o x- o o o o o x- o x- o x-
+w07 chai matched_high het mux0=-0.65 x+ x+ x+ o o o o x+ x+ o o x+ o o o o o o o o o o o o
+w08 fork matched_high uni mux0=+0.74 x- x- x- o o o o x- o x- o o o x- o o o x- o o o o o o
+w09 fork matched_high het mux0=+1.26 x- x- x- x- o o x- o o o x- o x- o o x- o x- o o o o x- o
+w10 coll matched_high uni mux0=-0.93 y- x+ y- x+ y- o x+ o o x+ o y- y- o o o o y- o o o x+ o o
+w11 coll matched_high het mux0=+0.62 x- x- o o x- o o x- o o o o o o x- o o o x- o o x- o o
+w12 chai shifted_low uni mux0=-0.62 x+ x+ x+ x+ o x+ x+ o o x- x- x+ o o x+ x- x+ o o o x+ o o x+
+w13 chai shifted_low het mux0=+1.60 x- x- x- x- x- o o x- o x- o x- o o x- o x- o o x- o o o x-
+w14 fork shifted_low uni mux0=+2.51 x- x- x- x- x- o x- o x- o x- o o x- o o x- o o x- o x- o o
+w15 fork shifted_low het mux0=-1.02 x+ x+ x+ x+ x+ o x+ o o x+ o o x+ o o o x+ o x+ o x+ o x+ o
+w16 coll shifted_low uni mux0=+0.47 y+ xy x- y+ x- y+ x- y+ o o x- y+ x- o o xy o o y+ x- o y+ x- o
+w17 coll shifted_low het mux0=+0.01 x- y+ x+ x- x+ x- x+ y+ o x- x+ o o o y+ x- x- x+ o x- o
+w18 chai shifted_high uni mux0=+0.61 x- o x- o x- o o x- o o o o o o x- o o x- o o o x- o o
+w19 chai shifted_high het mux0=+1.34 x- x- x- x- o o o x- x- o o o x- o x- o o o o o x- o x- x-
+w20 fork shifted_high uni mux0=-0.57 x+ x+ o x+ o o o o o x+ o o o o o o o o o x+ o o o o
+w21 fork shifted_high het mux0=+0.21 x- o o o o o o o o o o o o o o o o o o x- o o o o
+w22 coll shifted_high uni mux0=+0.95 x- y+ xy y+ o x- o x- o o o x- o o x- o o o o o y+ o xy x-
+w23 coll shifted_high het mux0=+1.56 x- x- x- o o o x- o o o o o x- o o o x- o o o o x- o o

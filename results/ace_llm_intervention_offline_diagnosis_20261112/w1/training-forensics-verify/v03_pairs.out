@@ -1,0 +1,70 @@
+comparisons 3584 strict 687 ties 2897 records with >=1 strict 119 nonterminal without strict 9
+strict per record distribution [(0, 9), (1, 14), (2, 17), (3, 13), (4, 11), (5, 10), (6, 10), (7, 13), (8, 4), (9, 4), (10, 7), (11, 4), (12, 4), (13, 1), (14, 1), (15, 2), (16, 2), (18, 2)]
+record.json vs feedback/terminal.json strict mismatches: 0
+exposure counts {'dpo_action_rows': 238, 'dpo_steps': 119, 'records': 160, 'records_without_strict_pairs': 41, 'retained_pairs': 3584, 'selected_pairs': 119, 'sft_action_rows': 160, 'sft_steps': 160, 'strict_pairs': 687, 'tied_pairs': 2897, 'unselected_pairs': 568}
+training steps 279 sft 160 dpo 119
+sft order == roster order: True ; indices contiguous: True
+dpo order follows roster order (subset): True
+selected pair agrees across (my hash recomputation, exposure.json, step start files): 119/119
+
+ALL strict pairs (n=687)
+  action       preferred  rejected    net
+  observe_all         53        71    -18
+  set_x_neg           88        74    +14
+  set_x_zero          79       102    -23
+  set_x_pos          123        78    +45
+  set_y_neg           86        87     -1
+  set_y_zero          90        79    +11
+  set_y_pos           75        98    -23
+  set_xy              93        98     -5
+
+The DPO-selected pairs (n=119)
+  action       preferred  rejected    net
+  observe_all          6        13     -7
+  set_x_neg           14         9     +5
+  set_x_zero          13        19     -6
+  set_x_pos           23        14     +9
+  set_y_neg           19        14     +5
+  set_y_zero          16        13     +3
+  set_y_pos            8        21    -13
+  set_xy              20        16     +4
+  max preferred share in selected: set_x_pos 0.193 ; max rejected share: set_y_pos 0.176
+  pairs involving set_x_neg at all: 23 of 119
+  token first: preferred {'set': 113, 'observe': 6} | rejected {'set': 106, 'observe': 13}
+  token second: preferred {'_y': 43, '_x': 50, '_xy': 20, '_all': 6} | rejected {'_x': 42, '_y': 48, '_xy': 16, '_all': 13}
+  token third: preferred {'_neg': 33, '_zero': 29, None: 26, '_pos': 31} | rejected {'_zero': 32, '_pos': 35, '_neg': 23, None: 29}
+  token _neg     preferred-total  33 rejected-total  23 | discordant pref-only  28 rej-only  18 sign-test p=0.184
+  token _x       preferred-total  50 rejected-total  42 | discordant pref-only  37 rej-only  29 sign-test p=0.389
+  token _pos     preferred-total  31 rejected-total  35 | discordant pref-only  23 rej-only  27 sign-test p=0.672
+  token _y       preferred-total  43 rejected-total  48 | discordant pref-only  30 rej-only  35 sign-test p=0.620
+  token set      preferred-total 113 rejected-total 106 | discordant pref-only  13 rej-only   6 sign-test p=0.167
+  token observe  preferred-total   6 rejected-total  13 | discordant pref-only   6 rej-only  13 sign-test p=0.167
+
+per-command two-sided sign test (preferred vs rejected appearances)
+  observe_all  selected  6/13 p=0.167 | all  53/ 71 p=0.1265
+  set_x_neg    selected 14/ 9 p=0.405 | all  88/ 74 p=0.3071
+  set_x_zero   selected 13/19 p=0.377 | all  79/102 p=0.1017
+  set_x_pos    selected 23/14 p=0.188 | all 123/ 78 p=0.0018
+  set_y_neg    selected 19/14 p=0.487 | all  86/ 87 p=1.0000
+  set_y_zero   selected 16/13 p=0.711 | all  90/ 79 p=0.4419
+  set_y_pos    selected  8/21 p=0.024 | all  75/ 98 p=0.0941
+  set_xy       selected 20/16 p=0.618 | all  93/ 98 p=0.7723
+
+selected (preferred -> rejected) pair counts:
+  pref\rej     ve_all  _x_neg  x_zero  _x_pos  _y_neg  y_zero  _y_pos  set_xy
+  observe_all       0       1       0       3       0       0       1       1
+  set_x_neg         0       0       4       2       5       0       2       1
+  set_x_zero        3       0       0       2       0       3       2       3
+  set_x_pos         5       3       2       0       1       1       7       4
+  set_y_neg         2       0       5       2       0       5       2       3
+  set_y_zero        2       2       3       3       1       0       1       4
+  set_y_pos         1       2       0       1       3       1       0       0
+  set_xy            0       1       5       1       4       3       6       0
+
+strict share by snapshot:
+  snap 0: 242/896 = 0.2701 ; records with no strict 1 ; selected pairs from this snapshot 31
+  snap 1: 161/896 = 0.1797 ; records with no strict 2 ; selected pairs from this snapshot 30
+  snap 2: 144/896 = 0.1607 ; records with no strict 3 ; selected pairs from this snapshot 29
+  snap 3: 140/896 = 0.1562 ; records with no strict 3 ; selected pairs from this snapshot 29
+
+feedback cost: per-record totals Counter({64: 64, 80: 64})

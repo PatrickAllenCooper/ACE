@@ -1,0 +1,51 @@
+record keys: ['envelope', 'preferences', 'scope', 'supervised_action_id', 'supervision_receipt_sha256', 'version', 'world_id']
+worlds 32 graphs Counter({'chain': 12, 'fork': 10, 'collider': 10}) cost Counter({'uniform': 16, 'heterogeneous': 16}) noise Counter({0.25: 16, 1.0: 16})
+snapshot 0: requests {8: 32} remaining {24: 32} terminal {False: 32} labels {'set_x_neg': 16, 'set_x_zero': 3, 'set_y_neg': 3, 'set_xy': 3, 'observe_all': 3, 'set_x_pos': 2, 'set_y_zero': 2} ties/pairs 654/896
+snapshot 1: requests {14: 22, 13: 7, 12: 3} remaining {17: 7, 18: 25} terminal {False: 32} labels {'set_x_pos': 13, 'set_x_neg': 7, 'observe_all': 5, 'set_y_pos': 3, 'set_xy': 1, 'set_x_zero': 1, 'set_y_zero': 1, 'set_y_neg': 1} ties/pairs 735/896
+snapshot 2: requests {20: 22, 16: 7, 17: 2, 19: 1} remaining {11: 3, 12: 29} terminal {False: 32} labels {'observe_all': 9, 'set_x_pos': 8, 'set_x_neg': 4, 'set_y_pos': 4, 'set_y_neg': 3, 'set_x_zero': 2, 'set_xy': 2} ties/pairs 752/896
+snapshot 3: requests {26: 22, 20: 7, 22: 1, 21: 1, 24: 1} remaining {5: 2, 6: 30} terminal {False: 32} labels {'observe_all': 7, 'set_x_pos': 6, 'set_xy': 6, 'set_x_neg': 5, 'set_y_pos': 3, 'set_y_neg': 3, 'set_x_zero': 1, 'set_y_zero': 1} ties/pairs 756/896
+snapshot 4: requests {32: 22, 24: 6, 27: 1, 23: 1, 30: 1, 25: 1} remaining {0: 32} terminal {True: 32} labels {'STOP': 32} ties/pairs 0/0
+
+history action composition of training snapshots (who generated the behaviour before the snapshot?):
+   policy_train/202611070000/snapshot-000 chain uniform req 8 rem 24 label set_x_zero hist OOOOOOOO
+   policy_train/202611070000/snapshot-001 chain uniform req 14 rem 18 label set_x_pos hist OOOOOOOObaNbJO
+   policy_train/202611070000/snapshot-002 chain uniform req 20 rem 12 label set_x_pos hist OOOOOOOObaNbJObZbaJb
+   policy_train/202611070000/snapshot-003 chain uniform req 26 rem 6 label set_x_pos hist OOOOOOOObaNbJObZbaJbbccbZN
+   policy_train/202611070000/snapshot-004 chain uniform req 32 rem 0 label STOP hist OOOOOOOObaNbJObZbaJbbccbZNcJaJcN
+   policy_train/202611070001/snapshot-000 chain heterogeneous req 8 rem 24 label set_x_neg hist OOOOOOOO
+   policy_train/202611070001/snapshot-001 chain heterogeneous req 13 rem 17 label set_x_neg hist OOOOOOOONPZJa
+   policy_train/202611070001/snapshot-002 chain heterogeneous req 16 rem 12 label set_x_zero hist OOOOOOOONPZJacbN
+   policy_train/202611070001/snapshot-003 chain heterogeneous req 20 rem 6 label set_y_pos hist OOOOOOOONPZJacbNPZJa
+   policy_train/202611070001/snapshot-004 chain heterogeneous req 24 rem 0 label STOP hist OOOOOOOONPZJacbNPZJacbNP
+   policy_train/202611070002/snapshot-000 fork uniform req 8 rem 24 label set_x_neg hist OOOOOOOO
+   policy_train/202611070002/snapshot-001 fork uniform req 14 rem 18 label set_x_neg hist OOOOOOOONPZJac
+   policy_train/202611070002/snapshot-002 fork uniform req 20 rem 12 label set_xy hist OOOOOOOONPZJacbNPZJa
+   policy_train/202611070002/snapshot-003 fork uniform req 26 rem 6 label set_y_pos hist OOOOOOOONPZJacbNPZJacbNPZJ
+   policy_train/202611070002/snapshot-004 fork uniform req 32 rem 0 label STOP hist OOOOOOOONPZJacbNPZJacbNPZJacbNPZ
+post-initialization history actions across all 160 training snapshots: {'observe_all': 447, 'set_x_neg': 320, 'set_x_pos': 297, 'set_y_pos': 162, 'set_y_neg': 161, 'set_xy': 144, 'set_y_zero': 118, 'set_x_zero': 99}
+
+label by graph (non-stop):
+   chain {'set_x_pos': 14, 'set_x_neg': 11, 'observe_all': 6, 'set_y_neg': 5, 'set_y_pos': 4, 'set_xy': 4, 'set_x_zero': 3, 'set_y_zero': 1}
+   fork {'set_x_neg': 17, 'observe_all': 9, 'set_x_pos': 7, 'set_xy': 3, 'set_x_zero': 2, 'set_y_pos': 1, 'set_y_zero': 1}
+   collider {'observe_all': 9, 'set_x_pos': 8, 'set_y_neg': 5, 'set_xy': 5, 'set_y_pos': 5, 'set_x_neg': 4, 'set_y_zero': 2, 'set_x_zero': 2}
+label by cost menu (non-stop):
+   uniform {'set_x_pos': 14, 'set_x_neg': 13, 'observe_all': 11, 'set_xy': 9, 'set_y_pos': 7, 'set_y_neg': 5, 'set_x_zero': 4, 'set_y_zero': 1}
+   heterogeneous {'set_x_neg': 19, 'set_x_pos': 15, 'observe_all': 13, 'set_y_neg': 5, 'set_x_zero': 3, 'set_y_pos': 3, 'set_y_zero': 3, 'set_xy': 3}
+label by requests (history length):
+   requests= 8 {'set_x_neg': 16, 'set_x_zero': 3, 'set_y_neg': 3, 'set_xy': 3, 'observe_all': 3, 'set_x_pos': 2, 'set_y_zero': 2}
+   requests=12 {'set_x_pos': 2, 'set_x_neg': 1}
+   requests=13 {'set_x_pos': 3, 'set_x_neg': 2, 'observe_all': 1, 'set_y_pos': 1}
+   requests=14 {'set_x_pos': 8, 'set_x_neg': 4, 'observe_all': 4, 'set_y_pos': 2, 'set_xy': 1, 'set_x_zero': 1, 'set_y_zero': 1, 'set_y_neg': 1}
+   requests=16 {'set_x_pos': 3, 'set_x_zero': 2, 'set_x_neg': 2}
+   requests=17 {'observe_all': 1, 'set_y_neg': 1}
+   requests=19 {'observe_all': 1}
+   requests=20 {'observe_all': 9, 'set_x_pos': 6, 'set_y_pos': 5, 'set_x_neg': 3, 'set_y_neg': 3, 'set_xy': 2, 'set_y_zero': 1}
+   requests=21 {'set_x_zero': 1}
+   requests=22 {'set_xy': 1}
+   requests=23 {'STOP': 1}
+   requests=24 {'STOP': 6, 'set_x_neg': 1}
+   requests=25 {'STOP': 1}
+   requests=26 {'set_x_pos': 5, 'observe_all': 5, 'set_xy': 5, 'set_x_neg': 3, 'set_y_pos': 2, 'set_y_neg': 2}
+   requests=27 {'STOP': 1}
+   requests=30 {'STOP': 1}
+   requests=32 {'STOP': 22}

@@ -1,0 +1,18 @@
+                   mean_capped_total_cost  mean_capped_acq_cost  ever  final  mean_final_error  median_final_error  actual_total_cost  stopped  failed  unresolved
+policy_id                                                                                                                                                         
+uniform_random                   14.25000               6.25000    21     20           0.04113             0.01329                768        0       0           0
+menu_coverage                    12.45833               4.45833    22     21           0.01974             0.00836                768        0       0           0
+local_information                11.95833               3.95833    23     18           0.01800             0.00822                768        0       0           0
+target_risk                      11.62500               3.62500    23     21           0.01722             0.00996                768        0       0           0
+learned_ranker                   13.58333               5.58333    21     20           0.03572             0.01299                768        0       0           0
+frozen_llm                       13.62500               5.62500    22     20           0.02008             0.01259                768        0       0           0
+sft_llm                          14.62500               6.62500    21     19           0.02708             0.00829                721       23       0           0
+dpo_llm                          15.16667               7.16667    19     18           0.03642             0.01065                768        0       0           0
+policies.csv reproduced from cells.csv: {'cost': True, 'acq': True, 'ever': np.True_, 'final': np.True_, 'ferr': True, 'actual': np.True_, 'stopped': np.True_}
+runs with any cells/curves inconsistency: 0 of 192
+runs whose cost increments disagree with the declared menu costs: 0
+init error identical across 8 arms in every world: True ; init predictions identical: True
+actions.csv reproduced: True
+acquisitions per policy: {'uniform_random': 487, 'menu_coverage': 480, 'local_information': 570, 'target_risk': 560, 'learned_ranker': 576, 'frozen_llm': 576, 'sft_llm': 523, 'dpo_llm': 576}
+total curve points 4540 ; accepted responses incl init: 5884 ; total paid cost 6097
+pairs.csv rows not reproduced: 0 of 28 (difference = left - right; wins = left lower)

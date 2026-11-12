@@ -1,0 +1,53 @@
+cap 18: twin (DPO - SFT, identical actions) capped-cost differences, informative systems: [0, -2, 7, -5, 0, 0, -1, 0, 8, 1, 0, -6, 0, 0]
+   all 24: mean +0.083 SD 2.796 ; informative 14: mean +0.143 SD 3.718 ; nonzero 7 of 14
+   implied single-run replicate SD of the cap-18 cost endpoint: all-24 1.936 ; informative 2.535
+   for comparison, SD over systems of paired differences between DIFFERENT policies at the same cap 18 (all 24 / informative 14):
+     random       - target_risk: mean +1.292 SD 3.029 | informative mean +2.214 SD 3.745
+     coverage     - target_risk: mean +0.333 SD 1.880 | informative mean +0.571 SD 2.472
+     local_info   - target_risk: mean +0.167 SD 2.944 | informative mean +0.286 SD 3.911
+     ranker       - target_risk: mean +0.542 SD 2.782 | informative mean +0.929 SD 3.647
+     frozen       - target_risk: mean +0.958 SD 3.828 | informative mean +1.643 SD 4.971
+     sft          - target_risk: mean +1.250 SD 3.517 | informative mean +2.143 SD 4.452
+     dpo          - target_risk: mean +1.333 SD 3.046 | informative mean +2.286 SD 3.750
+   twin difference variance (2*sigma_rep^2) = 7.50 ; DPO - target_risk difference variance = 9.28 ; ratio 0.81
+
+twin diff in log10 NMSE at total cost  9: all-24 SD 0.580 (replicate SD 0.405) ; informative SD 0.497 (replicate SD 0.339)
+      vs different policy DPO - target_risk      : mean +0.089 SD 0.452
+      vs different policy DPO - uniform_random   : mean -0.055 SD 0.546
+      vs different policy DPO - local_information: mean +0.107 SD 0.534
+twin diff in log10 NMSE at total cost 10: all-24 SD 0.351 (replicate SD 0.243) ; informative SD 0.235 (replicate SD 0.164)
+      vs different policy DPO - target_risk      : mean +0.175 SD 0.553
+      vs different policy DPO - uniform_random   : mean -0.019 SD 0.421
+      vs different policy DPO - local_information: mean +0.167 SD 0.534
+twin diff in log10 NMSE at total cost 12: all-24 SD 0.491 (replicate SD 0.341) ; informative SD 0.444 (replicate SD 0.305)
+      vs different policy DPO - target_risk      : mean +0.105 SD 0.581
+      vs different policy DPO - uniform_random   : mean -0.071 SD 0.536
+      vs different policy DPO - local_information: mean +0.061 SD 0.583
+twin diff in log10 NMSE at total cost 14: all-24 SD 0.453 (replicate SD 0.314) ; informative SD 0.387 (replicate SD 0.264)
+      vs different policy DPO - target_risk      : mean +0.102 SD 0.586
+      vs different policy DPO - uniform_random   : mean -0.155 SD 0.660
+      vs different policy DPO - local_information: mean +0.058 SD 0.505
+twin diff in log10 NMSE at total cost 16: all-24 SD 0.375 (replicate SD 0.261) ; informative SD 0.390 (replicate SD 0.265)
+      vs different policy DPO - target_risk      : mean +0.076 SD 0.571
+      vs different policy DPO - uniform_random   : mean -0.125 SD 0.678
+      vs different policy DPO - local_information: mean +0.057 SD 0.617
+twin diff in log10 NMSE at total cost 18: all-24 SD 0.478 (replicate SD 0.332) ; informative SD 0.502 (replicate SD 0.353)
+      vs different policy DPO - target_risk      : mean +0.037 SD 0.621
+      vs different policy DPO - uniform_random   : mean -0.167 SD 0.756
+      vs different policy DPO - local_information: mean +0.135 SD 0.805
+
+prefix curve-area endpoint (mean log10 NMSE over total cost 9..18): twin diff mean +0.007 SD 0.312 -> replicate SD 0.216
+   DPO - uniform_random    mean -0.104 SD 0.540
+   DPO - menu_coverage     mean +0.070 SD 0.319
+   DPO - local_information mean +0.087 SD 0.490
+   DPO - target_risk       mean +0.106 SD 0.447
+   DPO - learned_ranker    mean +0.011 SD 0.443
+   DPO - frozen_llm        mean -0.085 SD 0.511
+   DPO - sft_llm           mean +0.007 SD 0.312
+   uniform_random    - target_risk mean +0.210 SD 0.483
+   menu_coverage     - target_risk mean +0.036 SD 0.310
+   local_information - target_risk mean +0.019 SD 0.385
+   learned_ranker    - target_risk mean +0.095 SD 0.368
+   frozen_llm        - target_risk mean +0.191 SD 0.406
+   sft_llm           - target_risk mean +0.099 SD 0.326
+   dpo_llm           - target_risk mean +0.106 SD 0.447

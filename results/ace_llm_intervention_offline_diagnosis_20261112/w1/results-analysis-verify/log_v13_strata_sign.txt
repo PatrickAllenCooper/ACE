@@ -1,0 +1,55 @@
+dpo minus TR capped cost by stratum:
+  graph: {'chain': 1.125, 'collider': 7.0, 'fork': 2.5}
+  regime: {'matched_high': 3.667, 'matched_low': 5.5, 'shifted_high': 2.833, 'shifted_low': 2.167}
+  cost menu: {'heterogeneous': 4.583, 'uniform': 2.5}
+  strata.csv dpo - TR: {'cost_stratum: heterogeneous': 4.583, 'cost_stratum: uniform': 2.5, 'graph_stratum: chain': 1.125, 'graph_stratum: collider': 7.0, 'graph_stratum: fork': 2.5, 'regime: matched_high': 3.667, 'regime: matched_low': 5.5, 'regime: shifted_high': 2.833, 'regime: shifted_low': 2.167}
+  n strata rows: 72  n distinct strata: 9
+
+X=-1 near side systems: 7; dpo-TR log-area: near +0.5352, other -0.0334; difference +0.5686
+exact permutation over C(24,7)=346104 label assignments: two-sided p = 0.00547; one-sided p = 0.00102
+   capped cost@0.04   dpo_llm            minus TR: near(7) +5.429   other(17) +2.765
+   capped cost@0.04   sft_llm            minus TR: near(7) +6.286   other(17) +1.647
+   capped cost@0.04   learned_ranker     minus TR: near(7) -0.714   other(17) +3.059
+   capped cost@0.04   frozen_llm         minus TR: near(7) +5.857   other(17) +0.412
+   capped cost@0.04   uniform_random     minus TR: near(7) +2.857   other(17) +2.529
+   capped cost@0.04   menu_coverage      minus TR: near(7) +1.857   other(17) +0.412
+   capped cost@0.04   local_information  minus TR: near(7) -0.714   other(17) +0.765
+   capped cost@0.02   dpo_llm            minus TR: near(7) +8.429   other(17) +3.176
+   capped cost@0.02   sft_llm            minus TR: near(7) +6.714   other(17) +2.000
+   capped cost@0.02   learned_ranker     minus TR: near(7) +7.571   other(17) +3.059
+   capped cost@0.02   frozen_llm         minus TR: near(7) +10.857   other(17) +3.647
+   capped cost@0.02   uniform_random     minus TR: near(7) +2.857   other(17) +5.176
+   capped cost@0.02   menu_coverage      minus TR: near(7) +2.429   other(17) +2.059
+   capped cost@0.02   local_information  minus TR: near(7) +4.857   other(17) +0.765
+   log-area           dpo_llm            minus TR: near(7) +0.535   other(17) -0.033
+   log-area           sft_llm            minus TR: near(7) +0.359   other(17) -0.004
+   log-area           learned_ranker     minus TR: near(7) +0.241   other(17) +0.086
+   log-area           frozen_llm         minus TR: near(7) +0.426   other(17) +0.096
+   log-area           uniform_random     minus TR: near(7) +0.096   other(17) +0.219
+   log-area           menu_coverage      minus TR: near(7) +0.163   other(17) +0.003
+   log-area           local_information  minus TR: near(7) +0.064   other(17) +0.018
+near-side systems composition: {('chain', 'matched_high', 'heterogeneous'): 1, ('chain', 'shifted_low', 'uniform'): 1, ('collider', 'matched_high', 'uniform'): 1, ('collider', 'matched_low', 'uniform'): 1, ('fork', 'matched_low', 'heterogeneous'): 1, ('fork', 'shifted_high', 'uniform'): 1, ('fork', 'shifted_low', 'heterogeneous'): 1}
+near-side: at target after init: 3 of 7; other: 7 of 17
+ranker majority action equals the far X extreme in 10 of 24 systems; ranker per-system action sets: [((('set_x_neg', 7), ('set_x_pos', 17)), 10), ((('set_x_neg', 2), ('set_x_pos', 22)), 4), ((('set_x_pos', 24),), 3), ((('set_x_neg', 12), ('set_x_pos', 12)), 3), ((('set_x_neg', 5), ('set_x_pos', 19)), 1), ((('set_x_neg', 3), ('set_x_pos', 21)), 1)]
+
+pairwise sign-flip tests among random, ranker, frozen, sft, dpo (10 pairs per endpoint):
+  capped@0.04            min p 0.3184; n<0.05: 0 {}
+  capped@0.02            min p 0.2465; n<0.05: 0 {}
+  capped@0.01            min p 0.3493; n<0.05: 0 {}
+  sustained@0.04         min p 0.1884; n<0.05: 0 {}
+  log-area               min p 0.2365; n<0.05: 0 {}
+  log10 final NMSE       min p 0.5853; n<0.05: 0 {}
+  log10 NMSE at cost 16  min p 0.2210; n<0.05: 0 {}
+  log10 NMSE at cost 24  min p 0.0737; n<0.05: 0 {}
+  raw area               min p 0.0606; n<0.05: 0 {}
+total below 0.05 over the first 7 endpoints (70 tests): 0 | over all 9 endpoints (90 tests): 0
+
+TR vs each policy: sign-flip p by endpoint
+                   capped@0.04  capped@0.02  capped@0.01  sustained@0.04  log-area  log10 final NMSE  log10 NMSE at cost 16  log10 NMSE at cost 24  raw area
+uniform_random          0.0112       0.0010       0.0015          0.1774    0.0801            0.4212                 0.1097                 0.0962    0.0117
+menu_coverage           0.2256       0.0352       0.0007          0.7917    0.5023            0.6554                 0.8804                 0.4406    0.6400
+local_information       0.8398       0.2003       0.0134          0.3629    0.7610            0.7327                 0.8578                 0.9998    0.7684
+learned_ranker          0.1934       0.0015       0.0300          1.0000    0.1900            0.2381                 0.7705                 0.3648    0.1370
+frozen_llm              0.1841       0.0062       0.0063          0.5260    0.0227            0.4849                 0.3301                 0.0288    0.2826
+sft_llm                 0.0220       0.0179       0.0031          0.7994    0.1737            0.2700                 0.7090                 0.4532    0.4571
+dpo_llm                 0.0068       0.0004       0.0226          0.5606    0.1892            0.5370                 0.5207                 0.0774    0.0258

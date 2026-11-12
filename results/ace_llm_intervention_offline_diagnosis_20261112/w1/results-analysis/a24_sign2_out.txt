@@ -1,0 +1,24 @@
+policy minus target_risk, split by whether X=-1 is the near (low-leverage) or far side of the estimated natural X mean
+            area_near(n=7)  area_far(n=17)  area_gap  cost_near  cost_far  final_near  final_far
+policy                                                                                          
+random               0.096           0.219    -0.123      2.857     2.529      -0.014      0.160
+coverage             0.163           0.003     0.160      1.857     0.412       0.150     -0.162
+local_info           0.064           0.018     0.046     -0.714     0.765       0.298     -0.057
+ranker               0.241           0.086     0.155     -0.714     3.059       0.466      0.058
+frozen               0.426           0.096     0.330      5.857     0.412       0.479     -0.065
+sft                  0.359          -0.004     0.363      6.286     1.647       0.608     -0.063
+dpo                  0.535          -0.033     0.569      5.429     2.765       0.786     -0.174
+DPO log-area deficit vs target_risk: near 0.535, far -0.033, gap 0.569 ; exact two-sided permutation p over 346104 relabelings = 0.0055 (post hoc, descriptive)
+DPO log-final-error deficit: gap 0.959 ; exact permutation p = 0.0076
+DPO geometric-mean final error: near 0.0282, far 0.0073 ; target_risk: near 0.0046, far 0.0109 ; frozen: near 0.0139, far 0.0094
+init error geometric mean: near 0.0571, far 0.0458
+near systems by graph/regime:
+   graph_stratum        regime   cost_stratum
+w                                            
+3           fork   matched_low  heterogeneous
+4       collider   matched_low        uniform
+7          chain  matched_high  heterogeneous
+10      collider  matched_high        uniform
+12         chain   shifted_low        uniform
+15          fork   shifted_low  heterogeneous
+20          fork  shifted_high        uniform
